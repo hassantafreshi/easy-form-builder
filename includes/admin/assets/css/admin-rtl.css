@@ -1,0 +1,22 @@
+body{
+    direction: rtl!important;
+    
+}
+
+.wp-menu-name {
+    direction: rtl;
+    float: right;
+}
+li#collapse-menu {
+    float: right;
+}
+label.emsFormBuilder,
+div.emsFormBuilder {
+    float: right!important;
+}
+
+.nav-link{
+    float: right!important;  
+}
+
+
