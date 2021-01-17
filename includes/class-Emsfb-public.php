@@ -548,12 +548,12 @@ class _Public {
 	public function send_email_Emsfb($to , $track){
 		error_log("send_email_Emsfb");
 		//error_log($to);
-   $message ='<!DOCTYPE html> <html> <body><h3>A New Message has Received ,Track No: ['.$track.']</h3>
-   <p>This message sent by <b>Easy Form Builder</b> plugin from '. home_url().' </p>
+   $message ='<!DOCTYPE html> <html> <body><h3>A New Message has been Received ,Track No: ['.$track.']</h3>
+   <p>This message is sent by <b>Easy Form Builder</b> plugin from '. home_url().' </p>
    <p> <a href="'.wp_login_url().'">Email Owner: '. home_url().' </a> </body> </html>';
   
   
-   $subject ="📮 [".get_bloginfo('name')."] Recive New Response in EFB Plugin";
+   $subject ="📮 [".get_bloginfo('name')."] Recived New Response in EFB Plugin";
    $from ="no-replay@".$_SERVER['SERVER_NAME']."";
    //error_log($from);
    $headers = array(

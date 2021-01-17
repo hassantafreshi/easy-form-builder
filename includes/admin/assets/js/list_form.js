@@ -366,7 +366,7 @@ function fun_ws_show_edit_form(id){
           <h5>Form Name:*</h5>
           <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
           </br>
-          <h5>How many steps:*</h5>
+          <h5>Number of steps:*</h5>
           <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
       </div>
       <div class="tab" id="tabInfo">
@@ -377,7 +377,7 @@ function fun_ws_show_edit_form(id){
       </div>
  
       <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-          <h3>Form builded</h3> <span>Great, Your form builded successfully</span>
+          <h3>Done</h3> <span>Great, Your form is builded successfully</span>
       </div>
       <div style="overflow:auto;" id="nextprevious">
           <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>
@@ -690,14 +690,15 @@ function fun_hande_active_page_emsFormBuilder(no){
 function fun_show_help__emsFormBuilder(){
   document.getElementById("more_emsFormBuilder").style.display = "none"
     listOfHow_emsfb ={
-      1:{title:'How can I get unlimited version of Easy form builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       2:{title:'How to config Easy form Builder?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      3:{title:'How to add google re-captcha to Easy Form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      4:{title:'How to add email ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      3:{title:'How to get google re-captcha and add to Easy Form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       5:{title:'How to Create a Form with Easy form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       6:{title:'How to Add tracking Form with Easy form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      7:{title:'How to work with panel',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      8:{title:'How to find a response by tracking code',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      7:{title:'How to work with panel of Easy form Builder',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      8:{title:'How to insert tracking code to a post or page.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      9:{title:'How to find a response by tracking code',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
     }
 
 
@@ -707,14 +708,14 @@ function fun_show_help__emsFormBuilder(){
   str +=`
   <div class="m-1">
   <div class=" bg-info " >
-  <button id="heading${l}" class="card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne">
+  <button id="heading${l}" class=" btn-block card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne">
     <h5 class="mb-0 ">
       ${listOfHow_emsfb[l].title}
       </h5>
       </button>
   </div>
 
-  <div id="collapse${l}" class="collapse${l==1?' show':''}" aria-labelledby="heading${l}" data-parent="#accordion">
+  <div id="collapse${l}" class="collapse ${l==0?' show':''}" aria-labelledby="heading${l}" data-parent="#accordion">
     <div class="card-body align-self-center">
       <iframe width="560" height="315" src="${listOfHow_emsfb[l].url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
@@ -765,7 +766,7 @@ function fun_show_setting__emsFormBuilder(){
   document.getElementById('emsFormBuilder-content').innerHTML=`  <div id="setting_emsFormBuilder" class="mx-auto border border-primary">
  
     <div class="py-2 pb-5 bg-light">
-      <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">Unlimted Version  <h6>
+      <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">Pro Version  <h6>
        <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a href="">Click here to get Activate Code.</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
@@ -788,7 +789,7 @@ function fun_show_setting__emsFormBuilder(){
 
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="AlertEmailHelp"> Alert Email <h6>
-       <small id="AlertEmailHelp" class="form-text text-muted mx-3 mb-3">When <b>Easy Form Builder</b> recive a new message, It will send an alret email to admin of plugin.</small>
+       <small id="AlertEmailHelp" class="form-text text-muted mx-3 mb-3">When <b>Easy Form Builder</b> recives a new message, It will send an alret email to admin of plugin.</small>
       <div class="form-group mx-5" id="email_emsFormBuilder-row">
         <label for="email_emsFormBuilder">Email</label>
         <input type="email" class="form-control" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="Enter Admin Email" ${email!=="null" ? `value="${email}"` :"" }>             
@@ -802,7 +803,7 @@ function fun_show_setting__emsFormBuilder(){
     </div>
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="TrackingCodeHelp">Tracking code  <h6>
-       <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">If you don't want show tracking code to user, don't mark below option. </small>
+       <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">If you don't want to show tracking code to user, don't mark below option. </small>
       <div class="form-group mx-5">
        <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${trackingcode!=="null" && ( trackingcode=="true" ||  trackingcode===true)? `checked` :"" }>
   <label class="form-check-label" for="trackingcode_emsFormBuilder">Show tracking Code</label>       
@@ -810,7 +811,7 @@ function fun_show_setting__emsFormBuilder(){
     </div>
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">Tracking code Finder <h6>
-       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">Copy and Past below short-code of tracking code finder in any page or post.<a href="">Click here to watch tutorial Video.</a>   </small>
+       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">Copy and Paste below short-code of tracking code finder in any page or post.<a href="">Click here to watch tutorial Video.</a>   </small>
       <div class="form-group mx-5">
       <input type="text" class="form-control" id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>          
       </div>

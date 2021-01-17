@@ -95,7 +95,7 @@ class Create {
         <div class="col-md-12">
             <div id="emsFormBuilder-form" >
             <form id="emsFormBuilder-form-id">
-                <h1 id="emsFormBuilder-form-title">EMS Form Bulider</h1>
+                <h1 id="emsFormBuilder-form-title">Easy Form Bulider</h1>
                 
                 <div class="all-steps" id="all-steps"> 
                     <span class="step"><i class="fa fa-tachometer"></i></span> 
@@ -112,7 +112,7 @@ class Create {
                     <h5>Form Name: *</h5>
                     <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
                     </br>
-                    <h5>How many steps: *</h5>
+                    <h5>Number of steps: *</h5>
                     <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
                 </div>
                 <div class="tab" id="tabInfo">
@@ -123,7 +123,7 @@ class Create {
                 </div>
            
                 <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-                    <h3>Form builded</h3> <span>Great, Your form builded successfully</span>
+                    <h3>Done</h3> <span>Great, Your form is builded successfully</span>
                 </div>
                 <div style="overflow:auto;" id="nextprevious">
                     <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>

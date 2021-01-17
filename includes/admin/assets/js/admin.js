@@ -273,8 +273,8 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   </div>`;
   
     if (a == 6 && pro_ws==true && elementId=='multiselect') newEl += fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a);
-    if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available on Unlimted version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click for Active Unlimited vesrsion</b></small></div>`
-    if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available on Unlimted version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click for Active Unlimited vesrsion</b></small></div>`
+    if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
+    if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
   }
 
 
@@ -960,7 +960,7 @@ function createSteps() {
   } else {
    // document.getElementById("nextBtn").disabled = true;
     document.getElementById("nextBtn").display = "none";
-    const  message = !pro_ws ? `You can create minmum 1 and maximum 2 Steps. <br>  If you need create more than 2 Steps, activeate <a href="${proUrl_ws}" target="_blank">Unlimited version</a>` :`You Could create minmum 1 Step and maximum 20 Step`;
+    const  message = !pro_ws ? `You can create minmum 1 and maximum 2 Steps. <br>  If you need create more than 2 Steps, activeate <a href="${proUrl_ws}" target="_blank">Pro version</a>` :`You Could create minmum 1 Step and maximum 20 Step`;
     document.getElementById("wpwrap").innerHTML += unlimted_version_emsFormBuilder(message,1)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1069,7 +1069,7 @@ function createSteps() {
   for (const el of document.querySelectorAll(`.limited`)) {
 
     el.addEventListener("click", (e) => {
-      document.getElementById('message-area').innerHTML += unlimted_version_emsFormBuilder('This option is available on Unlimted version',0);
+      document.getElementById('message-area').innerHTML += unlimted_version_emsFormBuilder('This option is available in Pro version',0);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     })
@@ -1238,7 +1238,7 @@ function actionSendData_emsFormBuilder(){
       console.log(res ,ajaxurl);
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Form builded</h1></br> <span>Good Job, Your form builded successfully</span></br></br> <h3>FormCode: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Done</h1></br> <span>Good Job, Your form is builded successfully</span></br></br> <h3>FormCode: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
           localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
@@ -1273,9 +1273,9 @@ function unlimted_version_emsFormBuilder(m,s) {
   return `<div class=" overpage" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body">
-    <h4 class="card-title"><i class="fa fa-unlock-alt"></i> Unlimted version</h4>
+    <h4 class="card-title"><i class="fa fa-unlock-alt"></i> Pro version</h4>
     <h5 class="card-text">${m}</h5>    
-   ${(!pro_ws) ?`</br><a href="${proUrl_ws}" class="btn btn-primary" target="_blank">Get Unlimted version</a>`:'</br>'} 
+   ${(!pro_ws) ?`</br><a href="${proUrl_ws}" class="btn btn-primary" target="_blank">Get Pro version</a>`:'</br>'} 
     <button class="btn btn-danger" onClick="${clickFun}">close</a>
   </div>
   <div>
