@@ -50,13 +50,14 @@ for (let v of valueJson_ws) {
     case 'url':
     case 'range':
     case 'color':
+      console.log(`v.tooltip ${v.tooltip}`);
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
       console.log(v.required , "required");
      
       if (v.type=="date") { 
-        console.log(v ,231)
-       if (v.clander=="Persian" || v.clander=="Arabic") {
+      
+       /* if (v.clander=="Persian" || v.clander=="Arabic") {
           v.type="text";
          if (v.clander=="Arabic"){
            classData="hijri-picker" 
@@ -64,11 +65,12 @@ for (let v of valueJson_ws) {
           }else{
              classData="jalali-picker";
           }
-        };
+        }; */
       }
       else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
-      el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
-      if (v.clander=="Persian" || v.clander=="Arabic") {
+      el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
+     console.log(`v.tooltip ${el}`)
+      /* if (v.clander=="Persian" || v.clander=="Arabic") {
         el +=`    
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
@@ -89,7 +91,7 @@ for (let v of valueJson_ws) {
           });
       }
       </script>`;
-      }
+      } */
 
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
@@ -113,18 +115,18 @@ for (let v of valueJson_ws) {
         typeFile= v.file; 
       }
       classData = drog==true ? "form-control-file text-secondary " : "" ;
-      el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="Drag and drop a ${typeFile}  or click here"`:``}>`
+      el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="Drag and drop a ${typeFile}  or click here"`:``}>`
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
     case 'textarea':
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
-      el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
+      el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
       break
     case 'button':
       id = v.id ? v.id : v.id_;
-      el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
+      el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, amount:v.amount });
       break
     case 'checkbox':
@@ -134,7 +136,7 @@ for (let v of valueJson_ws) {
       req = v.required ? v.required : false;
       console.log(v.required , "required");
       el = `<div class=" emsFormBuilder"><div class="row"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
-      // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
+      // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
       break
     case 'multiselect':
@@ -154,7 +156,7 @@ for (let v of valueJson_ws) {
         req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
         console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
         console.log(indx, exportView_emsFormBuilder[indx]);
-        if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
+        if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
         if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
         exportView_emsFormBuilder[indx].required = false;
       }

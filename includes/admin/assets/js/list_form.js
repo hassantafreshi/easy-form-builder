@@ -691,14 +691,15 @@ function fun_show_help__emsFormBuilder(){
   document.getElementById("more_emsFormBuilder").style.display = "none"
     listOfHow_emsfb ={
       1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      2:{title:'How to config Easy form Builder?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      3:{title:'How to get google re-captcha and add to Easy Form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      2:{title:'How to config Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      3:{title:'How to get google re-captcha and add to Easy Form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      5:{title:'How to Create a Form with Easy form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      6:{title:'How to Add tracking Form with Easy form Builder ?',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      7:{title:'How to work with panel of Easy form Builder',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      5:{title:'How to Create a Form with Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      6:{title:'How to Add tracking Form with Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       8:{title:'How to insert tracking code to a post or page.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      9:{title:'How to find a response by tracking code',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      9:{title:'How to find a response with tracking code.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}
+   /*    10:{title:'How to test Pro version on localhost',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}, */
     }
 
 
@@ -709,9 +710,9 @@ function fun_show_help__emsFormBuilder(){
   <div class="m-1">
   <div class=" bg-info " >
   <button id="heading${l}" class=" btn-block card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne">
-    <h5 class="mb-0 ">
+    <h6 class="mb-0 ">
       ${listOfHow_emsfb[l].title}
-      </h5>
+      </h6>
       </button>
   </div>
 
@@ -734,18 +735,17 @@ function fun_show_setting__emsFormBuilder(){
  let secretkey = 'null';
  let email = 'null';
  let trackingcode ='null';
- 
- if(ajax_object.setting[0] && ajax_object.setting[0].setting.length>5){
+ console.log(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
+ if((ajax_object.setting[0] && ajax_object.setting[0].setting.length>5) || typeof valueJson_ws_setting=="object" && valueJson_ws_setting.length!=0 ){
 
   // اضافه کردن تنظیمات
-  console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
+ 
  if(valueJson_ws_setting.length==0) valueJson_ws_setting= JSON.parse(ajax_object.setting[0].setting.replace(/[\\]/g, ''));
   console.log(`setting`,valueJson_ws_setting)
   const f= (name)=>{
-    console.log(valueJson_ws_setting[name])
+    console.log('valueJson_ws_setting[name]', valueJson_ws_setting[name])
     if(valueJson_ws_setting[name]){
       console.log(name, valueJson_ws_setting[name]);
-
       return valueJson_ws_setting[name] 
     }else{
       console.log(name, valueJson_ws_setting[name]);
@@ -760,7 +760,7 @@ function fun_show_setting__emsFormBuilder(){
 }
   
   
-
+ // console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
   console.log(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
 
   document.getElementById('emsFormBuilder-content').innerHTML=`  <div id="setting_emsFormBuilder" class="mx-auto border border-primary">
@@ -923,7 +923,8 @@ function fun_send_setting_emsFormBuilder(data){
       console.log(`messages`,res);
       if (res.success==true) {
         console.log(`resp`,res);
-        valueJson_ws_setting=data.message;        
+        valueJson_ws_setting=data.message;    
+        //console.log(` first lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);    
         fun_show_setting__emsFormBuilder();
         if(res.data.success==true){      
           // اگر پاسخ  مست گرفت از سرور
