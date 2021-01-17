@@ -660,7 +660,7 @@ function fun_show_content_page_emsFormBuilder(state){
       if (valueJson_ws_form.length>count_row_emsFormBuilder) fun_backButton(2);
       state=1;
     }else{ */
-      location.reload();
+      window.location.reload();
       document.getElementById('emsFormBuilder-content').innerHTML=`<h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i>Loading</h2>`
     //}
 
