@@ -288,6 +288,7 @@ function fun_emsFormBuilder_back(){
 
 function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
   console.log(content,by,userIp,track,date);
+  console.log(`by[${by}]userIp[${userIp}] , track[${track}]`)
   if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by="Guest")
   let m =`<Div class="border border-light round  p-2"><div class="border-bottom mb-1 pb-1">
    <span class="small"><b>Info:</b></span></br>
@@ -621,9 +622,10 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
         // اضافه شدن به سمت یو آی 
         const userIp =ajax_object.user_ip;
         const date = Date();
-        console.log(message,"content");
+        console.log(message,"content" ,message.by);
         document.getElementById('replayM_emsFormBuilder').value="";
-        fun_emsFormBuilder__add_a_response_to_messages(message,userIp,0,date);
+        
+        fun_emsFormBuilder__add_a_response_to_messages(message,message[0].by,ajax_object.user_ip,0,date);
    
       }else{
         console.log(res);
@@ -636,7 +638,8 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
 
 
 function fun_emsFormBuilder__add_a_response_to_messages(message,by,userIp,track,date){
-  console.log('592',message,by,userIp,track,date)
+  
+  console.log('592',message,`by[${by}]userIp[${userIp}]track[${track}]date[${date}]`);
   document.getElementById('conver_emsFormBuilder').innerHTML+= fun_emsFormBuilder_show_messages(message,by,userIp,track,date);
 }
 

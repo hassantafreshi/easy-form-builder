@@ -412,3 +412,7 @@ option,select {
             position: absolute!important;
           }
           /* preview end */
+
+video {
+    max-width: 100%!important;
+}
