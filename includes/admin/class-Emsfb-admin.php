@@ -384,7 +384,7 @@ class Admin {
 		if($key =="activeCode" && strlen($value)>1){
 	
 			if(md5($_SERVER['SERVER_NAME'])!=$value){
-				$response = array( 'success' => false , "m"=>"Your active Code is not Correct!"); 
+				$response = array( 'success' => false , "m"=>"Your activation code is not Correct!"); 
 				wp_send_json_success($response,$_POST);	
 				die();
 			}else{
