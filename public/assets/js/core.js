@@ -1,4 +1,4 @@
-console.log("core.js")
+//console.log("core.js")
 
 let exportView_emsFormBuilder = [];
 let stepsCount;
@@ -26,12 +26,12 @@ jQuery (function() {
     //ajax_object.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object.ajax_value مقدار جی سون
     //ajax_object.language زبان بر می گرداند
-    console.log("ajax_object_state",ajax_object);
-    console.log("ajax_object.ajax_url",ajax_object.ajax_url);
-    console.log("ajax_object.nonce",ajax_object.nonce);
-    console.log("ajax_object_state_2",ajax_object.state);
+    //console.log("ajax_object_state",ajax_object);
+    //console.log("ajax_object.ajax_url",ajax_object.ajax_url);
+    //console.log("ajax_object.nonce",ajax_object.nonce);
+    //console.log("ajax_object_state_2",ajax_object.state);
     poster_emsFormBuilder =ajax_object.poster;
-    console.log("poster_emsFormBuilder",ajax_object);
+    //console.log("poster_emsFormBuilder",ajax_object);
     if(ajax_object.form_setting && ajax_object.form_setting.length>0){
       const vs=JSON.parse(ajax_object.form_setting.replace(/[\\]/g, ''));
       sitekye_emsFormBuilder =vs.siteKey;
@@ -43,13 +43,13 @@ jQuery (function() {
     if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object.state!=='settingError' ){
  
       if(ajax_object.state=='form'){
-        console.log("id",ajax_object.id);
+        //console.log("id",ajax_object.id);
         fun_render_view(ajax_object.ajax_value,1);
       }else if (ajax_object.state=='tracker'){
-        console.log("tracker");
+        //console.log("tracker");
         fun_tracking_show_emsFormBuilder()
       }else if(ajax_object.state=='settingError'){
-        console.log("settingError");
+        //console.log("settingError");
         fun_show_alert_setting_emsFormBuilder()
       }
     }else{
@@ -58,7 +58,7 @@ jQuery (function() {
 
 
     //fun_tracking_show_emsFormBuilder()
-    //console.log(ajax_object.ajax_value);
+    ////console.log(ajax_object.ajax_value);
  /*    jQuery.post(ajax_object.ajax_url,data,function(res){
         // برای پاسخ از اینجا استفاده می شود که اطلاعات برای سرور ارسال شود
         // به کد مشابه در فایل admin.js مراجعه شود
@@ -72,8 +72,8 @@ function fun_render_view(val,check){
 
     valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
   // const vs=ajax_object.form_setting.setting;
-   console.log('ajax_object',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
-    console.log(valueJson_ws);
+   //console.log('ajax_object',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
+    //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
     for (let v of valueJson_ws) {
@@ -95,10 +95,10 @@ function fun_render_view(val,check){
         case 'color':
           id = v.id ? v.id : v.id_;
           req = v.required ? v.required : false;
-          console.log(v.required , "required");
+          //console.log(v.required , "required");
          
           if (v.type=="date") { 
-            console.log(v ,231)
+            //console.log(v ,231)
            if (v.clander=="Persian" || v.clander=="Arabic") {
               v.type="text";
              if (v.clander=="Arabic"){
@@ -117,7 +117,7 @@ function fun_render_view(val,check){
             <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
             <script src="./js/bootstrap-hijri-datetimepickermin.js"></script>
             <script>
-            console.log('kir khar');
+            //console.log('kir khar');
             $(function () {
     
               initDefault();
@@ -175,7 +175,7 @@ function fun_render_view(val,check){
           id = v.id ? v.id : v.id_;
           const typ = v.type == "checkbox" ? "checkbox" : "radio";
           req = v.required ? v.required : false;
-          console.log(v.required , "required");
+          //console.log(v.required , "required");
           el = `<div class=" emsFormBuilder"><div class="row"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
           // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
@@ -183,7 +183,7 @@ function fun_render_view(val,check){
         case 'multiselect':
           id = v.id ? v.id : v.id_;
           req = v.required ? v.required : false;
-          console.log(v.required , "required");
+          //console.log(v.required , "required");
      
           el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
           
@@ -192,11 +192,11 @@ function fun_render_view(val,check){
         case 'option':
           id = v.id ? v.id : v.id_;
           const indx = exportView_emsFormBuilder.findIndex(x => x.parents === v.parents);
-          console.log(indx > -1 , indx ,"test" ,v.parents ,exportView_emsFormBuilder);
+          //console.log(indx > -1 , indx ,"test" ,v.parents ,exportView_emsFormBuilder);
           if (indx > -1){
             req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
-            console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
-            console.log(indx, exportView_emsFormBuilder[indx]);
+            //console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
+            //console.log(indx, exportView_emsFormBuilder[indx]);
             if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
             if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
             exportView_emsFormBuilder[indx].required = false;
@@ -249,12 +249,12 @@ function fun_render_view(val,check){
     if (exportView_emsFormBuilder.length > 0) {
       const steps = valueJson_ws[0].steps;
       const fname = valueJson_ws[0].formName;
-      console.log(steps, fname)
+      //console.log(steps, fname)
     
       document.getElementById('emsFormBuilder-form-view-title').innerHTML = String(valueJson_ws[0].formName);
       document.getElementById('emsFormBuilder-step-name-view').innerHTML = valueJson_ws[0]['name-1'];
       //emsFormBuilder-all-steps-view
-      //console.log(document.getElementById('emsFormBuilder-form-view-title').value)
+      ////console.log(document.getElementById('emsFormBuilder-form-view-title').value)
     
     
     
@@ -277,7 +277,7 @@ function ShowTab_emsFormBuilder_view(n) {
       x[n].style.display = "block";
       x[n].classList.add("fadeIn");
     }
-    //console.log(x,n,x[n],"check")
+    ////console.log(x,n,x[n],"check")
     if (n == 0) {
       document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
     } else {
@@ -304,14 +304,14 @@ function ShowTab_emsFormBuilder_view(n) {
       //reCaptch verified
       recaptcha_emsFormBuilder=response;
      // alert("pass"); 
-      console.log(response);
+      //console.log(response);
     }
   }
   //recaptcha
   
     if (n != 0) {
       var x = document.getElementsByClassName("emsFormBuilder-tab-view");
-      //console.log(n)
+      ////console.log(n)
       if (n == 1 && !validateForm_emsFormBuilder_view()) return false;
       x[currentTab_emsFormBuilder].style.display = "none";
       currentTab_emsFormBuilder = currentTab_emsFormBuilder + n;
@@ -319,7 +319,7 @@ function ShowTab_emsFormBuilder_view(n) {
     }
   
     if (n == 0) {
-      console.log(document.getElementById("emsFormBuilder-firstTab-view").style.display);
+      //console.log(document.getElementById("emsFormBuilder-firstTab-view").style.display);
       document.getElementById("emsFormBuilder-firstTab-view").style.display = "block";
       document.getElementById("emsFormBuilder-firstTab-view").classList.add = "step";
       document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "block";
@@ -327,7 +327,7 @@ function ShowTab_emsFormBuilder_view(n) {
       document.getElementById("emsFormBuilder-form-view-title").style.display = "block";
       document.getElementById("emsFormBuilder-text-message-view").style.display = "none";
       for (el of document.querySelectorAll('.finish')) {
-        console.log(el, 88)
+        //console.log(el, 88)
         el.classList.remove("finish");
         el.classList.remove("active");
         el.classList.contains('first')
@@ -358,7 +358,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function validateForm_emsFormBuilder_view() {
     let x, y, i, valid = true , NotValidCount=0;
-    console.log('validateForm_emsFormBuilder_view');
+    //console.log('validateForm_emsFormBuilder_view');
     x = document.getElementsByClassName("emsFormBuilder-tab-view");
     y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
     let value
@@ -373,13 +373,13 @@ function ShowTab_emsFormBuilder_view(n) {
             input.classList.remove('invalid');
             value = input.value
           }
-          console.log(input.type , 789999);
+          //console.log(input.type , 789999);
           switch(input.type){
             case 'email':
             req===true ? valid= valid_email_emsFormBuilder(input) : valid=true;
               break;
             case 'tel':
-              console.log('707 tel' , req , req===true ,input.classList)
+              //console.log('707 tel' , req , req===true ,input.classList)
               req===true ? valid= valid_phone_emsFormBuilder(input) : valid=true;
               break;
             case 'password':
@@ -395,7 +395,7 @@ function ShowTab_emsFormBuilder_view(n) {
             case 'url':
               const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
               if (check===null && input.classList.contains('require')==true){
-                console.log(check ,999)
+                //console.log(check ,999)
                 valid=false;
                 input.className += ' invalid';
                 document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Please enter a valid URL. Protocol is required (http://, https://)</small>`
@@ -407,10 +407,10 @@ function ShowTab_emsFormBuilder_view(n) {
             case 'file':
               const id = input.id;
               valid= input.files[0] ? true : false;
-              console.log ( "324 check" ,valid ,input.type ,input.id)
+              //console.log ( "324 check" ,valid ,input.type ,input.id)
               break;
           }
-          console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
+          //console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
         } else if (input.tagName == "LABEL") {
           
           const ll = document.getElementsByName(input.dataset.id);
@@ -421,28 +421,28 @@ function ShowTab_emsFormBuilder_view(n) {
               input.classList.remove('invalid');
               state = true;
               value = l.value;
-              console.log('set true', value)
+              //console.log('set true', value)
             }
           }
           if (state == false) {
             value = ""
             input.className += " invalid"; valid = false;
           }
-          console.log(input.dataset.id,value , 240);
+          //console.log(input.dataset.id,value , 240);
   
         } else if (input.tagName == "SELECT") {
-          console.log(input.value, "<----select vae",240)
+          //console.log(input.value, "<----select vae",240)
           if (input.value == "") {
             input.className += " invalid"; valid = false;
           } else {        
             value = input.value;
-            console.log(value, "value select",240)
+            //console.log(value, "value select",240)
           }
-          console.log(input.dataset.id,`[${value}]` , 240);
+          //console.log(input.dataset.id,`[${value}]` , 240);
         }
         if (valid== false){
           NotValidCount +=1;
-          console.log('324 valid comer' ,valid ,NotValidCount);
+          //console.log('324 valid comer' ,valid ,NotValidCount);
           document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields..`);
         }
         if (valid == true && NotValidCount==0) {
@@ -453,7 +453,7 @@ function ShowTab_emsFormBuilder_view(n) {
     }catch(re){
     
     }finally{
-      console.log(' 324' ,valid);
+      //console.log(' 324' ,valid);
       
     }
   
@@ -471,7 +471,7 @@ function ShowTab_emsFormBuilder_view(n) {
   function createStepsOfPublic() {
     
     if (valueJson_ws.length==1 && valueJson_ws=="N" && document.getElementById('emsFormBuilder-form-view')){
-      console.log('not found')
+      //console.log('not found')
       document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 id="formNotFound">Form not found</h3> <span>Error Code:V01</span>`;
       return false;
     }
@@ -504,22 +504,22 @@ function ShowTab_emsFormBuilder_view(n) {
     //add icons
     for (let i = 1; i <= stepsCount; i++) {
   
-      console.log(104, i ,stepsCount)
+      //console.log(104, i ,stepsCount)
       tags = "";
       icon = 'icon-' + i;
       icon = valueJson_ws[0][icon] ? valueJson_ws[0]['icon-' + i] : 'fa fa-tachometer';
       stepNames_emsFormBuilder[i - 1] = valueJson_ws[0]['name-' + i]
-      console.log(icon);
+      //console.log(icon);
       let id ;
       
       for (let v of exportView_emsFormBuilder) {
         
-        console.log(v ,Number(v.step) , Number(v.step) == i , i ,stepsCount ,444)
+        //console.log(v ,Number(v.step) , Number(v.step) == i , i ,stepsCount ,444)
         if (Number(v.step) == i) {
         id = Number(v.step) ===1 ? "emsFormBuilder-firstTab-view" : "emsFormBuilder-tabList-view";
-        console.log(`type:${v.type} ,step:${v.step} ,${typeof v.step} , i:${i}, amount:${v.amount}`,789)
+        //console.log(`type:${v.type} ,step:${v.step} ,${typeof v.step} , i:${i}, amount:${v.amount}`,789)
          tags +=  v.type != 'select' ? `${v.element}</div></br>` : `${v.element}</select></div></br>`;
-         console.log(`id[${id}] i${i} step[${v.step}] s==i[${v.step ===i }]`)
+         //console.log(`id[${id}] i${i} step[${v.step}] s==i[${v.step ===i }]`)
         };
         
       }
@@ -534,18 +534,18 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
-      console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
+      //console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
       if (el.type != "submit" ) {
-        if (el) { console.log('ff', el.type ,el.id); }
+       
         if( el.type =="file"){
           const ob = valueJson_ws.find(x => x.id_ ===  el.dataset.id);
           files_emsFormBuilder.push ({id:el.id ,value:"@file@", state:0 , url:"" ,type:"" , name:ob.name, session: sessionPub_emsFormBuilder});
-          console.log(files_emsFormBuilder);
+          //console.log(files_emsFormBuilder);
         }
         el.addEventListener("change", (e) => {
           e.preventDefault();
           const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-          console.log(el.type ,"form type");
+          //console.log(el.type ,"form type");
           let value =""
           const id_ = el.dataset.id
           
@@ -553,7 +553,7 @@ function ShowTab_emsFormBuilder_view(n) {
            else if (el.type == "radio" || el.type == "checkbox") { value = el.value; ob.name =document.getElementById(ob.parents).innerText  }//ob.name = document.getElementById(ob.parents). 
            else if (el.type == "select-one") {
      
-                console.log(el.value,123)
+                //console.log(el.value,123)
                 value =el.value;
                      
           }else if (el.type =="select-multiple"){
@@ -561,21 +561,21 @@ function ShowTab_emsFormBuilder_view(n) {
             if (el.classList.contains('multiple-emsFormBuilder')==true){
              
               for (let i = 0; i < el.children.length; i++) {
-              console.log(el.children[i].value ,7889);
+              //console.log(el.children[i].value ,7889);
               value += el.children[i].value + ",";
               }
             }
   
           }else if (el.type == "email") {
-                console.log('email',789);              
+                //console.log('email',789);              
                 const state=valid_email_emsFormBuilder(el);
                 value = state==true ? el.value :'';
         
           }else if (el.type == "tel") {
-                console.log('tel',355);
+                //console.log('tel',355);
                 const state=valid_phone_emsFormBuilder(el);
                 value = state==true ? el.value :'';
-                console.log(value,state,355);          
+                //console.log(value,state,355);          
           }
           
           
@@ -586,16 +586,16 @@ function ShowTab_emsFormBuilder_view(n) {
         
           
           if(value!==""){
-            console.log(el ,ob  ,355)
+            //console.log(el ,ob  ,355)
             const o = [{ id_: id_, name: ob.name, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0] ,355);
-            console.log(sendBack_emsFormBuilder_pub, el.type);
+            //console.log(sendBack_emsFormBuilder_pub, el.type);
           }
         });
       } else if (el.type == "submit") {
   
         el.addEventListener("click", (e) => {
-          console.log(el, el.value, el.dataset.id)
+          //console.log(el, el.value, el.dataset.id)
           const id_ = el.dataset.id
           const ob = valueJson_ws.find(x => x.id_ === id_);
           const o = [{ id_: id_, name: ob.name, value: el.value, session: sessionPub_emsFormBuilder }];
@@ -604,7 +604,7 @@ function ShowTab_emsFormBuilder_view(n) {
       } /* else if (el.type == "select-one" || el.type =="select-multiple"){
         //789
         // در اینجا مقدار را می توان گرفت برای مولتی سلکت و غیره
-        console.log('selec one',el.id ,el.type)
+        //console.log('selec one',el.id ,el.type)
         const dv = document.getElementById(`emsFormBuilder-${el.id}`);
   
       }  */
@@ -620,25 +620,25 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function fun_sendBack_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-    console.log(sendBack_emsFormBuilder_pub.length ,ob, ob.id_)
+    //console.log(sendBack_emsFormBuilder_pub.length ,ob, ob.id_)
     if (sendBack_emsFormBuilder_pub.length) {
       const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-      console.log(indx ,"indx")
+      //console.log(indx ,"indx")
       indx==-1 ? sendBack_emsFormBuilder_pub.push(ob): sendBack_emsFormBuilder_pub[indx] = ob;
     } else {
       sendBack_emsFormBuilder_pub.push(ob);
     }
-    console.log(sendBack_emsFormBuilder_pub);
+    //console.log(sendBack_emsFormBuilder_pub);
   }
   function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-    console.log(ob ,2223,"first")
+    //console.log(ob ,2223,"first")
     let r=0
     if (multiSelectElemnets_emsFormBuilder.length>0){
       const indx = multiSelectElemnets_emsFormBuilder.findIndex(x => x.parents === ob.parents);
       if(indx!==-1){ 
         const map = multiSelectElemnets_emsFormBuilder[indx];
       //  const r= Object.keys(map).find(key => map[key] === true);
-        console.log(`map`,map,223);
+        //console.log(`map`,map,223);
         const keys = Object.keys(map);
         let check = 0;
         for (const key  of keys){
@@ -650,19 +650,19 @@ function ShowTab_emsFormBuilder_view(n) {
           }
           if(check===1 && key!=='parents' && map[key] !== undefined  && ob[key] !== undefined && map[key]!==ob[key] ){
           
-            console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob ,22233 )
+            //console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob ,22233 )
             multiSelectElemnets_emsFormBuilder[indx]=ob;
-            console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob , key ,22233 , "result" );
+            //console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob , key ,22233 , "result" );
             document.getElementById(key).selected
             check=2;
-            console.log(multiSelectElemnets_emsFormBuilder,22233)
+            //console.log(multiSelectElemnets_emsFormBuilder,22233)
           //  if (map[key])
           }
           
        //   if (keu)
         }
         if (check==1 )  Object.assign(multiSelectElemnets_emsFormBuilder[indx], ob);
-        console.log(multiSelectElemnets_emsFormBuilder[indx],22233 )
+        //console.log(multiSelectElemnets_emsFormBuilder[indx],22233 )
         // بررسی شود اگر مقدار انتخاب شده بود
       }else{
         multiSelectElemnets_emsFormBuilder.push(ob);
@@ -670,7 +670,7 @@ function ShowTab_emsFormBuilder_view(n) {
     }else{
       multiSelectElemnets_emsFormBuilder.push(ob);
     } 
-    console.log(multiSelectElemnets_emsFormBuilder,223 ,'fine')
+    //console.log(multiSelectElemnets_emsFormBuilder,223 ,'fine')
     return r;
   }
   
@@ -678,7 +678,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function saveLocalStorage_emsFormBuilder_view() {
-    ////console.log('save!')
+    //////console.log('save!')
     localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
   }
   
@@ -694,7 +694,7 @@ function ShowTab_emsFormBuilder_view(n) {
   function showloading_emsFormBuilder() {
     const stepMax =currentTab_emsFormBuilder+1;
     const time = stepMax < 3 ? 700 : stepMax * 200;
-    console.log(Date(), time);
+    //console.log(Date(), time);
   
     document.getElementById("body").classList.add = "wait";
     if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
@@ -703,7 +703,7 @@ function ShowTab_emsFormBuilder_view(n) {
       document.getElementById("body").classList.remove = "wait";
       if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
       else body.style.pointerEvents = "none";
-      console.log(Date());
+      //console.log(Date());
     }, time);
   }
   
@@ -712,7 +712,7 @@ function ShowTab_emsFormBuilder_view(n) {
     let counter =0;
     const stepMax =currentTab_emsFormBuilder+1;
     let notfilled = []
-    console.log(sendBack_emsFormBuilder_pub)
+    //console.log(sendBack_emsFormBuilder_pub)
     for (i = 1; i <= stepMax; i++) {
       if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
     }
@@ -725,9 +725,9 @@ function ShowTab_emsFormBuilder_view(n) {
         if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired+=1;
       }
     }
-    console.log(notfilled.length)
+    //console.log(notfilled.length)
     if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder_pub.length<1 ) {
-      console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
+      //console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
       let str = ""
   
       
@@ -743,7 +743,7 @@ function ShowTab_emsFormBuilder_view(n) {
     for (file of files_emsFormBuilder){
       if (files_emsFormBuilder.length>0 && file.state == 1 )  {checkFile += 1;
       }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
-        console.log(`error => ${file.state}`,file)
+        //console.log(`error => ${file.state}`,file)
         checkFile =-100;
         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">You don't have permission to upload this file:</br>${file.url}</span>
         <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
@@ -754,10 +754,10 @@ function ShowTab_emsFormBuilder_view(n) {
     }
     if (checkFile==0){
       if(files_emsFormBuilder.length>0){
-        console.log("files upload" , sendBack_emsFormBuilder_pub );
+        //console.log("files upload" , sendBack_emsFormBuilder_pub );
         for(const file of files_emsFormBuilder){ sendBack_emsFormBuilder_pub.push(file);}
         
-        console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
+        //console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
       }
       actionSendData_emsFormBuilder()
     }else{
@@ -765,10 +765,10 @@ function ShowTab_emsFormBuilder_view(n) {
          //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
          let checkFile = 0;
          for (file of files_emsFormBuilder){
-           console.log(`files_emsFormBuilder check ${file.state == 3} `,file)
+           //console.log(`files_emsFormBuilder check ${file.state == 3} `,file)
            if (files_emsFormBuilder.length>0 && file.state == 1 )  {checkFile += 1;
             }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
-              console.log(`error => ${file.state}`,file)
+              //console.log(`error => ${file.state}`,file)
               checkFile =-100;
               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>You don't have permission to upload this file </br>${file.url}</span>
               <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
@@ -776,7 +776,7 @@ function ShowTab_emsFormBuilder_view(n) {
 
             }
           }
-         console.log("waiting for files upload",checkFile);
+         //console.log("waiting for files upload",checkFile);
          if (checkFile==0){
            // اگر همه فایل ها آپلود شده بودن
            //intervalFiles
@@ -799,14 +799,14 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function stepName_emsFormBuilder_view(i) {
     document.getElementById('emsFormBuilder-step-name-view').innerHTML = stepNames_emsFormBuilder[i] != "null" && stepNames_emsFormBuilder[i] != undefined ? ` ${stepNames_emsFormBuilder[i]}` : "";
-    console.log(stepNames_emsFormBuilder[i] != "null", i)
+    //console.log(stepNames_emsFormBuilder[i] != "null", i)
   }
   
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-    console.log(sendBack_emsFormBuilder_pub,'JSON.stringify(sendBack_emsFormBuilder_pub)',JSON.stringify(sendBack_emsFormBuilder_pub));
-    //console.log(`run function actionSendData_emsFormBuilder ${sendBack_emsFormBuilder_pub}` ,sendBack_emsFormBuilder_pub ,`[${ajax_object.id.id}]` )
+    //console.log(sendBack_emsFormBuilder_pub,'JSON.stringify(sendBack_emsFormBuilder_pub)',JSON.stringify(sendBack_emsFormBuilder_pub));
+    ////console.log(`run function actionSendData_emsFormBuilder ${sendBack_emsFormBuilder_pub}` ,sendBack_emsFormBuilder_pub ,`[${ajax_object.id.id}]` )
     $(function () {
      
       data = {
@@ -821,11 +821,11 @@ function ShowTab_emsFormBuilder_view(n) {
       $.post(ajax_object.ajax_url, data, function (res) {
        
          if (res.data.success==true) {
-           console.log(res,localStorage.getItem("sendback"))
+           //console.log(res,localStorage.getItem("sendback"))
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Sent successfully</h1></br> <span>Thanks for filling out our form!</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> Tracking number:</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
         } else {
          
-          console.log(`res : error`)
+          //console.log(`res : error`)
   
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
@@ -843,7 +843,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
     let check =0;
     const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      console.log(el)
+      //console.log(el)
       check += el.value.match(format) ?0 :1;
       el.value.match(format) ? 0: el.className += " invalid";
       if (check>0){
@@ -864,9 +864,9 @@ function ShowTab_emsFormBuilder_view(n) {
     if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
     let check =0;
     const format =/^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/gm;
-      console.log(el)
+      //console.log(el)
       check += el.value.match(format) ?0 :1;
-      console.log( 707,el.classList.contains('require'),)
+      //console.log( 707,el.classList.contains('require'),)
       if (check>0 ){
         el.value.match(format) ? 0: el.className += " invalid";
          document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Phone Number</small>`
@@ -893,7 +893,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if( true) {
       const f = valueJson_ws.find(x => x.id_ === id);  
       file = f.file && f.file.length>3 ? f.file :'Zip' ;
-      console.log(`file type`,file)
+      //console.log(`file type`,file)
     }
    
     let check =0;
@@ -912,16 +912,16 @@ function ShowTab_emsFormBuilder_view(n) {
     }
   
   if(el.files[0] && el.files[0].size<fileSizeLimite_emsFormBuilder){
-    console.log('file',`file type[${el.files[0].type}] ,[${el.files[0].size}]`)  
+    //console.log('file',`file type[${el.files[0].type}] ,[${el.files[0].size}]`)  
     for(ac of accept){
       //validition of type file
       const r = el.files[0].type.indexOf(ac.slice(1, ac.length))
-      console.log(`r ${r} , file type[${el.files[0].type}]` ,ac);
+      //console.log(`r ${r} , file type[${el.files[0].type}]` ,ac);
       
     if(r!=-1) check =+1;
     
     }
-   // console.log(`document.getElementById(\${el.id}-message).innerHTML.length ${document.getElementById(`${el.id}-message`).innerHTML.length}`);
+   // //console.log(`document.getElementById(\${el.id}-message).innerHTML.length ${document.getElementById(`${el.id}-message`).innerHTML.length}`);
    document.getElementById(`${el.id}-message`) && document.getElementById(`${el.id}-message`).innerHTML.length>5 ? document.getElementById(`${id}-row`).innerHTML="" :0;
   }
     
@@ -934,9 +934,9 @@ function ShowTab_emsFormBuilder_view(n) {
      if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();     
    //start
   // const timeValue = setInterval(function() {
-    console.log("waiting for recaptcha",id ,file);
+    //console.log("waiting for recaptcha",id ,file);
     // if (recaptcha_emsFormBuilder && recaptcha_emsFormBuilder.length>10){
-      console.log(" I'm not robat",id , file);
+      //console.log(" I'm not robat",id , file);
       fun_upload_file_emsFormBuilder(id ,file);
     //  clearInterval(timeValue);
    // }
@@ -990,7 +990,7 @@ function fun_upload_file_emsFormBuilder(id ,type){
   //این تابع فایل را به سمت سرور ارسال می کند
   const indx = files_emsFormBuilder.findIndex(x => x.id === id);
 
-  console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
+  //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
   files_emsFormBuilder[indx].state =1;
   files_emsFormBuilder[indx].type =type;
   let r=""
@@ -1004,7 +1004,7 @@ function fun_upload_file_emsFormBuilder(id ,type){
       fd.append("caption", individual_capt);  
       fd.append('action', 'update_file_Emsfb');  
       fd.append('nonce', ajax_object.nonce );  
-      console.log("log",individual_capt)
+      //console.log("log",individual_capt)
       jQuery.ajax({
           type: 'POST',
           url: ajax_object.ajax_url,
@@ -1014,18 +1014,18 @@ function fun_upload_file_emsFormBuilder(id ,type){
 
           success: function(response){
             //files_emsFormBuilder
-              console.log(response);
+              //console.log(response);
   
               if(response.data.success===true)
               {
               r = response.data.file.url;
               files_emsFormBuilder[indx].url = response.data.file.url;
               files_emsFormBuilder[indx].state = 2;
-              console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
+              //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
               }else{
                 files_emsFormBuilder[indx].state = 3;
                 files_emsFormBuilder[indx].url = individual_file.name;
-                console.log(`files_emsFormBuilder[indx].state [${files_emsFormBuilder[indx].state}] [${individual_file.name}]`);
+                //console.log(`files_emsFormBuilder[indx].state [${files_emsFormBuilder[indx].state}] [${individual_file.name}]`);
               }
           }
       });
@@ -1088,7 +1088,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
         //reCaptch verified
         recaptcha_emsFormBuilder=response;
        // alert("pass"); 
-        console.log(response);
+        //console.log(response);
         document.getElementById('emsFormBuilder-message-area-track') ? document.getElementById('emsFormBuilder-message-area-track').remove() :''
         document.getElementById('emsFormBuilder-form-view-track').innerHTML =`<div class="text-center"><h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>Please Waiting<h3></div>`;
         $(function () {
@@ -1105,10 +1105,10 @@ function fun_vaid_tracker_check_emsFormBuilder(){
           $.post(ajax_object.ajax_url, data, function (res) {
            
              if (res.data.success==true) {
-               console.log(res.data);
+               //console.log(res.data);
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = emsFormBuilder_show_content_message(res.data.value ,res.data.content)
             } else {             
-              console.log(`res : error`)      
+              //console.log(`res : error`)      
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
               <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="window.location.href=window.location.href" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
       
@@ -1123,7 +1123,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
 
 
 function emsFormBuilder_show_content_message (value , content){
-  console.log(value)
+  //console.log(value)
   
  
   const msg_id =value.msg_id;
@@ -1134,16 +1134,16 @@ function emsFormBuilder_show_content_message (value , content){
   const date ="XXXXXXXXXX";
   
   const val =JSON.parse(value.content.replace(/[\\]/g, ''));
-  console.log(content );
+  //console.log(content );
   
   let m = fun_emsFormBuilder_show_messages( val, "user" ,track,date)
   for(c of content) {
-    console.log(c);
+    //console.log(c);
     const val =JSON.parse(c.content.replace(/[\\]/g, ''));
     m += fun_emsFormBuilder_show_messages( val, c.rsp_by ,track,date);
   }
   //replay message ui
-  console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`);
+  //console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`);
   let replayM = `<div class="mx-2 mt-2"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder">Replay:</label>
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
@@ -1187,7 +1187,7 @@ function emsFormBuilder_show_content_message (value , content){
 
 
 function fun_emsFormBuilder_show_messages(content,by,track,date){
-  console.log('by',by);
+  //console.log('by',by);
   if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by="visitor")
   let m =`<Div class="border border-light round  p-2"><div class="border-bottom mb-1 pb-1">
   <span class="small"><b>Info:</b></span></br>
@@ -1199,9 +1199,9 @@ function fun_emsFormBuilder_show_messages(content,by,track,date){
   <h6 class="my-3"> Response: </h6>`;
   for (const c of content){
     //JSON.parse(content.replace(/[\\]/g, ''))
-    console.log("c12",c);
+    //console.log("c12",c);
     let value = `<b>${c.value}</b>`;
-    console.log(`value up ${value}`)    ;
+    //console.log(`value up ${value}`)    ;
     if (c.value =="@file@" && c.state==2){
      if(c.type=="Image"){
       value =`</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
@@ -1230,7 +1230,7 @@ function fun_emsFormBuilder_show_messages(content,by,track,date){
     m +=`<p class="my-0">${c.name}: <span class="test"> ${value!=='<b>@file@</b>'?value:''}</span> </p> `
   }
   m+= '</div></div>';
-console.log(`m`,m)
+//console.log(`m`,m)
   return m;
 }
 
@@ -1238,15 +1238,15 @@ console.log(`m`,m)
 function fun_send_replayMessage_emsFormBuilder(id){
   //پاسخ مدیر را ارسال می کند به سرور 
 
-  console.log("fun_send_replayMessage_emsFormBuilder","Rmessage");
+  //console.log("fun_send_replayMessage_emsFormBuilder","Rmessage");
   const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g,'</br>');		
-  console.log(message,id)
+  //console.log(message,id)
   document.getElementById('replay_state__emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i> Sending...`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
   const by = ajax_object.user_name.length>1? ajax_object.user_name : "Guest";
   const ob = [{name:'Message',value:message ,by:by}];
-  console.log(ob);
+  //console.log(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length<1 || isHTML(message)){
     document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error , You can't use HTML Tag or send blanket message.</h6>`;
@@ -1261,7 +1261,7 @@ function fun_send_replayMessage_emsFormBuilder(id){
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
   
-  console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url,"Rmessage")
+  //console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url,"Rmessage")
   if(message.length<1){
     document.getElementById('replay_state__emsFormBuilder').innerHTML="Please Enter message";
     document.getElementById('replayM_emsFormBuilder').innerHTML="";
@@ -1281,7 +1281,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     };
     $.post(ajax_object.ajax_url, data, function (res) {
       if (res.success==true) {
-        console.log(`response`,res);
+        //console.log(`response`,res);
         document.getElementById('replayM_emsFormBuilder').value="";
         document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
@@ -1289,11 +1289,11 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
         // اضافه شدن به سمت یو آی 
        // const userIp =ajax_object.user_ip;
         const date = Date();
-        console.log(message);
+        //console.log(message);
         fun_emsFormBuilder__add_a_response_to_messages(message,res.data.by,0,date);
    
       }else{
-        console.log(res);
+        //console.log(res);
         document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
       }
@@ -1312,7 +1312,7 @@ function fun_show_alert_setting_emsFormBuilder(){
 }
 
 
-console.log('test',document.getElementsByClassName("multiple-emsFormBuilder"));
+//console.log('test',document.getElementsByClassName("multiple-emsFormBuilder"));
 $(document).ready(function(){
   var multipleCancelButton = new Choices('.multiple-emsFormBuilder', {
   maxItemCount:10,

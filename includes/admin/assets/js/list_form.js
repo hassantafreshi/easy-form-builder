@@ -14,7 +14,7 @@ jQuery (function() {
  //   console.log(ajax_object.ajax_value);
   valueJson_ws_form=ajax_object.ajax_value;
   poster_emsFormBuilder =ajax_object.poster
-  console.log(`poster_emsFormBuilder`,poster_emsFormBuilder)
+  //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(5);
 });
 
@@ -37,14 +37,14 @@ function fun_emsFormBuilder_render_view(x){
    for(let i  of valueJson_ws_form ){
     
      if(x>count){
-       console.log(i.form_id)
+       //console.log(i.form_id)
        let newM=false;
        for(let ims of ajax_object.messages_state){
-         console.log(`ajax_object return` ,ims)
+        // console.log(`ajax_object return` ,ims)
          if(ims.form_id==i.form_id){
           newM=true;
          }
-         console.log(`ajax_object return` ,ims , newM , i.form_id)
+         //console.l(`ajax_object return` ,ims , newM , i.form_id)
        }
        rows += `<tr class="" id="emsFormBuilder-tr-${i.form_id}" >                    
        <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}">${Number(i.form_id)}</th>
@@ -109,7 +109,7 @@ function emsFormBuilder_waiting_response(){
 
 
 function emsFormBuilder_get_edit_form(id){
-console.log('id' ,id , typeof id)
+//console.l('id' ,id , typeof id)
   //fun_backButton()
   fun_backButton();
   emsFormBuilder_waiting_response();
@@ -119,7 +119,7 @@ console.log('id' ,id , typeof id)
 
 // نمایش پنجره پیغام حذف یک ردیف  فرم
 function emsFormBuilder_delete (id){
-  console.log(`show message do you want delete ? ${id}`);
+  //console.l(`show message do you want delete ? ${id}`);
   // پنجره مطمئن هستی می خوای فرم پاک کنی نمایش بده 
 
   document.getElementById('wpwrap').innerHTML+=`
@@ -173,10 +173,10 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 
 function emsFormBuilder_show_content_message (id){
   // پنجره نمایش فرم ثبت شده کاربر
-  console.log(`show message`,id ,valueJson_ws_messages);
+  //console.l(`show message`,id ,valueJson_ws_messages);
   const indx =valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
   const msg_id =valueJson_ws_messages[indx].msg_id;
-  console.log(valueJson_ws_messages[indx],msg_id);
+  //console.l(valueJson_ws_messages[indx],msg_id);
 
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
@@ -231,12 +231,12 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 
 // نمایش و عدم نمایش دکمه های صفحه اصلی
 function fun_backButton(state){
-  console.log(`fun_backButton` , document.getElementById("more_emsFormBuilder").style.display ,state)
+  //console.l(`fun_backButton` , document.getElementById("more_emsFormBuilder").style.display ,state)
  
 
   if(document.getElementById("more_emsFormBuilder").style.display == "block" && state==1  ){ 
     document.getElementById("more_emsFormBuilder").style.display = "none";
-    console.log(document.getElementById("more_emsFormBuilder").style.display ,255)
+    //console.l(document.getElementById("more_emsFormBuilder").style.display ,255)
     }else{
       document.getElementById("more_emsFormBuilder").style.display = "block" ;
     }
@@ -260,7 +260,7 @@ function close_overpage_emsFormBuilder(i) {
 
 // حذف یک ردیف از جدول نمایشی
 function fun_confirm_remove_emsFormBuilder(id){
-  console.log(id, typeof id);
+  //console.l(id, typeof id);
 
   
   // ای دی از جی سون پیدا شود حذف شود و به سمت سرور پیام حذف ارسال شود
@@ -287,8 +287,8 @@ function fun_emsFormBuilder_back(){
 
 
 function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
-  console.log(content,by,userIp,track,date);
-  console.log(`by[${by}]userIp[${userIp}] , track[${track}]`)
+  //console.l(content,by,userIp,track,date);
+  //console.l(`by[${by}]userIp[${userIp}] , track[${track}]`)
   if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by="Guest")
   let m =`<Div class="border border-light round  p-2"><div class="border-bottom mb-1 pb-1">
    <span class="small"><b>Info:</b></span></br>
@@ -301,7 +301,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
   <h6 class="my-3"> Response: </h6>`;
   for (const c of content){
     let value = `<b>${c.value}</b>`;
-    console.log(`value up ${value}`)    ;
+    //console.l(`value up ${value}`)    ;
     if (c.value =="@file@" && c.state==2){
      if(c.type=="Image"){
       value =`</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
@@ -324,7 +324,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
           value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
      }else{
-      console.log(c.url ,c.url.length)
+      //console.l(c.url ,c.url.length)
       value =`</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
     }
     }
@@ -332,7 +332,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
     m +=`<p class="my-0">${c.name}: <span class="mb-1"> ${value!=='<b>@file@</b>'?value:''}</span> </p> `
   }
   m+= '</div></div>';
-console.log(`m`,m)
+//console.l(`m`,m)
   return m;
 }
 
@@ -405,12 +405,12 @@ function fun_send_replayMessage_emsFormBuilder(id){
   
   
   const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g,'</br>');		
-  console.log(message,id)
+  //console.l(message,id)
   document.getElementById('replay_state__emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i> Sending...`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
   const ob = [{name:'Message',value:message ,by:ajax_object.user_name}];
-  console.log(ob);
+  //console.l(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length<1 || isHTML(message)){
     document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error , You can't use HTML Tag or send blanket message.</h6>`;
@@ -460,7 +460,7 @@ function fun_ws_show_list_messages(value){
 
 
 function fun_delete_form_with_id_by_server(id){
-  console.log(ajax_object.ajax_url ,id);
+  //console.l(ajax_object.ajax_url ,id);
   $(function () {
     data = {
       action: "remove_id_Emsfb",
@@ -469,11 +469,11 @@ function fun_delete_form_with_id_by_server(id){
       nonce:ajax_object_core.nonce,     
     };
     $.post(ajax_object.ajax_url, data, function (res) {
-      console.log(res);
+      //console.l(res);
       if (res.success==true) {
 
       }else{
-        console.log(res);
+        //console.l(res);
       }
     })
   });
@@ -484,7 +484,7 @@ function fun_delete_form_with_id_by_server(id){
 
 
 function emsFormBuilder_messages(id){
-  console.log(id);
+  //console.l(id);
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
   fun_backButton(0);
@@ -512,14 +512,14 @@ function fun_get_form_by_id(id){
     };
     $.post(ajax_object.ajax_url, data, function (res) {
       if (res.success==true) {
-        console.log(res.data.ajax_value ,res);
+        //console.l(res.data.ajax_value ,res);
         const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
         localStorage.setItem('valueJson_ws_p',JSON.stringify(value) );
         const edit ={id:res.data.id, edit:true};
         localStorage.setItem('Edit_ws_form',JSON.stringify(edit) )
         fun_ws_show_edit_form(id)
       }else{
-        console.log(res);
+        //console.l(res);
       }
     })
   });
@@ -534,7 +534,7 @@ function fun_update_message_state_by_id(id){
     };
     $.post(ajax_object.ajax_url, data, function (res) {
       if (res.success==true) {
-        console.log(res);
+        //console.l(res);
         document.getElementById(`icon-${id}`).className=`fa fa-envelope-open-o `;
        /*  console.log(res.data.ajax_value ,res);
         const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
@@ -543,13 +543,13 @@ function fun_update_message_state_by_id(id){
         localStorage.setItem('Edit_ws_form',JSON.stringify(edit) )
         fun_ws_show_edit_form(id) */
       }else{
-        console.log(res);
+        //console.l(res);
       }
     })
   });
 }
 function fun_get_messages_by_id(id){
-  console.log(`fun_get_messages_by_id(${id})` ,ajax_object.ajax_url)
+  //console.l(`fun_get_messages_by_id(${id})` ,ajax_object.ajax_url)
   $(function () {
     data = {
       action: "get_messages_id_Emsfb",
@@ -558,20 +558,20 @@ function fun_get_messages_by_id(id){
       id:id     
     };
     $.post(ajax_object.ajax_url, data, function (res) {
-      console.log(`messages`,res);
+      //console.l(`messages`,res);
       if (res.success==true) {
         valueJson_ws_messages =res.data.ajax_value;
         localStorage.setItem('valueJson_ws_messages',JSON.stringify(valueJson_ws_messages) );
-        console.log(`resp`,res);
+        //console.l(`resp`,res);
         fun_ws_show_list_messages(valueJson_ws_messages) 
       }else{
-        console.log(res);
+        //console.l(res);
       }
     })
   });
 }
 function fun_emsFormBuilder_get_all_response_by_id(id){
-  console.log(`fun_emsFormBuilder_get_all_response_by_id(${id})` ,ajax_object.ajax_url)
+  //console.l(`fun_emsFormBuilder_get_all_response_by_id(${id})` ,ajax_object.ajax_url)
   $(function () {
     data = {
       action: "get_all_response_id_Emsfb",
@@ -580,14 +580,14 @@ function fun_emsFormBuilder_get_all_response_by_id(id){
       id:id     
     };
     $.post(ajax_object.ajax_url, data, function (res) {
-      console.log(`messages`,res);
+      //console.l(`messages`,res);
       if (res.success==true) {
         
        // localStorage.setItem('valueJson_ws_messages',JSON.stringify(valueJson_ws_messages) );
-        console.log(`get_all_response_id_Emsfb`,res);
+        //console.l(`get_all_response_id_Emsfb`,res);
         fun_ws_show_response(res.data.ajax_value) 
       }else{
-        console.log(res);
+        //console.l(res);
       }
     })
   });
@@ -596,7 +596,7 @@ function fun_emsFormBuilder_get_all_response_by_id(id){
 
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
-  console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url)
+  //console.l(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url)
   if(message.length<1){
     document.getElementById('replay_state__emsFormBuilder').innerHTML="Please Enter message";
     document.getElementById('replayM_emsFormBuilder').innerHTML="";
@@ -614,7 +614,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     };
     $.post(ajax_object.ajax_url, data, function (res) {
       if (res.success==true) {
-        console.log(`response`,res);
+        //console.l(`response`,res);
         document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
         document.getElementById('replayM_emsFormBuilder').innerHTML="";
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
@@ -622,13 +622,13 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
         // اضافه شدن به سمت یو آی 
         const userIp =ajax_object.user_ip;
         const date = Date();
-        console.log(message,"content" ,message.by);
+        //console.l(message,"content" ,message.by);
         document.getElementById('replayM_emsFormBuilder').value="";
         
         fun_emsFormBuilder__add_a_response_to_messages(message,message[0].by,ajax_object.user_ip,0,date);
    
       }else{
-        console.log(res);
+        //console.l(res);
         document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
       }
@@ -639,15 +639,15 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
 
 function fun_emsFormBuilder__add_a_response_to_messages(message,by,userIp,track,date){
   
-  console.log('592',message,`by[${by}]userIp[${userIp}]track[${track}]date[${date}]`);
+  //console.l('592',message,`by[${by}]userIp[${userIp}]track[${track}]date[${date}]`);
   document.getElementById('conver_emsFormBuilder').innerHTML+= fun_emsFormBuilder_show_messages(message,by,userIp,track,date);
 }
 
 
 function fun_ws_show_response(value){
-  console.log("598",value)
+  //console.l("598",value)
   for (v of value){
-    console.log(v.content);
+    //console.l(v.content);
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'Message', value:'message note exists'}
     fun_emsFormBuilder__add_a_response_to_messages(content,v.rsp_by,v.ip,0,v.date);
   }
@@ -656,7 +656,7 @@ function fun_ws_show_response(value){
 
 
 function fun_show_content_page_emsFormBuilder(state){
-  console.log(state);
+  //console.l(state);
   if(state=="forms"){
    /*  if( state_seting_emsFormBuilder!=true){
       fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -683,7 +683,7 @@ function fun_hande_active_page_emsFormBuilder(no){
   let count=0;
   for (const el of document.querySelectorAll(`.nav-link`)){
   count +=1;
-  console.log('nav-link',count , no)
+  //console.l('nav-link',count , no)
    if(el.classList.contains('active')) el.classList.remove('active');
     if(count==no )el.classList.add('active');
    //active
@@ -708,7 +708,7 @@ function fun_show_help__emsFormBuilder(){
 
   let str ="";
   for(const l in listOfHow_emsfb){
-      console.log(l);
+      //console.l(l);
   str +=`
   <div class="m-1">
   <div class=" bg-info " >
@@ -738,20 +738,20 @@ function fun_show_setting__emsFormBuilder(){
  let secretkey = 'null';
  let email = 'null';
  let trackingcode ='null';
- console.log(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
+ //console.l(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
  if((ajax_object.setting[0] && ajax_object.setting[0].setting.length>5) || typeof valueJson_ws_setting=="object" && valueJson_ws_setting.length!=0 ){
 
   // اضافه کردن تنظیمات
  
  if(valueJson_ws_setting.length==0) valueJson_ws_setting= JSON.parse(ajax_object.setting[0].setting.replace(/[\\]/g, ''));
-  console.log(`setting`,valueJson_ws_setting)
+  //console.l(`setting`,valueJson_ws_setting)
   const f= (name)=>{
-    console.log('valueJson_ws_setting[name]', valueJson_ws_setting[name])
+    //console.l('valueJson_ws_setting[name]', valueJson_ws_setting[name])
     if(valueJson_ws_setting[name]){
-      console.log(name, valueJson_ws_setting[name]);
+      //console.l(name, valueJson_ws_setting[name]);
       return valueJson_ws_setting[name] 
     }else{
-      console.log(name, valueJson_ws_setting[name]);
+      //console.l(name, valueJson_ws_setting[name]);
       return 'null'
     }
   }
@@ -764,7 +764,7 @@ function fun_show_setting__emsFormBuilder(){
   
   
  // console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
-  console.log(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
+  //console.l(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
 
   document.getElementById('emsFormBuilder-content').innerHTML=`  <div id="setting_emsFormBuilder" class="mx-auto border border-primary">
  
@@ -833,7 +833,7 @@ function fun_show_setting__emsFormBuilder(){
 
 
 function fun_set_setting_emsFormBuilder(){
-  console.log("fun_set_setting_emsFormBuilder");
+  //console.l("fun_set_setting_emsFormBuilder");
   fun_state_loading_message_emsFormBuilder(1);
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id)=>{
@@ -913,7 +913,7 @@ function fun_state_loading_message_emsFormBuilder(state){
 
 
 function fun_send_setting_emsFormBuilder(data){
-  console.log(data);
+  //console.l(data);
   //ارسال تنظیمات به ووردپرس
     $(function () {
     data = {
@@ -923,9 +923,9 @@ function fun_send_setting_emsFormBuilder(data){
       message:data     
     };
     $.post(ajax_object.ajax_url, data, function (res) {
-      console.log(`messages`,res);
+      //console.l(`messages`,res);
       if (res.success==true) {
-        console.log(`resp`,res);
+        //console.l(`resp`,res);
         valueJson_ws_setting=data.message;    
         //console.log(` first lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);    
         fun_show_setting__emsFormBuilder();
@@ -940,7 +940,7 @@ function fun_send_setting_emsFormBuilder(data){
             document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i> Saved</div>`
           }
         }else{
-          console.log(res.data);
+          //console.l(res.data);
           if (document.getElementById('setting_return_emsFormBuilder')==null){ 
           document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error , ${res.data.m}</div></div>`
           }else{
@@ -948,7 +948,7 @@ function fun_send_setting_emsFormBuilder(data){
           }
         }
       }else{
-        console.log(res);
+        //console.l(res);
         if (document.getElementById('setting_return_emsFormBuilder')==null){ 
           document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error Stng-400 , ${res}</div></div>`
           }else{
@@ -963,22 +963,22 @@ function fun_send_setting_emsFormBuilder(data){
 function fun_find_track_emsFormBuilder(){
   //function find track code
   const el =document.getElementById("track_code_emsFormBuilder").value;
-  console.log(el);
+  //console.l(el);
   if (el.length!=12 ){
     emsFormBuilder_popUp_message("Error","Tracking Code is not valid.");
    
   }else{
-    console.log('fun_find_track_emsFormBuilder',el  )
+    //console.l('fun_find_track_emsFormBuilder',el  )
       document.getElementById('track_code_emsFormBuilder').disabled=true;
       document.getElementById('track_code_btn_emsFormBuilder').disabled=true;
       const btnValue = document.getElementById('track_code_btn_emsFormBuilder').innerHTML;
       document.getElementById('track_code_btn_emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i>`;
-      console.log(btnValue);
+      //console.l(btnValue);
 
    
      
         $(function () {     
-          console.log('get_track_id_Emsfb');  
+          //console.l('get_track_id_Emsfb');  
           data = {
             action: "get_track_id_Emsfb",
             nonce:ajax_object_core.nonce,
@@ -989,7 +989,7 @@ function fun_find_track_emsFormBuilder(){
           
              if (res.data.success==true) {
               valueJson_ws_messages =res.data.ajax_value;
-              console.log(`valueJson_ws_messages`,valueJson_ws_messages);
+              //console.l(`valueJson_ws_messages`,valueJson_ws_messages);
               localStorage.setItem('valueJson_ws_messages',JSON.stringify(valueJson_ws_messages) );
               document.getElementById("more_emsFormBuilder").style.display = "none";
               fun_ws_show_list_messages(valueJson_ws_messages) 
@@ -1013,7 +1013,7 @@ function fun_find_track_emsFormBuilder(){
 function clear_garbeg_emsFormBuilder(){
   emsFormBuilder_popUp_loading()
    $(function () {     
-    console.log('clear_garbeg_emsFormBuilder');  
+    //console.l('clear_garbeg_emsFormBuilder');  
     data = {
       action: "clear_garbeg_Emsfb",
       nonce:ajax_object_core.nonce         

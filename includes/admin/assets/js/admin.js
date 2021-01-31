@@ -19,8 +19,6 @@ let highestAmount_emsFormBuilder
 if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws_p');
 jQuery (function() {
   state_check_ws_p =Number(s_var.check)
-  console.log(`state_check_ws_p ${state_check_ws_p}`);
-  console.log(`s_var`,s_var);
   pro_ws = (s_var.pro=='1' || s_var.pro==true) ? true : false;
   if(state_check_ws_p){
      run_code_ws_1();
@@ -69,7 +67,7 @@ function run_code_ws_1(){
     stepMax_ws = 3;
   }
 
-  console.log(`step max ${stepMax_ws}`)
+  
   
  // document.addEventListener("DOMContentLoaded", function (event) {
 
@@ -87,7 +85,7 @@ function ShowTab_emsFormBuilder(n) {
     x[n].style.display = "block";
     x[n].classList.add("fadeIn");
   }
-  //console.log(x,n,x[n],"check")
+
   if (n == 0) {
     document.getElementById("prevBtn").style.display = "none";
   } else {
@@ -106,7 +104,6 @@ function nextPrev(n) {
 
   if (n != 0) {
     var x = document.getElementsByClassName("tab");
-    //console.log(n)
     if (n == 1 && !validateForm_emsFormBuilder()) return false;
     x[currentTab_ws].style.display = "none";
     currentTab_ws = currentTab_ws + n;
@@ -122,7 +119,6 @@ function nextPrev(n) {
     document.getElementById("firsTab").style.display = "block";
    // document.getElementById("firsTab").classList.add= "step"
     for (el of document.querySelectorAll('.finish')) {
-      console.log(el, 88)
       el.classList.remove("finish");
       el.classList.remove("active");
       el.classList.contains('first')
@@ -164,7 +160,7 @@ function validateForm_emsFormBuilder() {
         input.className += " invalid"; valid = false;
         document.getElementById("message-area").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields..`);
 
-        console.log('fild', document.getElementById("message-area").innerHTML)
+    
 
       } else {
 
@@ -182,7 +178,7 @@ function fixStepIndicator(n) { var i, x = document.getElementsByClassName("step"
 
 
 function run_code_ws_2(){
-console.log(`form_ID_emsFormBuilder ${form_ID_emsFormBuilder}`)
+
 document.getElementById("steps").addEventListener("change", (e) => {
   createSteps()
 
@@ -206,7 +202,7 @@ document.getElementById("form_name").addEventListener("change", (e) => {
 
 
 function addNewElement_emsFormBuilder(elementId, rndm, value) {
-  console.log(`function addNewElement_emsFormBuilder` ,`[${elementId}]`,value);
+ 
   let nameV = "";
   let idV = "";
   let classV = "";
@@ -217,7 +213,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   let fileV=""
   let fileDrogAndDropV="";
   if (value != false) {
-    console.log(value ,191)
+    
     nameV = Object.values(value.find(x => x.name))
     idV = Object.values(value.find(x => x.id))
     classV = Object.values(value.find(x => x.class))
@@ -233,7 +229,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     requiredV = requiredV == "false" ? false : true;
     allowMultiSelectV = allowMultiSelectV == "false" ? false : true;
     fileDrogAndDropV = fileDrogAndDropV == "false" ? false : true;
-    ////console.log(nameV,idV,classV,tooltipV,allowMultiSelectV)
+    
   }
   let atr = {
     1: { id: `${rndm}-name_${elementId}`, value: nameV, placeholder: "Name", label: 'Label:*', id_:rndm },
@@ -245,7 +241,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   }
   if (elementId == "multiselect" ) atr = Object.assign(atr, { 6: { id: `${rndm}-allowMultiSelect_${elementId}`, allowMultiSelect: allowMultiSelectV } })
   else if (elementId == "file" ) atr = Object.assign(atr, { 6: { id: `${rndm}-fileDrogAndDrop_${elementId}`, fileDrogAndDrop: fileDrogAndDropV } })
-  // //console.log(atr);
+  
   let amount;
   let ll = document.getElementsByClassName(`dropZone`);
   ll = document.getElementsByTagName(`a`);
@@ -308,27 +304,27 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
 //id,id_,value
 function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
   step = parseInt(step); 
-  console.log(`222 function  value[${value}] id[${id}] id_[${id_}] value[${value}] type[${type}] value_of[${value_of}] group[${group}]` ,valueJson_ws_p[0]);
+ 
   let highestAmount= group!=="option" ?  Number(document.getElementById(`${id_}-amount`).value) : null ;
   highestAmount_emsFormBuilder=highestAmount;
 //valueJson_ws_p.reverse((a, b) => b.amount - a.amount)[0]
   let ob = {};
   /* if (value_of != `allowMultiSelect` && value_of != 'required') value = (value.length > 0 && (value.match(/ /g) || []).length < value.length) ? value : ""
   else if (value_of != `fileDrogAndDrop` && value_of != 'required') value = (value.length > 0 && (value.match(/ /g) || []).length < value.length) ? value : "" */
-  // console.log(`===================>`, value)
+  
   if (group === "notOption") {
    /*  let o = valueJson_ws_p[(valueJson_ws_p.length)-1]
-    console.log(valueJson_ws_p,o,'valueJSon')
+    
     let highestAmount = 1
     let state =true
     for(v of valueJson_ws_p){
       if(v.amount) highestAmount=v.amount+1;
     } */
-    console.log(highestAmount, 'function addOject_emsFormBuilder')
+    
     
     if (value_of == "name") {
       ob = { id_: id_, name: value, type: type, step: step, amount: highestAmount }
-      ////console.log(id_,value,type)Fr
+      
       document.getElementById(`${id_}-b`).innerHTML = `${value} [${type.toUpperCase()}]`
     } else if (value_of == "id") {
       ob = { id_: id_, id: value, type: type, step: step, amount: highestAmount }
@@ -341,10 +337,10 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
       ob = { id_: id_, required: value, type: type, step: step, amount: highestAmount }
     } else if (value_of == "allowMultiSelect" && pro_ws) {
       ob =fun_allowMultiSelect_pro_emsFormBuilder(id_,value,type,step)
-      console.log(ob)
+      
     }else if (value_of =="fileDrogAndDrop"){      
       ob = fun_fileDrogAndDrop_ob_pro_emsFormBuilder(id_,value,type,step);
-      console.log('fileDrogAndDrop',`[${value}]`,ob ,222)
+      
       
     }else if (type=="date"){
       Object.assign(ob,{clander:"Gregorian"});
@@ -352,7 +348,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
       //Object.assign(ob,{file:"Document"}) ;
     }
   } else if (group === "option") {
-    console.log(`222 function  value[${value}] id[${id}] id_[${id_}] value[${value}] type[${type}] value_of[${value_of}] group[${group}]` ,valueJson_ws_p[0]);
+    
     // add group to array object  789
     //function addOject_emsFormBuilder
     if(type.search("-")!=-1){
@@ -361,14 +357,14 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
       value_of =type.substring((type.search("-"))+1, type.search("_"));
       
       const test =id.search("date")!=-1;
-      console.log(`type---> [${type}]`);
+      
       if(id.search("date")!=-1)  {type ="date"; value_of ="clander";}
       else if(id.search("file")!=-1) {type ="file"; value_of ="file";}
-      console.log('function addOject_emsFormBuilder if _ > ', type , `id[${id}] seach[${id.search("date")}]id[${id_}]`,`value[${value}]` ,`value_of[${value_of}]`,`type[${type}]` )
+      
     }
-    console.log(222,value_of)
+    
     if (value_of == "name") {
-      console.log(`function addOject_emsFormBuilder [value_of == "name"] 222`)
+      
       ob = { id_: id_, name: value, parents: type, type: "option", step: step }
     } else if (value_of == "id") {
       ob = { id_: id_, id: value, parents: type, type: "option", step: step }
@@ -390,44 +386,41 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
       ob = { id_: id_, file: value, type: type, step: step , amount: highestAmount }
     }
 
-    console.log(`function addOject_emsFormBuilder`,ob , valueJson_ws_p[0] ,222)
+   
   }
-  console.log("valueJson_ws_p",valueJson_ws_p.length ,valueJson_ws_p , Object.keys(valueJson_ws_p).length  )
+ 
   if (Object.keys(valueJson_ws_p).length === 0) {
    if(ob.id_)  valueJson_ws_p.push(ob);
     saveLocalStorage_emsFormBuilder()
   } else {
     let foundIndex = valueJson_ws_p.findIndex(x => x.id_ == id_);
     //items[foundIndex] = item;
-    console.log(foundIndex,ob);
+   
     let item = valueJson_ws_p[foundIndex];
     if (foundIndex != -1) {
       // if id_ of elemant exists on list
       let item = valueJson_ws_p[foundIndex];
-      // console.table(item);
+     
       valueJson_ws_p[foundIndex] = item;
-      //   //console.log(valueJson_ws_p);
-      ////console.log(value_of , "value_of")
+      
       switch (value_of) {
         case "name":
-          ////console.log("name case" ,ob)
-          // valueJson_ws_p[foundIndex].name ?//console.log(true , valueJson_ws_p[foundIndex].name , ob.name): //console.log(false , ob.name)
+      
           const nm = { name: ob.name }
           valueJson_ws_p[foundIndex].name ? valueJson_ws_p[foundIndex].name = ob.name : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], nm)
 
-          //  //console.log(valueJson_ws_p[foundIndex],"name");
           break;
         case "class":
           const clss = { class: ob.class };
           valueJson_ws_p[foundIndex].class ? valueJson_ws_p[foundIndex].class = ob.class : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], clss);
-          //  //console.log(valueJson_ws_p[foundIndex],"class");
+         
           break;
         case "id":
 
           const id = { id: ob.id };
           valueJson_ws_p[foundIndex].id ? valueJson_ws_p[foundIndex].id = ob.id : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], id);
 
-          //   //console.log(valueJson_ws_p[foundIndex],"id");
+          
           break;
         case "required":
           const required = { required: ob.required };
@@ -448,55 +441,55 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
         case "file":
           const file = { file: ob.file };
           valueJson_ws_p[foundIndex].file ? valueJson_ws_p[foundIndex].file = ob.file : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], file);
-          console.log('file',ob.file, ob , 222);
+          
           break;
           case "fileDrogAndDrop":
             let fileDrogAndDrop= {fileDrogAndDrop:ob.fileDrogAndDrop}
-            console.log('fileDrogAndDrop',ob.fileDrogAndDrop , ob , 222)
+            
             if(ob.fileDrogAndDrop!=undefined)  valueJson_ws_p[foundIndex].fileDrogAndDrop ? valueJson_ws_p[foundIndex].fileDrogAndDrop = ob.fileDrogAndDrop : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], fileDrogAndDrop);
           break;
 
       }
-      //  console.table(valueJson_ws_p) ;
+      
       saveLocalStorage_emsFormBuilder();
 
     } else {
      
       if(ob.id_) {
-        console.log('else!' ,ob.id_);
+       
         valueJson_ws_p.push(ob);
         saveLocalStorage_emsFormBuilder();
       }
  
     }
   }
-  console.log(`function addOject_emsFormBuilder`,ob , valueJson_ws_p[0] ,222)
+  
 }// end function
 
 function fillinput_emsFormBuilder() {
   if (Object.keys(valueJson_ws_p).length !== 0) {
 
     for (const item of valueJson_ws_p) {
-      //  //console.log('item =============>',item);
+      
       if (item.type !== "option") {
         if (item.name) {
           const id = `${item.id_}-name_${item.type}`
-          ////console.log(id , "name" , item.name);
+         
           if (document.getElementById(id)) document.getElementById(id).value = item.name;
         }
         if (item.id) {
           const id = `${item.id_}-id_${item.type}`
-          ////console.log(id , "id" , item.name);
+          
           if (document.getElementById(id)) document.getElementById(id).value = item.id;
         }
         if (item.class) {
           const id = `${item.id_}-class_${item.type}`
-          ////console.log(id , "class" , item.name);
+          
           if (document.getElementById(id)) document.getElementById(id).value = item.class;
         }
         if (item.tooltip) {
           const id = `${item.id_}-tooltip_${item.type}`
-          //console.log(id, "class", item.tooltip);
+        
           if (item.tooltip != "null" && document.getElementById(id)) document.getElementById(id).value = item.tooltip
         }
         if (item.required == true || item.required == false) {
@@ -506,22 +499,20 @@ function fillinput_emsFormBuilder() {
         }
       }
       else if (item.type === "option") {
-        //  //console.log(`item.type ==="option"`)          
+       
         if (item.name) {
           const id = `${item.id_}-name_${item.parents}`
-          //console.log(item.name, id, 357)
-          // //console.log(document.getElementById(id).value , 357)
-          //  //console.log(id , "name" , item.name);
+
           if (document.getElementById(id)) document.getElementById(id).value = item.name;
         }
         if (item.id) {
           const id = `${item.id_}-id_${item.parents}`
-          ////console.log(id , "id" , item.name);
+         
           if (document.getElementById(id)) document.getElementById(id).value = item.id;
         }
         if (item.class) {
           const id = `${item.id_}-class_${item.parents}`
-          ////console.log(id , "class" , item.name);
+          
           if (document.getElementById(id)) document.getElementById(id).value = item.class;
         }
         if (item.required == true || item.required == false) {
@@ -542,11 +533,11 @@ function fun_edit_emsFormBuilder(){
   document.getElementById('steps').disabled = true;
   let foundIndex = valueJson_ws_p.findIndex(x => x.steps == stepMax_ws);
   for (let v of valueJson_ws_p) {
-    if (v.type == "option") console.log("option", v)
+    
     let ob = [];
     let id_ = ""
     if (v.steps) {
-      console.log(v.steps)
+     
       document.getElementById('steps').value = v.steps;
       document.getElementById('form_name').value = v.formName;
       createSteps();
@@ -555,9 +546,9 @@ function fun_edit_emsFormBuilder(){
         const item = valueJson_ws_p[foundIndex];
         const icon = item[`icon-${i}`] ? item[`icon-${i}`] : `fa-object-group`;
         document.getElementById(`tabName_${i}`).value = item[`name-${i}`];
-        console.log(icon, item[`icon-${i}`], item)
+        
         document.getElementById(`stepIcon-${i - 1}`).innerHTML = `<i class="fa ${icon}"></i>`
-        console.log(document.getElementById(`tabicon_${i}`))
+       
         const tb = document.getElementById(`tabicon_${i}`)
         tb.placeholder = icon;
         let indexOp = 0
@@ -571,10 +562,10 @@ function fun_edit_emsFormBuilder(){
       //مقدار های عنوان و ایکون بعد از ساخت استپ ها وارد شود
     }
     if (v.type != "option") {
-      console.log(v ,"!option")
+    
       id_ = v.id_
       v.name != undefined && v.name != "" ? ob.push({ name: v.name }) : ob.push({ name: "null" });
-      // v.id != undefined ? console.log(v.id , "option") : console.log("null" , "option")
+     
       v.id != undefined && v.id != "" ? ob.push({ id: v.id }) : ob.push({ id: "null" });
       v.tooltip != undefined && v.tooltip != "" ? ob.push({ tooltip: v.tooltip }) : ob.push({ tooltip: "null" });
       v.class != undefined && v.class != "" ? ob.push({ class: v.class }) : ob.push({ class: "null" });
@@ -595,15 +586,15 @@ function fun_edit_emsFormBuilder(){
     }
     else if (v.type == "option") {
       const id_ = v.id_ + "_" + v.parents
-      console.log(v, "option")
+     
       v.name != undefined ? ob.push({ name: v.name }) : ob.push({ name: "null" });
-      // v.id != undefined ? //console.log(v.id) : //console.log("undi")
+     
       v.id != undefined ? ob.push({ id: v.id }) : ob.push({ id: "null" });
       v.tooltip != undefined ? ob.push({ tooltip: v.tooltip }) : ob.push({ tooltip: "null" });
       v.class != undefined ? ob.push({ class: v.class }) : ob.push({ class: "null" });
       //new code 
       let id = v.parents;
-      console.log("option", document.getElementById(v.parents + "-o")),
+      
         document.getElementById(v.parents + "-o").innerHTML += `<div id="${id_}" class= "border-top">
         <button type="button" class="close remove btn  btn-outline-danger" aria-label="Close" id="remove_${id_}">
           <span aria-hidden="true">×</span>
@@ -612,21 +603,20 @@ function fun_edit_emsFormBuilder(){
         <input type="text" id="${id_}-id_${v.parents}" class="insertInput ml-1 mr-1 mt-1 mb-1" placeholder="ID" ${v.id != undefined ? `value="${v.id}"` : ""}>
         <input type="text" id="${id_}-class_${v.parents}" class="insertInput ml-1 mr-1 mt-1 mb-1" placeholder="Class1,Class2" ${v.class != undefined ? `value="${v.class}"` : ""}>
         <input type="text" id="${id_}-tooltip_${v.parents}" class="insertInput ml-1 mr-1 mt-1 mb-1" placeholder="Placeholder or tooltip" ${v.tooltip != undefined ? `value="${v.tooltip}"` : ""}>`;
-      ////console.log(`remove_${id_}`)
+      
       document.getElementById(`remove_${id_}`).addEventListener("click", (e) => {
-        // //console.log("click");
+        
         e.preventDefault();        
         let id = id_;
-        // //console.log(id);
+        
         document.getElementById(id).remove();
         id = id_
-        ////console.log(id);
+        
         let foundIndex = Object.keys(valueJson_ws_p).length > 0 ? valueJson_ws_p.findIndex(x => x.id_ == id) : -1
 
-        //let found = Object.keys(valueJson_ws_p).length > 0 ?  valueJson_ws_p.find(x => x.id_ == id):-1;
-        ////console.log(foundIndex ,Object.keys(valueJson_ws_p).length)
+
         valueJson_ws_p.splice(foundIndex, 1);
-        //console.table(valueJson_ws_p);
+        
         saveLocalStorage_emsFormBuilder();
       });
       //end new code
@@ -642,12 +632,12 @@ function fun_edit_emsFormBuilder(){
 
   //
 
-  ////console.log("check")
+
   for (const dropZone of document.querySelectorAll(".dropZone")) {
     eventCreatorOfInsertInput_emsFormBuilder(dropZone);
   }
   for (const el of document.querySelectorAll(".add-option")) {
-    // //console.log("creator")
+    
     optionCreator_emsFormBuilder(el);
   }
 }//end edit_emsFormBuilder 
@@ -659,8 +649,7 @@ function deleteButtonCreator_emsFormBuilder() {
       e.preventDefault();
       const id = el.id;
       
-      // document.getElementById(`${id}-b`).removeEventListener('click',this);
-      ////console.log(el.id ,id);
+
 
       if (el != null) {
 
@@ -671,19 +660,19 @@ function deleteButtonCreator_emsFormBuilder() {
 
       let found = Object.keys(valueJson_ws_p).length > 0 ? valueJson_ws_p.find(x => x.id_ == el.id) : -1;
 
-      //console.log(`Delete file foundIndex[${foundIndex}] , found${found}`);
+      
       if (foundIndex!=-1)valueJson_ws_p.splice(foundIndex, 1);
-     // console.log("645" ,found.type)
+     
       if (found && found !== -1 && (found.type === "radiobutton" || found.type === "checkbox" || found.type === "multiselect")) {
         const id = found.id_;
 
       //  foundIndex = -1;
         while (foundIndex != -1) {
           foundIndex = valueJson_ws_p.findIndex(x => x.parents == id);
-          console.log(foundIndex, found.id_ , id ,654);   
+          
           if (foundIndex != -1) { valueJson_ws_p.splice(foundIndex, 1) }
         }
-        //console.table(valueJson_ws_p)
+        
         saveLocalStorage_emsFormBuilder()
       }
       saveLocalStorage_emsFormBuilder()
@@ -692,18 +681,15 @@ function deleteButtonCreator_emsFormBuilder() {
 }
 //777
 function optionCreator_emsFormBuilder(el) {
-  //el of parent
-  // rndm = id of option
-  // //console.log(`optionCreator_emsFormBuilder`);
   el.addEventListener("click", (e) => {
     const rndm = Math.random().toString(36).substr(2, 9);
     e.preventDefault();
-    ////console.log(el.id)
+    
     let id = el.id.substring(0, el.id.search("-"));
-    ////console.log(id);
+    
     const elementId = id;
     id = id + "-o"
-    ////console.log(id);
+    
 
     document.getElementById(id).innerHTML += `<div id="${rndm}-${elementId}" class= "border-top">
             <button type="button" class="close remove btn  btn-outline-danger" aria-label="Close" id="remove_${rndm}-${elementId}">
@@ -716,20 +702,20 @@ function optionCreator_emsFormBuilder(el) {
             </div>
 `;
     for (const el of document.querySelectorAll(".remove")) {
-      ////console.log(el.id);
+      ;
       el.addEventListener("click", (e) => {
         e.preventDefault();
 
         let id = el.id.substring(el.id.search("_") + 1, el.id.length);
         document.getElementById(id).remove();
         id = id.substring(0, id.search("-"));
-        ////console.log(id);
+        
         let foundIndex = Object.keys(valueJson_ws_p).length > 0 ? valueJson_ws_p.findIndex(x => x.id_ == id) : -1
 
         //let found = Object.keys(valueJson_ws_p).length > 0 ?  valueJson_ws_p.find(x => x.id_ == id):-1;
-        ////console.log(foundIndex ,Object.keys(valueJson_ws_p).length)
+        
         valueJson_ws_p.splice(foundIndex, 1);
-        //console.table(valueJson_ws_p);
+ 
 
       });
     }
@@ -756,14 +742,14 @@ function optionCreator_emsFormBuilder(el) {
     }
     fillinput_emsFormBuilder();
 
-    //  //console.log(valueJson_ws_p);
+    
   });
 
 
 }//end function optionCreator_emsFormBuilder
 
 function saveLocalStorage_emsFormBuilder() {
-  console.log('save!' ,valueJson_ws_p)
+ 
   localStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
   localStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
 }
@@ -777,7 +763,7 @@ function alarm_emsFormBuilder(val) {
 }
 
 function funIconArrow_emsFormBuilder(id) {
-  ////console.log(id,document.getElementById(`${id}-icon`).className=="fa fa-caret-right")
+ 
   const el = document.getElementById(`${id}-icon`);
   el.className = el.className == "fa fa-caret-right" ? "fa fa-caret-down" : "fa fa-caret-right";
   //${rndm}-icon
@@ -788,7 +774,7 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
 
 
   for (const el of document.querySelectorAll(".insertInput")) {
-    //   //console.log( el.addEventListener);
+  
     el.addEventListener("change", (e) => {
 
       e.preventDefault();
@@ -799,7 +785,7 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
       let value_of = el.id.substring((el.id.search("-") + 1), el.id.search("_"));
       let value = "";
       if(value_of !='name' || value_of !='id' || value_of !='class' || value_of !='tooltipe'){
-        console.log(value_of , 222)
+      
           if (id.includes('name')===true){
             value_of='name';
           }else if (id.includes('id')===true){
@@ -809,10 +795,10 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
           }else if (id.includes('tooltipe')===true){
             value_of='tooltipe';
           }
-          console.log(value_of , 222)
+          
       }
 
-      // //console.log(type)
+      
       if (type == "text" || type == "password" || type == "button" || type == "number" || type == "tel" || type == "textarea" || type == "image" || type == "email" || type == "date" || type == "url" || type == "color" || type == "range"  || type == "file") {
 
         value = document.getElementById(el.id).value;
@@ -829,11 +815,11 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
         //check validiton of new option
         for (const v of valueJson_ws_p) {
           if ((v.type == "radiobutton" || v.type == "checkbox" || v.type == "multiselect") && v.id_ == id_) {
-            console.log(v.type)
+            
             for (const el of document.querySelectorAll(".add-option")) {
 
               if (el.id.substring(0, el.id.search("-")) == id_) {
-                console.log(713, el.id)
+                
                 v.name && v.name !== "" ? el.disabled = false : el.disabled = true;
               }
 
@@ -841,7 +827,7 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
             }
           } else {
             for (const el of document.querySelectorAll(".add-option")) {
-              ////console.log(el.id , id_ , "id_")
+              
               //   el.classList.contains("disabled")===false  ? el.classList.add("disabled") : "";
 
             }
@@ -850,21 +836,20 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
         //end check validiton of new option
       }
 
-      //   //console.log(type)
       if (value_of == "required" || (value_of == "allowMultiSelect" && pro_ws)) {
-        //  //console.log("true" ,el.id);
+        
         const id = el.id;
         value = document.getElementById(id).checked;
-        //   //console.log("check state:",value);
+        
       }
 
       if ((type == "radiobutton" || type == "checkbox" || type == "multiselect") && (!e.target.id.includes("required") && !e.target.id.includes("allowMultiSelect"))) {
         const r = value.length > 0 ? false : true;
         document.getElementById(`${id_}-oc`).disabled = r
-        console.log(740, document.getElementById(`${id_}-oc`), document.getElementById(`${id_}-oc`).disabled);
-        //console.log(r, document.getElementById(`${id_}-oc`).disabled)
+        
+        
       }
-      console.log(el.id ,value_of ,222)
+      
       const step = dropZone.id.substring((dropZone.id.search("-") + 1), dropZone.id.length)
       addOject_emsFormBuilder(id, id_, value, type, value_of, group, step);
 
@@ -884,7 +869,7 @@ function loading_emsFormBuilder() {
 
 function showloading_emsFormBuilder() {
   const time = stepMax_ws < 3 ? 700 : stepMax_ws * 200;
-  console.log(Date(), time);
+  
   //document.getElementById(`body`).innerHTML+=loading_emsFormBuilder();
   document.getElementById("body").classList.add = "wait";
   if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
@@ -893,7 +878,7 @@ function showloading_emsFormBuilder() {
     document.getElementById("body").classList.remove = "wait";
     if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
     else body.style.pointerEvents = "none";
-    console.log(Date());
+    
   }, time);
 }
 
@@ -904,7 +889,7 @@ function endMessage_emsFormBuilder() {
   for (i = 1; i <= stepMax_ws; i++) {
     if (-1 == (valueJson_ws_p.findIndex(x => x.step == i))) notfilled.push(i);
   }
-  console.log(notfilled.length)
+  
   if (notfilled.length > 0) {
     let str = ""
     for (no of notfilled) {
@@ -926,7 +911,7 @@ function endMessage_emsFormBuilder() {
 }
 
 function createSteps() {
-  console.log("change");
+  
   const addSteps = document.getElementById("addStep");
   const tabList = document.getElementById("tabList");
   const tabInfo = document.getElementById("tabInfo");
@@ -951,7 +936,7 @@ function createSteps() {
    //remove all elements in (end)
 
  // check value of maxstep get from user (Start)
-  console.log(document.getElementById("steps").value)
+  
   const c = (document.getElementById("steps").value < 3 && document.getElementById("steps").value > 0 && !pro_ws) || (pro_ws && document.getElementById("steps").value <21 && document.getElementById("steps").value > 0 ) ? document.getElementById("steps").value : -1
   if (c != -1) {
     document.getElementById("nextBtn").disabled = false;
@@ -1030,34 +1015,34 @@ function createSteps() {
     el.addEventListener("change", (e) => {
       const no = el.id.substring((el.id.search("_") + 1), el.id.length)
       let name = el.id.substring(0, (el.id.search("_")))
-      //console.log(name ,el.id.search("_"))
+      
       name = name == "tabName" ? "name" : "icon";
-      console.log(name, el.value);
+      
       //emsfb version of form creator emsfb:1 ,
       const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.1 }
 
       if (name == "icon") {
         document.getElementById(`stepIcon-${no - 1}`).innerHTML = `<i class="fa ${el.value}"></i>`;
         document.getElementById(`icon-step-${no}`).className = el.value;
-        console.log(document.getElementById(`icon-step-${no}`).className)
+        
       }
       if (name == "name") {
         const v = stepNames_ws.length >= 4
         const nno = parseInt(no);
-        console.log(v, nno, stepNames_ws.length, nno + 1, stepNames_ws[1 + nno])
+        
         v != false && nno + 1 != stepNames_ws.length - 1 ? stepNames_ws[1 + nno] = el.value : stepNames_ws.splice(1 + nno, 0, el.value);
-        console.log(stepNames_ws)
+        
       }
       if (Object.keys(valueJson_ws_p).length === 0) {
 
         valueJson_ws_p.push(ob);
-        //console.log(valueJson_ws_p)
+        
       } else {
         let foundIndex = valueJson_ws_p.findIndex(x => x.steps == stepMax_ws);
         if (foundIndex != -1) {
           let item = valueJson_ws_p[foundIndex];
           item[`${name}-${no}`] ? valueJson_ws_p[foundIndex][`${name}-${no}`] = el.value : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], { [`${name}-${no}`]: el.value })
-          console.log(valueJson_ws_p[foundIndex])
+          
           saveLocalStorage_emsFormBuilder()
         } else {
           valueJson_ws_p.push(ob);
@@ -1076,7 +1061,7 @@ function createSteps() {
   }
 
   for (const dropZone of document.querySelectorAll(`.dropZone`)) {
-    //  //console.log(`---------------`,dropZone);
+    
 
     dropZone.addEventListener("dragover", (e) => {
 
@@ -1089,7 +1074,7 @@ function createSteps() {
 
       e.preventDefault();
       let el = e.dataTransfer.getData("text/plain");
-      //  //console.log(el ,el.search("-"),dropZone);
+      
       el = el.substring(0, el.search("-"))
       if (el !== "step" && el != null && el != "") {
         const rndm = Math.random().toString(36).substr(2, 9);
@@ -1097,16 +1082,16 @@ function createSteps() {
 
       }
 
-      // //console.log(el.id , "el id");
+      
       //here
       fillinput_emsFormBuilder();
 
-      // //console.log(el.id , "el id");
+      
       //here
       eventCreatorOfInsertInput_emsFormBuilder(dropZone);
 
       for (const el of document.querySelectorAll(".add-option")) {
-        //console.log("creator")
+        
         optionCreator_emsFormBuilder(el);
       }
 
@@ -1121,7 +1106,7 @@ function createSteps() {
       for (const el of document.querySelectorAll(".insertInput")) {
         
         el.addEventListener("change", (e) => {
-          console.log("click");
+          
           e.preventDefault();
           const id = el.id;
           const id_ = el.id.substring(0, el.id.search("-"));
@@ -1149,16 +1134,15 @@ function createSteps() {
             //check validiton of new option
             for (const v of valueJson_ws_p) {
               if (v.type == "radiobutton" && v.id_ == id_) {
-                //console.log("value")
                 for (const el of document.querySelectorAll(".add-option")) {
-                  //console.log(el.id.substring(0,el.id.search("-") ) , id_ , "id_")
+                  
 
                   el.id.substring(0, el.id.search("-")) == id_ && (v.name && v.name !== "") ? el.disabled = false : el.disabled = true;
 
                 }
               } else {
                 for (const el of document.querySelectorAll(".add-option")) {
-                  //console.log(el.id , id_ , "id_")
+               
                   //   el.classList.contains("disabled")===false  ? el.classList.add("disabled") : "";
 
                 }
@@ -1168,18 +1152,18 @@ function createSteps() {
           }
 
           
-          //   //console.log(type)
+          
           if (value_of == "required" || value_of =='allowMultiSelect' || value_of =='fileDrogAndDrop') {
-            //  //console.log("true" ,el.id);
+            
             const id = el.id;
             value = document.getElementById(id).checked;
-            //   //console.log("check state:",value);
+            
           }
          
-          //console.log(dropZone.id.substring((dropZone.id.search("-")+1),dropZone.id.length ))
-          console.log(`1115 value[${value}] id[${id}] id_[${id_}] value[${value}] type[${type}] value_of[${value_of}] group[${group}]`);
+          
+          
           const step = dropZone.id.substring((dropZone.id.search("-") + 1), dropZone.id.length)
-          //console.log(step)
+          
           addOject_emsFormBuilder(id, id_, value, type, value_of, group, step);
         });
       }
@@ -1191,7 +1175,7 @@ function createSteps() {
   for (const el of document.querySelectorAll(`.el`)) {
 
     el.addEventListener("dragstart", (e) => {
-      //      //console.log( el.id,49)
+      
       e.dataTransfer.setData("text/plain", el.id)
 
     });
@@ -1207,14 +1191,12 @@ function helpLink_emsFormBuilder() {
 
 function stepName_emsFormBuilder(i) {
   document.getElementById('step-name').innerHTML = stepNames_ws[i] != "null" && stepNames_ws[i] != undefined ? `Step Name: ${stepNames_ws[i]}` : "";
-  console.log(stepNames_ws[i] != "null", i)
+  
 }
 
 
 function actionSendData_emsFormBuilder(){
-  console.log(`localStorage.getItem("valueJson_ws_p")`,localStorage.getItem("valueJson_ws_p"))
-  console.log(`actionSendData_emsFormBuilder` ,s_var.nonce);
-  console.log(`state_check_ws_p` ,state_check_ws_p);
+ 
   $(function() {
   data ={} 
   if (state_check_ws_p==1){
@@ -1235,14 +1217,14 @@ function actionSendData_emsFormBuilder(){
   }
     
     $.post(ajaxurl,data,function(res){
-      console.log(res ,ajaxurl);
+      
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Done</h1></br> <span>Good Job, Your form is builded successfully</span></br></br> <h3>FormCode: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
           localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
-          console.log(`res : ${res}`)
+          
           
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>WP Error</h3> <span>Some something went wrong please try again,Error Code:400-1</span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
@@ -1268,7 +1250,7 @@ function actionSendData_emsFormBuilder(){
 
 
 function unlimted_version_emsFormBuilder(m,s) {
-  console.log('test')
+  
   const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
   return `<div class=" overpage" id="overpage">
   <div class="overpage-mbox">
@@ -1284,7 +1266,7 @@ function unlimted_version_emsFormBuilder(m,s) {
 }
 
 function unlimted_show_emsFormBuilder(m){
-  console.log(m)
+  
   document.getElementById('wpwrap').innerHTML += unlimted_version_emsFormBuilder(m,0);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1304,7 +1286,7 @@ function preview_emsFormBuilder(){
     // یک شرط که اگر فرم در بادی موجود نبود ساخته شود
     // مشکلی که وجود دارد از هر چیزی دوتا اضافه می شود
    content =  fun_render_view_core_emsFormBuilder(0);
-  // console.log(document.getElementById('body_emsFormBuilder').innerHTML)
+  
   document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">

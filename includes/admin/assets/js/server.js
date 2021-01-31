@@ -1,9 +1,9 @@
-console.log('server.js');
+//console.l('server.js');
 
 
 jQuery (function() {
 
-    console.log(`server.js`,'ajax_s_esmf')
+    //console.l(`server.js`,'ajax_s_esmf')
     
     if(server_whitestudio_news_state){
         
@@ -18,7 +18,7 @@ jQuery (function() {
 
 
 function fun_show_update_server_message_emsFormBuilder(message){
-    console.log(`server.js` ,'fun_show_update_server_message_emsFormBuilder');
+    //console.l(`server.js` ,'fun_show_update_server_message_emsFormBuilder');
    
   const wpcontent = document.getElementById('wpbody-content');
   const newItem = document.createElement("DIV");
