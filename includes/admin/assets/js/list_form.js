@@ -693,12 +693,12 @@ function fun_hande_active_page_emsFormBuilder(no){
 function fun_show_help__emsFormBuilder(){
   document.getElementById("more_emsFormBuilder").style.display = "none"
     listOfHow_emsfb ={
-      1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}, */
       2:{title:'How to config Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       3:{title:'How to get google re-captcha and add to Easy Form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       5:{title:'How to Create a Form with Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      6:{title:'How to Add tracking Form with Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
+      6:{title:'How to activation Tracking Code in Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       8:{title:'How to insert tracking code to a post or page.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
       9:{title:'How to find a response with tracking code.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}
@@ -770,7 +770,7 @@ function fun_show_setting__emsFormBuilder(){
  
     <div class="py-2 pb-5 bg-light">
       <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">Pro Version  <h6>
-       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a href="">Click here to get Activate Code.</a>  </small>
+       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a href="${proUrl_ws}">Click here to get Activate Code.</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
         <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="Enter Activate Code" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
@@ -785,8 +785,8 @@ function fun_show_setting__emsFormBuilder(){
        
       </div>
       <div class="form-group  mx-5">
-        <label for="secretkey_emsFormBuilder">SECRECT KEY</label>
-        <input type="text" class="form-control" id="secretkey_emsFormBuilder" placeholder="Enter SECRECT KEY" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
+        <label for="secretkey_emsFormBuilder">SECRET KEY</label>
+        <input type="text" class="form-control" id="secretkey_emsFormBuilder" placeholder="Enter SECRET KEY" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
       </div>
     </div>
 

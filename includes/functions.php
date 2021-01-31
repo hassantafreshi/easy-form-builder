@@ -9,5 +9,5 @@ use Emsfb;
  */
 
 function test(){
-	error_log('test functions');
+	//error_log('test functions');
 }

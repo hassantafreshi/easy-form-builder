@@ -254,8 +254,8 @@ class _Public {
 			$ip = $this->ip;
 			$check=	$this->insert_message_db();
 			
-			error_log('test test');
-			error_log('setting->emailSupporter');
+		/* 	error_log('test test');
+			error_log('setting->emailSupporter'); */
 			$r= $this->get_setting_Emsfb('setting');
 			$setting =json_decode($r->setting);
 /* 			error_log($setting->emailSupporter);*/	
@@ -526,7 +526,7 @@ class _Public {
 				error_log(json_encode($setting));
 				error_log($setting->emailSupporter); */
 				if (strlen($setting->emailSupporter)>0){
-					error_log($setting->emailSupporter);
+				//	error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}
 			
@@ -546,7 +546,7 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track){
-		error_log("send_email_Emsfb");
+	//	error_log("send_email_Emsfb");
 		//error_log($to);
    $message ='<!DOCTYPE html> <html> <body><h3>A New Message has been Received ,Track No: ['.$track.']</h3>
    <p>This message is sent by <b>Easy Form Builder</b> plugin from '. home_url().' </p>
