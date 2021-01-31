@@ -693,15 +693,15 @@ function fun_hande_active_page_emsFormBuilder(no){
 function fun_show_help__emsFormBuilder(){
   document.getElementById("more_emsFormBuilder").style.display = "none"
     listOfHow_emsfb ={
-     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}, */
-      2:{title:'How to config Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      3:{title:'How to get google re-captcha and add to Easy Form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      5:{title:'How to Create a Form with Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      6:{title:'How to activation Tracking Code in Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      8:{title:'How to insert tracking code to a post or page.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},
-      9:{title:'How to find a response with tracking code.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}
+     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
+      2:{title:'How to config Easy form Builder.',url:'https://www.youtube.com/embed/DEQNHMPT0rQ'},
+      3:{title:'How to get google re-captcha and add to Easy Form Builder.',url:'https://www.youtube.com/embed/a1jbMqunzkQ'},
+      4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/So2RAzu-OHU'},
+      5:{title:'How to Create a Form with Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
+      6:{title:'How to activation Tracking Code in Easy form Builder.',url:'https://www.youtube.com/embed/im3aKby4E14'},
+      7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
+      8:{title:'How to Add tracking Form to a post or page.',url:'https://www.youtube.com/embed/c1_gCFihrH8'},
+      9:{title:'How to find a response by tracking code.',url:'https://www.youtube.com/embed/vqKi9BJbO7k'}
    /*    10:{title:'How to test Pro version on localhost',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}, */
     }
 
