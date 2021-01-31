@@ -778,7 +778,7 @@ function fun_show_setting__emsFormBuilder(){
     </div>
    <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="reCAPTCHAHelp"> reCAPTCHA v2 <h6>
-       <small id="reCAPTCHAHelp" class="form-text text-muted mx-3 mb-3"><a href="https://www.google.com/recaptcha/about/">reCAPTCHA</a> protects your website from fraud and abuse.<a href="">Click here to watch a video tutorial.</a></small>
+       <small id="reCAPTCHAHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="https://www.google.com/recaptcha/about/">reCAPTCHA</a> protects your website from fraud and abuse.<a target="_blank" href="https://youtu.be/a1jbMqunzkQ">Click here to watch a video tutorial.</a></small>
       <div class="form-group mx-5">
         <label for="sitekey_emsFormBuilder">SITE KEY</label>
         <input type="text" class="form-control" id="sitekey_emsFormBuilder" placeholder="Enter SITE KEY" ${sitekey!=="null" ? `value="${sitekey}"` :"" }>
@@ -814,7 +814,7 @@ function fun_show_setting__emsFormBuilder(){
     </div>
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">Tracking code Finder <h6>
-       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">Copy and Paste below short-code of tracking code finder in any page or post.<a href="">Click here to watch tutorial Video.</a>   </small>
+       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">Copy and Paste below short-code of tracking code finder in any page or post.<a target="_blank" href="https://youtu.be/c1_gCFihrH8">Click here to watch tutorial Video.</a>   </small>
       <div class="form-group mx-5">
       <input type="text" class="form-control" id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>          
       </div>
