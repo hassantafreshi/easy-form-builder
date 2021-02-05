@@ -1,5 +1,5 @@
 //Fontawesome Icon List
-//Source: https://codepen.io/assan/pen/eYZajJe
+//source:https://codepen.io/assan/pen/eYZajJe
 listIcons={
 "fa-object-group":"&#xf247;",
 "fa-500px":"&#xf26e;",

@@ -135,41 +135,57 @@ class _Public {
 			wp_register_style( 'Emsfb-css-rtl',  plugins_url('../public/assets/css/style-rtl.css',__FILE__), true);
 			wp_enqueue_style( 'Emsfb-css-rtl' );
 		}
+	
+		//source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
+		wp_register_style( 'bootstrap4-5-2-css',  plugins_url('../public/assets/css/bootstrap4-5-2.min.css',__FILE__), true );
+		wp_enqueue_style( 'bootstrap4-5-2-css' );
+/* 		wp_register_style('bootstrapCss', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+		wp_enqueue_style('bootstrapCss'); */
 
-		wp_register_style('bootstrapCss', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
-		wp_enqueue_style('bootstrapCss');
+		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
 		wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
 		wp_enqueue_style('Font_Awesome-5');
+
+		//source : https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
 		wp_register_style('Font_Awesome-4', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 		wp_enqueue_style('Font_Awesome-4');
 
-		wp_register_style('choices_css', 'https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0');
-		wp_enqueue_style('choices_css');
+		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0
+		wp_register_style( 'choices-css',  plugins_url('../public/assets/css/choices.min.css',__FILE__), true );
+		wp_enqueue_style( 'choices-css' );
 
-		wp_register_style('Font_Awesome_Animation', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css');
-		wp_enqueue_style('Font_Awesome_Animation');
 
-		wp_register_script('ajaxgoogle', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', null, null, true);
-		wp_enqueue_script('ajaxgoogle');
+		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
+		wp_register_style( 'font-awesome-animation-css',  plugins_url('../public/assets/css/font-awesome-animation.min.css',__FILE__), true );
+		wp_enqueue_style( 'font-awesome-animation-css' );
+	
 
-		wp_register_script('popper', 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js', null, null, true);
-		wp_enqueue_script('popper');
+		//source:https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
+		wp_enqueue_script( 'popper-js', plugins_url('../public/assets/js/popper.min.js',__FILE__), array('jquery'), null, true );
+		wp_enqueue_script('popper-js');
 
-		wp_register_script('bootstrapJS', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js', null, null, true);
-		wp_enqueue_script('bootstrapJS');
 
-		wp_register_script('choices_js', 'https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0', null, null, true);
-		wp_enqueue_script('choices_js');
+
+		//source:https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js
+		wp_enqueue_script( 'bootstrap-js', plugins_url('../public/assets/js/bootstrap.min.js',__FILE__), array('jquery'), null, true );
+		wp_enqueue_script('bootstrap-js');
+
+
+		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0
+		wp_register_script('choices-js', plugins_url('../public/assets/js/choices.min.js',__FILE__), array('jquery'), null, true);
+		wp_enqueue_script('choices-js');
+
 		
 		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('core_js');
 
-		wp_register_style('multiselect', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css');
-		wp_enqueue_style('multiselect');
+		//source:https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css
+		wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
+		wp_enqueue_style( 'bootstrap-multiselect-css' );
+		/* wp_register_style('multiselect', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css');
+		wp_enqueue_style('multiselect'); */
 
 		
-	/* 	wp_register_script('recaptcha-code', 'https://code.jquery.com/jquery-2.2.4.min.js', null, null, true);*/
-		//wp_register_script('recaptcha-code', 'https://code.jquery.com/jquery-3.5.1.min.js', null, null, true);
 		wp_register_script('recaptcha-code', 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js', null, null, true);
 		wp_enqueue_script('recaptcha-code'); 
 	
@@ -182,14 +198,6 @@ class _Public {
 		
 		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js', null , null, true);
 		wp_enqueue_script('recaptcha');
-/* 		wp_localize_script('core_js','ajax_object',array(		
-			'ajax_url' => admin_url( 'admin-ajax.php' ),			
-			   'ajax_value' => $this->value,
-			   'language' => $lang,
-			   'id' => $this->id
-			  // 'aadd_nonce'=>$this->nounce
-		)); */
-		
 		
 				wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
 				wp_enqueue_script('Emsfb-listicons-js');
@@ -224,14 +232,16 @@ class _Public {
 			
 		$setting =json_decode($r->setting);
 		$secretKey=$setting->secretKey;
-		//error_log($setting->secretKey);
-		//$setting->secretKey
-		//$setting->emailSupporter
 		$response=$_POST['valid'];
-
 		
-		$verify=file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}");
-		$captcha_success=json_decode($verify);
+		$args = array(
+			'secret'        => $secretKey,
+			'response'     => $response,
+		);
+		
+		$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+		$captcha_success =json_decode($verify['body']);
+		
 		if ($captcha_success->success==false) {
 		// "Error, you are a robot?";
 		  $response = array( 'success' => false  , 'm'=>'Error, you are a robot?'); 
@@ -290,13 +300,13 @@ class _Public {
 		 $setting =json_decode($r->setting);
 		 $secretKey=$setting->secretKey;
 		 $response=$_POST['valid'];
-
+		 
+		 $verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+		 $captcha_success =json_decode($verify['body']);
 		
-		 $verify=file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}");
-		 $captcha_success=json_decode($verify);
 		 if ($captcha_success->success==false) {
 		 // "Error, you are a robot?";
-		  $response = array( 'success' => false  , 'm'=>'Error, you are a robot?'); 
+		  $response = array( 'success' => false  , 'm'=>'Error,Are you a robot?'); 
 		  wp_send_json_success($response,$_POST);
 		 }
 		 else if ($captcha_success->success==true) {
@@ -308,24 +318,25 @@ class _Public {
 			
 			$table_name = $this->db->prefix . "Emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track FROM `$table_name` WHERE track = '$id'" );	
-			$id=$value[0]->msg_id;
-			$table_name = $this->db->prefix . "Emsfb_rsp_";
-			$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
-			///get_current_user_id
-			foreach($content as $key=>$val){
-				
-				$r = (int)$val->rsp_by;
-				if ($r>0){
-					$usr =get_user_by('id',$r);
-					$val->rsp_by= $usr->display_name;
-				}else{
-					$val->rsp_by="Guest";
-				}				 
+			if($value!=null){
+				$id=$value[0]->msg_id;
+				$table_name = $this->db->prefix . "Emsfb_rsp_";
+				$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
+				///get_current_user_id
+				foreach($content as $key=>$val){
+					
+					$r = (int)$val->rsp_by;
+					if ($r>0){
+						$usr =get_user_by('id',$r);
+						$val->rsp_by= $usr->display_name;
+					}else{
+						$val->rsp_by="Guest";
+					}				 
+				}
+				$ip = $this->ip;
 			}
-			$ip = $this->ip;
-			//$check=	$this->insert_message_db();
-			if($value[0]!=null){
 
+			if($value!=null){
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
 				$response = array( 'success' => false  , "m" =>"Tracking Code not found!"); 

@@ -42,13 +42,14 @@ class Panel_edit  {
 					'check' => 0
 						));
 
-					wp_enqueue_script( 'ajax331', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js' );
-			wp_enqueue_script('ajax331');
+			/*
+			tested delete below code
+			 wp_enqueue_script( 'ajax331', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js' );
+			wp_enqueue_script('ajax331'); */
 
-			wp_enqueue_script( 'tbootstrap', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js' );
-			wp_enqueue_script('tbootstrap');
-			//	add_action('wp_ajax_remove_id_Emsfb', array( $this,'delete_form_id_public'));
-			//add_action('wp_ajax_remove_id_Emsfb', array( $this,'delete_form_id_public'));
+			wp_enqueue_script( 'bootstrap-js', Emsfb_URL . 'includes/admin/assets/js/bootstrap.min.js' );
+			wp_enqueue_script('bootstrap-js');
+		
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date FROM `$table_name`" );

@@ -178,11 +178,15 @@ class Create {
 	
 
 
-		wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js', null, null, true);
-		wp_enqueue_script('jquery');
+	/*
+	test and delete below code
+	wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js', null, null, true);
+		wp_enqueue_script('jquery'); */
 
-		wp_register_script('bootstrapcdn', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js', null, null, true);
-		wp_enqueue_script('bootstrapcdn');
+		/*
+		test and delete below code
+		 wp_register_script('bootstrapcdn', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js', null, null, true);
+		wp_enqueue_script('bootstrapcdn'); */
 
 	
 	}

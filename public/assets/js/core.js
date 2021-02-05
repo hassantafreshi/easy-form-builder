@@ -57,13 +57,6 @@ jQuery (function() {
     }
 
 
-    //fun_tracking_show_emsFormBuilder()
-    ////console.log(ajax_object.ajax_value);
- /*    jQuery.post(ajax_object.ajax_url,data,function(res){
-        // برای پاسخ از اینجا استفاده می شود که اطلاعات برای سرور ارسال شود
-        // به کد مشابه در فایل admin.js مراجعه شود
-    }) */ 
-
 });
 
 function fun_render_view(val,check){
@@ -805,8 +798,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-    //console.log(sendBack_emsFormBuilder_pub,'JSON.stringify(sendBack_emsFormBuilder_pub)',JSON.stringify(sendBack_emsFormBuilder_pub));
-    ////console.log(`run function actionSendData_emsFormBuilder ${sendBack_emsFormBuilder_pub}` ,sendBack_emsFormBuilder_pub ,`[${ajax_object.id.id}]` )
+
     $(function () {
      
       data = {

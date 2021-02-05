@@ -69,29 +69,6 @@ for (let v of valueJson_ws) {
       }
       else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
       el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
-     //console.log(`v.tooltip ${el}`)
-      /* if (v.clander=="Persian" || v.clander=="Arabic") {
-        el +=`    
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
-        <script src="./js/bootstrap-hijri-datetimepickermin.js"></script>
-        <script>
-        console.log('kir khar');
-        $(function () {
-
-          initDefault();
-
-      });
-
-      function initDefault() {
-       
-          $(".hijri-picker").hijriDatePicker({
-              hijri:true,
-              showSwitcher:false
-          });
-      }
-      </script>`;
-      } */
 
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
@@ -820,9 +797,9 @@ if(el.files[0] && el.files[0].size<15000000){
 
 
 
- $(document).ready(function() {
+/*  $(document).ready(function() {
 
-});
+}); */
 
 
 

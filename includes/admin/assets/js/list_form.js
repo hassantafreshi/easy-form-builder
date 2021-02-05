@@ -461,7 +461,7 @@ function fun_ws_show_list_messages(value){
 
 function fun_delete_form_with_id_by_server(id){
   //console.l(ajax_object.ajax_url ,id);
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "remove_id_Emsfb",
       type: "POST",
@@ -503,7 +503,7 @@ function fun_open_message_emsFormBuilder(msg_id,state){
 
 
 function fun_get_form_by_id(id){
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "get_form_id_Emsfb",
       type: "POST",
@@ -525,7 +525,7 @@ function fun_get_form_by_id(id){
   });
 }
 function fun_update_message_state_by_id(id){
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "update_message_state_Emsfb",
       type: "POST",
@@ -550,7 +550,7 @@ function fun_update_message_state_by_id(id){
 }
 function fun_get_messages_by_id(id){
   //console.l(`fun_get_messages_by_id(${id})` ,ajax_object.ajax_url)
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "get_messages_id_Emsfb",
       nonce:ajax_object_core.nonce,
@@ -572,7 +572,7 @@ function fun_get_messages_by_id(id){
 }
 function fun_emsFormBuilder_get_all_response_by_id(id){
   //console.l(`fun_emsFormBuilder_get_all_response_by_id(${id})` ,ajax_object.ajax_url)
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "get_all_response_id_Emsfb",
       nonce:ajax_object_core.nonce,
@@ -604,7 +604,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     return;
   }
   
-  $(function () {
+  jQuery(function ($) {
     data = {
       action: "set_replyMessage_id_Emsfb",
       type: "POST",
@@ -915,7 +915,7 @@ function fun_state_loading_message_emsFormBuilder(state){
 function fun_send_setting_emsFormBuilder(data){
   //console.l(data);
   //ارسال تنظیمات به ووردپرس
-    $(function () {
+    jQuery(function ($) {
     data = {
       action: "set_setting_Emsfb",
       type: "POST",
@@ -977,7 +977,7 @@ function fun_find_track_emsFormBuilder(){
 
    
      
-        $(function () {     
+        jQuery(function ($) {     
           //console.l('get_track_id_Emsfb');  
           data = {
             action: "get_track_id_Emsfb",
@@ -1012,7 +1012,7 @@ function fun_find_track_emsFormBuilder(){
 
 function clear_garbeg_emsFormBuilder(){
   emsFormBuilder_popUp_loading()
-   $(function () {     
+   jQuery(function ($) {     
     //console.l('clear_garbeg_emsFormBuilder');  
     data = {
       action: "clear_garbeg_Emsfb",

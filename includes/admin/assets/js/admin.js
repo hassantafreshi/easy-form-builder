@@ -1186,7 +1186,7 @@ function createSteps() {
 }
 
 function helpLink_emsFormBuilder() {
-  window.open("https://www.youtube.com/hassantafreshi", "_blank")
+  window.open("https://www.youtube.com/watch?v=7jS01CEtbDg", "_blank")
 }
 
 function stepName_emsFormBuilder(i) {
@@ -1196,25 +1196,26 @@ function stepName_emsFormBuilder(i) {
 
 
 function actionSendData_emsFormBuilder(){
- 
-  $(function() {
-  data ={} 
-  if (state_check_ws_p==1){
-    data={
-      action:"add_form_Emsfb",
-      value: localStorage.getItem("valueJson_ws_p"),
-      name:formName_ws,
-      nonce:s_var.nonce
-    };
-  }else{
-    data={
-      action:"update_form_Emsfb",
-      value: localStorage.getItem("valueJson_ws_p"),
-      name:formName_ws,
-      nonce:s_var.nonce,
-      id:form_ID_emsFormBuilder
-    };
-  }
+  data ={};
+  console.log('test');
+  jQuery(function ($) {
+    console.log(`state_check_ws_p[${state_check_ws_p}]`)
+    if (state_check_ws_p==1){
+      data={
+        action:"add_form_Emsfb",
+        value: localStorage.getItem("valueJson_ws_p"),
+        name:formName_ws,
+        nonce:s_var.nonce
+      };
+    }else{
+      data={
+        action:"update_form_Emsfb",
+        value: localStorage.getItem("valueJson_ws_p"),
+        name:formName_ws,
+        nonce:s_var.nonce,
+        id:form_ID_emsFormBuilder
+      };
+    }
     
     $.post(ajaxurl,data,function(res){
       
