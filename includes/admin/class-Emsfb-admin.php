@@ -217,8 +217,13 @@ class Admin {
 			wp_send_json_success($response,$_POST);
 			die("secure!");
 		}
-		$id =number_format($_POST['id']);		
 		
+		if( empty($_POST['id']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+		$id =number_format($_POST['id']);		
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$r = $this->db->delete($table_name,
@@ -237,13 +242,19 @@ class Admin {
 			die("secure!");
 		}
 
+		if(empty($_POST['value']) || empty($_POST['id']) ){
+			$response = array( 'success' => false , "m"=>"Invalid require,Please Check every thing"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+
 		if($this->isHTML(json_encode($_POST['value']))){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		$id =number_format($_POST['id']);		
-		$value =  $_POST['value'];
+		$value =sanitize_text_field($_POST['value']);
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$r = $this->db->update($table_name,array( 'form_structer' => $value),array('form_id'=>$id) );
@@ -258,6 +269,16 @@ class Admin {
 			wp_send_json_success($response,$_POST);
 			die("secure!");
 		}
+		if( empty($_POST['id']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+		if( empty($_POST['value']) ){
+			$response = array( 'success' => false , "m"=>"Please Enter the value"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
 		//error_log('json_encode($ _POST[value])');
 		//error_log(json_encode($_POST['value']));
 		if($_POST['value']){
@@ -268,7 +289,6 @@ class Admin {
 			} 
 		}
 		$id =number_format($_POST['id']);		
-	//	$value =  $_POST['value'];
 		
 		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$r = $this->db->update($table_name,array( 'read_' => 1 , 'read_by'=>get_current_user_id(), 'read_date'=>current_time('mysql')),array('msg_id'=>$id) );
@@ -284,6 +304,11 @@ class Admin {
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
+	if( empty($_POST['id']) ){
+		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+		wp_send_json_success($response,$_POST);
+		die();
+	} 
 		$id =number_format($_POST['id']);
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
@@ -300,6 +325,11 @@ class Admin {
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
+	if( empty($_POST['id']) ){
+		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+		wp_send_json_success($response,$_POST);
+		die();
+	} 
 	   
 		$id =number_format($_POST['id']);
 		
@@ -315,6 +345,11 @@ class Admin {
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
+	if( empty($_POST['id']) ){
+		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+		wp_send_json_success($response,$_POST);
+		die();
+	} 
 	   
 		$id =number_format($_POST['id']);
 		
@@ -346,6 +381,17 @@ class Admin {
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 		}
+		if( empty($_POST['id']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+		if( empty($_POST['message']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page and Enter value"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+		
 
 		if($this->isHTML(json_encode($_POST['message']))){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
@@ -353,7 +399,7 @@ class Admin {
 			die();
 		}
 	$id =number_format($_POST['id']);
-	$m=$_POST['message'];
+	$m=sanitize_text_field($_POST['message']);
 	
 
 	$table_name = $this->db->prefix . "Emsfb_rsp_";
@@ -382,7 +428,13 @@ class Admin {
 		$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
 		wp_send_json_success($response,$_POST);
 		die("secure!");
-	}
+		}
+
+		if( empty($_POST['message']) ){
+			$response = array( 'success' => false , "m"=>"Please enter a message"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
 	if($this->isHTML(json_encode($_POST['message']))){
 		$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
 		wp_send_json_success($response,$_POST);
@@ -390,7 +442,7 @@ class Admin {
 	}
 	$m=$_POST['message'];
 	
-	$setting =json_encode($_POST['message']);
+	$setting =sanitize_text_field(json_encode($_POST['message']));
 	$table_name = $this->db->prefix . "Emsfb_setting";
 	$email ;
 	foreach($m as $key=>$value){
@@ -435,7 +487,7 @@ class Admin {
 	//error_log('get_track_id_Emsfb');
 	  	 
 	  $table_name = $this->db->prefix . "Emsfb_msg_";
-	  $id = $_POST['value'];
+	  $id = sanitize_text_field($_POST['value']);
 	  $value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE track = '$id'" );
 	/* 	error_log('get_ajax_track_admin');
 		error_log($value[0]->track); */

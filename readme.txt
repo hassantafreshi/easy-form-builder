@@ -33,4 +33,46 @@ Easy Form Builder Attributes:
 -Responsive form.
 -Tracking Code finder.
 -User friendly and advanced Panel to mange Forms and Responses.
- 
+
+Notice:
+We use FontAswome for icons and this is load form FontAswome CDN
+
+
+== Installation ==
+1- Navigate to Dashboard -> Plugins -> Add New and search for Easy form builder
+2- Click on “Installa Now” and than “Activate”
+
+
+
+== Frequently Asked Questions ==
+How to config Easy form Builder.
+[https://www.youtube.com/embed/DEQNHMPT0rQ]
+
+How to get google re-captcha and add to Easy Form Builder.
+[https://www.youtube.com/embed/a1jbMqunzkQ]
+
+How to activate the alert email of a new response.
+[https://www.youtube.com/embed/So2RAzu-OHU]
+
+How to Create a Form with Easy form Builder.
+[https://www.youtube.com/embed/7jS01CEtbDg]
+
+How to activation Tracking Code in Easy form Builder.
+[https://www.youtube.com/embed/im3aKby4E14]
+
+How to work with panel of Easy form Builder.
+[https://www.youtube.com/embed/7jS01CEtbDg]
+
+How to Add tracking Form to a post or page.
+[https://www.youtube.com/embed/c1_gCFihrH8]
+
+How to find a response by tracking code.
+[https://www.youtube.com/embed/vqKi9BJbO7k]
+
+
+== Changelog ==
+
+= 1.29 =
+*   First release
+
+

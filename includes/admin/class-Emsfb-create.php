@@ -178,9 +178,9 @@ class Create {
 	
 
 
-	/*
-	test and delete below code
-	wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js', null, null, true);
+	
+	//test and delete below code
+	/* wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js', null, null, true);
 		wp_enqueue_script('jquery'); */
 
 		/*
@@ -194,9 +194,6 @@ class Create {
 	public function fun_Emsfb_creator()
 	{
 		
-		?>
-			
-		<?php
 	}
 
 	public function add_form_structure(){
@@ -205,27 +202,27 @@ class Create {
 		$this->userId =get_current_user_id();
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
+		if( empty($_POST['name']) || empty($_POST['value']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong,Please check all input"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+		
 		if( isset($_POST['email']) ){
-			$email =$_POST['email'];
+			$email =sanitize_email($_POST['email']);
 		}
 		
+		
 		$this->id_ ="hid";
-		$this->name =  $_POST['name'];
+		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		$this->value =  $_POST['value'];
+		$this->value =  sanitize_text_field($_POST['value']);
 		if($this->isHTML($_POST['value'])){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-/* 		error_log(json_encode($_POST['value']));
-		error_log(json_encode($this->value));
 
-		error_log(json_encode($_POST['name']));
-		error_log(json_encode($this->name));
-
-	//	error_log(json_encode($_POST['email']));
-		error_log(json_encode($this->email)); */
 
 		$this->insert_db();
 		if($this->id_ !=0){
@@ -234,7 +231,6 @@ class Create {
 			$response = array( 'success' => false , "m"=> "Error,Form not Created!"); 
 		}
 		wp_send_json_success($response,$_POST);
-
 		die();
 		
 	}

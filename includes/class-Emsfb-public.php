@@ -214,11 +214,8 @@ class _Public {
 
 
 	  public function get_ajax_form_public(){
-		  //$email =$_POST['id'];
-		//echo($_POST['id']);
-		//error_log('nonce');
 
-		//error_log($_POST['nonce']);
+	
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
@@ -249,28 +246,26 @@ class _Public {
 		  die();
 		}
 		else if ($captcha_success->success==true) {
-		//	 "successful!!";
-			//error_log("successful!!");
-			$this->value = $_POST['value'];
-			/* error_log($_POST['value']); */
-			$this->name = $_POST['name'];
-			$this->id = $_POST['id'];
-			/* error_log($_POST['id']);
-			error_log($_POST['valid']); */
-			//error_log('value of form:');
-			//error_log($_POST['value']);
+
+			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
+				$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+				wp_send_json_success($response,$_POST);
+				die();
+			}
+			$this->value = sanitize_text_field($_POST['value']);
+			$this->name = sanitize_text_field($_POST['name']);
+			$this->id = sanitize_text_field($_POST['id']);
 			$this->get_ip_address();
 
 			$ip = $this->ip;
 			$check=	$this->insert_message_db();
 			
-		/* 	error_log('test test');
-			error_log('setting->emailSupporter'); */
+
 			$r= $this->get_setting_Emsfb('setting');
 			$setting =json_decode($r->setting);
-/* 			error_log($setting->emailSupporter);*/	
+
 			if (strlen($setting->emailSupporter)>0){
-				error_log($setting->emailSupporter);
+			//	error_log($setting->emailSupporter);
 				$email = $setting->emailSupporter;
 			}
  	
@@ -311,8 +306,14 @@ class _Public {
 		 }
 		 else if ($captcha_success->success==true) {
 		//	 "successful!!";
-			//error_log($_POST['value']);
-			$id = $_POST['value'];
+
+		if(empty($_POST['value']) ){
+			$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		
+			$id = sanitize_text_field($_POST['value']);
 		
 			$this->get_ip_address();
 			
@@ -337,6 +338,8 @@ class _Public {
 			}
 
 			if($value!=null){
+				
+				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
 				$response = array( 'success' => false  , "m" =>"Tracking Code not found!"); 
@@ -355,18 +358,6 @@ class _Public {
 	  }//end function
 
 
-	  function ready_public_Emsfb(){
-		  //send data to core.js to show form
-		  print_r("<h3>--------------<h3>");
-		  //789 scure must be added
-		 
-		  if ($_POST['state'] =="ready"){
-			print_r($this->value);
-			print_r("<h3>--------------<h3>");
-		
-			echo " this->value";
-		 }
-	  }//end function
 
 
 	  public function fun_footer(){
@@ -457,7 +448,7 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		error_log('test');
+		//error_log('test');
 		// این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند 
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
@@ -466,6 +457,19 @@ class _Public {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
+
+		
+		if(empty($_POST['message']) ){
+			$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		if(empty($_POST['id']) ){
+			$response = array( 'success' => false , "m"=>"Something went wrong ,Please refresh and try again"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		
 
 		if($this->isHTML($_POST['message'])){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
@@ -481,31 +485,13 @@ class _Public {
 			//error_log($email);
 			$response=$_POST['valid'];
 			$id;
-/* 			$verify=file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}");
-			$captcha_success=json_decode($verify);
-			if ($captcha_success->success==false) {
-			// "Error, you are a robot?";
-			$response = array( 'success' => false  , 'm'=>'Error, you are a robot?'); 
-			wp_send_json_success($response,$_POST);
-			}
-			else if ($captcha_success->success==true) { */
-				$id =number_format($_POST['id']);
-				$m=$_POST['message'];
+				$id =number_format(sanitize_text_field($_POST['id']));
+				$m=sanitize_text_field($_POST['message']);
 			
-				error_log("captcha_success->success==true");
+				
 				//	$message = preg_replace('/\s+/', '', $m);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
-		
-				
-				//error_log(gettype($m));
-				//error_log($m);
-				//error_log(json_last_error());
-				
-			
-				
-				// $m -> string
-				//set_rMessage_id_Emsfb
 				$table_name = $this->db->prefix . "Emsfb_rsp_";
 				//echo $table_name;
 			
@@ -596,9 +582,7 @@ class _Public {
 	$rtrn;
 	$siteKey;
 	$trackingCode;
-	/* error_log('count($value)');
-	error_log(count($value));
-	error_log(json_encode($value)); */
+
 	
 	if(count($value)>0){
 		//error_log('count($value)>0');

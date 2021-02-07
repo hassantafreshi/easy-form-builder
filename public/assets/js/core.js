@@ -798,7 +798,6 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-
     $(function () {
      
       data = {
