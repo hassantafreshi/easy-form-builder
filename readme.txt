@@ -22,20 +22,20 @@ you don\'t need coding skill or being tech person Just drag and drop your requir
 You can create unlimited ticket systems, support systems or contact forms with Easy Form Builder
 
 Easy Form Builder Attributes:
--Drag and drop Form Builder(No Coding is needed)
--Create easily multistep form.
--Create unlimited Forms.
--Create sample file uploading.
--Email Notification.
--Tracking Code.
--Spam Protection.
--Answer responses directly.
--Responsive form.
--Tracking Code finder.
--User friendly and advanced Panel to mange Forms and Responses.
+- Drag and drop Form Builder(No Coding is needed)
+- Create easily multistep form.
+- Create unlimited Forms.
+- Create sample file uploading.
+- Email Notification.
+- Tracking Code.
+- Spam Protection.
+- Answer responses directly.
+- Responsive form.
+- Tracking Code finder.
+- User friendly and advanced Panel to mange Forms and Responses.
 
 Notice:
-We use FontAswome for icons and this is load form FontAswome CDN
+We use fontawesome for icons and this loads form fontawesome CDN.
 
 
 == Installation ==
