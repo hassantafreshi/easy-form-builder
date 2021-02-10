@@ -100,7 +100,7 @@ function ShowTab_emsFormBuilder(n) {
 }
 
 function nextPrev(n) {
-
+console.log(n);
 
   if (n != 0) {
     var x = document.getElementsByClassName("tab");
@@ -126,6 +126,11 @@ function nextPrev(n) {
 
     // endMessage_emsFormBuilder()
     currentTab_ws = n;
+  }
+  
+  // موقتی تا باگ نمایش بعد از تغییر تعداد صفحات پیدا شود
+  if (n==1){
+    document.getElementById('steps').disabled=true;
   }
 
   // این قسمت برای تنظیم که در دراپ زون محتوا قرار دارد یا نه
@@ -1020,7 +1025,8 @@ function createSteps() {
       
       //emsfb version of form creator emsfb:1 ,
       const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.1 }
-
+     // console.log(ob);
+      
       if (name == "icon") {
         document.getElementById(`stepIcon-${no - 1}`).innerHTML = `<i class="fa ${el.value}"></i>`;
         document.getElementById(`icon-step-${no}`).className = el.value;
@@ -1045,10 +1051,12 @@ function createSteps() {
           
           saveLocalStorage_emsFormBuilder()
         } else {
-          valueJson_ws_p.push(ob);
+          valueJson_ws_p[0]=ob;
         }
 
       }
+
+      console.log(valueJson_ws_p);
     })
   }
   for (const el of document.querySelectorAll(`.limited`)) {
@@ -1197,9 +1205,9 @@ function stepName_emsFormBuilder(i) {
 
 function actionSendData_emsFormBuilder(){
   data ={};
-  console.log('test');
+  ////console.log('test');
   jQuery(function ($) {
-    console.log(`state_check_ws_p[${state_check_ws_p}]`)
+    //console.log(`state_check_ws_p[${state_check_ws_p}]`)
     if (state_check_ws_p==1){
       data={
         action:"add_form_Emsfb",
