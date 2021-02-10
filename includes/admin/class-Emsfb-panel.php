@@ -42,14 +42,6 @@ class Panel_edit  {
 					'check' => 0
 						));
 
-			/*
-			tested delete below code
-			 wp_enqueue_script( 'ajax331', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js' );
-			wp_enqueue_script('ajax331'); */
-
-			wp_enqueue_script( 'bootstrap-js', Emsfb_URL . 'includes/admin/assets/js/bootstrap.min.js' );
-			wp_enqueue_script('bootstrap-js');
-		
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date FROM `$table_name`" );

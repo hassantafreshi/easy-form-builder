@@ -20,10 +20,10 @@ class _Public {
 	//private $wpdb;
 	
 	public function __construct() {
-		//$this->plugin_url = plugin_dir_url(__FILE__);
+		
 		global $wpdb;
 		$this->db = $wpdb;
-		//$this->nounce =  wp_create_nonce('aad_nonce');
+		
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -44,7 +44,6 @@ class _Public {
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		
 		
-		//echo "<h3>PLUGIN ESMFB <h3>";
 	}
 
 	public function EMS_Form_Builder($id){
@@ -52,7 +51,7 @@ class _Public {
 		
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
-		//$table_name_msg = $this->db->prefix . "easy_form_builder_msg";
+		
 		
 
 		foreach ($id as $row_id){
@@ -136,9 +135,9 @@ class _Public {
 			wp_enqueue_style( 'Emsfb-css-rtl' );
 		}
 	
-		//source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
-		wp_register_style( 'bootstrap4-5-2-css',  plugins_url('../public/assets/css/bootstrap4-5-2.min.css',__FILE__), true );
-		wp_enqueue_style( 'bootstrap4-5-2-css' );
+		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
+		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
+		wp_enqueue_style( 'bootstrap4-6-0-css' );
 /* 		wp_register_style('bootstrapCss', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
 		wp_enqueue_style('bootstrapCss'); */
 
@@ -165,10 +164,6 @@ class _Public {
 		wp_enqueue_script('popper-js');
 
 
-
-		//source:https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js
-		wp_enqueue_script( 'bootstrap-js', plugins_url('../public/assets/js/bootstrap.min.js',__FILE__), array('jquery'), null, true );
-		wp_enqueue_script('bootstrap-js');
 
 
 		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0
@@ -376,12 +371,6 @@ class _Public {
 		
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
-		//echo $table_name;
-		/* 
-				`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-			`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-		*/
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -532,10 +521,6 @@ class _Public {
 				$response = array( 'success' => true , "m"=>"message sent" , "by"=>$by); 
 				wp_send_json_success($response,$_POST);
 				
-		/* 	}else{
-				$response = array( 'success' => false , "m"=>"Error,Setting is not set"); 
-				wp_send_json_success($response,$_POST);
-			} */
 			
 			
 		}

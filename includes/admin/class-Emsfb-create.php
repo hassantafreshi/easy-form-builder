@@ -166,27 +166,11 @@ class Create {
 			
 
 
-
-		//پایان کد نسخه پرو
-
-		//echo ob_get_clean();
 		 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
 		 wp_localize_script('Emsfb-core-js','ajax_object_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
-	
-	
 
-
-	
-	//test and delete below code
-	/* wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js', null, null, true);
-		wp_enqueue_script('jquery'); */
-
-		/*
-		test and delete below code
-		 wp_register_script('bootstrapcdn', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js', null, null, true);
-		wp_enqueue_script('bootstrapcdn'); */
 
 	
 	}
@@ -200,6 +184,7 @@ class Create {
 	
 
 		$this->userId =get_current_user_id();
+		
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){

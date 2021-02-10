@@ -92,8 +92,8 @@ class Admin {
 		wp_enqueue_script('whiteStudioMessage');
 
 		//source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
-		wp_register_style( 'bootstrap4-5-2-css',  plugins_url('../../public/assets/css/bootstrap4-5-2.min.css',__FILE__), true );
-		wp_enqueue_style( 'bootstrap4-5-2-css' );
+		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
+		wp_enqueue_style( 'bootstrap4-6-0-css' );
 		/* wp_register_style('bootstrapCss', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
 		wp_enqueue_style('bootstrapCss'); */
 			
@@ -124,10 +124,7 @@ class Admin {
 			}
 
 			$ac= $this->get_activeCode_Emsfb();
-			if(md5($_SERVER['SERVER_NAME'])==$ac){	
-			/* 	wp_register_script('whitestudio-admin-pro-js', 'http://whitestudio.team/js/cool.js'.$ac, null, null, true);	
-				wp_enqueue_script('whitestudio-admin-pro-js'); */
-			}
+		
 			
 
 			//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
@@ -153,20 +150,7 @@ class Admin {
 	
 			//source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
 			wp_enqueue_script( 'popper-js', Emsfb_URL . 'includes/admin/assets/js/popper.min.js' );
-			wp_enqueue_script('popper-js');
-	
-		
-			//source:https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js
-			wp_enqueue_script( 'bootstrap-js', Emsfb_URL . 'includes/admin/assets/js/bootstrap.min.js' );
-			wp_enqueue_script('bootstrap-js');
-
-			
-		/* delete below code
-			wp_register_script('jquery', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.testjs', null, null, true);
-			wp_enqueue_script('jquery'); */
-
-			
-			
+			wp_enqueue_script('popper-js');	
 		
 		}
 
@@ -611,7 +595,6 @@ public function get_ip_address(){
 		
 		$table_name = $this->db->prefix . "Emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
-//		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
 		$rtrn='null';
 		return $value;
 	}
