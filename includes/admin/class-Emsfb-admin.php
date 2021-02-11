@@ -94,8 +94,7 @@ class Admin {
 		//source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap4-6-0-css' );
-		/* wp_register_style('bootstrapCss', 'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
-		wp_enqueue_style('bootstrapCss'); */
+		
 			
 		wp_enqueue_script('serverJs',  Emsfb_URL . 'includes/admin/assets/js/server.js' , null, null, true);
 		wp_localize_script('serverJs','ajax_s_esmf',array(
@@ -138,14 +137,6 @@ class Admin {
 			//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
 			wp_register_style( 'font-awesome-animation-css',  plugins_url('../../public/assets/css/font-awesome-animation.min.css',__FILE__), true );
 			wp_enqueue_style( 'font-awesome-animation-css' );
-			/* wp_register_style('Font_Awesome_Animation', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css');
-			wp_enqueue_style('Font_Awesome_Animation'); */
-			
-
-	
-			/* wp_register_script('ajaxgoogle', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', null, null, true);
-			wp_enqueue_script('ajaxgoogle'); */
-
 
 	
 			//source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
