@@ -45,28 +45,28 @@ We use fontawesome for icons and this loads form fontawesome CDN.
 
 
 == Frequently Asked Questions ==
-How to config Easy form Builder.
+How to Config Easy form Builder.
 [https://www.youtube.com/embed/DEQNHMPT0rQ]
 
-How to get google re-captcha and add to Easy Form Builder.
+How to Get google re-captcha and add to Easy Form Builder.
 [https://www.youtube.com/embed/a1jbMqunzkQ]
 
-How to activate the alert email of a new response.
+How to Activate the alert email of a new response.
 [https://www.youtube.com/embed/So2RAzu-OHU]
 
 How to Create a Form with Easy form Builder.
 [https://www.youtube.com/embed/7jS01CEtbDg]
 
-How to activation Tracking Code in Easy form Builder.
+How to Activate Tracking Code in Easy form Builder.
 [https://www.youtube.com/embed/im3aKby4E14]
 
-How to work with panel of Easy form Builder.
+How to Work with panel of Easy form Builder.
 [https://www.youtube.com/embed/7jS01CEtbDg]
 
 How to Add tracking Form to a post or page.
 [https://www.youtube.com/embed/c1_gCFihrH8]
 
-How to find a response by tracking code.
+How to Find a response by tracking code.
 [https://www.youtube.com/embed/vqKi9BJbO7k]
 
 

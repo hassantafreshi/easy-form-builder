@@ -107,7 +107,7 @@ function fun_render_view(val,check){
           if (v.clander=="Persian" || v.clander=="Arabic") {
             el +=`    
             <script>
-            //console.log('kir khar');
+            
             $(function () {
     
               initDefault();

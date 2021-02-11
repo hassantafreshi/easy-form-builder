@@ -187,7 +187,8 @@ class _Public {
 		  );
 		//برای تنظیم زبان من رباط نیستم اینجا باید پارمتر ست بشه
 		// نمونه اصلی
-		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english		
+		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
+		
 		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
