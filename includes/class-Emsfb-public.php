@@ -175,8 +175,7 @@ class _Public {
 		//source:https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css
 		wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap-multiselect-css' );
-		/* wp_register_style('multiselect', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css');
-		wp_enqueue_style('multiselect'); */
+		
 
 		
 		wp_register_script('recaptcha-code', 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js', null, null, true);
