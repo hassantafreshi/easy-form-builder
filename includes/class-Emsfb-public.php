@@ -23,6 +23,7 @@ class _Public {
 		
 		global $wpdb;
 		$this->db = $wpdb;
+		add_action('init',  array($this,'modify_jquery'));
 		
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -597,6 +598,18 @@ class _Public {
 	//error_log($rtrn);
 	 //return $value[0];
 	 return $rtrn;
+	}
+
+
+	
+	function modify_jquery() {
+		//this function add jquery vesrion 3.5.1 for multi select
+		if (!is_admin()) {
+		wp_deregister_script('jquery');
+		wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
+		wp_enqueue_script('jquery');
+		}
+	
 	}
 }
 
