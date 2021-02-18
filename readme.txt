@@ -32,7 +32,7 @@ Easy Form Builder Attributes:
 - Answer responses directly.
 - Responsive form.
 - Tracking Code finder.
-- User friendly and advanced Panel to mange Forms and Responses.
+- User friendly and advanced Panel to manage Forms and Responses.
 
 Notice:
 We use fontawesome for icons and this loads form fontawesome CDN.

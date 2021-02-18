@@ -1336,16 +1336,14 @@ function preview_emsFormBuilder(){
 
 }
 
-/* $(document).ready(function(){
+$(document).ready(function(){
   var multipleCancelButton = new Choices('.multiple-emsFormBuilder', {
   maxItemCount:10,
   searchResultLimit:10,
   renderChoiceLimit:10,
   removeItemButton: true
   });
-  }); */
-
-
+  });
 
 
 
