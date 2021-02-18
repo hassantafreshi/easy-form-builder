@@ -34,8 +34,13 @@ Easy Form Builder Attributes:
 - Tracking Code finder.
 - User friendly and advanced Panel to manage Forms and Responses.
 
+
+Report Bugs:
+Please create an issuse on [github](https://github.com/hassantafreshi/easy-form-builder) if you encounter a bug.
+
 Notice:
-We use fontawesome for icons and this loads form fontawesome CDN.
+Easy Form builder use fontawesome for icons and this loads form fontawesome CDN.
+Easy Form builder use jquery version 3.5.1
 
 
 == Installation ==
@@ -71,6 +76,10 @@ How to Find a response by tracking code.
 
 
 == Changelog ==
+
+= 1.30 =
+* Add Jquery version 3.5.1
+* Improve UI
 
 = 1.29 =
 *   First release
