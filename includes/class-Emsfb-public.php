@@ -605,9 +605,9 @@ class _Public {
 	function modify_jquery() {
 		//this function add jquery vesrion 3.5.1 for multi select
 		if (!is_admin()) {
-		wp_deregister_script('jquery');
-		wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
-		wp_enqueue_script('jquery');
+	
+		wp_register_script('jquery-3-5-1', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
+		wp_enqueue_script('jquery-3-5-1');
 		}
 	
 	}
