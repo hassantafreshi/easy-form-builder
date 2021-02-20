@@ -32,7 +32,9 @@ jQuery (function() {
     //console.log("ajax_object_state_2",ajax_object.state);
     poster_emsFormBuilder =ajax_object.poster;
     //console.log("poster_emsFormBuilder",ajax_object);
-    if(ajax_object.form_setting && ajax_object.form_setting.length>0){
+   // console.log(ajax_object,'return');
+    if(ajax_object.form_setting && ajax_object.form_setting.length>0 && ajax_object.form_setting!=="setting was not added" ){
+      
       const vs=JSON.parse(ajax_object.form_setting.replace(/[\\]/g, ''));
       sitekye_emsFormBuilder =vs.siteKey;
       trackingCode_state_emsFormBuilder =vs.trackingCode;
@@ -1149,7 +1151,7 @@ function emsFormBuilder_show_content_message (value , content){
   return `
 
   <div class="">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Message</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Messages</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
@@ -1296,7 +1298,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,userIp,track,dat
 
 
 function fun_show_alert_setting_emsFormBuilder(){
-  document.getElementById('body_emsFormBuilder').innerHTML=`<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">Error</br>The form is not show ,Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin. </br><a href="#" class="font-weight-normal"> Please Click here to  Watch the tutorial video</a> </h2> </div>`
+  document.getElementById('body_emsFormBuilder').innerHTML=`<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">Error</br>The form is not show ,Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin. </br><a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal"> Please Click here to  Watch the tutorial video</a> </h2> </div>`
 }
 
 

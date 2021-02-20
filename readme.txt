@@ -2,9 +2,11 @@
 Contributors: mrlast, hassantafreshi
 Tags: form builder, form creator, easy form, tracking code, contact form, support form,contact form, contact form plugin, forms, custom form, contact button, contact me, custom contact form, form manager, form, forms builder, forms creator, captcha, recaptcha, Akismet, email form, web form, feedback form, payment form, survey form, donation form, email submit form, message form, stripe, email subscription, contact form widget, user registration form, wordpress registration, feedback
 Donate link: https://ko-fi.com/whitestudio
+Stable tag: 1.30.0
 Requires at least: 4.7
-Tested up to: 5.6
+Tested up to: 5.6.1
 PHP version: +5.4
+Requires PHP:5.4
 License: GNU v3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -24,19 +26,15 @@ You can create unlimited ticket systems, support systems or contact forms with E
 Easy Form Builder Attributes:
 - Drag and drop Form Builder(No Coding is needed)
 - Create easily multistep form.
-- Create unlimited forms.
-- Create Free file uploading forms.
+- Create unlimited Forms.
+- Create sample file uploading.
 - Email Notification.
 - Tracking Code.
 - Spam Protection.
-- Recive Responses.
 - Answer responses directly.
+- Responsive form.
 - Tracking Code finder.
 - User friendly and advanced Panel to manage Forms and Responses.
-- Easy to Create mutlistep forms.
-- Responsive form.
-- Easly use Panel and mange forms and responses.
-
 
 
 Report Bugs:
@@ -51,7 +49,10 @@ Easy Form builder use jquery version 3.5.1
 1- Navigate to Dashboard -> Plugins -> Add New and search for Easy form builder
 2- Click on “Installa Now” and than “Activate”
 
-
+== Screenshots == 
+1.Create a step of the form
+2.Preview of the form
+3.Setting of Easy Form Builder
 
 == Frequently Asked Questions ==
 How to Config Easy form Builder.
@@ -82,10 +83,9 @@ How to Find a response by tracking code.
 == Changelog ==
 
 = 1.30 =
-* Add jQuery version 3.5.1
+* Add Jquery version 3.5.1
 * Improve UI
 
 = 1.29 =
 *   First release
-
 

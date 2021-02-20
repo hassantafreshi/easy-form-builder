@@ -43,7 +43,8 @@ class Install {
 			`form_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
 			`form_structer` text COLLATE utf8mb4_unicode_ci NOT NULL,
 			`form_email` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL, 
-			`form_created_by` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL, 
+			`form_type` varchar(15) COLLATE utf8mb4_unicode_ci NULL DEFAULT  'form',
+			`form_created_by` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
 			`form_access_by` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL, 
 			`form_create_date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 			PRIMARY KEY  (form_id)

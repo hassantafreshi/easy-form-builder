@@ -202,7 +202,7 @@ function emsFormBuilder_show_content_message (id){
   <div class=" overpage preview-overpage" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Message</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Messages</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
@@ -702,7 +702,6 @@ function fun_show_help__emsFormBuilder(){
       7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
       8:{title:'How to add tracking Form to a post or page.',url:'https://www.youtube.com/embed/c1_gCFihrH8'},
       9:{title:'How to find a response by tracking code.',url:'https://www.youtube.com/embed/vqKi9BJbO7k'}
-   /* 10:{title:'How to test Pro version on localhost',url:'https://www.youtube.com/embed/RZTyFcjZTSM'}, */
     }
 
 
