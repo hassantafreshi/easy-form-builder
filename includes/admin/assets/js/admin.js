@@ -10,20 +10,28 @@ let exportJson_ws = [];
 let tabActive_ws = -1;
 const proUrl_ws = `http://whitestudio.team/`
 let pro_ws = true;
-let stepMax_ws = 1 // فقط اینجا تغییر می کند برای زمانی که  تعداد استپ ها مشخص می شود
+let stepMax_ws = 1 
 let edit_emsFormBuilder = false;
 let stepNames_ws = ["Define", "Step Titles", "null"];
 let formName_ws = `Emsfb-${Math.random().toString(36).substr(2, 3)}`;
 let form_ID_emsFormBuilder =0;
-let highestAmount_emsFormBuilder
+let highestAmount_emsFormBuilder;
+let form_type_emsFormBuilder='form';
+
 if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws_p');
 jQuery (function() {
   state_check_ws_p =Number(s_var.check)
   pro_ws = (s_var.pro=='1' || s_var.pro==true) ? true : false;
+  if(typeof pro_whitestudio !== 'undefined'){    
+    pro_ws = pro_whitestudio ;
+    console.log(`pro is new ${pro_ws}`);
+  }else{
+    pro_ws= false;
+  }
+ 
   if(state_check_ws_p){
      run_code_ws_1();
-     run_code_ws_2();
-    
+     run_code_ws_2();    
   }
 })
 
@@ -1024,8 +1032,8 @@ function createSteps() {
       name = name == "tabName" ? "name" : "icon";
       
       //emsfb version of form creator emsfb:1 ,
-      const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.1 }
-     // console.log(ob);
+      const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.2,type:form_type_emsFormBuilder }
+     console.log(ob);
       
       if (name == "icon") {
         document.getElementById(`stepIcon-${no - 1}`).innerHTML = `<i class="fa ${el.value}"></i>`;
@@ -1336,14 +1344,6 @@ function preview_emsFormBuilder(){
 
 }
 
-$(document).ready(function(){
-  var multipleCancelButton = new Choices('.multiple-emsFormBuilder', {
-  maxItemCount:10,
-  searchResultLimit:10,
-  renderChoiceLimit:10,
-  removeItemButton: true
-  });
-  });
 
 
 

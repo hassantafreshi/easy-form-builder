@@ -17,6 +17,9 @@ let multiSelectElemnets_emsFormBuilder =[] ;
 let check_call_emsFormBuilder = 1//  و در حالت پابلیک 1 شود این مقدار توسط سرور داده شود در حالت فراخونی در سمت ادمین صفر شود
 let valueJson_ws = [];
 let demo_emsFormBuilder=false;
+
+let test_view__emsFormBuilder =true // این مقدار در موقع ادیت به طریقی باید به غلط تغییر کند تا نمایش درست انجام شود
+
 jQuery (function() {
     //ajax_object.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object.ajax_value مقدار جی سون
@@ -120,8 +123,11 @@ for (let v of valueJson_ws) {
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
       //console.log(v.required , "required");
- 
-      el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
+      if(v.allowMultiSelect==true && test_view__emsFormBuilder==true){
+        el += el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}(Disabled in test view) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="Select a opetion (Disabled in test view)" data-id="${v.id_}" disabled>`;
+      }else{
+        el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`;
+      }
       
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount });
       break
@@ -134,7 +140,7 @@ for (let v of valueJson_ws) {
         //console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
         //console.log(indx, exportView_emsFormBuilder[indx]);
         if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
-        if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
+        if (exportView_emsFormBuilder[indx].type == "select" && test_view__emsFormBuilder==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
         exportView_emsFormBuilder[indx].required = false;
       }
       break
@@ -195,6 +201,8 @@ if (exportView_emsFormBuilder.length > 0) {
 
 ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
 createStepsOfPublic()
+
+
 }
 
 

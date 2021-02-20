@@ -4,7 +4,7 @@ Tags: form builder, form creator, easy form, tracking code, contact form, suppor
 Donate link: https://ko-fi.com/whitestudio
 Requires at least: 4.7
 Tested up to: 5.6
-Requires PHP: +5.4
+PHP version: +5.4
 License: GNU v3
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -24,15 +24,19 @@ You can create unlimited ticket systems, support systems or contact forms with E
 Easy Form Builder Attributes:
 - Drag and drop Form Builder(No Coding is needed)
 - Create easily multistep form.
-- Create unlimited Forms.
-- Create sample file uploading.
+- Create unlimited forms.
+- Create Free file uploading forms.
 - Email Notification.
 - Tracking Code.
 - Spam Protection.
+- Recive Responses.
 - Answer responses directly.
-- Responsive form.
 - Tracking Code finder.
 - User friendly and advanced Panel to manage Forms and Responses.
+- Easy to Create mutlistep forms.
+- Responsive form.
+- Easly use Panel and mange forms and responses.
+
 
 
 Report Bugs:
@@ -78,7 +82,7 @@ How to Find a response by tracking code.
 == Changelog ==
 
 = 1.30 =
-* Add Jquery version 3.5.1
+* Add jQuery version 3.5.1
 * Improve UI
 
 = 1.29 =

@@ -770,7 +770,7 @@ function fun_show_setting__emsFormBuilder(){
  
     <div class="py-2 pb-5 bg-light">
       <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">Pro Version  <h6>
-       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a href="${proUrl_ws}">Click here to get Activate Code.</a>  </small>
+       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="${proUrl_ws}">Click here to get Activate Code.</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
         <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="Enter Activate Code" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
