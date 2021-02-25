@@ -1215,19 +1215,20 @@ function actionSendData_emsFormBuilder(){
   data ={};
   ////console.log('test');
   jQuery(function ($) {
-    //console.log(`state_check_ws_p[${state_check_ws_p}]`)
+    console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
     if (state_check_ws_p==1){
       data={
         action:"add_form_Emsfb",
         value: localStorage.getItem("valueJson_ws_p"),
         name:formName_ws,
+        type:form_type_emsFormBuilder,
         nonce:s_var.nonce
       };
     }else{
       data={
         action:"update_form_Emsfb",
         value: localStorage.getItem("valueJson_ws_p"),
-        name:formName_ws,
+        name:document.getElementById('form_name').value,
         nonce:s_var.nonce,
         id:form_ID_emsFormBuilder
       };
@@ -1307,7 +1308,6 @@ function preview_emsFormBuilder(){
    
     //887799
     // یک شرط که اگر فرم در بادی موجود نبود ساخته شود
-    // مشکلی که وجود دارد از هر چیزی دوتا اضافه می شود
    content =  fun_render_view_core_emsFormBuilder(0);
   
   document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage" id="overpage">
@@ -1322,7 +1322,7 @@ function preview_emsFormBuilder(){
     <div>
   </div>`;
   
-  //document.getElementById('emsFormBuilder-form-view-title').innerHTML ="Preview";
+  
      ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
     createStepsOfPublic() 
   }else{

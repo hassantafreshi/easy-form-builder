@@ -217,22 +217,23 @@ class Admin {
 			die("secure!");
 		}
 
-		if(empty($_POST['value']) || empty($_POST['id']) ){
+		if(empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name']) ){
 			$response = array( 'success' => false , "m"=>"Invalid require,Please Check every thing"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		} 
 
-		if($this->isHTML(json_encode($_POST['value']))){
+		if($this->isHTML(json_encode($_POST['value'])) || $this->isHTML(json_encode($_POST['name'])) ){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		$id =number_format($_POST['id']);		
 		$value =sanitize_text_field($_POST['value']);
-		
+		$name =sanitize_text_field($_POST['name']);
 		$table_name = $this->db->prefix . "Emsfb_form";
-		$r = $this->db->update($table_name,array( 'form_structer' => $value),array('form_id'=>$id) );
+		//,`form_name` =>
+		$r = $this->db->update($table_name,array( 'form_structer' => $value ,'form_name' =>$name ),array('form_id'=>$id) );
 
 		$response = array( 'success' => true ,'r'=>"update", 'value'=>"[EMS_Form_Builder id=$id]"); 
 		wp_send_json_success($response,$_POST);

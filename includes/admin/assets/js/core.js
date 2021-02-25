@@ -17,17 +17,20 @@ let multiSelectElemnets_emsFormBuilder =[] ;
 let check_call_emsFormBuilder = 1//  و در حالت پابلیک 1 شود این مقدار توسط سرور داده شود در حالت فراخونی در سمت ادمین صفر شود
 let valueJson_ws = [];
 let demo_emsFormBuilder=false;
-
+let validate_edit_mode_emsFormBuilder=false; // اگر حالت ادیت بود این تابع فعال شود کاربرد آن زمانی است که بفهمیم که پیش فرض است یا از سرور آمده و اینکه مد نمایش برای مولتی سلکت چیکار کنیم 
 let test_view__emsFormBuilder =true // این مقدار در موقع ادیت به طریقی باید به غلط تغییر کند تا نمایش درست انجام شود
 
 jQuery (function() {
-    //ajax_object.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object.ajax_value مقدار جی سون
-    //ajax_object.language زبان بر می گرداند
-    //console.log("ajax_object_core",ajax_object_core.nonce);
+    //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
+    //ajax_object_efm.ajax_value مقدار جی سون
+    //ajax_object_efm.language زبان بر می گرداند
+    //console.log("ajax_object_efm_core",ajax_object_efm_core.nonce);
    
     
-  if(Number(ajax_object_core.check)==1)  fun_render_view_core_emsFormBuilder(ajax_object_core.check);
+  if(Number(ajax_object_efm_core.check)==1) { 
+    fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
+    validate_edit_mode_emsFormBuilder=true;
+  }
  
 
 });
@@ -123,6 +126,7 @@ for (let v of valueJson_ws) {
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
       //console.log(v.required , "required");
+
       if(v.allowMultiSelect==true && test_view__emsFormBuilder==true){
         el += el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}(Disabled in test view) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="Select a opetion (Disabled in test view)" data-id="${v.id_}" disabled>`;
       }else{
@@ -134,14 +138,21 @@ for (let v of valueJson_ws) {
     case 'option':
       id = v.id ? v.id : v.id_;
       const indx = exportView_emsFormBuilder.findIndex(x => x.parents === v.parents);
+      
       //console.log(indx > -1 , indx ,"test" ,v.parents ,exportView_emsFormBuilder);
       if (indx > -1){
         req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
         //console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
         //console.log(indx, exportView_emsFormBuilder[indx]);
+       
+        const parent_id = exportView_emsFormBuilder[indx].id_
+        
+        const row =valueJson_ws.find(x => x.id_ ===parent_id)
+        test_view__emsFormBuilder= row.allowMultiSelect ==true ? true : false;
         if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
         if (exportView_emsFormBuilder[indx].type == "select" && test_view__emsFormBuilder==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
         exportView_emsFormBuilder[indx].required = false;
+        test_view__emsFormBuilder=true;
       }
       break
   }

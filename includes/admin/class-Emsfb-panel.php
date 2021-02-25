@@ -30,14 +30,14 @@ class Panel_edit  {
 
 		
 			if($pro==true){
+				// اگر پولی بود این کد لود شود 
+				//پایان کد نسخه پرو
 				wp_register_script('whitestudio-admin-pro-js', 'http://whitestudio.team/js/cool.js'.$ac, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
-			// اگر پولی بود این کد لود شود 
-			//پایان کد نسخه پرو
-			//echo ob_get_clean();
+			
 			 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
-			 wp_localize_script('Emsfb-core-js','ajax_object_core',array(
+			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0
 						));
@@ -48,7 +48,6 @@ class Panel_edit  {
 		
 			$table_name = $this->db->prefix . "Emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
-			//	print_r($value)	;
 		
 
 			$lang = get_locale();
@@ -124,7 +123,7 @@ class Panel_edit  {
 
 			wp_register_script('Emsfb-list_form-js', Emsfb_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
-			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object',
+			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 					'ajax_value' => $value,
 					'language' => $lang,

@@ -57,11 +57,13 @@ class _Public {
 
 		foreach ($id as $row_id){
 			//error_log($row_id);
-			$this->value = $this->db->get_var( "SELECT form_structer FROM `$table_name` WHERE form_id = '$row_id'" );				
+			//$this->value = $this->db->get_var( "SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = '$row_id'" );				
+			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
+							
 		}
 		$this->id = $id;
-		//error_log($this->value);
-
+/* 		error_log($this->value[0]->form_structer);
+		error_log($this->value[0]->form_type); */
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -74,9 +76,10 @@ class _Public {
 			
 		}
 		
-		wp_localize_script( 'core_js', 'ajax_object',
+		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
-			   'ajax_value' => $this->value,
+			   'ajax_value' => $this->value[0]->form_structer,
+			   'type' => $this->value[0]->form_type,
 			   'state' => $state,
 			   'language' => $lang,
 			   'id' => $this->id,			  
@@ -108,7 +111,7 @@ class _Public {
 			$stng="setting was not added";
 			$state="settingError";
 		}
-		wp_localize_script( 'core_js', 'ajax_object',
+		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
 			   'language' => $lang,			  
@@ -248,24 +251,43 @@ class _Public {
 			$this->value = sanitize_text_field($_POST['value']);
 			$this->name = sanitize_text_field($_POST['name']);
 			$this->id = sanitize_text_field($_POST['id']);
-			$this->get_ip_address();
-
-			$ip = $this->ip;
-			$check=	$this->insert_message_db();
-			
-
-			$r= $this->get_setting_Emsfb('setting');
-			$setting =json_decode($r->setting);
-
-			if (strlen($setting->emailSupporter)>0){
-			//	error_log($setting->emailSupporter);
-				$email = $setting->emailSupporter;
+			$type =sanitize_text_field($_POST['type']);
+	
+			if($type =="form"){
+				$this->get_ip_address();
+				$ip = $this->ip;
+				$check=	$this->insert_message_db();
+				
+	
+				$r= $this->get_setting_Emsfb('setting');
+				$setting =json_decode($r->setting);
+				$email ="not";
+				if (strlen($setting->emailSupporter)>2){
+				//	error_log($setting->emailSupporter);
+					$email = $setting->emailSupporter;
+				}
+		 
+				if($email!="not") {$this->send_email_Emsfb($email,$check);}
+				$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
+				wp_send_json_success($response,$_POST);
+			}else if ($type =="login" || $type="loginlogin"){
+				$user_name ="username";
+				$user_password = "@password@";				
+				$r=wp_authenticate($user_name,  $user_password );
+				$strng = json_encode($r);
+				error_log($strng);
+				$response = array( 'success' => false  ,'m'=>'Login'); 
+				wp_send_json_success($response,$_POST);
+			}else if ($type =="register"){
+				$response = array( 'success' => false  ,'m'=>'register'); 
+				wp_send_json_success($response,$_POST);
+			}else if ($type =="subscription"){
+				$response = array( 'success' => false  ,'m'=>'Login'); 
+				wp_send_json_success($response,$_POST);
+			}else {
+				$response = array( 'success' => false  ,'m'=>'Secure Error 405'); 
+				wp_send_json_success($response,$_POST);
 			}
- 	
-			if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$check);}
-			$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
-		
-			wp_send_json_success($response,$_POST);
 		}
 		//recaptcha end
 	}else{
@@ -435,7 +457,7 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		//error_log('test');
+
 		// این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند 
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){

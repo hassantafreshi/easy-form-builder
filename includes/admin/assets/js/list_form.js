@@ -6,14 +6,14 @@ let state_seting_emsFormBuilder=false;
 let poster_emsFormBuilder ='';
 
 jQuery (function() {  
-    //ajax_object.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object.ajax_value مقدار جی سون
-    //ajax_object.language زبان بر می گرداند
-    //ajax_object.messages_state پیام های خوانده نشده را بر می گرداند
+    //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
+    //ajax_object_efm.ajax_value مقدار جی سون
+    //ajax_object_efm.language زبان بر می گرداند
+    //ajax_object_efm.messages_state پیام های خوانده نشده را بر می گرداند
 
- //   console.log(ajax_object.ajax_value);
-  valueJson_ws_form=ajax_object.ajax_value;
-  poster_emsFormBuilder =ajax_object.poster
+ //   console.log(ajax_object_efm.ajax_value);
+  valueJson_ws_form=ajax_object_efm.ajax_value;
+  poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(5);
 });
@@ -39,16 +39,16 @@ function fun_emsFormBuilder_render_view(x){
      if(x>count){
        //console.log(i.form_id)
        let newM=false;
-       for(let ims of ajax_object.messages_state){
-        // console.log(`ajax_object return` ,ims)
+       for(let ims of ajax_object_efm.messages_state){
+        // console.log(`ajax_object_efm return` ,ims)
          if(ims.form_id==i.form_id){
           newM=true;
          }
-         //console.l(`ajax_object return` ,ims , newM , i.form_id)
+         //console.l(`ajax_object_efm return` ,ims , newM , i.form_id)
        }
        rows += `<tr class="" id="emsFormBuilder-tr-${i.form_id}" >                    
        <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}">${Number(i.form_id)}</th>
-       <td class="emsFormBuilder-tr" data-id="${i.form_id}">Form ${i.form_name}</td>
+       <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
        <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
        <td > 
        <button type="button" class="btn btn-danger" onClick ="emsFormBuilder_delete(${i.form_id})">X</button>
@@ -409,7 +409,7 @@ function fun_send_replayMessage_emsFormBuilder(id){
   document.getElementById('replay_state__emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i> Sending...`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
-  const ob = [{name:'Message',value:message ,by:ajax_object.user_name}];
+  const ob = [{name:'Message',value:message ,by:ajax_object_efm.user_name}];
   //console.l(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length<1 || isHTML(message)){
@@ -460,15 +460,15 @@ function fun_ws_show_list_messages(value){
 
 
 function fun_delete_form_with_id_by_server(id){
-  //console.l(ajax_object.ajax_url ,id);
+  //console.l(ajax_object_efm.ajax_url ,id);
   jQuery(function ($) {
     data = {
       action: "remove_id_Emsfb",
       type: "POST",
       id:id,
-      nonce:ajax_object_core.nonce,     
+      nonce:ajax_object_efm_core.nonce,     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.l(res);
       if (res.success==true) {
 
@@ -507,10 +507,10 @@ function fun_get_form_by_id(id){
     data = {
       action: "get_form_id_Emsfb",
       type: "POST",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       id:id     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
         //console.l(res.data.ajax_value ,res);
         const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
@@ -529,10 +529,10 @@ function fun_update_message_state_by_id(id){
     data = {
       action: "update_message_state_Emsfb",
       type: "POST",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       id:id     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
         //console.l(res);
         document.getElementById(`icon-${id}`).className=`fa fa-envelope-open-o `;
@@ -549,15 +549,15 @@ function fun_update_message_state_by_id(id){
   });
 }
 function fun_get_messages_by_id(id){
-  //console.l(`fun_get_messages_by_id(${id})` ,ajax_object.ajax_url)
+  //console.l(`fun_get_messages_by_id(${id})` ,ajax_object_efm.ajax_url)
   jQuery(function ($) {
     data = {
       action: "get_messages_id_Emsfb",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       type: "POST",
       id:id     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.l(`messages`,res);
       if (res.success==true) {
         valueJson_ws_messages =res.data.ajax_value;
@@ -571,15 +571,15 @@ function fun_get_messages_by_id(id){
   });
 }
 function fun_emsFormBuilder_get_all_response_by_id(id){
-  //console.l(`fun_emsFormBuilder_get_all_response_by_id(${id})` ,ajax_object.ajax_url)
+  //console.l(`fun_emsFormBuilder_get_all_response_by_id(${id})` ,ajax_object_efm.ajax_url)
   jQuery(function ($) {
     data = {
       action: "get_all_response_id_Emsfb",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       type: "POST",
       id:id     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.l(`messages`,res);
       if (res.success==true) {
         
@@ -596,7 +596,7 @@ function fun_emsFormBuilder_get_all_response_by_id(id){
 
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
-  //console.l(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url)
+  //console.l(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object_efm.ajax_url)
   if(message.length<1){
     document.getElementById('replay_state__emsFormBuilder').innerHTML="Please Enter message";
     document.getElementById('replayM_emsFormBuilder').innerHTML="";
@@ -608,11 +608,11 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     data = {
       action: "set_replyMessage_id_Emsfb",
       type: "POST",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       id:id,
       message: JSON.stringify(message)     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
         //console.l(`response`,res);
         document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
@@ -620,12 +620,12 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
 
         // اضافه شدن به سمت یو آی 
-        const userIp =ajax_object.user_ip;
+        const userIp =ajax_object_efm.user_ip;
         const date = Date();
         //console.l(message,"content" ,message.by);
         document.getElementById('replayM_emsFormBuilder').value="";
         
-        fun_emsFormBuilder__add_a_response_to_messages(message,message[0].by,ajax_object.user_ip,0,date);
+        fun_emsFormBuilder__add_a_response_to_messages(message,message[0].by,ajax_object_efm.user_ip,0,date);
    
       }else{
         //console.l(res);
@@ -701,7 +701,7 @@ function fun_show_help__emsFormBuilder(){
       6:{title:'How to activation Tracking Code in Easy form Builder.',url:'https://www.youtube.com/embed/im3aKby4E14'},
       7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
       8:{title:'How to add tracking Form to a post or page.',url:'https://www.youtube.com/embed/c1_gCFihrH8'},
-      9:{title:'How to find a response by tracking code.',url:'https://www.youtube.com/embed/vqKi9BJbO7k'}
+      9:{title:'How to find a response by tracking code.',url:'https://www.youtube.com/embed/vqKi9BJbO7k'},
     }
 
 
@@ -711,19 +711,20 @@ function fun_show_help__emsFormBuilder(){
   str +=`
   <div class="m-1">
   <div class=" bg-info " >
-  <button id="heading${l}" class=" btn-block card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne">
+  <!-- <button id="heading${l}" class=" btn-block card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne"> --!>
+  <a id="heading${l}" class=" btn-block card-header btn bg-info text-white" target="_blank" href="${listOfHow_emsfb[l].url}">
     <h6 class="mb-0 ">
       ${listOfHow_emsfb[l].title}
       </h6>
-      </button>
+      </a>
   </div>
-
-  <div id="collapse${l}" class="collapse ${l==0?' show':''}" aria-labelledby="heading${l}" data-parent="#accordion">
+  </div>
+<!--  <div id="collapse${l}" class="collapse ${l==0?' show':''}" aria-labelledby="heading${l}" data-parent="#accordion">
     <div class="card-body align-self-center">
       <iframe width="560" height="315" src="${listOfHow_emsfb[l].url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
-  </div>
+  </div> --!>
   `
   }
   document.getElementById('emsFormBuilder-content').innerHTML=`<div id="accordion" class="m-5">${str}
@@ -731,18 +732,18 @@ function fun_show_help__emsFormBuilder(){
 
 }
 function fun_show_setting__emsFormBuilder(){
- // console.log( 610,ajax_object.setting);
+ // console.log( 610,ajax_object_efm.setting);
  let activeCode = 'null';
  let sitekey = 'null';
  let secretkey = 'null';
  let email = 'null';
  let trackingcode ='null';
  //console.l(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
- if((ajax_object.setting[0] && ajax_object.setting[0].setting.length>5) || typeof valueJson_ws_setting=="object" && valueJson_ws_setting.length!=0 ){
+ if((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length>5) || typeof valueJson_ws_setting=="object" && valueJson_ws_setting.length!=0 ){
 
   // اضافه کردن تنظیمات
  
- if(valueJson_ws_setting.length==0) valueJson_ws_setting= JSON.parse(ajax_object.setting[0].setting.replace(/[\\]/g, ''));
+ if(valueJson_ws_setting.length==0) valueJson_ws_setting= JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, ''));
   //console.l(`setting`,valueJson_ws_setting)
   const f= (name)=>{
     //console.l('valueJson_ws_setting[name]', valueJson_ws_setting[name])
@@ -918,10 +919,10 @@ function fun_send_setting_emsFormBuilder(data){
     data = {
       action: "set_setting_Emsfb",
       type: "POST",
-      nonce:ajax_object_core.nonce,
+      nonce:ajax_object_efm_core.nonce,
       message:data     
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.l(`messages`,res);
       if (res.success==true) {
         //console.l(`resp`,res);
@@ -980,11 +981,11 @@ function fun_find_track_emsFormBuilder(){
           //console.l('get_track_id_Emsfb');  
           data = {
             action: "get_track_id_Emsfb",
-            nonce:ajax_object_core.nonce,
+            nonce:ajax_object_efm_core.nonce,
             value: el,          
           };
       
-          $.post(ajax_object.ajax_url, data, function (res) {
+          $.post(ajax_object_efm.ajax_url, data, function (res) {
           
              if (res.data.success==true) {
               valueJson_ws_messages =res.data.ajax_value;
@@ -1015,10 +1016,10 @@ function clear_garbeg_emsFormBuilder(){
     //console.l('clear_garbeg_emsFormBuilder');  
     data = {
       action: "clear_garbeg_Emsfb",
-      nonce:ajax_object_core.nonce         
+      nonce:ajax_object_efm_core.nonce         
     };
 
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
        close_overpage_emsFormBuilder(1)
        if (res.data.success==true) {
         emsFormBuilder_popUp_message("Done",res.data.m);

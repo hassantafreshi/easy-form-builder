@@ -16,6 +16,7 @@ let trackingCode_state_emsFormBuilder =""
 let recaptcha_emsFormBuilder;
 let poster_emsFormBuilder ='';
 const fileSizeLimite_emsFormBuilder =8300000;
+let form_type_emsFormBuilder='form';
 //exportView_emsFormBuilder مقدار المان ها را در خود نگه می دارد
 //sendBack_emsFormBuilder_pub مقدار فرم پر شده توسط کاربر در خود نگه می دارد
 let valueJson_ws = []
@@ -23,34 +24,36 @@ let valueJson_ws = []
 jQuery (function() {
   //789 امنیت باید اضافه شود به این قسمت
    
-    //ajax_object.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object.ajax_value مقدار جی سون
-    //ajax_object.language زبان بر می گرداند
-    //console.log("ajax_object_state",ajax_object);
-    //console.log("ajax_object.ajax_url",ajax_object.ajax_url);
-    //console.log("ajax_object.nonce",ajax_object.nonce);
-    //console.log("ajax_object_state_2",ajax_object.state);
-    poster_emsFormBuilder =ajax_object.poster;
-    //console.log("poster_emsFormBuilder",ajax_object);
-   // console.log(ajax_object,'return');
-    if(ajax_object.form_setting && ajax_object.form_setting.length>0 && ajax_object.form_setting!=="setting was not added" ){
+    //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
+    //ajax_object_efm.ajax_value مقدار جی سون
+    //ajax_object_efm.language زبان بر می گرداند
+    //console.log("ajax_object_efm_state",ajax_object_efm);
+    //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
+    //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
+    //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
+    poster_emsFormBuilder =ajax_object_efm.poster;
+    //console.log("poster_emsFormBuilder",ajax_object_efm);
+    console.log(ajax_object_efm,'return');
+    if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
       
-      const vs=JSON.parse(ajax_object.form_setting.replace(/[\\]/g, ''));
+      const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+      form_type_emsFormBuilder=ajax_object_efm.type;
+    
       sitekye_emsFormBuilder =vs.siteKey;
       trackingCode_state_emsFormBuilder =vs.trackingCode;
       
     }
 
 
-    if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object.state!=='settingError' ){
+    if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
  
-      if(ajax_object.state=='form'){
-        //console.log("id",ajax_object.id);
-        fun_render_view(ajax_object.ajax_value,1);
-      }else if (ajax_object.state=='tracker'){
+      if(ajax_object_efm.state=='form'){
+        //console.log("id",ajax_object_efm.id);
+        fun_render_view(ajax_object_efm.ajax_value,1);
+      }else if (ajax_object_efm.state=='tracker'){
         //console.log("tracker");
         fun_tracking_show_emsFormBuilder()
-      }else if(ajax_object.state=='settingError'){
+      }else if(ajax_object_efm.state=='settingError'){
         //console.log("settingError");
         fun_show_alert_setting_emsFormBuilder()
       }
@@ -64,10 +67,9 @@ jQuery (function() {
 function fun_render_view(val,check){
   
     exportView_emsFormBuilder =[];
-
     valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
-  // const vs=ajax_object.form_setting.setting;
-   //console.log('ajax_object',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
+  // const vs=ajax_object_efm.form_setting.setting;
+   //console.log('ajax_object_efm',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
     //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
@@ -803,12 +805,14 @@ function ShowTab_emsFormBuilder_view(n) {
         action: "get_form_Emsfb",
         value: JSON.stringify(sendBack_emsFormBuilder_pub),
         name: formName,
-        id:ajax_object.id.id,
+        id:ajax_object_efm.id.id,
         valid:recaptcha_emsFormBuilder,
-        nonce:ajax_object.nonce       
+        type:form_type_emsFormBuilder,
+       // type:'loginlogin',
+        nonce:ajax_object_efm.nonce       
       };
   
-      $.post(ajax_object.ajax_url, data, function (res) {
+      $.post(ajax_object_efm.ajax_url, data, function (res) {
        
          if (res.data.success==true) {
            //console.log(res,localStorage.getItem("sendback"))
@@ -993,11 +997,11 @@ function fun_upload_file_emsFormBuilder(id ,type){
       var individual_capt = caption.val();
       fd.append("caption", individual_capt);  
       fd.append('action', 'update_file_Emsfb');  
-      fd.append('nonce', ajax_object.nonce );  
+      fd.append('nonce', ajax_object_efm.nonce );  
       //console.log("log",individual_capt)
       jQuery.ajax({
           type: 'POST',
-          url: ajax_object.ajax_url,
+          url: ajax_object_efm.ajax_url,
           data: fd,
           contentType: false,
           processData: false,
@@ -1088,11 +1092,12 @@ function fun_vaid_tracker_check_emsFormBuilder(){
             value: el,
             name: formName,
             valid:recaptcha_emsFormBuilder,
-            nonce:ajax_object.nonce 
+            nonce:ajax_object_efm.nonce,
+          
            
           };
       
-          $.post(ajax_object.ajax_url, data, function (res) {
+          $.post(ajax_object_efm.ajax_url, data, function (res) {
            
              if (res.data.success==true) {
                //console.log(res.data);
@@ -1234,7 +1239,7 @@ function fun_send_replayMessage_emsFormBuilder(id){
   document.getElementById('replay_state__emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i> Sending...`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
-  const by = ajax_object.user_name.length>1? ajax_object.user_name : "Guest";
+  const by = ajax_object_efm.user_name.length>1? ajax_object_efm.user_name : "Guest";
   const ob = [{name:'Message',value:message ,by:by}];
   //console.log(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
@@ -1251,14 +1256,14 @@ function fun_send_replayMessage_emsFormBuilder(id){
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
   
-  //console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object.ajax_url,"Rmessage")
+  //console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object_efm.ajax_url,"Rmessage")
   if(message.length<1){
     document.getElementById('replay_state__emsFormBuilder').innerHTML="Please Enter message";
     document.getElementById('replayM_emsFormBuilder').innerHTML="";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  
+  console.log(`${form_type_emsFormBuilder}`);
   $(function () {
     data = {
       action: "set_rMessage_id_Emsfb",
@@ -1266,10 +1271,11 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
       id:id,
       valid:recaptcha_emsFormBuilder,
       message: JSON.stringify(message),
-      nonce:ajax_object.nonce 
+      nonce:ajax_object_efm.nonce ,
+      type:form_type_emsFormBuilder,
       
     };
-    $.post(ajax_object.ajax_url, data, function (res) {
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
         //console.log(`response`,res);
         document.getElementById('replayM_emsFormBuilder').value="";
@@ -1277,7 +1283,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
 
         // اضافه شدن به سمت یو آی 
-       // const userIp =ajax_object.user_ip;
+       // const userIp =ajax_object_efm.user_ip;
         const date = Date();
         //console.log(message);
         fun_emsFormBuilder__add_a_response_to_messages(message,res.data.by,0,date);

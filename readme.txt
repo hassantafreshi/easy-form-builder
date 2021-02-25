@@ -19,7 +19,7 @@ Easy Form Builder is friendly and Powerful form creator. With this plugin you ca
 
 [youtube http://www.youtube.com/watch?v=7jS01CEtbDg]
 
-you don\'t need coding skill or being tech person Just drag and drop your requirement and easily create your multistep form.
+You don't need coding skill or being tech person Just drag and drop your requirement and easily create your multistep form.
 
 You can create unlimited ticket systems, support systems or contact forms with Easy Form Builder
 
@@ -47,40 +47,38 @@ Easy Form builder use jquery version 3.5.1
 
 == Installation ==
 1- Navigate to Dashboard -> Plugins -> Add New and search for Easy form builder
-2- Click on “Installa Now” and than “Activate”
+2- Click on “Install Now” and than “Activate”
+3- Go to Easy form Builder -> Setting -> Add Google re-captcha keys
+4- if you want active Easy form Builder on localhost then Please use below keys. if plugin are active on server (host/VPS/...) [Click here to getting keys of recaptcha version 2.](https://www.google.com/recaptcha)
+ Site key(localhost): 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+ Secret key(localhost): 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 
 == Screenshots == 
-1.Create a step of the form
-2.Preview of the form
+1.Create a form
+2.Preview a form
 3.Setting of Easy Form Builder
 
 == Frequently Asked Questions ==
-How to Config Easy form Builder.
-[https://www.youtube.com/embed/DEQNHMPT0rQ]
+[How to Config Easy form Builder.](https://www.youtube.com/embed/DEQNHMPT0rQ)
 
-How to Get google re-captcha and add to Easy Form Builder.
-[https://www.youtube.com/embed/a1jbMqunzkQ]
+[How to Get Google re-captcha and add to Easy Form Builder.](https://www.youtube.com/embed/a1jbMqunzkQ)
 
-How to Activate the alert email of a new response.
-[https://www.youtube.com/embed/So2RAzu-OHU]
+[How to Activate the alert email of a new response.](https://www.youtube.com/embed/So2RAzu-OHU)
 
-How to Create a Form with Easy form Builder.
-[https://www.youtube.com/embed/7jS01CEtbDg]
+[How to Create a Form with Easy form Builder](https://www.youtube.com/embed/7jS01CEtbDg)
 
-How to Activate Tracking Code in Easy form Builder.
-[https://www.youtube.com/embed/im3aKby4E14]
+[How to Activate Tracking Code in Easy form Builder](https://www.youtube.com/embed/im3aKby4E14)
 
-How to Work with panel of Easy form Builder.
-[https://www.youtube.com/embed/7jS01CEtbDg]
+[How to Work with panel of Easy form Builder](https://www.youtube.com/embed/7jS01CEtbDg)
 
-How to Add tracking Form to a post or page.
-[https://www.youtube.com/embed/c1_gCFihrH8]
+[How to Add tracking Form to a post or page](https://www.youtube.com/embed/c1_gCFihrH8)
 
-How to Find a response by tracking code.
-[https://www.youtube.com/embed/vqKi9BJbO7k]
+[How to Find a response by tracking code](https://www.youtube.com/embed/vqKi9BJbO7k)
 
 
 == Changelog ==
+= 1.31 =
+* Improve UI
 
 = 1.30 =
 * Add Jquery version 3.5.1

@@ -16,6 +16,7 @@ class Create {
 	public $email;
 	public $value;
 	public $userId;
+	public $formtype;
 
 	protected $db;
 	public function __construct() {
@@ -167,7 +168,7 @@ class Create {
 
 
 		 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
-		 wp_localize_script('Emsfb-core-js','ajax_object_core',array(
+		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
@@ -202,7 +203,8 @@ class Create {
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
 		$this->value =  sanitize_text_field($_POST['value']);
-		if($this->isHTML($_POST['value'])){
+		$this->formtype =  sanitize_text_field($_POST['type']);
+		if($this->isHTML($_POST['value']) ||$this->isHTML($_POST['type'])){
 			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -232,7 +234,7 @@ class Create {
 			'form_structer' => $this->value, 
 			'form_email' => $this->email, 
 			'form_created_by' => $this->userId, 
-			
+			'form_type'=>$this->formtype, 			
 		));    $this->id_  = $this->db->insert_id; 
 		//echo "last id" + $lastid;
 		
