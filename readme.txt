@@ -2,7 +2,7 @@
 Contributors: mrlast, hassantafreshi
 Tags: form builder, form creator, easy form, tracking code, contact form, support form,contact form, contact form plugin, forms, custom form, contact button, contact me, custom contact form, form manager, form, forms builder, forms creator, captcha, recaptcha, Akismet, email form, web form, feedback form, payment form, survey form, donation form, email submit form, message form, stripe, email subscription, contact form widget, user registration form, wordpress registration, feedback
 Donate link: https://ko-fi.com/whitestudio
-Stable tag: 1.30.0
+Stable tag: 1.31.1
 Requires at least: 4.7
 Tested up to: 5.6.1
 PHP version: +5.4
@@ -38,7 +38,7 @@ Easy Form Builder Attributes:
 
 
 Report Bugs:
-Please create an issuse on [github](https://github.com/hassantafreshi/easy-form-builder) if you encounter a bug.
+Please create an issuse on [Github](https://github.com/hassantafreshi/easy-form-builder) if you encounter a bug.
 
 Notice:
 Easy Form builder use fontawesome for icons and this loads form fontawesome CDN.
@@ -77,6 +77,9 @@ Easy Form builder use jquery version 3.5.1
 
 
 == Changelog ==
+= 1.31.1 =
+* Add new featuer (multi-select) on create drag and drop form builder
+
 = 1.31 =
 * Improve UI
 

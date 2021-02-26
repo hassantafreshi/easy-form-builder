@@ -52,7 +52,7 @@ const elements = {
   10: { type: 'textarea', icon: 'fa-align-justify', pro_ws: false },
   11: { type: 'checkbox', icon: 'fa-check-square-o', pro_ws: false },
   12: { type: 'radiobutton', icon: 'fa-dot-circle-o', pro_ws: false },
-  13: { type: 'multiselect', icon: 'fa-check-circle-o', pro_ws: true },
+  13: { type: 'multiselect', icon: 'fa-check-circle-o', pro_ws: false },
   14: { type: 'url', icon: 'fa-link', pro_ws: true },
   15: { type: 'range', icon: 'fa-arrows-h', pro_ws: true },
   16: { type: 'color', icon: 'fa-paint-brush', pro_ws: true },
@@ -280,8 +280,9 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
       Required
     </label>
   </div>`;
-  
-    if (a == 6 && pro_ws==true && elementId=='multiselect') newEl += fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a);
+    //edit below code 789 fun_multiselect_button_emsFormBuilder 
+    if (a == 6 && elementId=='multiselect') newEl += pro_ws==true ?  fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a): `<div class="form-check ml-1 mr-1 mt-1 mb-1" onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" disabled><label class=" form-check-label" for="${atr[a].id}">Allow multi-select </label><small class=" text-warning"> <b>Click for Active Pro vesrsion<b></small></div>`;
+//    if (a == 6 && pro_ws==true && elementId=='multiselect') newEl += fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a);
     if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
     if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
   }
