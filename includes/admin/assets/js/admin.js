@@ -303,10 +303,10 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
        ${elementId == "file" ? `<div class="form-group row"><label for="${atr[1].id_}-file" class="col-sm-3 col-form-label">File Type</label><div class="col-sm-9"><select class=" ml-1 mr-1 mt-1 mb-1 insertInput" id="${atr[1].id_}-file"><option value="Document" ${fileV=='Document' ? 'selected':''}>Documents</option><option value="Image" ${fileV=='Image' ||fileV=='' ? 'selected':''}>Image</option><option value="Media" ${fileV=='Media' ||fileV=='' ? 'selected':''}>Media (Video or Audio)</option><option value="Zip" ${fileV=='Zip' ||fileV=='' ? 'selected':''}>Zip</option></select></div></div>`:``}
        
        <input type="hidden" id="${rndm}-amount" value="${amount}">
-        ${elementId == "radiobutton" || elementId == "checkbox" || (elementId == "multiselect" && pro_ws) ? `<div id="${rndm}-o" class= "border-top">` : ""}
+        ${elementId == "radiobutton" || elementId == "checkbox" || (elementId == "multiselect") ? `<div id="${rndm}-o" class= "border-top">` : ""}
       </div>
       <button id="${rndm}"class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit">Delete</button>
-  ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect" && pro_ws) ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>New option</button>` : ""}
+  ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect") ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>New option</button>` : ""}
     <span id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap"> info </span>
     </div>
   </div>`;
@@ -703,7 +703,7 @@ function optionCreator_emsFormBuilder(el) {
     
     const elementId = id;
     id = id + "-o"
-    
+    console.log(`id:${id}`,document.getElementById(id));
 
     document.getElementById(id).innerHTML += `<div id="${rndm}-${elementId}" class= "border-top">
             <button type="button" class="close remove btn  btn-outline-danger" aria-label="Close" id="remove_${rndm}-${elementId}">
@@ -789,7 +789,7 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
 
   for (const el of document.querySelectorAll(".insertInput")) {
   
-    el.addEventListener("change", (e) => {
+    el.addEventListener("keyup", (e) => {
 
       e.preventDefault();
       const id = el.id;

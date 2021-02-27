@@ -78,7 +78,7 @@ Easy Form builder use jquery version 3.5.1
 
 == Changelog ==
 = 1.31.1 =
-* Add new featuer (multi-select) on create drag and drop form builder
+* Add new feature (multi-select) on create drag and drop form builder
 
 = 1.31 =
 * Improve UI
