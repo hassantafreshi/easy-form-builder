@@ -90,7 +90,7 @@ class Admin {
 	    /** Only enqueue scripts and styles on the actual plugin admin pages */
 		if(is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")){
             //notifcation new version
-            wp_register_script('whiteStudioMessage', 'http://whitestudio.team/js/message.js'.$this->plugin_version, null, null, true);
+            wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js'.$this->plugin_version, null, null, true);
             wp_enqueue_script('whiteStudioMessage');
 
             //source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css

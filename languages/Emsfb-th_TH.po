@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: Easy Form Builder\n"
+"POT-Creation-Date: 2021-03-03 14:14+0100\n"
+"PO-Revision-Date: 2021-03-03 14:24+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: emsfb.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: Kolja Nolte <kolja.nolte@gmail.com>\n"
+"Language: th_TH\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+
+#: includes/admin/class-Emsfb-admin.php:163
+#: includes/admin/class-Emsfb-admin.php:170
+msgid "Panel"
+msgstr "แผง"
+
+#. Plugin Name of the plugin/theme
+#: includes/admin/class-Emsfb-admin.php:164
+msgid "Easy Form Builder"
+msgstr "Easy Form Builder"
+
+#: includes/admin/class-Emsfb-create.php:44
+msgid "Create"
+msgstr "สร้าง"
+
+#: includes/admin/class-Emsfb-create.php:109
+msgid "Define"
+msgstr "กำหนด"
+
+#. Plugin URI of the plugin/theme
+#. Author URI of the plugin/theme
+msgid "https://whitestudio.team/"
+msgstr "https://whitestudio.team/"
+
+#. Description of the plugin/theme
+msgid ""
+"This plugin Create from (multi step form) by drag and drop form wizard and "
+"produce form with tracking code ability , Free[Limited] version"
+msgstr ""
+"ปลั๊กอินนี้ สร้างจาก (ฟอร์มหลายขั้นตอน) โดยตัวช่วยสร้างฟอร์มลากและวาง "
+"และสร้างฟอร์มที่มีความสามารถของโค้ดการติดตาม รุ่น ฟรี (จำกัด)"
+
+#. Author of the plugin/theme
+msgid "WhiteStudio"
+msgstr "WhiteStudio"

@@ -154,7 +154,7 @@ class Create {
 			$pro=true;
 		}
 		if(	$pro==true){
-				wp_register_script('whitestudio-admin-pro-js', 'http://whitestudio.team/js/cool.js'.$ac, null, null, true);	
+				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);
 				wp_enqueue_script('whitestudio-admin-pro-js');
 		}
 		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		

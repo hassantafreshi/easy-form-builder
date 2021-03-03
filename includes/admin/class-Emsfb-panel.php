@@ -32,7 +32,7 @@ class Panel_edit  {
 			if($pro==true){
 				// اگر پولی بود این کد لود شود 
 				//پایان کد نسخه پرو
-				wp_register_script('whitestudio-admin-pro-js', 'http://whitestudio.team/js/cool.js'.$ac, null, null, true);	
+				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
 			
