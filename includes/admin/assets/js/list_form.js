@@ -349,8 +349,8 @@ window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 function fun_ws_show_edit_form(id){
   document.getElementById('emsFormBuilder-content').innerHTML=`<div class="col-md-12 ">
   <div id="emsFormBuilder-form" >
-  <form id="emsFormBuilder-form-id">
-      <h1 id="emsFormBuilder-form-title">Form Bulider</h1>
+  <form id="emsFormBuilder-form-id" class="${efb_var.rtl==1 ? 'rtl-text' :''}">
+      <h1 id="emsFormBuilder-form-title">${efb_var.text.easyFormBuilder}</h1>
       
       <div class="all-steps" id="all-steps"> 
           <span class="step"><i class="fa fa-tachometer"></i></span> 
@@ -360,14 +360,14 @@ function fun_ws_show_edit_form(id){
           <span class="step"><i class="fa fa-floppy-o"></i></span> 
       </div>
       <div class="all-steps" > 
-          <h5 class="step-name f-setp-name" id ="step-name">Define</h5> 
+          <h5 class="step-name f-setp-name" id ="step-name">${efb_var.text.define}</h5> 
       </div>
       <div id="message-area"></div>
       <div class="tab" id="firsTab">
-          <h5>Form Name:*</h5>
+          <h5>${efb_var.text.formName}:*</h5>
           <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
           </br>
-          <h5>Number of steps:*</h5>
+          <h5>${efb_var.text.numberOfSteps}:*</h5>
           <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
       </div>
       <div class="tab" id="tabInfo">

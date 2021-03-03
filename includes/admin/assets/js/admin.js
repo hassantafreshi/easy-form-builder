@@ -992,7 +992,7 @@ function createSteps() {
     }
     document.getElementById("tabInfo").innerHTML += `
              <div class="border-bottom mt-4">
-             <h5>Title of  step ${i}</h5>
+             <h5>${efb_var.text.titleOfStep} ${i}</h5>
              <p><input type="text" class="tabC require emsFormBuilder" name="Tab" placeholder="Tab ${i}"    id="tabName_${i}"></p>
              <h5><i class="fa fa-object-group" id="icon-step-${i}"> </i> Icon of  step ${i}  </h5>
              <select class="selectpicker tabC emsFormBuilder" name="Tab" placeholder="fa-user-circle" data-live-search="true" id="tabicon_${i}" >
