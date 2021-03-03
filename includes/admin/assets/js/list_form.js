@@ -121,17 +121,17 @@ function emsFormBuilder_get_edit_form(id){
 function emsFormBuilder_delete (id){
   //console.l(`show message do you want delete ? ${id}`);
   // پنجره مطمئن هستی می خوای فرم پاک کنی نمایش بده 
-
+//areYouSureYouWantDeleteItem
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h5 class="card-title text-white"><i class="fas fa-trash"></i> Remove!</h5>
+    <h5 class="card-title text-white"><i class="fas fa-trash"></i>${efb_var.text.remove}</h5>
     <br>
-      <h4 class="text-white"> Are you sure you want to delete this item??</h4>
+      <h4 class="text-white">${efb_var.text.areYouSureYouWantDeleteItem}</h4>
     <br>
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">NO</button>
-    <button class="btn btn-danger" onclick=" fun_confirm_remove_emsFormBuilder(${Number(id)})">Yes</button>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.no}</button>
+    <button class="btn btn-danger" onclick=" fun_confirm_remove_emsFormBuilder(${Number(id)})">${efb_var.text.yes}</button>
   </div>
   <div>
 </div></div></div>`;
@@ -141,7 +141,7 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 function emsFormBuilder_popUp_message (title,message){
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
     <h5 class="card-title text-white"><i class="fa fa-bell-o "></i> ${title}</h5>
@@ -157,13 +157,13 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 function emsFormBuilder_popUp_loading (){
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark text-center">
 
     <br>
     <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-     <h3 class="text-white">Please Waiting<h3>
+     <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3>
     <br>
   </div>
   <div>
@@ -192,24 +192,24 @@ function emsFormBuilder_show_content_message (id){
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
   </div>
   <div class="col text-right row">
-  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
+  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${efb_var.text.reply} </button>
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
 
 
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> Messages</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> ${efb_var.text.messages}</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
     
      <div class="mx-4 my-1 border-bottom border-info pb-1" id="conver_emsFormBuilder">
      
-      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> loading...</div>
+      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}...</div>
      </br>
       ${m} 
      </div>
@@ -218,7 +218,7 @@ function emsFormBuilder_show_content_message (id){
       
      </div>
    
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">Close</button>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</button>
   </div>
   <div>
 </div></div></div>`;

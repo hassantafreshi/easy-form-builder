@@ -1312,7 +1312,7 @@ function preview_emsFormBuilder(){
     // یک شرط که اگر فرم در بادی موجود نبود ساخته شود
    content =  fun_render_view_core_emsFormBuilder(0);
   
-  document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage" id="overpage">
+  document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
     <h4 class="card-title text-white"><i class="fa fa-eye "></i> Preview</h4>
