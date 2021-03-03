@@ -1137,14 +1137,14 @@ function emsFormBuilder_show_content_message (value , content){
     const val =JSON.parse(c.content.replace(/[\\]/g, ''));
     m += fun_emsFormBuilder_show_messages( val, c.rsp_by ,track,date);
   }
-  //replay message ui
+  //reply  message ui
   //console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`);
   let replayM = `<div class="mx-2 mt-2"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
-  <label for="replayM_emsFormBuilder">Replay:</label>
+  <label for="replayM_emsFormBuilder">reply :</label>
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
   </div>
   <div class="col text-right row">
-  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">Replay</button>
+  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
   <!-- recaptcha  -->
               <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
   <!-- recaptcha end  -->
@@ -1244,7 +1244,7 @@ function fun_send_replayMessage_emsFormBuilder(id){
   //console.log(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length<1 || isHTML(message)){
-    document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error , You can't use HTML Tag or send blanket message.</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error, You can't use HTML Tag or send blanket message.</h6>`;
     return ;
   }else{
     fun_send_replayMessage_ajax_emsFormBuilder(ob ,id)

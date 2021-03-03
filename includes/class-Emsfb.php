@@ -39,7 +39,7 @@ class Emsfb {
 	public function load_textdomain() {
 	//	echo "------------------------------------->" .__('Define','Emsfb');
 	
-		load_plugin_textdomain( 'Emsfb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'easy-form-builder', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**

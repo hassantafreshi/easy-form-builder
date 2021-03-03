@@ -69,9 +69,9 @@ function fun_emsFormBuilder_render_view(x){
         <thead>
             <tr >
             <th scope="col">#</th>
-            <th scope="col">Form Name</th>
-            <th scope="col">Create Date</th>
-            <th scope="col">Edit</th>
+            <th scope="col">${efb_var.text.formName}</th>
+            <th scope="col">${efb_var.text.createDate}</th>
+            <th scope="col">${efb_var.text.edit}</th>
             </tr>
         </thead>
         <tbody>
@@ -186,13 +186,13 @@ function emsFormBuilder_show_content_message (id){
   
   const by = valueJson_ws_messages[indx].read_by!==null ? valueJson_ws_messages[indx].read_by : "Unkown"
   const m = fun_emsFormBuilder_show_messages(content,by, userIp ,track,date)
-  //replay message ui
-  let replayM = `<div class="mx-2 mt-2"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
-  <label for="replayM_emsFormBuilder">Replay:</label>
+  //reply  message ui
+  let replayM = `<div class="mx-2 mt-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
+  <label for="replayM_emsFormBuilder">${efb_var.text.reply}:</label>
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
   </div>
   <div class="col text-right row">
-  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">Replay</button>
+  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
@@ -202,7 +202,7 @@ function emsFormBuilder_show_content_message (id){
   <div class=" overpage preview-overpage" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Messages</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> Messages</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
@@ -289,16 +289,16 @@ function fun_emsFormBuilder_back(){
 function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
   //console.l(content,by,userIp,track,date);
   //console.l(`by[${by}]userIp[${userIp}] , track[${track}]`)
-  if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by="Guest")
-  let m =`<Div class="border border-light round  p-2"><div class="border-bottom mb-1 pb-1">
-   <span class="small"><b>Info:</b></span></br>
-   <span class="small">By: ${by}</span></br>
-   <span class="small">IP: ${userIp}</span></br>
-  ${track!=0 ? `<span> Track No: ${track} </span></br>` :''}
-  <span> Date: ${date} </span></small>
+  if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by=efb_var.text.guest)
+  let m =`<Div class="border border-light round  p-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="border-bottom mb-1 pb-1">
+   <span class="small"><b>${efb_var.text.info}</b></span></br>
+   <span class="small">${efb_var.text.by}: ${by}</span></br>
+   <span class="small">${efb_var.text.ip}: ${userIp}</span></br>
+  ${track!=0 ? `<span> ${efb_var.text.trackNo}: ${track} </span></br>` :''}
+  <span> ${efb_var.text.date}: ${date} </span></small>
   </div>
   <div class="mx-1">
-  <h6 class="my-3"> Response: </h6>`;
+  <h6 class="my-3">${efb_var.text.response} </h6>`;
   for (const c of content){
     let value = `<b>${c.value}</b>`;
     //console.l(`value up ${value}`)    ;
@@ -319,7 +319,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
           const len =c.url.length;
           const type = c.url.slice((len-3),len);
          // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
-          value = type !=='avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">Video Download Link</a></p>` :`<p class="text-center"><a href="${c.url}">Download Viedo</a></p>`;
+          value = type !=='avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` :`<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         }else{
           value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
@@ -413,7 +413,7 @@ function fun_send_replayMessage_emsFormBuilder(id){
   //console.l(ob);
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length<1 || isHTML(message)){
-    document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error , You can't use HTML Tag or send blanket message.</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     return 
   }
   fun_send_replayMessage_ajax_emsFormBuilder(ob ,id)
@@ -443,9 +443,9 @@ function fun_ws_show_list_messages(value){
        <thead>
            <tr >
            <th scope="col">#</th>
-           <th scope="col">Track No.</th>
-           <th scope="col">Form Date</th>
-           <th scope="col">Content</th>
+           <th scope="col">${efb_var.text.trackNo}</th>
+           <th scope="col">${efb_var.text.formDate}</th>
+           <th scope="col">${efb_var.text.content}</th>
            </tr>
        </thead>
        <tbody>
@@ -648,7 +648,7 @@ function fun_ws_show_response(value){
   //console.l("598",value)
   for (v of value){
     //console.l(v.content);
-    const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'Message', value:'message note exists'}
+    const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'Message', value:'message not exists'}
     fun_emsFormBuilder__add_a_response_to_messages(content,v.rsp_by,v.ip,0,v.date);
   }
   document.getElementById('loading_message_emsFormBuilder').remove();
@@ -942,9 +942,9 @@ function fun_send_setting_emsFormBuilder(data){
         }else{
           //console.l(res.data);
           if (document.getElementById('setting_return_emsFormBuilder')==null){ 
-          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error , ${res.data.m}</div></div>`
+          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error, ${res.data.m}</div></div>`
           }else{
-            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error , ${res.data.m}</div>`
+            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error, ${res.data.m}</div>`
           }
         }
       }else{

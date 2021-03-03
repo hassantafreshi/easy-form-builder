@@ -1,0 +1,390 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Emsfb\n"
+"POT-Creation-Date: 2020-12-27 15:56+0330\n"
+"PO-Revision-Date: 2021-03-03 14:50+0330\n"
+"Language-Team: https://whitestudio.team/\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n==0 || n==1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"Last-Translator: \n"
+"Language: fa\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/admin/class-Emsfb-admin.php:128
+#: includes/admin/class-Emsfb-admin.php:129
+msgid "Panel"
+msgstr "پنل"
+
+#: includes/admin/class-Emsfb-admin.php:128
+msgid "Easy Form Builder"
+msgstr "آسان فرم ساز"
+
+#: includes/admin/class-Emsfb-create.php:39
+msgid "Create"
+msgstr "ایجاد"
+
+#: includes/admin/class-Emsfb-create.php:103
+msgid "Define"
+msgstr "تعریف"
+
+msgid "Form Name"
+msgstr "نام فرم"
+
+msgid "Create Date"
+msgstr "تاریخ ایجاد"
+
+msgid "Edit"
+msgstr "ویرایش"
+
+msgid "Forms"
+msgstr "فرم‌ها"
+
+msgid "Setting"
+msgstr "تنظیمات"
+
+msgid "help"
+msgstr "کمک"
+
+msgid "Search track No."
+msgstr "جستجو کد‌ پیگیری"
+
+msgid "Search"
+msgstr "جستجو"
+
+msgid "Number of steps"
+msgstr "تعداد مراحل"
+
+msgid "Title of step"
+msgstr "عنوان مرحله"
+
+msgid "Step Name"
+msgstr "نام مرحله"
+
+msgid "Step Title"
+msgstr "عنوان مرحله"
+
+msgid "Icon of step"
+msgstr "آیکون مرحله"
+
+msgid "Track No."
+msgstr "کد پیگیری"
+
+msgid "Form Date"
+msgstr "تاریخ فرم"
+
+msgid "Content"
+msgstr "محتوا"
+
+msgid "Loading"
+msgstr "در حال بار‌گذاری"
+
+msgid "Info"
+msgstr "اطلاعات"
+
+msgid "Response"
+msgstr "پاسخ"
+
+msgid "By"
+msgstr "بوسیله"
+
+msgid "IP"
+msgstr "آي‌پی"
+
+msgid "Date"
+msgstr "تاریخ"
+
+msgid "Messages"
+msgstr "پیام‌ها"
+
+msgid "Message"
+msgstr "پیام"
+
+msgid "Reply"
+msgstr "پاسخ"
+
+msgid "Close"
+msgstr "بستن"
+
+msgid "message sent"
+msgstr "پیام ارسال شد"
+
+msgid "Remove!"
+msgstr "حذف!"
+
+msgid "Are you sure you want to delete this item??"
+msgstr "آیا مطمئنید که می خواهید آیتم را پاک کنید ؟"
+
+msgid "NO"
+msgstr "نه"
+
+msgid "Yes"
+msgstr "بله"
+
+msgid "Pro Version"
+msgstr "نسخه ویژه"
+
+msgid "Click here to get Activate Code."
+msgstr "جهت دریافت کد فعال‌سازی اینجا را کلیک کنید."
+
+msgid "reCAPTCHA v2"
+msgstr "ری‌کپچا 2"
+
+msgid "reCAPTCHA"
+msgstr "ری‌کپچا"
+
+msgid "protects your website from fraud and abuse."
+msgstr "وب‌سایت شما را از اسپم وهزرنامه محافظت می کند."
+
+msgid "Click here to watch a video tutorial."
+msgstr "اینجا را برای دید ویدئو آموزشی کلیک کنید."
+
+msgid "Alert Email"
+msgstr "ایمیل هشدار"
+
+msgid ""
+"When Easy Form Builder recives a new message, It will send an alret email to "
+"admin of plugin."
+msgstr ""
+"وقتی آسان فرم ساز یک پیام جدید دریافت کند ، یک ایمیل هشدار به مدیر افزونه "
+"ارسال می کند."
+
+msgid "Email"
+msgstr "ایمیل"
+
+msgid "Clear Files"
+msgstr "حذف فایل‌ها"
+
+msgid "You can Remove unnecessary file uploaded by user with below button"
+msgstr ""
+"از طریق دکمه زیر ، فایل های غیر ضروری که توسط مخاطبین شما بار‌گذاری شده است "
+"را حذف کنید"
+
+msgid "Clear unnecessary files"
+msgstr "حذف فایل‌های غیر ضروری"
+
+msgid "Tracking code"
+msgstr "کد پیگیری"
+
+msgid ""
+"If you don't want to show tracking code to user, don't mark below option."
+msgstr "اگر می خواهید کد پیگیری نمایش داده نشود . گزینه زیر را انتخاب نکنید"
+
+msgid "Show tracking Code"
+msgstr "نمایش کد پیگیری"
+
+msgid "Tracking code Finder"
+msgstr "جستجوگر کد پیگیری"
+
+msgid ""
+"Copy and Paste below short-code of tracking code finder in any page or post."
+msgstr "کد-کوتاه جستجوگر کدپیگیری را کپی و در هر صفحه یا پست دلخواه پیست کنید."
+
+msgid "Saved"
+msgstr "ذخیره شد"
+
+msgid "Save"
+msgstr "ذخیره"
+
+msgid "Error, Your activation code is not Correct!"
+msgstr "کد فعال سازی صحیح نیست!"
+
+msgid "Please fill in all required fields."
+msgstr "لطفا همه قسمت های لازم را تکمیل کنید."
+
+msgid "Alert!"
+msgstr "اخطار!"
+
+msgid "Error,"
+msgstr "خطا ،"
+
+msgid "Elements:"
+msgstr "المان‌ها:"
+
+msgid "Label:"
+msgstr "برچسب:"
+
+msgid "ID"
+msgstr "آی‌دی"
+
+msgid "Class"
+msgstr "کلاس"
+
+msgid "Tooltip"
+msgstr "تولتیپ"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Required"
+msgstr "ضروری"
+
+msgid "Use Drog and Drop UI"
+msgstr "نمایش حالت کشیدن و رها کردن"
+
+msgid "Click here for Active Pro vesrsion"
+msgstr "برای فعال‌سازی نسخه ویژه اینجا را کلیک کنید"
+
+msgid "This option is available in Pro version"
+msgstr "این گزینه در نسخه ویژه موجود است"
+
+msgid "Get Pro version"
+msgstr "دریافت نسخه ویژه"
+
+msgid "File Type"
+msgstr "نوع فایل"
+
+msgid "Documents"
+msgstr "اسناد"
+
+msgid "Image"
+msgstr "تصویر"
+
+msgid "Media"
+msgstr "رسانه"
+
+msgid "(Video or Audio)"
+msgstr "(صوت یا ویدیو‌)"
+
+msgid "Zip"
+msgstr "زیپ"
+
+msgid "Allow multi-select"
+msgstr "فعال‌سازی انتخاب چندگانه"
+
+msgid "New option"
+msgstr "گزینه جدید"
+
+msgid "Form Not builded"
+msgstr "فرم ساخته نشد"
+
+msgid "Some step not defined"
+msgstr "بعضی از مراحل تعریف نشده است"
+
+msgid "Please check:"
+msgstr "لطفا بررسی کنید:"
+
+msgid "step"
+msgstr "مرحله"
+
+msgid "Please Waiting"
+msgstr "لطفا صبر کنید"
+
+msgid "You can not use HTML Tag or send blank message."
+msgstr "شما نمی‌توانید پیامی حاوی تگ‌های HTML یا بدون متن ارسال کنید"
+
+msgid "Error,Form not Created!"
+msgstr "خطا، فرم ساخته نشد!"
+
+msgid "Secure Error 403"
+msgstr "خطای ایمن 403"
+
+msgid "Error, you are a robot?"
+msgstr "خطا ، شما ربات هستید ؟"
+
+msgid "Please Enter vaild value"
+msgstr "لطفا مقدار درست وارد کنید"
+
+msgid "Login"
+msgstr "ورود"
+
+msgid "Register"
+msgstr "ثبت‌نام"
+
+msgid "Subscription"
+msgstr "عضویت"
+
+msgid "Secure Error 405"
+msgstr "خطای ایمن 405"
+
+msgid "Error,Setting is not set"
+msgstr "خطا ، تنظیمات وجود ندارد"
+
+msgid "Error,Are you a robot?"
+msgstr "خطا ، شما ربات هستید ؟"
+
+msgid "Tracking Code not found!"
+msgstr "کد‌پیگری یافت نشد!"
+
+msgid "File Permissions Error"
+msgstr "خطای دسترسی فایل"
+
+msgid "Something went wrong ,Please refresh and try again"
+msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
+
+msgid "You don't allow to use HTML tag"
+msgstr "شما اجازه استفاده از تگ‌های HTML‌را ندارید"
+
+msgid "Message sent"
+msgstr "پیام ارسال شد"
+
+msgid "Something went wrong,Please refresh the page"
+msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
+
+msgid "Invalid require,Please Check everything"
+msgstr "درخواست غلط است، لطفا همه چیز را چک کنید"
+
+msgid "Please Enter the value"
+msgstr "لطفا مقدار صحیح وارد کنید"
+
+msgid "Something went wrong,Please refresh the page and Enter value"
+msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
+
+msgid "Please enter a message"
+msgstr "لطفا یک پیام بنویسد"
+
+msgid "Files Deleted"
+msgstr "فایل‌ها حذف شد"
+
+msgid "Something went wrong,Please check all input"
+msgstr "مشکلی بوجود آمده است، لطفا تمام  وردی‌ها را چک کنید"
+
+msgid "button"
+msgstr "دکمه"
+
+msgid "text"
+msgstr "متن"
+
+msgid "password"
+msgstr "رمز"
+
+msgid "email"
+msgstr "ایمل"
+
+msgid "number"
+msgstr "عدد"
+
+msgid "file"
+msgstr "فایل"
+
+msgid "date"
+msgstr "تاریخ"
+
+msgid "tel"
+msgstr "تلفن"
+
+msgid "textarea"
+msgstr "مت‌طولانی"
+
+msgid "checkbox"
+msgstr "چک‌باکس"
+
+msgid "range"
+msgstr "رنج"
+
+msgid "color"
+msgstr "رنگ"
+
+msgid "finish"
+msgstr "پایان"
+
+
+msgid "Video Download Link"
+msgstr "لینک دانلود ویدئو"
+
+msgid "Download Viedo"
+msgstr "لینک دانلود ویدئو"

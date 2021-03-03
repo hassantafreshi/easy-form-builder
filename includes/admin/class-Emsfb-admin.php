@@ -161,13 +161,13 @@ class Admin {
 		$icon = Emsfb_URL.'/includes/admin/assets/image/logo-gray.png';
 		add_menu_page(
 			__( 'Panel', 'Emsfb' )
-			,$noti_count ? sprintf( __( 'Easy Form Builder', 'Emsfb' ).' <span class="awaiting-mod">%d</span>', $noti_count ) : __( 'Easy Form Builder', 'Emsfb' ),
+			,$noti_count ? sprintf( __('Easy Form Builder', 'easy-form-builder' ).' <span class="awaiting-mod">%d</span>', $noti_count ) : __( 'Easy Form Builder', 'Emsfb' ),
 			 'Emsfb',
 			'Emsfb',
 			'',
 			''.$icon.''
 		);
-		add_submenu_page( 'Emsfb', __( 'Panel', 'Emsfb' ), __( 'Panel', 'Emsfb' ), 'Emsfb', 'Emsfb', array( $this, 'panel_callback' ) );
+		add_submenu_page( 'Emsfb',__('Panel','easy-form-builder'),__('Panel','easy-form-builder'), 'Emsfb', 'Emsfb', array( $this, 'panel_callback' ) );
 		//
 
 	}
@@ -219,7 +219,8 @@ class Admin {
 		}
 
 		if(empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name']) ){
-			$response = array( 'success' => false , "m"=>"Invalid require,Please Check every thing");
+			$response = array( 'success' => false , "m"=>"Invalid require, Please Check everything"); 
+
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -394,8 +395,10 @@ class Admin {
 	));
 
 
-	$response = array( 'success' => true , "m"=>"message sent");
-	wp_send_json_success($response,$_POST);
+	$m = __('Message sent','easy-form-builder');
+	$response = array( 'success' => true , "m"=>$m); 
+	wp_send_json_success($response,$_POST);	
+
    }
    public function set_setting_Emsfb(){
 	   // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
@@ -447,10 +450,10 @@ class Admin {
 	));
 
 
+	$m = __('Message sent','easy-form-builder');
+	$response = array( 'success' => true , "m"=>$m); 
+	wp_send_json_success($response,$_POST);	
 
-
-	$response = array( 'success' => true , "m"=>"message sent");
-	wp_send_json_success($response,$_POST);
    }
 
    public function get_ajax_track_admin(){

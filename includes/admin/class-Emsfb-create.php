@@ -41,7 +41,7 @@ class Create {
 	}
 
 	public function add_Create_menu() {
-		add_submenu_page( 'Emsfb', __( 'Create', 'Emsfb' ), __( 'Create', 'Emsfb' ), 'Emsfb_create', 'Emsfb_create', array(
+		add_submenu_page( 'Emsfb', __( 'Create', 'easy-form-builder' ), __( 'Create', 'easy-form-builder' ), 'Emsfb_create', 'Emsfb_create', array(
 			$this,
 			'render_settings'
 		) );
@@ -158,7 +158,7 @@ class Create {
 				wp_enqueue_script('whitestudio-admin-pro-js');
 		}
 		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
-		wp_localize_script('Emsfb-admin-js','s_var',array(
+		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
 			'pro' => $pro,
@@ -189,7 +189,8 @@ class Create {
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong,Please check all input"); 
+			$m = __('Something went wrong,Please check all input','easy-form-builder');
+			$response = array( 'success' => false , "m"=>$m); 
 			wp_send_json_success($response,$_POST);
 			die();
 		} 

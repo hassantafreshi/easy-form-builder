@@ -20,8 +20,9 @@ let form_type_emsFormBuilder='form';
 
 if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws_p');
 jQuery (function() {
-  state_check_ws_p =Number(s_var.check)
-  pro_ws = (s_var.pro=='1' || s_var.pro==true) ? true : false;
+  state_check_ws_p =Number(efb_var.check)
+  console.log(efb_var);
+  pro_ws = (efb_var.pro=='1' || efb_var.pro==true) ? true : false;
   if(typeof pro_whitestudio !== 'undefined'){    
     pro_ws = pro_whitestudio ;
     console.log(`pro is new ${pro_ws}`);
@@ -171,7 +172,7 @@ function validateForm_emsFormBuilder() {
     if (input.classList.contains("require")) {
       if (input.value == "") {
         input.className += " invalid"; valid = false;
-        document.getElementById("message-area").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields..`);
+        document.getElementById("message-area").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields.`);
 
     
 
@@ -1223,14 +1224,14 @@ function actionSendData_emsFormBuilder(){
         value: localStorage.getItem("valueJson_ws_p"),
         name:formName_ws,
         type:form_type_emsFormBuilder,
-        nonce:s_var.nonce
+        nonce:efb_var.nonce
       };
     }else{
       data={
         action:"update_form_Emsfb",
         value: localStorage.getItem("valueJson_ws_p"),
         name:document.getElementById('form_name').value,
-        nonce:s_var.nonce,
+        nonce:efb_var.nonce,
         id:form_ID_emsFormBuilder
       };
     }

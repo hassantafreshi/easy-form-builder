@@ -15,18 +15,45 @@ class Panel_edit  {
 		global $wpdb;
 		$this->db = $wpdb;
 		if ( is_admin() ) {
-	
-			
+			$rtl = is_rtl();
+			$lang = [
+				"create" => __('Create','easy-form-builder'),
+				"define" => __('Define','easy-form-builder'),
+				"formName" => __('Form Name','easy-form-builder'),
+				"createDate" => __('Create Date','easy-form-builder'),
+				"edit" => __('Edit','easy-form-builder'),
+				"content" => __('Content','easy-form-builder'),
+				"trackNo" => __('Track No.','easy-form-builder'),
+				"formDate" => __('Form Date','easy-form-builder'),
+				"by" => __('By','easy-form-builder'),
+				"ip" => __('IP','easy-form-builder'),
+				"guest" => __('Guest','easy-form-builder'),
+				"info" => __('Info','easy-form-builder'),
+				"response" => __('Response','easy-form-builder'),
+				"date" => __('Date','easy-form-builder'),
+				"videoDownloadLink" => __('Video Download Link','easy-form-builder'),
+				"downloadViedo" => __('Download Viedo','easy-form-builder'),
+				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
+				"error" => __('Error,','easy-form-builder'),
+				"reply" => __('Reply','easy-form-builder'),
+				"Define" => __('Define','easy-form-builder'),
+				"Define" => __('Define','easy-form-builder'),
+				"Define" => __('Define','easy-form-builder'),
+				"Define" => __('Define','easy-form-builder'),
+				"Define" => __('Define','easy-form-builder'),
+			];
 			wp_enqueue_script( 'Emsfb-listicons-js', Emsfb_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
 			$pro =false;
 			$ac= $this->get_activeCode_Emsfb();
 			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
 			wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
-			wp_localize_script('Emsfb-admin-js','s_var',array(
+			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
-				'check' => 0		));
+				'check' => 0,
+				'rtl' => $rtl,
+				'text' => $lang		));
 
 		
 			if($pro==true){
@@ -66,7 +93,7 @@ class Panel_edit  {
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
 				<a class="navbar-brand" href="#">
 					<img src="<?php echo Emsfb_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
-					Easy Form Builder
+					<?php _e('Easy Form Builder','easy-form-builder') ?>
 				</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
@@ -75,21 +102,21 @@ class Panel_edit  {
 				<div class="collapse navbar-collapse" id="navbarToggler">
 					<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
 					<li class="nav-item">
-						<a class="nav-link active" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button">Forms <span class="sr-only">(current)</span></a>
+						<a class="nav-link active" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php _e('Forms','easy-form-builder') ?><span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button">Setting</a>
+						<a class="nav-link" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php _e('Setting','easy-form-builder') ?></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="admin.php?page=Emsfb_create" role="button">Create</a>
+						<a class="nav-link" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link " onClick="fun_show_content_page_emsFormBuilder('help')" role="button">help</a>
+						<a class="nav-link " onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
 					</li>
 					</ul>
 					<div class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" id="track_code_emsFormBuilder" placeholder="Search track No.">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()">Search</button>
+					<input class="form-control mr-sm-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Search track No.','easy-form-builder') ?>">
+					<button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
 					</div>
 				</div>
 			</nav>
@@ -99,7 +126,7 @@ class Panel_edit  {
 					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
 					</div>
 					<div class="row" id ="emsFormBuilder-content">
-					 <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i>Loading</h2>
+					 <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2>
 					</div>
 					<div class="row mt-2 d-flex justify-content-center align-items-center ">
 					<button type="button" id="more_emsFormBuilder" class="mat-shadow emsFormBuilder p-3" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>

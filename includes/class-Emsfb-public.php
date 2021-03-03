@@ -244,7 +244,7 @@ class _Public {
 		else if ($captcha_success->success==true) {
 
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
-				$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+				$response = array( 'success' => false , "m"=>"Please Enter vaild value."); 
 				wp_send_json_success($response,$_POST);
 				die();
 			}
@@ -279,10 +279,10 @@ class _Public {
 				$response = array( 'success' => false  ,'m'=>'Login'); 
 				wp_send_json_success($response,$_POST);
 			}else if ($type =="register"){
-				$response = array( 'success' => false  ,'m'=>'register'); 
+				$response = array( 'success' => false  ,'m'=>'Register'); 
 				wp_send_json_success($response,$_POST);
 			}else if ($type =="subscription"){
-				$response = array( 'success' => false  ,'m'=>'Login'); 
+				$response = array( 'success' => false  ,'m'=>'Subscription'); 
 				wp_send_json_success($response,$_POST);
 			}else {
 				$response = array( 'success' => false  ,'m'=>'Secure Error 405'); 
@@ -448,7 +448,7 @@ class _Public {
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload , 'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
-			$response = array( 'success' => false  ,'error'=>"file permissions error"); 
+			$response = array( 'success' => false  ,'error'=>"File Permissions Error"); 
 			wp_send_json_success($response,$_POST);
 			die('invalid file '.$_FILES['file']['type']);
 		}
@@ -462,7 +462,7 @@ class _Public {
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403M'); 
+			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -538,7 +538,7 @@ class _Public {
 			
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track);}
 
-				$response = array( 'success' => true , "m"=>"message sent" , "by"=>$by); 
+				$response = array( 'success' => true , "m"=>"Message sent" , "by"=>$by); 
 				wp_send_json_success($response,$_POST);
 				
 			
@@ -556,7 +556,7 @@ class _Public {
   
   
    $subject ="📮 [".get_bloginfo('name')."] Recived New Response in EFB Plugin";
-   $from ="no-replay@".$_SERVER['SERVER_NAME']."";
+   $from ="no-reply @".$_SERVER['SERVER_NAME']."";
    //error_log($from);
    $headers = array(
 	'MIME-Version: 1.0\r\n',

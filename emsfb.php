@@ -6,7 +6,7 @@
  * Version: 1.31.1
  * Author: WhiteStudio
  * Author URI: https://whitestudio.team/
- * Text Domain: Emsfb
+ * Text Domain: easy-form-builder
  * Domain Path: /languages
  */
 
