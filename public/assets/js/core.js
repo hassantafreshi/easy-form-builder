@@ -33,7 +33,7 @@ jQuery (function() {
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
     poster_emsFormBuilder =ajax_object_efm.poster;
     //console.log("poster_emsFormBuilder",ajax_object_efm);
-    console.log(ajax_object_efm,'return');
+    console.log(ajax_object_efm.rtl,'return');
     if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
       
       const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
@@ -227,8 +227,8 @@ function fun_render_view(val,check){
                 <!-- recaptcha  -->
                 <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
                 <!-- recaptcha end  -->
-                    <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="fa fa-angle-double-left"></i></button> 
-                    <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="fa fa-angle-double-right"></i></button> </div>                  
+                    <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button> 
+                    <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div>                  
                 </div>
               </form>      
             </div>
@@ -278,9 +278,9 @@ function ShowTab_emsFormBuilder_view(n) {
       document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
     }
     if (n == (x.length - 1)) {
-      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
     } else {
-      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
     }
     validateForm_fixStepInd_view(n)
   }
@@ -726,7 +726,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
       
       document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>Please check all filled</span>
-      <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+      <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
       // faild form
     } else {
@@ -740,7 +740,7 @@ function ShowTab_emsFormBuilder_view(n) {
         //console.log(`error => ${file.state}`,file)
         checkFile =-100;
         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">You don't have permission to upload this file:</br>${file.url}</span>
-        <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+        <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
        return;
 
       }
@@ -765,7 +765,7 @@ function ShowTab_emsFormBuilder_view(n) {
               //console.log(`error => ${file.state}`,file)
               checkFile =-100;
               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>You don't have permission to upload this file </br>${file.url}</span>
-              <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+              <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
              return;
 
             }
@@ -822,7 +822,7 @@ function ShowTab_emsFormBuilder_view(n) {
           //console.log(`res : error`)
   
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
-          <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+          <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
   
         } 
       })
@@ -1054,7 +1054,7 @@ function fun_tracking_show_emsFormBuilder(){
 
           <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
               <div style="float:right;"> 
-              <button type="button" id="vaid_check_emsFormBuilder" class="mat-shadow emsFormBuilder " onclick="fun_vaid_tracker_check_emsFormBuilder()"><i class="fa fa-angle-double-right"></i></button> 
+              <button type="button" id="vaid_check_emsFormBuilder" class="mat-shadow emsFormBuilder " onclick="fun_vaid_tracker_check_emsFormBuilder()"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> 
               </div>
           </div>
 
@@ -1105,7 +1105,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
             } else {             
               //console.log(`res : error`)      
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
-              <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="window.location.href=window.location.href" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+              <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
             } 
           })

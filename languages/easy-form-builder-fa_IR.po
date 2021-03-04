@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emsfb\n"
 "POT-Creation-Date: 2020-12-27 15:56+0330\n"
-"PO-Revision-Date: 2021-03-03 17:31+0330\n"
+"PO-Revision-Date: 2021-03-04 15:45+0330\n"
 "Language-Team: https://whitestudio.team/\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,6 +68,9 @@ msgstr "نام مرحله"
 msgid "Step Title"
 msgstr "عنوان مرحله"
 
+msgid "Step Titles"
+msgstr "عنوان مراحل"
+
 msgid "Icon of step"
 msgstr "آیکون مرحله"
 
@@ -109,9 +112,6 @@ msgstr "پاسخ"
 
 msgid "Close"
 msgstr "بستن"
-
-msgid "message sent"
-msgstr "پیام ارسال شد"
 
 msgid "Remove!"
 msgstr "حذف!"
@@ -191,7 +191,7 @@ msgid "Save"
 msgstr "ذخیره"
 
 msgid "Error, Your activation code is not Correct!"
-msgstr "کد فعال سازی صحیح نیست!"
+msgstr "خطا، !"
 
 msgid "Please fill in all required fields."
 msgstr "لطفا همه قسمت های لازم را تکمیل کنید."
@@ -205,8 +205,8 @@ msgstr "خطا ،"
 msgid "Elements:"
 msgstr "المان‌ها:"
 
-msgid "Label:"
-msgstr "برچسب:"
+msgid "Label:*"
+msgstr "برچسب:*"
 
 msgid "ID"
 msgstr "آی‌دی"
@@ -325,7 +325,7 @@ msgstr "پیام ارسال شد"
 msgid "Something went wrong,Please refresh the page"
 msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
 
-msgid "Invalid require,Please Check everything"
+msgid "Invalid require, Please Check everything"
 msgstr "درخواست غلط است، لطفا همه چیز را چک کنید"
 
 msgid "Please Enter the value"
@@ -353,7 +353,7 @@ msgid "password"
 msgstr "رمز"
 
 msgid "email"
-msgstr "ایمل"
+msgstr "ایمیل"
 
 msgid "number"
 msgstr "عدد"
@@ -367,8 +367,17 @@ msgstr "تاریخ"
 msgid "tel"
 msgstr "تلفن"
 
+msgid "url"
+msgstr "پیوند"
+
+msgid "radiobutton"
+msgstr "دکمه‌رادیویی"
+
+msgid "multiselect"
+msgstr "انتخاب‌ چند‌گانه"
+
 msgid "textarea"
-msgstr "مت‌طولانی"
+msgstr "متن‌طولانی"
 
 msgid "checkbox"
 msgstr "چک‌باکس"
@@ -382,8 +391,56 @@ msgstr "رنگ"
 msgid "finish"
 msgstr "پایان"
 
+msgid "Done"
+msgstr "انجام شد"
+
+msgid "Demo"
+msgstr "آزمایشی"
+
+msgid "Waiting"
+msgstr "صبر کنید"
+
 msgid "Video Download Link"
 msgstr "لینک دانلود ویدئو"
 
 msgid "Download Viedo"
 msgstr "دانلود ویدئو"
+
+msgid "Enter Activate Code"
+msgstr "کد فعال‌سازی را وارد کنید"
+
+msgid "SITE KEY"
+msgstr "کلید سایت"
+
+msgid "SECRET KEY"
+msgstr "کلید امنیتی"
+
+msgid "Enter SITE KEY"
+msgstr "کلید سایت را اینجا وارد کنید"
+
+msgid "Enter SECRET KEY"
+msgstr "کلید امنیتی را اینجا وارد کنید"
+
+msgid "Enter Admin Email"
+msgstr "ایمیل ادمین را وارد کنید"
+
+msgid "Your activation code is not Correct!"
+msgstr "کد فعال سازی صحیح نیست!"
+
+msgid "Form Updated"
+msgstr "فرم بروز شد"
+
+msgid "Good Job"
+msgstr "عالی بود"
+
+msgid "form has been successfully updated"
+msgstr "فرم با موفقیت بروز شد"
+
+msgid "form is successfully build"
+msgstr "فرم با موفقیت ساخته شد"
+
+msgid "Form Code"
+msgstr "کد فرم"
+
+
+

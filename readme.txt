@@ -1,10 +1,10 @@
 === Easy Form Builder ===
 Contributors: 			mrlast, hassantafreshi
-Tags: 				    form builder, form creator, contact form, support form, form manager
+Tags: 				    form builder, form creator, contact form, support form, tracking id
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.31.2
+Stable tag: 			1.31.4
 Requires at least: 		4.7
-Tested up to: 			5.6
+Tested up to: 			5.7
 Requires PHP:			5.4
 License: 				GPLv3 or later
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -28,7 +28,7 @@ How *Easy Form Builder* makes your life easier:
 - Reliable spam protection through Google’s reCAPTCHA v2
 - Instant reply functionality
 - Mobile-friendly responsive forms
-- Unique tracking IDfinder
+- Unique tracking ID finder
 - User-friendly and feature-rich panel to manage your forms and their responses.
 
 
@@ -71,10 +71,14 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 7. [How to add a tracking form to a post, page, or custom post type](https://www.youtube.com/embed/c1_gCFihrH8)
 
-8.[How to find a response through a tracking ID](https://www.youtube.com/embed/vqKi9BJbO7k)
+8. [How to find a response through a tracking ID](https://www.youtube.com/embed/vqKi9BJbO7k)
 
 
 == Changelog ==
+
+= 1.31.3 =
+* UI improvements
+
 = 1.31.2 =
 * UI improvements
 

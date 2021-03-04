@@ -90,7 +90,7 @@ class Admin {
 	    /** Only enqueue scripts and styles on the actual plugin admin pages */
 		if(is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")){
             //notifcation new version
-            wp_register_script('whiteStudioMessage', 'http://whitestudio.team/js/message.js'.$this->plugin_version, null, null, true);
+            wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js'.$this->plugin_version, null, null, true);
             wp_enqueue_script('whiteStudioMessage');
 
             //source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
@@ -189,13 +189,13 @@ class Admin {
 
 		if (check_ajax_referer('admin-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 			wp_send_json_success($response,$_POST);
 			die("secure!");
 		}
 
 		if( empty($_POST['id']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+			$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -213,20 +213,20 @@ class Admin {
 
 		if (check_ajax_referer('admin-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 			wp_send_json_success($response,$_POST);
 			die("secure!");
 		}
 
 		if(empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name']) ){
-			$response = array( 'success' => false , "m"=>"Invalid require, Please Check everything"); 
+			$response = array( 'success' => false , "m"=>__("Invalid require, Please Check everything")); 
 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
 		if($this->isHTML(json_encode($_POST['value'])) || $this->isHTML(json_encode($_POST['name'])) ){
-			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag");
+			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -237,18 +237,18 @@ class Admin {
 		//,`form_name` =>
 		$r = $this->db->update($table_name,array( 'form_structer' => $value ,'form_name' =>$name ),array('form_id'=>$id) );
 
-		$response = array( 'success' => true ,'r'=>"update", 'value'=>"[EMS_Form_Builder id=$id]");
+		$response = array( 'success' => true ,'r'=>__("update"), 'value'=>"[EMS_Form_Builder id=$id]");
 		wp_send_json_success($response,$_POST);
    }
 	public function update_message_state_Emsfb(){
 		if (check_ajax_referer('admin-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 			wp_send_json_success($response,$_POST);
 			die("secure!");
 		}
 		if( empty($_POST['id']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+			$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -261,7 +261,7 @@ class Admin {
 		//error_log(json_encode($_POST['value']));
 		if($_POST['value']){
 			if ($this->isHTML(json_encode($_POST['value']))){
-				$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag");
+				$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag"));
 				wp_send_json_success($response,$_POST);
 				die();
 			}
@@ -271,19 +271,19 @@ class Admin {
 		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$r = $this->db->update($table_name,array( 'read_' => 1 , 'read_by'=>get_current_user_id(), 'read_date'=>current_time('mysql')),array('msg_id'=>$id) );
 
-		$response = array( 'success' => true ,'r'=>"update");
+		$response = array( 'success' => true ,'r'=>__("update"));
 		wp_send_json_success($response,$_POST);
    }
 
    public function get_form_id_Emsfb(){
 	if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
 	if( empty($_POST['id']) ){
-		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+		$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 		wp_send_json_success($response,$_POST);
 		die();
 	}
@@ -299,12 +299,12 @@ class Admin {
    public function get_messages_id_Emsfb(){
 	if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
 	if( empty($_POST['id']) ){
-		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+		$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 		wp_send_json_success($response,$_POST);
 		die();
 	}
@@ -319,12 +319,12 @@ class Admin {
    public function get_all_response_id_Emsfb(){
 	if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
 	if( empty($_POST['id']) ){
-		$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+		$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 		wp_send_json_success($response,$_POST);
 		die();
 	}
@@ -340,7 +340,7 @@ class Admin {
 				$usr =get_user_by('id',$r);
 				$val->rsp_by= $usr->display_name;
 			}else{
-				$val->rsp_by="Guest";
+				$val->rsp_by=__("Guest");
 			}
 		}
 
@@ -355,24 +355,24 @@ class Admin {
 
 	   if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 		}
 		if( empty($_POST['id']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page");
+			$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		if( empty($_POST['message']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong,Please refresh the page and Enter value");
+			$response = array( 'success' => false , "m"=>__("Something went wrong,Please refresh the page and Enter value"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
 
 		if($this->isHTML(json_encode($_POST['message']))){
-			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag");
+			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -405,18 +405,18 @@ class Admin {
 	   // با این مضنون که پاسخ شما داده شده است
 	   if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 		}
 
 		if( empty($_POST['message']) ){
-			$response = array( 'success' => false , "m"=>"Please enter a message");
+			$response = array( 'success' => false , "m"=>__("Please enter a message"));
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 	if($this->isHTML(json_encode($_POST['message']))){
-		$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag");
+		$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag"));
 		wp_send_json_success($response,$_POST);
 		die();
 	}
@@ -430,9 +430,10 @@ class Admin {
 			$email = $value;
 		}
 		if($key =="activeCode" && strlen($value)>1){
-
+			
+			error_log($rdd);
 			if(md5($_SERVER['SERVER_NAME'])!=$value){
-				$response = array( 'success' => false , "m"=>"Your activation code is not Correct!");
+				$response = array( 'success' => false , "m"=>__("Your activation code is not Correct!",'easy-form-builder'),);
 				wp_send_json_success($response,$_POST);
 				die();
 			}else{
@@ -460,7 +461,7 @@ class Admin {
 	//اطلاعات ردیف ترک را بر می گرداند
 	if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
@@ -475,7 +476,7 @@ class Admin {
 	  if($value[0]!=null){
 		$response = array( 'success' => true  , "ajax_value" =>$value );
 		}else{
-			$response = array( 'success' => false  , "m" =>"Tracking Code not found!");
+			$response = array( 'success' => false  , "m" =>__("Tracking Code not found!"));
 		}
 
 	wp_send_json_success($response,$_POST);
@@ -489,7 +490,7 @@ class Admin {
 	//پاک کردن فایل های اضافی
 	if (check_ajax_referer('admin-nonce','nonce')!=1){
 		//error_log('not valid nonce');
-		$response = array( 'success' => false  , 'm'=>'Secure Error 403');
+		$response = array( 'success' => false  , 'm'=>__('Secure Error 403'));
 		wp_send_json_success($response,$_POST);
 		die("secure!");
 	}
@@ -538,8 +539,8 @@ class Admin {
 	}
 	//error_log('*******************************************');
 	//error_log(json_encode($arrayFiles));
-
-	$response = array( 'success' => true  , "m" =>"Files Deleted" );
+	//error_log(__("Files Deleted"));
+	$response = array( 'success' => true  , "m" =>__("Files Deleted") );
 
 	wp_send_json_success($response,$_POST);
 

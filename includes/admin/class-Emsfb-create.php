@@ -37,6 +37,8 @@ class Create {
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
+
+		
 		
 	}
 
@@ -154,14 +156,98 @@ class Create {
 			$pro=true;
 		}
 		if(	$pro==true){
-				wp_register_script('whitestudio-admin-pro-js', 'http://whitestudio.team/js/cool.js'.$ac, null, null, true);	
+				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
 		}
+
+		$lang = [
+			"create" => __('Create','easy-form-builder'),
+			"define" => __('Define','easy-form-builder'),
+			"formName" => __('Form Name','easy-form-builder'),
+			"createDate" => __('Create Date','easy-form-builder'),
+			"edit" => __('Edit','easy-form-builder'),
+			"content" => __('Content','easy-form-builder'),
+			"trackNo" => __('Track No.','easy-form-builder'),
+			"formDate" => __('Form Date','easy-form-builder'),
+			"by" => __('By','easy-form-builder'),
+			"ip" => __('IP','easy-form-builder'),
+			"guest" => __('Guest','easy-form-builder'),
+			"info" => __('Info','easy-form-builder'),
+			"response" => __('Response','easy-form-builder'),
+			"date" => __('Date','easy-form-builder'),
+			"videoDownloadLink" => __('Video Download Link','easy-form-builder'),
+			"downloadViedo" => __('Download Viedo','easy-form-builder'),
+			"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
+			"error" => __('Error,','easy-form-builder'),
+			"reply" => __('Reply','easy-form-builder'),
+			"messages" => __('Messages','easy-form-builder'),
+			"close" => __('Close','easy-form-builder'),
+			"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
+			"loading" => __('Loading','easy-form-builder'),
+			"remove" => __('Remove!','easy-form-builder'),
+			"areYouSureYouWantDeleteItem" => __('Are you sure you want to delete this item?','easy-form-builder'),
+			"no" => __('NO','easy-form-builder'),
+			"yes" => __('Yes','easy-form-builder'),
+			"numberOfSteps" => __('Number of steps','easy-form-builder'),
+			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
+			"titleOfStep" => __('Title of step','easy-form-builder'),
+			"proVersion" => __('Pro Version','easy-form-builder'),
+			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
+			"email" => __('Email','easy-form-builder'),
+			"trackingCode" => __('Tracking code','easy-form-builder'),		
+			"save" => __('Save','easy-form-builder'),
+			"waiting" => __('Waiting','easy-form-builder'),
+			"saved" => __('Saved','easy-form-builder'),
+			"error" => __('Error,','easy-form-builder'),
+			"stepName" => __('Step Name','easy-form-builder'),
+			"IconOfStep" => __('Icon of step','easy-form-builder'),
+			"define" => __('Define','easy-form-builder'),
+			"stepTitles" => __('Step Titles','easy-form-builder'),
+			"elements" => __('Elements:','easy-form-builder'),
+			"delete" => __('Delete','easy-form-builder'),
+			"newOption" => __('New option','easy-form-builder'),
+			"documents" => __('Documents','easy-form-builder'),
+			"image" => __('Image','easy-form-builder'),
+			"media" => __('Media','easy-form-builder'),
+			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),
+			"zip" => __('Zip','easy-form-builder'),
+			"required" => __('Required','easy-form-builder'),
+			"button" => __('button','easy-form-builder'),
+			"text" => __('text','easy-form-builder'),
+			"password" => __('password','easy-form-builder'),
+			"email" => __('email','easy-form-builder'),
+			"number" => __('number','easy-form-builder'),
+			"file" => __('file','easy-form-builder'),
+			"date" => __('date','easy-form-builder'),
+			"tel" => __('tel','easy-form-builder'),
+			"textarea" => __('textarea','easy-form-builder'),
+			"checkbox" => __('checkbox','easy-form-builder'),
+			"radiobutton" => __('radiobutton','easy-form-builder'),
+			"multiselect" => __('multiselect','easy-form-builder'),
+			"url" => __('url','easy-form-builder'),
+			"range" => __('range','easy-form-builder'),
+			"color" => __('color','easy-form-builder'),
+			"fileType" => __('File Type','easy-form-builder'),
+			"label" => __('Label:*','easy-form-builder'),
+			"class" => __('Class','easy-form-builder'),
+			"id" => __('ID','easy-form-builder'),
+			"tooltip" => __('Tooltip','easy-form-builder'),
+			"formUpdated" => __('Form Updated','easy-form-builder'),
+			"goodJob" => __('Good Job','easy-form-builder'),
+			"formUpdatedDone" => __('form has been successfully updated','easy-form-builder'),
+			"formIsBuild" => __('form is successfully build','easy-form-builder'),
+			"formCode" => __('Form Code','easy-form-builder'),
+			"close" => __('Close','easy-form-builder'),
+			"done" => __('Done','easy-form-builder'),
+			"demo" => __('Demo','easy-form-builder'),
+		];
 		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
 			'pro' => $pro,
+			'rtl' => is_admin() ,
+			'text' => $lang	
 					));
 
 			
@@ -206,7 +292,7 @@ class Create {
 		$this->value =  sanitize_text_field($_POST['value']);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isHTML($_POST['value']) ||$this->isHTML($_POST['type'])){
-			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
+			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}

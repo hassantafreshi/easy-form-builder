@@ -8,20 +8,20 @@ var currentTab_ws = 0;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
 let tabActive_ws = -1;
-const proUrl_ws = `http://whitestudio.team/`
+const proUrl_ws = `https://whitestudio.team/`
 let pro_ws = true;
 let stepMax_ws = 1 
 let edit_emsFormBuilder = false;
-let stepNames_ws = ["Define", "Step Titles", "null"];
+
 let formName_ws = `Emsfb-${Math.random().toString(36).substr(2, 3)}`;
 let form_ID_emsFormBuilder =0;
 let highestAmount_emsFormBuilder;
 let form_type_emsFormBuilder='form';
-
+let stepNames_ws = [efb_var.text.define, efb_var.text.stepTitles, "null"];
 if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws_p');
 jQuery (function() {
   state_check_ws_p =Number(efb_var.check)
-  console.log(efb_var);
+  //console.log(efb_var);
   pro_ws = (efb_var.pro=='1' || efb_var.pro==true) ? true : false;
   if(typeof pro_whitestudio !== 'undefined'){    
     pro_ws = pro_whitestudio ;
@@ -246,10 +246,10 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     
   }
   let atr = {
-    1: { id: `${rndm}-name_${elementId}`, value: nameV, placeholder: "Name", label: 'Label:*', id_:rndm },
-    2: { id: `${rndm}-id_${elementId}`, value: idV, placeholder: "ID", label: 'ID' },
-    3: { id: `${rndm}-class_${elementId}`, value: classV, placeholder: "Class1,Class2", label: 'Class' },
-    4: { id: `${rndm}-tooltip_${elementId}`, value: tooltipV, placeholder: "Placeholder or tooltip", label: 'Tooltip' },
+    1: { id: `${rndm}-name_${elementId}`, value: nameV, placeholder: "Name", label: 'label', id_:rndm },
+    2: { id: `${rndm}-id_${elementId}`, value: idV, placeholder: "ID", label: 'id' },
+    3: { id: `${rndm}-class_${elementId}`, value: classV, placeholder: "Class1,Class2", label: 'class' },
+    4: { id: `${rndm}-tooltip_${elementId}`, value: tooltipV, placeholder: "Placeholder or tooltip", label: 'tooltip' },
     5: { id: `${rndm}-required_${elementId}"`, required: requiredV }
 
   }
@@ -269,7 +269,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
 
     if (a < 5) newEl += ` 
     <div class="form-group row">
-      <label for="${atr[a].id}" class="col-sm-2 col-form-label">${atr[a].label}</label>
+      <label for="${atr[a].id}" class="col-sm-2 col-form-label">${efb_var.text[`${atr[a].label}`]}</label>
       <div class="col-sm-10">
           <input type="text" id="${atr[a].id}" class="insertInput ml-1 mr-1 mt-1 mb-1 ${atr[a].placeholder == "Name" ? "require" : ""}" placeholder="${atr[a].placeholder}" ${atr[a].value !== "" ? `value="${atr[a].value}"` : ""}>
       </div>
@@ -278,7 +278,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     if (a == 5) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1">
     <input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" ${atr[a].required ? "checked" : ""}>
     <label class="col-sm-2   form-check-label" for="${atr[a].id}">
-      Required
+    ${efb_var.text.required}  
     </label>
   </div>`;
     //edit below code 789 fun_multiselect_button_emsFormBuilder 
@@ -294,20 +294,20 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     <div class="card-header success-color white-text" > 
       <a data-toggle="collapse" data-target="#${rndm}-c" data-id="${amount}" onClick="funIconArrow_emsFormBuilder('${rndm}')" > <i class="fa fa-caret-right" id="${rndm}-icon"> </i> </a> 
       <a class="mb-0 ml-1 mr-1 mt-1 mb-1"   data-toggle="collapse" data-target="#${rndm}-c" id="${rndm}-b" onClick="funIconArrow_emsFormBuilder('${rndm}')">
-        ${elementId.toUpperCase()}
+      ${efb_var.text[elementId]}
       </a>       
     </div>
     <div id="${rndm}-c" class=" ml-3 mt-2 mb-2 mr-3 collapse show">
     <div id="${rndm}-g">
        ${newEl}
        ${ /*elementId == "date" ? `<div class="form-group row"><label for="${atr[1].id_}-date" class="col-sm-3 col-form-label">Calendar</label><div class="col-sm-9"><select class="insertInput ml-1 mr-1 mt-1 mb-1 " id="${atr[1].id_}-date"><option value="Gregorian" ${clanderV=='Gregorian' ||clanderV=='' ? 'selected':''}>Gregorian</option><option value="Persian" ${clanderV=='Persian' ? 'selected':''}>Persian calendar</option><option value="Arabic" ${clanderV=='Arabic' ? 'selected':''}>Arabic calendar</option></select></div></div>`:`` */ ''}
-       ${elementId == "file" ? `<div class="form-group row"><label for="${atr[1].id_}-file" class="col-sm-3 col-form-label">File Type</label><div class="col-sm-9"><select class=" ml-1 mr-1 mt-1 mb-1 insertInput" id="${atr[1].id_}-file"><option value="Document" ${fileV=='Document' ? 'selected':''}>Documents</option><option value="Image" ${fileV=='Image' ||fileV=='' ? 'selected':''}>Image</option><option value="Media" ${fileV=='Media' ||fileV=='' ? 'selected':''}>Media (Video or Audio)</option><option value="Zip" ${fileV=='Zip' ||fileV=='' ? 'selected':''}>Zip</option></select></div></div>`:``}
+       ${elementId == "file" ? `<div class="form-group row"><label for="${atr[1].id_}-file" class="col-sm-3 col-form-label">${efb_var.text.fileType}</label><div class="col-sm-9"><select class=" ml-1 mr-1 mt-1 mb-1 insertInput" id="${atr[1].id_}-file"><option value="Document" ${fileV=='Document' ? 'selected':''}>${efb_var.text.documents}</option><option value="Image" ${fileV=='Image' ||fileV=='' ? 'selected':''}>${efb_var.text.image}</option><option value="Media" ${fileV=='Media' ||fileV=='' ? 'selected':''}> ${efb_var.text.media}  ${efb_var.text.videoOrAudio}</option><option value="Zip" ${fileV=='Zip' ||fileV=='' ? 'selected':''}>${efb_var.text.zip}</option></select></div></div>`:``}
        
        <input type="hidden" id="${rndm}-amount" value="${amount}">
         ${elementId == "radiobutton" || elementId == "checkbox" || (elementId == "multiselect") ? `<div id="${rndm}-o" class= "border-top">` : ""}
       </div>
-      <button id="${rndm}"class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit">Delete</button>
-  ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect") ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>New option</button>` : ""}
+      <button id="${rndm}"class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit">${efb_var.text.delete}</button>
+  ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect") ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>${efb_var.text.newOption}</button>` : ""}
     <span id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap"> info </span>
     </div>
   </div>`;
@@ -959,12 +959,12 @@ function createSteps() {
 
   } else {
    // document.getElementById("nextBtn").disabled = true;
-    document.getElementById("nextBtn").display = "none";
+   /// document.getElementById("nextBtn").display = "none";
     const  message = !pro_ws ? `You can create minmum 1 and maximum 2 Steps. <br>  If you need create more than 2 Steps, activeate <a href="${proUrl_ws}" target="_blank">Pro version</a>` :`You Could create minmum 1 Step and maximum 20 Step`;
     document.getElementById("wpwrap").innerHTML += unlimted_version_emsFormBuilder(message,1)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  document.getElementById("nextBtn").style.display = "none";
+  //document.getElementById("nextBtn").style.display = "none";
   // check value of maxstep get from user (end)
   stepMax_ws = c;
 
@@ -985,16 +985,16 @@ function createSteps() {
     for (const e in elements) {
 
       if ((pro_ws == elements[e].pro_ws) || (pro_ws == true)) {
-        tags += `<div class="el el-${elements[e].type} btn btn-dark btn-m btn-block mat-shadow" id="${elements[e].type}-${i}" draggable="true"><i class="fa ${elements[e].icon} bttn"></i> ${elements[e].type}</div>`
+        tags += `<div class="el el-${elements[e].type} btn btn-dark btn-m btn-block mat-shadow" id="${elements[e].type}-${i}" draggable="true"><i class="fa ${elements[e].icon} bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       } else {
-        tags += `<div class="el el-${elements[e].type} limited btn btn-warning btn-m btn-block" id="${elements[e].type}-${i}" draggable="false"><i class="fa fa-unlock-alt bttn"></i> ${elements[e].type}</div>`
+        tags += `<div class="el el-${elements[e].type} limited btn btn-warning btn-m btn-block" id="${elements[e].type}-${i}" draggable="false"><i class="fa fa-unlock-alt bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       }
     }
     document.getElementById("tabInfo").innerHTML += `
              <div class="border-bottom mt-4">
              <h5>${efb_var.text.titleOfStep} ${i}</h5>
              <p><input type="text" class="tabC require emsFormBuilder" name="Tab" placeholder="Tab ${i}"    id="tabName_${i}"></p>
-             <h5><i class="fa fa-object-group" id="icon-step-${i}"> </i> Icon of  step ${i}  </h5>
+             <h5><i class="fa fa-object-group" id="icon-step-${i}"> </i>${efb_var.text.IconOfStep} ${i}  </h5>
              <select class="selectpicker tabC emsFormBuilder" name="Tab" placeholder="fa-user-circle" data-live-search="true" id="tabicon_${i}" >
              ${optionsOfSelect};
              </select>
@@ -1008,7 +1008,7 @@ function createSteps() {
              <div class="container" id="container">
              <div class="row">
                <div class="col-4 ">
-                 Elements:
+               ${efb_var.text.elements}
                  <div class="row element-list ml-1 mr-1 mt-1 mb-1" id="elements-${i}">                
                  </div>
                </div>
@@ -1035,7 +1035,7 @@ function createSteps() {
       
       //emsfb version of form creator emsfb:1 ,
       const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.2,type:form_type_emsFormBuilder }
-     console.log(ob);
+     //console.log(ob);
       
       if (name == "icon") {
         document.getElementById(`stepIcon-${no - 1}`).innerHTML = `<i class="fa ${el.value}"></i>`;
@@ -1066,7 +1066,7 @@ function createSteps() {
 
       }
 
-      console.log(valueJson_ws_p);
+      //console.log(valueJson_ws_p);
     })
   }
   for (const el of document.querySelectorAll(`.limited`)) {
@@ -1208,7 +1208,7 @@ function helpLink_emsFormBuilder() {
 }
 
 function stepName_emsFormBuilder(i) {
-  document.getElementById('step-name').innerHTML = stepNames_ws[i] != "null" && stepNames_ws[i] != undefined ? `Step Name: ${stepNames_ws[i]}` : "";
+  document.getElementById('step-name').innerHTML = stepNames_ws[i] != "null" && stepNames_ws[i] != undefined ? `${efb_var.text.stepName}: ${stepNames_ws[i]}` : "";
   
 }
 
@@ -1240,7 +1240,7 @@ function actionSendData_emsFormBuilder(){
       
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Done</h1></br> <span>Good Job, Your form is builded successfully</span></br></br> <h3>FormCode: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
           localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
@@ -1251,7 +1251,7 @@ function actionSendData_emsFormBuilder(){
         
         }
       }else if(res.data.r=="update" && res.data.success==true){
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Form Update</h1></br> <span>Good Job, Your form updated successfully</span></br></br> <h3>FormCode: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
+        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.formUpdated}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formUpdatedDone}</span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
         localStorage.removeItem('valueJson_ws_p');
         document.getElementById('back_emsFormBuilder').removeAttribute("onclick");
         document.getElementById('back_emsFormBuilder').addEventListener("click", (e) => {
@@ -1277,7 +1277,9 @@ function actionSendData_emsFormBuilder(){
 
 function unlimted_version_emsFormBuilder(m,s) {
   
-  const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
+ // const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
+  const clickFun =`close_overpage_emsFormBuilder()`;
+ 
   return `<div class=" overpage" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body">

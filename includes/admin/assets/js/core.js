@@ -291,7 +291,7 @@ function emsFormBuilder_nevButton_view(n) {
     if(demo_emsFormBuilder==false){
       endMessage_emsFormBuilder_view()
     }else{
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>Done!</br><small>(Demo)</smal><h3>`
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>${efb_var.text.done}!</br><small>(Demo)</smal><h3>`
     }
 
 

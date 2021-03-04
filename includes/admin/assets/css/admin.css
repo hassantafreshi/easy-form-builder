@@ -178,7 +178,7 @@ option {
 }
 
   div.el i.fa {
-    display: list-item;
+    display: block;
     letter-spacing: 3px;
     font-weight: 400;
 }
