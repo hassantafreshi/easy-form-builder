@@ -2,7 +2,7 @@
 Contributors: 			mrlast, hassantafreshi
 Tags: 				    form builder, form creator, contact form, support form, tracking id
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.31.4
+Stable tag: 			1.31.5
 Requires at least: 		4.7
 Tested up to: 			5.7
 Requires PHP:			5.4
@@ -75,6 +75,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.31.5 =
+* UI improvements
+
+= 1.31.4 =
+* UI improvements
 
 = 1.31.3 =
 * UI improvements

@@ -172,7 +172,7 @@ function validateForm_emsFormBuilder() {
     if (input.classList.contains("require")) {
       if (input.value == "") {
         input.className += " invalid"; valid = false;
-        document.getElementById("message-area").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields.`);
+        document.getElementById("message-area").innerHTML = alarm_emsFormBuilder(efb_var.text.pleaseFillInRequiredFields);
 
     
 
@@ -282,10 +282,10 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     </label>
   </div>`;
     //edit below code 789 fun_multiselect_button_emsFormBuilder 
-    if (a == 6 && elementId=='multiselect') newEl += pro_ws==true ?  fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a): `<div class="form-check ml-1 mr-1 mt-1 mb-1" onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" disabled><label class=" form-check-label" for="${atr[a].id}">Allow multi-select </label><small class=" text-warning"> <b>Click for Active Pro vesrsion<b></small></div>`;
+    if (a == 6 && elementId=='multiselect') newEl += pro_ws==true ?  fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a): `<div class="form-check ml-1 mr-1 mt-1 mb-1" onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" disabled><label class=" form-check-label" for="${atr[a].id}">${efb_var.text.allowMultiselect} </label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}<b></small></div>`;
 //    if (a == 6 && pro_ws==true && elementId=='multiselect') newEl += fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a);
-    if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
-    if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('This option is available in Pro version')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">Use Drog and Drop UI </label><small class=" text-warning"> <b>Click here for Active Pro vesrsion</b></small></div>`
+    if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">${efb_var.text.DragAndDropUI}</label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}</b></small></div>`
+    if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">${efb_var.text.DragAndDropUI}</label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}</b></small></div>`
   }
 
 
@@ -773,7 +773,7 @@ function saveLocalStorage_emsFormBuilder() {
 function alarm_emsFormBuilder(val) {
   return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
     <div class="emsFormBuilder"><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
-    <strong>Alert! </strong>${val}
+    <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
 
@@ -908,14 +908,14 @@ function endMessage_emsFormBuilder() {
   if (notfilled.length > 0) {
     let str = ""
     for (no of notfilled) {
-      str +=` <b> ${stepNames_ws[no+1]} </b> step ,`;
+      str +=` <b> ${stepNames_ws[no+1]} </b> ${efb_var.text.step}, `;
     }
     
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Form Not builded</h3> <span>Some step not defined , Please check:  ${str}</span>
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.formNotBuilded}</h3> <span>${efb_var.text.someStepsNotDefinedCheck}  ${str}</span>
     <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
    // faild form
   } else {
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML =`<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>Please Waiting<h3>`
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML =`<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
   //  Ok form
 
@@ -926,7 +926,7 @@ function endMessage_emsFormBuilder() {
 }
 
 function createSteps() {
-  
+  //console.log('event789');
   const addSteps = document.getElementById("addStep");
   const tabList = document.getElementById("tabList");
   const tabInfo = document.getElementById("tabInfo");
@@ -956,11 +956,11 @@ function createSteps() {
   if (c != -1) {
     document.getElementById("nextBtn").disabled = false;
     document.getElementById("alarm_emsFormBuilder") ? document.getElementById("alarm_emsFormBuilder").remove() : ""
-
+    
   } else {
    // document.getElementById("nextBtn").disabled = true;
    /// document.getElementById("nextBtn").display = "none";
-    const  message = !pro_ws ? `You can create minmum 1 and maximum 2 Steps. <br>  If you need create more than 2 Steps, activeate <a href="${proUrl_ws}" target="_blank">Pro version</a>` :`You Could create minmum 1 Step and maximum 20 Step`;
+    const  message = !pro_ws ? `${efb_var.text.youCouldCreateMinOneAndMaxtwo} <br>  ${efb_var.text.ifYouNeedCreateMoreThan2Steps} <a href="${proUrl_ws}" target="_blank">${efb_var.text.proVersion}</a>` :`${efb_var.text.youCouldCreateMinOneAndMaxtwenty}`;
     document.getElementById("wpwrap").innerHTML += unlimted_version_emsFormBuilder(message,1)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1072,7 +1072,7 @@ function createSteps() {
   for (const el of document.querySelectorAll(`.limited`)) {
 
     el.addEventListener("click", (e) => {
-      document.getElementById('message-area').innerHTML += unlimted_version_emsFormBuilder('This option is available in Pro version',0);
+      document.getElementById('message-area').innerHTML += unlimted_version_emsFormBuilder(efb_var.text.availableInProversion,0);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     })
@@ -1246,7 +1246,7 @@ function actionSendData_emsFormBuilder(){
            alert(res , "error")
           
           
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>WP Error</h3> <span>Some something went wrong please try again,Error Code:400-1</span>
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1</span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
         
         }
@@ -1260,10 +1260,10 @@ function actionSendData_emsFormBuilder(){
         })
       }else{
         if(res.data.m==null || res.data.m.length>1){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>WP Error</h3> <span>Some something went wrong please try again,Error Code:400-400 <br> </span>
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
         }else{
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>WP Error</h3> <span>${res.data.m}<br> </span>
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
         }
        
@@ -1277,16 +1277,16 @@ function actionSendData_emsFormBuilder(){
 
 function unlimted_version_emsFormBuilder(m,s) {
   
- // const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
-  const clickFun =`close_overpage_emsFormBuilder()`;
+  const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
+ // const clickFun =`close_overpage_emsFormBuilder()`;
  
-  return `<div class=" overpage" id="overpage">
+  return `<div class=" overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body">
-    <h4 class="card-title"><i class="fa fa-unlock-alt"></i> Pro version</h4>
+    <h4 class="card-title"><i class="fa fa-unlock-alt"></i> ${efb_var.text.proVersion}</h4>
     <h5 class="card-text">${m}</h5>    
-   ${(!pro_ws) ?`</br><a href="${proUrl_ws}" class="btn btn-primary" target="_blank">Get Pro version</a>`:'</br>'} 
-    <button class="btn btn-danger" onClick="${clickFun}">close</a>
+   ${(!pro_ws) ?`</br><a href="${proUrl_ws}" class="btn btn-primary" target="_blank">${efb_var.text.getProVersion}</a>`:'</br>'} 
+    <button class="btn btn-danger" onClick="${clickFun}">${efb_var.text.close}</a>
   </div>
   <div>
 </div>`;
@@ -1307,7 +1307,7 @@ function close_overpage_emsFormBuilder(i) {
 function preview_emsFormBuilder(){
   demo_emsFormBuilder =true;
   currentTab_emsFormBuilder = 0;
-  let content=`<h5 class="text-white"> Form is not created! </br> Create a form and add elemants after that try again </h5>`;
+  let content=`<h5 class="text-white"> ${efb_var.text.formNotCreated} </br> ${efb_var.text.atFirstCreateForm} </h5>`;
   if(valueJson_ws_p.length>1 ){
    
     //887799
@@ -1317,11 +1317,11 @@ function preview_emsFormBuilder(){
   document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h4 class="card-title text-white"><i class="fa fa-eye "></i> Preview</h4>
+    <h4 class="card-title text-white"><i class="fa fa-eye "></i>${efb_var.text.preview}</h4>
     </br>
    <div id ="body_emsFormBuilder"> ${content}</div>
     </br>
-    <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(2)">close</a>    
+    <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(2)">${efb_var.text.close}</a>    
     </div>
     <div>
   </div>`;
@@ -1333,11 +1333,11 @@ function preview_emsFormBuilder(){
     document.getElementById('message-area').innerHTML += `<div class=" overpage" id="overpage">
     <div class="overpage-mbox">
     <div class="card-body m-13 bg-dark">
-      <h4 class="card-title text-white"><i class="fa fa-eye "></i> Preview</h4>
+      <h4 class="card-title text-white"><i class="fa fa-eye "></i> ${efb_var.text.preview}</h4>
       </br>
      <div id ="body_emsFormBuilder"> ${content}</div>
       </br>
-      <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(1)">close</a>
+      <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</a>
       
     </div>
     <div>

@@ -437,7 +437,7 @@ function ShowTab_emsFormBuilder_view(n) {
         if (valid== false){
           NotValidCount +=1;
           //console.log('324 valid comer' ,valid ,NotValidCount);
-          document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields..`);
+          document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(efb_var.text.pleaseFillInRequiredFields);
         }
         if (valid == true && NotValidCount==0) {
           document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
@@ -679,7 +679,7 @@ function ShowTab_emsFormBuilder_view(n) {
   function alarm_emsFormBuilder(val) {
     return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
       <div><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
-      <strong>Alert! </strong>${val}
+      <strong>${efb_var.text.alert} </strong>${val}
     </div>`
   }
   

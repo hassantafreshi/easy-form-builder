@@ -94,11 +94,11 @@ class Create {
             <div id="tab_container">
                 
 			<div class="m-4">
-    <div class="row d-flex justify-content-center align-items-center">
+    <div class="row d-flex justify-content-center align-items-center <?php  if(is_rtl()) echo 'rtl-text' ?>">
         <div class="col-md-12">
             <div id="emsFormBuilder-form" >
             <form id="emsFormBuilder-form-id">
-                <h1 id="emsFormBuilder-form-title">Easy Form Bulider</h1>
+                <h1 id="emsFormBuilder-form-title"><?php _e('Easy Form Builder','easy-form-builder') ?></h1>
                 
                 <div class="all-steps" id="all-steps"> 
                     <span class="step"><i class="fa fa-tachometer"></i></span> 
@@ -108,14 +108,14 @@ class Create {
                     <span class="step"><i class="fa fa-floppy-o"></i></span> 
                 </div>
                 <div class="all-steps" > 
-                    <h5 class="step-name f-setp-name" id ="step-name"><?php __('Define','Emsfb') ?></h5> 
+                    <h5 class="step-name f-setp-name" id ="step-name"><?php _e('Define','easy-form-builder') ?></h5> 
                 </div>
                 <div id="message-area"></div>
                 <div class="tab" id="firsTab">
-                    <h5>Form Name: *</h5>
+                    <h5><?php _e('Form Name','easy-form-builder') ?>: *</h5>
                     <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
                     </br>
-                    <h5>Number of steps: *</h5>
+                    <h5><?php _e('Number of steps','easy-form-builder') ?>: *</h5>
                     <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
                 </div>
                 <div class="tab" id="tabInfo">
@@ -192,6 +192,7 @@ class Create {
 			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
+			"getProVersion" => __('Get Pro version','easy-form-builder'),
 			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
 			"email" => __('Email','easy-form-builder'),
 			"trackingCode" => __('Tracking code','easy-form-builder'),		
@@ -232,14 +233,31 @@ class Create {
 			"class" => __('Class','easy-form-builder'),
 			"id" => __('ID','easy-form-builder'),
 			"tooltip" => __('Tooltip','easy-form-builder'),
-			"formUpdated" => __('Form Updated','easy-form-builder'),
+			"formUpdated" => __('The Form Updated','easy-form-builder'),
 			"goodJob" => __('Good Job','easy-form-builder'),
-			"formUpdatedDone" => __('form has been successfully updated','easy-form-builder'),
+			"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
 			"formIsBuild" => __('form is successfully build','easy-form-builder'),
 			"formCode" => __('Form Code','easy-form-builder'),
 			"close" => __('Close','easy-form-builder'),
 			"done" => __('Done','easy-form-builder'),
 			"demo" => __('Demo','easy-form-builder'),
+			"alert" => __('Alert!','easy-form-builder'),
+			"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
+			"availableInProversion" => __('This option is available in Pro version','easy-form-builder'),
+			"preview" => __('Preview','easy-form-builder'),
+			"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
+			"formNotCreated" => __('The form has not been created!','easy-form-builder'),
+			"atFirstCreateForm" => __('At first create a form and add elemants then try again','easy-form-builder'),
+
+			
+			"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
+			"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
+			"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
+			"clickHereForActiveProVesrsion" => __('Click here for Active Pro vesrsion','easy-form-builder'),
+			"someStepsNotDefinedCheck" => __('Some steps not defined, Please check:','easy-form-builder'),
+			"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
+			"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
+			"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
