@@ -158,6 +158,14 @@ class Create {
 		if(	$pro==true){
 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
+
+				wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
+					'pro' => $pro,
+					'rtl' => is_admin() ,
+					'text' => [
+						"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
+						"DragAndDropUI" => __('Drag and drop UI','easy-form-builder')]
+							));
 		}
 
 		$lang = [
