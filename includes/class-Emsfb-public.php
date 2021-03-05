@@ -75,7 +75,7 @@ class _Public {
 			$state="settingError";
 			
 		}
-		
+		$text = ["trackingCode" => __('Tracking code','easy-form-builder'),];
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'ajax_value' => $this->value[0]->form_structer,
@@ -86,7 +86,8 @@ class _Public {
 			   'form_setting' => $stng,
 			   'nonce'=> wp_create_nonce("public-nonce"),
 			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
-			   'rtl' => is_rtl()
+			   'rtl' => is_rtl(),
+			   'text' =>$text 
 		 ));  
 
 	 	$content="<div id='body_emsFormBuilder'><h1></h1><div>";
@@ -98,11 +99,13 @@ class _Public {
 
 	public function EMS_Form_Builder_track(){
 		//tracking code show
-			
-		//error_log('EMS_Form_Builder_track');
-
-
 		$lang = get_locale();
+		$text = [
+				"trackingCode" => __('Tracking code','easy-form-builder'),
+				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
+				"alert" => __('Alert!','easy-form-builder'),
+				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
+				];
 		
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -123,6 +126,7 @@ class _Public {
 			   'nonce'=> wp_create_nonce("public-nonce"),
 			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
 			   'rtl' => is_rtl(),
+			   'text' =>$text 
 		 ));  
 
 	 	$content="<div id='body_tracker_emsFormBuilder'><h1></h1><div>";

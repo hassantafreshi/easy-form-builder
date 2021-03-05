@@ -27,7 +27,7 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
-    //console.log("ajax_object_efm_state",ajax_object_efm);
+    console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
@@ -437,7 +437,7 @@ function ShowTab_emsFormBuilder_view(n) {
         if (valid== false){
           NotValidCount +=1;
           //console.log('324 valid comer' ,valid ,NotValidCount);
-          document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(efb_var.text.pleaseFillInRequiredFields);
+          document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
         }
         if (valid == true && NotValidCount==0) {
           document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
@@ -679,7 +679,7 @@ function ShowTab_emsFormBuilder_view(n) {
   function alarm_emsFormBuilder(val) {
     return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
       <div><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
-      <strong>${efb_var.text.alert} </strong>${val}
+      <strong>${ajax_object_efm.text.alert} </strong>${val}
     </div>`
   }
   
@@ -1031,19 +1031,18 @@ function fun_upload_file_emsFormBuilder(id ,type){
 
 function fun_tracking_show_emsFormBuilder(){
   document.getElementById("body_tracker_emsFormBuilder").innerHTML= ` <div class="row d-flex justify-content-center align-items-center">
-  <div class="col-md-12">
+  <div class="col-md-12 ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}">
       <div id="emsFormBuilder-form-view-track" >
       <form id="emsFormBuilder-form-view-id-track">
          <!-- <h1 id="emsFormBuilder-form-title">Tracking Form</h1> -->
           
   
           <div class="all-steps" > 
-              <h6 class="step-name f-setp-name" id ="step-name">Please Enter your tracking Code</h6> 
-          </div>
-          
+              <h6 class="step-name f-setp-name" id ="step-name">${ajax_object_efm.text.pleaseEnterTheTracking}</h6> 
+          </div>        
           <div id="emsFormBuilder-message-area-track"></div>
-          <div class=" mt-2 pb-5 fadeIn" id="firsTab">
-              <h5>Tracking Code:*</h5>
+          <div class=" mt-2 pb-5 fadeIn ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}" id="firsTab">
+              <h5>${ajax_object_efm.text.trackingCode}:*</h5>
               <input placeholder="" type="text"  class="require emsFormBuilder" id="tracking_code_emsFormBuilder" max="20">
               </br>
               <!-- recaptcha  -->

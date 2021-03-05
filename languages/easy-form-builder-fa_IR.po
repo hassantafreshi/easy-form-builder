@@ -457,3 +457,6 @@ msgstr "اگر می خواهید بیشتر از 2 گام بسازید، فعا�
 
 msgid "You Could create minmum 1 Step and maximum 20 Step"
 msgstr "شما می توانید حداقل 1 گام و حداکثر 20 گام بسازید"
+
+msgid "Please enter the tracking code"
+msgstr "لطفا شماره پیگیری را وارد کنید"

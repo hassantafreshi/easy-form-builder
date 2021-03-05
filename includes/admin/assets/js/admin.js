@@ -316,31 +316,22 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   return newElement;
 }
 
-//id,id_,value
 function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
   step = parseInt(step); 
  
   let highestAmount= group!=="option" ?  Number(document.getElementById(`${id_}-amount`).value) : null ;
   highestAmount_emsFormBuilder=highestAmount;
-//valueJson_ws_p.reverse((a, b) => b.amount - a.amount)[0]
   let ob = {};
   /* if (value_of != `allowMultiSelect` && value_of != 'required') value = (value.length > 0 && (value.match(/ /g) || []).length < value.length) ? value : ""
   else if (value_of != `fileDrogAndDrop` && value_of != 'required') value = (value.length > 0 && (value.match(/ /g) || []).length < value.length) ? value : "" */
   
   if (group === "notOption") {
-   /*  let o = valueJson_ws_p[(valueJson_ws_p.length)-1]
-    
-    let highestAmount = 1
-    let state =true
-    for(v of valueJson_ws_p){
-      if(v.amount) highestAmount=v.amount+1;
-    } */
-    
+
     
     if (value_of == "name") {
       ob = { id_: id_, name: value, type: type, step: step, amount: highestAmount }
-      
-      document.getElementById(`${id_}-b`).innerHTML = `${value} [${type.toUpperCase()}]`
+      //${efb_var.text[`${type}`].toUpperCase()}
+      document.getElementById(`${id_}-b`).innerHTML = `${value} [${efb_var.text[`${type}`].toUpperCase()}]`;
     } else if (value_of == "id") {
       ob = { id_: id_, id: value, type: type, step: step, amount: highestAmount }
     } else if (value_of == "class") {

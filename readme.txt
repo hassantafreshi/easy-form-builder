@@ -1,8 +1,8 @@
 === Easy Form Builder ===
-Contributors: 			mrlast, hassantafreshi
+Contributors: 			mrlast, hassantafreshi, thaikolja
 Tags: 				    form builder, form creator, contact form, support form, tracking id
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.31.5
+Stable tag: 			1.31.6
 Requires at least: 		4.7
 Tested up to: 			5.7
 Requires PHP:			5.4
@@ -30,7 +30,7 @@ How *Easy Form Builder* makes your life easier:
 - Mobile-friendly responsive forms
 - Unique tracking ID finder
 - User-friendly and feature-rich panel to manage your forms and their responses.
-
+- RTL support
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -75,6 +75,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.31.6 =
+* RTl feature is added
+* UI improvements
 
 = 1.31.5 =
 * UI improvements
