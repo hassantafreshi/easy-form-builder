@@ -10,10 +10,7 @@ body{
 li#collapse-menu {
     float: right;
 }
-label.emsFormBuilder,
-div.emsFormBuilder {
-    float: right!important;
-}
+
 
 .nav-link{
     float: right!important;  

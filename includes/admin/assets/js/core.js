@@ -333,7 +333,7 @@ function validateForm_emsFormBuilder_view() {
             if(input.value.length<=6){
               valid =  false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Password must be of minimum 8 characters</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Password must be at least 8 characters</small>`
             }else{
               input.classList.remove('invalid');
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();

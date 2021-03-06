@@ -922,6 +922,35 @@ function createSteps() {
   const tabList = document.getElementById("tabList");
   const tabInfo = document.getElementById("tabInfo");
 
+   //remove all elements in (end)
+   console.log('first')
+ // check value of maxstep get from user (Start)
+ const form_name = document.getElementById("form_name").value;
+  const c = (document.getElementById("steps").value < 3 && document.getElementById("steps").value > 0 && !pro_ws) || (pro_ws && document.getElementById("steps").value <21 && document.getElementById("steps").value > 0 ) ? document.getElementById("steps").value : -1
+  if (c != -1) {
+    document.getElementById("nextBtn").disabled = false;
+    document.getElementById("alarm_emsFormBuilder") ? document.getElementById("alarm_emsFormBuilder").remove() : ""
+    document.getElementById("steps").classList.remove('invalid');
+  } else {
+   // document.getElementById("nextBtn").disabled = true;
+   /// document.getElementById("nextBtn").display = "none";
+    const  message = !pro_ws ? `${efb_var.text.youCouldCreateMinOneAndMaxtwo} <br>  ${efb_var.text.ifYouNeedCreateMoreThan2Steps} <a href="${proUrl_ws}" target="_blank">${efb_var.text.proVersion}</a>` :`${efb_var.text.youCouldCreateMinOneAndMaxtwenty}`;
+    document.getElementById("wpwrap").innerHTML += unlimted_version_emsFormBuilder(message,1)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const spts= document.getElementById("steps");
+    spts.classList.add('invalid');
+    document.getElementById("form_name").value =form_name;
+    spts.addEventListener("change", (e) => {createSteps()})// end event change creats tabs
+
+    return
+  }
+  console.log('conti')
+  //document.getElementById("nextBtn").style.display = "none";
+  // check value of maxstep get from user (end)
+  stepMax_ws = c;
+
+  
   //remove all elements in (start)
   if (addSteps.hasChildNodes()) {
     while (addSteps.hasChildNodes()) {
@@ -939,26 +968,6 @@ function createSteps() {
       tabInfo.removeChild(tabInfo.childNodes[0]);
     }
   }
-   //remove all elements in (end)
-
- // check value of maxstep get from user (Start)
-  
-  const c = (document.getElementById("steps").value < 3 && document.getElementById("steps").value > 0 && !pro_ws) || (pro_ws && document.getElementById("steps").value <21 && document.getElementById("steps").value > 0 ) ? document.getElementById("steps").value : -1
-  if (c != -1) {
-    document.getElementById("nextBtn").disabled = false;
-    document.getElementById("alarm_emsFormBuilder") ? document.getElementById("alarm_emsFormBuilder").remove() : ""
-    
-  } else {
-   // document.getElementById("nextBtn").disabled = true;
-   /// document.getElementById("nextBtn").display = "none";
-    const  message = !pro_ws ? `${efb_var.text.youCouldCreateMinOneAndMaxtwo} <br>  ${efb_var.text.ifYouNeedCreateMoreThan2Steps} <a href="${proUrl_ws}" target="_blank">${efb_var.text.proVersion}</a>` :`${efb_var.text.youCouldCreateMinOneAndMaxtwenty}`;
-    document.getElementById("wpwrap").innerHTML += unlimted_version_emsFormBuilder(message,1)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  //document.getElementById("nextBtn").style.display = "none";
-  // check value of maxstep get from user (end)
-  stepMax_ws = c;
-
 
   //create option list of icon (start)
   let optionsOfSelect = null
@@ -1268,8 +1277,8 @@ function actionSendData_emsFormBuilder(){
 
 function unlimted_version_emsFormBuilder(m,s) {
   
-  const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
- // const clickFun =`close_overpage_emsFormBuilder()`;
+  //const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
+ const clickFun =`close_overpage_emsFormBuilder()`;
  
   return `<div class=" overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
