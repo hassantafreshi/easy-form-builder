@@ -2,7 +2,7 @@
 /**
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
- * Description:         This plugin Create from (multi step form) by drag and drop form wizard and produce form with tracking code ability , Free[Limited] version
+ * Description:         Easily create multi-step forms with tracking code support by using Easy Form Builder's drag & drop form wizard. This is the free version with limits.
  * Version:             1.31.6
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
@@ -18,6 +18,21 @@ if (!defined('ABSPATH')) {
 /** Define EMSFB_PLUGIN_FILE */
 if (!defined('EMSFB_PLUGIN_FILE')) {
     define('EMSFB_PLUGIN_FILE', __FILE__);
+}
+
+/** Constant pointing to the root directory path of the plugin */
+if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
+    define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
+}
+
+/** Constant pointing to the root directory URL of the plugin */
+if (!defined("EMSFB_PLUGIN_URL")) {
+    define("EMSFB_PLUGIN_URL", plugin_dir_url(__FILE__));
+}
+
+/** Constant defining the textdomain for localization */
+if (!defined("EMSFB_PLUGIN_TEXTDOMAIN")) {
+    define("EMSFB_PLUGIN_TEXTDOMAIN", "easy-form-builder");
 }
 
 /** Load main class */

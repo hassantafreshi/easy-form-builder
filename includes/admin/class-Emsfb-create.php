@@ -148,7 +148,7 @@ class Create {
             </div><!-- #tab_container-->
         </div><!-- .wrap -->
 		<?php
-		wp_enqueue_script( 'Emsfb-listicons-js', Emsfb_URL . 'includes/admin/assets/js/listicons.js' );
+		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
 		$pro =false;
 		$ac= $this->get_activeCode_Emsfb();
@@ -285,7 +285,7 @@ class Create {
 			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
-		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -297,7 +297,7 @@ class Create {
 			
 
 
-		 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));

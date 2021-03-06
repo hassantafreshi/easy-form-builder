@@ -116,7 +116,7 @@ class _Public {
 			   'id' => $this->id,			  
 			   'form_setting' => $stng,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
+			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png',
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  
@@ -181,7 +181,7 @@ class _Public {
 			   'form_setting' => $stng,
 			   'user_name'=> wp_get_current_user()->display_name,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
+			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png',
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  

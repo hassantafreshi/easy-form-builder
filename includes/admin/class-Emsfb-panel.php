@@ -158,12 +158,12 @@ class Panel_edit  {
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
-			wp_enqueue_script( 'Emsfb-listicons-js', Emsfb_URL . 'includes/admin/assets/js/listicons.js' );
+			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
 			$pro =false;
 			$ac= $this->get_activeCode_Emsfb();
 			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
-			wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -179,7 +179,7 @@ class Panel_edit  {
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
 			
-			 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0
@@ -208,7 +208,7 @@ class Panel_edit  {
 				</div>
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
 				<a class="navbar-brand" href="#">
-					<img src="<?php echo Emsfb_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
+					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
 					<?php _e('Easy Form Builder','easy-form-builder') ?>
 				</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -264,7 +264,7 @@ class Panel_edit  {
 
 			
 
-			wp_register_script('Emsfb-list_form-js', Emsfb_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -275,7 +275,7 @@ class Panel_edit  {
 					'user_ip'=> $ip,
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
-					'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png'	
+					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png'
 					
 				));
 					
