@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emsfb\n"
 "POT-Creation-Date: 2020-12-27 15:56+0330\n"
-"PO-Revision-Date: 2021-03-05 11:43+0330\n"
+"PO-Revision-Date: 2021-03-06 18:56+0330\n"
 "Language-Team: https://whitestudio.team/\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -306,12 +306,12 @@ msgid "File Permissions Error"
 msgstr "خطای دسترسی فایل"
 
 msgid "Something went wrong, Please refresh and try again"
-msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
+msgstr "اشتباهی رخ داده است. لطفاً دوباره سعی کنید"
 
 msgid "You don't allow to use HTML tag"
 msgstr "شما اجازه استفاده از تگ‌های HTML‌را ندارید"
 
-msgid "Message sent"
+msgid "Message was sent"
 msgstr "پیام ارسال شد"
 
 msgid "Something went wrong,Please refresh the page"
@@ -460,3 +460,66 @@ msgstr "شما می توانید حداقل 1 گام و حداکثر 20 گام �
 
 msgid "Please enter the tracking code"
 msgstr "لطفا شماره پیگیری را وارد کنید"
+
+msgid "The"
+msgstr "این"
+
+msgid "Please make sure all fields are filled in correctly."
+msgstr "لطفا مطمئن شوید تمامی ورودی‌ها را به درستی پر کرده اید."
+
+msgid "Please Enter the Email address"
+msgstr "لطفا یک ایمیل آدرس وارد کنید"
+
+msgid "Please Enter the phone number"
+msgstr "لطفا یک شماره تلفن وارد کنید"
+
+msgid "maximum size of a file is 15MB."
+msgstr "بیشترین اندازه برای یک فایل 15مگا می باشد."
+
+msgid "size is too large,"
+msgstr "سایز بسیار زیاد است،"
+
+msgid "Form is not found"
+msgstr "فرم پیدا نشد"
+
+msgid "Error Code:V01"
+msgstr "کد خطا : وی01"
+
+msgid "Please enter a valid URL. Protocol is required (http://, https://)"
+msgstr "لطفا آدرس پیوند صحیح وارد کنید. پرتکول اجباری است(http://, https://)"
+
+msgid "Password must be at least 8 characters"
+msgstr "رمز عبور می بایست حداقل 8 حرف باشد"
+
+msgid "Registered"
+msgstr "ثبت شد"
+
+msgid "Your information is successfully registered"
+msgstr "اطلاعات شما با موفقیت ثبت شد"
+
+msgid "Select a opetion (Disabled in test view)"
+msgstr "انتخاب چند گزینه‌ای (در حالت آزمایشی غیر فعال)"
+
+msgid "Drag and drop a"
+msgstr "بکشید و رها کنید"
+
+msgid " or click here"
+msgstr " یا کلیک کنید"
+
+msgid "You do not have permission to upload this file:"
+msgstr "شما مجاز اجازه بارگذاری ندارید برای این فایل:"
+
+msgid "Please upload a"
+msgstr "لطفا بارگذاری کنید یک"
+
+msgid "Tracking Form"
+msgstr "فرم پیگیری"
+
+msgid "Tracking Code is not valid."
+msgstr "کد پیگیری صحیح نیست."
+
+msgid "Please Checked Box of I am Not robot"
+msgstr "لطفا گزینه من ربات نیستم را انتخاب کنید"
+
+msgid "Please"
+msgstr "لطفا"

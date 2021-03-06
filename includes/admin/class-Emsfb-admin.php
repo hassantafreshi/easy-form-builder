@@ -395,7 +395,7 @@ class Admin {
 	));
 
 
-	$m = __('Message sent','easy-form-builder');
+	$m = __('Message was sent','easy-form-builder');
 	$response = array( 'success' => true , "m"=>$m); 
 	wp_send_json_success($response,$_POST);	
 
@@ -451,7 +451,7 @@ class Admin {
 	));
 
 
-	$m = __('Message sent','easy-form-builder');
+	$m = __('Message was sent','easy-form-builder');
 	$response = array( 'success' => true , "m"=>$m); 
 	wp_send_json_success($response,$_POST);	
 

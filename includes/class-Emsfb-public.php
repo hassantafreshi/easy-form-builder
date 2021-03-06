@@ -75,7 +75,38 @@ class _Public {
 			$state="settingError";
 			
 		}
-		$text = ["trackingCode" => __('Tracking code','easy-form-builder'),];
+		$text = [
+				"error" => __('error','easy-form-builder'),
+				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
+				"define" => __('Define','easy-form-builder'),
+				"loading" => __('Loading','easy-form-builder'),
+				"trackingCode" => __('Tracking code','easy-form-builder'),
+				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
+				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
+				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
+				"formNotFound" => __('Form is not found','easy-form-builder'),
+				"errorV01" => __('Error Code:V01','easy-form-builder'),
+				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+				"registered" => __('Registered','easy-form-builder'),
+				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
+				"preview" => __('Preview','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"trackingForm" => __('Tracking Form','easy-form-builder'),
+				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
+				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+				"messages" => __('Messages','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+
+				];
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'ajax_value' => $this->value[0]->form_structer,
@@ -105,6 +136,32 @@ class _Public {
 				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
 				"alert" => __('Alert!','easy-form-builder'),
 				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
+				"error" => __('error','easy-form-builder'),
+				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
+				"define" => __('Define','easy-form-builder'),
+				"loading" => __('Loading','easy-form-builder'),
+				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
+				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
+				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
+				"formNotFound" => __('Form is not found','easy-form-builder'),
+				"errorV01" => __('Error Code:V01','easy-form-builder'),
+				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+				"registered" => __('Registered','easy-form-builder'),
+				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
+				"preview" => __('Preview','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"trackingForm" => __('Tracking Form','easy-form-builder'),
+				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
+				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+				"messages" => __('Messages','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+
 				];
 		
 		if ( strlen( $lang ) > 0 ) {
@@ -546,7 +603,7 @@ class _Public {
 			
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track);}
 
-				$response = array( 'success' => true , "m"=>__("Message sent") , "by"=>$by); 
+				$response = array( 'success' => true , "m"=>__("Message was sent") , "by"=>$by); 
 				wp_send_json_success($response,$_POST);
 				
 			
@@ -573,8 +630,8 @@ class _Public {
 	);
    $sent = wp_mail($to, $subject, strip_tags($message), $headers);
       if($sent) {
-		//error_log(__("Message sent"));
-      }//message sent!
+		//error_log(__("Message was sent"));
+      }//Message was sent!
       else  {
 		//error_log("message wasn't sent");
       }//message wasn't sent

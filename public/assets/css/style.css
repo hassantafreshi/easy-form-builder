@@ -73,8 +73,9 @@ button.emsFormBuilder {
     background-color: #633a82;
     color: #f1fcfc;
     border: none;
-    border-radius: 50%;
-    padding: 10px 20px;
+    clip-path: circle(50%);
+    height: 3em;
+    width: 3em;
     font-size: 17px;
     font-family: Raleway;
     cursor: pointer

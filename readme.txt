@@ -1,10 +1,10 @@
 === Easy Form Builder ===
 Contributors: 			mrlast, hassantafreshi, thaikolja
-Tags: 				    form builder, form creator, contact form, support form, tracking id
+Tags: 				    form builder, form creator, contact form, support form, tracking id,
 Donate link: 			https://ko-fi.com/whitestudio
 Stable tag: 			1.31.6
 Requires at least: 		4.7
-Tested up to: 			5.7
+Tested up to: 			5.7.0
 Requires PHP:			5.4
 License: 				GPLv3 or later
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
