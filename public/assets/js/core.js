@@ -27,13 +27,13 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
-    console.log("ajax_object_efm_state",ajax_object_efm);
+  //  console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
     poster_emsFormBuilder =ajax_object_efm.poster;
     //console.log("poster_emsFormBuilder",ajax_object_efm);
-    console.log(ajax_object_efm.rtl,'return');
+  //  console.log(ajax_object_efm.rtl,'return');
     if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
       
       const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
@@ -108,7 +108,9 @@ function fun_render_view(val,check){
           }
           else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
           el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           if (v.clander=="Persian" || v.clander=="Arabic") {
+            el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
             el +=`    
             <script>
             
@@ -151,17 +153,21 @@ function fun_render_view(val,check){
           }
           classData = drog==true ? "form-control-file text-secondary " : "" ;
           el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="Drag and drop a ${typeFile} or click here"`:``}>`
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
+         
           exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
           break;
         case 'textarea':
           id = v.id ? v.id : v.id_;
           req = v.required ? v.required : false;
           el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
           break
         case 'button':
           id = v.id ? v.id : v.id_;
           el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, amount:v.amount });
           break
         case 'checkbox':
@@ -171,6 +177,7 @@ function fun_render_view(val,check){
           req = v.required ? v.required : false;
           //console.log(v.required , "required");
           el = `<div class=" emsFormBuilder"><div class="row"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
           break
@@ -180,6 +187,7 @@ function fun_render_view(val,check){
           //console.log(v.required , "required");
      
           el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
+          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount });
           break
@@ -537,7 +545,7 @@ function ShowTab_emsFormBuilder_view(n) {
           //console.log(files_emsFormBuilder);
         }
         el.addEventListener("change", (e) => {
-          e.preventDefault();
+         // e.preventDefault();
           const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
           //console.log(el.type ,"form type");
           let value =""
@@ -564,12 +572,13 @@ function ShowTab_emsFormBuilder_view(n) {
                 //console.log('email',789);              
                 const state=valid_email_emsFormBuilder(el);
                 value = state==true ? el.value :'';
-        
+                //console.log(`email  ${value} [${state}]`)
           }else if (el.type == "tel") {
                 //console.log('tel',355);
                 const state=valid_phone_emsFormBuilder(el);
                 value = state==true ? el.value :'';
-                //console.log(value,state,355);          
+                //console.log(value,state,355);    
+              //  console.log(`phone ${value} [${state}]`)      
           }
           
           
@@ -799,6 +808,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
+  //  console.log(sendBack_emsFormBuilder_pub);
     $(function () {
      
       data = {
@@ -834,20 +844,25 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function valid_email_emsFormBuilder(el) {
-    if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
+    //if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
     let check =0;
     const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
       //console.log(el)
       check += el.value.match(format) ?0 :1;
-      el.value.match(format) ? 0: el.className += " invalid";
       if (check>0){
-         document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
+        el.value.match(format) ? 0: el.classList.add("invalid");
+        document.getElementById(`${el.id}-message`).innerHTML =`Please Enter Email Address`;
+        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
+        // document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
         }
         else {
-          if (document.getElementById("alarm_emsFormBuilder")) {          
+          el.classList.remove('invalid');
+          document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
+          document.getElementById(`${el.id}-message`).innerHTML ='';
+     /*      if (document.getElementById("alarm_emsFormBuilder")) {          
             el.classList.remove('invalid');
             if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
-          }
+          } */
         }
      // if (check>0) alert("Please enter email address");
     return check>0 ? false : true
@@ -855,21 +870,28 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function valid_phone_emsFormBuilder(el) {
-    if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
+   // if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
     let check =0;
     const format =/^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/gm;
+    const id = el.id;
       //console.log(el)
       check += el.value.match(format) ?0 :1;
       //console.log( 707,el.classList.contains('require'),)
       if (check>0 ){
-        el.value.match(format) ? 0: el.className += " invalid";
-         document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Phone Number</small>`
+         el.value.match(format) ? 0: el.classList.add("invalid");
+         //870
+        // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
+        document.getElementById(`${id}-message`).innerHTML =`Please Enter Phone Number`;
+        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
         }
         else {
-          if (document.getElementById("alarm_emsFormBuilder")){
+          el.classList.remove('invalid');
+          document.getElementById(`${id}-message`).innerHTML=""
+          document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
+      /*     if (document.getElementById("alarm_emsFormBuilder")){
             el.classList.remove('invalid');
                  
-          } 
+          }  */
         }
      // if (check>0) alert("Please enter email address");
      return check>0 ? false : true
