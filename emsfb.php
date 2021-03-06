@@ -3,7 +3,7 @@
  * Plugin Name: Easy Form Builder
  * Plugin URI: https://whitestudio.team/
  * Description: This plugin Create from (multi step form) by drag and drop form wizard and produce form with tracking code ability , Free[Limited] version
- * Version: 1.31.1
+ * Version: 1.31.5
  * Author: WhiteStudio
  * Author URI: https://whitestudio.team/
  * Text Domain: easy-form-builder

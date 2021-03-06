@@ -75,7 +75,7 @@ class _Public {
 			$state="settingError";
 			
 		}
-		
+		$text = ["trackingCode" => __('Tracking code','easy-form-builder'),];
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'ajax_value' => $this->value[0]->form_structer,
@@ -85,7 +85,9 @@ class _Public {
 			   'id' => $this->id,			  
 			   'form_setting' => $stng,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png'
+			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
+			   'rtl' => is_rtl(),
+			   'text' =>$text 
 		 ));  
 
 	 	$content="<div id='body_emsFormBuilder'><h1></h1><div>";
@@ -97,11 +99,14 @@ class _Public {
 
 	public function EMS_Form_Builder_track(){
 		//tracking code show
-			
-		//error_log('EMS_Form_Builder_track');
-
-
 		$lang = get_locale();
+		$text = [
+				"trackingCode" => __('Tracking code','easy-form-builder'),
+				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
+				"alert" => __('Alert!','easy-form-builder'),
+				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
+				];
+		
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
@@ -111,6 +116,7 @@ class _Public {
 			$stng="setting was not added";
 			$state="settingError";
 		}
+		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -118,7 +124,9 @@ class _Public {
 			   'form_setting' => $stng,
 			   'user_name'=> wp_get_current_user()->display_name,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png'
+			   'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png',
+			   'rtl' => is_rtl(),
+			   'text' =>$text 
 		 ));  
 
 	 	$content="<div id='body_tracker_emsFormBuilder'><h1></h1><div>";
@@ -214,7 +222,7 @@ class _Public {
 	
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -244,7 +252,7 @@ class _Public {
 		else if ($captcha_success->success==true) {
 
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
-				$response = array( 'success' => false , "m"=>"Please Enter vaild value."); 
+				$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
 				wp_send_json_success($response,$_POST);
 				die();
 			}
@@ -275,7 +283,7 @@ class _Public {
 				$user_password = "@password@";				
 				$r=wp_authenticate($user_name,  $user_password );
 				$strng = json_encode($r);
-				error_log($strng);
+			//	error_log($strng);
 				$response = array( 'success' => false  ,'m'=>'Login'); 
 				wp_send_json_success($response,$_POST);
 			}else if ($type =="register"){
@@ -285,13 +293,13 @@ class _Public {
 				$response = array( 'success' => false  ,'m'=>'Subscription'); 
 				wp_send_json_success($response,$_POST);
 			}else {
-				$response = array( 'success' => false  ,'m'=>'Secure Error 405'); 
+				$response = array( 'success' => false  ,'m'=>__('Secure Error 405')); 
 				wp_send_json_success($response,$_POST);
 			}
 		}
 		//recaptcha end
 	}else{
-		$response = array( 'success' => false , "m"=>"Error,Setting is not set"); 
+		$response = array( 'success' => false , "m"=>__("Error,Setting is not set")); 
 		wp_send_json_success($response,$_POST);
 	}
 
@@ -301,7 +309,7 @@ class _Public {
 	  public function get_ajax_track_public(){
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -316,14 +324,14 @@ class _Public {
 		
 		 if ($captcha_success->success==false) {
 		 // "Error, you are a robot?";
-		  $response = array( 'success' => false  , 'm'=>'Error,Are you a robot?'); 
+		  $response = array( 'success' => false  , 'm'=>__('Error,Are you a robot?')); 
 		  wp_send_json_success($response,$_POST);
 		 }
 		 else if ($captcha_success->success==true) {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+			$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -357,13 +365,13 @@ class _Public {
 				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
-				$response = array( 'success' => false  , "m" =>"Tracking Code not found!"); 
+				$response = array( 'success' => false  , "m" =>__("Tracking Code not found!")); 
 			}
 		
 			wp_send_json_success($response,$_POST);
 			}
 		}else{
-			$response = array( 'success' => false , "m"=>"Error,Setting is not set"); 
+			$response = array( 'success' => false , "m"=>__("Error,Setting is not set")); 
 			wp_send_json_success($response,$_POST);
 		}
 
@@ -423,7 +431,7 @@ class _Public {
 	public function file_upload_public(){
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -462,26 +470,26 @@ class _Public {
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>'Secure Error 403'); 
+			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
 		
 		if(empty($_POST['message']) ){
-			$response = array( 'success' => false , "m"=>"Please Enter vaild value"); 
+			$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		if(empty($_POST['id']) ){
-			$response = array( 'success' => false , "m"=>"Something went wrong ,Please refresh and try again"); 
+			$response = array( 'success' => false , "m"=>__("Something went wrong ,Please refresh and try again")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		
 
 		if($this->isHTML($_POST['message'])){
-			$response = array( 'success' => false , "m"=> "You don't allow to use HTML tag"); 
+			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -538,7 +546,7 @@ class _Public {
 			
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track);}
 
-				$response = array( 'success' => true , "m"=>"Message sent" , "by"=>$by); 
+				$response = array( 'success' => true , "m"=>__("Message sent") , "by"=>$by); 
 				wp_send_json_success($response,$_POST);
 				
 			
@@ -565,7 +573,7 @@ class _Public {
 	);
    $sent = wp_mail($to, $subject, strip_tags($message), $headers);
       if($sent) {
-		//error_log("message Sent");
+		//error_log(__("Message sent"));
       }//message sent!
       else  {
 		//error_log("message wasn't sent");

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emsfb\n"
 "POT-Creation-Date: 2020-12-27 15:56+0330\n"
-"PO-Revision-Date: 2021-03-03 17:31+0330\n"
+"PO-Revision-Date: 2021-03-05 11:43+0330\n"
 "Language-Team: https://whitestudio.team/\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -57,19 +57,22 @@ msgid "Search"
 msgstr "جستجو"
 
 msgid "Number of steps"
-msgstr "تعداد مراحل"
+msgstr "تعداد گام‌ها"
 
 msgid "Title of step"
-msgstr "عنوان مرحله"
+msgstr "عنوان گام"
 
 msgid "Step Name"
-msgstr "نام مرحله"
+msgstr "نام گام"
 
 msgid "Step Title"
-msgstr "عنوان مرحله"
+msgstr "عنوان گام"
+
+msgid "Step Titles"
+msgstr "عنوان گام‌ها"
 
 msgid "Icon of step"
-msgstr "آیکون مرحله"
+msgstr "آیکون گام"
 
 msgid "Track No."
 msgstr "کد پیگیری"
@@ -110,13 +113,10 @@ msgstr "پاسخ"
 msgid "Close"
 msgstr "بستن"
 
-msgid "message sent"
-msgstr "پیام ارسال شد"
-
 msgid "Remove!"
 msgstr "حذف!"
 
-msgid "Are you sure you want to delete this item??"
+msgid "Are you sure you want to delete this item?"
 msgstr "آیا مطمئنید که می خواهید آیتم را پاک کنید ؟"
 
 msgid "NO"
@@ -146,12 +146,8 @@ msgstr "اینجا را برای دید ویدئو آموزشی کلیک کنی�
 msgid "Alert Email"
 msgstr "ایمیل هشدار"
 
-msgid ""
-"When Easy Form Builder recives a new message, It will send an alret email to "
-"admin of plugin."
-msgstr ""
-"وقتی آسان فرم ساز یک پیام جدید دریافت کند ، یک ایمیل هشدار به مدیر افزونه "
-"ارسال می کند."
+msgid "When Easy Form Builder recives a new message, It will send an alret email to admin of plugin."
+msgstr "وقتی آسان فرم ساز یک پیام جدید دریافت کند ، یک ایمیل هشدار به مدیر افزونه ارسال می کند."
 
 msgid "Email"
 msgstr "ایمیل"
@@ -160,9 +156,7 @@ msgid "Clear Files"
 msgstr "حذف فایل‌ها"
 
 msgid "You can Remove unnecessary file uploaded by user with below button"
-msgstr ""
-"از طریق دکمه زیر ، فایل های غیر ضروری که توسط مخاطبین شما بار‌گذاری شده است "
-"را حذف کنید"
+msgstr "از طریق دکمه زیر ، فایل های غیر ضروری که توسط مخاطبین شما بار‌گذاری شده است را حذف کنید"
 
 msgid "Clear unnecessary files"
 msgstr "حذف فایل‌های غیر ضروری"
@@ -170,9 +164,8 @@ msgstr "حذف فایل‌های غیر ضروری"
 msgid "Tracking code"
 msgstr "کد پیگیری"
 
-msgid ""
-"If you don't want to show tracking code to user, don't mark below option."
-msgstr "اگر می خواهید کد پیگیری نمایش داده نشود . گزینه زیر را انتخاب نکنید"
+msgid "If you don't want to show tracking code to user, don't mark below option."
+msgstr "اگر می خواهید کد پیگیری نمایش داده نشود، گزینه زیر را انتخاب نکنید."
 
 msgid "Show tracking Code"
 msgstr "نمایش کد پیگیری"
@@ -180,8 +173,7 @@ msgstr "نمایش کد پیگیری"
 msgid "Tracking code Finder"
 msgstr "جستجوگر کد پیگیری"
 
-msgid ""
-"Copy and Paste below short-code of tracking code finder in any page or post."
+msgid "Copy and Paste below short-code of tracking code finder in any page or post."
 msgstr "کد-کوتاه جستجوگر کدپیگیری را کپی و در هر صفحه یا پست دلخواه پیست کنید."
 
 msgid "Saved"
@@ -191,13 +183,13 @@ msgid "Save"
 msgstr "ذخیره"
 
 msgid "Error, Your activation code is not Correct!"
-msgstr "کد فعال سازی صحیح نیست!"
+msgstr "خطا، !"
 
 msgid "Please fill in all required fields."
 msgstr "لطفا همه قسمت های لازم را تکمیل کنید."
 
 msgid "Alert!"
-msgstr "اخطار!"
+msgstr "هشدار!"
 
 msgid "Error,"
 msgstr "خطا ،"
@@ -205,8 +197,8 @@ msgstr "خطا ،"
 msgid "Elements:"
 msgstr "المان‌ها:"
 
-msgid "Label:"
-msgstr "برچسب:"
+msgid "Label:*"
+msgstr "برچسب:*"
 
 msgid "ID"
 msgstr "آی‌دی"
@@ -223,8 +215,8 @@ msgstr "حذف"
 msgid "Required"
 msgstr "ضروری"
 
-msgid "Use Drog and Drop UI"
-msgstr "نمایش حالت کشیدن و رها کردن"
+msgid "Drag and drop UI"
+msgstr "حالت کشیدن و رها کردن"
 
 msgid "Click here for Active Pro vesrsion"
 msgstr "برای فعال‌سازی نسخه ویژه اینجا را کلیک کنید"
@@ -263,19 +255,19 @@ msgid "Form Not builded"
 msgstr "فرم ساخته نشد"
 
 msgid "Some step not defined"
-msgstr "بعضی از مراحل تعریف نشده است"
+msgstr "بعضی از گام‌ها تعریف نشده است"
 
 msgid "Please check:"
 msgstr "لطفا بررسی کنید:"
 
 msgid "step"
-msgstr "مرحله"
+msgstr "گام"
 
 msgid "Please Waiting"
 msgstr "لطفا صبر کنید"
 
 msgid "You can not use HTML Tag or send blank message."
-msgstr "شما نمی‌توانید پیامی حاوی تگ‌های HTML یا بدون متن ارسال کنید"
+msgstr "شما نمی‌توانید پیامی حاوی تگ‌های HTML یا بدون متن ارسال کنید."
 
 msgid "Error,Form not Created!"
 msgstr "خطا، فرم ساخته نشد!"
@@ -313,7 +305,7 @@ msgstr "کد‌پیگری یافت نشد!"
 msgid "File Permissions Error"
 msgstr "خطای دسترسی فایل"
 
-msgid "Something went wrong ,Please refresh and try again"
+msgid "Something went wrong, Please refresh and try again"
 msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
 
 msgid "You don't allow to use HTML tag"
@@ -325,7 +317,7 @@ msgstr "پیام ارسال شد"
 msgid "Something went wrong,Please refresh the page"
 msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش کنید"
 
-msgid "Invalid require,Please Check everything"
+msgid "Invalid require, Please Check everything"
 msgstr "درخواست غلط است، لطفا همه چیز را چک کنید"
 
 msgid "Please Enter the value"
@@ -353,7 +345,7 @@ msgid "password"
 msgstr "رمز"
 
 msgid "email"
-msgstr "ایمل"
+msgstr "ایمیل"
 
 msgid "number"
 msgstr "عدد"
@@ -367,8 +359,17 @@ msgstr "تاریخ"
 msgid "tel"
 msgstr "تلفن"
 
+msgid "url"
+msgstr "پیوند"
+
+msgid "radiobutton"
+msgstr "دکمه‌رادیویی"
+
+msgid "multiselect"
+msgstr "انتخاب‌ چند‌گانه"
+
 msgid "textarea"
-msgstr "مت‌طولانی"
+msgstr "متن‌طولانی"
 
 msgid "checkbox"
 msgstr "چک‌باکس"
@@ -382,8 +383,80 @@ msgstr "رنگ"
 msgid "finish"
 msgstr "پایان"
 
+msgid "Done"
+msgstr "انجام شد"
+
+msgid "Demo"
+msgstr "آزمایشی"
+
+msgid "Waiting"
+msgstr "صبر کنید"
+
 msgid "Video Download Link"
 msgstr "لینک دانلود ویدئو"
 
 msgid "Download Viedo"
 msgstr "دانلود ویدئو"
+
+msgid "Enter Activate Code"
+msgstr "کد فعال‌سازی را وارد کنید"
+
+msgid "SITE KEY"
+msgstr "کلید سایت"
+
+msgid "SECRET KEY"
+msgstr "کلید امنیتی"
+
+msgid "Enter SITE KEY"
+msgstr "کلید سایت را اینجا وارد کنید"
+
+msgid "Enter SECRET KEY"
+msgstr "کلید امنیتی را اینجا وارد کنید"
+
+msgid "Enter Admin Email"
+msgstr "ایمیل ادمین را وارد کنید"
+
+msgid "Your activation code is not Correct!"
+msgstr "کد فعال سازی صحیح نیست!"
+
+msgid "The Form Updated"
+msgstr "فرم بروز شد"
+
+msgid "Good Job"
+msgstr "عالی بود"
+
+msgid "The form has been successfully updated"
+msgstr "فرم با موفقیت بروز شد"
+
+msgid "The form is successfully built"
+msgstr "فرم با موفقیت ساخته شد"
+
+msgid "Form Code"
+msgstr "کد فرم"
+
+msgid "Preview"
+msgstr "پیش‌ نمایش"
+
+msgid "At first create a form and add elemants then try again"
+msgstr "در قدم اول یک فرم بسازید و المان ها را اضافه کنید سپس مجددا سعی کنید"
+
+msgid "The Form has not been created!"
+msgstr "فرم ساخته نشد!"
+
+msgid "The form has not been created!"
+msgstr "فرم ساخته نشد!"
+
+msgid "Some steps not defined, Please check:"
+msgstr "بعضی از گام‌ها تعریف نشده است. لطفا چک کنید:"
+
+msgid "You can create minmum 1 and maximum 2 Steps."
+msgstr "شما می توانید حداقل 1 گام و حداکثر 2 گام بسازید."
+
+msgid "If you need create more than 2 Steps, activeate "
+msgstr "اگر می خواهید بیشتر از 2 گام بسازید، فعال کنید "
+
+msgid "You Could create minmum 1 Step and maximum 20 Step"
+msgstr "شما می توانید حداقل 1 گام و حداکثر 20 گام بسازید"
+
+msgid "Please enter the tracking code"
+msgstr "لطفا شماره پیگیری را وارد کنید"

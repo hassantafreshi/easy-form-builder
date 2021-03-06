@@ -170,7 +170,7 @@ const content = `<!-- commenet --!><div class="m-2">
                 <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
             </div>
             <div class="emsFormBuilder-all-steps-view" > 
-                <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">Preview</h5> 
+                <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${efb_var.text.preview}</h5> 
             </div>
             <div id="emsFormBuilder-message-area-view"></div>
             <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
@@ -291,7 +291,7 @@ function emsFormBuilder_nevButton_view(n) {
     if(demo_emsFormBuilder==false){
       endMessage_emsFormBuilder_view()
     }else{
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>Done!</br><small>(Demo)</smal><h3>`
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>${efb_var.text.done}!</br><small>(Demo)</smal><h3>`
     }
 
 
@@ -390,7 +390,7 @@ function validateForm_emsFormBuilder_view() {
       if (valid== false){
         NotValidCount +=1;
         //console.log('324 valid comer' ,valid ,NotValidCount);
-        document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(`Please fill in all required fields..`);
+        document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(efb_var.text.pleaseFillInRequiredFields);
       }
       if (valid == true && NotValidCount==0) {
         document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
@@ -641,7 +641,7 @@ function saveLocalStorage_emsFormBuilder_view() {
 function alarm_emsFormBuilder(val) {
   return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
   <div class="emsFormBuilder"><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
-    <strong>Alert! </strong>${val}
+    <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
 

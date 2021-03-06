@@ -121,17 +121,17 @@ function emsFormBuilder_get_edit_form(id){
 function emsFormBuilder_delete (id){
   //console.l(`show message do you want delete ? ${id}`);
   // پنجره مطمئن هستی می خوای فرم پاک کنی نمایش بده 
-
+//areYouSureYouWantDeleteItem
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h5 class="card-title text-white"><i class="fas fa-trash"></i> Remove!</h5>
+    <h5 class="card-title text-white"><i class="fas fa-trash"></i>${efb_var.text.remove}</h5>
     <br>
-      <h4 class="text-white"> Are you sure you want to delete this item??</h4>
+      <h4 class="text-white">${efb_var.text.areYouSureYouWantDeleteItem}</h4>
     <br>
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">NO</button>
-    <button class="btn btn-danger" onclick=" fun_confirm_remove_emsFormBuilder(${Number(id)})">Yes</button>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.no}</button>
+    <button class="btn btn-danger" onclick=" fun_confirm_remove_emsFormBuilder(${Number(id)})">${efb_var.text.yes}</button>
   </div>
   <div>
 </div></div></div>`;
@@ -141,14 +141,14 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 function emsFormBuilder_popUp_message (title,message){
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
     <h5 class="card-title text-white"><i class="fa fa-bell-o "></i> ${title}</h5>
     <br>
       <h4 class="text-white">${message}</h4>
     <br>
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">Close</button>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</button>
   </div>
   <div>
 </div></div></div>`;
@@ -157,13 +157,13 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 function emsFormBuilder_popUp_loading (){
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark text-center">
 
     <br>
     <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-     <h3 class="text-white">Please Waiting<h3>
+     <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3>
     <br>
   </div>
   <div>
@@ -192,24 +192,24 @@ function emsFormBuilder_show_content_message (id){
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
   </div>
   <div class="col text-right row">
-  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
+  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${efb_var.text.reply} </button>
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
 
 
   document.getElementById('wpwrap').innerHTML+=`
-  <div class=" overpage preview-overpage" id="overpage">
+  <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> Messages</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> ${efb_var.text.messages}</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
     
      <div class="mx-4 my-1 border-bottom border-info pb-1" id="conver_emsFormBuilder">
      
-      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> loading...</div>
+      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}...</div>
      </br>
       ${m} 
      </div>
@@ -218,7 +218,7 @@ function emsFormBuilder_show_content_message (id){
       
      </div>
    
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">Close</button>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</button>
   </div>
   <div>
 </div></div></div>`;
@@ -349,8 +349,8 @@ window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 function fun_ws_show_edit_form(id){
   document.getElementById('emsFormBuilder-content').innerHTML=`<div class="col-md-12 ">
   <div id="emsFormBuilder-form" >
-  <form id="emsFormBuilder-form-id">
-      <h1 id="emsFormBuilder-form-title">Form Bulider</h1>
+  <form id="emsFormBuilder-form-id" class="${efb_var.rtl==1 ? 'rtl-text' :''}">
+      <h1 id="emsFormBuilder-form-title">${efb_var.text.easyFormBuilder}</h1>
       
       <div class="all-steps" id="all-steps"> 
           <span class="step"><i class="fa fa-tachometer"></i></span> 
@@ -360,14 +360,14 @@ function fun_ws_show_edit_form(id){
           <span class="step"><i class="fa fa-floppy-o"></i></span> 
       </div>
       <div class="all-steps" > 
-          <h5 class="step-name f-setp-name" id ="step-name">Define</h5> 
+          <h5 class="step-name f-setp-name" id ="step-name">${efb_var.text.define}</h5> 
       </div>
       <div id="message-area"></div>
       <div class="tab" id="firsTab">
-          <h5>Form Name:*</h5>
+          <h5>${efb_var.text.formName}:*</h5>
           <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
           </br>
-          <h5>Number of steps:*</h5>
+          <h5>${efb_var.text.numberOfSteps}:*</h5>
           <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
       </div>
       <div class="tab" id="tabInfo">
@@ -376,9 +376,8 @@ function fun_ws_show_edit_form(id){
       <div  id="tabList">
 
       </div>
- 
       <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-          <h3>Done</h3> <span>Great, Your form is builded successfully</span>
+          <h3>${efb_var.text.done}</h3> <span>${efb_var.text.formIsBuild}</span>
       </div>
       <div style="overflow:auto;" id="nextprevious">
           <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>
@@ -664,7 +663,7 @@ function fun_show_content_page_emsFormBuilder(state){
       state=1;
     }else{ */
       window.location.reload();
-      document.getElementById('emsFormBuilder-content').innerHTML=`<h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i>Loading</h2>`
+      document.getElementById('emsFormBuilder-content').innerHTML=`<h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i>${efb_var.text.loading}</h2>`
     //}
 
   }else if(state=="setting"){
@@ -766,55 +765,55 @@ function fun_show_setting__emsFormBuilder(){
  // console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
   //console.l(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
 
-  document.getElementById('emsFormBuilder-content').innerHTML=`  <div id="setting_emsFormBuilder" class="mx-auto border border-primary">
+  document.getElementById('emsFormBuilder-content').innerHTML=`  <div id="setting_emsFormBuilder" class="mx-auto border border-primary ${efb_var.rtl==1 ? 'rtl-text' :''}">
  
     <div class="py-2 pb-5 bg-light">
-      <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">Pro Version  <h6>
-       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="${proUrl_ws}">Click here to get Activate Code.</a>  </small>
+      <h6 class="border-bottom border-info mx-3 mt-2 text-info font-weight-bold" aria-describedby="UnlitedVersionHelp">${efb_var.text.proVersion}<h6>
+       <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
-        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="Enter Activate Code" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
+        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
       </div>
     </div>
    <div class="py-2">
-      <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="reCAPTCHAHelp"> reCAPTCHA v2 <h6>
-       <small id="reCAPTCHAHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="https://www.google.com/recaptcha/about/">reCAPTCHA</a> protects your website from fraud and abuse.<a target="_blank" href="https://youtu.be/a1jbMqunzkQ">Click here to watch a video tutorial.</a></small>
+      <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="reCAPTCHAHelp">${efb_var.text.reCAPTCHAv2}   <h6>
+       <small id="reCAPTCHAHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA} </a>${efb_var.text.protectsYourWebsiteFromFraud}<a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></small>
       <div class="form-group mx-5">
-        <label for="sitekey_emsFormBuilder">SITE KEY</label>
-        <input type="text" class="form-control" id="sitekey_emsFormBuilder" placeholder="Enter SITE KEY" ${sitekey!=="null" ? `value="${sitekey}"` :"" }>
+        <label for="sitekey_emsFormBuilder">${efb_var.text.siteKey}</label>
+        <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey!=="null" ? `value="${sitekey}"` :"" }>
        
       </div>
       <div class="form-group  mx-5">
-        <label for="secretkey_emsFormBuilder">SECRET KEY</label>
-        <input type="text" class="form-control" id="secretkey_emsFormBuilder" placeholder="Enter SECRET KEY" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
+        <label for="secretkey_emsFormBuilder">${efb_var.text.SecreTKey}</label>
+        <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
       </div>
     </div>
 
     <div class="py-2">
-      <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="AlertEmailHelp"> Alert Email <h6>
-       <small id="AlertEmailHelp" class="form-text text-muted mx-3 mb-3">When <b>Easy Form Builder</b> recives a new message, It will send an alret email to admin of plugin.</small>
+      <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="AlertEmailHelp">${efb_var.text.alertEmail}<h6>
+       <small id="AlertEmailHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</small>
       <div class="form-group mx-5" id="email_emsFormBuilder-row">
-        <label for="email_emsFormBuilder">Email</label>
-        <input type="email" class="form-control" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="Enter Admin Email" ${email!=="null" ? `value="${email}"` :"" }>             
+        <label for="email_emsFormBuilder">${efb_var.text.email}</label>
+        <input type="email" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email!=="null" ? `value="${email}"` :"" }>             
       </div>
     </div>
     <div class="py-2">
-    <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="filesCelar">Clear Files<h6>
-    <small id="filesCelar" class="form-text text-muted mx-3 mb-3">You can Remove unnecessary file uploaded by user with below button</small>
+    <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="filesCelar">${efb_var.text.clearFiles}<h6>
+    <small id="filesCelar" class="form-text text-muted mx-3 mb-3">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</small>
     <div class="form-group mx-5">
-    <a  class="btn btn btn-secondary" OnClick="clear_garbeg_emsFormBuilder()">Clear unnecessary files</a>          
+    <a  class="btn btn btn-secondary" OnClick="clear_garbeg_emsFormBuilder()">${efb_var.text.clearUnnecessaryFiles}</a>          
     </div>
     <div class="py-2">
-      <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="TrackingCodeHelp">Tracking code  <h6>
-       <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">If you don't want to show tracking code to user, don't mark below option. </small>
+      <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="TrackingCodeHelp">${efb_var.text.trackingCode}<h6>
+       <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.ifShowTrackingCodeToUser}</small>
       <div class="form-group mx-5">
        <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${trackingcode!=="null" && ( trackingcode=="true" ||  trackingcode===true)? `checked` :"" }>
-  <label class="form-check-label" for="trackingcode_emsFormBuilder">Show tracking Code</label>       
+  <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
       </div>
     </div>
     <div class="py-2">
-      <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">Tracking code Finder <h6>
-       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">Copy and Paste below short-code of tracking code finder in any page or post.<a target="_blank" href="https://youtu.be/c1_gCFihrH8">Click here to watch tutorial Video.</a>   </small>
+      <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">${efb_var.text.trackingCodeFinder}<h6>
+       <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}<a target="_blank" href="https://youtu.be/c1_gCFihrH8">${efb_var.text.clickHereWatchVideoTutorial}</a>   </small>
       <div class="form-group mx-5">
       <input type="text" class="form-control" id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>          
       </div>
@@ -824,8 +823,8 @@ function fun_show_setting__emsFormBuilder(){
 
 
 <div class="m-2 row">
- <a type="submit" class="btn btn-primary" onClick="fun_set_setting_emsFormBuilder()" id="btn_set_setting_emsFormBuilder"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save </a>
- <div id="loading_message_emsFormBuilder" class="efb-color text-center mx-2 invisible"><i class="fas fa-spinner fa-pulse"></i> Waiting...</div>
+ <a type="submit" class="btn btn-primary" onClick="fun_set_setting_emsFormBuilder()" id="btn_set_setting_emsFormBuilder"><i class="fa fa-floppy-o" aria-hidden="true"></i>${efb_var.text.save}</a>
+ <div id="loading_message_emsFormBuilder" class="efb-color text-center mx-2 invisible"><i class="fas fa-spinner fa-pulse"></i>${efb_var.text.waiting}...</div>
  </div>
 
 </div>`
@@ -934,25 +933,25 @@ function fun_send_setting_emsFormBuilder(data){
         
           if (document.getElementById('setting_return_emsFormBuilder')==null){   
             state_seting_emsFormBuilder=true;
-            document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i>Saved</div></div>`
+            document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div></div>`
           }else{
             state_seting_emsFormBuilder=true;
-            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i> Saved</div>`
+            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div>`
           }
         }else{
           //console.l(res.data);
           if (document.getElementById('setting_return_emsFormBuilder')==null){ 
-          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error, ${res.data.m}</div></div>`
+          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> ${efb_var.text.error} ${res.data.m}</div></div>`
           }else{
-            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error, ${res.data.m}</div>`
+            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> ${efb_var.text.error} ${res.data.m}</div>`
           }
         }
       }else{
         //console.l(res);
         if (document.getElementById('setting_return_emsFormBuilder')==null){ 
-          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error Stng-400 , ${res}</div></div>`
+          document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-danger text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> ${res}</div></div>`
           }else{
-            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i> Error Stng-400, ${res}</div>`
+            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-exclamation-triangle faa-flash animated"></i>  ${res}</div>`
           }
       }
     })
