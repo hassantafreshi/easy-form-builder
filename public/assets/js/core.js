@@ -572,7 +572,7 @@ function ShowTab_emsFormBuilder_view(n) {
                 //console.log('email',789);              
                 const state=valid_email_emsFormBuilder(el);
                 value = state==true ? el.value :'';
-                console.log(`email  ${value} [${state}]`)
+                //console.log(`email  ${value} [${state}]`)
           }else if (el.type == "tel") {
                 //console.log('tel',355);
                 const state=valid_phone_emsFormBuilder(el);
@@ -808,7 +808,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-    console.log(sendBack_emsFormBuilder_pub);
+  //  console.log(sendBack_emsFormBuilder_pub);
     $(function () {
      
       data = {

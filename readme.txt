@@ -79,6 +79,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 1.31.6 =
 * RTl feature is added
 * UI improvements
+* Fix issues of Tell and Email validation
 
 = 1.31.5 =
 * UI improvements
