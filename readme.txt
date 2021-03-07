@@ -42,7 +42,7 @@ Easy Form Builder uses the popular icon library Font Awesome and is being loaded
 1. Navigate to Dashboard → “Plugins” → “Add New” and search for *Easy Form Builder*
 2. Click “Install Now” and then “Activate”
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
-4. For local testing environments, you may use the key and secret below. For online websites, [click here] to obtain the API keys for reCAPTCHA v2(https://www.google.com/recaptcha).
+4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 = Development Keys for localhost =
 
