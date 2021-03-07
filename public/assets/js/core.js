@@ -45,8 +45,9 @@ jQuery (function() {
     }
 
 
-    if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
- 
+  //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
+    if( ajax_object_efm.state!=='settingError' ){
+     
       if(ajax_object_efm.state=='form'){
         //console.log("id",ajax_object_efm.id);
         fun_render_view(ajax_object_efm.ajax_value,1);
@@ -233,7 +234,7 @@ function fun_render_view(val,check){
                 </div>
                 <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
                 <!-- recaptcha  -->
-                <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+                ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 <!-- recaptcha end  -->
                     <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button> 
                     <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div>                  
@@ -295,15 +296,22 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function emsFormBuilder_nevButton_view(n) {
   //recaptcha
+
   if(currentTab_emsFormBuilder==0){
-    var response = grecaptcha.getResponse();
-    if(response.length == 0) { 
+    const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+    console.log(`[${response}]` ,sitekye_emsFormBuilder)
+    if( response!=null) { 
       //reCaptcha not verified
      // alert("no pass"); 
+     recaptcha_emsFormBuilder=response;
+     if(document.getElementById('recaptcha-message'))document.getElementById('recaptcha-message').innerHTML=''
+    
+    }else if ( sitekye_emsFormBuilder.length>1 && response==null){
+      document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha
       return ;
-    }
-    else { 
+    }else { 
       //reCaptch verified
+      document.getElementById('recaptcha-message').innerHTML=''
       recaptcha_emsFormBuilder=response;
      // alert("pass"); 
       //console.log(response);
@@ -831,7 +839,7 @@ function ShowTab_emsFormBuilder_view(n) {
          
           //console.log(`res : error`)
   
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error}:${res.data.m}</span>
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
   
         } 
@@ -1069,7 +1077,7 @@ function fun_tracking_show_emsFormBuilder(){
               <input placeholder="" type="text"  class="require emsFormBuilder" id="tracking_code_emsFormBuilder" max="20">
               </br>
               <!-- recaptcha  -->
-              <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+              ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
               <!-- recaptcha end  -->
           </div>
   
@@ -1093,15 +1101,17 @@ function fun_vaid_tracker_check_emsFormBuilder(){
     document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.trackingCodeIsNotValid)
   }else{
     if(currentTab_emsFormBuilder==0){
-      var response = grecaptcha.getResponse();
-      if(response.length == 0) { 
+      const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+      if(response == null) { 
         //reCaptcha not verified
        // alert("no pass"); 
+       
        document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.checkedBoxIANotRobot);
         return ;
       }
       else { 
         //reCaptch verified
+       
         recaptcha_emsFormBuilder=response;
        // alert("pass"); 
         //console.log(response);
@@ -1126,7 +1136,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = emsFormBuilder_show_content_message(res.data.value ,res.data.content)
             } else {             
               //console.log(`res : error`)      
-              document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error},${res.data.m}</span>
+              document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
               <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
             } 
@@ -1168,7 +1178,7 @@ function emsFormBuilder_show_content_message (value , content){
   <div class="col text-right row">
   <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
   <!-- recaptcha  -->
-              <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+  ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
   </div></div>
@@ -1285,7 +1295,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  console.log(`${form_type_emsFormBuilder}`);
+  //console.log(`${form_type_emsFormBuilder}`);
   $(function () {
     data = {
       action: "set_rMessage_id_Emsfb",

@@ -551,5 +551,8 @@ msgstr "فرم نمایش داده نشد‌ به دلیل اینکه شما گ�
 msgid "Please watch this tutorial"
 msgstr "لطفا این آموزش را تماشا کنید"
 
+msgid "Error verifying recaptcha"
+msgstr "خطا تایید هویت ری‌کپچا"
+
 msgid "Please"
 msgstr "لطفا"
