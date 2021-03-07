@@ -98,7 +98,7 @@ for (let v of valueJson_ws) {
         typeFile= v.file; 
       }
       classData = drog==true ? "form-control-file text-secondary " : "" ;
-      el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="Drag and drop a ${typeFile}  or click here"`:``}>`
+      el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"`:``}>`
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
     case 'textarea':
@@ -128,7 +128,7 @@ for (let v of valueJson_ws) {
       //console.log(v.required , "required");
 
       if(v.allowMultiSelect==true && test_view__emsFormBuilder==true){
-        el += el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}(Disabled in test view) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="Select a opetion (Disabled in test view)" data-id="${v.id_}" disabled>`;
+        el += el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}(Disabled in test view) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="${efb_var.text.selectOpetionDisabled}" data-id="${v.id_}" disabled>`;
       }else{
         el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`;
       }
@@ -180,7 +180,7 @@ const content = `<!-- commenet --!><div class="m-2">
             <div  id="emsFormBuilder-tabList-view">
             </div>           
             <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-                <h3>Registered</h3> <span>Great, Your information registered successfully</span>
+                <h3>${efb_var.text.registered}</h3> <span>${efb_var.text.yourInformationRegistered}</span>
             </div>
             <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
                 <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(-1)"><i class="fa fa-angle-double-left"></i></button> 
@@ -333,7 +333,7 @@ function validateForm_emsFormBuilder_view() {
             if(input.value.length<=6){
               valid =  false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Password must be at least 8 characters</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.password8Chars}</small>`
             }else{
               input.classList.remove('invalid');
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();
@@ -345,7 +345,7 @@ function validateForm_emsFormBuilder_view() {
               //console.log(check ,999)
               valid=false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Please enter a valid URL. Protocol is required (http://, https://)</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.enterٰValidURL}</small>`
             }else{
               valid=true;
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
@@ -419,7 +419,7 @@ function createStepsOfPublic() {
   
   if (valueJson_ws.length==1 && valueJson_ws=="N" && document.getElementById('emsFormBuilder-form-view')){
     //console.log('not found')
-    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3 id="formNotFound">Form not found</h3> <span>Error Code:V01</span>`;
+    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
     return false;
   }
  
@@ -649,7 +649,7 @@ function alarm_emsFormBuilder(val) {
 
 function loading_emsFormBuilder() {
   return `<div  id="loading_emsFormBuilder"><div class="spinner-border text-warning" role="status">
-    <span class="sr-only">loading...</span>
+    <span class="sr-only">${efb_var.text.loading}...</span>
   </div></div>`
 
 }
@@ -693,12 +693,12 @@ function endMessage_emsFormBuilder_view() {
     let str = ""
 
     
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>Please check all filled</span>
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
     <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
     
     // faild form
   } else {
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>Please Waiting<h3>`
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3> ${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
     //  Ok form
 
@@ -726,7 +726,7 @@ function valid_email_emsFormBuilder(el) {
     check += el.value.match(format) ?0 :1;
     el.value.match(format) ? 0: el.className += " invalid";
     if (check>0){
-       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
+       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${efb_var.text.enterTheEmail}</small>`
       }
       else {
         if (document.getElementById("alarm_emsFormBuilder")) {          
@@ -748,7 +748,7 @@ function valid_phone_emsFormBuilder(el) {
     //console.log( 707,el.classList.contains('require'),)
     if (check>0 ){
       el.value.match(format) ? 0: el.className += " invalid";
-       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Phone Number</small>`
+       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${efb_var.text.enterThePhone}</small>`
       }
       else {
         if (document.getElementById("alarm_emsFormBuilder")){
@@ -801,10 +801,10 @@ if(el.files[0] && el.files[0].size<15000000){
 
 
 
-   let message = `Please upload a ${file}`;
+   let message = `${efb_var.text.pleaseUploadA} ${file}`;
    el.classList.add('text-warning');
    el.classList.remove('text-secondary');
-   if(el.files[0]) message=  el.files[0].size<15000000? `Please upload a ${file} file (${accept.join()})` : `The ${file} size is too large , Allowed Maximum size is 15MB. Try new ${file} file`;
+   if(el.files[0]) message=  el.files[0].size<15000000? `Please upload a ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;
    el.setAttribute("data-title", message);
    document.getElementById(`${id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${message}</small>`;
   

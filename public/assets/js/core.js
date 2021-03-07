@@ -27,7 +27,7 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
-  //  console.log("ajax_object_efm_state",ajax_object_efm);
+   console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
@@ -45,8 +45,9 @@ jQuery (function() {
     }
 
 
-    if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
- 
+  //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
+    if( ajax_object_efm.state!=='settingError' ){
+     
       if(ajax_object_efm.state=='form'){
         //console.log("id",ajax_object_efm.id);
         fun_render_view(ajax_object_efm.ajax_value,1);
@@ -152,7 +153,7 @@ function fun_render_view(val,check){
             typeFile= v.file; 
           }
           classData = drog==true ? "form-control-file text-secondary " : "" ;
-          el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="Drag and drop a ${typeFile} or click here"`:``}>`
+          el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${ajax_object_efm.text.DragAndDropA} ${typeFile} ${ajax_object_efm.text.orClickHere}"`:``}>`
           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
          
           exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
@@ -219,7 +220,7 @@ function fun_render_view(val,check){
                     <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
                 </div>
                 <div class="emsFormBuilder-all-steps-view" > 
-                    <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">Define</h5> 
+                    <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
                 </div>
                 <div id="emsFormBuilder-message-area-view"></div>
                 <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
@@ -229,11 +230,11 @@ function fun_render_view(val,check){
                 <div  id="emsFormBuilder-tabList-view">
                 </div>           
                 <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-                    <h3>Registered</h3> <span>Great, Your information registered successfully</span>
+                    <h3>${ajax_object_efm.text.registered}</h3> <span>${ajax_object_efm.text.yourInformationRegistered}</span>
                 </div>
                 <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
                 <!-- recaptcha  -->
-                <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+                ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 <!-- recaptcha end  -->
                     <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button> 
                     <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div>                  
@@ -295,15 +296,22 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function emsFormBuilder_nevButton_view(n) {
   //recaptcha
+
   if(currentTab_emsFormBuilder==0){
-    var response = grecaptcha.getResponse();
-    if(response.length == 0) { 
+    const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+    console.log(`[${response}]` ,sitekye_emsFormBuilder)
+    if( response!=null) { 
       //reCaptcha not verified
      // alert("no pass"); 
+     recaptcha_emsFormBuilder=response;
+     if(document.getElementById('recaptcha-message'))document.getElementById('recaptcha-message').innerHTML=''
+    
+    }else if ( sitekye_emsFormBuilder.length>1 && response==null){
+      document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha
       return ;
-    }
-    else { 
+    }else { 
       //reCaptch verified
+      document.getElementById('recaptcha-message').innerHTML=''
       recaptcha_emsFormBuilder=response;
      // alert("pass"); 
       //console.log(response);
@@ -388,7 +396,7 @@ function ShowTab_emsFormBuilder_view(n) {
               if(input.value.length<=6){
                 valid =  false;
                 input.className += ' invalid';
-                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Password must be at least 8 characters</small>`
+                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.password8Chars}</small>`
               }else{
                 input.classList.remove('invalid');
                 if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();
@@ -400,7 +408,7 @@ function ShowTab_emsFormBuilder_view(n) {
                 //console.log(check ,999)
                 valid=false;
                 input.className += ' invalid';
-                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">Please enter a valid URL. Protocol is required (http://, https://)</small>`
+                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterٰValidURL}</small>`
               }else{
                 valid=true;
                 if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
@@ -474,7 +482,7 @@ function ShowTab_emsFormBuilder_view(n) {
     
     if (valueJson_ws.length==1 && valueJson_ws=="N" && document.getElementById('emsFormBuilder-form-view')){
       //console.log('not found')
-      document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 id="formNotFound">Form not found</h3> <span>Error Code:V01</span>`;
+      document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 id="formNotFound">${ajax_object_efm.text.formNotFound}</h3> <span>${ajax_object_efm.text.errorV01}</span>`;
       return false;
     }
    
@@ -734,12 +742,12 @@ function ShowTab_emsFormBuilder_view(n) {
       let str = ""
   
       
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>Please check all filled</span>
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
       <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
       // faild form
     } else {
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>Please Waiting<h3>`
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
     //setInterval(myFunction, 2000);
    
     let checkFile = 0; 
@@ -748,7 +756,7 @@ function ShowTab_emsFormBuilder_view(n) {
       }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
         //console.log(`error => ${file.state}`,file)
         checkFile =-100;
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">You don't have permission to upload this file:</br>${file.url}</span>
+        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
         <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
        return;
 
@@ -773,7 +781,7 @@ function ShowTab_emsFormBuilder_view(n) {
             }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
               //console.log(`error => ${file.state}`,file)
               checkFile =-100;
-              document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>You don't have permission to upload this file </br>${file.url}</span>
+              document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
               <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
              return;
 
@@ -831,7 +839,7 @@ function ShowTab_emsFormBuilder_view(n) {
          
           //console.log(`res : error`)
   
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
   
         } 
@@ -851,14 +859,14 @@ function ShowTab_emsFormBuilder_view(n) {
       check += el.value.match(format) ?0 :1;
       if (check>0){
         el.value.match(format) ? 0: el.classList.add("invalid");
-        document.getElementById(`${el.id}-message`).innerHTML =`Please Enter Email Address`;
+        document.getElementById(`${el.id}-message`).innerHTML =ajax_object_efm.text.enterTheEmail;
         document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
         // document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
         }
         else {
           el.classList.remove('invalid');
           document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
-          document.getElementById(`${el.id}-message`).innerHTML ='';
+          document.getElementById(`${el.id}-message`).innerHTML='';
      /*      if (document.getElementById("alarm_emsFormBuilder")) {          
             el.classList.remove('invalid');
             if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
@@ -881,7 +889,8 @@ function ShowTab_emsFormBuilder_view(n) {
          el.value.match(format) ? 0: el.classList.add("invalid");
          //870
         // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
-        document.getElementById(`${id}-message`).innerHTML =`Please Enter Phone Number`;
+  
+        document.getElementById(`${id}-message`).innerHTML =ajax_object_efm.text.enterThePhones;
         document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
         }
         else {
@@ -969,7 +978,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   
-     let message = `Please upload a ${file}`;
+     let message = `${ajax_object_efm.text.pleaseUploadA} ${file}`;
      el.classList.add('text-warning');
      el.classList.remove('text-secondary');
      if(el.files[0]) message=  el.files[0].size<fileSizeLimite_emsFormBuilder? `Please upload a ${file} file (${accept.join()})` : `The ${file} size is too large , Allowed Maximum size is 8MB. Try new ${file} file`;
@@ -1056,7 +1065,7 @@ function fun_tracking_show_emsFormBuilder(){
   <div class="col-md-12 ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}">
       <div id="emsFormBuilder-form-view-track" >
       <form id="emsFormBuilder-form-view-id-track">
-         <!-- <h1 id="emsFormBuilder-form-title">Tracking Form</h1> -->
+         <!-- <h1 id="emsFormBuilder-form-title">${ajax_object_efm.text.trackingForm}</h1> -->
           
   
           <div class="all-steps" > 
@@ -1068,7 +1077,7 @@ function fun_tracking_show_emsFormBuilder(){
               <input placeholder="" type="text"  class="require emsFormBuilder" id="tracking_code_emsFormBuilder" max="20">
               </br>
               <!-- recaptcha  -->
-              <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+              ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
               <!-- recaptcha end  -->
           </div>
   
@@ -1089,23 +1098,25 @@ function fun_vaid_tracker_check_emsFormBuilder(){
   el =document.getElementById('tracking_code_emsFormBuilder').value;
   
   if (el.length!=12 ){
-    document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder('Tracking Code is not valid.')
+    document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.trackingCodeIsNotValid)
   }else{
     if(currentTab_emsFormBuilder==0){
-      var response = grecaptcha.getResponse();
-      if(response.length == 0) { 
+      const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+      if(response == null) { 
         //reCaptcha not verified
        // alert("no pass"); 
-       document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(`Please Checked Box of I'm Not robot`);
+       
+       document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.checkedBoxIANotRobot);
         return ;
       }
       else { 
         //reCaptch verified
+       
         recaptcha_emsFormBuilder=response;
        // alert("pass"); 
         //console.log(response);
         document.getElementById('emsFormBuilder-message-area-track') ? document.getElementById('emsFormBuilder-message-area-track').remove() :''
-        document.getElementById('emsFormBuilder-form-view-track').innerHTML =`<div class="text-center"><h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>Please Waiting<h3></div>`;
+        document.getElementById('emsFormBuilder-form-view-track').innerHTML =`<div class="text-center"><h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3></div>`;
         $(function () {
           
           data = {
@@ -1125,7 +1136,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = emsFormBuilder_show_content_message(res.data.value ,res.data.content)
             } else {             
               //console.log(`res : error`)      
-              document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>Something went wrong please try again, <br>Error Code:${res.data.m}</span>
+              document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Form Error</h3> <span>${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
               <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
             } 
@@ -1167,7 +1178,7 @@ function emsFormBuilder_show_content_message (value , content){
   <div class="col text-right row">
   <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">reply </button>
   <!-- recaptcha  -->
-              <div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div>
+  ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
   </div></div>
@@ -1177,7 +1188,7 @@ function emsFormBuilder_show_content_message (value , content){
   return `
 
   <div class="">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> Messages</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> ${ajax_object_efm.text.messages}</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
@@ -1284,7 +1295,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  console.log(`${form_type_emsFormBuilder}`);
+  //console.log(`${form_type_emsFormBuilder}`);
   $(function () {
     data = {
       action: "set_rMessage_id_Emsfb",
@@ -1325,7 +1336,17 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,userIp,track,dat
 
 
 function fun_show_alert_setting_emsFormBuilder(){
-  document.getElementById('body_emsFormBuilder').innerHTML=`<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">Error</br>The form is not show ,Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin. </br><a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal"> Please Click here to  Watch the tutorial video</a> </h2> </div>`
+  const m= `<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">
+            ${ajax_object_efm.text.error}</br>
+            ${ajax_object_efm.text.formIsNotShown}</br>
+            <a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
+  if (document.getElementById('body_emsFormBuilder')) { 
+    document.getElementById('body_emsFormBuilder').innerHTML=m;
+  }else if(document.getElementById('body_tracker_emsFormBuilder')){
+    document.getElementById('body_tracker_emsFormBuilder').innerHTML=m;
+  }else{
+    window.alert(`${ajax_object_efm.text.error} ${ajax_object_efm.text.formIsNotShown}`)
+  }
 }
 
 

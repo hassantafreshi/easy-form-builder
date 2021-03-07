@@ -1,64 +1,65 @@
 <?php
+/** Prevent this file from being accessed directly */
+if (!defined('ABSPATH')) {
+    die("Direct access of plugin files is not allowed.");
+}
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-} // Exit if accessed directly
-
+/**
+ * Class Emsfb
+ */
 class Emsfb {
-	/**
-	 * Emsfb constructor.
-	 */
-	public function __construct() {
-		$this->set_constants();
-		$this->includes();
-		$this->init_hooks();
-	}
+    public $plugin_path = "";
 
-	/**
-	 * Define Constants.
-	 */
-	private function set_constants() {
-		define( 'Emsfb_ABSPATH', plugin_dir_path( EMSFB_PLUGIN_FILE ) );
-		define( 'Emsfb_URL', plugin_dir_url( dirname( __FILE__ ) ) );
-	}
+    public $plugin_url = "";
 
-	/**
-	 * Initial plugin setup.
-	 */
-	private function init_hooks() {
-		register_activation_hook( EMSFB_PLUGIN_FILE, array( '\Emsfb\Install', 'install' ) );
+    /**
+     * Emsfb constructor.
+     */
+    public function __construct() {
+        $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
+        $this->plugin_url  = EMSFB_PLUGIN_URL;
 
-		// Load text domain
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-		
-	}
+        $this->includes();
+        $this->init_hooks();
+    }
 
-	/**
-	 * Load plugin textdomain.
-	 */
-	public function load_textdomain() {
-	//	echo "------------------------------------->" .__('Define','Emsfb');
-	
-		load_plugin_textdomain( 'easy-form-builder', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
+    /**
+     * Initial plugin setup.
+     */
+    private function init_hooks(): void {
+        register_activation_hook(
+            EMSFB_PLUGIN_FILE,
+            ['\Emsfb\Install', 'install']
+        );
 
-	/**
-	 * Includes classes and functions.
-	 */
-	public function includes() {
-		require_once Emsfb_ABSPATH . 'includes/class-Emsfb-install.php';
-		if ( is_admin() ) {
-			require_once Emsfb_ABSPATH . 'includes/admin/class-Emsfb-admin.php';
-			require_once Emsfb_ABSPATH . 'includes/admin/class-Emsfb-create.php';
-			//require_once Emsfb_ABSPATH . 'includes/functions.php';		
-		} else {
-			require_once Emsfb_ABSPATH . 'includes/class-Emsfb-public.php';
-		}
+        add_action('init', [$this, 'load_textdomain']);
+    }
 
-		require_once Emsfb_ABSPATH . 'includes/class-Emsfb-public.php';
+    /**
+     * Load plugin textdomain.
+     */
+    public function load_textdomain(): void {
+        load_plugin_textdomain(
+            EMSFB_PLUGIN_TEXTDOMAIN,
+            false,
+            EMSFB_PLUGIN_DIRECTORY . "/languages"
+        );
+    }
 
+    /**
+     * Includes classes and functions.
+     */
+    public function includes(): void {
+        require_once $this->plugin_path . 'includes/class-Emsfb-install.php';
 
+        if (is_admin()) {
+            require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
+            require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
+        }
+        else {
+            require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+        }
 
-		// Template functions.
-	}
+        require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+    }
 }

@@ -111,7 +111,7 @@ class Panel_edit  {
 				"formUpdated" => __('The Form Updated','easy-form-builder'),
 				"goodJob" => __('Good Job','easy-form-builder'),
 				"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
-				"formIsBuild" => __('form is successfully build','easy-form-builder'),
+				"formIsBuild" => __('form is successfully built','easy-form-builder'),
 				"formCode" => __('Form Code','easy-form-builder'),
 				"close" => __('Close','easy-form-builder'),
 				"done" => __('Done','easy-form-builder'),
@@ -138,13 +138,42 @@ class Panel_edit  {
 				"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
+				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
+				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),			
+				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
+				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
+				"formNotFound" => __('Form is not found','easy-form-builder'),
+				"errorV01" => __('Error Code:V01','easy-form-builder'),
+				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+				"registered" => __('Registered','easy-form-builder'),
+				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
+				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
+				"trackingForm" => __('Tracking Form','easy-form-builder'),
+				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
+				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+				"howConfigureEFB" => __('How to configure Easy Form Builder','easy-form-builder'),
+				"howGetGooglereCAPTCHA" => __('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
+				"howActivateAlertEmail" => __('How to activate the alert email for new form submission','easy-form-builder'),
+				"howCreateAddForm" => __('How to create and add a form with Easy Form Builder','easy-form-builder'),
+				"howActivateTracking" => __('How to activate a tracking code in Easy Form Builder','easy-form-builder'),
+				"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
+				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
+				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
+				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
 			];
-			wp_enqueue_script( 'Emsfb-listicons-js', Emsfb_URL . 'includes/admin/assets/js/listicons.js' );
+			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
 			$pro =false;
 			$ac= $this->get_activeCode_Emsfb();
 			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
-			wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -160,7 +189,7 @@ class Panel_edit  {
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
 			
-			 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0
@@ -189,7 +218,7 @@ class Panel_edit  {
 				</div>
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
 				<a class="navbar-brand" href="#">
-					<img src="<?php echo Emsfb_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
+					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
 					<?php _e('Easy Form Builder','easy-form-builder') ?>
 				</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
@@ -245,7 +274,7 @@ class Panel_edit  {
 
 			
 
-			wp_register_script('Emsfb-list_form-js', Emsfb_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -256,7 +285,7 @@ class Panel_edit  {
 					'user_ip'=> $ip,
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
-					'poster'=> Emsfb_URL . 'public/assets/images/efb-poster.png'	
+					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png'
 					
 				));
 					

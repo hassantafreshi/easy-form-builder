@@ -148,7 +148,7 @@ class Create {
             </div><!-- #tab_container-->
         </div><!-- .wrap -->
 		<?php
-		wp_enqueue_script( 'Emsfb-listicons-js', Emsfb_URL . 'includes/admin/assets/js/listicons.js' );
+		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
 		$pro =false;
 		$ac= $this->get_activeCode_Emsfb();
@@ -244,7 +244,7 @@ class Create {
 			"formUpdated" => __('The Form Updated','easy-form-builder'),
 			"goodJob" => __('Good Job','easy-form-builder'),
 			"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
-			"formIsBuild" => __('form is successfully build','easy-form-builder'),
+			"formIsBuild" => __('form is successfully built','easy-form-builder'),
 			"formCode" => __('Form Code','easy-form-builder'),
 			"close" => __('Close','easy-form-builder'),
 			"done" => __('Done','easy-form-builder'),
@@ -256,8 +256,6 @@ class Create {
 			"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 			"formNotCreated" => __('The form has not been created!','easy-form-builder'),
 			"atFirstCreateForm" => __('At first create a form and add elemants then try again','easy-form-builder'),
-
-			
 			"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
 			"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
 			"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
@@ -266,8 +264,28 @@ class Create {
 			"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
 			"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 			"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
+			"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+			"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+			"orClickHere" => __(' or click here','easy-form-builder'),
+			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
+			"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
+			"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),			
+			"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
+			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
+			"formNotFound" => __('Form is not found','easy-form-builder'),
+			"errorV01" => __('Error Code:V01','easy-form-builder'),
+			"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+			"registered" => __('Registered','easy-form-builder'),
+			"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
+			"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
+			"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+			"trackingForm" => __('Tracking Form','easy-form-builder'),
+			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
+			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+			"please" => __('Please','easy-form-builder'),
 		];
-		wp_enqueue_script( 'Emsfb-admin-js', Emsfb_URL . 'includes/admin/assets/js/admin.js' );		
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -279,7 +297,7 @@ class Create {
 			
 
 
-		 wp_enqueue_script( 'Emsfb-core-js', Emsfb_URL . 'includes/admin/assets/js/core.js' );
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));

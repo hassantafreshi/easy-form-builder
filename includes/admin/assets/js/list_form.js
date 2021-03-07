@@ -690,17 +690,17 @@ function fun_hande_active_page_emsFormBuilder(no){
 }
 
 function fun_show_help__emsFormBuilder(){
-  document.getElementById("more_emsFormBuilder").style.display = "none"
+  document.getElementById("more_emsFormBuilder").style.display = "none";
     listOfHow_emsfb ={
   /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
-      2:{title:'How to config Easy form Builder.',url:'https://www.youtube.com/embed/DEQNHMPT0rQ'},
-      3:{title:'How to get google re-captcha and add to Easy Form Builder.',url:'https://www.youtube.com/embed/a1jbMqunzkQ'},
-      4:{title:'How to activate the alert email of a new response.',url:'https://www.youtube.com/embed/So2RAzu-OHU'},
-      5:{title:'How to create a Form with Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
-      6:{title:'How to activation Tracking Code in Easy form Builder.',url:'https://www.youtube.com/embed/im3aKby4E14'},
-      7:{title:'How to work with panel of Easy form Builder.',url:'https://www.youtube.com/embed/7jS01CEtbDg'},
-      8:{title:'How to add tracking Form to a post or page.',url:'https://www.youtube.com/embed/c1_gCFihrH8'},
-      9:{title:'How to find a response by tracking code.',url:'https://www.youtube.com/embed/vqKi9BJbO7k'},
+      2:{title: efb_var.text.howConfigureEFB ,url:'https://www.youtube.com/embed/DEQNHMPT0rQ'},
+      3:{title: efb_var.text.howGetGooglereCAPTCHA, url:'https://www.youtube.com/embed/a1jbMqunzkQ'},
+      4:{title: efb_var.text.howActivateAlertEmail, url:'https://www.youtube.com/embed/So2RAzu-OHU'},
+      5:{title: efb_var.text.howCreateAddForm, url:'https://www.youtube.com/embed/7jS01CEtbDg'},
+      6:{title: efb_var.text.howActivateTracking, url:'https://www.youtube.com/embed/im3aKby4E14'},
+      7:{title: efb_var.text.howWorkWithPanels, url:'https://www.youtube.com/embed/7jS01CEtbDg'},
+      8:{title: efb_var.text.howAddTrackingForm, url:'https://www.youtube.com/embed/c1_gCFihrH8'},
+      9:{title: efb_var.text.howFindResponse, url:'https://www.youtube.com/embed/vqKi9BJbO7k'},
     }
 
 
@@ -772,7 +772,8 @@ function fun_show_setting__emsFormBuilder(){
        <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
-        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
+        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>
+        <small class="text-danger" id="activeCode_emsFormBuilder-message"></small>
       </div>
     </div>
    <div class="py-2">
@@ -781,11 +782,12 @@ function fun_show_setting__emsFormBuilder(){
       <div class="form-group mx-5">
         <label for="sitekey_emsFormBuilder">${efb_var.text.siteKey}</label>
         <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey!=="null" ? `value="${sitekey}"` :"" }>
-       
+        <small class="text-danger" id="sitekey_emsFormBuilder-message"></small>
       </div>
       <div class="form-group  mx-5">
         <label for="secretkey_emsFormBuilder">${efb_var.text.SecreTKey}</label>
         <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
+        <small class="text-danger" id="secretkey_emsFormBuilder-message"></small>
       </div>
     </div>
 
@@ -848,7 +850,9 @@ function fun_set_setting_emsFormBuilder(){
   const v = (id)=>{
     const el =document.getElementById(id);
     if(el.type!=="checkbox"){
-      if(el.value.length<5 && id!=="activeCode_emsFormBuilder" && id!=="email_emsFormBuilder"){
+      
+      if(el.value.length>0 && el.value.length<20  && id!=="activeCode_emsFormBuilder" && id!=="email_emsFormBuilder"){
+        document.getElementById(`${el.id}-message`).innerHTML= efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
         return false;
@@ -856,11 +860,15 @@ function fun_set_setting_emsFormBuilder(){
           //برای برسی صحیح بودن کد امنیتی وارد شده
           if(el.value.length<5  &&  el.value.length!=0){
             el.classList.add('invalid');
+            
             window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
             return false;
           }
       }else{
-        if(el.classList.contains("invalid")==true) el.classList.remove('invalid');
+        if(el.classList.contains("invalid")==true) {
+          el.classList.remove('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML='';
+        }
         if(el.type=="email" && el.value.length>0){          
           return  valid_email_emsFormBuilder(el);
         }
