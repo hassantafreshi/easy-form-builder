@@ -153,9 +153,18 @@ class Panel_edit  {
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
 				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"please" => __('Please','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+				"howConfigureEFB" => __('How to configure Easy Form Builder','easy-form-builder'),
+				"howGetGooglereCAPTCHA" => __('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
+				"howActivateAlertEmail" => __('How to activate the alert email for new form submission','easy-form-builder'),
+				"howCreateAddForm" => __('How to create and add a form with Easy Form Builder','easy-form-builder'),
+				"howActivateTracking" => __('How to activate a tracking code in Easy Form Builder','easy-form-builder'),
+				"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
+				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
+				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

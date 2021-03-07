@@ -521,5 +521,29 @@ msgstr "کد پیگیری صحیح نیست."
 msgid "Please Checked Box of I am Not robot"
 msgstr "لطفا گزینه من ربات نیستم را انتخاب کنید"
 
+msgid "How to configure Easy Form Builder"
+msgstr "چگونه آسان فرم ساز را تنظیم کنیم"
+
+msgid "How to get Google reCAPTCHA and implement it into Easy Form Builder"
+msgstr "چگونه ری‌کپچا گوگول بگیریم و به آسان فرم ساز اضافه کنیم"
+
+msgid "How to activate the alert email for new form submission"
+msgstr "چگونه ایمیل اطلاع رسانی بعد ثبت فرم را فعال کنیم"
+
+msgid "How to create and add a form with Easy Form Builder"
+msgstr "چگونه یک فرم جدید درآسان فرم ساز بسازیم"
+
+msgid "How to activate a tracking code in Easy Form Builder"
+msgstr "چگونه کد پیگیری را در آسان فرم ساز فعال کنیم"
+
+msgid "How to work with panels in Easy Form Builder"
+msgstr "چگونه با پنل آسان فرم ساز کار کنیم"
+
+msgid "How to add a tracking form to a post, page, or custom post type"
+msgstr "چگونه فرم پیگیری را به یک پست یا صحفه اضافه کنیم"
+
+msgid "How to find a response through a tracking ID"
+msgstr "چگونه یک پیام خاص را بوسیله کد پیگیری پیدا کنیم"
+
 msgid "Please"
 msgstr "لطفا"
