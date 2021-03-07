@@ -278,7 +278,7 @@ msgstr "خطای ایمن 403"
 msgid "Error, you are a robot?"
 msgstr "خطا ، شما ربات هستید ؟"
 
-msgid "Please Enter vaild value"
+msgid "Please enter a vaild value"
 msgstr "لطفا مقدار درست وارد کنید"
 
 msgid "Login"
@@ -544,6 +544,12 @@ msgstr "چگونه فرم پیگیری را به یک پست یا صحفه اض�
 
 msgid "How to find a response through a tracking ID"
 msgstr "چگونه یک پیام خاص را بوسیله کد پیگیری پیدا کنیم"
+
+msgid "The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin."
+msgstr "فرم نمایش داده نشد‌ به دلیل اینکه شما گوگل ری‌کپچا را در قسمت تنظیمات آسان فرم اضافه نکرده اید"
+
+msgid "Please watch this tutorial"
+msgstr "لطفا این آموزش را تماشا کنید"
 
 msgid "Please"
 msgstr "لطفا"

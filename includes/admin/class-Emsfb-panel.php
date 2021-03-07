@@ -165,6 +165,7 @@ class Panel_edit  {
 				"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
 				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
 				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
+				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

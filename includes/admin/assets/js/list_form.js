@@ -690,8 +690,7 @@ function fun_hande_active_page_emsFormBuilder(no){
 }
 
 function fun_show_help__emsFormBuilder(){
-  document.getElementById("more_emsFormBuilder").style.display = "none"
-  console.log(efb_var.text)
+  document.getElementById("more_emsFormBuilder").style.display = "none";
     listOfHow_emsfb ={
   /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
       2:{title: efb_var.text.howConfigureEFB ,url:'https://www.youtube.com/embed/DEQNHMPT0rQ'},
@@ -773,7 +772,8 @@ function fun_show_setting__emsFormBuilder(){
        <small id="UnlitedVersionHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>  </small>
       <div class="form-group mx-5">
         <label for="activeCode_emsFormBuilder"Activate Code</label>
-        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>             
+        <input type="text" class="form-control" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode!=="null" ? `value="${activeCode}"` :"" }>
+        <small class="text-danger" id="activeCode_emsFormBuilder-message"></small>
       </div>
     </div>
    <div class="py-2">
@@ -782,11 +782,12 @@ function fun_show_setting__emsFormBuilder(){
       <div class="form-group mx-5">
         <label for="sitekey_emsFormBuilder">${efb_var.text.siteKey}</label>
         <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey!=="null" ? `value="${sitekey}"` :"" }>
-       
+        <small class="text-danger" id="sitekey_emsFormBuilder-message"></small>
       </div>
       <div class="form-group  mx-5">
         <label for="secretkey_emsFormBuilder">${efb_var.text.SecreTKey}</label>
         <input type="text" class="form-control ${efb_var.rtl==1 ? 'rtl-text' :''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey!=="null" ? `value="${secretkey}"` :"" }>
+        <small class="text-danger" id="secretkey_emsFormBuilder-message"></small>
       </div>
     </div>
 
@@ -849,7 +850,9 @@ function fun_set_setting_emsFormBuilder(){
   const v = (id)=>{
     const el =document.getElementById(id);
     if(el.type!=="checkbox"){
-      if(el.value.length<5 && id!=="activeCode_emsFormBuilder" && id!=="email_emsFormBuilder"){
+      
+      if(el.value.length>0 && el.value.length<20  && id!=="activeCode_emsFormBuilder" && id!=="email_emsFormBuilder"){
+        document.getElementById(`${el.id}-message`).innerHTML= efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
         return false;
@@ -857,11 +860,15 @@ function fun_set_setting_emsFormBuilder(){
           //برای برسی صحیح بودن کد امنیتی وارد شده
           if(el.value.length<5  &&  el.value.length!=0){
             el.classList.add('invalid');
+            
             window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
             return false;
           }
       }else{
-        if(el.classList.contains("invalid")==true) el.classList.remove('invalid');
+        if(el.classList.contains("invalid")==true) {
+          el.classList.remove('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML='';
+        }
         if(el.type=="email" && el.value.length>0){          
           return  valid_email_emsFormBuilder(el);
         }

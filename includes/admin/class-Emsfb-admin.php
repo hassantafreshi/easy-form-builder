@@ -243,7 +243,7 @@ class Admin {
             die();
         }
         if (empty($_POST['value'])) {
-            $response = ['success' => false, "m" => "Please Enter the value"];
+            $response = ['success' => false, "m" => __("Please enter a vaild value")];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -434,6 +434,7 @@ class Admin {
                 }
 
             }
+ 
         }
         //echo $table_name;
         $this->db->insert(

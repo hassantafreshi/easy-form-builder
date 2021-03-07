@@ -76,7 +76,7 @@ class _Public {
 			
 		}
 		$text = [
-				"error" => __('error','easy-form-builder'),
+				"error" => __('Error,','easy-form-builder'),
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"define" => __('Define','easy-form-builder'),
 				"loading" => __('Loading','easy-form-builder'),
@@ -101,9 +101,12 @@ class _Public {
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 				"messages" => __('Messages','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
+				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
+				"alert" => __('Alert!','easy-form-builder'),
+				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),				
+				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
+				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
+				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -136,7 +139,7 @@ class _Public {
 				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
 				"alert" => __('Alert!','easy-form-builder'),
 				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
-				"error" => __('error','easy-form-builder'),
+				"error" => __('Error,','easy-form-builder'),
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"define" => __('Define','easy-form-builder'),
 				"loading" => __('Loading','easy-form-builder'),
@@ -149,6 +152,7 @@ class _Public {
 				"errorV01" => __('Error Code:V01','easy-form-builder'),
 				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
 				"preview" => __('Preview','easy-form-builder'),
@@ -160,6 +164,8 @@ class _Public {
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 				"messages" => __('Messages','easy-form-builder'),
+				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
+				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -302,14 +308,14 @@ class _Public {
 		
 		if ($captcha_success->success==false) {
 		// "Error, you are a robot?";
-		  $response = array( 'success' => false  , 'm'=>'Error, you are a robot?'); 
+		  $response = array( 'success' => false  , 'm'=>__("Error,Are you a robot?")); 
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}
 		else if ($captcha_success->success==true) {
 
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
-				$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
+				$response = array( 'success' => false , "m"=>__("Please enter a vaild value")); 
 				wp_send_json_success($response,$_POST);
 				die();
 			}
@@ -388,7 +394,7 @@ class _Public {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
+			$response = array( 'success' => false , "m"=>__("Please enter a vaild value")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -534,7 +540,7 @@ class _Public {
 
 		
 		if(empty($_POST['message']) ){
-			$response = array( 'success' => false , "m"=>__("Please Enter vaild value")); 
+			$response = array( 'success' => false , "m"=>__("Please enter a vaild value")); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}

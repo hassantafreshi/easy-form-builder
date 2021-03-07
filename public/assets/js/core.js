@@ -858,7 +858,7 @@ function ShowTab_emsFormBuilder_view(n) {
         else {
           el.classList.remove('invalid');
           document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
-          document.getElementById(`${el.id}-message`).innerHTML ='';
+          document.getElementById(`${el.id}-message`).innerHTML='';
      /*      if (document.getElementById("alarm_emsFormBuilder")) {          
             el.classList.remove('invalid');
             if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
@@ -881,6 +881,7 @@ function ShowTab_emsFormBuilder_view(n) {
          el.value.match(format) ? 0: el.classList.add("invalid");
          //870
         // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
+  
         document.getElementById(`${id}-message`).innerHTML =ajax_object_efm.text.enterThePhones;
         document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
         }
@@ -1325,7 +1326,17 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,userIp,track,dat
 
 
 function fun_show_alert_setting_emsFormBuilder(){
-  document.getElementById('body_emsFormBuilder').innerHTML=`<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">Error</br>The form is not show ,Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin. </br><a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal"> Please Click here to  Watch the tutorial video</a> </h2> </div>`
+  const m= `<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">
+            ${ajax_object_efm.text.error}</br>
+            ${ajax_object_efm.text.formIsNotShown}</br>
+            <a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
+  if (document.getElementById('body_emsFormBuilder')) { 
+    document.getElementById('body_emsFormBuilder').innerHTML=m;
+  }else if(document.getElementById('body_tracker_emsFormBuilder')){
+    document.getElementById('body_tracker_emsFormBuilder').innerHTML=m;
+  }else{
+    window.alert(`${ajax_object_efm.text.error} ${ajax_object_efm.text.formIsNotShown}`)
+  }
 }
 
 
