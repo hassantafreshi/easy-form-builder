@@ -23,7 +23,7 @@ class _Public {
 		
 		global $wpdb;
 		$this->db = $wpdb;
-		add_action('init',  array($this,'modify_jquery'));
+		//add_action('init',  array($this,'modify_jquery'));
 		
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -108,6 +108,9 @@ class _Public {
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
+				"orClickHere" => __(' or click here','easy-form-builder'),
+				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
+				"PleaseFillForm." => __('Please fill in the form.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -168,6 +171,7 @@ class _Public {
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
+				"orClickHere" => __(' or click here','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -312,13 +316,12 @@ class _Public {
 			$captcha_success =json_decode($verify['body']);
 			$not_captcha=false;	 
 		}
-		if ($captcha_success->success==false && $not_captcha==false ) {
-		// "Error, you are a robot?";
+		if ($not_captcha==false && $captcha_success->success==false  ) {
 		  $response = array( 'success' => false  , 'm'=>__("Error,Are you a robot?")); 
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}
-		else if ($captcha_success->success==true || $not_captcha==true) {
+		else if ( $not_captcha==true || $captcha_success->success==true) {
 
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>__("Please enter a vaild value")); 
@@ -329,6 +332,14 @@ class _Public {
 			$this->name = sanitize_text_field($_POST['name']);
 			$this->id = sanitize_text_field($_POST['id']);
 			$type =sanitize_text_field($_POST['type']);
+			
+	 	
+
+		/* 	$en = json_decode($this->value , true);
+			foreach($en as $key=>$val){
+			error_log($val);
+			} */
+		
 	
 			if($type =="form"){
 				$this->get_ip_address();
@@ -713,11 +724,11 @@ class _Public {
 	
 	function modify_jquery() {
 		//this function added jquery vesrion 3.5.1 for multiselect
-		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
+/* 		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
 			wp_deregister_script('jquery');
 			wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
 			wp_enqueue_script('jquery');
-		}
+		} */
 	
 	}
 }

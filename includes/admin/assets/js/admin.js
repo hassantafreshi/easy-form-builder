@@ -971,11 +971,12 @@ function createSteps() {
 
   //create option list of icon (start)
   let optionsOfSelect = null
+  const showIcon = getOS();
   for (const n in listIcons) {
 
     const icon = listIcons[`${n}`];
     const name = n.substring(3, n.length)
-    optionsOfSelect == null ? optionsOfSelect = ` <option value="fa ${n}">${name}    ${icon}</option>` : optionsOfSelect += `<option value="fa ${n}" id="${n}">${name}<i>${icon}</i></option>`
+    optionsOfSelect == null ? optionsOfSelect = ` <option value="fa ${n}">${name}    ${showIcon ? icon :''}</option>` : optionsOfSelect += `<option value="fa ${n}" id="${n}">${name}<i>${showIcon ? icon :''}</i></option>`
   }
   //create option list of icon (end)
 
@@ -1215,7 +1216,7 @@ function stepName_emsFormBuilder(i) {
 
 function actionSendData_emsFormBuilder(){
   data ={};
-  ////console.log('test');
+  console.log('actionSendData_emsFormBuilder');
   jQuery(function ($) {
     console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
     if (state_check_ws_p==1){
@@ -1350,5 +1351,29 @@ function preview_emsFormBuilder(){
 
 
 
+function getOS() {
+  var userAgent = window.navigator.userAgent,
+      platform = window.navigator.platform,
+      macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+      windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+      iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+      os = null;
+      valid =false
+
+  if (macosPlatforms.indexOf(platform) !== -1) {
+    os = 'Mac OS';
+  } else if (iosPlatforms.indexOf(platform) !== -1) {
+    os = 'iOS';
+  } else if (windowsPlatforms.indexOf(platform) !== -1) {
+    os = 'Windows';
+    valid=true;
+  } else if (/Android/.test(userAgent)) {
+    os = 'Android';
+  } else if (!os && /Linux/.test(platform)) {
+    os = 'Linux';
+  }
+
+  return valid;
+}
 
 

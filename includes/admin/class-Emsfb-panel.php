@@ -111,7 +111,7 @@ class Panel_edit  {
 				"formUpdated" => __('The Form Updated','easy-form-builder'),
 				"goodJob" => __('Good Job','easy-form-builder'),
 				"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
-				"formIsBuild" => __('form is successfully built','easy-form-builder'),
+				"formIsBuild" => __('The form is successfully built','easy-form-builder'),
 				"formCode" => __('Form Code','easy-form-builder'),
 				"close" => __('Close','easy-form-builder'),
 				"done" => __('Done','easy-form-builder'),

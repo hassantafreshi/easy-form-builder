@@ -554,5 +554,14 @@ msgstr "لطفا این آموزش را تماشا کنید"
 msgid "Error verifying recaptcha"
 msgstr "خطا تایید هویت ری‌کپچا"
 
+msgid "Password must be at least 8 characters long contain a number and an uppercase letter"
+msgstr "پسورد باید حداقل 8 حرف باشد و شامل عدد و حرف بزرگ باشد"
+
+msgid "Form not Created!"
+msgstr "فرم ساخته نشد!"
+
+msgid "Please fill in the form."
+msgstr "لطفا فرم را پر کنید "
+
 msgid "Please"
 msgstr "لطفا"

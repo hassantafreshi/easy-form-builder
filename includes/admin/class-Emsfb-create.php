@@ -244,7 +244,7 @@ class Create {
 			"formUpdated" => __('The Form Updated','easy-form-builder'),
 			"goodJob" => __('Good Job','easy-form-builder'),
 			"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
-			"formIsBuild" => __('form is successfully built','easy-form-builder'),
+			"formIsBuild" => __('The form is successfully built','easy-form-builder'),
 			"formCode" => __('Form Code','easy-form-builder'),
 			"close" => __('Close','easy-form-builder'),
 			"done" => __('Done','easy-form-builder'),
@@ -315,9 +315,10 @@ class Create {
 	
 
 		$this->userId =get_current_user_id();
-		
+	//	error_log('get_current_user_id');
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
+
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m = __('Something went wrong,Please check all input','easy-form-builder');
 			$response = array( 'success' => false , "m"=>$m); 
@@ -328,7 +329,7 @@ class Create {
 		if( isset($_POST['email']) ){
 			$email =sanitize_email($_POST['email']);
 		}
-		
+		//error_log('$this->id_ ="hid";');
 		
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
@@ -336,18 +337,19 @@ class Create {
 		$this->value =  sanitize_text_field($_POST['value']);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isHTML($_POST['value']) ||$this->isHTML($_POST['type'])){
-			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag")); 
+			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag" ,'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
-
+		//error_log('$this->insert_db();');
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]"); 
 		}else{
-			$response = array( 'success' => false , "m"=> "Error,Form not Created!"); 
+			$response = array( 'success' => false , "m"=> __("Form not Created!" ,'easy-form-builder')); 
 		}
+		//error_log($response);
 		wp_send_json_success($response,$_POST);
 		die();
 		

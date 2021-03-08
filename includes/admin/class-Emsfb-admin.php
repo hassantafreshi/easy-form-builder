@@ -64,6 +64,8 @@ class Admin {
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
 
         }
+
+     
     }
 
     /**
@@ -137,7 +139,7 @@ class Admin {
 
             //source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
             wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
-            wp_enqueue_script('popper-js');
+            wp_enqueue_script('popper-js'); 
 
         }
     }
@@ -423,7 +425,7 @@ class Admin {
             }
             if ($key == "activeCode" && strlen($value) > 1) {
 
-                error_log($rdd);
+               // error_log($rdd);
                 if (md5($_SERVER['SERVER_NAME']) != $value) {
                     $response = ['success' => false, "m" => __("Your activation code is not Correct!", 'easy-form-builder'),];
                     wp_send_json_success($response, $_POST);

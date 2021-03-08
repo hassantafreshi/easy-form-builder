@@ -83,6 +83,7 @@ button.emsFormBuilder {
 	height:           3em;
 	width:            3em;
 	font-size:        17px;
+	padding:		  5%;
 	font-family:      Raleway, Arial, sans-serif;
 	cursor:           pointer
 }
