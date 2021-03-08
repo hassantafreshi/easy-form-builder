@@ -24,7 +24,6 @@ class _Public {
 		global $wpdb;
 		$this->db = $wpdb;
 		//add_action('init',  array($this,'modify_jquery'));
-		
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -39,17 +38,18 @@ class _Public {
 		add_shortcode( 'EMS_Form_Builder_tracking_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public'));
-
+		
+		
 
 		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		
+	//	add_action('init', [$this, 'load_textdomain']);
 		
 	}
 
 	public function EMS_Form_Builder($id){
 
-		
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
 		
@@ -731,6 +731,14 @@ class _Public {
 		} */
 	
 	}
+	public function load_textdomain(): void {
+		error_log('load_textdomain');
+        load_plugin_textdomain(
+            EMSFB_PLUGIN_TEXTDOMAIN,
+            false,
+            EMSFB_PLUGIN_DIRECTORY . "/languages"
+        );
+    }
 }
 
 new _Public();

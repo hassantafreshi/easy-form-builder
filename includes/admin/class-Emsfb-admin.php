@@ -153,7 +153,7 @@ class Admin {
 
         add_menu_page(
             __('Panel', 'Emsfb'),
-            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'Emsfb'),
+            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
             'Emsfb',
             'Emsfb',
             '',

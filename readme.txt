@@ -5,7 +5,7 @@ Donate link: 			https://ko-fi.com/whitestudio
 Stable tag: 			1.31.7
 Requires at least: 		4.7
 Tested up to: 			5.7.0
-Requires PHP:			5.5 or higher
+Requires PHP:			5.4 or higher
 License: 				GPLv3 or later
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -36,16 +36,16 @@ How *Easy Form Builder* makes your life easier:
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
 **Note:**
-Easy Form Builder uses the popular icon library Font Awesome and is being loaded through Font Awesome’s official  CDN. Easy Form Builder uses jQuery 3.5.1.
+Easy Form Builder uses the popular icon library Font Awesome and is being loaded through Font Awesome’s official  CDN.
 
 
 == Installation ==
-1. Navigate to Dashboard → “Plugins” → “Add New” and search for *Easy Form Builder*
-2. Click “Install Now” and then “Activate”
+1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.1.31.7.zip)
+2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
-= Development Keys for localhost =
+= Development Keys for LOCALHOST =
 
 **Site key:** `6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI`
 **Secret key:** `6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe`
@@ -54,6 +54,7 @@ Easy Form Builder uses the popular icon library Font Awesome and is being loaded
 1. Create a form
 2. Preview a form
 3. Setting of Easy Form Builder
+
 
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
@@ -80,9 +81,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 1.31.6 =
 * Form validation is added in client-side
 * UI improvements
+* Remove dependency on jQuery 3.5.1.
 
 = 1.31.6 =
-* RTl feature is added
+* RTL feature is added
 * UI improvements
 * Fix issues of Tell and Email validation
 
