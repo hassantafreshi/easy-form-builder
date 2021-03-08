@@ -1409,17 +1409,17 @@ function validation_before_send_emsFormBuilder(){
   const count=[0,0]
   for (const row of sendBack_emsFormBuilder_pub){
     count[0] +=1;
-    if(row.type=="file"){
-     if(row.url.length>2) count[1] +=1;
+      if(row.type=="file"){
+      if(row.url.length>2) count[1] +=1;
+      }else{
+        if(row.value.length>0) count[1] +=1;
+      }
+    if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0)){
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${ajax_object_efm.text.PleaseFillForm}</span>
+      <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+      return false;
     }else{
-      if(row.value.length>0) count[1] +=1;
+      return true;
     }
-  if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0)){
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${ajax_object_efm.text.PleaseFillForm}</span>
-    <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-    return false;
-  }else{
-    return true;
   }
-}
 }

@@ -31,6 +31,7 @@ How *Easy Form Builder* makes your life easier:
 - Unique tracking ID finder
 - User-friendly and feature-rich panel to manage your forms and their responses.
 - RTL support
+- Form validation
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -75,6 +76,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.31.6 =
+* Form validation is added in client-side
+* UI improvements
 
 = 1.31.6 =
 * RTl feature is added

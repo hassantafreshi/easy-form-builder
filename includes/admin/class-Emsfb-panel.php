@@ -41,7 +41,7 @@ class Panel_edit  {
 				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
 				"loading" => __('Loading','easy-form-builder'),
 				"remove" => __('Remove!','easy-form-builder'),
-				"areYouSureYouWantDeleteItem" => __('Are you sure you want to delete this item?','easy-form-builder'),
+				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
 				"no" => __('NO','easy-form-builder'),
 				"yes" => __('Yes','easy-form-builder'),
 				"numberOfSteps" => __('Number of steps','easy-form-builder'),

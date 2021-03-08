@@ -116,7 +116,7 @@ msgstr "بستن"
 msgid "Remove!"
 msgstr "حذف!"
 
-msgid "Are you sure you want to delete this item?"
+msgid "Are you sure want to delete this item?"
 msgstr "آیا مطمئنید که می خواهید آیتم را پاک کنید ؟"
 
 msgid "NO"
@@ -183,7 +183,7 @@ msgid "Save"
 msgstr "ذخیره"
 
 msgid "Error, Your activation code is not Correct!"
-msgstr "خطا، !"
+msgstr "خطا، کد فعال سازی صحیح نیست‍!"
 
 msgid "Please fill in all required fields."
 msgstr "لطفا همه قسمت های لازم را تکمیل کنید."
@@ -222,7 +222,7 @@ msgid "Click here for Active Pro vesrsion"
 msgstr "برای فعال‌سازی نسخه ویژه اینجا را کلیک کنید"
 
 msgid "This option is available in Pro version"
-msgstr "این گزینه در نسخه ویژه موجود است"
+msgstr "این ویژگی در نسخه ویژه موجود است"
 
 msgid "Get Pro version"
 msgstr "دریافت نسخه ویژه"
