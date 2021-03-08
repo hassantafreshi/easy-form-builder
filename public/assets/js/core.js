@@ -1422,10 +1422,4 @@ function validation_before_send_emsFormBuilder(){
     return true;
   }
 }
-
-
-
-  
-  
-
- 
+}
