@@ -946,3 +946,13 @@ msgstr "اشتباهی رخ داده است. لطفاً صفحه را رفرش �
 
 #~ msgid "size is too large,"
 #~ msgstr "سایز بسیار زیاد است،"
+
+
+#~ msgid "Select an option"
+#~ msgstr "انتخاب گزینه"
+
+#~ msgid "Selected"
+#~ msgstr "انتخاب شد"
+
+#~ msgid "Field"
+#~ msgstr "موضوع"

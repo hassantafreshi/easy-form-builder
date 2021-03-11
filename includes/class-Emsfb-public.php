@@ -111,6 +111,10 @@ class _Public {
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
 				"PleaseFillForm." => __('Please fill in the form.','easy-form-builder'),
+				"selectOption" => __('Select an option','easy-form-builder'),
+				"selected" => __('Selected','easy-form-builder'),
+				"selectedAllOption" => __('Select All','easy-form-builder'),
+				"field" => __('Field','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];

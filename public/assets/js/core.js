@@ -16,7 +16,9 @@ let trackingCode_state_emsFormBuilder =""
 let recaptcha_emsFormBuilder;
 let poster_emsFormBuilder ='';
 const fileSizeLimite_emsFormBuilder =8300000;
+let select_options_emsFormBuilder=[];
 let form_type_emsFormBuilder='form';
+
 //exportView_emsFormBuilder مقدار المان ها را در خود نگه می دارد
 //sendBack_emsFormBuilder_pub مقدار فرم پر شده توسط کاربر در خود نگه می دارد
 let valueJson_ws = []
@@ -64,9 +66,279 @@ jQuery (function() {
 
 
 });
+/* new code multiSelect start */
+var Motus = {};
+(function() {
+  var createMultiselect = function(element, data, selectCb, options) {
+    
+    var labels = {};
+    console.log(
+      'name',options)
+    labels.emptyText = (options && options.emptyText) ? options.selectOption : 'Select an option';
+    labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
+    labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
+    labels.title = (options && options.title) ? options.field : 'Field';
+    
+    //define the elements
+    var container = document.createElement("div");
+    var multiselectLabel = document.createElement("div");
+    var dataContainer = document.createElement("div");
+   // var button = document.createElement("button");
+    var span = document.createElement("span");
+    var searchField = document.createElement("input");
+    var clearSelection = document.createElement('span');
+    var carret = document.createElement("b");
+    var list = document.createElement("ul");
+    
+    //set the ids
+    var timestamp = Math.round(new Date().getTime() * Math.random());
+    container.setAttribute('id','multiselect_container_'+timestamp);
+    dataContainer.setAttribute('id','multiselect_datacontainer_'+timestamp);
+    multiselectLabel.setAttribute('id','multiselect_label_'+timestamp);
+    span.setAttribute('id','multiselect_button_'+timestamp);
+    list.setAttribute('id','multiselect_list_'+timestamp);
+    
+    var _fnIsChild = function(element, parent){
+      var node = element.parentNode;
+      while(node){
+        if(node === parent){
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    }
+    
+    var _selectionText = function(element) {
+      var text = "";
+      var selection = element.querySelectorAll("input:checked");
+      if (selection.length === 0) {
+        text = labels.emptyText;
+      } else if (selection.length > 3) {
+        text = selection.length + " " +labels.selectedText;
+      } else { 
+        var arr = [];
+        for (var i = 0; i < selection.length; i++) {
+          arr.push(selection[i].parentNode.textContent);
+        }
+        text = arr.join(",");
+      }
+      return text;
+    };
+
+    var _openList = function(e) {
+      list.style.display = "block";
+      e.srcElement.children[0].focus();
+    };
+
+    var _selectItem = function(e) {
+      var text = _selectionText(container);
+      container
+        .getElementsByTagName("span")[0]
+        .children[0].setAttribute("placeholder", text);
+      
+      if(selectCb){
+        var selectionElements = container.querySelectorAll("input:checked");
+        var selection = [];
+        for(var i=0; i < selectionElements.length; i++){
+          selection.push(selectionElements[i].value);
+        }
+        selectCb(selection);
+      }
+      
+    };
+
+    var _clearSearch = function() {
+      var elements = container.getElementsByTagName("li");
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "";
+      }
+    };
+
+    var _performSearch = function(e) {
+      if(e.which != 13 && e.which != 38 && e.which != 40){
+        var active = list.getElementsByClassName("multiselect-label--active");
+        if( active.length > 0 ){
+          active[0].classList.remove("multiselect-label--active");
+        }
+        var first = true;
+        var filter = e.srcElement.value.toUpperCase();
+        var elements = container.getElementsByTagName("li");
+        for (var i = 0; i < elements.length; i++) {
+          var cb = elements[i].getElementsByTagName("label")[0].textContent;
+          if (cb.toUpperCase().indexOf(filter) !== -1) {
+            if(first){
+              first = false;
+              elements[i].children[0].children[0].classList.add("multiselect-label--active");
+            }
+            elements[i].style.display = "";
+          } else {
+            elements[i].style.display = "none";
+          }
+        }
+      }
+    };
+    
+    var _fnClearSelection = function(e){
+      var inputs = list.getElementsByTagName('input');
+      for(var i=0; i < inputs.length; i++){
+        if(inputs[i].checked){
+          inputs[i].parentNode.click();
+        }
+      }
+      e.stopPropagation();
+    };
+    
+    var _fnSelectAll = function(e){
+      var inputs = list.getElementsByTagName('input');
+      for(var i=0; i < inputs.length; i++){
+        if(!inputs[i].checked){
+          inputs[i].parentNode.click();
+        }
+      }
+      e.stopPropagation();
+    };
+    
+    container.classList.add("multiselect-container");
+    multiselectLabel.classList.add("multiselect-label");
+    //multiselectLabel.innerHTML = labels.title;
+    dataContainer.classList.add("multiselect-data-container");
+    span.classList.add("multiselect-button");
+
+    searchField.setAttribute("type", "text");
+    searchField.setAttribute("placeholder", labels.emptyText);
+    searchField.classList.add("multiselect-text");
+    searchField.addEventListener("keyup", _performSearch);
+
+   /*  clearSelection.classList.add('fa');
+    clearSelection.classList.add('fa-times'); */
+   // clearSelection.innerHTML = 'X';
+    clearSelection.addEventListener("click", _fnClearSelection);
+    
+    carret.classList.add("carret");
+    carret.classList.add("carret-emsFormBuilder");
+
+    span.appendChild(searchField);
+  //  span.appendChild(clearSelection);
+  span.appendChild(carret);
+
+  span.addEventListener("click", _openList);
+    
+    list.classList.add("multiselect-list");
+
+    for (var i = -1; i < data.length; i++) {
+      var item = document.createElement("li");
+      var a = document.createElement("a");
+      var label = document.createElement("label");
+      var input = document.createElement("input");
+
+      a.setAttribute("tabindex", "0");
+
+      label.classList.add("multiselect-item-label");
+      
+      if(i == -1){
+        a.addEventListener("click", _fnSelectAll);
+        label.appendChild(document.createTextNode(options.selectedAllOption));
+        label.classList.add('multiselect-item-label--select-all');
+      }
+      else{
+        if (i == 0) {
+          label.classList.add("multiselect-item-label--active");
+        }
+        input.setAttribute("type", "checkbox");
+        input.setAttribute("class", "multiselect-checkbox");
+        label.appendChild(input);
+        input.setAttribute("value", data[i].value);
+        input.addEventListener("change", _selectItem);
+        label.appendChild(document.createTextNode(data[i].label));
+      }
+      a.appendChild(label);
+      item.appendChild(a);
+      list.appendChild(item);
+    }
+
+    dataContainer.appendChild(span);
+    dataContainer.appendChild(list);
+    container.appendChild(multiselectLabel);
+    container.appendChild(dataContainer);
+    element.appendChild(container);
+
+    //Change to the specific window
+    document.addEventListener("click", function(e) {
+      if ( !_fnIsChild(e.target, container) ) {
+        list.style.display = "none";
+        searchField.value = "";
+        _clearSearch();
+      }
+    });
+
+    document.addEventListener("keyup", function(e) {
+      if(list.style.display == 'block'){
+        //mouse down
+        if (e.which === 40) {
+          var active = list.getElementsByClassName(
+            "multiselect-label--active"
+          )[0];
+          var next = active.parentNode.parentNode.nextSibling;
+          //Find the next visible element
+          while(next && next.style && next.style.display == 'none'){
+            next = next.nextSibling;
+          }
+          if (next) {
+            active.classList.remove("multiselect-label--active");
+            next
+              .getElementsByClassName("multiselect-label")[0]
+              .classList.add("multiselect-label--active");
+            next.children[0].focus();
+            searchField.focus();
+            e.preventDefault();
+          }
+        } else if (e.which === 38) {
+          //mouse up
+          var active = list.getElementsByClassName(
+            "multiselect-label--active"
+          )[0];
+          var prev = active.parentNode.parentNode.previousSibling;
+          //Find the previous visible element
+          while(prev && prev.style && prev.style.display === 'none'){
+            prev = prev.previousSibling;
+          }
+          if (prev) {
+            active.classList.remove("multiselect-label--active");
+            prev
+              .getElementsByClassName("multiselect-label")[0]
+              .classList.add("multiselect-label--active");
+            prev.children[0].focus();
+            searchField.focus();
+            e.preventDefault();
+          }
+        } else if (e.which === 13) {
+          // enter
+          list.getElementsByClassName("multiselect-label--active")[0].click();
+          e.preventDefault();
+        }
+      }
+    });
+  };
+  var exportObj = {
+    init: function(element, data, selectCb, options) {
+      createMultiselect(element, data, selectCb, options);
+    }
+  };
+
+  Motus.ElementMultiselect = exportObj;
+
+})();
+
+
+var opetionSelect_emsFormBuilder = function(data){
+  select_options_emsFormBuilder=data;
+  console.log(`select_options_emsFormBuilder`,select_options_emsFormBuilder)
+}
+/* new code multiSelect end */
 
 function fun_render_view(val,check){
-  
+    let options_multiSelect=[];
     exportView_emsFormBuilder =[];
     valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
   // const vs=ajax_object_efm.form_setting.setting;
@@ -186,16 +458,24 @@ function fun_render_view(val,check){
           id = v.id ? v.id : v.id_;
           req = v.required ? v.required : false;
           //console.log(v.required , "required");
-     
-          el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
+          let multiSelect=false;
+         // console.log(v)
+          if(v.allowMultiSelect==true){
+            multiSelect=true;
+            el += `<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><div id='${id}' name="${v.id_}" class=" multiple-emsFormBuilder ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}" }> </div>`
+            
+          }else{
+          
+            el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
+          }
           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount });
+          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount ,multiselect:multiSelect});
           break
         case 'option':
           id = v.id ? v.id : v.id_;
           const indx = exportView_emsFormBuilder.findIndex(x => x.parents === v.parents);
-          //console.log(indx > -1 , indx ,"test" ,v.parents ,exportView_emsFormBuilder);
+          // console.log(exportView_emsFormBuilder[indx], v);
           if (indx > -1){
             req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
             //console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
@@ -203,8 +483,10 @@ function fun_render_view(val,check){
             if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
          
           //  if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
-            if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
-            
+            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
+            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==true) options_multiSelect.push({parents:v.parents, id:id, class:`${v.class ? `${v.class}` : 'emsFormBuilder'}`, value:v.name , name:v.name, dataId:v.id_ } )
+
+            console.log(v.parents)
             exportView_emsFormBuilder[indx].required = false;
           }
           break
@@ -265,10 +547,32 @@ function fun_render_view(val,check){
     
     
     }
-
+    
     ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
     createStepsOfPublic()
-}
+
+    
+   if(options_multiSelect.length>0){
+      for (const el of document.querySelectorAll(`.multiple-emsFormBuilder`)) {
+        data=[]
+        for(const opt of options_multiSelect){
+         // console.log(row)
+          if(opt.parents==el.id){
+            data.push({label: opt.name, value: opt.value})
+          }
+        }
+        console.log(data)
+        //ajax_object_efm.text
+        Motus.ElementMultiselect.init(el, data, opetionSelect_emsFormBuilder , 
+          {selectOption:ajax_object_efm.text.selectOption,
+          selected:ajax_object_efm.text.selected,
+          selectedAllOption:ajax_object_efm.text.selectedAllOption,
+          field:ajax_object_efm.text.field});
+      }
+    }
+    
+    
+  }
 
 
 
@@ -561,8 +865,8 @@ function ShowTab_emsFormBuilder_view(n) {
         }
         el.addEventListener("change", (e) => {
          // e.preventDefault();
-          const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-          console.log(el.type ,el.value);
+          let ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
+          //console.log(el.type ,el.value ,ob);
           let value =""
           const id_ = el.dataset.id
           let state
@@ -592,7 +896,7 @@ function ShowTab_emsFormBuilder_view(n) {
                value = state==true ? el.value :'';
             break;
             case "password":
-              console.log('pasword',355);
+             // console.log('pasword',355);
               state=valid_password_emsFormBuilder(el);
               value = state==true ? el.value :'';
             break;
@@ -606,6 +910,27 @@ function ShowTab_emsFormBuilder_view(n) {
                 }
               }
             break;
+            case undefined:
+              //select_options_emsFormBuilder
+            //  console.log(el.id ,exportView_emsFormBuilder)
+              let check=false;
+              for(ex of exportView_emsFormBuilder){
+                console.log(ex.id_ ,'cont');
+                if(ex.id_==el.id){
+                  check=true;
+                  break;
+                }
+              }
+              if(check==true){
+                 ob = valueJson_ws.find(x => x.id_ === el.id);
+                 for(o of select_options_emsFormBuilder){                
+                  value+= o + `,`;
+                 }
+
+                
+              }
+
+            break;
  
    
 
@@ -617,8 +942,11 @@ function ShowTab_emsFormBuilder_view(n) {
         
           
           if(value!==""){
-            //console.log(el ,ob  ,355)
-            const o = [{ id_: id_, name: ob.name, type:el.type, value: value, session: sessionPub_emsFormBuilder }];
+           // console.log(el ,ob  ,355)
+            const type = el.type || 'multiselect';
+           // console.log(type ,355)
+            const o = [{ id_: id_, name: ob.name, type:type, value: value, session: sessionPub_emsFormBuilder }];
+         //   console.log(o ,937)
             fun_sendBack_emsFormBuilder(o[0] ,355);
             //console.log(sendBack_emsFormBuilder_pub, el.type);
           }
@@ -659,7 +987,7 @@ function ShowTab_emsFormBuilder_view(n) {
     } else {
       sendBack_emsFormBuilder_pub.push(ob);
     }
-    //console.log(sendBack_emsFormBuilder_pub);
+    console.log(sendBack_emsFormBuilder_pub);
   }
   function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
     //console.log(ob ,2223,"first")
@@ -1397,7 +1725,7 @@ function fun_show_alert_setting_emsFormBuilder(){
 }
 
 
-//console.log('test',document.getElementsByClassName("multiple-emsFormBuilder"));
+/* //console.log('test',document.getElementsByClassName("multiple-emsFormBuilder"));
 $(document).ready(function(){
   var multipleCancelButton = new Choices('.multiple-emsFormBuilder', {
   maxItemCount:10,
@@ -1405,7 +1733,7 @@ $(document).ready(function(){
   renderChoiceLimit:10,
   removeItemButton: true
   });
-  });
+  }); */
 
 
 
@@ -1431,6 +1759,15 @@ function validation_before_send_emsFormBuilder(){
     return true;
   }
 }
+
+
+
+/* new Code */
+/* new Code */
+/* new Code */
+/* new Code */
+/* new Code */
+/* new Code */
 
 
 

@@ -39,7 +39,7 @@ class Emsfb {
      * Load plugin textdomain.
      */
     public function load_textdomain(): void {
-        error_log('load_textdomain in class-emsfb');
+       
         load_plugin_textdomain(
             EMSFB_PLUGIN_TEXTDOMAIN,
             false,
