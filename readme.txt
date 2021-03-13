@@ -1,8 +1,8 @@
 === Easy Form Builder ===
-Contributors: 			mrlast, hassantafreshi, thaikolja
+Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja
 Tags: 				    form builder, form creator, contact form, support form, tracking id,
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.31.7
+Stable tag: 			1.31.8
 Requires at least: 		4.7
 Tested up to: 			5.7.0
 Requires PHP:			5.4 or higher
@@ -30,8 +30,8 @@ How *Easy Form Builder* makes your life easier:
 - Mobile-friendly responsive forms
 - Unique tracking ID finder
 - User-friendly and feature-rich panel to manage your forms and their responses.
-- RTL support
 - Form validation
+- Support RTL language
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -40,7 +40,7 @@ Easy Form Builder uses the popular icon library Font Awesome and is being loaded
 
 
 == Installation ==
-1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.1.31.7.zip)
+1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
@@ -78,10 +78,16 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
-= 1.31.6 =
+= 1.31.8 =
+* Add new feature
+* Localization improvements
+* UI improvements
+
+
+= 1.31.7 =
 * Form validation is added in client-side
 * UI improvements
-* Remove dependency on jQuery 3.5.1.
+* Remove dependency on jQuery 3.5.1
 
 = 1.31.6 =
 * RTL feature is added

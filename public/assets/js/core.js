@@ -4,7 +4,7 @@ let exportView_emsFormBuilder = [];
 let stepsCount;
 let sendBack_emsFormBuilder_pub = []; // این مقدار برگشت داده می شود به سرور
 let sessionPub_emsFormBuilder = "reciveFromServer"
-let stepNames_emsFormBuilder = [`t`, `Sync`, `Sync`];
+let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
 let language_emsFormBuilder ="ar"
 let multiSelectElemnets_emsFormBuilder =[] ;
@@ -72,9 +72,9 @@ var Motus = {};
   var createMultiselect = function(element, data, selectCb, options) {
     
     var labels = {};
-    console.log(
-      'name',options)
-    labels.emptyText = (options && options.emptyText) ? options.selectOption : 'Select an option';
+   // console.log('name',options)
+    //  console.log(`select opetion ${options.selectOption}`);
+    labels.emptyText =  options.selectOption ;
     labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
     labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
     labels.title = (options && options.title) ? options.field : 'Field';
@@ -486,7 +486,7 @@ function fun_render_view(val,check){
             if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
             if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==true) options_multiSelect.push({parents:v.parents, id:id, class:`${v.class ? `${v.class}` : 'emsFormBuilder'}`, value:v.name , name:v.name, dataId:v.id_ } )
 
-            console.log(v.parents)
+            //console.log(v.parents)
             exportView_emsFormBuilder[indx].required = false;
           }
           break
@@ -561,7 +561,7 @@ function fun_render_view(val,check){
             data.push({label: opt.name, value: opt.value})
           }
         }
-        console.log(data)
+        //console.log(data)
         //ajax_object_efm.text
         Motus.ElementMultiselect.init(el, data, opetionSelect_emsFormBuilder , 
           {selectOption:ajax_object_efm.text.selectOption,
@@ -584,6 +584,7 @@ function fun_render_view(val,check){
 function ShowTab_emsFormBuilder_view(n) {
     var x = document.getElementsByClassName("emsFormBuilder-tab-view");
     if (x[n]) {
+      
       x[n].style.display = "block";
       x[n].classList.add("fadeIn");
     }
@@ -603,10 +604,9 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function emsFormBuilder_nevButton_view(n) {
   //recaptcha
-
   if(currentTab_emsFormBuilder==0){
     const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
-    console.log(`[${response}]` ,sitekye_emsFormBuilder)
+    //console.log(`[${response}]` ,sitekye_emsFormBuilder)
     if( response!=null) { 
       //reCaptcha not verified
      // alert("no pass"); 
@@ -1088,7 +1088,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder_pub.length<1 ) {
       //console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
       let str = ""
-  
+      currentTab_emsFormBuilder=0;
       
       document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
       <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
@@ -1182,11 +1182,12 @@ function ShowTab_emsFormBuilder_view(n) {
        
          if (res.data.success==true) {
            //console.log(res,localStorage.getItem("sendback"))
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>Sent successfully</h1></br> <span>Thanks for filling out our form!</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> Tracking number:</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode}</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
         } else {
          
-          //console.log(`res : error`)
-  
+          console.log(`res : error`)
+          console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
+         
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
   
@@ -1750,7 +1751,7 @@ function validation_before_send_emsFormBuilder(){
       if(row.value.length>0) count[1] +=1;
     }
   }
-  console.log(count)
+  //console.log(count)
   if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0)){
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${ajax_object_efm.text.PleaseFillForm}</span>
     <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;

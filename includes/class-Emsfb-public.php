@@ -93,7 +93,7 @@ class _Public {
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
 				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
 				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
 				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
@@ -106,15 +106,20 @@ class _Public {
 				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),				
 				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
+				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
-				"PleaseFillForm." => __('Please fill in the form.','easy-form-builder'),
+				"PleaseFillForm" => __('Please fill in the form.','easy-form-builder'),
 				"selectOption" => __('Select an option','easy-form-builder'),
 				"selected" => __('Selected','easy-form-builder'),
 				"selectedAllOption" => __('Select All','easy-form-builder'),
 				"field" => __('Field','easy-form-builder'),
+				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
+				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
+				"trackingCode" => __('Tracking Code:','easy-form-builder'),
+				"sync" => __('Sync','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -160,11 +165,12 @@ class _Public {
 				"errorV01" => __('Error Code:V01','easy-form-builder'),
 				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
+				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
 				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
 				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
 				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
@@ -176,6 +182,10 @@ class _Public {
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
+				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
+				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
+				"trackingCode" => __('Tracking Code:','easy-form-builder'),
+				"sync" => __('Sync','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -550,7 +560,7 @@ class _Public {
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload , 'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
-			$response = array( 'success' => false  ,'error'=>"File Permissions Error"); 
+			$response = array( 'success' => false  ,'error'=>__("File Permissions Error")); 
 			wp_send_json_success($response,$_POST);
 			die('invalid file '.$_FILES['file']['type']);
 		}
@@ -622,7 +632,7 @@ class _Public {
 				//error_log($id);
 				$this->db->update($table_name,array('read_'=>0),array('msg_id' => $id) );
 
-				$by="Guest";
+				$by=__("Guest");
 
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
 					$by = get_user_by('id',$r);

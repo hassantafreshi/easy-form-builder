@@ -264,7 +264,7 @@ class Create {
 			"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
 			"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 			"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
-			"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
 			"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 			"orClickHere" => __(' or click here','easy-form-builder'),
 			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
@@ -283,6 +283,7 @@ class Create {
 			"trackingForm" => __('Tracking Form','easy-form-builder'),
 			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
+			"step" => __('step','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );

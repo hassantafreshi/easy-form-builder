@@ -923,7 +923,7 @@ function createSteps() {
   const tabInfo = document.getElementById("tabInfo");
 
    //remove all elements in (end)
-   console.log('first')
+
  // check value of maxstep get from user (Start)
  const form_name = document.getElementById("form_name").value;
   const c = (document.getElementById("steps").value < 3 && document.getElementById("steps").value > 0 && !pro_ws) || (pro_ws && document.getElementById("steps").value <21 && document.getElementById("steps").value > 0 ) ? document.getElementById("steps").value : -1
@@ -945,7 +945,6 @@ function createSteps() {
 
     return
   }
-  console.log('conti')
   //document.getElementById("nextBtn").style.display = "none";
   // check value of maxstep get from user (end)
   stepMax_ws = c;

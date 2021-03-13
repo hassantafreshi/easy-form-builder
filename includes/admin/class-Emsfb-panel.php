@@ -138,7 +138,7 @@ class Panel_edit  {
 				"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a opetion (Disabled in test view)','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
 				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
@@ -166,6 +166,7 @@ class Panel_edit  {
 				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
 				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
 				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
+				"step" => __('step','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
