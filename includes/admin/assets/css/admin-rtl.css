@@ -19,3 +19,7 @@ li#collapse-menu {
 	text-align: right;
 }
 
+.close{
+	float: left!important;
+}
+

@@ -92,61 +92,8 @@ class Create {
 				
 			</script>
             <div id="tab_container">
-                
-			<div class="m-4">
-    <div class="row d-flex justify-content-center align-items-center <?php  if(is_rtl()) echo 'rtl-text' ?>">
-        <div class="col-md-12">
-            <div id="emsFormBuilder-form" >
-            <form id="emsFormBuilder-form-id">
-                <h1 id="emsFormBuilder-form-title"><?php _e('Easy Form Builder','easy-form-builder') ?></h1>
-                
-                <div class="all-steps" id="all-steps"> 
-                    <span class="step"><i class="fa fa-tachometer"></i></span> 
-                    <span class="step"><i class="fa fa-briefcase"></i></span> 
-                    <div class="addStep" id="addStep" >
-                    </div>
-                    <span class="step"><i class="fa fa-floppy-o"></i></span> 
-                </div>
-                <div class="all-steps" > 
-                    <h5 class="step-name f-setp-name" id ="step-name"><?php _e('Define','easy-form-builder') ?></h5> 
-                </div>
-                <div id="message-area"></div>
-                <div class="tab" id="firsTab">
-                    <h5><?php _e('Form Name','easy-form-builder') ?>: *</h5>
-                    <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
-                    </br>
-                    <h5><?php _e('Number of steps','easy-form-builder') ?>: *</h5>
-                    <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
-                </div>
-                <div class="tab" id="tabInfo">
-
-                </div>
-                <div  id="tabList">
-
-                </div>
            
-                <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-                    <h3>Done</h3> <span>Great, Your form is builded successfully</span>
-                </div>
-                <div style="overflow:auto;" id="nextprevious">
-                    <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>
-                    <div style="float:left;"> 
-                        <button type="button" class="mat-shadow emsFormBuilder p-3" onClick="helpLink_emsFormBuilder()"><i class="fa fa-question" placeholder="Help"></i></button>
-                        <button type="button" class="mat-shadow emsFormBuilder p-3" id="button-preview-emsFormBuilder" onClick="preview_emsFormBuilder()"><i class="fa fa-eye" placeholder="preview"></i></button>
-                    </div>
-                </div>
-
-              </form>      
-            </div>
-        </div>
-    </div>
-    <div id="body_emsFormBuilder" style="display:none"> </div>
-</div>
-                  
-				
-            
-            </div><!-- #tab_container-->
-        </div><!-- .wrap -->
+        	</div>
 		<?php
 		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
@@ -172,6 +119,7 @@ class Create {
 			"create" => __('Create','easy-form-builder'),
 			"define" => __('Define','easy-form-builder'),
 			"formName" => __('Form Name','easy-form-builder'),
+			"numberSteps" => __('Number of steps','easy-form-builder'),
 			"createDate" => __('Create Date','easy-form-builder'),
 			"edit" => __('Edit','easy-form-builder'),
 			"content" => __('Content','easy-form-builder'),
@@ -284,6 +232,20 @@ class Create {
 			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 			"step" => __('step','easy-form-builder'),
+			"contactusForm" => __('Contact-us Form','easy-form-builder'),
+			"newForm" => __('New Form','easy-form-builder'),
+			"registerForm" => __('Register Form','easy-form-builder'),
+			"loginForm" => __('Login Form','easy-form-builder'),
+			"subscriptionForm" => __('Subscription Form','easy-form-builder'),
+			"supportForm" => __('Support Form','easy-form-builder'),
+			"createBlankMultistepsForm" => __('Create a blank multisteps form.','easy-form-builder'),
+			"createContactusForm" => __('Create a sample Contact us form.','easy-form-builder'),
+			"createRegistrationForm" => __('Create a sample user registration form.','easy-form-builder'),
+			"createLoginForm" => __('Create a sample user login (Sign-in) form.','easy-form-builder'),
+			"createnewsletterForm" => __('Create a newsletter form','easy-form-builder'),
+			"createSupportForm" => __('Create a support contact form.','easy-form-builder'),
+			"availableSoon" => __('Available Soon','easy-form-builder'),
+			"advancedCustomization" => __('Advanced customization','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );

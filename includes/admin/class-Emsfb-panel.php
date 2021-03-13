@@ -167,6 +167,7 @@ class Panel_edit  {
 				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
 				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
 				"step" => __('step','easy-form-builder'),
+				"advancedCustomization" => __('Advanced customization','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

@@ -413,6 +413,22 @@ select option.emsFormBuilder {
 	box-shadow:   0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
+
+
+hr.solid {
+	margin-top: 0rem;
+	position: relative;
+	  border: none;
+	  height: 1px;
+	  background: #999;
+  }
+
+  .text-small{
+	  font-size: small;
+  }
+  
+ 
+  
 /* drog and drop section end*/
 /* preview start */
 .preview-overpage {
@@ -423,3 +439,43 @@ select option.emsFormBuilder {
 .emsFormBuilder-tr {
 	cursor: pointer
 }
+
+
+
+/*  Create Form Dashboard */
+
+a.emsFormBuilder {
+    background-color: #633a82;
+    color: #f1fcfc;
+    border: none;
+    font-size: 17px;
+    font-family: Raleway;
+    cursor: pointer;
+}
+
+.emsFormBuilder-form-card {
+    background-color: #4c454e12!important;
+    margin: 0px auto;
+    font-family: revert;
+    border-radius: 0px 5px;
+    color: #4b3547;
+}
+
+
+.overlay-emsFormBuilder {
+      position: absolute;
+    color: #fff;
+    padding: 10% 0%;
+    font-size: xx-large;
+    font-weight: 700;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+    background: #1a0f22;
+    text-align: center;
+}
+
+
+/*  Create Form Dashboard  end*/

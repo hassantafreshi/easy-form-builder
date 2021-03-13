@@ -30,9 +30,12 @@ jQuery (function() {
     pro_ws= false;
   }
  
+  
   if(state_check_ws_p){
-     run_code_ws_1();
-     run_code_ws_2();    
+    add_dasboard_emsFormBuilder()
+    //add_form_builder_emsFormBuilder();
+    // run_code_ws_1();
+     //run_code_ws_2();    
   }
 })
 
@@ -76,14 +79,10 @@ function run_code_ws_1(){
     stepMax_ws = 3;
   }
 
-  
-  
- // document.addEventListener("DOMContentLoaded", function (event) {
 
 
-    ShowTab_emsFormBuilder(currentTab_ws);
+  ShowTab_emsFormBuilder(currentTab_ws);
 
- // });
 
 }
 
@@ -268,13 +267,16 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   for (a in atr) {
 
     if (a < 5) newEl += ` 
-    <div class="form-group row">
+    <div class="form-group row ${atr[a].placeholder!="Name" ? `${rndm}-advance" style="display: none;"`:`"`}>
       <label for="${atr[a].id}" class="col-sm-2 col-form-label">${efb_var.text[`${atr[a].label}`]}</label>
       <div class="col-sm-10">
           <input type="text" id="${atr[a].id}" class="insertInput ml-1 mr-1 mt-1 mb-1 ${atr[a].placeholder == "Name" ? "require" : ""}" placeholder="${atr[a].placeholder}" ${atr[a].value !== "" ? `value="${atr[a].value}"` : ""}>
       </div>
     </div>
     `;
+    if(atr[a].placeholder=="Name"){
+      newEl += `<div class="mt-3 mb-4 mx-1 text-small"> <i class="divder fa fa-caret-right" id="${rndm}-divder" onClick="fun_show_advance_add_atr_emsFormBuilder('${rndm}')"> </i> <span class="mb-0 ml-1 mr-1 mt-1 mb-1"  onClick="fun_show_advance_add_atr_emsFormBuilder('${rndm}')">${efb_var.text.advancedCustomization} </span><hr class="solid" ></div>` ;
+    }
     if (a == 5) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1">
     <input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" ${atr[a].required ? "checked" : ""}>
     <label class="col-sm-2   form-check-label" for="${atr[a].id}">
@@ -292,7 +294,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   const newElement = `
   <div id="${rndm}" class="section border border-primary rounded mb-0 h-30 view overlay ml-3 mr-3 mt-2 mb-1" draggable="true">
     <div class="card-header success-color white-text" > 
-      <a data-toggle="collapse" data-target="#${rndm}-c" data-id="${amount}" onClick="funIconArrow_emsFormBuilder('${rndm}')" > <i class="fa fa-caret-right" id="${rndm}-icon"> </i> </a> 
+      <a data-toggle="collapse" data-target="#${rndm}-c" data-id="${amount}" onClick="funIconArrow_emsFormBuilder('${rndm}')" > <i class="fa fa-caret-down" id="${rndm}-icon"> </i> </a> 
       <a class="mb-0 ml-1 mr-1 mt-1 mb-1"   data-toggle="collapse" data-target="#${rndm}-c" id="${rndm}-b" onClick="funIconArrow_emsFormBuilder('${rndm}')">
       ${efb_var.text[elementId]}
       </a>       
@@ -769,9 +771,17 @@ function alarm_emsFormBuilder(val) {
 }
 
 function funIconArrow_emsFormBuilder(id) {
- 
+  console.log(id);
   const el = document.getElementById(`${id}-icon`);
-  el.className = el.className == "fa fa-caret-right" ? "fa fa-caret-down" : "fa fa-caret-right";
+ // el.className = el.className == "fa fa-caret-right" ? "fa fa-caret-down" : "fa fa-caret-right";
+  if(el.className=="fa fa-caret-down"){
+    el.className="fa fa-caret-right";
+    document.getElementById(`${id}-c`).style.display = "none";
+  }else{
+    el.className ="fa fa-caret-down";
+    document.getElementById(`${id}-c`).style.display = "block";
+  }
+  //
   //${rndm}-icon
   //document.getElementById(`${rndm}-icon`).className
 }
@@ -970,7 +980,7 @@ function createSteps() {
 
   //create option list of icon (start)
   let optionsOfSelect = null
-  const showIcon = getOS();
+  const showIcon = getOS_emsFormBuilder();
   for (const n in listIcons) {
 
     const icon = listIcons[`${n}`];
@@ -1350,7 +1360,7 @@ function preview_emsFormBuilder(){
 
 
 
-function getOS() {
+function getOS_emsFormBuilder() {
   var userAgent = window.navigator.userAgent,
       platform = window.navigator.platform,
       macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
@@ -1373,6 +1383,163 @@ function getOS() {
   }
 
   return valid;
+}
+
+
+function add_form_builder_emsFormBuilder (){
+  console.log('add_form_builder_emsFormBuilder');
+  const value =`  
+  <div class="m-4">
+    <div class="row d-flex justify-content-center align-items-center ${efb_var.rtl==1 ? 'rtl-text' :''}">
+      <div class="col-md-12">
+        <div id="emsFormBuilder-form" >
+        <form id="emsFormBuilder-form-id">
+          <h1 id="emsFormBuilder-form-title"><?php _e('Easy Form Builder','easy-form-builder') ?></h1>
+          
+          <div class="all-steps" id="all-steps"> 
+            <span class="step"><i class="fa fa-tachometer"></i></span> 
+            <span class="step"><i class="fa fa-briefcase"></i></span> 
+            <div class="addStep" id="addStep" >
+            </div>
+            <span class="step"><i class="fa fa-floppy-o"></i></span> 
+          </div>
+          <div class="all-steps" > 
+            <h5 class="step-name f-setp-name" id ="step-name"> ${efb_var.text.define}  </h5> 
+          </div>
+          <div id="message-area"></div>
+          <div class="tab" id="firsTab">
+            <h5> ${efb_var.text.formName}  </h5>
+            <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
+            </br>
+            <h5> ${efb_var.text.numberSteps}: *</h5>
+            <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
+          </div>
+          <div class="tab" id="tabInfo">
+
+          </div>
+          <div  id="tabList">
+
+          </div>
+      
+          <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
+            <h3>Done</h3> <span>Great, Your form is builded successfully</span>
+          </div>
+          <div style="overflow:auto;" id="nextprevious">
+            <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>
+            <div style="float:left;"> 
+              <button type="button" class="mat-shadow emsFormBuilder p-3" onClick="helpLink_emsFormBuilder()"><i class="fa fa-question" placeholder="Help"></i></button>
+              <button type="button" class="mat-shadow emsFormBuilder p-3" id="button-preview-emsFormBuilder" onClick="preview_emsFormBuilder()"><i class="fa fa-eye" placeholder="preview"></i></button>
+            </div>
+          </div>
+
+        </form>      
+        </div>
+      </div>
+    </div>
+    <div id="body_emsFormBuilder" style="display:none"> </div> </div> </div>`;
+    document.getElementById('tab_container').innerHTML=value;
+    run_code_ws_1();
+    run_code_ws_2();
+}
+
+
+function add_dasboard_emsFormBuilder(){
+ 
+  const boxs=[
+              {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'fa-check-square'},
+              {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
+              {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:false, icon:'fa-user-plus'},
+              {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:false, icon:'fa-sign-in'},
+              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:false, icon:'fa-bell'},
+              {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
+              ]
+        let value=`<!-- boxs -->`;
+        for(let i of boxs){
+       
+        value +=`<div class="col-sm-6 my-2 ${efb_var.rtl==1 ? 'rtl-text' :''}">
+        <div class="card emsFormBuilder-form-card">
+        ${i.status==false ? `<div class="overlay-emsFormBuilder"><i class="fa fa-lock"></i><p>${efb_var.text.availableSoon}</p></div>`:``}
+          <div class="card-body">
+            <h5 class="card-title"><i class="fa ${i.icon}" aria-hidden="true"></i> ${i.title}</h5>
+            <p class="card-text">${i.desc}</p>
+            <a href="#" id="${i.id}" class="btn  emsFormBuilder efbCreateNewForm">${efb_var.text.create}</a>
+          </div></div></div>`
+        }
+
+       document.getElementById('tab_container').innerHTML = `<div class="row"><div class="row  my-3 col-2"></div><div class="row mx-5 my-5 col-8 center">${value}</div><div class="row  my-5 col-2"></div></div>`
+     
+
+       const newform_=document.getElementsByClassName("efbCreateNewForm")
+      for(const n of newform_){
+
+          n.addEventListener("click", (e) => {
+            form_type_emsFormBuilder=n.id;
+            create_form_by_type_emsfb(n.id);
+           
+        })
+      }
+
+}
+
+
+
+function create_form_by_type_emsfb(id){
+  const state =false;
+  console.log(id)
+  if(id==="form"){ 
+    console.log('add')
+    // if the blank form clicked just active create form
+    
+  }else if(id==="contact"){ 
+    // if contact has clicked add Json of contact and go to step 3
+    const json =[{"steps": "1","name-1": "Contact us","formName": "Contact us","EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": "First name","type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": "Last name","type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": "Email","type": "email","step": 1,"amount": 3},{"id_": "x7cs8pqk6","name": "Phone","type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": "Message","type": "textarea","step": 1,"amount": 5}]
+    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+    valueJson_ws_p =json;
+  }else if(id==="register" ){
+    // if register has clicked add Json of contact and go to step 3
+      /* 
+    json =`[{"steps":"1","name-1":"Register","formName":"Register","EfbVersion":1.2,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"egztn899i","name":"Username","type":"text","step":1,"amount":1,"required":true},{"id_":"37av0ptcc","name":"Email","type":"email","step":1,"amount":2,"required":true},{"id_":"sc4n147xc","name":"password","type":"password","step":1,"amount":5,"required":true}]`;
+    */
+  }else if(id==="login"){ 
+     // if login has clicked add Json of contact and go to step 3
+   /* 
+   json =`[{"steps":"1","name-1":"Login","formName":"Login","EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"egztn899i","name":"Email or Username","type":"text","step":1,"amount":1,"required":true},{"id_":"3751kasqi","name":"Password","type":"password","step":1,"amount":2,"required":true}]`;
+   */
+  }else if(id==="support"){
+    // if support has clicked add Json of contact and go to step 3
+   const  json =[{"steps":"1","name-1":"Support","formName":"Support","EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"What can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":"subject","type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":"Message","type":"textarea","step":1,"amount":3}];
+   localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+   valueJson_ws_p =json;
+  }else if(id==="subscription"){
+    // if subscription has clicked add Json of contact and go to step 3
+    /*
+       json =`[{"steps":"1","name-1":"Subscription","formName":"Subscription","EfbVersion":1.2,"type":"subscription","icon-1":"fa fa-bell"},{"id_":"92os2cfqc","name":"Email","type":"email","step":1,"amount":2,"required":true}]`;
+       */
+      
+      } 
+
+      add_form_builder_emsFormBuilder();
+}
+
+
+function fun_show_advance_add_atr_emsFormBuilder(id){
+  for (let el of document.querySelectorAll(`.${id}-advance`)) {
+    el.style.display = el.style.display == "none" ? "block":"none";
+  }
+  el = document.getElementById(`${id}-divder`);
+  el.className = el.className == "fa fa-caret-down" ? "fa fa-caret-right" : "fa fa-caret-down";
+//console.log(`id[${id}]`);
+//${id}-divder
+/* 
+  if(el.className=="fa fa-caret-right"){
+    el.className="fa fa-caret-down";
+    document.getElementById(`${id}-c`).style.display = "none";
+  }else{
+    el.className ="fa fa-caret-right";
+    document.getElementById(`${id}-c`).style.display = "block";
+  }
+*/
+
 }
 
 
