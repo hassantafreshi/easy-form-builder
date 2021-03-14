@@ -72,7 +72,7 @@ class _Public {
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng="setting was not added";
-			$state="settingError";
+			$state="form";
 			
 		}
 		$text = [
@@ -198,7 +198,7 @@ class _Public {
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng="setting was not added";
-			$state="settingError";
+			$state="tracker";
 		}
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',

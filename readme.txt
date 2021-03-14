@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja
 Tags: 				    form builder, form creator, contact form, support form, tracking id,
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.31.8
+Stable tag: 			1.31.9
 Requires at least: 		4.7
 Tested up to: 			5.7.0
 Requires PHP:			5.4 or higher
@@ -52,8 +52,11 @@ Easy Form Builder uses the popular icon library Font Awesome and is being loaded
 
 == Screenshots == 
 1. Create a form
-2. Preview a form
-3. Setting of Easy Form Builder
+2. Form Builder
+3. Preview a form
+4. Panel of Easy form builder
+5. List of responses
+6. Setting of Easy Form Builder
 
 
 == Frequently Asked Questions ==
@@ -77,6 +80,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 1.31.9 =
+* Fixed an issue
 
 = 1.31.8 =
 * Add new features
@@ -92,7 +97,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 1.31.6 =
 * RTL feature is added
 * UI improvements
-* Fix issues of Tell and Email validation
+* Fixed issues of Tell and Email validation
 
 = 1.31.5 =
 * UI improvements
