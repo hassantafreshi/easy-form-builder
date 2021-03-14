@@ -227,12 +227,13 @@ createStepsOfPublic()
 
 function ShowTab_emsFormBuilder_view(n) {
   var x = document.getElementsByClassName("emsFormBuilder-tab-view");
+  if(x[n]==undefined) {return};
   if (x[n]) {
     x[n].style.display = "block";
     x[n].classList.add("fadeIn");
   }
-  //console.log(x,n,x[n],"check")
-  if (n == 0) {
+  console.log(`x[${x}] x[${n}] x[n][${x[n]}]`);
+  if (n == 0 &&  n[0]) {
     document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
   } else {
     document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
@@ -427,6 +428,7 @@ function createStepsOfPublic() {
   const addStep = document.getElementById("emsFormBuilder-addStep-view");
   const tabList = document.getElementById("emsFormBuilder-tabList-view");
   const tabInfo = document.getElementById("emsFormBuilder-tabInfo-view");
+  if(addStep==undefined){return};
   if (addStep.hasChildNodes()) {
     while (addStep.hasChildNodes()) {
       addStep.removeChild(addStep.childNodes[0]);

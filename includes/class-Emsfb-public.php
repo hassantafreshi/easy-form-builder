@@ -120,6 +120,7 @@ class _Public {
 				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
 				"trackingCode" => __('Tracking Code:','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
+				"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];

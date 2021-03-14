@@ -223,7 +223,7 @@ class Panel_edit  {
 					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
 					<?php _e('Easy Form Builder','easy-form-builder') ?>
 				</a>
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+				<button class="navbar-toggler" id="navbartogglerb" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 

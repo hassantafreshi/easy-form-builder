@@ -79,7 +79,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 == Changelog ==
 
 = 1.31.8 =
-* Add new feature
+* Add new features
 * Localization improvements
 * UI improvements
 

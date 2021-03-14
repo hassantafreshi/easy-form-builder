@@ -320,7 +320,7 @@ option,select {
             width: 100%;
             padding: 10px;
             background-color: #fffefead!important;
-            border: 1px solid #633a82;
+            border: 1px solid #633a82!important;
             border-radius: 10px;
         }
         label.emsFormBuilder-title {

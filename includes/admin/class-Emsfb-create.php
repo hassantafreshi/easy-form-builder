@@ -246,6 +246,8 @@ class Create {
 			"createSupportForm" => __('Create a support contact form.','easy-form-builder'),
 			"availableSoon" => __('Available Soon','easy-form-builder'),
 			"advancedCustomization" => __('Advanced customization','easy-form-builder'),
+			"contactUs" => __('Contact us','easy-form-builder'),
+			"support" => __('Support','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );

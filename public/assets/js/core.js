@@ -3,7 +3,7 @@
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sendBack_emsFormBuilder_pub = []; // این مقدار برگشت داده می شود به سرور
-let sessionPub_emsFormBuilder = "reciveFromServer"
+let sessionPub_emsFormBuilder = "reciveFromClient"
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
 let language_emsFormBuilder ="ar"
@@ -29,7 +29,7 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
- //  console.log("ajax_object_efm_state",ajax_object_efm);
+    // console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
@@ -346,6 +346,7 @@ function fun_render_view(val,check){
     //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
+    
     for (let v of valueJson_ws) {
     
       let el="";
@@ -625,10 +626,8 @@ function ShowTab_emsFormBuilder_view(n) {
     }
   }
   //recaptcha
-  
-    if (n != 0) {
+    if (n != 0) {      
       var x = document.getElementsByClassName("emsFormBuilder-tab-view");
-      ////console.log(n)
       if (n == 1 && !validateForm_emsFormBuilder_view()) return false;
       x[currentTab_emsFormBuilder].style.display = "none";
       currentTab_emsFormBuilder = currentTab_emsFormBuilder + n;
@@ -682,6 +681,7 @@ function ShowTab_emsFormBuilder_view(n) {
     try {
       for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
         //require
+        //console.log(`type[${el.type}]`);
         const req =input.classList.contains('require');
         if (input.tagName == "INPUT") {
           if (input.value == "" && input.classList.contains('require')) {
@@ -700,16 +700,6 @@ function ShowTab_emsFormBuilder_view(n) {
               req===true ? valid= valid_phone_emsFormBuilder(input) : valid=true;
               break;
             case 'password':
-         /*      console.log(input.value.length)
-              if(input.value.length<=6){
-                valid =  false;
-                input.className += ' invalid';
-                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.password8Chars}</small>`
-              }else{
-                input.classList.remove('invalid');
-                if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();
-              } */
-
               req===true ? valid= valid_password_emsFormBuilder(input) : valid=true;
               break;
             case 'url':
@@ -729,6 +719,24 @@ function ShowTab_emsFormBuilder_view(n) {
               valid= input.files[0] ? true : false;
               //console.log ( "324 check" ,valid ,input.type ,input.id)
               break;
+                case "text":
+                case "color":
+                case "number":
+                case "date":
+                case "url":
+                case "range":
+                case "textarea":
+                    value = el.value;
+                    console.log(`valid ${el.type}`)
+                    if(value.length<5){
+                      state=false;
+                      document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
+                      
+                    }else{
+                      el.classList.remove('invalid');
+                      document.getElementById(`${el.id}-message`).innerHTML=""
+                    }
+                break;
           }
           //console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
         } else if (input.tagName == "LABEL") {
@@ -879,6 +887,14 @@ function ShowTab_emsFormBuilder_view(n) {
             case "range":
             case "textarea":
                 value = el.value;
+                //console.log(`valid ${el.type}`)
+                if(value.length<5){
+                  state=false;
+                  document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
+                }else{
+                  el.classList.remove('invalid');
+                  document.getElementById(`${el.id}-message`).innerHTML=""
+                }
             break;
             case "checkbox":
             case "radio":
@@ -987,7 +1003,7 @@ function ShowTab_emsFormBuilder_view(n) {
     } else {
       sendBack_emsFormBuilder_pub.push(ob);
     }
-    console.log(sendBack_emsFormBuilder_pub);
+   // console.log(sendBack_emsFormBuilder_pub);
   }
   function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
     //console.log(ob ,2223,"first")
@@ -1085,6 +1101,7 @@ function ShowTab_emsFormBuilder_view(n) {
       }
     }
     //console.log(notfilled.length)
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder_pub.length<1 ) {
       //console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
       let str = ""
@@ -1118,9 +1135,10 @@ function ShowTab_emsFormBuilder_view(n) {
         
         //console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
       }
-      if (validation_before_send_emsFormBuilder()==true)  actionSendData_emsFormBuilder()
+      if (validation_before_send_emsFormBuilder()==true) actionSendData_emsFormBuilder() 
     }else{
        const timeValue = setInterval(function() {
+         
          //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
          let checkFile = 0;
          for (file of files_emsFormBuilder){
@@ -1140,7 +1158,7 @@ function ShowTab_emsFormBuilder_view(n) {
            // اگر همه فایل ها آپلود شده بودن
            //intervalFiles
            for(const file of files_emsFormBuilder){ sendBack_emsFormBuilder_pub.push(file);}
-              if (validation_before_send_emsFormBuilder()==true)  actionSendData_emsFormBuilder()
+              if (validation_before_send_emsFormBuilder()==true)  actionSendData_emsFormBuilder();
            clearInterval(timeValue);
          }
       }, 1500);
@@ -1182,19 +1200,23 @@ function ShowTab_emsFormBuilder_view(n) {
        
          if (res.data.success==true) {
            //console.log(res,localStorage.getItem("sendback"))
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode}</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode}</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
          
-          console.log(`res : error`)
-          console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
+          console.log(`res : error` ,res.data.m)
+        //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
          
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+          
   
         } 
       })
     });
-    scrolldiv_emsFormBuilder('emsFormBuilder-form-view');
+
+    
+   // scrolldiv_emsFormBuilder('emsFormBuilder-form-view');
   }
   
   
@@ -1371,18 +1393,18 @@ function ShowTab_emsFormBuilder_view(n) {
 
   function scrolldiv_emsFormBuilder(id) { 
     //source https://www.geeksforgeeks.org/how-to-scroll-to-an-element-inside-a-div-using-javascript/
-    window.scrollTo(0,  
-findPosition(document.getElementById(id))); 
-} 
-function findPosition(obj) { 
-    var currenttop = 0; 
-    if (obj.offsetParent) { 
-        do { 
-            currenttop += obj.offsetTop; 
-        } while ((obj = obj.offsetParent)); 
-        return [currenttop]; 
-    } 
-} 
+    window.scrollTo(0,  findPosition(document.getElementById(id))); 
+  } 
+
+  function findPosition(obj) { 
+      var currenttop = 0; 
+      if (obj.offsetParent) { 
+          do { 
+              currenttop += obj.offsetTop; 
+          } while ((obj = obj.offsetParent)); 
+          return [currenttop]; 
+      } 
+  } 
 
 
 
@@ -1743,18 +1765,31 @@ $(document).ready(function(){
 function validation_before_send_emsFormBuilder(){
  // console.log( localStorage.getItem('sendback'),sendBack_emsFormBuilder_pub)
   const count=[0,0]
+  let fill=0;
+  let require=0;
   for (const row of sendBack_emsFormBuilder_pub){
     count[0] +=1;
     if(row.type=="file"){
      if(row.url.length>2) count[1] +=1;
+    }else if(row.type!="file"){
+     for (const v of valueJson_ws){
+        require += count[0]==1 && v.required== true && v.type!='file'  ? 1 : 0;
+        if(row.id_==v.id_ && v.type!='file' && v.required== true) {fill +=1; }     
+     }
+     if(row.value.length>0) count[1] +=1;
     }else{
       if(row.value.length>0) count[1] +=1;
     }
   }
-  //console.log(count)
-  if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0)){
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${ajax_object_efm.text.PleaseFillForm}</span>
+  require= require>fill ? 1 :0;
+  if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0) ||require==1 ){
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${require!=1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields}</span>
     <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    for (const v of valueJson_ws){
+      //console.log(v);
+      ( v.id_ && document.getElementById(v.id_).value.length<5 )&& v.type!='file' ? document.getElementById(`${v.id_}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField : 0
+    }
     return false;
   }else{
     return true;

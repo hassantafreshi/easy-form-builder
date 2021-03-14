@@ -1227,6 +1227,7 @@ function actionSendData_emsFormBuilder(){
   data ={};
   console.log('actionSendData_emsFormBuilder');
   jQuery(function ($) {
+    console.log('in');
     console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
     if (state_check_ws_p==1){
       data={
@@ -1247,7 +1248,7 @@ function actionSendData_emsFormBuilder(){
     }
     
     $.post(ajaxurl,data,function(res){
-      
+      console.log("res",res);
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
@@ -1387,7 +1388,6 @@ function getOS_emsFormBuilder() {
 
 
 function add_form_builder_emsFormBuilder (){
-  console.log('add_form_builder_emsFormBuilder');
   const value =`  
   <div class="m-4">
     <div class="row d-flex justify-content-center align-items-center ${efb_var.rtl==1 ? 'rtl-text' :''}">
@@ -1395,7 +1395,6 @@ function add_form_builder_emsFormBuilder (){
         <div id="emsFormBuilder-form" >
         <form id="emsFormBuilder-form-id">
           <h1 id="emsFormBuilder-form-title"><?php _e('Easy Form Builder','easy-form-builder') ?></h1>
-          
           <div class="all-steps" id="all-steps"> 
             <span class="step"><i class="fa fa-tachometer"></i></span> 
             <span class="step"><i class="fa fa-briefcase"></i></span> 
@@ -1415,12 +1414,9 @@ function add_form_builder_emsFormBuilder (){
             <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
           </div>
           <div class="tab" id="tabInfo">
-
           </div>
           <div  id="tabList">
-
-          </div>
-      
+          </div>      
           <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
             <h3>Done</h3> <span>Great, Your form is builded successfully</span>
           </div>
@@ -1431,7 +1427,6 @@ function add_form_builder_emsFormBuilder (){
               <button type="button" class="mat-shadow emsFormBuilder p-3" id="button-preview-emsFormBuilder" onClick="preview_emsFormBuilder()"><i class="fa fa-eye" placeholder="preview"></i></button>
             </div>
           </div>
-
         </form>      
         </div>
       </div>
@@ -1466,7 +1461,12 @@ function add_dasboard_emsFormBuilder(){
           </div></div></div>`
         }
 
-       document.getElementById('tab_container').innerHTML = `<div class="row"><div class="row  my-3 col-2"></div><div class="row mx-5 my-5 col-8 center">${value}</div><div class="row  my-5 col-2"></div></div>`
+       document.getElementById('tab_container').innerHTML = `<nav class="navbar navbar-light">
+       <a class="navbar-brand" href="https://whitestudio.team/?s=pwp">
+         <img src="https://whitestudio.team/img/easy-form-builder.svg" width="50" class="d-inline-block align-top" alt="">
+         ${efb_var.text.easyFormBuilder}
+       </a>
+     </nav><div class="row"><div class="row  my-3 col-2"></div><div class="row mx-5 my-5 col-8 center">${value}</div><div class="row  my-5 col-2"></div></div>`
      
 
        const newform_=document.getElementsByClassName("efbCreateNewForm")
@@ -1485,14 +1485,18 @@ function add_dasboard_emsFormBuilder(){
 
 function create_form_by_type_emsfb(id){
   const state =false;
-  console.log(id)
+ // console.log(id)
   if(id==="form"){ 
-    console.log('add')
+    //console.log('add')
     // if the blank form clicked just active create form
-    
+    //required: true
+    form_type_emsFormBuilder="form"
   }else if(id==="contact"){ 
     // if contact has clicked add Json of contact and go to step 3
-    const json =[{"steps": "1","name-1": "Contact us","formName": "Contact us","EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": "First name","type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": "Last name","type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": "Email","type": "email","step": 1,"amount": 3},{"id_": "x7cs8pqk6","name": "Phone","type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": "Message","type": "textarea","step": 1,"amount": 5}]
+    //contactUs
+    form_type_emsFormBuilder="form";
+    formName_ws = efb_var.text.contactUs
+    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": "First name","type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": "Last name","type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": "Email","type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name": "Phone","type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": "Message","type": "textarea","step": 1,"amount": 5,"required": true}]
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;
   }else if(id==="register" ){
@@ -1507,7 +1511,9 @@ function create_form_by_type_emsfb(id){
    */
   }else if(id==="support"){
     // if support has clicked add Json of contact and go to step 3
-   const  json =[{"steps":"1","name-1":"Support","formName":"Support","EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"What can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":"subject","type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":"Message","type":"textarea","step":1,"amount":3}];
+    form_type_emsFormBuilder="form";
+    formName_ws = efb_var.text.support
+   const  json =[{"steps":"1","name-1":efb_var.text.support,"formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"What can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":"subject","type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":"Message","type":"textarea","step":1,"amount":3,"required": true}];
    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
    valueJson_ws_p =json;
   }else if(id==="subscription"){
