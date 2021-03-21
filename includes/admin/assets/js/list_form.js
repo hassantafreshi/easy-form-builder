@@ -184,9 +184,11 @@ function emsFormBuilder_show_content_message (id){
   
   const content =JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
   
-  const by = valueJson_ws_messages[indx].read_by!==null ? valueJson_ws_messages[indx].read_by : "Unkown"
+  let by = valueJson_ws_messages[indx].read_by!==null ? valueJson_ws_messages[indx].read_by : "Unkown"
+  if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by=efb_var.text.guest)
   const m = fun_emsFormBuilder_show_messages(content,by, userIp ,track,date)
   //reply  message ui
+   
   let replayM = `<div class="mx-2 mt-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder">${efb_var.text.reply}:</label>
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
@@ -198,7 +200,7 @@ function emsFormBuilder_show_content_message (id){
   `
 
 
-  document.getElementById('wpwrap').innerHTML+=`
+ document.getElementById('wpwrap').innerHTML+=`
   <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
@@ -223,12 +225,72 @@ function emsFormBuilder_show_content_message (id){
   <div>
 </div></div></div>`;
 
+/* 
+document.getElementById('wpwrap').innerHTML+=`<div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">			<div class="row justify-content-center h-100" >
+<div class="col-md-10 col-xl-10 chat" style="display: block;">
+  <div class="card">
+    <div class="card-header msg_head " >
+      <div class="d-flex bd-highlight" id="action_menu_btn">
+        <div class="img_cont">
+          <img src="https://whitestudio.team/img/team/hassan-tafreshi.jpg" class="rounded-circle user_img">
+          
+        </div>
+        <div class="user_info">
+          <span>${by}</span>
+
+        </div>
+      </div>
+      
+      <div class="action_menu" id="action_menu">
+        <a class="fa fa-times" id="close-menu"> </a>
+        <ul>
+          <li><i class="fas fa-user-circle"></i>by: Guest</li>
+          <li><i class="fas fa-calendar"></i> Date</li>
+          <li><i class="fas fa-plus"></i> Track No</li>
+          <li><i class="fas fa-location-arrow"></i> IP </li>
+          <li class="text-warning"><i class="fas fa-map-marker"></i> Location (lock) </li>
+        </ul>
+      </div>
+    </div>
+    <div class="card-body msg_card_body">
+            
+    </div>
+    <div class="card-footer">
+      <div class="input-group">
+        <div class="input-group-append">
+          <!-- <span class="input-group-text  ${efb_var.rtl==1 ? 'btn_box_left' :'btn_box_right'} "><i class="fas fa-paperclip"></i></span> -->
+        </div>
+        <textarea name="" class="form-control type_msg" placeholder="${efb_var.text.reply}"></textarea>
+        <div class="input-group-append">
+          <span class="input-group-text  ${efb_var.rtl==1 ? 'btn_box_right' :'btn_box_left'} "><i class="fas fa-location-arrow"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+` */
+fun_add_event_CloseMenu();
 
 window.scrollTo({ top: 0, behavior: 'smooth' });
 
 }
 
+function fun_add_event_CloseMenu(){
+console.log(`fun_add_event_CloseMenu`)
 
+ /*  $(document).ready(function(){
+    $('#action_menu_btn').click(function(){
+      $('.action_menu').toggle();
+    });
+    }); */
+
+  document.getElementById("close-menu").addEventListener("click",event => {
+		document.getElementById('action_menu').style.display= "none";
+	  });
+
+}
 // نمایش و عدم نمایش دکمه های صفحه اصلی
 function fun_backButton(state){
   //console.l(`fun_backButton` , document.getElementById("more_emsFormBuilder").style.display ,state)
@@ -300,6 +362,16 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
   <div class="mx-1">
   <h6 class="my-3">${efb_var.text.response} </h6>`;
   for (const c of content){
+    console.log(c);
+    /* <div class="d-flex justify-content-start mb-4">
+								<div class="img_cont_msg">
+									<img src="https://whitestudio.team/img/team/hassan-tafreshi.jpg" class="rounded-circle user_img_msg">
+								</div>
+								<div class="msg_cotainer">
+									Hi, how are you samson?
+									<span class="msg_time">8:40 AM, Today</span>
+								</div>
+							</div> */
     let value = `<b>${c.value}</b>`;
     //console.l(`value up ${value}`)    ;
     if (c.value =="@file@" && c.state==2){
@@ -335,6 +407,57 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
 //console.l(`m`,m)
   return m;
 }
+
+
+/* function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
+ 
+  //console.l(`by[${by}]userIp[${userIp}] , track[${track}]`)
+  if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by=efb_var.text.guest)
+  let m =`<Div class="border border-light round  p-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="border-bottom mb-1 pb-1">
+   <span class="small"><b>${efb_var.text.info}</b></span></br>
+   <span class="small">${efb_var.text.by}: ${by}</span></br>
+   <span class="small">${efb_var.text.ip}: ${userIp}</span></br>
+  ${track!=0 ? `<span> ${efb_var.text.trackNo}: ${track} </span></br>` :''}
+  <span> ${efb_var.text.date}: ${date} </span></small>
+  </div>
+  <div class="mx-1">
+  <h6 class="my-3">${efb_var.text.response} </h6>`;
+  for (const c of content){
+    let value = `<b>${c.value}</b>`;
+    //console.l(`value up ${value}`)    ;
+    if (c.value =="@file@" && c.state==2){
+     if(c.type=="Image"){
+      value =`</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
+     }else if(c.type=="Document"){
+      value =`</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
+     }else if(c.type=="Media"){
+        const audios = ['mp3','wav','ogg'];
+        let media ="video";
+        audios.forEach(function(aud){    
+          if(c.url.indexOf(aud)!==-1){
+            media = 'audio';     
+          }
+        })
+        if(media=="video"){          
+          const len =c.url.length;
+          const type = c.url.slice((len-3),len);
+         // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
+          value = type !=='avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` :`<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
+        }else{
+          value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
+        }
+     }else{
+      //console.l(c.url ,c.url.length)
+      value =`</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
+    }
+    }
+    
+    m +=`<p class="my-0">${c.name}: <span class="mb-1"> ${value!=='<b>@file@</b>'?value:''}</span> </p> `
+  }
+  m+= '</div></div>';
+//console.l(`m`,m)
+  return m;
+} */
 
 
 // دکمه نمایش بیشتر لیست اصلی
@@ -646,7 +769,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,by,userIp,track,
 function fun_ws_show_response(value){
   //console.l("598",value)
   for (v of value){
-    //console.l(v.content);
+    console.log(v.content);
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'Message', value:'message not exists'}
     fun_emsFormBuilder__add_a_response_to_messages(content,v.rsp_by,v.ip,0,v.date);
   }

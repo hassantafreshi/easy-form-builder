@@ -118,7 +118,7 @@ class _Public {
 				"field" => __('Field','easy-form-builder'),
 				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
 				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
-				"trackingCode" => __('Tracking Code:','easy-form-builder'),
+				"trackingCode" => __('Tracking code','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
 				"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
@@ -185,7 +185,7 @@ class _Public {
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
 				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
-				"trackingCode" => __('Tracking Code:','easy-form-builder'),
+				"trackingCode" => __('Tracking Code','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
@@ -302,7 +302,7 @@ class _Public {
 
 
 	  public function get_ajax_form_public(){
-
+	//	error_log('get_ajax_form_public');
 	
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
@@ -312,32 +312,37 @@ class _Public {
 		}
 		//recaptcha start
 		$r= $this->get_setting_Emsfb('setting');
-		
-		if(gettype($r)=="object"){
-			
-		$setting =json_decode($r->setting);
-		$secretKey=$setting->secretKey;
-		$response=$_POST['valid'];
-		
-		$args = array(
-			'secret'        => $secretKey,
-			'response'     => $response,
-		);
-		
-		$not_captcha=true;
-		$captcha_success;
-		if(strlen($secretKey)>3){
-			$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-			$captcha_success =json_decode($verify['body']);
-			$not_captcha=false;	 
-		}
+		//herehere
+		//empty($a)
+		if(true){
+			$not_captcha=true;
+			$captcha_success;
+			if(gettype($r)=="object"){
+				$setting =json_decode($r->setting);
+				$secretKey=$setting->secretKey;
+				$response=$_POST['valid'];
+				
+				$args = array(
+					'secret'        => $secretKey,
+					'response'     => $response,
+				);
+				
+				if(strlen($secretKey)>3){
+					$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+					$captcha_success =json_decode($verify['body']);
+					$not_captcha=false;	 
+				}
+			}
+
+		//error_log($not_captcha);
+		//error_log('captacha');
 		if ($not_captcha==false && $captcha_success->success==false  ) {
 		  $response = array( 'success' => false  , 'm'=>__("Error,Are you a robot?")); 
 		  wp_send_json_success($response,$_POST);
 		  die();
-		}
-		else if ( $not_captcha==true || $captcha_success->success==true) {
-
+		}else if ( $not_captcha==true || $captcha_success->success==true) {
+			//error_log('code');
+			//error_log($not_captcha);
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>__("Please enter a vaild value")); 
 				wp_send_json_success($response,$_POST);
@@ -350,10 +355,10 @@ class _Public {
 			
 	 	
 
-		/* 	$en = json_decode($this->value , true);
-			foreach($en as $key=>$val){
-			error_log($val);
-			} */
+				/* 	$en = json_decode($this->value , true);
+					foreach($en as $key=>$val){
+					error_log($val);
+					} */
 		
 	
 			if($type =="form"){
@@ -363,14 +368,18 @@ class _Public {
 				
 	
 				$r= $this->get_setting_Emsfb('setting');
-				$setting =json_decode($r->setting);
-				$email ="not";
-				if (strlen($setting->emailSupporter)>2){
-				//	error_log($setting->emailSupporter);
-					$email = $setting->emailSupporter;
+				if(!empty($r)){
+					$setting =json_decode($r->setting);
+					$email ="not";
+					if (strlen($setting->emailSupporter)>2){
+					//	error_log($setting->emailSupporter);
+						$email = $setting->emailSupporter;
+					}
+
+					if($email!="not") {$this->send_email_Emsfb($email,$check);}
 				}
 		 
-				if($email!="not") {$this->send_email_Emsfb($email,$check);}
+
 				$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
 				wp_send_json_success($response,$_POST);
 			}else if ($type =="login" || $type="loginlogin"){
@@ -410,29 +419,30 @@ class _Public {
 		}
 		$r= $this->get_setting_Emsfb('setting');
 		
-
+		$response=$_POST['valid'];
+		$captcha_success =[];
+		$not_captcha=true;
 		
 		if(gettype($r)=="object"){
 		 $setting =json_decode($r->setting);
 		 $secretKey=$setting->secretKey;
-		 $response=$_POST['valid'];
-		 $captcha_success =[];
-		 $not_captcha=true;
+	
 		 if(strlen($secretKey)>3){
 			 $verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
 			 $captcha_success =json_decode($verify['body']);
 			 $not_captcha=false;	 
 		 }
+		}
 
 		 $strR = json_encode($captcha_success);
-		 error_log($strR);	
+		 //error_log($strR);	
 
-		 if ($captcha_success->success==false &&  $not_captcha==false ) {
+		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
 		 // "Error, you are a robot?";
 		  $response = array( 'success' => false  , 'm'=>__('Error,Are you a robot?')); 
 		  wp_send_json_success($response,$_POST);
 		 }
-		 else if ($captcha_success->success==true ||  $not_captcha==true) {
+		 else if ((!empty($captcha_success) && $captcha_success->success==true) ||  $not_captcha==true) {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
@@ -475,10 +485,10 @@ class _Public {
 		
 			wp_send_json_success($response,$_POST);
 			}
-		}else{
+		/* }else{
 			$response = array( 'success' => false , "m"=>__("Error,Setting is not set")); 
 			wp_send_json_success($response,$_POST);
-		}
+		} */
 
 		//recaptcha end
 
