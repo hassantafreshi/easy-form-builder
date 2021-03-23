@@ -38,6 +38,7 @@ function fun_render_view_core_emsFormBuilder(check){
   // valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
   exportView_emsFormBuilder =[];
   valueJson_ws =  JSON.parse(localStorage.getItem("valueJson_ws_p"));
+  form_type_emsFormBuilder = valueJson_ws && valueJson_ws[0].type ? valueJson_ws[0].type : 'form';
 if(valueJson_ws== undefined) valueJson_ws="N";
 for (let v of valueJson_ws) {
 
@@ -157,19 +158,20 @@ for (let v of valueJson_ws) {
       break
   }
 }
+//console.log(`form_type_emsFormBuilder [${form_type_emsFormBuilder}]`);
 const content = `<!-- commenet --!><div class="m-2">
 <div class="row d-flex justify-content-center align-items-center">
     <div class="col-md-12">
         <div id="emsFormBuilder-form-view" >
         <form id="emsFormBuilder-form-view-id">
-            <h1 id="emsFormBuilder-form-view-title" class="emsFormBuilder">Form Bulider</h1>                
-            <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view"> 
+            <h1 id="emsFormBuilder-form-view-title" class="emsFormBuilder">${efb_var.text.preview}</h1>                
+            <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'}> 
                 <span class="emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="fa fa-tachometer"></i></span> 
                 <div class="emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
                 </div>
                 <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
             </div>
-            <div class="emsFormBuilder-all-steps-view" > 
+            <div class="emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'} > 
                 <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${efb_var.text.preview}</h5> 
             </div>
             <div id="emsFormBuilder-message-area-view"></div>
@@ -183,8 +185,9 @@ const content = `<!-- commenet --!><div class="m-2">
                 <h3>${efb_var.text.registered}</h3> <span>${efb_var.text.yourInformationRegistered}</span>
             </div>
             <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
-                <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(-1)"><i class="fa fa-angle-double-left"></i></button> 
-                <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(1)"><i class="fa fa-angle-double-right"></i></button> </div>                  
+            
+              ${form_type_emsFormBuilder =="form" ? `<div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(-1)" style="display:none;"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(1)"><i class="fa fa-angle-double-right"></i></button>  </div>  ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${form_type_emsFormBuilder.toUpperCase()}</button> `}
+                              
             </div>
           </form>      
         </div>
@@ -232,16 +235,19 @@ function ShowTab_emsFormBuilder_view(n) {
     x[n].style.display = "block";
     x[n].classList.add("fadeIn");
   }
-  console.log(`x[${x}] x[${n}] x[n][${x[n]}]`);
-  if (n == 0 &&  n[0]) {
-    document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
-  } else {
-    document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
+  //console.log(`x[${x}] x[${n}] x[n][${x[n]}]`);
+  if( document.getElementById("emsFormBuilder-text-prevBtn-view")){
+    if (n == 0 &&  (n[0]==undefined || n[0])) {
+     document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
+    } else {
+      //console.log(n, n[0]);
+      document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
+    }
   }
   if (n == (x.length - 1)) {
-    document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+    //document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
   } else {
-    document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+   // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
   }
   validateForm_fixStepInd_view(n)
 }

@@ -29,7 +29,7 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
-    // console.log("ajax_object_efm_state",ajax_object_efm);
+     //console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
@@ -493,19 +493,20 @@ function fun_render_view(val,check){
           break
       }
     }
+    console.log(ajax_object_efm.state=="form" )
     const content = `<!-- commenet --!><div class="m-2">
     <div class="row d-flex justify-content-center align-items-center">
         <div class="col-md-12">
             <div id="emsFormBuilder-form-view" >
             <form id="emsFormBuilder-form-view-id">
                 <h1 class='emsFormBuilder' id="emsFormBuilder-form-view-title">Form Bulider</h1>                
-                <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view"> 
+                <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
                     <span class="emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="fa fa-tachometer"></i></span> 
                     <div class="emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
                     </div>
                     <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
                 </div>
-                <div class="emsFormBuilder-all-steps-view" > 
+                <div class="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
                     <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
                 </div>
                 <div id="emsFormBuilder-message-area-view"></div>
@@ -522,8 +523,8 @@ function fun_render_view(val,check){
                 <!-- recaptcha  -->
                 ${sitekye_emsFormBuilder ? `<div class="row emsFormBuilder"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 <!-- recaptcha end  -->
-                    <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button> 
-                    <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div>                  
+                   
+                    ${ajax_object_efm.type=="form" ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${ajax_object_efm.type.toUpperCase()}</button> </div> ` }
                 </div>
               </form>      
             </div>
@@ -590,15 +591,17 @@ function ShowTab_emsFormBuilder_view(n) {
       x[n].classList.add("fadeIn");
     }
     ////console.log(x,n,x[n],"check")
-    if (n == 0) {
-      document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
-    } else {
-      document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
+    if( document.getElementById("emsFormBuilder-text-prevBtn-view")){
+      if (n == 0 ) {
+        document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
+      } else {
+        document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
+      }
     }
     if (n == (x.length - 1)) {
-      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
+     // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
     } else {
-      document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
+     // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
     }
     validateForm_fixStepInd_view(n)
   }
@@ -1182,7 +1185,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   function actionSendData_emsFormBuilder() {
     localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-  //  console.log(sendBack_emsFormBuilder_pub);
+    console.log(form_type_emsFormBuilder);
     $(function () {
      
       data = {
@@ -1200,7 +1203,16 @@ function ShowTab_emsFormBuilder_view(n) {
        
          if (res.data.success==true) {
            //console.log(res,localStorage.getItem("sendback"))
-           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode}</span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+           //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
+           switch(form_type_emsFormBuilder){
+             case 'form':
+               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+               break;
+               case 'subscribe':
+                document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+              break;
+              
+           }
            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
          

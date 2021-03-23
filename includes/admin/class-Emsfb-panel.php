@@ -168,6 +168,9 @@ class Panel_edit  {
 				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
 				"step" => __('step','easy-form-builder'),
 				"advancedCustomization" => __('Advanced customization','easy-form-builder'),
+				"orClickHere" => __(' or click here','easy-form-builder'),
+				"downloadCSVFile" => __(' Download CSV file','easy-form-builder'),
+				"downloadCSVFileSub" => __('Download CSV file of subscriptions','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
@@ -199,7 +202,7 @@ class Panel_edit  {
 
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
-			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date FROM `$table_name`" );
+			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 		
 			$table_name = $this->db->prefix . "Emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );

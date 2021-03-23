@@ -248,6 +248,7 @@ class Create {
 			"advancedCustomization" => __('Advanced customization','easy-form-builder'),
 			"contactUs" => __('Contact us','easy-form-builder'),
 			"support" => __('Support','easy-form-builder'),
+			"subscribe" => __('Subscribe','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );

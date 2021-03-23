@@ -153,7 +153,7 @@ class Admin {
 
         add_menu_page(
             __('Panel', 'Emsfb'),
-            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
+            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
             'Emsfb',
             'Emsfb',
             '',
@@ -239,25 +239,25 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id'])) {
+        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']))) {
             $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page")];
             wp_send_json_success($response, $_POST);
             die();
         }
-        if (empty($_POST['value'])) {
+/*         if (empty($_POST['value'])) {
             $response = ['success' => false, "m" => __("Please enter a vaild value")];
             wp_send_json_success($response, $_POST);
             die();
-        }
+        } */
         //error_log('json_encode($ _POST[value])');
         //error_log(json_encode($_POST['value']));
-        if ($_POST['value']) {
+/*         if ($_POST['value']) {
             if ($this->isHTML(json_encode($_POST['value']))) {
                 $response = ['success' => false, "m" => __("You don't allow to use HTML tag")];
                 wp_send_json_success($response, $_POST);
                 die();
             }
-        }
+        } */
         $id = number_format($_POST['id']);
 
         $table_name = $this->db->prefix . "Emsfb_msg_";

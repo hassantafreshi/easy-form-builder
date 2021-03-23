@@ -11,7 +11,7 @@ jQuery (function() {
     //ajax_object_efm.language زبان بر می گرداند
     //ajax_object_efm.messages_state پیام های خوانده نشده را بر می گرداند
 
- //   console.log(ajax_object_efm.ajax_value);
+  // console.log(ajax_object_efm.ajax_value);
   valueJson_ws_form=ajax_object_efm.ajax_value;
   poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
@@ -94,8 +94,9 @@ function fun_emsFormBuilder_render_view(x){
   for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)){
     
     el.addEventListener("click", (e) => {
+     
       emsFormBuilder_messages(el.dataset.id)
- 
+      
 
       
     });
@@ -278,7 +279,7 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function fun_add_event_CloseMenu(){
-console.log(`fun_add_event_CloseMenu`)
+//console.log(`fun_add_event_CloseMenu`)
 
  /*  $(document).ready(function(){
     $('#action_menu_btn').click(function(){
@@ -286,9 +287,9 @@ console.log(`fun_add_event_CloseMenu`)
     });
     }); */
 
-  document.getElementById("close-menu").addEventListener("click",event => {
+/*   document.getElementById("close-menu").addEventListener("click",event => {
 		document.getElementById('action_menu').style.display= "none";
-	  });
+	  }); */
 
 }
 // نمایش و عدم نمایش دکمه های صفحه اصلی
@@ -362,7 +363,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
   <div class="mx-1">
   <h6 class="my-3">${efb_var.text.response} </h6>`;
   for (const c of content){
-    console.log(c);
+   
     /* <div class="d-flex justify-content-start mb-4">
 								<div class="img_cont_msg">
 									<img src="https://whitestudio.team/img/team/hassan-tafreshi.jpg" class="rounded-circle user_img_msg">
@@ -545,38 +546,45 @@ function fun_send_replayMessage_emsFormBuilder(id){
 
 
 function fun_ws_show_list_messages(value){
-  //لیست مخاطبانی که یک فرم را پر کرده اند نمایش می دهد
+  // show list of filled out of the form;
  let rows ='';
  let no=1;
-  for(const v of value ){
-    const state =  Number(v.read_);
-    rows += `<tr class="emsFormBuilder-tr" id="" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
-      <th scope="row" class="">${no}</th>
-      <td class="" >${v.track}</td>
-      <td class="">${v.date}</td>
+ /// console.log(value);
+ for(const v of value ){
+   const state =  Number(v.read_);
+   rows += `<tr class="emsFormBuilder-tr" id="" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
+   <th scope="row" class="">${no}</th>
+   <td class="" >${v.track}</td>
+   <td class="">${v.date}</td>
       <td> 
       <button type="button" class="btn btn-info" ><i id="icon-${v.msg_id}"class="fa ${Number(v.read_)==0 ?'fa-envelope faa-bounce animated':'fa-envelope-open-o'} " aria-hidden="true"></i></button>
       </td>                               
       </tr>` ;
       no +=1;
-  }
-  document.getElementById('emsFormBuilder-content').innerHTML=`<div class="col-md-12  d-flex mat-shadow">
+    }
+    
+  head = `<!-- rows -->`;
+  if (form_type_emsFormBuilder=='subscribe') head =`<div ><button  class="mx-4 my-2 py-2 px-3 btn btn-warning mat-shadow" id="dl_rows_emsFormBuilde" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download"></i>${efb_var.text.downloadCSVFile}</h4></button ></div>`;
+  console.log(form_type_emsFormBuilder,head)
+  
+  document.getElementById('emsFormBuilder-content').innerHTML=`${head}<div class="col-md-12  d-flex mat-shadow">
   <table class="table table-hover justify-content-center" id="emsFormBuilder-list">
-       <thead>
-           <tr >
-           <th scope="col">#</th>
-           <th scope="col">${efb_var.text.trackNo}</th>
-           <th scope="col">${efb_var.text.formDate}</th>
-           <th scope="col">${efb_var.text.content}</th>
-           </tr>
-       </thead>
-       <tbody>
-       ${rows}
-       </tbody>
-   </table>
-</div>
+  <thead>
+  <tr>
+  <th scope="col">#</th>
+  <th scope="col">${efb_var.text.trackNo}</th>
+  <th scope="col">${efb_var.text.formDate}</th>
+  <th scope="col">${efb_var.text.content}</th>
+  </tr>
+  </thead>
+  <tbody>
+  ${rows}
+  </tbody>
+  </table>
+  </div>
   `;
-
+  
+  fun_export_rows_for_Subscribe_emsFormBuilder(value);
  
 }
 
@@ -606,7 +614,10 @@ function fun_delete_form_with_id_by_server(id){
 
 
 function emsFormBuilder_messages(id){
-  //console.l(id);
+  //console.log(`ajax_object_efm.ajax_value[${id-1}]  $`)
+  const row = ajax_object_efm.ajax_value.find(x => x.form_id ==id)
+  
+  form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
   fun_backButton(0);
@@ -656,16 +667,16 @@ function fun_update_message_state_by_id(id){
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
-        //console.l(res);
         document.getElementById(`icon-${id}`).className=`fa fa-envelope-open-o `;
-       /*  console.log(res.data.ajax_value ,res);
+        document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML)-1;
+        console.log(res.data.ajax_value ,res);
         const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
         localStorage.setItem('valueJson_ws_p',JSON.stringify(value) );
         const edit ={id:res.data.id, edit:true};
         localStorage.setItem('Edit_ws_form',JSON.stringify(edit) )
-        fun_ws_show_edit_form(id) */
+        fun_ws_show_edit_form(id)
       }else{
-        //console.l(res);
+       // console.log(res);
       }
     })
   });
@@ -769,7 +780,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,by,userIp,track,
 function fun_ws_show_response(value){
   //console.l("598",value)
   for (v of value){
-    console.log(v.content);
+    //console.log(v.content);
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'Message', value:'message not exists'}
     fun_emsFormBuilder__add_a_response_to_messages(content,v.rsp_by,v.ip,0,v.date);
   }
@@ -1108,6 +1119,7 @@ function fun_find_track_emsFormBuilder(){
    
      
         jQuery(function ($) {     
+         
           //console.l('get_track_id_Emsfb');  
           data = {
             action: "get_track_id_Emsfb",
@@ -1116,10 +1128,10 @@ function fun_find_track_emsFormBuilder(){
           };
       
           $.post(ajax_object_efm.ajax_url, data, function (res) {
-          
+            
              if (res.data.success==true) {
               valueJson_ws_messages =res.data.ajax_value;
-              //console.l(`valueJson_ws_messages`,valueJson_ws_messages);
+             // console.l(`res.data`,res.data);
               localStorage.setItem('valueJson_ws_messages',JSON.stringify(valueJson_ws_messages) );
               document.getElementById("more_emsFormBuilder").style.display = "none";
               fun_ws_show_list_messages(valueJson_ws_messages) 
@@ -1160,6 +1172,82 @@ function clear_garbeg_emsFormBuilder(){
     })
   }); 
   
+}
+
+
+function fun_export_rows_for_Subscribe_emsFormBuilder(value){
+  //json ready for download 
+  let exp =[];
+  let head ={};
+  for (v of value){
+    const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'not found', value:'not found'}
+    let rows ={}
+    for(c of content){
+      rows = Object.assign(rows, {[c.name]:c.value});
+     // head = Object.assign(head, {[c.name]:c.name});
+      console.log(`head len=[${head.length}]`);
+     head.length==undefined ||head.length==0  ||( head.findIndex(x => x== c.name) ==-1 && c.name.length>0)?head = Object.assign(head, {[c.name]:c.name}) :0;
+    }
+    exp.push(rows);
+  }
+
+  const filename = `EasyFormBuilder-subscribe-export-${Math.random().toString(36).substr(2, 3)}`
+  document.getElementById('dl_rows_emsFormBuilde').addEventListener("click",event => {
+    exportCSVFile(head,exp,filename);
+	});
+  
+}
+
+
+
+function exportCSVFile(headers, items, fileTitle) {
+  //source code :https://codepen.io/danny_pule/pen/WRgqNx
+
+  if (headers) {
+      items.unshift(headers);
+  }
+  // Convert Object to JSON
+  var jsonObject = JSON.stringify(items);
+
+  var csv = this.convertToCSV(jsonObject);
+  var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, exportedFilenmae);
+  } else {
+      var link = document.createElement("a");
+      if (link.download !== undefined) { // feature detection
+          // Browsers that support HTML5 download attribute
+          var url = URL.createObjectURL(blob);
+          link.setAttribute("href", url);
+          link.setAttribute("download", exportedFilenmae);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      }
+  }
+
+}//end function
+
+
+function convertToCSV(objArray) {
+  //source code :https://codepen.io/danny_pule/pen/WRgqNx
+  var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+  var str = '';
+
+  for (var i = 0; i < array.length; i++) {
+      var line = '';
+      for (var index in array[i]) {
+          if (line != '') line += ','
+
+          line += array[i][index];
+      }
+
+      str += line + '\r\n';
+  }
+
+  return str;
 }
 
 

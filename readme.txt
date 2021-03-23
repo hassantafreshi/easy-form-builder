@@ -1,8 +1,8 @@
 === Easy Form Builder ===
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja
-Tags: 				    form builder, form creator, contact form, support form, tracking id,
+Tags: 				    form builder, form creator, contact form, support form, tracking ,subscribe form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.32.0
+Stable tag: 			1.32.2
 Requires at least: 		4.7
 Tested up to: 			5.7.0
 Requires PHP:			5.4 or higher
@@ -23,6 +23,9 @@ How *Easy Form Builder* makes your life easier:
 - Create multistep forms
 - Create unlimited forms
 - Create sample file upload form
+- Create Support forms
+- Create subscription forms
+- Get export of subscribers list
 - Get notified by email when a form has been submitted
 - Add tracking pixels
 - Reliable spam protection through Google’s reCAPTCHA v2
@@ -37,6 +40,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 
 **Note:**
 Easy Form Builder uses the popular icon library Font Awesome and is being loaded through Font Awesome’s official  CDN.
+Please consider you could add 1 form in every page or post.
 
 
 == Installation ==
@@ -57,6 +61,7 @@ Easy Form Builder uses the popular icon library Font Awesome and is being loaded
 4. Panel of Easy form builder
 5. List of responses
 6. Setting of Easy Form Builder
+7. Form submitted and tracking code (tracking pixels)
 
 
 == Frequently Asked Questions ==
@@ -80,6 +85,14 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.32.2 =
+* Added subscriber form builder and ability to get export of subscription list .
+* Fixed an issue about state of readed messages
+* UI improvements
+
+= 1.32.1 =
+* Fixed an issue about state of readed messages
 
 = 1.32.0 =
 * Fixed an issue

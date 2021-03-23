@@ -121,13 +121,16 @@ class _Public {
 				"trackingCode" => __('Tracking code','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
 				"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
+				"thankYou" => __('Thank you','easy-form-builder'),
+				"YouSubscribed" => __('You are subscribed','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'ajax_value' => $this->value[0]->form_structer,
-			   'type' => $this->value[0]->form_type,
+			    'type' => $this->value[0]->form_type,
+			//   'type' =>'login',
 			   'state' => $state,
 			   'language' => $lang,
 			   'id' => $this->id,			  
@@ -359,14 +362,81 @@ class _Public {
 					foreach($en as $key=>$val){
 					error_log($val);
 					} */
-		
-	
-			if($type =="form"){
+			
+					switch($type){
+						case "form":
+							$this->get_ip_address();
+							$ip = $this->ip;
+							$check=	$this->insert_message_db();
+							
+				
+							$r= $this->get_setting_Emsfb('setting');
+							if(!empty($r)){
+								$setting =json_decode($r->setting);
+								$email ="not";
+								if (strlen($setting->emailSupporter)>2){
+								//	error_log($setting->emailSupporter);
+									$email = $setting->emailSupporter;
+								}
+			
+								if($email!="not") {$this->send_email_Emsfb($email,$check);}
+							}
+					 
+			
+							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
+							wp_send_json_success($response,$_POST);
+						break;
+						case "register":
+						//	error_log('register');
+						break;
+						case "login":
+						//	error_log('login');
+						break;
+						case "subscribe":
+							//error_log('subscribe2');
+							$this->get_ip_address();
+							$ip = $this->ip;
+							$check=	$this->insert_message_db();
+			
+							$r= $this->get_setting_Emsfb('setting');
+							if(!empty($r)){
+								$setting =json_decode($r->setting);
+								$email ="not";
+								if (strlen($setting->emailSupporter)>2){
+								//	error_log($setting->emailSupporter);
+									$email = $setting->emailSupporter;
+								}
+			
+								if($email!="not") {$this->send_email_Emsfb($email,$check);}
+							}
+			
+			
+							$response = array( 'success' => true , 'm' =>'Text message'); 
+							wp_send_json_success($response,$_POST);
+						break;
+						default:
+						$response = array( 'success' => false  ,'m'=>__('Secure Error 405')); 
+						wp_send_json_success($response,$_POST);
+					}
+/* 			if($type =="form"){
+			
+				
+			}else if ($type =="login" || $type="loginlogin"){
+				$user_name ="username";
+				$user_password = "@password@";				
+				$r=wp_authenticate($user_name,  $user_password );
+				$strng = json_encode($r);
+				$response = array( 'success' => false  ,'m'=>'Login'); 
+				wp_send_json_success($response,$_POST);
+			}else if ($type =="register"){
+				$response = array( 'success' => false  ,'m'=>'Register'); 
+				wp_send_json_success($response,$_POST);
+			}else if ($type =="subscribe"){
+				error_log('($type =="ubscribe');
 				$this->get_ip_address();
 				$ip = $this->ip;
 				$check=	$this->insert_message_db();
-				
-	
+
 				$r= $this->get_setting_Emsfb('setting');
 				if(!empty($r)){
 					$setting =json_decode($r->setting);
@@ -378,28 +448,14 @@ class _Public {
 
 					if($email!="not") {$this->send_email_Emsfb($email,$check);}
 				}
-		 
+
 
 				$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
-				wp_send_json_success($response,$_POST);
-			}else if ($type =="login" || $type="loginlogin"){
-				$user_name ="username";
-				$user_password = "@password@";				
-				$r=wp_authenticate($user_name,  $user_password );
-				$strng = json_encode($r);
-			//	error_log($strng);
-				$response = array( 'success' => false  ,'m'=>'Login'); 
-				wp_send_json_success($response,$_POST);
-			}else if ($type =="register"){
-				$response = array( 'success' => false  ,'m'=>'Register'); 
-				wp_send_json_success($response,$_POST);
-			}else if ($type =="subscription"){
-				$response = array( 'success' => false  ,'m'=>'Subscription'); 
 				wp_send_json_success($response,$_POST);
 			}else {
 				$response = array( 'success' => false  ,'m'=>__('Secure Error 405')); 
 				wp_send_json_success($response,$_POST);
-			}
+			} */
 		}
 		//recaptcha end
 	}else{

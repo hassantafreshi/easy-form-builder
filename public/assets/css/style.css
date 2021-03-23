@@ -72,7 +72,7 @@ input[type="color"]::-webkit-color-swatch {
 
 button.emsFormBuilder,
 #emsFormBuilder-text-prevBtn-view {
-    background-color: #633a82;
+    background-color: #25012eb5!important;
     color: #f1fcfc;
     border: none;
     clip-path: circle(50%);
@@ -200,9 +200,17 @@ option,select {
     position: absolute;
     font-size: x-large;
     padding: 0px 10px 10px 0px;
+   
   }
 
-  .btn {text-transform:capitalize;}
+  .btn {
+      
+      text-transform:capitalize;
+    }
+  .btn-type{
+    background-color: #25012eb5!important;
+    color: #eee !important;;
+  }
 
   h5{
       margin: inherit;

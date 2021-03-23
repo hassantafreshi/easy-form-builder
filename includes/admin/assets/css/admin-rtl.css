@@ -23,3 +23,7 @@ li#collapse-menu {
 	float: left!important;
 }
 
+
+input[type=file] {
+    padding: 3px 14px;
+}

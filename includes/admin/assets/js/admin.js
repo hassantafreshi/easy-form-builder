@@ -13,7 +13,7 @@ let pro_ws = true;
 let stepMax_ws = 1 
 let edit_emsFormBuilder = false;
 
-let formName_ws = `Emsfb-${Math.random().toString(36).substr(2, 3)}`;
+let formName_ws = `EasyFormBuilder-${Math.random().toString(36).substr(2, 3)}`;
 let form_ID_emsFormBuilder =0;
 let highestAmount_emsFormBuilder;
 let form_type_emsFormBuilder='form';
@@ -1445,7 +1445,7 @@ function add_dasboard_emsFormBuilder(){
               {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
               {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:false, icon:'fa-user-plus'},
               {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:false, icon:'fa-sign-in'},
-              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:false, icon:'fa-bell'},
+              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
               ]
         let value=`<!-- boxs -->`;
@@ -1518,9 +1518,11 @@ function create_form_by_type_emsfb(id){
    valueJson_ws_p =json;
   }else if(id==="subscription"){
     // if subscription has clicked add Json of contact and go to step 3
-    /*
-       json =`[{"steps":"1","name-1":"Subscription","formName":"Subscription","EfbVersion":1.2,"type":"subscription","icon-1":"fa fa-bell"},{"id_":"92os2cfqc","name":"Email","type":"email","step":1,"amount":2,"required":true}]`;
-       */
+      form_type_emsFormBuilder="subscribe";
+      formName_ws = efb_var.text.subscribe
+      const  json =[{"steps":"1","name-1":efb_var.text.subscribe,"formName":efb_var.text.subscribe,"EfbVersion":1.2,"type":"subscribe","icon-1":"fa fa-bell"},{"id_":"92os2cfq22","name":"Name","type":"text","step":1,"amount":1,"required":false},{"id_":"92os2cfqc","name":"Email","type":"email","step":1,"amount":2,"required":true}];
+      localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+      valueJson_ws_p =json;
       
       } 
 
