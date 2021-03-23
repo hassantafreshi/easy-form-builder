@@ -564,7 +564,7 @@ function fun_ws_show_list_messages(value){
     }
     
   head = `<!-- rows -->`;
-  if (form_type_emsFormBuilder=='subscribe') head =`<div ><button  class="mx-4 my-2 py-2 px-3 btn btn-warning mat-shadow" id="dl_rows_emsFormBuilde" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download"></i>${efb_var.text.downloadCSVFile}</h4></button ></div>`;
+  if (form_type_emsFormBuilder=='subscribe') head =`<div ><button  class="mx-4 my-2 py-2 px-3 btn btn-warning mat-shadow"  onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download"></i>${efb_var.text.downloadCSVFile}</h4></button ></div>`;
   console.log(form_type_emsFormBuilder,head)
   
   document.getElementById('emsFormBuilder-content').innerHTML=`${head}<div class="col-md-12  d-flex mat-shadow">
@@ -1184,23 +1184,17 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
     let rows ={}
     for(c of content){
       rows = Object.assign(rows, {[c.name]:c.value});
-     // head = Object.assign(head, {[c.name]:c.name});
-      console.log(`head len=[${head.length}]`);
      head.length==undefined ||head.length==0  ||( head.findIndex(x => x== c.name) ==-1 && c.name.length>0)?head = Object.assign(head, {[c.name]:c.name}) :0;
     }
     exp.push(rows);
   }
-
-  const filename = `EasyFormBuilder-subscribe-export-${Math.random().toString(36).substr(2, 3)}`
-  document.getElementById('dl_rows_emsFormBuilde').addEventListener("click",event => {
-    exportCSVFile(head,exp,filename);
-	});
-  
+  localStorage.setItem('rows_ws_p', JSON.stringify(exp));
+  localStorage.setItem('head_ws_p', JSON.stringify(head)); 
 }
 
 
 
-function exportCSVFile(headers, items, fileTitle) {
+function exportCSVFile_emsFormBuilder(headers, items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
 
   if (headers) {
@@ -1209,7 +1203,7 @@ function exportCSVFile(headers, items, fileTitle) {
   // Convert Object to JSON
   var jsonObject = JSON.stringify(items);
 
-  var csv = this.convertToCSV(jsonObject);
+  var csv = this.convertToCSV_emsFormBuilder(jsonObject);
   var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   if (navigator.msSaveBlob) { // IE 10+
@@ -1231,7 +1225,7 @@ function exportCSVFile(headers, items, fileTitle) {
 }//end function
 
 
-function convertToCSV(objArray) {
+function convertToCSV_emsFormBuilder(objArray) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
@@ -1248,6 +1242,14 @@ function convertToCSV(objArray) {
   }
 
   return str;
+}
+
+
+function generat_csv_emsFormBuilder(){
+  const head  = JSON.parse(localStorage.getItem("head_ws_p"));
+  const exp  = JSON.parse(localStorage.getItem("rows_ws_p"));
+  const filename = `EasyFormBuilder-subscribe-export-${Math.random().toString(36).substr(2, 3)}`
+  exportCSVFile_emsFormBuilder(head,exp,filename);
 }
 
 
