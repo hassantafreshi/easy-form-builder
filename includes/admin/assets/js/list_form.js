@@ -1183,7 +1183,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'not found', value:'not found'}
     let rows ={}
     for(c of content){
-      rows = Object.assign(rows, {[c.name]:c.value});
+     rows = Object.assign(rows, {[c.name]:c.value});
      head.length==undefined ||head.length==0  ||( head.findIndex(x => x== c.name) ==-1 && c.name.length>0)?head = Object.assign(head, {[c.name]:c.name}) :0;
     }
     exp.push(rows);

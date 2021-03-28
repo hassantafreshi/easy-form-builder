@@ -45,7 +45,7 @@ jQuery (function() {
 document.getElementById('wpfooter').remove();
 
 const elements = {
-  1: { type: 'button', icon: 'fa-sign-in', pro_ws: false },
+/*   1: { type: 'button', icon: 'fa-sign-in', pro_ws: false }, */
   2: { type: 'text', icon: 'fa-text-width', pro_ws: false },
   3: { type: 'password', icon: 'fa-lock', pro_ws: false },
   4: { type: 'email', icon: 'fa-envelope-o', pro_ws: false },
@@ -308,9 +308,9 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
        <input type="hidden" id="${rndm}-amount" value="${amount}">
         ${elementId == "radiobutton" || elementId == "checkbox" || (elementId == "multiselect") ? `<div id="${rndm}-o" class= "border-top">` : ""}
       </div>
-      <button id="${rndm}"class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit">${efb_var.text.delete}</button>
+      <button id="${rndm}" class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit" ${form_type_emsFormBuilder=='login' ? 'disabled' :''}>${efb_var.text.delete}</button>
   ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect") ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>${efb_var.text.newOption}</button>` : ""}
-    <span id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap"> info </span>
+    <a id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap" onClick="${form_type_emsFormBuilder=='login' ? `over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')` : `over_message_emsFormBuilder('${efb_var.text.info}','${efb_var.text.thisElemantAvailableRemoveable}') `}" >${form_type_emsFormBuilder=='login' ? efb_var.text.thisInputLocked : efb_var.text.info} </a>
     </div>
   </div>`;
 
@@ -995,9 +995,9 @@ function createSteps() {
     for (const e in elements) {
 
       if ((pro_ws == elements[e].pro_ws) || (pro_ws == true)) {
-        tags += `<div class="el el-${elements[e].type} btn btn-dark btn-m btn-block mat-shadow" id="${elements[e].type}-${i}" draggable="true"><i class="fa ${elements[e].icon} bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
+        tags += `<div class="el el-${elements[e].type} btn  ${form_type_emsFormBuilder=='login' ? ` `:`btn-dark `}  btn-m btn-block mat-shadow" id="${elements[e].type}-${i}" ${form_type_emsFormBuilder=='login' ? ` draggable="false" `:`draggable="true"`} draggable="true"><i class="fa ${elements[e].icon} bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       } else {
-        tags += `<div class="el el-${elements[e].type} limited btn btn-warning btn-m btn-block" id="${elements[e].type}-${i}" draggable="false"><i class="fa fa-unlock-alt bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
+        tags += `<div class="el el-${elements[e].type} limited btn ${form_type_emsFormBuilder=='login' ? ` `:`btn-warning `} btn-m btn-block" id="${elements[e].type}-${i}" ${form_type_emsFormBuilder=='login' ? ` draggable="false"`:`draggable="false"`} draggable="false"><i class="fa fa-unlock-alt bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       }
     }
     document.getElementById("tabInfo").innerHTML += `
@@ -1225,10 +1225,10 @@ function stepName_emsFormBuilder(i) {
 
 function actionSendData_emsFormBuilder(){
   data ={};
-  console.log('actionSendData_emsFormBuilder');
+  //console.log('actionSendData_emsFormBuilder');
   jQuery(function ($) {
-    console.log('in');
-    console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
+    //console.log('in');
+    //console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
     if (state_check_ws_p==1){
       data={
         action:"add_form_Emsfb",
@@ -1248,7 +1248,7 @@ function actionSendData_emsFormBuilder(){
     }
     
     $.post(ajaxurl,data,function(res){
-      console.log("res",res);
+     // console.log("res",res);
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
@@ -1297,7 +1297,25 @@ function unlimted_version_emsFormBuilder(m,s) {
     <h4 class="card-title"><i class="fa fa-unlock-alt"></i> ${efb_var.text.proVersion}</h4>
     <h5 class="card-text">${m}</h5>    
    ${(!pro_ws) ?`</br><a href="${proUrl_ws}" class="btn btn-primary" target="_blank">${efb_var.text.getProVersion}</a>`:'</br>'} 
-    <button class="btn btn-danger" onClick="${clickFun}">${efb_var.text.close}</a>
+    <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</a>
+  </div>
+  <div>
+</div>`;
+
+}
+
+
+
+function over_message_emsFormBuilder(title,message) {
+  console.log('over_message_emsFormBuilder')
+  //const clickFun = s==1 ? 'window.location.reload();':`close_overpage_emsFormBuilder()`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('wpwrap').innerHTML +=`<div class=" overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
+  <div class="overpage-mbox">
+  <div class="card-body">
+    <h4 class="card-title"><i class="fa fa-info-circle"></i> ${title}</h4>
+    <h5 class="card-text my-3">${message}</h5>    
+    <button class="btn btn-danger" onClick=" close_overpage_emsFormBuilder(1)"">${efb_var.text.close}</a>
   </div>
   <div>
 </div>`;
@@ -1328,7 +1346,7 @@ function preview_emsFormBuilder(){
   document.getElementById('message-area').innerHTML += `<div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h4 class="card-title text-white"><i class="fa fa-eye "></i>${efb_var.text.preview}</h4>
+    <h4 class="card-title text-white"><i class="fa fa-eye "></i> ${efb_var.text.preview}</h4>
     </br>
    <div id ="body_emsFormBuilder"> ${content}</div>
     </br>
@@ -1506,9 +1524,12 @@ function create_form_by_type_emsfb(id){
     */
   }else if(id==="login"){ 
      // if login has clicked add Json of contact and go to step 3
-   /* 
-   json =`[{"steps":"1","name-1":"Login","formName":"Login","EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"egztn899i","name":"Email or Username","type":"text","step":1,"amount":1,"required":true},{"id_":"3751kasqi","name":"Password","type":"password","step":1,"amount":2,"required":true}]`;
-   */
+     form_type_emsFormBuilder="login";
+     formName_ws = efb_var.text.login
+     json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":"Email or Username","type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":"Password","type":"password","step":1,"amount":2,"required":true}];
+     valueJson_ws_p =json;
+     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+   
   }else if(id==="support"){
     // if support has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="form";

@@ -29,7 +29,7 @@ jQuery (function() {
     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
     //ajax_object_efm.ajax_value مقدار جی سون
     //ajax_object_efm.language زبان بر می گرداند
-     //console.log("ajax_object_efm_state",ajax_object_efm);
+  //   console.log("ajax_object_efm_state",ajax_object_efm);
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
@@ -37,12 +37,17 @@ jQuery (function() {
     //console.log("poster_emsFormBuilder",ajax_object_efm);
   //  console.log(ajax_object_efm.rtl,'return');
     if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
-      
-      const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       form_type_emsFormBuilder=ajax_object_efm.type;
-    
-      sitekye_emsFormBuilder =vs.siteKey;
-      trackingCode_state_emsFormBuilder =vs.trackingCode;
+      console.log(form_type_emsFormBuilder);
+      if(ajax_object_efm.type!="userIsLogin"){
+        const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+      
+        sitekye_emsFormBuilder =vs.siteKey;
+        trackingCode_state_emsFormBuilder =vs.trackingCode;
+      }else{
+        console.log(ajax_object_efm)
+        form_type_emsFormBuilder=ajax_object_efm.type;
+      }
       
     }
 
@@ -59,6 +64,8 @@ jQuery (function() {
       }else if(ajax_object_efm.state=='settingError'){
         //console.log("settingError");
         fun_show_alert_setting_emsFormBuilder()
+      }else if (ajax_object_efm.state=='userIsLogin'){
+
       }
     }else{
       fun_show_alert_setting_emsFormBuilder()
@@ -333,7 +340,7 @@ var Motus = {};
 
 var opetionSelect_emsFormBuilder = function(data){
   select_options_emsFormBuilder=data;
-  console.log(`select_options_emsFormBuilder`,select_options_emsFormBuilder)
+ // console.log(`select_options_emsFormBuilder`,select_options_emsFormBuilder)
 }
 /* new code multiSelect end */
 
@@ -463,11 +470,11 @@ function fun_render_view(val,check){
          // console.log(v)
           if(v.allowMultiSelect==true){
             multiSelect=true;
-            el += `<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><div id='${id}' name="${v.id_}" class=" multiple-emsFormBuilder ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}" }> </div>`
+            el += `<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><div id='${id}' name="${v.id_}" class=" multiple-emsFormBuilder ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v  `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}" }> </div>`
             
           }else{
           
-            el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
+            el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v test`}  ${v.required == true ? 'require' : ''}" value=""  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
           }
           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           
@@ -585,10 +592,12 @@ function fun_render_view(val,check){
 
 function ShowTab_emsFormBuilder_view(n) {
     var x = document.getElementsByClassName("emsFormBuilder-tab-view");
-    if (x[n]) {
-      
-      x[n].style.display = "block";
-      x[n].classList.add("fadeIn");
+  //  console.log(n);
+    if (x[n]) {      
+   
+        x[n].style.display = "block";
+        x[n].classList.add("fadeIn");
+ 
     }
     ////console.log(x,n,x[n],"check")
     if( document.getElementById("emsFormBuilder-text-prevBtn-view")){
@@ -705,6 +714,9 @@ function ShowTab_emsFormBuilder_view(n) {
             case 'password':
               req===true ? valid= valid_password_emsFormBuilder(input) : valid=true;
               break;
+            case "range":
+              value = el.value;
+            break;
             case 'url':
               const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
               if (check===null && input.classList.contains('require')==true){
@@ -727,7 +739,6 @@ function ShowTab_emsFormBuilder_view(n) {
                 case "number":
                 case "date":
                 case "url":
-                case "range":
                 case "textarea":
                     value = el.value;
                     console.log(`valid ${el.type}`)
@@ -774,8 +785,10 @@ function ShowTab_emsFormBuilder_view(n) {
         if (valid== false){
           NotValidCount +=1;
           //console.log('324 valid comer' ,valid ,NotValidCount);
+          
           document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+         // window.scrollTo({ top: 0, behavior: 'smooth' });
+         document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
         }
         if (valid == true && NotValidCount==0) {
           document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
@@ -874,20 +887,22 @@ function ShowTab_emsFormBuilder_view(n) {
           files_emsFormBuilder.push ({id:el.id ,value:"@file@", state:0 , url:"" ,type:"file" , name:ob.name, session: sessionPub_emsFormBuilder});
           //console.log(files_emsFormBuilder);
         }
+  
         el.addEventListener("change", (e) => {
          // e.preventDefault();
           let ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-          //console.log(el.type ,el.value ,ob);
+         // console.log(el.type ,el.value ,ob);
           let value =""
           const id_ = el.dataset.id
           let state
+        //  console.log(el.type);
           switch (el.type) {
             case "text":
             case "color":
             case "number":
             case "date":
             case "url":
-            case "range":
+            
             case "textarea":
                 value = el.value;
                 //console.log(`valid ${el.type}`)
@@ -901,10 +916,17 @@ function ShowTab_emsFormBuilder_view(n) {
             break;
             case "checkbox":
             case "radio":
-              value = el.value; ob.name =document.getElementById(ob.parents).innerText
+              value = el.value; 
+              ob.name =document.getElementById(ob.parents).innerText
+             // console.log(value);
             break;
             case "select-one":
-              value =el.value;
+              value =el.value;        
+              //console.log(value,ob.name);
+            break;
+            case "range":
+              value =el.value;        
+              //console.log(value,ob.name);
             break;
             case "email":
               state=valid_email_emsFormBuilder(el);
@@ -934,7 +956,7 @@ function ShowTab_emsFormBuilder_view(n) {
             //  console.log(el.id ,exportView_emsFormBuilder)
               let check=false;
               for(ex of exportView_emsFormBuilder){
-                console.log(ex.id_ ,'cont');
+              //  console.log(ex.id_ ,'cont');
                 if(ex.id_==el.id){
                   check=true;
                   break;
@@ -960,12 +982,12 @@ function ShowTab_emsFormBuilder_view(n) {
           
         
           
-          if(value!==""){
+          if(value!="" || value.length>1){
            // console.log(el ,ob  ,355)
             const type = el.type || 'multiselect';
            // console.log(type ,355)
             const o = [{ id_: id_, name: ob.name, type:type, value: value, session: sessionPub_emsFormBuilder }];
-         //   console.log(o ,937)
+           // console.log(o ,968)
             fun_sendBack_emsFormBuilder(o[0] ,355);
             //console.log(sendBack_emsFormBuilder_pub, el.type);
           }
@@ -1104,12 +1126,14 @@ function ShowTab_emsFormBuilder_view(n) {
       }
     }
     //console.log(notfilled.length)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
+    //window.scrollTo({ top: 0, behavior: 'smooth' });
     if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder_pub.length<1 ) {
       //console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
       let str = ""
       currentTab_emsFormBuilder=0;
-      
+      console.log(sendBack_emsFormBuilder_pub)
+      console.log(`countRequired[${countRequired}] valueExistsRequired[${valueExistsRequired}]`)
       document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
       <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
@@ -1184,8 +1208,11 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function actionSendData_emsFormBuilder() {
-    localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-    console.log(form_type_emsFormBuilder);
+    if(ajax_object_efm.type=="userIsLogin") return 0;
+
+    if(form_type_emsFormBuilder!='login') localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
+    //console.log(sendBack_emsFormBuilder_pub);
+   
     $(function () {
      
       data = {
@@ -1208,12 +1235,16 @@ function ShowTab_emsFormBuilder_view(n) {
              case 'form':
                document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
                break;
-               case 'subscribe':
+              case 'subscribe':
                 document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+              break;
+              case 'login':
+                console.log(res.data);
               break;
               
            }
-           window.scrollTo({ top: 0, behavior: 'smooth' });
+           document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
+         //  window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
          
           console.log(`res : error` ,res.data.m)
@@ -1261,6 +1292,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function valid_password_emsFormBuilder(el) {
+    //console.log(el.value);
    // if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
     let check =0;
     const format = /^(?=.*[0-9])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,20}$/;
@@ -1274,17 +1306,18 @@ function ShowTab_emsFormBuilder_view(n) {
  
        document.getElementById(`${id}-message`).innerHTML =ajax_object_efm.text.enterThePassword;
        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true;
-       return true;
+      // console.log(`return not acepet ${el.value}`);
+       return false;
       }
       else
       { 
         el.classList.remove('invalid');
         document.getElementById(`${id}-message`).innerHTML=""
         document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false;
-       
-        return false;
+        //console.log(`return acepet ${el.value}`);
+        return true;
       }
-  
+     
   }
 
   function valid_phone_emsFormBuilder(el) {
@@ -1405,7 +1438,8 @@ function ShowTab_emsFormBuilder_view(n) {
 
   function scrolldiv_emsFormBuilder(id) { 
     //source https://www.geeksforgeeks.org/how-to-scroll-to-an-element-inside-a-div-using-javascript/
-    window.scrollTo(0,  findPosition(document.getElementById(id))); 
+    document.getElementById(id).scrollIntoView(true);
+   // window.scrollTo(0,  findPosition(document.getElementById(id))); 
   } 
 
   function findPosition(obj) { 
@@ -1779,30 +1813,61 @@ function validation_before_send_emsFormBuilder(){
   const count=[0,0]
   let fill=0;
   let require=0;
+    console.log(valueJson_ws);
+  console.log(sendBack_emsFormBuilder_pub); 
+  for (const v of valueJson_ws){
+    require +=  v.required== true && v.type!=="file"   ? 1 : 0;
+
+    if(v.type=="file" ){
+      if(document.getElementById(v.id_).files[0]==undefined && v.required== true){
+        fill -=  1 ;
+        console.log(`file is ${fill}`);
+      }
+    }
+  }
   for (const row of sendBack_emsFormBuilder_pub){
+   console.log(row);
+   console.log('row');
     count[0] +=1;
     if(row.type=="file"){
-     if(row.url.length>2) count[1] +=1;
+
     }else if(row.type!="file"){
-     for (const v of valueJson_ws){
-        require += count[0]==1 && v.required== true && v.type!='file'  ? 1 : 0;
-        if(row.id_==v.id_ && v.type!='file' && v.required== true) {fill +=1; }     
-     }
+      //console.log(valueJson_ws);
+      let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+     
+
+      if(valueJson_ws[indx].type=="multiselect" || valueJson_ws[indx].type=="option"  || valueJson_ws[indx].type=="Select") {
+       // console.log(indx);
+        indx = valueJson_ws.findIndex(x => x.id_ == valueJson_ws[indx].parents);
+      //  console.log(indx);
+        fill += valueJson_ws[indx].required== true ? 1 :0;
+      }else{
+        fill += valueJson_ws[indx].required== true ? 1 :0;
+      }
      if(row.value.length>0) count[1] +=1;
     }else{
       if(row.value.length>0) count[1] +=1;
     }
+
   }
+  //console.log(count ,`rquire[${require}] filed[${fill}]`);
   require= require>fill ? 1 :0;
   if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0) ||require==1 ){
+    //console.log(sendBack_emsFormBuilder_pub)
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${require!=1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields}</span>
     <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+   // window.scrollTo({ top: 0, behavior: 'smooth' });
+   document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
+    //sendBack_emsFormBuilder_pub=[];
+ //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws){
-      //console.log(v);
-      ( v.id_ && document.getElementById(v.id_).value.length<5 )&& v.type!='file' ? document.getElementById(`${v.id_}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField : 0
+      if ( v.type!='file' && v.type!='checkbox' && v.type!='radiobutton' && v.type!='option'  && v.type!='multiselect' && v.type!='select'){
+       // console.log(v);
+        ( v.id_ && document.getElementById(v.id_).value.length<5 ) ? document.getElementById(`${v.id_}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField : 0
+        return false;
+      }
     }
-    return false;
+    
   }else{
     return true;
   }

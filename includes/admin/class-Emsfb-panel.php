@@ -171,6 +171,10 @@ class Panel_edit  {
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"downloadCSVFile" => __(' Download CSV file','easy-form-builder'),
 				"downloadCSVFileSub" => __('Download CSV file of subscriptions','easy-form-builder'),
+				"login" => __('Login','easy-form-builder'),
+				"thisInputLocked" => __('this input is locked','easy-form-builder'),
+				"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
+				"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login form.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

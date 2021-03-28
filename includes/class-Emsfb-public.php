@@ -20,9 +20,12 @@ class _Public {
 	//private $wpdb;
 	
 	public function __construct() {
-		
+
+
 		global $wpdb;
 		$this->db = $wpdb;
+
+		
 		//add_action('init',  array($this,'modify_jquery'));
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -44,8 +47,20 @@ class _Public {
 		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		
-	//	add_action('init', [$this, 'load_textdomain']);
+		add_action('init',  array($this, 'hide_toolmenu'));
 		
+	}
+
+
+	public function hide_toolmenu(){
+		// this function hide admin bar in bublic side for subscribers user
+		if(is_user_logged_in()){
+			$user = wp_get_current_user();
+			if ( in_array( 'subscriber', (array) $user->roles ) ) {
+					//hide admin bar in public pages
+					show_admin_bar( false );
+			}
+		}
 	}
 
 	public function EMS_Form_Builder($id){
@@ -126,17 +141,28 @@ class _Public {
 				"please" => __('Please','easy-form-builder'),
 
 				];
+				$typeOfForm =$this->value[0]->form_type;
+				$value = $this->value[0]->form_structer;
+				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png';
+				if ($this->value[0]->form_type=="login" && is_user_logged_in()){
+
+					$typeOfForm ="userIsLogin";
+					$value = wp_get_current_user();
+					$Value = $value->data;
+					$state="userIsLogin";
+					$poster = get_avatar_url(get_current_user_id());
+				}
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
-			   'ajax_value' => $this->value[0]->form_structer,
-			    'type' => $this->value[0]->form_type,
+			   'ajax_value' =>$value,
+			    'type' => $typeOfForm,
 			//   'type' =>'login',
 			   'state' => $state,
 			   'language' => $lang,
 			   'id' => $this->id,			  
 			   'form_setting' => $stng,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png',
+			   'poster'=> $poster,
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  
@@ -390,7 +416,92 @@ class _Public {
 						//	error_log('register');
 						break;
 						case "login":
-						//	error_log('login');
+							$username ;
+							$password;
+							$m = str_replace("\\","",$this->value);
+							$loginValue = json_decode($m,true);
+							foreach($loginValue as $value){
+						/* 		error_log('$value');
+								error_log(json_encode($value));
+								error_log('$value->id_');
+								error_log(gettype($value)); */
+								$state =-1; //0 username 1 password
+								foreach($value as $key=>$val){
+									//error_log($key);
+									if ($key=="id_"){
+										/* error_log('');
+										error_log($key);
+										error_log($val); */
+										if($val=='emaillogin') $state =0;
+										if($val=='passwordlogin') $state =1;
+										//error_log($state);
+										//error_log('user and password section:');
+									}
+									if($key=="value" && $state==0){
+										$username=$val;
+									//	error_log($username);
+									}
+									if($key=="value" && $state==1){
+										$password=$val;
+										error_log($password);
+									}
+									//error_log('end u and p section');
+								}
+							}
+
+							
+							$creds = array();
+							$creds['user_login'] =esc_sql($username);
+							$creds['user_password'] = esc_sql($password);
+							$creds['remember'] = true;
+
+							$user = wp_signon( $creds, false );
+							if(isset($user->ID)){
+								//user login in successfully
+								// return user profile and ....
+								//778899
+								$userID = $user->ID;
+								//error_log(json_encode($user));
+
+								wp_set_current_user( $userID, $creds['user_login'] );
+								wp_set_auth_cookie( $userID, true, false );
+								do_action( 'wp_login', $creds['user_login'] );
+
+								$send=array();
+								$send['state']=true;
+								$send['display_name']=$user->data->display_name;
+								$send['user_email']=$user->data->user_email;
+								$send['user_login']=$user->data->user_login;
+								$send['user_nicename']=$user->data->user_nicename;
+								$send['user_registered']=$user->data->user_registered;
+								$send['user_image']=get_avatar_url($user->data->ID);
+
+								//error_log(json_encode($send));
+								$response = array( 'success' => true , 'm' =>$send); 
+								wp_send_json_success($response,$_POST);
+								
+								//error_log(is_user_logged_in());
+							}else{
+								error_log(json_encode($user));
+
+								
+								// user not login
+								// return to user a message you are not login
+								//778899
+								$send=array();
+								$send['state']=false;
+								$send['error']=__('The username or password is incorrect');
+								$response = array( 'success' => true , 'm' =>$send); 
+								wp_send_json_success($response,$_POST);
+							}
+							
+							
+							
+
+
+						break;
+						case "logout":
+
 						break;
 						case "subscribe":
 							//error_log('subscribe2');
@@ -414,6 +525,7 @@ class _Public {
 							$response = array( 'success' => true , 'm' =>'Text message'); 
 							wp_send_json_success($response,$_POST);
 						break;
+						
 						default:
 						$response = array( 'success' => false  ,'m'=>__('Secure Error 405')); 
 						wp_send_json_success($response,$_POST);

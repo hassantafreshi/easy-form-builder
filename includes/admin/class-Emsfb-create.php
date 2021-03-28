@@ -236,6 +236,8 @@ class Create {
 			"newForm" => __('New Form','easy-form-builder'),
 			"registerForm" => __('Register Form','easy-form-builder'),
 			"loginForm" => __('Login Form','easy-form-builder'),
+			"login" => __('Login','easy-form-builder'),
+			"thisInputLocked" => __('this input is locked','easy-form-builder'),
 			"subscriptionForm" => __('Subscription Form','easy-form-builder'),
 			"supportForm" => __('Support Form','easy-form-builder'),
 			"createBlankMultistepsForm" => __('Create a blank multisteps form.','easy-form-builder'),
@@ -249,6 +251,8 @@ class Create {
 			"contactUs" => __('Contact us','easy-form-builder'),
 			"support" => __('Support','easy-form-builder'),
 			"subscribe" => __('Subscribe','easy-form-builder'),
+			"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
+			"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login form.','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
