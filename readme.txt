@@ -1,6 +1,6 @@
 === Easy Form Builder ===
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja
-Tags: 				    form builder, form creator, contact form, support form, tracking ,subscribe form
+Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://ko-fi.com/whitestudio
 Stable tag: 			1.32.3
 Requires at least: 		4.7

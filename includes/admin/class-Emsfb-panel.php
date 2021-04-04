@@ -128,8 +128,6 @@ class Panel_edit  {
 				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"formNotCreated" => __('The form has not been created!','easy-form-builder'),
 				"atFirstCreateForm" => __('At first create a form and add elemants then try again','easy-form-builder'),
-
-				
 				"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
 				"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
 				"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
@@ -175,6 +173,12 @@ class Panel_edit  {
 				"thisInputLocked" => __('this input is locked','easy-form-builder'),
 				"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
 				"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login form.','easy-form-builder'),
+				"send" => __('Send','easy-form-builder'),
+				"contactUs" => __('Contact us','easy-form-builder'),
+				"support" => __('Support','easy-form-builder'),
+				"subscribe" => __('Subscribe','easy-form-builder'),
+				"login" => __('Login','easy-form-builder'),
+				"logout" => __('Logout','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

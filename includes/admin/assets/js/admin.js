@@ -771,7 +771,7 @@ function alarm_emsFormBuilder(val) {
 }
 
 function funIconArrow_emsFormBuilder(id) {
-  console.log(id);
+  //console.log(id);
   const el = document.getElementById(`${id}-icon`);
  // el.className = el.className == "fa fa-caret-right" ? "fa fa-caret-down" : "fa fa-caret-right";
   if(el.className=="fa fa-caret-down"){
@@ -1462,7 +1462,7 @@ function add_dasboard_emsFormBuilder(){
               {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'fa-check-square'},
               {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
               {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:false, icon:'fa-user-plus'},
-              {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:false, icon:'fa-sign-in'},
+              {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'fa-sign-in'},
               {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
               ]

@@ -251,6 +251,7 @@ class Create {
 			"contactUs" => __('Contact us','easy-form-builder'),
 			"support" => __('Support','easy-form-builder'),
 			"subscribe" => __('Subscribe','easy-form-builder'),
+			"send" => __('Send','easy-form-builder'),
 			"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
 			"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login form.','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),

@@ -84,6 +84,19 @@ button.emsFormBuilder,
     cursor: pointer
 }
 
+#emsFormBuilder-prevBtn{
+    background-color: #25012eb5!important;
+    color: #f1fcfc;
+    border: none;
+    clip-path: circle(50%);
+    height: 3.5em;
+    width: 3.5em;
+    font-size: 17px;
+
+    font-family: Raleway;
+    cursor: pointer   
+}
+
 button:hover {
     opacity: 0.8
 }
@@ -550,3 +563,52 @@ div.emsFormBuilder {
 b.carret-emsFormBuilder {
     margin: 3%;
 }
+
+
+/* user profile */
+
+img.userProfileImageEFB{
+    text-align: center;
+    display: inline;
+    border-radius: 5px 0 0 5px;
+}
+/* user profile */
+
+
+
+/* password recovery */
+a.get-emsFormBuilder {
+    background-color: #633a82;
+    color: #fff;
+    border: none;
+    font-size: 17px;
+    font-family: Raleway;
+    cursor: pointer;
+    
+}
+
+#recoverySection{
+    background: #1c003030;
+   border-radius: 0px 5px;
+   width: inherit;
+    margin: 1% 0%;
+    padding: 3%;
+}
+
+
+input#username_recovery_pass_efb {
+    width: -webkit-fill-available;
+}
+
+
+@keyframes fadeinout {
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      display: none;
+    }
+  }
+
+/* password recovery */

@@ -137,20 +137,41 @@ class _Public {
 				"sync" => __('Sync','easy-form-builder'),
 				"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
 				"thankYou" => __('Thank you','easy-form-builder'),
+				"login" => __('Login','easy-form-builder'),
+				"logout" => __('Logout','easy-form-builder'),
 				"YouSubscribed" => __('You are subscribed','easy-form-builder'),
+				"send" => __('Send','easy-form-builder'),
+				"subscribe" => __('Subscribe','easy-form-builder'),
+				"contactUs" => __('Contact us','easy-form-builder'),
+				"support" => __('Support','easy-form-builder'),
+				"send" => __('Send','easy-form-builder'),
+				"passwordRecovery" => __('Password recovery','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png';
+				$send=array();
+							
 				if ($this->value[0]->form_type=="login" && is_user_logged_in()){
 
 					$typeOfForm ="userIsLogin";
-					$value = wp_get_current_user();
-					$Value = $value->data;
+					$user = wp_get_current_user();
+			//		$Value = $value->data;
 					$state="userIsLogin";
-					$poster = get_avatar_url(get_current_user_id());
+				//	$poster = get_avatar_url(get_current_user_id());
+
+
+
+					$send['state']=true;
+					$send['display_name']=$user->data->display_name;
+					$send['user_email']=$user->data->user_email;
+					$send['user_login']=$user->data->user_login;
+					$send['user_nicename']=$user->data->user_nicename;
+					$send['user_registered']=$user->data->user_registered;
+					$send['user_image']=get_avatar_url(get_current_user_id());
+					$value=$send;
 				}
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -341,14 +362,20 @@ class _Public {
 		}
 		//recaptcha start
 		$r= $this->get_setting_Emsfb('setting');
-		//herehere
-		//empty($a)
+		$pro = false;
+		$type =sanitize_text_field($_POST['type']);
+
 		if(true){
 			$not_captcha=true;
 			$captcha_success;
 			if(gettype($r)=="object"){
 				$setting =json_decode($r->setting);
 				$secretKey=$setting->secretKey;
+				error_log($setting->activeCode);
+				if(!empty($setting->activeCode) && md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
+					error_log('pro == true');
+					$pro=true;
+				}
 				$response=$_POST['valid'];
 				
 				$args = array(
@@ -358,12 +385,13 @@ class _Public {
 				
 				if(strlen($secretKey)>3){
 					$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-					$captcha_success =json_decode($verify['body']);
+						$captcha_success =json_decode($verify['body']);
 					$not_captcha=false;	 
 				}
 			}
+			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 
-		//error_log($not_captcha);
+		error_log($type);
 		//error_log('captacha');
 		if ($not_captcha==false && $captcha_success->success==false  ) {
 		  $response = array( 'success' => false  , 'm'=>__("Error,Are you a robot?")); 
@@ -380,9 +408,9 @@ class _Public {
 			$this->value = sanitize_text_field($_POST['value']);
 			$this->name = sanitize_text_field($_POST['name']);
 			$this->id = sanitize_text_field($_POST['id']);
-			$type =sanitize_text_field($_POST['type']);
 			
-	 	
+			
+			
 
 				/* 	$en = json_decode($this->value , true);
 					foreach($en as $key=>$val){
@@ -421,10 +449,7 @@ class _Public {
 							$m = str_replace("\\","",$this->value);
 							$loginValue = json_decode($m,true);
 							foreach($loginValue as $value){
-						/* 		error_log('$value');
-								error_log(json_encode($value));
-								error_log('$value->id_');
-								error_log(gettype($value)); */
+	
 								$state =-1; //0 username 1 password
 								foreach($value as $key=>$val){
 									//error_log($key);
@@ -482,7 +507,7 @@ class _Public {
 								
 								//error_log(is_user_logged_in());
 							}else{
-								error_log(json_encode($user));
+							//	error_log(json_encode($user));
 
 								
 								// user not login
@@ -490,6 +515,7 @@ class _Public {
 								//778899
 								$send=array();
 								$send['state']=false;
+								$send['pro']=$pro;
 								$send['error']=__('The username or password is incorrect');
 								$response = array( 'success' => true , 'm' =>$send); 
 								wp_send_json_success($response,$_POST);
@@ -501,7 +527,30 @@ class _Public {
 
 						break;
 						case "logout":
+							//error_log('logout');
+							wp_logout();
+							$response = array( 'success' => true  );
+							wp_send_json_success($response,$_POST);
+						break;
+						case "recovery":
+							//error_log('logout');
+							$m = str_replace("\\","",$this->value);
+							$userinfo = json_decode($m,true);
+							//email
+							$email="null";
+							foreach($userinfo as $value){
+								error_log($value);
+								if(is_email($value)){
+									$email = sanitize_email($value);
+								}
+							}
 
+							if($email!="null"){
+
+							}
+
+							$response = array( 'success' => true , 'm' =>'If your email is corrected an password will sent to your eamil'); 
+							wp_send_json_success($response,$_POST);
 						break;
 						case "subscribe":
 							//error_log('subscribe2');

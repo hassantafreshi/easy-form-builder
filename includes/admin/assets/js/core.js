@@ -159,6 +159,8 @@ for (let v of valueJson_ws) {
   }
 }
 //console.log(`form_type_emsFormBuilder [${form_type_emsFormBuilder}]`);
+
+const button_name = form_type_emsFormBuilder!="form" ? efb_var.text[form_type_emsFormBuilder] : efb_var.text.send
 const content = `<!-- commenet --!><div class="m-2">
 <div class="row d-flex justify-content-center align-items-center">
     <div class="col-md-12">
@@ -186,7 +188,7 @@ const content = `<!-- commenet --!><div class="m-2">
             </div>
             <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
             
-              ${form_type_emsFormBuilder =="form" ? `<div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(-1)" style="display:none;"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder p-3" onclick="emsFormBuilder_nevButton_view(1)"><i class="fa fa-angle-double-right"></i></button>  </div>  ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${form_type_emsFormBuilder.toUpperCase()}</button> `}
+            ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
                               
             </div>
           </form>      
