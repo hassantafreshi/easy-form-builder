@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.32.3
+Stable tag: 			1.32.4
 Requires at least: 		4.7
 Tested up to: 			5.7.0
 Requires PHP:			5.4 or higher
@@ -24,7 +24,8 @@ How *Easy Form Builder* makes your life easier:
 - Create unlimited forms
 - Create sample file upload form
 - Create Support forms
-- Create subscription or newsletters signup form
+- Create subscription or newsletters signup forms
+- Create Login (signup) forms
 - Get export of subscribers list to csv format file
 - Get notified by email when a form has been submitted
 - Add tracking pixels
@@ -85,6 +86,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.32.4 =
+* Add new features 
+* Fixed an issue
 
 = 1.32.3 =
 * Fixed an issue about validation form.

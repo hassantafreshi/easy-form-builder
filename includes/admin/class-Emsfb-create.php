@@ -172,6 +172,7 @@ class Create {
 			"button" => __('button','easy-form-builder'),
 			"text" => __('text','easy-form-builder'),
 			"password" => __('password','easy-form-builder'),
+			"emailOrUsername" => __('Email or Username','easy-form-builder'),
 			"email" => __('email','easy-form-builder'),
 			"number" => __('number','easy-form-builder'),
 			"file" => __('file','easy-form-builder'),

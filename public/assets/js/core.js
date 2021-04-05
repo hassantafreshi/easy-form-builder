@@ -653,7 +653,7 @@ function ShowTab_emsFormBuilder_view(n) {
       document.getElementById("emsFormBuilder-firstTab-view").style.display = "block";
       document.getElementById("emsFormBuilder-firstTab-view").classList.add = "step";
       document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "block";
-      document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
+      if(form_type_emsFormBuilder=="form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
       document.getElementById("emsFormBuilder-form-view-title").style.display = "block";
       document.getElementById("emsFormBuilder-text-message-view").style.display = "none";
       for (el of document.querySelectorAll('.finish')) {
@@ -672,7 +672,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
     if (x && currentTab_emsFormBuilder >= x.length) {
       document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "none";
-      document.getElementById("emsFormBuilder-all-steps-view").style.display = "none";
+     if(form_type_emsFormBuilder=="form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "none";
       document.getElementById("emsFormBuilder-form-view-title").style.display = "none";
       document.getElementById("emsFormBuilder-text-message-view").style.display = "block";
       endMessage_emsFormBuilder_view()
@@ -1239,6 +1239,10 @@ function ShowTab_emsFormBuilder_view(n) {
                break;
               case 'subscribe':
                 document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+              break;
+              case 'recovery':
+                console.log(res.data);
+                document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${res.data.m}</h3></br></br></h3>`;
               break;
               case 'login':
                

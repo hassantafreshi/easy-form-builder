@@ -1526,7 +1526,7 @@ function create_form_by_type_emsfb(id){
      // if login has clicked add Json of contact and go to step 3
      form_type_emsFormBuilder="login";
      formName_ws = efb_var.text.login
-     json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":"Email or Username","type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":"Password","type":"password","step":1,"amount":2,"required":true}];
+     json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":efb_var.text.emailOrUsername,"type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":efb_var.text.password,"type":"password","step":1,"amount":2,"required":true}];
      valueJson_ws_p =json;
      localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
    
