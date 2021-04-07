@@ -1231,6 +1231,8 @@ function ShowTab_emsFormBuilder_view(n) {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
        
          if (res.data.success==true) {
+           /* console.log(res.data);
+           console.log(form_type_emsFormBuilder); */
            //console.log(res,localStorage.getItem("sendback"))
            //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
            switch(form_type_emsFormBuilder){
@@ -1241,7 +1243,8 @@ function ShowTab_emsFormBuilder_view(n) {
                 document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
               break;
               case 'recovery':
-                console.log(res.data);
+              case 'register': 
+              console.log(res.data.m) ;             
                 document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${res.data.m}</h3></br></br></h3>`;
               break;
               case 'login':
@@ -1280,8 +1283,8 @@ function ShowTab_emsFormBuilder_view(n) {
          
           console.log(`res : error` ,res.data.m)
         //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
-         
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span>${ajax_object_efm.text.somethingWentWrongPleaseRefresh} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
+         //${ajax_object_efm.text.somethingWentWrongPleaseRefresh}
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br> ${res.data.m}</span>
           <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
           
   

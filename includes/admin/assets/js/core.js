@@ -159,7 +159,7 @@ for (let v of valueJson_ws) {
   }
 }
 //console.log(`form_type_emsFormBuilder [${form_type_emsFormBuilder}]`);
-
+console.log(form_type_emsFormBuilder,efb_var.text[form_type_emsFormBuilder]  )
 const button_name = form_type_emsFormBuilder!="form" ? efb_var.text[form_type_emsFormBuilder] : efb_var.text.send
 const content = `<!-- commenet --!><div class="m-2">
 <div class="row d-flex justify-content-center align-items-center">

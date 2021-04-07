@@ -145,6 +145,7 @@ class _Public {
 				"contactUs" => __('Contact us','easy-form-builder'),
 				"support" => __('Support','easy-form-builder'),
 				"send" => __('Send','easy-form-builder'),
+				"register" => __('Register','easy-form-builder'),
 				"passwordRecovery" => __('Password recovery','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
@@ -154,7 +155,7 @@ class _Public {
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png';
 				$send=array();
 							
-				if ($this->value[0]->form_type=="login" && is_user_logged_in()){
+				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 
 					$typeOfForm ="userIsLogin";
 					$user = wp_get_current_user();
@@ -441,7 +442,53 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "register":
-						//	error_log('register');
+							error_log("register");
+							$username ;
+							$password;
+							$email;
+							$m = str_replace("\\","",$this->value);
+							$registerValues = json_decode($m,true);
+							foreach($registerValues as $value){
+								//error_log(json_encode($value));
+								$state =-1; //0 username 1 password
+								foreach($value as $key=>$val){
+									if ($key=="id_"){
+										if($val=='usernameRegisterEFB') $state =0;
+										else if($val=='passwordRegisterEFB') $state =1;
+										else if($val=='emailRegisterEFB') $state =2;
+										else $state=-1;
+									}
+									if($key=="value" && $state==0){
+										$username=$val;
+									}
+									if($key=="value" && $state==1){
+										$password=$val;
+									}
+									if($key=="value" && $state==2){
+										$email=$val;
+									}
+								}//end foreach 2
+							}//end foreach 1 
+
+							$creds = array();
+							$creds['user_login'] =esc_sql($username);
+							$creds['user_pass'] = esc_sql($password);
+							$creds['user_email'] = esc_sql($email);
+							$creds['role'] = 'subscriber';
+							$state =wp_insert_user($creds);
+							$response;
+							//error_log(json_encode($state));
+							$m =__('Your information is successfully registered','easy-form-builder');
+							if(gettype($state)=="object"){
+								foreach($state->errors as $key => $value){
+									$m= $value[0];
+								}
+								$response = array( 'success' => false , 'm' =>$m); 
+							}else{
+								error_log($m);
+							$response = array( 'success' => true , 'm' =>$m); 
+							}
+						wp_send_json_success($response,$_POST);
 						break;
 						case "login":
 							$username ;
@@ -452,25 +499,18 @@ class _Public {
 	
 								$state =-1; //0 username 1 password
 								foreach($value as $key=>$val){
-									//error_log($key);
 									if ($key=="id_"){
-										/* error_log('');
-										error_log($key);
-										error_log($val); */
 										if($val=='emaillogin') $state =0;
 										if($val=='passwordlogin') $state =1;
-										//error_log($state);
-										//error_log('user and password section:');
 									}
 									if($key=="value" && $state==0){
 										$username=$val;
-									//	error_log($username);
+										$state =-1;
 									}
 									if($key=="value" && $state==1){
 										$password=$val;
-									//	error_log($password);
+										$state =-1;
 									}
-									//error_log('end u and p section');
 								}
 							}
 
@@ -687,7 +727,7 @@ class _Public {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>__("Please enter a vaild value", 'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=>__("Please enter a vaild values", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}

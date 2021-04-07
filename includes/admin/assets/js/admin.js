@@ -308,9 +308,9 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
        <input type="hidden" id="${rndm}-amount" value="${amount}">
         ${elementId == "radiobutton" || elementId == "checkbox" || (elementId == "multiselect") ? `<div id="${rndm}-o" class= "border-top">` : ""}
       </div>
-      <button id="${rndm}" class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit" ${form_type_emsFormBuilder=='login' ? 'disabled' :''}>${efb_var.text.delete}</button>
+      <button id="${rndm}" class="delete btn btn-danger btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1" type="submit" ${form_type_emsFormBuilder=='login' || form_type_emsFormBuilder=='register' ? 'disabled' :''}>${efb_var.text.delete}</button>
   ${elementId === "checkbox" || elementId === "radiobutton" || (elementId == "multiselect") ? ` <button id="${rndm}-oc"class="add-option btn btn-primary btn-sm btn-rounded waves-effect waves-light ml-1 mr-1 mt-1 mb-1 " type="submit" disabled>${efb_var.text.newOption}</button>` : ""}
-    <a id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap" onClick="${form_type_emsFormBuilder=='login' ? `over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')` : `over_message_emsFormBuilder('${efb_var.text.info}','${efb_var.text.thisElemantAvailableRemoveable}') `}" >${form_type_emsFormBuilder=='login' ? efb_var.text.thisInputLocked : efb_var.text.info} </a>
+    <a id="${rndm}-info" class="text-capitalize font-weight-lighter badge badge-warning text-wrap" onClick="${form_type_emsFormBuilder=='login' || form_type_emsFormBuilder=='register' ? `over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')` : `over_message_emsFormBuilder('${efb_var.text.info}','${efb_var.text.thisElemantAvailableRemoveable}') `}" >${form_type_emsFormBuilder=='login' || form_type_emsFormBuilder=='register'  ? efb_var.text.thisInputLocked : efb_var.text.info} </a>
     </div>
   </div>`;
 
@@ -1461,10 +1461,11 @@ function add_dasboard_emsFormBuilder(){
   const boxs=[
               {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'fa-check-square'},
               {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
-              {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:false, icon:'fa-user-plus'},
+              {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'fa-user-plus'},
               {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'fa-sign-in'},
               {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
+              {id:'Survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'fa-life-ring'},
               ]
         let value=`<!-- boxs -->`;
         for(let i of boxs){
@@ -1503,7 +1504,7 @@ function add_dasboard_emsFormBuilder(){
 
 function create_form_by_type_emsfb(id){
   const state =false;
- // console.log(id)
+
   if(id==="form"){ 
     //console.log('add')
     // if the blank form clicked just active create form
@@ -1514,14 +1515,16 @@ function create_form_by_type_emsfb(id){
     //contactUs
     form_type_emsFormBuilder="form";
     formName_ws = efb_var.text.contactUs
-    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": "First name","type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": "Last name","type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": "Email","type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name": "Phone","type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": "Message","type": "textarea","step": 1,"amount": 5,"required": true}]
+    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": efb_var.text.firstName,"type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": efb_var.text.lastName,"type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": efb_var.text.email,"type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name":efb_var.text.phone,"type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": efb_var.text.message,"type": "textarea","step": 1,"amount": 5,"required": true}]
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;
   }else if(id==="register" ){
     // if register has clicked add Json of contact and go to step 3
-      /* 
-    json =`[{"steps":"1","name-1":"Register","formName":"Register","EfbVersion":1.2,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"egztn899i","name":"Username","type":"text","step":1,"amount":1,"required":true},{"id_":"37av0ptcc","name":"Email","type":"email","step":1,"amount":2,"required":true},{"id_":"sc4n147xc","name":"password","type":"password","step":1,"amount":5,"required":true}]`;
-    */
+    form_type_emsFormBuilder="register";
+    formName_ws = efb_var.text.register
+    json =[{"steps":"1","name-1":"Register","formName":"Register","EfbVersion":1.2,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"usernameRegisterEFB","name":efb_var.text.username,"type":"text","step":1,"amount":1,"required":true},{"id_":"emailRegisterEFB","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true},{"id_":"passwordRegisterEFB","name":efb_var.text.password,"type":"password","step":1,"amount":3,"required":true}];
+    valueJson_ws_p =json;
+    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
   }else if(id==="login"){ 
      // if login has clicked add Json of contact and go to step 3
      form_type_emsFormBuilder="login";
@@ -1534,7 +1537,7 @@ function create_form_by_type_emsfb(id){
     // if support has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="form";
     formName_ws = efb_var.text.support
-   const  json =[{"steps":"1","name-1":efb_var.text.support,"formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"What can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":"subject","type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":"Message","type":"textarea","step":1,"amount":3,"required": true}];
+   const  json =[{"steps":"1","name-1":efb_var.text.support,"formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"How can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":efb_var.text.subject,"type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":efb_var.text.message,"type":"textarea","step":1,"amount":3,"required": true}];
    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
    valueJson_ws_p =json;
   }else if(id==="subscription"){
