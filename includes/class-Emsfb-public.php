@@ -147,6 +147,8 @@ class _Public {
 				"send" => __('Send','easy-form-builder'),
 				"register" => __('Register','easy-form-builder'),
 				"passwordRecovery" => __('Password recovery','easy-form-builder'),
+				"info" => __('information'),
+				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -422,7 +424,7 @@ class _Public {
 						case "form":
 							
 							$this->get_ip_address();
-							$ip = $this->ip;
+							//$ip = $this->ip;
 							$check=	$this->insert_message_db();
 							
 				
@@ -442,15 +444,20 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "register":
-							error_log("register");
+							//error_log("register");
 							$username ;
 							$password;
-							$email;
+							$email = 'null';
 							$m = str_replace("\\","",$this->value);
 							$registerValues = json_decode($m,true);
+							/* 
 							foreach($registerValues as $value){
 								//error_log(json_encode($value));
 								$state =-1; //0 username 1 password
+								error_log("---------");
+								error_log($value->id_);
+								error_log($value->value);
+
 								foreach($value as $key=>$val){
 									if ($key=="id_"){
 										if($val=='usernameRegisterEFB') $state =0;
@@ -463,13 +470,29 @@ class _Public {
 									}
 									if($key=="value" && $state==1){
 										$password=$val;
+										$val = '*******';
+										
+										error_log($val);
 									}
 									if($key=="value" && $state==2){
 										$email=$val;
 									}
 								}//end foreach 2
-							}//end foreach 1 
-
+							}//end foreach 1  */
+							foreach ($registerValues as &$rv) {
+								if ($rv['id_'] == 'passwordRegisterEFB'){
+									$password=$rv['value'];
+									$rv['value'] = str_repeat('*',strlen($rv['value']));
+								}else if($rv['id_'] == 'usernameRegisterEFB'){
+									$username=$rv['value'];
+								}else if($rv['id_'] == 'emailRegisterEFB'){
+									$email=$rv['value'];
+								}
+							}
+							//$registerValues =json_encode($registerValues);
+							//error_log($registerValues);
+							
+							$this->value=json_encode($registerValues);
 							$creds = array();
 							$creds['user_login'] =esc_sql($username);
 							$creds['user_pass'] = esc_sql($password);
@@ -479,16 +502,47 @@ class _Public {
 							$response;
 							//error_log(json_encode($state));
 							$m =__('Your information is successfully registered','easy-form-builder');
+
+							// hide password
+
+							/* error_log('print_r($registerValues,1)');
+							error_log(print_r($registerValues,1)); */
+							//here
 							if(gettype($state)=="object"){
 								foreach($state->errors as $key => $value){
 									$m= $value[0];
 								}
 								$response = array( 'success' => false , 'm' =>$m); 
 							}else{
-								error_log($m);
-							$response = array( 'success' => true , 'm' =>$m); 
+								//error_log($m);
+								if($email!="null"){
+								
+									$this->get_ip_address();
+									//$ip = $this->ip;
+									$check=	$this->insert_message_db();
+									$state= get_user_by( 'email', $email);
+									if(gettype($state)=="object"){
+
+										$to = $email;
+										$efb ='<p> '. __("sent by:") . home_url(). '</p>';
+										if($pro==false) $efb ='<p> '. __("from").':'. home_url(). ' '. __("sent by:" , 'easy-form-builder') .'  <b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
+										$subject ="". __("Welcome to" , 'easy-form-builder')." " .get_bloginfo('name');
+										$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+										$message ='<!DOCTYPE html> <html> <body><p>'.  __('username')  .':'.$username .' </p> <p>'. __('password')  .':'.$username.'</p>
+										<p> '.$efb. '</p>
+										</body> </html>';
+										//error_log($from);
+										$headers = array(
+										 'MIME-Version: 1.0\r\n',
+										 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+										 'From:'.$from.''
+										 );
+										$sent = wp_mail($to, $subject, strip_tags($message), $headers);
+									}
+								}
+								$response = array( 'success' => true , 'm' =>$m); 
 							}
-						wp_send_json_success($response,$_POST);
+							wp_send_json_success($response,$_POST);
 						break;
 						case "login":
 							$username ;
@@ -620,7 +674,7 @@ class _Public {
 						case "subscribe":
 							//error_log('subscribe2');
 							$this->get_ip_address();
-							$ip = $this->ip;
+							//$ip = $this->ip;
 							$check=	$this->insert_message_db();
 			
 							$r= $this->get_setting_Emsfb('setting');
@@ -638,49 +692,35 @@ class _Public {
 							$response = array( 'success' => true , 'm' =>'Text message'); 
 							wp_send_json_success($response,$_POST);
 						break;
+						case "survey":
+							$this->get_ip_address();
+							//$ip = $this->ip;
+							$check=	$this->insert_message_db();
+			
+							$r= $this->get_setting_Emsfb('setting');
+							if(!empty($r)){
+								$setting =json_decode($r->setting);
+								if (strlen($setting->emailSupporter)>2){
+								//	error_log($setting->emailSupporter);
+									$email = $setting->emailSupporter;
+								}
+			
+								$this->send_email_Emsfb($email,$check);
+							}
+			
+			
+							$response = array( 'success' => true , 'm' =>'survey added'); 
+							wp_send_json_success($response,$_POST);
+						break;
+						case "reservation":
+						break;
+
 						
 						default:
 						$response = array( 'success' => false  ,'m'=>__('Secure Error 405', 'easy-form-builder')); 
 						wp_send_json_success($response,$_POST);
 					}
-/* 			if($type =="form"){
-			
-				
-			}else if ($type =="login" || $type="loginlogin"){
-				$user_name ="username";
-				$user_password = "@password@";				
-				$r=wp_authenticate($user_name,  $user_password );
-				$strng = json_encode($r);
-				$response = array( 'success' => false  ,'m'=>'Login'); 
-				wp_send_json_success($response,$_POST);
-			}else if ($type =="register"){
-				$response = array( 'success' => false  ,'m'=>'Register'); 
-				wp_send_json_success($response,$_POST);
-			}else if ($type =="subscribe"){
-				error_log('($type =="ubscribe');
-				$this->get_ip_address();
-				$ip = $this->ip;
-				$check=	$this->insert_message_db();
 
-				$r= $this->get_setting_Emsfb('setting');
-				if(!empty($r)){
-					$setting =json_decode($r->setting);
-					$email ="not";
-					if (strlen($setting->emailSupporter)>2){
-					//	error_log($setting->emailSupporter);
-						$email = $setting->emailSupporter;
-					}
-
-					if($email!="not") {$this->send_email_Emsfb($email,$check);}
-				}
-
-
-				$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
-				wp_send_json_success($response,$_POST);
-			}else {
-				$response = array( 'success' => false  ,'m'=>__('Secure Error 405')); 
-				wp_send_json_success($response,$_POST);
-			} */
 		}
 		//recaptcha end
 	}else{
@@ -753,7 +793,7 @@ class _Public {
 						$val->rsp_by="Guest";
 					}				 
 				}
-				$ip = $this->ip;
+				//$ip = $this->ip;
 			}
 
 			if($value!=null){
@@ -766,11 +806,6 @@ class _Public {
 		
 			wp_send_json_success($response,$_POST);
 			}
-		/* }else{
-			$response = array( 'success' => false , "m"=>__("Error,Setting is not set")); 
-			wp_send_json_success($response,$_POST);
-		} */
-
 		//recaptcha end
 
 
@@ -1040,7 +1075,7 @@ class _Public {
 	
 	}
 	public function load_textdomain(): void {
-		error_log('load_textdomain');
+		//error_log('load_textdomain');
         load_plugin_textdomain(
             EMSFB_PLUGIN_TEXTDOMAIN,
             false,

@@ -42,6 +42,10 @@ input[type=text].emsFormBuilder, input[type=number].emsFormBuilder, select.inser
 	-webkit-appearance: none
 }
 
+input[type=text].insertInput {
+    width: inherit!important;
+}
+
 .tab input:focus {
 	border:  1px solid #633a82 !important;
 	outline: none
@@ -271,6 +275,8 @@ div.section {
 	margin-bottom: 13px;
 }
 
+
+
 .fadeIn {
 	animation:         fadein 2s;
 	-moz-animation:    fadein 2s; /* Firefox */
@@ -370,6 +376,18 @@ select option.emsFormBuilder {
 	background-color: rgba(0, 0, 0, 0.5) !important; /* Black background with opacity */
 	z-index:          10000 !important; /* Specify a stack order in case you're using a different order for other elements */
 	cursor:           pointer; /* Add a pointer on hover */
+}
+
+.overpage-chart {
+	position:         absolute !important; /* Sit on top of the page content */
+	width:            100%; /* Full width (cover the whole page) */
+	height:           100%; /* Full height (cover the whole page) */
+	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	z-index:          10000 !important; /* Specify a stack order in case you're using a different order for other elements */
+	
 }
 
 .overpage-mbox {

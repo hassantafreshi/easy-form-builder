@@ -303,7 +303,7 @@ class Admin {
         }
 
         $id = number_format($_POST['id']);
-
+       // error_log($_POST['form']);
         $table_name = $this->db->prefix . "Emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id];

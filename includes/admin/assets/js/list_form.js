@@ -15,7 +15,7 @@ jQuery (function() {
   valueJson_ws_form=ajax_object_efm.ajax_value;
   poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
-  fun_emsFormBuilder_render_view(5);
+  fun_emsFormBuilder_render_view(5); //778899
 });
 
 let count_row_emsFormBuilder =0;
@@ -34,6 +34,7 @@ function fun_emsFormBuilder_render_view(x){
  let count =0;
  fun_backButton(2);
  if(valueJson_ws_form.length>0){
+   //console.log(valueJson_ws_form);
    for(let i  of valueJson_ws_form ){
     
      if(x>count){
@@ -90,11 +91,10 @@ function fun_emsFormBuilder_render_view(x){
  
 
 
-
   for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)){
     
     el.addEventListener("click", (e) => {
-     
+      
       emsFormBuilder_messages(el.dataset.id)
       
 
@@ -127,7 +127,7 @@ function emsFormBuilder_delete (id){
   <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h5 class="card-title text-white"><i class="fas fa-trash"></i>${efb_var.text.remove}</h5>
+    <h5 class="card-title text-white"><i class="px-2 fas fa-trash"></i>${efb_var.text.remove}</h5>
     <br>
       <h4 class="text-white">${efb_var.text.areYouSureYouWantDeleteItem}</h4>
     <br>
@@ -145,7 +145,7 @@ function emsFormBuilder_popUp_message (title,message){
   <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox">
   <div class="card-body m-13 bg-dark">
-    <h5 class="card-title text-white"><i class="fa fa-bell-o "></i> ${title}</h5>
+    <h5 class="card-title text-white"><i class="px-2 fa fa-bell-o "></i> ${title}</h5>
     <br>
       <h4 class="text-white">${message}</h4>
     <br>
@@ -173,6 +173,8 @@ window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function emsFormBuilder_show_content_message (id){
+   const formType =form_type_emsFormBuilder;
+   //console.log(form_type_emsFormBuilder)
   // پنجره نمایش فرم ثبت شده کاربر
   //console.l(`show message`,id ,valueJson_ws_messages);
   const indx =valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
@@ -190,33 +192,53 @@ function emsFormBuilder_show_content_message (id){
   const m = fun_emsFormBuilder_show_messages(content,by, userIp ,track,date)
   //reply  message ui
    
-  let replayM = `<div class="mx-2 mt-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
+/*   let replayM = `<div class="mx-2 mt-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder">${efb_var.text.reply}:</label>
   <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
   </div>
   <div class="col text-right row">
   <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${efb_var.text.reply} </button>
   <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
-  </div></div>
-  `
-
+  </div></div>` */
+  form_type_emsFormBuilder=formType;
+  console.log(form_type_emsFormBuilder)
+  let titleBox =`<i class="fa fa-info-circle"></i> ${efb_var.text.info}` ;
+ const replayM =function(){
+  let r
+   if(form_type_emsFormBuilder!='subscribe' && form_type_emsFormBuilder!='register' && form_type_emsFormBuilder!='survey'  ){
+     titleBox = `<i class="fa fa-comments"></i> ${efb_var.text.message}` ;
+     r = `<div class="mx-2 mt-2 ${efb_var.rtl==1 ? 'rtl-text' :''}"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
+     <label for="replayM_emsFormBuilder">${efb_var.text.reply}:</label>
+     <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
+     </div>
+     <div class="col text-right row">
+     <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${efb_var.text.reply} </button>
+     <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
+     </div></div>`;
+   }else{
+     r= '<!-- comment --!>';
+   }
+  
+   return r;  
+ }
+//210407-TD74K
 
  document.getElementById('wpwrap').innerHTML+=`
   <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
   <div class="overpage-mbox bg-light">
   <div class="card-body m-13">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"><i class="fa fa-comments"></i> ${efb_var.text.messages}</div>
+    <div class="card-title bg-secondary px-2 py-2 text-white m-0 ${efb_var.rtl==1 ? 'rtl-text' :''}"> ${titleBox}</div>
    
     <div class="my-2">
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
     
      <div class="mx-4 my-1 border-bottom border-info pb-1" id="conver_emsFormBuilder">
      
-      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}...</div>
+      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>
      </br>
       ${m} 
      </div>
-     ${replayM}
+     ${replayM()}
      </div>
       
      </div>
@@ -401,7 +423,7 @@ function fun_emsFormBuilder_show_messages(content,by,userIp,track,date){
       value =`</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
     }
     }
-    
+    if (c.id_ == 'passwordRegisterEFB') value ='**********';
     m +=`<p class="my-0">${c.name}: <span class="mb-1"> ${value!=='<b>@file@</b>'?value:''}</span> </p> `
   }
   m+= '</div></div>';
@@ -481,7 +503,7 @@ function fun_ws_show_edit_form(id){
           <span class="step"><i class="fa fa-briefcase"></i></span> 
           <div class="addStep" id="addStep" >
           </div>
-          <span class="step"><i class="fa fa-floppy-o"></i></span> 
+          <span class="step"><i class="px-1 fa fa-floppy-o"></i></span> 
       </div>
       <div class="all-steps" > 
           <h5 class="step-name f-setp-name" id ="step-name">${efb_var.text.define}</h5> 
@@ -547,8 +569,29 @@ function fun_send_replayMessage_emsFormBuilder(id){
 
 function fun_ws_show_list_messages(value){
   // show list of filled out of the form;
+  //console.log(form_type_emsFormBuilder)
  let rows ='';
  let no=1;
+ let  head = `<!-- rows -->`;
+ let iconRead = 'fa-envelope-open-o';
+ let iconNotRead = 'fa-envelope faa-bounce animated';
+ if (form_type_emsFormBuilder=='subscribe') {
+   head =`<div ><button  class="mx-3 my-2 py-2 px-3 btn btn-warning mat-shadow"  onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download px-1""></i>${efb_var.text.downloadCSVFile}</h4></button ></div>`;
+   iconRead = 'fa-user-o';
+   iconNotRead = 'fa-user ';
+ }else if (form_type_emsFormBuilder=='register'){
+  iconRead = 'fa-user-o';
+  iconNotRead = 'fa-user ';
+ }else if (form_type_emsFormBuilder=='survey' ){
+   //console.log(efb_var.text.availableInProversion)
+   const fun = pro_ws==true ? "generat_csv_emsFormBuilder()":`unlimted_show_panel_emsFormBuilder('${efb_var.text.availableInProversion}')`;
+  head =`<div >
+  <button  class="mx-3 my-2 py-2 px-3 btn btn-warning mat-shadow"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download"></i>${efb_var.text.downloadCSVFile}</h4></button >
+  <button  class="mx-1 my-2 py-2 px-3 btn btn-warning mat-shadow"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" > <h4> <i class="fa fa-bar-chart px-1"></i>${efb_var.text.chart}</h4></button >
+  </div>`;
+  iconRead = 'fa-user-o';
+  iconNotRead = 'fa-user ';
+ }
  /// console.log(value);
  for(const v of value ){
    const state =  Number(v.read_);
@@ -557,15 +600,15 @@ function fun_ws_show_list_messages(value){
    <td class="" >${v.track}</td>
    <td class="">${v.date}</td>
       <td> 
-      <button type="button" class="btn btn-info" ><i id="icon-${v.msg_id}"class="fa ${Number(v.read_)==0 ?'fa-envelope faa-bounce animated':'fa-envelope-open-o'} " aria-hidden="true"></i></button>
+      <button type="button" class="btn btn-info" ><i id="icon-${v.msg_id}"class="fa ${Number(v.read_)==0 ?iconNotRead:iconRead} " aria-hidden="true"></i></button>
       </td>                               
       </tr>` ;
       no +=1;
     }
     
-  head = `<!-- rows -->`;
-  if (form_type_emsFormBuilder=='subscribe') head =`<div ><button  class="mx-4 my-2 py-2 px-3 btn btn-warning mat-shadow"  onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" > <h4> <i class="fa fa-download"></i>${efb_var.text.downloadCSVFile}</h4></button ></div>`;
-  console.log(form_type_emsFormBuilder,head)
+ 
+
+
   
   document.getElementById('emsFormBuilder-content').innerHTML=`${head}<div class="col-md-12  d-flex mat-shadow">
   <table class="table table-hover justify-content-center" id="emsFormBuilder-list">
@@ -584,7 +627,7 @@ function fun_ws_show_list_messages(value){
   </div>
   `;
   
-  fun_export_rows_for_Subscribe_emsFormBuilder(value);
+ if(form_type_emsFormBuilder=='subscribe' || form_type_emsFormBuilder=='survey') fun_export_rows_for_Subscribe_emsFormBuilder(value);
  
 }
 
@@ -614,9 +657,10 @@ function fun_delete_form_with_id_by_server(id){
 
 
 function emsFormBuilder_messages(id){
-  //console.log(`ajax_object_efm.ajax_value[${id-1}]  $`)
+ // console.log(`ajax_object_efm.ajax_value[${id}]  $`)
   const row = ajax_object_efm.ajax_value.find(x => x.form_id ==id)
-  
+ // console.log(ajax_object_efm.ajax_value);
+ // console.log(row.form_type,form_type_emsFormBuilder)
   form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
@@ -625,7 +669,8 @@ function emsFormBuilder_messages(id){
 }
 
 function fun_open_message_emsFormBuilder(msg_id,state){
- // console.log(msg_id,state ,valueJson_ws_messages);
+  //console.log(msg_id,state ,valueJson_ws_messages);
+ //console.log(form_type_emsFormBuilder)
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if(state==0){
@@ -667,14 +712,22 @@ function fun_update_message_state_by_id(id){
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success==true) {
-        document.getElementById(`icon-${id}`).className=`fa fa-envelope-open-o `;
+        let iconRead = 'fa fa-envelope-open-o';
+        if (form_type_emsFormBuilder=='subscribe') {
+          iconRead = 'fa fa-user-o';
+        }else if (form_type_emsFormBuilder=='register'){
+         iconRead = 'fa fa-user-o';
+        }
+        document.getElementById(`icon-${id}`).className=iconRead;
         document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML)-1;
-        console.log(res.data.ajax_value ,res);
-        const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
-        localStorage.setItem('valueJson_ws_p',JSON.stringify(value) );
-        const edit ={id:res.data.id, edit:true};
-        localStorage.setItem('Edit_ws_form',JSON.stringify(edit) )
-        fun_ws_show_edit_form(id)
+       // console.log(res.data.ajax_value ,res);
+        if(res.data.ajax_value!=undefined){
+          const value =JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
+          localStorage.setItem('valueJson_ws_p',JSON.stringify(value) );
+          const edit ={id:res.data.id, edit:true};
+          localStorage.setItem('Edit_ws_form',JSON.stringify(edit) )
+          fun_ws_show_edit_form(id)
+        }
       }else{
        // console.log(res);
       }
@@ -688,6 +741,7 @@ function fun_get_messages_by_id(id){
       action: "get_messages_id_Emsfb",
       nonce:ajax_object_efm_core.nonce,
       type: "POST",
+      form:form_type_emsFormBuilder,
       id:id     
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
@@ -959,7 +1013,7 @@ function fun_show_setting__emsFormBuilder(){
 
 
 <div class="m-2 row">
- <a type="submit" class="btn btn-primary" onClick="fun_set_setting_emsFormBuilder()" id="btn_set_setting_emsFormBuilder"><i class="fa fa-floppy-o" aria-hidden="true"></i>${efb_var.text.save}</a>
+ <a type="submit" class="btn btn-primary" onClick="fun_set_setting_emsFormBuilder()" id="btn_set_setting_emsFormBuilder"><i class="px-1 fa fa-floppy-o" aria-hidden="true"></i>${efb_var.text.save}</a>
  <div id="loading_message_emsFormBuilder" class="efb-color text-center mx-2 invisible"><i class="fas fa-spinner fa-pulse"></i>${efb_var.text.waiting}...</div>
  </div>
 
@@ -1075,10 +1129,10 @@ function fun_send_setting_emsFormBuilder(data){
         
           if (document.getElementById('setting_return_emsFormBuilder')==null){   
             state_seting_emsFormBuilder=true;
-            document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div></div>`
+            document.getElementById('setting_emsFormBuilder').innerHTML +=`<div class="m-2 row" id="setting_return_emsFormBuilder"><div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="px-1 fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div></div>`
           }else{
             state_seting_emsFormBuilder=true;
-            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div>`
+            document.getElementById('setting_return_emsFormBuilder').innerHTML =`<div id="loading_message_emsFormBuilder" class="text-info text-center mx-2"><i class="px-1 fas fa-thumbs-up faa-bounce animated "></i>${efb_var.text.saved}</div>`
           }
         }else{
           //console.l(res.data);
@@ -1248,9 +1302,185 @@ function convertToCSV_emsFormBuilder(objArray) {
 function generat_csv_emsFormBuilder(){
   const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp  = JSON.parse(localStorage.getItem("rows_ws_p"));
-  const filename = `EasyFormBuilder-subscribe-export-${Math.random().toString(36).substr(2, 3)}`
-  exportCSVFile_emsFormBuilder(head,exp,filename);
+  /* console.log(head);
+  console.log(exp); */
+  const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
+  //040820
+  
+  exportCSVFile_emsFormBuilder(head,exp,filename); // create csv file
+ //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
 }
+
+
+function convert_to_dataset_emsFormBuilder(){
+ 
+  const head  = JSON.parse(localStorage.getItem("head_ws_p"));
+  const exp  = JSON.parse(localStorage.getItem("rows_ws_p"));
+  let titles =[];
+  let rowNo =0;
+  let yy =0
+  for(let h in head){
+    titles.push(h);
+    rowNo +=1;
+  }
+  for(let value in exp){
+    yy+=1;
+  }
+  let rows = Array.from(Array(yy+1), () => Array(rowNo).fill(0));
+  //console.log(rows);
+  rowNo =0;
+  //console.log(exp);
+  for(let ex of exp){
+    rowNo +=1;
+    
+    for(let i in titles){
+      if(rowNo==1) rows[0][parseInt(i)] =titles[i] 
+      //console.log(ex[titles[i]]);
+      rows[rowNo][parseInt(i)] = ex[titles[i]] != undefined ? ex[titles[i]] : 'nuLL@EFB';
+    }
+  }
+  let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
+  let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0)); 
+  let titleTable =[]; // list name of tables and thier titles
+  for (col in rows){
+    if (col!=0){
+      for (let c in rows[col]){
+         const indx = entry[c].findIndex(x=>x == rows[col][c]);
+          if (indx != -1){
+            countEnrty[c][indx] +=1;
+          }else{
+            countEnrty[c].push(1) 
+            entry[c].push(rows[col][c]);
+          }
+        
+      }
+
+    }else{
+      //console.log(rows[col]);
+      for(let c of rows[col]){
+        //console.log(c);
+        titleTable.push(c);
+      }
+    }
+  }
+/*   console.log(titleTable);
+  console.log(entry);
+  console.log(countEnrty ); */
+ emsFormBuilder_chart(titleTable,entry,countEnrty);
+}
+
+
+function unlimted_show_panel_emsFormBuilder(m){
+  
+  document.getElementById('body_emsFormBuilder').innerHTML += unlimted_version_emsFormBuilder(m,0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function emsFormBuilder_chart (titles ,colname , colvalue){
+  //window.scrollTo({ top: 0, behavior: 'smooth' });
+  /* console.log(titles);
+  console.log(colname); */
+  let publicidofchart
+  let chartview ="<!-- charts -->";
+  let chartId =[];
+  let publicRows =[];
+  let options ={};
+  document.getElementById('wpwrap').innerHTML+=`
+  <div class=" overpage-chart preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
+  <div class="overpage-mbox">
+  <div class="card-body m-13 bg-dark" >
+    <br>
+    
+    <div id="overpage-chart">
+    
+    <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
+     <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3>
+    </div>
+    <br>
+    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</button>
+  </div>
+  <div>
+</div></div></div>`;
+window.scrollTo({ top: 0, behavior: 'smooth' });
+
+/* drawPieChart */
+/* drawPieChart = () =>{
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Element');
+  data.addColumn('number', 'integer'); 
+  //console.log(publicRows,publicidofchart)
+  data.addRows(publicRows);
+  
+  // Instantiate and draw the chart.
+  var chart = new google.visualization.PieChart(document.getElementById(publicidofchart));
+  chart.draw(data, options);
+} */
+/* drawPieChart */
+
+/* Add div of charts */
+for (let t in titles){
+  chartId.push(Math.random().toString(36).substring(8));
+  
+  chartview +=` </br> <div id="${chartId[t]}"/>
+  <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
+  <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3>
+  </div>`
+}
+/*End Add div of charts */
+
+document.getElementById('overpage-chart').innerHTML =chartview
+
+/* convert to dataset */
+let drawPieChartArr = [];
+let rowsOfCharts =[];
+let opetionsOfCharts=[];
+for(let t in titles){
+ // console.log()
+  opetionsOfCharts[t] = {'title':titles[t],
+  'height':300 };
+  const countCol =colname[t].length;
+  const rows =  Array.from(Array(countCol), () => Array(2).fill(0)); 
+  for(let r in colname[t]){
+    rows[r][0] =colname[t][r];
+    rows[r][1] =colvalue[t][r];
+  }//end for 2
+  rowsOfCharts[t]=rows;
+  //console.log(publicRows);
+  google.charts.load('current', {packages: ['corechart']});
+  publicidofchart=chartId[t];
+
+  /* drawPieChart */
+  drawPieChartArr[t] = () =>{
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Element');
+  data.addColumn('number', 'integer'); 
+  //console.log(publicRows,publicidofchart)
+  //console.log(rowsOfCharts[t])
+  data.addRows(rowsOfCharts[t]);
+  
+  // Instantiate and draw the chart.
+  var chart = new google.visualization.PieChart(document.getElementById(chartId[t]));
+  chart.draw(data, opetionsOfCharts[t]);
+  }
+  /* drawPieChart */
+
+  try{
+   // console.log(titles[t]);
+    google.charts.setOnLoadCallback(drawPieChartArr[t]);
+  }catch (error) {
+   // console.log('error');
+  }
+
+}// end for 1
+/*end convert to dataset */
+ 
+
+
+  
+}//end function
+
+
+
 
 
 

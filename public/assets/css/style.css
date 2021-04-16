@@ -37,6 +37,8 @@ input[type=text],input[type=number],select {
 
 
 
+
+
 .tab input:focus {
     border: 1px solid #633a82 !important;
     outline: none

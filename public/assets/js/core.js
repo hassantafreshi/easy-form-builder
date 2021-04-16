@@ -457,8 +457,9 @@ function fun_render_view(val,check){
           id = v.id ? v.id : v.id_;
           const typ = v.type == "checkbox" ? "checkbox" : "radio";
           req = v.required ? v.required : false;
-          //console.log(v.required , "required");
-          el = `<div class=" emsFormBuilder"><div class="row"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
+          console.log(v.type , "required");
+          const m = v.type =="radiobutton" ? "m-2" : '';
+          el = `<div class=" emsFormBuilder"><div class="row ${m}"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
           // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
@@ -502,7 +503,7 @@ function fun_render_view(val,check){
       }
     }
     //console.log(ajax_object_efm )
-    const button_name = ajax_object_efm.type!="form" ? ajax_object_efm.text[ajax_object_efm.type] : ajax_object_efm.text.send
+    const button_name = ajax_object_efm.type!="form" && ajax_object_efm.type!="survey" ? ajax_object_efm.text[ajax_object_efm.type] : ajax_object_efm.text.send
     const content = `<!-- commenet --!><div class="m-2">
     <div class="row d-flex justify-content-center align-items-center">
         <div class="col-md-12">
@@ -1214,7 +1215,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if(ajax_object_efm.type=="userIsLogin") return 0;
 
     if(form_type_emsFormBuilder!='login') localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-  //  console.log(sendBack_emsFormBuilder_pub);
+    console.log(sendBack_emsFormBuilder_pub ,form_type_emsFormBuilder);
    
     $(function () {
      
@@ -1231,13 +1232,14 @@ function ShowTab_emsFormBuilder_view(n) {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
        
          if (res.data.success==true) {
-           /* console.log(res.data);
-           console.log(form_type_emsFormBuilder); */
+           console.log(res.data);
+           console.log(form_type_emsFormBuilder); 
            //console.log(res,localStorage.getItem("sendback"))
            //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
            switch(form_type_emsFormBuilder){
              case 'form':
-               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+             case 'survey':
+               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
                break;
               case 'subscribe':
                 document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;

@@ -179,10 +179,16 @@ class Panel_edit  {
 				"subscribe" => __('Subscribe','easy-form-builder'),
 				"login" => __('Login','easy-form-builder'),
 				"logout" => __('Logout','easy-form-builder'),
+				"survey" => __('Survey','easy-form-builder'),
+				"chart" => __('Chart','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
+
+			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
+			wp_enqueue_script('gchart-js');
+
 			$pro =false;
 			$ac= $this->get_activeCode_Emsfb();
 			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
@@ -302,6 +308,8 @@ class Panel_edit  {
 					
 				));
 					
+		}else{
+			echo "Easy Form Builder: You dont access this section";
 		}
 	}
 	public function get_activeCode_Emsfb()
