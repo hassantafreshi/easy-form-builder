@@ -15,7 +15,7 @@ jQuery (function() {
   valueJson_ws_form=ajax_object_efm.ajax_value;
   poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
-  fun_emsFormBuilder_render_view(5); //778899
+  fun_emsFormBuilder_render_view(50); //778899
 });
 
 let count_row_emsFormBuilder =0;
@@ -1326,39 +1326,43 @@ function convert_to_dataset_emsFormBuilder(){
   for(let value in exp){
     yy+=1;
   }
-  let rows = Array.from(Array(yy+1), () => Array(rowNo).fill(0));
+  let rows = Array.from(Array(yy+1), () => Array(rowNo).fill('null@EFB'));
   //console.log(rows);
   rowNo =0;
   //console.log(exp);
+ 
   for(let ex of exp){
     rowNo +=1;
     
     for(let i in titles){
       if(rowNo==1) rows[0][parseInt(i)] =titles[i] 
       //console.log(ex[titles[i]]);
-      rows[rowNo][parseInt(i)] = ex[titles[i]] != undefined ? ex[titles[i]] : 'nuLL@EFB';
+       ex[titles[i]] != undefined ? rows[rowNo][parseInt(i)] =ex[titles[i]] : '';
     }
   }
+  console.log(rows);
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0)); 
   let titleTable =[]; // list name of tables and thier titles
   for (col in rows){
     if (col!=0){
       for (let c in rows[col]){
-         const indx = entry[c].findIndex(x=>x == rows[col][c]);
-          if (indx != -1){
-            countEnrty[c][indx] +=1;
-          }else{
-            countEnrty[c].push(1) 
-            entry[c].push(rows[col][c]);
-          }
+        if(rows[col][c]!='null@EFB'){
+          const indx = entry[c].findIndex(x=>x == rows[col][c]);
+           if (indx != -1){
+             countEnrty[c][indx] +=1;
+           }else{
+             countEnrty[c].push(1) 
+             entry[c].push(rows[col][c]);
+           }
+        }
         
       }
 
     }else{
       //console.log(rows[col]);
       for(let c of rows[col]){
-        //console.log(c);
+       // console.log(c);
         titleTable.push(c);
       }
     }

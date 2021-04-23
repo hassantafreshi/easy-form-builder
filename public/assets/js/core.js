@@ -493,7 +493,15 @@ function fun_render_view(val,check){
             if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-4 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
          
           //  if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
-            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
+            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) {
+              console.log(exportView_emsFormBuilder[indx].element.includes("<option") )
+              console.log(exportView_emsFormBuilder[indx])
+              if (!exportView_emsFormBuilder[indx].element.includes("<option") ) { 
+                 exportView_emsFormBuilder[indx].element +=  ` <option style="display:none">Select an option</option>`;
+                }
+                exportView_emsFormBuilder[indx].element +=  `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}"  data-id="${v.id_}">${v.name}</option>`;
+              
+            }
             if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==true) options_multiSelect.push({parents:v.parents, id:id, class:`${v.class ? `${v.class}` : 'emsFormBuilder'}`, value:v.name , name:v.name, dataId:v.id_ } )
 
             //console.log(v.parents)

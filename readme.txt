@@ -20,8 +20,9 @@ You don't need any coding skills to use *Easy Form Builder*. Simply drag and dro
 
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
-- Create multistep forms
+
 - Create unlimited forms
+- Create multistep (limited steps) form 
 - Create sample file upload form
 - Create Support forms
 - Create subscription or newsletters signup forms
@@ -37,6 +38,9 @@ How *Easy Form Builder* makes your life easier:
 - User-friendly and feature-rich panel to manage your forms and their responses.
 - Form validation
 - Support RTL language
+- Create drag and drop file selection forms (Available in pro version)
+- Create multistep (20 steps) form (Available in pro version)
+- Create form by Advanced input like Date, URL, Range, Color, Multi Select (available in pro version)
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -89,8 +93,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 == Changelog ==
 
 = 1.32.5 =
-* Add new features (Registration form builder)
-
+* Add new features (user registration form builder)
+* Fixed  issues
+* UI improvements
 
 = 1.32.4 =
 * Add new features (Login form builder)
