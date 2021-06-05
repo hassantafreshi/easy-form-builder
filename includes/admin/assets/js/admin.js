@@ -1498,7 +1498,7 @@ function add_dasboard_emsFormBuilder(){
               {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
               {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'fa-user-plus'},
               {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'fa-sign-in'},
-              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
+              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:false, icon:'fa-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
               {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:false, icon:'fa-bar-chart'},
               {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'fa-calendar-plus-o'},

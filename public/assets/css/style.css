@@ -23,7 +23,7 @@ h1.emsFormBuilder {
     text-align: center
 }
 
-input[type=text],input[type=number],select {
+input[type=text].emsFormBuilder_v,input[type=number].emsFormBuilder_v,select.emsFormBuilder_v {
     padding: 10px;
     width: 100%;
     height: revert;
@@ -44,8 +44,8 @@ input[type=text],input[type=number],select {
     outline: none
 }
 
-input.invalid,
-label.invalid {
+input.invalid.emsFormBuilder ,
+label.invalid.emsFormBuilder  {
     border: 1px solid #e03a0666!important;
     background: antiquewhite;
 }
@@ -99,19 +99,19 @@ button.emsFormBuilder,
     cursor: pointer   
 }
 
-button:hover {
+button:hover.emsFormBuilder {
     opacity: 0.8
 }
 
-button:focus {
+button:focus.emsFormBuilder  {
     outline: none !important
 }
 
-#prevBtn {
+#prevBtn.emsFormBuilder  {
     background-color: #633a82
 }
 
-.all-steps ,
+/* .all-steps , */
 .emsFormBuilder-all-steps-view {
     text-align: center;
     margin-top: 30px;
@@ -121,7 +121,7 @@ button:focus {
     justify-content: center
 }
 
-.step,
+/* .step, */
 .emsFormBuilder-step-view
  {
     height: 40px;
@@ -138,13 +138,13 @@ button:focus {
     opacity: 0.5
 }
 
-.step.active,
+/* .step.active, */
 .emsFormBuilder-step-view.active
  {
     opacity: 1
 }
 
-.step.finish ,
+/* .step.finish , */
 .emsFormBuilder-step-view.finish {
     color: #f1fcfc;
     background: #633a82;
@@ -157,7 +157,7 @@ button:focus {
     display: none
 }
 
-.addStep,
+/* .addStep, */
 .emsFormBuilder-addStep-view{
     display: inline-flex;
 }
@@ -170,16 +170,16 @@ button:focus {
     border-style: dotted;
     border-color: #e0e0e0 !important
 }
-.section{
+/* .section{
   background-color: #faf8ff;
   border-color: #abbac5 !important
   
-}
+} */
 #tabList {
     margin-bottom: 5%;
 }
 
-option,select {
+option.emsFormBuilder ,select.emsFormBuilder  {
  
     font-weight: 900;
     font-family: 'FontAwesome', 'Second Font name'
@@ -218,24 +218,24 @@ option,select {
    
   }
 
-  .btn {
+  .btn.emsFormBuilder {
       
       text-transform:capitalize;
     }
-  .btn-type{
+  .btn-type.emsFormBuilder {
     background-color: #25012eb5!important;
     color: #eee !important;;
   }
 
-  h5{
+  h5.emsFormBuilder{
       margin: inherit;
       padding: 7px 7px 0px 7px;
     }
-    h5::last-letter {
+    h5::last-letter.emsFormBuilder {
         color: #00f;
       }
 
-    .display-btn {
+    .display-btn.emsFormBuilder {
         margin: 3%;
     }
 
@@ -253,12 +253,12 @@ option,select {
     }
 
 
-    .mat-shadow, .mat-shadow-dz {
+    .mat-shadow.emsFormBuilder, .mat-shadow-dz.emsFormBuilder {
         box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         transition: all 0.3s cubic-bezier(.25,.8,.25,1);
       }
       
-      .mat-shadow:hover , .dropZone:-moz-drag-over{
+      .mat-shadow:hover.emsFormBuilde , .dropZone:-moz-drag-over{
         box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
       }
 
@@ -279,7 +279,7 @@ option,select {
      
       }
 
-      .all-steps,
+    /*   .all-steps, */
       .emsFormBuilder-all-steps-view
        {
         text-align: center;
@@ -288,7 +288,7 @@ option,select {
         }
    
 
-        .fadeIn {
+        .fadeInEmsFormBuilder {
 
             animation: fadein 2s;
             -moz-animation: fadein 2s; /* Firefox */
@@ -368,37 +368,25 @@ option,select {
             border: 1px solid #a39ea9
         }
 
-        .choices {
+    /*     .choices {
             width: -webkit-fill-available;
-        }
-        .overpage {
-            position: fixed; /* Sit on top of the page content */
-            
-            width: 100%; /* Full width (cover the whole page) */
-            height: 100%; /* Full height (cover the whole page) */
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-            z-index: 1000; /* Specify a stack order in case you're using a different order for other elements */
-            cursor: pointer; /* Add a pointer on hover */
-          }
-          .overpage-mbox{
+        } */
+
+     /*      .overpage-mbox{
               margin: 10%;
               background: #fff;
           }
+ */
 
-
-
+/* 
           .dropdown-menu {
             padding: 5px 10px!important;
-          }
+          } */
 
 
 
           /* drog and drop section start*/
-.inputDnD .form-control-file {
+.inputDnD.emsFormBuilder .form-control-file.emsFormBuilder {
   position: relative;
   width: 100%;
   height: 100%;
@@ -409,7 +397,7 @@ option,select {
   background-color: #c61c23;
   box-shadow: 0 0 5px solid currentColor;
 }
-.inputDnD .form-control-file:before {
+.inputDnD.emsFormBuilder .form-control-file:before.emsFormBuilder {
   content: attr(data-title);
   position: absolute;
   top: 0.5em;
@@ -426,22 +414,13 @@ option,select {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
 }
-.inputDnD .form-control-file:hover:before {
+.inputDnD.emsFormBuilder .form-control-file:hover:before.emsFormBuilder {
   border-style: solid;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
 
-          /* drog and drop section end*/
-
-
-          /* preview start */
-          .preview-overpage {
-            position: absolute!important;
-          }
-          /* preview end */
-
-video {
+video.emsFormBuilder {
     max-width: 100%!important;
 }
 
@@ -454,7 +433,7 @@ video {
 
 
 
-.multiselect-container{
+.multiselect-container-emsFormBuilder{
     width: 100%;
     position: relative;
     display: contents;  
@@ -468,12 +447,12 @@ video {
     font-size: 14px;
     margin: 0 5px
   }
-  .multiselect-data-container{
+  .multiselect-data-container-emsFormBuilder{
     position: relative;
     overflow: visible;
     vertical-align: middle;
   }
-  .multiselect-button{
+  .multiselect-button-emsFormBuilder{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -488,18 +467,18 @@ video {
     cursor: pointer;
   }
   
-  .multiselect-text{
+  .multiselect-text-emsFormBuilder{
     border: 0;
     padding: 3px 0;
     width: 145px;
   }
   
-  .multiselect-button input,
-  .multiselect-button b{
+  .multiselect-button-emsFormBuilder input,
+  .multiselect-button-emsFormBuilder b{
     pointer-events: none;
   }
   
-  .multiselect-list{
+  .multiselect-list-emsFormBuilder{
     display: none;
     position: absolute;
     top: 100%;
@@ -521,7 +500,7 @@ video {
     z-index: 1000;
   }
   
-  .multiselect-item-label{
+  .multiselect-item-label-emsFormBuilder{
     display: block;
     height: 100%;
     padding: 1%;
@@ -536,7 +515,7 @@ video {
     padding: 0 5px; 
   }
   
-  .carret{
+  .carret-emsFormBuilder{
     display: inline-block;
     width: 0;
     height: 0;
@@ -589,7 +568,7 @@ a.get-emsFormBuilder {
     
 }
 
-#recoverySection{
+#recoverySectionemsFormBuilder{
     background: #1c003030;
    border-radius: 0px 5px;
    width: inherit;

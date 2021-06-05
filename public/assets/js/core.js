@@ -34,6 +34,8 @@ jQuery (function() {
     //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
     //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
+    
+    if(typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder =ajax_object_efm.poster;
     //console.log("poster_emsFormBuilder",ajax_object_efm);
   //  console.log(ajax_object_efm.rtl,'return');
@@ -207,15 +209,15 @@ var Motus = {};
       e.stopPropagation();
     };
     
-    container.classList.add("multiselect-container");
+    container.classList.add("multiselect-container-emsFormBuilder");
     multiselectLabel.classList.add("multiselect-label");
     //multiselectLabel.innerHTML = labels.title;
-    dataContainer.classList.add("multiselect-data-container");
+    dataContainer.classList.add("multiselect-data-container-emsFormBuilder");
     span.classList.add("multiselect-button");
 
     searchField.setAttribute("type", "text");
     searchField.setAttribute("placeholder", labels.emptyText);
-    searchField.classList.add("multiselect-text");
+    searchField.classList.add("multiselect-text-emsFormBuilder");
     searchField.addEventListener("keyup", _performSearch);
 
    /*  clearSelection.classList.add('fa');
@@ -223,16 +225,16 @@ var Motus = {};
    // clearSelection.innerHTML = 'X';
     clearSelection.addEventListener("click", _fnClearSelection);
     
-    carret.classList.add("carret");
     carret.classList.add("carret-emsFormBuilder");
+    carret.classList.add("carret-emsFormBuilder-emsFormBuilder");
 
     span.appendChild(searchField);
   //  span.appendChild(clearSelection);
-  span.appendChild(carret);
+  span.appendChild(carret-emsFormBuilder);
 
   span.addEventListener("click", _openList);
     
-    list.classList.add("multiselect-list");
+    list.classList.add("multiselect-list-emsFormBuilder");
 
     for (var i = -1; i < data.length; i++) {
       var item = document.createElement("li");
@@ -242,16 +244,16 @@ var Motus = {};
 
       a.setAttribute("tabindex", "0");
 
-      label.classList.add("multiselect-item-label");
+      label.classList.add("multiselect-item-label-emsFormBuilder");
       
       if(i == -1){
         a.addEventListener("click", _fnSelectAll);
         label.appendChild(document.createTextNode(options.selectedAllOption));
-        label.classList.add('multiselect-item-label--select-all');
+        label.classList.add('multiselect-item-label-emsFormBuilder--select-all');
       }
       else{
         if (i == 0) {
-          label.classList.add("multiselect-item-label--active");
+          label.classList.add("multiselect-item-label-emsFormBuilder--active");
         }
         input.setAttribute("type", "checkbox");
         input.setAttribute("class", "multiselect-checkbox");
@@ -433,7 +435,7 @@ function fun_render_view(val,check){
             acception =`.zip,.rar`;
             typeFile= v.file; 
           }
-          classData = drog==true ? "form-control-file text-secondary " : "" ;
+          classData = drog==true ? "form-control-file text-secondary emsFormBuilder" : "" ;
           el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${ajax_object_efm.text.DragAndDropA} ${typeFile} ${ajax_object_efm.text.orClickHere}"`:``}>`
           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
          
@@ -525,7 +527,7 @@ function fun_render_view(val,check){
                     <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
                 </div>
                 <div class="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
-                    <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
+                    <h5 class="emsFormBuilder-step-name-view f-setp-name emsFormBuilder" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
                 </div>
                 <div id="emsFormBuilder-message-area-view"></div>
                 <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
@@ -542,7 +544,7 @@ function fun_render_view(val,check){
                 ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 <!-- recaptcha end  -->
                    
-                ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
+                ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view " class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type " onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
                 </div>
               </form>      
             </div>
@@ -607,7 +609,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if (x[n]) {      
    
         x[n].style.display = "block";
-        x[n].classList.add("fadeIn");
+        x[n].classList.add("fadeInEmsFormBuilder");
  
     }
     ////console.log(x,n,x[n],"check")
@@ -660,7 +662,7 @@ function ShowTab_emsFormBuilder_view(n) {
     if (n == 0) {
       //console.log(document.getElementById("emsFormBuilder-firstTab-view").style.display);
       document.getElementById("emsFormBuilder-firstTab-view").style.display = "block";
-      document.getElementById("emsFormBuilder-firstTab-view").classList.add = "step";
+      document.getElementById("emsFormBuilder-firstTab-view").classList.add = "emsFormBuilder-step-view";
       document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "block";
       if(form_type_emsFormBuilder=="form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
       document.getElementById("emsFormBuilder-form-view-title").style.display = "block";
@@ -1146,7 +1148,7 @@ function ShowTab_emsFormBuilder_view(n) {
    //   console.log(sendBack_emsFormBuilder_pub)
    //   console.log(`countRequired[${countRequired}] valueExistsRequired[${valueExistsRequired}]`)
       document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
-      <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+      <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
       // faild form
     } else {
@@ -1160,7 +1162,7 @@ function ShowTab_emsFormBuilder_view(n) {
         //console.log(`error => ${file.state}`,file)
         checkFile =-100;
         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-        <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+        <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
        return;
 
       }
@@ -1186,7 +1188,7 @@ function ShowTab_emsFormBuilder_view(n) {
               //console.log(`error => ${file.state}`,file)
               checkFile =-100;
               document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-              <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+              <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
              return;
 
             }
@@ -1219,7 +1221,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function actionSendData_emsFormBuilder() {
-
+    
     if(ajax_object_efm.type=="userIsLogin") return 0;
 
     if(form_type_emsFormBuilder!='login') localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
@@ -1271,11 +1273,11 @@ function ShowTab_emsFormBuilder_view(n) {
                   document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h3 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
                   </br>
                   <a href="#" id="btn_Show_recovery_efb" class="  emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
-                  <div class"p-5 fade" id="recoverySection" style="display: none;">     
+                  <div class"p-5 fade" id="recoverySectionemsFormBuilder" style="display: none;">     
                      <input type="email" id="username_recovery_pass_efb" class="m-1" placeholder="Email" >
                      <a href="#" id="btn_recovery_pass_efb" class="btn btn-lg btn-block my-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
                      </div>
-                  <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;" ><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+                  <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;" ><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
 
                 }
               break;
@@ -1295,7 +1297,7 @@ function ShowTab_emsFormBuilder_view(n) {
         //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
          //${ajax_object_efm.text.somethingWentWrongPleaseRefresh}
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br> ${res.data.m}</span>
-          <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+          <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
           
   
         } 
@@ -1551,12 +1553,12 @@ function fun_tracking_show_emsFormBuilder(){
          <!-- <h1 id="emsFormBuilder-form-title">${ajax_object_efm.text.trackingForm}</h1> -->
           
   
-          <div class="all-steps" > 
+          <div class="msFormBuilder-all-steps-view" > 
               <h6 class="step-name f-setp-name" id ="step-name">${ajax_object_efm.text.pleaseEnterTheTracking}</h6> 
           </div>        
           <div id="emsFormBuilder-message-area-track"></div>
-          <div class=" mt-2 pb-5 fadeIn ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}" id="firsTab">
-              <h5>${ajax_object_efm.text.trackingCode}:*</h5>
+          <div class=" mt-2 pb-5 fadeInEmsFormBuilder ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}" id="firsTab">
+              <h5 class="emsFormBuilder">${ajax_object_efm.text.trackingCode}:*</h5>
               <input placeholder="" type="text"  class="require emsFormBuilder" id="tracking_code_emsFormBuilder" max="20">
               </br>
               <!-- recaptcha  -->
@@ -1620,7 +1622,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
             } else {             
               //console.log(`res : error`)      
               document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span>${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
-              <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+              <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
       
             } 
           })
@@ -1728,7 +1730,7 @@ function fun_emsFormBuilder_show_messages(content,by,track,date){
         if(media=="video"){          
           const len =c.url.length;
           const type = c.url.slice((len-3),len);
-          value = type !=='avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">Video Download Link</a></p>` :`<p class="text-center"><a href="${c.url}">Download Viedo</a></p>`;
+          value = type !=='avi' ? `</br><div class="px-1"><video class="emsFormBuilder" poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">Video Download Link</a></p>` :`<p class="text-center"><a href="${c.url}">Download Viedo</a></p>`;
         }else{
           value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
@@ -1894,7 +1896,7 @@ function validation_before_send_emsFormBuilder(){
   if( (count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0) ||require==1 ){
     //console.log(sendBack_emsFormBuilder_pub)
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${require!=1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields}</span>
-    <div class="display-btn"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+    <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
    // window.scrollTo({ top: 0, behavior: 'smooth' });
    document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
     //sendBack_emsFormBuilder_pub=[];
@@ -1927,7 +1929,7 @@ function show_user_profile_emsFormBuilder(ob){
                           <h6 class="f-w-600">${ob.display_name}</h6>
                           <p>${ob.user_login}</p> 
                          
-                          <button type="button"  class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
+                          <button type="button"  class="btn btn-lg btn-block mat-shadow emsFormBuilder btn-type" onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
                       </div>
                   </div>
                   
@@ -1963,7 +1965,7 @@ function emsFormBuilder_logout(){
 
 /* password recovery */
 function Show_recovery_pass_efb(){
-  let el = document.getElementById(`recoverySection`);
+  let el = document.getElementById(`recoverySectionemsFormBuilder`);
   el.style.display = el.style.display == "none" ? "block":"none";
 
     document.getElementById('emsFormBuilder-text-message-view').scrollIntoView(true);

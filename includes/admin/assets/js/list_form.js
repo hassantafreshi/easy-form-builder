@@ -1231,17 +1231,119 @@ function clear_garbeg_emsFormBuilder(){
 
 function fun_export_rows_for_Subscribe_emsFormBuilder(value){
   //json ready for download 
+  //778899
   let exp =[];
   let head ={};
+  let heads =[];
+  let ids =[];
+  let count =-1;
+ // console.log(value);
+ const rows = Array.from(Array(value.length+1), () => Array(100).fill('null@EFB'));
+  let i_count =-1;
   for (v of value){
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'not found', value:'not found'}
-    let rows ={}
-    for(c of content){
-     rows = Object.assign(rows, {[c.name]:c.value});
-     head.length==undefined ||head.length==0  ||( head.findIndex(x => x== c.name) ==-1 && c.name.length>0)?head = Object.assign(head, {[c.name]:c.name}) :0;
+    const rows = Array.from(Array(content.length+1), () => Array(100).fill('null@EFB'));
+    console.log(content);
+   count +=1;
+    // let rows =[];
+    i_count +=1;
+     let countMultiNo = [];
+     let NoMulti =[];
+    // console.log(v);
+   // let rows ={};
+  //  console.log(content.length);
+    
+  //  const row = new Array(1000).fill('null@EFB');
+    for(c in content){
+     // console.log(content[c],"chck");
+     // rows = Object.assign(rows, {[c.name]:c.value});
+     let value_col_index;
+    if(content[c].type!="checkbox"){
+   
+      if (c==0){ 
+        rows[0][0]=content[c].name;
+        value_col_index=0;
+      }else{
+         value_col_index = rows[0].findIndex(x=>x ==content[c].name)
+        if(value_col_index==-1){
+          value_col_index = rows[0].findIndex(x=>x =='null@EFB');
+          rows[0][parseInt(value_col_index)]=content[c].name;
+        }
+      //  rows[parseInt(c)+1][value_col_index]=content[c].value;
+        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+        console.log(rows[parseInt(c)+1][value_col_index],789);
+      }
+    }else{
+    //  console.log(c)
+      let name = `${content[c].name} [${content[c].id_}]`;
+      if (c==0){ 
+        rows[0][0]=name;
+        value_col_index=0;
+      }else{
+         name = `${content[c].name} [${content[c].id_}]`;
+        let value_col_index = rows[0].findIndex(x=>x ==name);
+        if(value_col_index!=-1){
+         // rows[0][value_col_index]=name;
+          rows[parseInt(c)+1][parseInt(value_col_index)]=content[c].value;
+        }else{
+          value_col_index = rows[0].findIndex(x=>x =='null@EFB');
+         // console.log(content[c] , c );
+          rows[0][parseInt(value_col_index)]=name;
+         // rows[parseInt(c)+1][value_col_index]=content[c].value;
+        }
+       // console.log(i_count)
+        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+      }
+
     }
+    console.log(rows);
+    /*  let r ;
+      if (c.type!="checkbox"){
+        const id_index= ids.findIndex(x=>x==c.id_);
+        if(id_index==-1){
+          heads.push(c.name)
+          ids.push(c.id_)
+          row[(ids.length-1)]=c.value;
+        }else{
+          row[id_index]=c.value;
+        }
+        console.log(heads,ids,row)
+      }else{
+        // it's a checkbox
+
+      } */
+     
+ /*     if (c.type!="checkbox"){
+       r =  {[c.name]:c.value,type:c.type};
+     }else{
+       console.log(`c.type!="checkbox"`,countMultiNo,length , "chck")
+       if(countMultiNo.length==0){
+        countMultiNo.push(c.name);
+        NoMulti.push(1)
+        r =  {[c.name]:c.value,type:c.type,no:1};
+       }else{
+         const nn = countMultiNo.findIndex(x=> x==c.name)
+         console.log(nn , "chck")
+          if (nn !=-1)  {
+            NoMulti[nn] += NoMulti[nn]
+            r =  {[c.name]:c.value,type:c.type,no: NoMulti[nn]};
+          }else{
+            countMultiNo.push(c.name);
+            NoMulti.push(1)
+            r =  {[c.name]:c.value,type:c.type,no: 1};
+          }
+       }
+       
+     } */
+     //console.log(r , "chck")
+   /*   rows.push(r)
+     head.length==undefined ||head.length==0  ||( head.findIndex(x => x== c.name) ==-1 && c.name.length>0)?head = Object.assign(head, {[c.name]:c.name}) :0; */
+    // console.log(rows);
+    }
+    console.log(rows,"rslt")
     exp.push(rows);
   }
+  console.log(exp);
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
   localStorage.setItem('head_ws_p', JSON.stringify(head)); 
 }
@@ -1329,15 +1431,33 @@ function convert_to_dataset_emsFormBuilder(){
   let rows = Array.from(Array(yy+1), () => Array(rowNo).fill('null@EFB'));
   //console.log(rows);
   rowNo =0;
-  //console.log(exp);
+  console.log(exp);
+    for(let i in titles){
+    rows[0][parseInt(i)] =titles[i] 
+    }
  
   for(let ex of exp){
     rowNo +=1;
-    
+      for(let ee of ex){
+        //ex multi rows
+          for(let n of ee ){
+            //e = {Name: "hassan", type: "text"}
+            console.log(ee, n,"life");
+          
+          }
+          if(ee.type !="checkbox"){
+
+          }else{
+          // if (e==0 && ex[e]!= undefined ) 
+          }
+       
+      }
     for(let i in titles){
+        //console.log(rows[0][parseInt(i)] ,titles[i]  )
       if(rowNo==1) rows[0][parseInt(i)] =titles[i] 
-      //console.log(ex[titles[i]]);
+
        ex[titles[i]] != undefined ? rows[rowNo][parseInt(i)] =ex[titles[i]] : '';
+     //  ex[titles[i]] != undefined ? rows[rowNo][parseInt(i)] =ex[titles[i]] : '';
     }
   }
   console.log(rows);
