@@ -149,6 +149,7 @@ class _Public {
 				"passwordRecovery" => __('Password recovery','easy-form-builder'),
 				"info" => __('information'),
 				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
+				"noComment" => __('No comment','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];
@@ -388,16 +389,16 @@ class _Public {
 				
 				if(strlen($secretKey)>3){
 					$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-						error_log(json_encode($verify));
+						//error_log(json_encode($verify));
 						$captcha_success =json_decode($verify['body']);
 					$not_captcha=false;	 
 				}
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 
-		error_log($type);
+	/* 	error_log($type);
 		error_log($captcha_success->succes);
-		error_log($not_captcha);
+		error_log($not_captcha); */
 		if ($not_captcha==false && $captcha_success->success==false  ) {
 		  $response = array( 'success' => false  , 'm'=>__('Error, Captcha has been errored!' , 'easy-form-builder')); 
 		  wp_send_json_success($response,$_POST);
@@ -797,9 +798,9 @@ class _Public {
 				}
 				//$ip = $this->ip;
 			}
-
+			$r = false;
 			if($value!=null){
-				
+				$r=true;
 				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
@@ -810,7 +811,7 @@ class _Public {
 			}
 		//recaptcha end
 
-
+			
 	  }//end function
 
 

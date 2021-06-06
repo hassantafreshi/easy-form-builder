@@ -181,6 +181,7 @@ class Panel_edit  {
 				"logout" => __('Logout','easy-form-builder'),
 				"survey" => __('Survey','easy-form-builder'),
 				"chart" => __('Chart','easy-form-builder'),
+				"noComment" => __('No comment','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );

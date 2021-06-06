@@ -1232,17 +1232,19 @@ function clear_garbeg_emsFormBuilder(){
 function fun_export_rows_for_Subscribe_emsFormBuilder(value){
   //json ready for download 
   //778899
-  let exp =[];
+ // let exp =[];
   let head ={};
   let heads =[];
   let ids =[];
   let count =-1;
- // console.log(value);
- const rows = Array.from(Array(value.length+1), () => Array(100).fill('null@EFB'));
+ console.log(value.length);
+ console.log(value);
+ const rows = Array.from(Array(value.length), () => Array(100).fill('null@EFB'));
   let i_count =-1;
   for (v of value){
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'not found', value:'not found'}
-    const rows = Array.from(Array(content.length+1), () => Array(100).fill('null@EFB'));
+    console.log(content.length);
+   // const rows = Array.from(Array(content.length+1), () => Array(100).fill('null@EFB'));
     console.log(content);
    count +=1;
     // let rows =[];
@@ -1276,27 +1278,39 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
     }else{
     //  console.log(c)
       let name = `${content[c].name} [${content[c].id_}]`;
+      let test =-1;
       if (c==0){ 
         rows[0][0]=name;
         value_col_index=0;
       }else{
+        test =1;
          name = `${content[c].name} [${content[c].id_}]`;
         let value_col_index = rows[0].findIndex(x=>x ==name);
+        console.log(name , value_col_index);
         if(value_col_index!=-1){
          // rows[0][value_col_index]=name;
-          rows[parseInt(c)+1][parseInt(value_col_index)]=content[c].value;
+          rows[parseInt(i_count)][parseInt(value_col_index)]=content[c].value;
         }else{
+          test =2;
           value_col_index = rows[0].findIndex(x=>x =='null@EFB');
          // console.log(content[c] , c );
           rows[0][parseInt(value_col_index)]=name;
+          if(name == 'Check box [gv08k9v3p]'){
+            console.log(`77778 value_col_index=[${value_col_index}] c=[${c}] row[0]=[${rows[0][parseInt(value_col_index)]}] test[${test}]`);
+            console.log(`77778`,rows[0]);
+          }
          // rows[parseInt(c)+1][value_col_index]=content[c].value;
         }
-       // console.log(i_count)
-        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-      }
+        /* test code */
+    
+        /* test code */
 
+       // console.log(i_count)
+        
+      }
+      rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
     }
-    console.log(rows);
+//    console.log(rows);
     /*  let r ;
       if (c.type!="checkbox"){
         const id_index= ids.findIndex(x=>x==c.id_);
@@ -1341,21 +1355,30 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
     // console.log(rows);
     }
     console.log(rows,"rslt")
-    exp.push(rows);
+  //  exp.push(rows);
+  }
+  const col_index = rows[0].findIndex(x=>x =='null@EFB');
+  console.log(efb_var.text.noComment);
+  const exp = Array.from(Array(value.length), () => Array(col_index).fill(efb_var.text.noComment));
+  for (e in exp){
+    for (let i =0 ; i<col_index ; i++){
+      if(rows[e][i]!="null@EFB")   exp[e][i]=rows[e][i];
+    }
   }
   console.log(exp);
+ // console.log(exp);
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
-  localStorage.setItem('head_ws_p', JSON.stringify(head)); 
+//  localStorage.setItem('head_ws_p', JSON.stringify(head)); 
 }
 
 
 
-function exportCSVFile_emsFormBuilder(headers, items, fileTitle) {
+function exportCSVFile_emsFormBuilder(items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
 
-  if (headers) {
+ /*  if (headers) {
       items.unshift(headers);
-  }
+  } */
   // Convert Object to JSON
   var jsonObject = JSON.stringify(items);
 
@@ -1402,14 +1425,14 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 
 function generat_csv_emsFormBuilder(){
-  const head  = JSON.parse(localStorage.getItem("head_ws_p"));
+  //const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp  = JSON.parse(localStorage.getItem("rows_ws_p"));
   /* console.log(head);
   console.log(exp); */
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   //040820
   
-  exportCSVFile_emsFormBuilder(head,exp,filename); // create csv file
+  exportCSVFile_emsFormBuilder(exp,filename); // create csv file
  //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
 }
 
@@ -1418,10 +1441,12 @@ function convert_to_dataset_emsFormBuilder(){
  
   const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp  = JSON.parse(localStorage.getItem("rows_ws_p"));
-  let titles =[];
+  let rows =exp;
+ /*  let titles =[];
   let rowNo =0;
   let yy =0
-  for(let h in head){
+ // for(let h in head){
+  for(let h in Exp[0]){
     titles.push(h);
     rowNo +=1;
   }
@@ -1460,7 +1485,7 @@ function convert_to_dataset_emsFormBuilder(){
      //  ex[titles[i]] != undefined ? rows[rowNo][parseInt(i)] =ex[titles[i]] : '';
     }
   }
-  console.log(rows);
+  console.log(rows); */
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0)); 
   let titleTable =[]; // list name of tables and thier titles
@@ -1487,9 +1512,9 @@ function convert_to_dataset_emsFormBuilder(){
       }
     }
   }
-/*   console.log(titleTable);
+  /* console.log(titleTable);
   console.log(entry);
-  console.log(countEnrty ); */
+  console.log(countEnrty );  */
  emsFormBuilder_chart(titleTable,entry,countEnrty);
 }
 
