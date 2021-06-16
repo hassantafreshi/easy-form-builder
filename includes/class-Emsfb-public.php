@@ -308,8 +308,8 @@ class _Public {
 	
 
 		//source:https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
-		wp_enqueue_script( 'popper-js', plugins_url('../public/assets/js/popper.min.js',__FILE__), array('jquery'), null, true );
-		wp_enqueue_script('popper-js');
+	/* 	wp_enqueue_script( 'popper-js', plugins_url('../public/assets/js/popper.min.js',__FILE__), array('jquery'), null, true );
+		wp_enqueue_script('popper-js'); */
 
 
 
@@ -328,8 +328,8 @@ class _Public {
 		
 
 		
-		wp_register_script('recaptcha-code', 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js', null, null, true);
-		wp_enqueue_script('recaptcha-code'); 
+		/* wp_register_script('recaptcha-code', 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js', null, null, true);
+		wp_enqueue_script('recaptcha-code');  */
 	
 		$params = array(
 			'hl' => $lang

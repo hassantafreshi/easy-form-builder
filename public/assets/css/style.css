@@ -222,7 +222,7 @@ option.emsFormBuilder ,select.emsFormBuilder  {
       
       text-transform:capitalize;
     }
-  .btn-type.emsFormBuilder {
+  .btn-type-efb {
     background-color: #25012eb5!important;
     color: #eee !important;;
   }
@@ -253,7 +253,7 @@ option.emsFormBuilder ,select.emsFormBuilder  {
     }
 
 
-    .mat-shadow.emsFormBuilder, .mat-shadow-dz.emsFormBuilder {
+    .mat-shadow.emsFormBuilder, .mat-shadow-dz.emsFormBuilder,.mat-shadow-efb {
         box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         transition: all 0.3s cubic-bezier(.25,.8,.25,1);
       }
@@ -262,6 +262,9 @@ option.emsFormBuilder ,select.emsFormBuilder  {
         box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
       }
 
+      .btn-lg-efb{
+        height: 5rem;
+      }
 
       .emsFormBuilder-form,
       .emsFormBuilder-form-view
@@ -533,10 +536,9 @@ video.emsFormBuilder {
   }
 
 
-  input.multiselect-checkbox {
-    margin: 0% 2%;
+  input.multiselect-checkbox-efb {
+    margin: 0% 2% !important;
 }
-
 div.emsFormBuilder {
     width: 100%;
 }
