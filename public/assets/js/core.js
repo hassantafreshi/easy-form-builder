@@ -513,11 +513,13 @@ function fun_render_view(val,check){
       }
     }
     //console.log(ajax_object_efm )
+    
     const button_name = ajax_object_efm.type!="form" && ajax_object_efm.type!="survey" ? ajax_object_efm.text[ajax_object_efm.type] : ajax_object_efm.text.send
     const content = `<!-- commenet --!><div class="m-2">
     <div class="row d-flex justify-content-center align-items-center">
         <div class="col-md-12">
             <div id="emsFormBuilder-form-view" >
+          ${sitekye_emsFormBuilder ? ` <div class=" overpage-efb preview-overpage-efb " id="overpage-efb"> <h1 class="mx-1 mt-5 text-info text-center"> ${ajax_object_efm.text.waitingLoadingRecaptcha}</h> </div>` :`<!-- recaptcha not added  -->`} 
             <form id="emsFormBuilder-form-view-id">
                 <h1 class='emsFormBuilder' id="emsFormBuilder-form-view-title">Form Bulider</h1>                
                 <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
@@ -551,6 +553,8 @@ function fun_render_view(val,check){
         </div>
     </div>
     </div>`;
+
+
     if (check ==1) {if (document.getElementById('body_emsFormBuilder')) document.getElementById('body_emsFormBuilder').innerHTML =content}
     else {return content}
     
@@ -593,6 +597,8 @@ function fun_render_view(val,check){
       }
     }
     
+
+ 
     
   }
 
@@ -631,8 +637,10 @@ function ShowTab_emsFormBuilder_view(n) {
   function emsFormBuilder_nevButton_view(n) {
   //recaptcha
   if(currentTab_emsFormBuilder==0){
+   // console.log(`grecaptcha[${grecaptcha.getResponse()}]`,grecaptcha.getResponse());
+   // if(!grecaptcha.getResponse()){document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha;}
     const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
-    //console.log(`[${response}]` ,sitekye_emsFormBuilder)
+    console.log(`[${response}]` ,sitekye_emsFormBuilder)
     if( response!=null) { 
       //reCaptcha not verified
      // alert("no pass"); 
@@ -640,7 +648,7 @@ function ShowTab_emsFormBuilder_view(n) {
      if(document.getElementById('recaptcha-message'))document.getElementById('recaptcha-message').innerHTML=''
     
     }else if ( sitekye_emsFormBuilder.length>1 && response==null){
-      document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha
+      document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha;
       return ;
     }else { 
       //reCaptch verified
@@ -1245,7 +1253,7 @@ function ShowTab_emsFormBuilder_view(n) {
         url:ajax_object_efm.ajax_url,
         data:data,
         success: function(res) {response_fill_form_efb(res)},
-        error: function(){response_fill_form_efb({error:'nOK'})}
+        error: function(){response_fill_form_efb({success: false,data: {success: false,m:'Some thing went wrong, contact to admin (E:JQ Co)'}})}
 
       }) 
    
@@ -1567,7 +1575,7 @@ function fun_vaid_tracker_check_emsFormBuilder(){
             url:ajax_object_efm.ajax_url,
             data:data,
             success: function(res) {response_Valid_tracker_efb(res)},
-            error: function(){response_Valid_tracker_efb({error:'nOK'})}
+            error: function(){response_Valid_tracker_efb({success: false,data: {success: false,m:'Some thing went wrong,Plase contact to admin (E:JQ Co)'}})}
     
           }) 
 
@@ -1744,7 +1752,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
       url:ajax_object_efm.ajax_url,
       data:data,
       success: function(res) {response_rMessage_id(res,message)},
-      error: function(){response_rMessage_id({error:'nOK'})}
+      error: function(){response_rMessage_id({success: false,data: {success: false,m:'Some thing went wrong,Plase contact to admin (E:JQ Co)'}})}
 
     }) 
 /*     $.post(ajax_object_efm.ajax_url, data, function (res) {
@@ -1833,11 +1841,12 @@ function validation_before_send_emsFormBuilder(){
      
 
       if(valueJson_ws[indx].type=="multiselect" || valueJson_ws[indx].type=="option"  || valueJson_ws[indx].type=="Select") {
-       // console.log(indx);
-        indx = valueJson_ws.findIndex(x => x.id_ == valueJson_ws[indx].parents);
-      //  console.log(indx);
-        fill += valueJson_ws[indx].required== true ? 1 :0;
+        console.log(valueJson_ws[indx].type ,valueJson_ws[indx].parents, valueJson_ws,indx, "multiselect");
+        const  exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);
+        console.log(valueJson_ws[indx] ,indx , exists, "multiselect");
+        fill += valueJson_ws[indx].required== true && exists>-1 ? 1 :0;
       }else{
+        console.log(valueJson_ws[indx].type ,indx , valueJson_ws[indx], "other");
         fill += valueJson_ws[indx].required== true ? 1 :0;
       }
      if(row.value.length>0) count[1] +=1;
@@ -1958,8 +1967,8 @@ function Show_recovery_pass_efb(){
 
 
 function response_fill_form_efb(res){
-  
-  if (res.data.success==true) {
+  console.log(res);
+  if (  res.data.success==true ) {
    /*  console.log(res.data);
     console.log(form_type_emsFormBuilder); */ 
     //console.log(res,localStorage.getItem("sendback"))
@@ -2055,3 +2064,9 @@ function response_rMessage_id(res,message){
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
 }
+
+/* remove overpage after loading recaptcha */
+function onloadRecaptchakEFB(){
+ document.getElementById('overpage-efb').remove();
+}
+/* remove overpage after loading recaptcha */

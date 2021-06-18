@@ -150,8 +150,8 @@ class _Public {
 				"info" => __('information'),
 				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
 				"noComment" => __('No comment','easy-form-builder'),
+				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
-
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
@@ -240,6 +240,7 @@ class _Public {
 				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
 				"thanksFillingOutform" => __('Thanks for filling out our form!','easy-form-builder'),
 				"trackingCode" => __('Tracking Code','easy-form-builder'),
+				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
@@ -338,7 +339,7 @@ class _Public {
 		// نمونه اصلی
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
-		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js', null , null, true);
+		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
 				wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
