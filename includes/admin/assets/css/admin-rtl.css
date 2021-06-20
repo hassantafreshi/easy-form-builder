@@ -3,8 +3,13 @@ body {
 }
 
 .wp-menu-name {
-	direction: rtl;
-	float:     right;
+	/* direction: rtl;
+	float:     right; */
+	text-align: initial;
+}
+
+ul.wp-submenu.wp-submenu-wrap {
+    text-align: initial;
 }
 
 li#collapse-menu {

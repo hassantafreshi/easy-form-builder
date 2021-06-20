@@ -151,14 +151,17 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
 
+
+      //  add_menu_page(__('Panel', 'Emsfb'),__('Panel', 'Emsfb'), 'Emsfb', '', '');
         add_menu_page(
             __('Panel', 'Emsfb'),
             $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
+            
             'Emsfb',
             'Emsfb',
             '',
             '' . $icon . ''
-        );
+        ); 
         add_submenu_page('Emsfb', __('Panel', 'easy-form-builder'), __('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
         //
 

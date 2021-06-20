@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.33.4
+Stable tag: 			1.33.5
 Requires at least: 		4.7
 Tested up to: 			5.7.2
 Requires PHP:			5.4 or higher
@@ -91,8 +91,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 1.33.5 =
+* Fixed issues about rtl language
 
-= 1.33.3 =
+= 1.33.4 =
 * Fixed issues
 * localized  spam protection
 
