@@ -59,11 +59,7 @@ Below is an example of how using the all-contributors spec table can recognize a
 -   Create drag and drop file selection forms
 -   Create form by Advanced input like Date, URL, Range, Color, Multi Select 
 
-
-<div align="center">
-<br>
-<iframe width="500" height="300" src="https://www.youtube.com/embed/7jS01CEtbDg" frameborder="1" allowfullscreen></iframe>
-</div>
+s
 
 
 ## Requirements
