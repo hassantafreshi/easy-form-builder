@@ -925,7 +925,7 @@ function ShowTab_emsFormBuilder_view(n) {
             case "url":            
             case "textarea":
                 value = el.value;
-                const len = el.type =="textarea" ? 5 :3;
+                const len = el.type =="textarea" ? 5 : el.type =="text" ? 2 : 1;
                 //console.log(`valid ${el.type}`)
                 if(value.length<len){
                   state=false;

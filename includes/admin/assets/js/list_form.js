@@ -15,7 +15,7 @@ jQuery (function() {
   valueJson_ws_form=ajax_object_efm.ajax_value;
   poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
-  fun_emsFormBuilder_render_view(50); //778899
+  fun_emsFormBuilder_render_view(10); //778899
 });
 
 let count_row_emsFormBuilder =0;
