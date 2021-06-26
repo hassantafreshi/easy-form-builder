@@ -1272,8 +1272,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
           rows[0][parseInt(value_col_index)]=content[c].name;
         }
       //  rows[parseInt(c)+1][value_col_index]=content[c].value;
+      
         rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-        console.log(rows[parseInt(c)+1][value_col_index],789);
+        //console.log(rows[parseInt(c)+1][value_col_index],789);
       }
     }else{
     //  console.log(c)

@@ -37,8 +37,10 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
 
 ## Features 💡
 
-Below is an example of how using the all-contributors spec table can recognize all contributors
-- Simple drag and drop functionality
+You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking ID allows you to connect any submission to an individual request.
+
+Features:
+-   Simple drag and drop functionality
 -   Create unlimited forms
 -   Create multistep (limited steps) form
 -   Create sample file upload form
@@ -46,6 +48,7 @@ Below is an example of how using the all-contributors spec table can recognize a
 -   Create subscription or newsletters signup forms
 -   Create Login (sign-in) forms
 -   Create Registration (sign-up) forms
+-   Priority Support
 -   Get export of subscribers list to csv format file
 -   Get notified by email when a form has been submitted
 -   Add tracking pixels
