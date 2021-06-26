@@ -91,6 +91,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 1.33.5 =
+* Fixed issues about form validation
+
 = 1.33.5 =
 * Fixed issues about rtl language
 
