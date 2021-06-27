@@ -110,13 +110,24 @@ class Admin {
         if (strpos($hook, 'Emsfb') && is_admin()) {
 
             if (is_rtl()) {
-                //error_log('is_rtl');
+                //code_v1 start
                 wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true);
                 wp_enqueue_style('Emsfb-css-rtl');
+                //code_v1 end
             }
+            //code_v1 start
+            /* wp_register_style('Emsfb-admin-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin.css', true);
+            wp_enqueue_style('Emsfb-admin-css'); */
+            //code_v1 end
 
-            wp_register_style('Emsfb-admin-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin.css', true);
-            wp_enqueue_style('Emsfb-admin-css');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
+            wp_enqueue_style('Emsfb-style-css');
+
+            wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+            wp_enqueue_style('Emsfb-bootstrap-css');
+            
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
+            wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             $lang = get_locale();
             if (strlen($lang) > 0) {
@@ -124,7 +135,7 @@ class Admin {
             }
 
             $ac = $this->get_activeCode_Emsfb();
-
+             //code_v1 start
             //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
             wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
             wp_enqueue_style('Font_Awesome-5');
@@ -138,8 +149,31 @@ class Admin {
             wp_enqueue_style('font-awesome-animation-css');
 
             //source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
-            wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
-            wp_enqueue_script('popper-js'); 
+           /*  wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
+            wp_enqueue_script('popper-js');  */
+             //code_v1 end
+
+
+                //code_v2 start
+
+                wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+                wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
+                wp_enqueue_script('efb-bootstrap-min-js'); 
+
+               
+
+                wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
+                wp_enqueue_script('efb-jquery-min-js'); 
+
+               /*  wp_enqueue_script('efb-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/main.js');
+                wp_enqueue_script('efb-min-js');  */
+
+                wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.select.min.js');
+                wp_enqueue_script('efb-bootstrap-select-js'); 
+
+                //code_v2 end
 
         }
     }

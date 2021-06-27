@@ -2,11 +2,11 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.33.6
+Stable tag: 			2.0
 Requires at least: 		4.7
 Tested up to: 			5.7.2
 Requires PHP:			5.4 or higher
-License: 				GPLv3 or later
+License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
 Easy Form Builder is a user-friendly plugin to help you create powerful forms. With Easy Form Builder, creating professional forms of any kind becomes a breeze - no coding skills required. 
