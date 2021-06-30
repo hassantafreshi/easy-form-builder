@@ -92,7 +92,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 = 1.33.7 =
-* Change location of show trackingCode of forms to create/edit form pages
+* Change location of show trackingCode of forms from setting to create/edit form pages
 
 = 1.33.6 =
 * Fixed issues about form validation
