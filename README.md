@@ -20,7 +20,7 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
               <tr>
             <td><a href="https://wordpress.org/plugins/easy-form-builder/">English</a></td>
             <td><a href="https://da.wordpress.org/plugins/easy-form-builder/">Danish</a></td>
-            <td><a href="#"> हिन्दी <small>(Coming soon)</smal></a></td>
+            <td><a href="https://hi.wordpress.org/plugins/easy-form-builder/"> हिन्दी</a></td>
             <td><a href="https://fa.wordpress.org/plugins/easy-form-builder/">فارسی</a></td>
             <td>
         </tr>
