@@ -14,6 +14,7 @@ let stepMax_ws = 1
 let edit_emsFormBuilder = false;
 
 let formName_ws = `EasyFormBuilder-${Math.random().toString(36).substr(2, 3)}`;
+let trackingCode_efb='false';
 let form_ID_emsFormBuilder =0;
 let highestAmount_emsFormBuilder;
 let form_type_emsFormBuilder='form';
@@ -226,12 +227,34 @@ document.getElementById("form_name").addEventListener("change", (e) => {
   for (const val of valueJson_ws_p) {
     if (val.formName) {
       val.formName = formName_ws;
+      val.trackingCode = trackingCode_efb;
       saveLocalStorage_emsFormBuilder()
      //formName
     }
   }
 
 })// end event change formName_ws
+
+if(document.getElementById("trackingcode_emsFormBuilder")){
+  document.getElementById("trackingcode_emsFormBuilder").addEventListener("click", (e) => {
+    let checked = document.getElementById("trackingcode_emsFormBuilder").checked;
+   // console.log(`checked [${checked}]`);
+  //  console.log(valueJson_ws_p);
+    trackingCode_efb = `${checked}`;
+    for (const val of valueJson_ws_p) {
+      if (val.trackingCode) {
+        val.trackingCode = trackingCode_efb;
+        saveLocalStorage_emsFormBuilder()
+       //formName
+      }else if(val.EfbVersion==1.2){
+        val.EfbVersion =1.3;
+        Object.assign(val, {trackingCode:trackingCode_efb})
+      //  console.log(valueJson_ws_p);
+      }
+    }
+  })// end event trackingcode_emsFormBuilder
+}
+
 
 }
 
@@ -312,7 +335,8 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">${efb_var.text.DragAndDropUI}</label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}</b></small></div>`
   }
 
-  const statusOfDelete = rndm!="emailRegisterEFB" &&  rndm!="emailRegisterEFB" && rndm!="passwordRegisterEFB" && rndm!=="usernameRegisterEFB"? true : false ;
+  const statusOfDelete =  rndm!="emaillogin" && rndm!="passwordlogin"  &&  rndm!="emailRegisterEFB" && rndm!="passwordRegisterEFB" && rndm!="usernameRegisterEFB"? true : false ;
+  
   const newElement = `
   <div id="${rndm}" class="section border border-primary rounded mb-0 h-30 view overlay ml-3 mr-3 mt-2 mb-1" draggable="true">
     <div class="card-header success-color white-text" > 
@@ -567,9 +591,10 @@ function fun_edit_emsFormBuilder(){
     let ob = [];
     let id_ = ""
     if (v.steps) {
-     
+     //console.log(v,v.trackingCode)
       document.getElementById('steps').value = v.steps;
       document.getElementById('form_name').value = v.formName;
+     if(formName_ws!="login" && formName_ws!="register" && v.trackingCode) document.getElementById('trackingcode_emsFormBuilder').checked =  v.trackingCode=="true" ? true :false;
       createSteps();
       for (let i = 1; i <= v.steps; i++) {
         //777
@@ -958,7 +983,7 @@ function createSteps() {
    //remove all elements in (end)
 
  // check value of maxstep get from user (Start)
- const form_name = document.getElementById("form_name").value;
+  const form_name = document.getElementById("form_name").value;
   const c = (document.getElementById("steps").value < 3 && document.getElementById("steps").value > 0 && !pro_ws) || (pro_ws && document.getElementById("steps").value <21 && document.getElementById("steps").value > 0 ) ? document.getElementById("steps").value : -1
   if (c != -1) {
     document.getElementById("nextBtn").disabled = false;
@@ -1067,7 +1092,7 @@ function createSteps() {
       name = name == "tabName" ? "name" : "icon";
       
       //emsfb version of form creator emsfb:1 ,
-      const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.2,type:form_type_emsFormBuilder }
+      const ob = {steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws,EfbVersion:1.3,type:form_type_emsFormBuilder,trackingCode:trackingCode_efb }
      //console.log(ob);
       
       if (name == "icon") {
@@ -1278,6 +1303,12 @@ function actionSendData_emsFormBuilder(){
         if(res.data.value && res.data.success==true){
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
           localStorage.removeItem('valueJson_ws_p');
+          localStorage.removeItem('rows_ws_p');
+          localStorage.removeItem('sendback');
+          localStorage.removeItem('Edit_ws_form');
+          localStorage.removeItem('valueJson_ws_messages');
+          localStorage.removeItem('head_ws_p');
+          localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
           
@@ -1288,6 +1319,12 @@ function actionSendData_emsFormBuilder(){
         }
       }else if(res.data.r=="update" && res.data.success==true){
         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.formUpdated}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formUpdatedDone}</span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
+        localStorage.removeItem('valueJson_ws_p');
+        localStorage.removeItem('rows_ws_p');
+        localStorage.removeItem('sendback');
+        localStorage.removeItem('Edit_ws_form');
+        localStorage.removeItem('valueJson_ws_messages');
+        localStorage.removeItem('head_ws_p');
         localStorage.removeItem('valueJson_ws_p');
         document.getElementById('back_emsFormBuilder').removeAttribute("onclick");
         document.getElementById('back_emsFormBuilder').addEventListener("click", (e) => {
@@ -1438,6 +1475,7 @@ function getOS_emsFormBuilder() {
 
 
 function add_form_builder_emsFormBuilder (){
+ console.log(formName_ws);
   const value =`  
   <div class="m-4">
     <div class="row d-flex justify-content-center align-items-center ${efb_var.rtl==1 ? 'rtl-text' :''}">
@@ -1461,7 +1499,12 @@ function add_form_builder_emsFormBuilder (){
             <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
             </br>
             <h5> ${efb_var.text.numberSteps}: *</h5>
-            <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
+            <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">            
+            <div class="form-group mx-3">
+            </br>
+               <input type="checkbox" class="form-check-input emsFormBuilder" ${formName_ws!="login" && formName_ws!="register" ? `id="trackingcode_emsFormBuilder" ` :`disabled` } >
+               <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
+             </div>
           </div>
           <div class="tab" id="tabInfo">
           </div>
@@ -1552,21 +1595,21 @@ function create_form_by_type_emsfb(id){
     //contactUs
     form_type_emsFormBuilder="form";
     formName_ws = efb_var.text.contactUs
-    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": efb_var.text.firstName,"type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": efb_var.text.lastName,"type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": efb_var.text.email,"type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name":efb_var.text.phone,"type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": efb_var.text.message,"type": "textarea","step": 1,"amount": 5,"required": true}]
+    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.3,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": efb_var.text.firstName,"type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": efb_var.text.lastName,"type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": efb_var.text.email,"type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name":efb_var.text.phone,"type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": efb_var.text.message,"type": "textarea","step": 1,"amount": 5,"required": true}]
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;
   }else if(id==="register" ){
     // if register has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="register";
     formName_ws ="register";
-    json =[{"steps":"1","name-1":efb_var.text.register,"formName":efb_var.text.register,"EfbVersion":1.2,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"usernameRegisterEFB","name":efb_var.text.username,"type":"text","step":1,"amount":1,"required":true},{"id_":"emailRegisterEFB","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true},{"id_":"passwordRegisterEFB","name":efb_var.text.password,"type":"password","step":1,"amount":3,"required":true}];
+    json =[{"steps":"1","name-1":efb_var.text.register,"formName":efb_var.text.register,"EfbVersion":1.3,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"usernameRegisterEFB","name":efb_var.text.username,"type":"text","step":1,"amount":1,"required":true},{"id_":"emailRegisterEFB","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true},{"id_":"passwordRegisterEFB","name":efb_var.text.password,"type":"password","step":1,"amount":3,"required":true}];
     valueJson_ws_p =json;
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
   }else if(id==="login"){ 
      // if login has clicked add Json of contact and go to step 3
      form_type_emsFormBuilder="login";
      formName_ws =form_type_emsFormBuilder;
-     json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":efb_var.text.emailOrUsername,"type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":efb_var.text.password,"type":"password","step":1,"amount":2,"required":true}];
+     json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.3,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":efb_var.text.emailOrUsername,"type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":efb_var.text.password,"type":"password","step":1,"amount":2,"required":true}];
      valueJson_ws_p =json;
      localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
    
@@ -1574,20 +1617,20 @@ function create_form_by_type_emsfb(id){
     // if support has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="form";
     formName_ws =form_type_emsFormBuilder
-   const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"How can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":efb_var.text.subject,"type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":efb_var.text.message,"type":"textarea","step":1,"amount":3,"required": true}];
+   const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.support,"EfbVersion":1.3,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"How can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":efb_var.text.subject,"type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":efb_var.text.message,"type":"textarea","step":1,"amount":3,"required": true}];
    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
    valueJson_ws_p =json;
   }else if(id==="subscription"){
     // if subscription has clicked add Json of contact and go to step 3
       form_type_emsFormBuilder="subscribe";
       formName_ws = form_type_emsFormBuilder
-      const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.subscribe,"EfbVersion":1.2,"type":"subscribe","icon-1":"fa fa-bell"},{"id_":"92os2cfq22","name":efb_var.text.firstName,"type":"text","step":1,"amount":1,"required":false},{"id_":"92os2cfqc","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true}];
+      const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.subscribe,"EfbVersion":1.3,"type":"subscribe","icon-1":"fa fa-bell"},{"id_":"92os2cfq22","name":efb_var.text.firstName,"type":"text","step":1,"amount":1,"required":false},{"id_":"92os2cfqc","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true}];
       localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
       valueJson_ws_p =json;    
   }else if(id=="survey") {
     form_type_emsFormBuilder="survey";
     formName_ws = form_type_emsFormBuilder
-  /*   const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.2,"type":"survey","icon-1":"fa fa-bell"}];
+  /*   const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.3,"type":"survey","icon-1":"fa fa-bell"}];
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;     */
 

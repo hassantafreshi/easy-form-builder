@@ -114,7 +114,7 @@ class Create {
 						"DragAndDropUI" => __('Drag and drop UI','easy-form-builder')]
 							));
 		}
-
+ 
 		$lang = [
 			"create" => __('Create','easy-form-builder'),
 			"define" => __('Define','easy-form-builder'),
@@ -265,7 +265,7 @@ class Create {
 			"phone" => __('Phone','easy-form-builder'),
 			"register" => __('Register'),
 			"username" => __('Username'),
-			
+			"showTrackingCode" => __('Show tracking Code','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];

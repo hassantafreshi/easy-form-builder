@@ -579,6 +579,7 @@ class _Public {
 							$creds['remember'] = true;
 
 							$user = wp_signon( $creds, false );
+							
 							if(isset($user->ID)){
 								//user login in successfully
 								// return user profile and ....

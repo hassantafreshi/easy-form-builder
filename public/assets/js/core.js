@@ -44,7 +44,8 @@ jQuery (function() {
       console.log(form_type_emsFormBuilder);
       if(ajax_object_efm.type!="userIsLogin"){
         const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
-      
+        console.log(vs)
+        console.log(vs.trackingCode);
         sitekye_emsFormBuilder =vs.siteKey;
         trackingCode_state_emsFormBuilder =vs.trackingCode;
       }else{
@@ -356,6 +357,9 @@ function fun_render_view(val,check){
     //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
+    if(valueJson_ws[0].EfbVersion<1.3) trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode ;
+    console.log(valueJson_ws[0]);
+    console
     console.log(valueJson_ws[0].steps);
     for (let v of valueJson_ws) {
     
@@ -1893,7 +1897,7 @@ function show_user_profile_emsFormBuilder(ob){
                           <h6 class="f-w-600">${ob.display_name}</h6>
                           <p>${ob.user_login}</p> 
                          
-                          <button type="button"  class="btn btn-lg btn-block mat-shadow emsFormBuilder btn-type-efb  " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
+                          <button type="button"  class="btn btn-lg btn-block mat-shadow-efb btn-type-efb btn-lg-efb  " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
                       </div>
                   </div>
                   
@@ -1988,7 +1992,7 @@ function response_fill_form_efb(res){
        break;
        case 'login':
         
-         
+         console.log(res.data);
          if(res.data.m.state==true){
            //console.log(res.data);
            document.getElementById('body_emsFormBuilder').innerHTML=show_user_profile_emsFormBuilder(res.data.m);

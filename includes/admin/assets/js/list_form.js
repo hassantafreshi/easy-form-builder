@@ -493,6 +493,7 @@ window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
 
 // تابع نمایش ویرایش فرم
 function fun_ws_show_edit_form(id){
+  trackingcode ='null';
   document.getElementById('emsFormBuilder-content').innerHTML=`<div class="col-md-12 ">
   <div id="emsFormBuilder-form" >
   <form id="emsFormBuilder-form-id" class="${efb_var.rtl==1 ? 'rtl-text' :''}">
@@ -515,6 +516,11 @@ function fun_ws_show_edit_form(id){
           </br>
           <h5>${efb_var.text.numberOfSteps}:*</h5>
           <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
+          <div class="form-group mx-3">
+          </br>
+             <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${formName_ws!="login" && formName_ws!="register" ? `id="trackingcode_emsFormBuilder" ` :`disabled` }>
+             <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
+           </div>
       </div>
       <div class="tab" id="tabInfo">
 
@@ -993,14 +999,16 @@ function fun_show_setting__emsFormBuilder(){
     <div class="form-group mx-5">
     <a  class="btn btn btn-secondary" OnClick="clear_garbeg_emsFormBuilder()">${efb_var.text.clearUnnecessaryFiles}</a>          
     </div>
+    <!--
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="TrackingCodeHelp">${efb_var.text.trackingCode}<h6>
        <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.ifShowTrackingCodeToUser}</small>
       <div class="form-group mx-5">
        <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${trackingcode!=="null" && ( trackingcode=="true" ||  trackingcode===true)? `checked` :"" }>
   <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
-      </div>
+      </div>     
     </div>
+    -->
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">${efb_var.text.trackingCodeFinder}<h6>
        <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}<a target="_blank" href="https://youtu.be/c1_gCFihrH8">${efb_var.text.clickHereWatchVideoTutorial}</a>   </small>
