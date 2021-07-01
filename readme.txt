@@ -1,8 +1,8 @@
 === Easy Form Builder ===
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
-Tags: 				    form builder, form creator, contact form, support form, subscribe form
+Tags: 				    form builder, form creator, support form, subscribe form,Survey form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.33.7
+Stable tag: 			1.34
 Requires at least: 		4.7
 Tested up to: 			5.7.2
 Requires PHP:			5.4 or higher
@@ -28,6 +28,7 @@ How *Easy Form Builder* makes your life easier:
 - Create subscription or newsletters signup forms
 - Create Login (sign-in) forms
 - Create Registration (sign-up) forms
+- Create Poll (Survey)  forms
 - Get export of subscribers list to csv format file
 - Get notified by email when a form has been submitted
 - Add tracking pixels
@@ -91,6 +92,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 1.34 =
+* Survey, poll or questionnaire forms creator added to Easy Form Builder
+* Fixed issues
+
 = 1.33.7 =
 * Change location of show trackingCode of forms from setting to create/edit form pages
 

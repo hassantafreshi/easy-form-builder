@@ -48,6 +48,7 @@ Features:
 -   Create subscription or newsletters signup forms
 -   Create Login (sign-in) forms
 -   Create Registration (sign-up) forms
+-   Create Poll (Survey)  forms
 -   Priority Support
 -   Get export of subscribers list to csv format file
 -   Get notified by email when a form has been submitted

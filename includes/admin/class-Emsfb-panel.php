@@ -237,7 +237,7 @@ class Panel_edit  {
 				
 				</div>
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-				<a class="navbar-brand" href="https://whitestudio.team/?s=pwp">
+				<a class="navbar-brand" href="https://whitestudio.team/?s=pwp" target="_blank">
 					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
 					<?php _e('Easy Form Builder','easy-form-builder') ?>
 				</a>
