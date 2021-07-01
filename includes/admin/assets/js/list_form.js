@@ -15,7 +15,7 @@ jQuery (function() {
   valueJson_ws_form=ajax_object_efm.ajax_value;
   poster_emsFormBuilder =ajax_object_efm.poster
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
-  fun_emsFormBuilder_render_view(10); //778899
+  fun_emsFormBuilder_render_view(777); //778899
 });
 
 let count_row_emsFormBuilder =0;
@@ -891,7 +891,7 @@ function fun_show_help__emsFormBuilder(){
       3:{title: efb_var.text.howGetGooglereCAPTCHA, url:'https://www.youtube.com/embed/a1jbMqunzkQ'},
       4:{title: efb_var.text.howActivateAlertEmail, url:'https://www.youtube.com/embed/So2RAzu-OHU'},
       5:{title: efb_var.text.howCreateAddForm, url:'https://www.youtube.com/embed/7jS01CEtbDg'},
-      6:{title: efb_var.text.howActivateTracking, url:'https://www.youtube.com/embed/im3aKby4E14'},
+     /*  6:{title: efb_var.text.howActivateTracking, url:'https://www.youtube.com/embed/im3aKby4E14'}, */
       7:{title: efb_var.text.howWorkWithPanels, url:'https://www.youtube.com/embed/7jS01CEtbDg'},
       8:{title: efb_var.text.howAddTrackingForm, url:'https://www.youtube.com/embed/c1_gCFihrH8'},
       9:{title: efb_var.text.howFindResponse, url:'https://www.youtube.com/embed/vqKi9BJbO7k'},
@@ -999,16 +999,16 @@ function fun_show_setting__emsFormBuilder(){
     <div class="form-group mx-5">
     <a  class="btn btn btn-secondary" OnClick="clear_garbeg_emsFormBuilder()">${efb_var.text.clearUnnecessaryFiles}</a>          
     </div>
-    <!--
-    <div class="py-2">
+   
+    <div class="py-2 invisible">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="TrackingCodeHelp">${efb_var.text.trackingCode}<h6>
        <small id="TrackingCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.ifShowTrackingCodeToUser}</small>
       <div class="form-group mx-5">
        <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${trackingcode!=="null" && ( trackingcode=="true" ||  trackingcode===true)? `checked` :"" }>
-  <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
+      <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
       </div>     
     </div>
-    -->
+    
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2 " aria-describedby="shortCodeHelp">${efb_var.text.trackingCodeFinder}<h6>
        <small id="shortCodeHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}<a target="_blank" href="https://youtu.be/c1_gCFihrH8">${efb_var.text.clickHereWatchVideoTutorial}</a>   </small>
@@ -1045,6 +1045,7 @@ function fun_set_setting_emsFormBuilder(){
   }
   const v = (id)=>{
     const el =document.getElementById(id);
+    console.log(el);
     if(el.type!=="checkbox"){
       
       if(el.value.length>0 && el.value.length<20  && id!=="activeCode_emsFormBuilder" && id!=="email_emsFormBuilder"){
@@ -1087,7 +1088,8 @@ function fun_set_setting_emsFormBuilder(){
     const sitekey = f(`sitekey_emsFormBuilder`);
     const secretkey = f(`secretkey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
-    const trackingcode = f(`trackingcode_emsFormBuilder`);
+    let trackingcode = f(`trackingcode_emsFormBuilder`);
+     trackingcode = false; //form v1.3
     fun_send_setting_emsFormBuilder({activeCode:activeCode, siteKey:sitekey, secretKey:secretkey, emailSupporter:email, trackingCode:`${trackingcode}`  });
   }
 }
@@ -1245,21 +1247,24 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
   let heads =[];
   let ids =[];
   let count =-1;
- console.log(value.length);
+ 
  console.log(value);
- const rows = Array.from(Array(value.length), () => Array(100).fill('null@EFB'));
+ const rows = Array.from(Array(value.length+1), () => Array(100).fill('null@EFB'));
+ console.log(`rows[${rows.length}]`);
   let i_count =-1;
   for (v of value){
     const content =v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : {name:'not found', value:'not found'}
-    console.log(content.length);
+    //console.log(content.length);
    // const rows = Array.from(Array(content.length+1), () => Array(100).fill('null@EFB'));
-    console.log(content);
-   count +=1;
-    // let rows =[];
-    i_count +=1;
+  
+     count +=1;
+    i_count += i_count==-1 ? +2 :1;
+    console.log(content,"CheckValue");
+    console.log(`i_count [${i_count}]`,"CheckValue");
      let countMultiNo = [];
      let NoMulti =[];
-    // console.log(v);
+     console.log(`i_count [${i_count}]`);
+     console.log(rows);
    // let rows ={};
   //  console.log(content.length);
     
@@ -1269,55 +1274,65 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
      // rows = Object.assign(rows, {[c.name]:c.value});
      let value_col_index;
     if(content[c].type!="checkbox"){
-   
-      if (c==0){ 
+ /*      if (c==0){ 
+        console.log(` c [${c}]`,content[c],"NCheck","CheckValue");
         rows[0][0]=content[c].name;
-        value_col_index=0;
-      }else{
+        value_col_index = rows[0].findIndex(x=>x ==content[c].name)
+      }else{ */
          value_col_index = rows[0].findIndex(x=>x ==content[c].name)
         if(value_col_index==-1){
           value_col_index = rows[0].findIndex(x=>x =='null@EFB');
           rows[0][parseInt(value_col_index)]=content[c].name;
-        }
+          console.log(content[c].name , content[c],c ,rows[0][parseInt(value_col_index)]);
+          console.log(`rows[parseInt(${i_count})][parseInt(${value_col_index})]` ,`rows[0][parseInt(${value_col_index})]`);
+       // }
       //  rows[parseInt(c)+1][value_col_index]=content[c].value;
       
-        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-        //console.log(rows[parseInt(c)+1][value_col_index],789);
+      console.log(`row[${[parseInt(i_count)]}][${[parseInt(value_col_index)]}] [${content[c].value}],"NCheck","CheckValue"`);
+      //  rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+        console.log(`row cel [${rows[parseInt(i_count)][parseInt(value_col_index)]}]`,rows[parseInt(i_count)],content[c].value,"NCheck","CheckValue");
       }
+      rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
     }else{
-    //  console.log(c)
+      console.log(` c [${c}]`,content[c],"Check","CheckValue");
+      console.log(c ,'checktest')
       let name = `${content[c].name} [${content[c].id_}]`;
-      let test =-1;
+   /*    let test =-1;
       if (c==0){ 
         rows[0][0]=name;
         value_col_index=0;
       }else{
-        test =1;
+        test =1; */
          name = `${content[c].name} [${content[c].id_}]`;
-        let value_col_index = rows[0].findIndex(x=>x ==name);
-        console.log(name , value_col_index);
+         value_col_index = rows[0].findIndex(x=>x ==name);
+        
+        console.log(`value_col_index[${value_col_index}] nsme[${name}]`,'checktest');
         if(value_col_index!=-1){
          // rows[0][value_col_index]=name;
           rows[parseInt(i_count)][parseInt(value_col_index)]=content[c].value;
         }else{
           test =2;
           value_col_index = rows[0].findIndex(x=>x =='null@EFB');
-         // console.log(content[c] , c );
+          console.log(`find row colm [${value_col_index}]`,'checktest');
           rows[0][parseInt(value_col_index)]=name;
           if(name == 'Check box [gv08k9v3p]'){
-            console.log(`77778 value_col_index=[${value_col_index}] c=[${c}] row[0]=[${rows[0][parseInt(value_col_index)]}] test[${test}]`);
-            console.log(`77778`,rows[0]);
+          //  console.log(`77778 value_col_index=[${value_col_index}] c=[${c}] row[0]=[${rows[0][parseInt(value_col_index)]}] test[${test}]`);
+         //   console.log(`77778`,rows[0]);
           }
          // rows[parseInt(c)+1][value_col_index]=content[c].value;
         }
         /* test code */
     
         /* test code */
-
+        console.log(`value_col_index[${value_col_index}]`,'checktest');
        // console.log(i_count)
         
-      }
+      //}
+      console.log(`value_col_index[${value_col_index}]`,'checktest');
+      console.log(`i_count [${i_count}] value_col_index[${value_col_index}]`  ,'checktest');
+      console.log(`rows [${rows[i_count][parseInt(value_col_index)]}]` ,`rows[[${[parseInt(i_count)]}][${[parseInt(value_col_index)]}]]`,'checktest');
       rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+      console.log(` [${rows[parseInt(i_count)][parseInt(value_col_index)]}]`,rows[parseInt(i_count)],content[c].value,"Check","CheckValue");
     }
 //    console.log(rows);
     /*  let r ;
@@ -1364,11 +1379,12 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value){
     // console.log(rows);
     }
     console.log(rows,"rslt")
+    console.log(`i_count [${i_count}]`);
   //  exp.push(rows);
   }
   const col_index = rows[0].findIndex(x=>x =='null@EFB');
   console.log(efb_var.text.noComment);
-  const exp = Array.from(Array(value.length), () => Array(col_index).fill(efb_var.text.noComment));
+  const exp = Array.from(Array(value.length+1), () => Array(col_index).fill(efb_var.text.noComment));
   for (e in exp){
     for (let i =0 ; i<col_index ; i++){
       if(rows[e][i]!="null@EFB")   exp[e][i]=rows[e][i];

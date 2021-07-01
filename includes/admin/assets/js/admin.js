@@ -329,7 +329,8 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
     </label>
   </div>`;
     //edit below code 789 fun_multiselect_button_emsFormBuilder 
-    if (a == 6 && elementId=='multiselect') newEl += pro_ws==true ?  fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a): `<div class="form-check ml-1 mr-1 mt-1 mb-1" onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" disabled><label class=" form-check-label" for="${atr[a].id}">${efb_var.text.allowMultiselect} </label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}<b></small></div>`;
+    
+    if (a == 6 && elementId=='multiselect') newEl += pro_ws==true && form_type_emsFormBuilder!="survey"  ?  fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a): `<div class="form-check ml-1 mr-1 mt-1 mb-1" onClick="unlimted_show_emsFormBuilder('${form_type_emsFormBuilder!="survey"  ? efb_var.text.availableInProversion :`🚫`}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}" disabled><label class=" form-check-label" for="${atr[a].id}">${efb_var.text.allowMultiselect} </label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}<b></small></div>`;
 //    if (a == 6 && pro_ws==true && elementId=='multiselect') newEl += fun_multiselect_button_emsFormBuilder(elementId,pro_ws,atr,a);
     if (a == 6 && pro_ws==true &&  elementId=='file') newEl += fun_dragAndDrop_button_emsFormBuilder(elementId,pro_ws,atr,a) || `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">${efb_var.text.DragAndDropUI}</label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}</b></small></div>`
     if (a == 6 && pro_ws!=true  && elementId=='file' ) newEl += `<div class="form-check ml-1 mr-1 mt-1 mb-1"  onClick="unlimted_show_emsFormBuilder('${efb_var.text.availableInProversion}')"><input class="insertInput form-check-input" type="checkbox" id="${atr[a].id}"  disabled><label class=" form-check-label" for="${atr[a].id}"">${efb_var.text.DragAndDropUI}</label><small class=" text-warning"> <b>${efb_var.text.clickHereForActiveProVesrsion}</b></small></div>`
@@ -1543,7 +1544,7 @@ function add_dasboard_emsFormBuilder(){
               {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'fa-sign-in'},
               {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
-              {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:false, icon:'fa-bar-chart'},
+              {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'fa-bar-chart'},
               {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'fa-calendar-plus-o'},
               ]
         let value=`<!-- boxs -->`;
@@ -1560,7 +1561,7 @@ function add_dasboard_emsFormBuilder(){
         }
 
        document.getElementById('tab_container').innerHTML = `<nav class="navbar navbar-light">
-       <a class="navbar-brand" href="https://whitestudio.team/?s=pwp">
+       <a class="navbar-brand" href="https://whitestudio.team/?s=pwp" target="_blank">
          <img src="https://whitestudio.team/img/easy-form-builder.svg" width="50" class="d-inline-block align-top" alt="">
          ${efb_var.text.easyFormBuilder}
        </a>
