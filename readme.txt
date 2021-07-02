@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, support form, subscribe form,Survey form
 Donate link: 			https://ko-fi.com/whitestudio
-Stable tag: 			1.34
+Stable tag: 			1.34.1
 Requires at least: 		4.7
 Tested up to: 			5.7.2
 Requires PHP:			5.4 or higher
@@ -64,11 +64,13 @@ Please consider you could add 1 form in every page or post.
 == Screenshots == 
 1. Create a form
 2. Form Builder
-3. Preview a form
+3. support form
 4. Panel of Easy form builder
-5. List of responses
-6. Setting of Easy Form Builder
-7. Form submitted and tracking code (tracking pixels)
+5. List of responses of poll form
+6. Chart of responses of poll form
+7. Setting of Easy Form Builder
+8. List of responses
+9. Form submitted and tracking code (tracking pixels)
 
 
 == Frequently Asked Questions ==
@@ -92,6 +94,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 1.34.1 =
+* Fixed issues
+
 = 1.34 =
 * Survey, poll or questionnaire forms creator added to Easy Form Builder
 * Fixed issues
