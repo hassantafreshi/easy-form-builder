@@ -616,4 +616,63 @@ a#btn_Show_recovery_efb{
 .preview-overpage-efb {
 	position: absolute !important;
 }
+
+
+
 /* overpage */
+
+
+/* drog and drop section start*/
+.inputDnD .form-control-file {
+	position:         relative;
+	width:            100%;
+	height:           100%;
+	min-height:       7em;
+	outline:          none;
+	visibility:       hidden;
+	cursor:           pointer;
+	background-color: #c61c23;
+	box-shadow:       0 0 5px solid currentColor;
+}
+
+.inputDnD .form-control-file:before {
+	content:            attr(data-title);
+	position:           absolute;
+	top:                0.5em;
+	left:               0;
+	width:              100%;
+	min-height:         6em;
+	line-height:        2em;
+	padding-top:        1.5em;
+	opacity:            1;
+	visibility:         visible;
+	text-align:         center;
+	border:             0.10em dashed currentColor;
+  font-size:           initial;
+	-webkit-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	transition:         all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	overflow:           hidden;
+}
+
+.inputDnD .form-control-file:hover:before {
+	border-style: solid;
+	box-shadow:   0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+
+
+hr.solid {
+	margin-top: 0rem;
+	position: relative;
+	  border: none;
+	  height: 1px;
+	  background: #999;
+  }
+
+  .text-small{
+	  font-size: small;
+  }
+  
+ 
+  
+/* drog and drop section end*/

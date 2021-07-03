@@ -1503,8 +1503,8 @@ function add_form_builder_emsFormBuilder (){
             <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">            
             <div class="form-group mx-3">
             </br>
-               <input type="checkbox" class="form-check-input emsFormBuilder" ${formName_ws!="login" && formName_ws!="register" ? `id="trackingcode_emsFormBuilder" ` :`disabled` } >
-               <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
+            <!-- show tracking code in form creator -->
+            ${formName_ws!="login" && formName_ws!="register" && formName_ws!="survey" ? ` <input type="checkbox" class="form-check-input emsFormBuilder" id="trackingcode_emsFormBuilder"><label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>` :`` }     
              </div>
           </div>
           <div class="tab" id="tabInfo">

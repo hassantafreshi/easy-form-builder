@@ -452,6 +452,7 @@ hr.solid {
  
   
 /* drog and drop section end*/
+
 /* preview start */
 .preview-overpage {
 	position: absolute !important;
@@ -740,3 +741,13 @@ a#close-menu {
 	cursor: pointer;
 } */
 /* conversation box */
+
+
+label.form-check-label {
+    margin: 0% 2%;
+}
+
+input#trackingcode_emsFormBuilder {
+    margin: revert;
+    border-radius: inherit;
+}

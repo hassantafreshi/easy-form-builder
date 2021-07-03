@@ -775,14 +775,14 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById("more_emsFormBuilder").style.display = "none";
   listOfHow_emsfb = {
     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
-    2: { title: efb_var.text.howConfigureEFB, url: 'https://www.youtube.com/embed/DEQNHMPT0rQ' },
+    2: { title: efb_var.text.howConfigureEFB,       url: 'https://www.youtube.com/embed/DEQNHMPT0rQ' },
     3: { title: efb_var.text.howGetGooglereCAPTCHA, url: 'https://www.youtube.com/embed/a1jbMqunzkQ' },
     4: { title: efb_var.text.howActivateAlertEmail, url: 'https://www.youtube.com/embed/So2RAzu-OHU' },
-    5: { title: efb_var.text.howCreateAddForm, url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
-    /*  6:{title: efb_var.text.howActivateTracking, url:'https://www.youtube.com/embed/im3aKby4E14'}, */
-    7: { title: efb_var.text.howWorkWithPanels, url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
-    8: { title: efb_var.text.howAddTrackingForm, url: 'https://www.youtube.com/embed/c1_gCFihrH8' },
-    9: { title: efb_var.text.howFindResponse, url: 'https://www.youtube.com/embed/vqKi9BJbO7k' },
+    5: { title: efb_var.text.howCreateAddForm,      url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
+    6: { title: efb_var.text.howActivateTracking,   url: 'https://youtu.be/KGdHoIZsP_U'},
+    7: { title: efb_var.text.howWorkWithPanels,     url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
+    8: { title: efb_var.text.howAddTrackingForm,    url: 'https://www.youtube.com/embed/c1_gCFihrH8' },
+    9: { title: efb_var.text.howFindResponse,       url: 'https://www.youtube.com/embed/vqKi9BJbO7k' },
   }
 
 
