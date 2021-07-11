@@ -67,7 +67,7 @@ class _Public {
 
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
-		
+	//	error_log($table_name);
 		
 
 		foreach ($id as $row_id){
@@ -77,6 +77,8 @@ class _Public {
 							
 		}
 		$this->id = $id;
+	
+
 /* 		error_log($this->value[0]->form_structer);
 		error_log($this->value[0]->form_type); */
 		$lang = get_locale();
@@ -151,8 +153,9 @@ class _Public {
 				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
 				"noComment" => __('No comment','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
+				"please" => __('Please','easy-form-builder')
 				];
+			//	error_log($this->value[0]->form_type);
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png';
@@ -427,11 +430,11 @@ class _Public {
 					switch($type){
 						case "form":
 							
-							$this->get_ip_address();
+							$ip = $this->get_ip_address();
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db();
 							
-				
+							// send email to admin of easy form builder
 							$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
 								$setting =json_decode($r->setting);								
@@ -442,7 +445,14 @@ class _Public {
 			
 								$this->send_email_Emsfb($email,$check);
 							}
-					 
+
+							// send email to supporter of form
+							$row_id = $_POST["id"];
+							$table_name = $this->db->prefix . "Emsfb_form";
+							$value = $this->db->get_results( "SELECT form_email   FROM `$table_name` WHERE form_id = '$row_id'" );
+							$form_ = $value[0]->form_email;
+
+							if($form_ != "null") {$this->send_email_Emsfb($form_,$check);}
 			
 							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
 							wp_send_json_success($response,$_POST);
@@ -652,7 +662,7 @@ class _Public {
 								if(gettype($state)=="object"){
 									
    								 	$newpass = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),0,9);									
-									error_log($newpass);
+									//error_log($newpass);
 									$id =(int) $state->data->ID;
 									 wp_set_password($newpass ,$id);
 									$to = $email;
@@ -935,7 +945,7 @@ class _Public {
 			$setting =json_decode($r->setting);
 			$secretKey=$setting->secretKey;
 			$email =$setting->emailSupporter ;
-			//error_log($email);
+		//	error_log($email);
 			$response=$_POST['valid'];
 			$id;
 				$id =number_format(sanitize_text_field($_POST['id']));
@@ -969,7 +979,12 @@ class _Public {
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
 					$by = get_user_by('id',$r);
 				}
-				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
+				$value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
+
+
+				$table_name = $this->db->prefix . "Emsfb_form";
+				$form_id=$value[0]->form_id;
+				$val_em =  $this->db->get_results( "SELECT form_email FROM `$table_name` WHERE form_id = '$form_id'" );
 				//error_log('track');
 				//error_log($id);
 				/* error_log('setting->emailSupporter');
@@ -980,8 +995,15 @@ class _Public {
 					$email = $setting->emailSupporter;
 				}
 			
-				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track);}
-
+				//error_log("array_key_exists('form_email', value[0])");
+				//error_log(array_key_exists('form_email', $value[0]));
+				//$email
+				if(is_email($email,  $deprecated = false )) {$this->send_email_Emsfb($email,$value[0]->track);}
+				//$val_em [0]->form_email
+				if(is_email($val_em [0]->form_email,  $deprecated = false ) ) {
+					$this->send_email_Emsfb($value[0]->form_email,$value[0]->track);
+					//error_log($value[0]->form_email);
+				}
 				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 
 				wp_send_json_success($response,$_POST);
 				
@@ -997,16 +1019,19 @@ class _Public {
 /*    $message ='<!DOCTYPE html> <html> <body><h3>A New Message has been Received ,Track No: ['.$track.']</h3>
    <p>This message is sent by <b>Easy Form Builder</b> plugin from '. home_url().' </p>
    <p> <a href="'.wp_login_url().'">Email Owner: '. home_url().' </a> </body> </html>'; */
-   $message ='<!DOCTYPE html> <html> <body><h3>'. __('A New Message has been Received.') . __('Tracking Code','easy-form-builder')  .': ['.$track.']</h3>
-   <p> '. __("sent by Easy form builder", 'easy-form-builder') .'<b>'. __('Easy Form Builder' , 'easy-form-builder') .'</b> '. home_url(). '</p>
-   <p> <a href="'.wp_login_url().'">Email Owner: '. home_url().' </a></p> </body> </html>';
+   $message ='<!DOCTYPE html> <html> 
+   <body>
+   		<h3>'. __('A New Message has been Received.','easy-form-builder') . __('Tracking Code','easy-form-builder')  .': ['.$track.']</h3>
+   		<p> '. __("sent by Easy form builder", 'easy-form-builder') .'<b>'. __('Easy Form Builder' , 'easy-form-builder') .'</b> '. home_url(). '</p>
+  		<br> <p> <a href="'.wp_login_url().'"> '. home_url().' </a></p> 
+    </body> </html>';
   
    $subject ="📮 ".__('Easy Form Builder:You have Recived New Response', 'easy-form-builder');
    $from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
    //error_log($from);
    $headers = array(
 	'MIME-Version: 1.0\r\n',
-	'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+	'"Content-Type: text/html; charset=UTF-8\r\n"',
     'From:'.$from.''
 	);
    $sent = wp_mail($to, $subject, strip_tags($message), $headers);

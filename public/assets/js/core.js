@@ -48,6 +48,7 @@ jQuery (function() {
         console.log(vs.trackingCode);
         sitekye_emsFormBuilder =vs.siteKey;
         trackingCode_state_emsFormBuilder =vs.trackingCode;
+        //console.log(trackingCode_state_emsFormBuilder)
       }else{
      //   console.log(ajax_object_efm)
         form_type_emsFormBuilder=ajax_object_efm.type;
@@ -357,10 +358,10 @@ function fun_render_view(val,check){
     //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
-    if(valueJson_ws[0].EfbVersion<1.3) trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode ;
-    console.log(valueJson_ws[0]);
-    console
-    console.log(valueJson_ws[0].steps);
+    if(valueJson_ws[0].EfbVersion>1.2) trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode=="true" ? true : false;
+  /*   console.log(valueJson_ws[0]);
+    console.log(trackingCode_state_emsFormBuilder , valueJson_ws[0].trackingCode )
+    console.log(valueJson_ws[0].steps); */
     for (let v of valueJson_ws) {
     
       let el="";
@@ -1972,6 +1973,7 @@ function Show_recovery_pass_efb(){
 
 function response_fill_form_efb(res){
   console.log(res);
+  console.log(trackingCode_state_emsFormBuilder);
   if (  res.data.success==true ) {
    /*  console.log(res.data);
     console.log(form_type_emsFormBuilder); */ 
@@ -1980,7 +1982,7 @@ function response_fill_form_efb(res){
     switch(form_type_emsFormBuilder){
       case 'form':
       case 'survey':
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${(trackingCode_state_emsFormBuilder==true || trackingCode_state_emsFormBuilder=="true")  && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
         break;
        case 'subscribe':
          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
@@ -2049,7 +2051,7 @@ function response_Valid_tracker_efb(res){
 }
 
 function response_rMessage_id(res,message){
-  console.log(res);
+  console.log(res,message);
   if (res.success==true) {
     //console.log(`response`,res);
     document.getElementById('replayM_emsFormBuilder').value="";
@@ -2071,6 +2073,6 @@ function response_rMessage_id(res,message){
 
 /* remove overpage after loading recaptcha */
 function onloadRecaptchakEFB(){
- document.getElementById('overpage-efb').remove();
+if(document.getElementById('overpage-efb')) document.getElementById('overpage-efb').remove();
 }
-/* remove overpage after loading recaptcha */
+/* remove overpage after loading recaptcha */ 

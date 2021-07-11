@@ -4,6 +4,7 @@ let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
+let form_type_efb = "form";
 
 jQuery(function () {
   //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
@@ -382,6 +383,7 @@ function fun_emsFormBuilder_more() {
 // تابع نمایش ویرایش فرم
 function fun_ws_show_edit_form(id) {
   trackingcode = 'null';
+  console.log(form_type_efb)
   document.getElementById('emsFormBuilder-content').innerHTML = `<div class="col-md-12 ">
   <div id="emsFormBuilder-form" >
   <form id="emsFormBuilder-form-id" class="${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -404,9 +406,10 @@ function fun_ws_show_edit_form(id) {
           </br>
           <h5>${efb_var.text.numberOfSteps}:*</h5>
           <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
+          ${form_type_efb != "login" && form_type_efb != "register" ? ` </br><h5> ${efb_var.text.alertEmail}: <small>${efb_var.text.whenEasyFormBuilderRecivesNewMessage} </small></h5><input placeholder="1,2,3.." type="email"  name="email__efb" class=" emsFormBuilder" id="email__efb" >  ` : ``}     
           <div class="form-group mx-3">
           </br>
-             <input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" ${formName_ws != "login" && formName_ws != "register" ? `id="trackingcode_emsFormBuilder" ` : `disabled`}>
+          ${form_type_efb != "login" && form_type_efb != "register" ? `<input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" id="trackingcode_emsFormBuilder" > ` :``}
              <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
            </div>
       </div>
@@ -589,6 +592,8 @@ function fun_get_form_by_id(id) {
         localStorage.setItem('valueJson_ws_p', JSON.stringify(value));
         const edit = { id: res.data.id, edit: true };
         localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+        form_type_efb = value[0].type;
+      
         fun_ws_show_edit_form(id)
       } else {
         //console.l(res);
@@ -620,6 +625,7 @@ function fun_update_message_state_by_id(id) {
           localStorage.setItem('valueJson_ws_p', JSON.stringify(value));
           const edit = { id: res.data.id, edit: true };
           localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+          
           fun_ws_show_edit_form(id)
         }
       } else {

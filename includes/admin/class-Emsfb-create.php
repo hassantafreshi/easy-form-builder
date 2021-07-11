@@ -267,6 +267,8 @@ class Create {
 			"username" => __('Username'),
 			"showTrackingCode" => __('Show tracking Code','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),
+			"alertEmail" => __('Alert Email','easy-form-builder'),
+			"whenEasyFormBuilderRecivesNewMessage" => __('(When the Form recives a new message, It will send an notification email to below email)','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
@@ -301,7 +303,7 @@ class Create {
 		$this->userId =get_current_user_id();
 	//	error_log('get_current_user_id');
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
-		$email = '';
+		$email = 'null';
 
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m = __('Something went wrong,Please check all input','easy-form-builder');
@@ -309,8 +311,8 @@ class Create {
 			wp_send_json_success($response,$_POST);
 			die();
 		} 
-		
-		if( isset($_POST['email']) ){
+		//error_log(is_email($_POST['email'], $deprecated = false));
+		if( isset($_POST['email']) && is_email($_POST['email'] , $deprecated = false) ){
 			$email =sanitize_email($_POST['email']);
 		}
 		//error_log('$this->id_ ="hid";');
