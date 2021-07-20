@@ -716,133 +716,139 @@ function ShowTab_emsFormBuilder_view(n) {
     y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
     let value = null;
     try {
+     // console.log(x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation"));
       for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
         
-       
-        const req =input.classList.contains('require');
-        if (input.tagName == "INPUT" ||input.tagName == "TEXTAREA") {
-         
-          if (input.value == "" && input.classList.contains('require')) {
-            input.className += " invalid"; 
-            valid = false;
-            NotValidCount +=1;
-            console.log(`input type[${input.type}] valid[${false}]`)
-          } else {
-            input.classList.remove('invalid');
-            value = input.value
-            valid=true
-          }
-         
-          switch(input.type){
-            case 'email':
-            req===true ? valid= valid_email_emsFormBuilder(input) : valid=true;
-              break;
-            case 'tel':
-              //console.log('707 tel' , req , req===true ,input.classList)
-              req===true ? valid= valid_phone_emsFormBuilder(input) : valid=true;
-              break;
-            case 'password':
-              req===true ? valid= valid_password_emsFormBuilder(input) : valid=true;
-              break;
-            case "range":
-              value = el.value;
-            break;
-            case 'url':
-              const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-              if (check===null && input.classList.contains('require')==true){
-                //console.log(check ,999)
-                valid=false;
-                input.className += ' invalid';
-                document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterٰValidURL}</small>`
-              }else{
-                valid=true;
-                if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
-              }
-              break;
-            case 'file':
-              const id = input.id;
-              valid= input.files[0] ? true : false;
-              //console.log ( "324 check" ,valid ,input.type ,input.id)
-              break;
-            case "text":
-            case "color":
-            case "number":
-            case "date":
-            case "url":
-            case "textarea":
-                    value = input.value;
-                    console.log(`valid ${el} len [${value.length}] 879`)
-                    if(value.length<1){
-                      state=false;
-                      document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
-                      NotValidCount +=1;
-                    }else{
-                      el.classList.remove('invalid');
-                      document.getElementById(`${el.id}-message`).innerHTML=""
-                    }
-              break;
-            case "radio":
-              console.log("test");
-              console.log(input.value)
-               value = "efb@null";
+       try{
+         const req =input.classList.contains('require');
+         console.log(input.type);
+         if (input.tagName == "INPUT" ||input.tagName == "TEXTAREA") {
+          
+           if (input.value == "" && input.classList.contains('require')) {
+             input.className += " invalid"; 
+             valid = false;
+             NotValidCount +=1;
+             console.log(`input type[${input.type}] valid[${false}]`)
+           } else {
+             input.classList.remove('invalid');
+             value = input.value
+             valid=true
+           }
+          
+           switch(input.type){
+             case 'email':
+               console.log("email0",req ,789987)
+             req===true ? valid= valid_email_emsFormBuilder(input) : valid=true;
+               break;
+             case 'tel':
+               //console.log('707 tel' , req , req===true ,input.classList)
+               req===true ? valid= valid_phone_emsFormBuilder(input) : valid=true;
+               break;
+             case 'password':
+               req===true ? valid= valid_password_emsFormBuilder(input) : valid=true;
+               break;
+             case "range":
+               value = el.value;
+             break;
+             case 'url':
+               const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+               if (check===null && input.classList.contains('require')==true){
+                 //console.log(check ,999)
+                 valid=false;
+                 input.className += ' invalid';
+                 document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterٰValidURL}</small>`
+               }else{
+                 valid=true;
+                 if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
+               }
+               break;
+             case 'file':
+               const id = input.id;
+               valid= input.files[0] ? true : false;
+               //console.log ( "324 check" ,valid ,input.type ,input.id)
+               break;
+             case "text":
+             case "color":
+             case "number":
+             case "date":
+             case "url":
+             case "textarea":
+                     value = input.value;
+                     console.log(`valid ${el} len [${value.length}] 879`)
+                     if(value.length<1){
+                       state=false;
+                       document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
+                       NotValidCount +=1;
+                     }else{
+                       el.classList.remove('invalid');
+                       document.getElementById(`${el.id}-message`).innerHTML=""
+                     }
+               break;
+             case "radio":
                console.log("test");
-               value=input.value ? input.value :value;
-              console.log("test");
-              console.log(`value[${value}] el.value[${input.value}]`);
-              valid = true;
-              if(value=="efb@null"){
-                state=true;
-                valid = false;
-              }
-             
-              break;
-          }
-         // if(valid==false) NotValidCount +=1;
-          //console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
-        } else if (input.tagName == "LABEL") {
+               console.log(input.value)
+                value = "efb@null";
+                console.log("test");
+                value=input.value ? input.value :value;
+               console.log("test");
+               console.log(`value[${value}] el.value[${input.value}]`);
+               valid = true;
+               if(value=="efb@null"){
+                 state=true;
+                 valid = false;
+               }
+              
+               break;
+           }
+          // if(valid==false) NotValidCount +=1;
+           //console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
+         } else if (input.tagName == "LABEL") {
+           
+           const ll = document.getElementsByName(input.dataset.id);
+           let state = false;
+   
+           for (let l of ll) {
+             if (l.checked == true) {
+               input.classList.remove('invalid');
+               state = true;
+               value = l.value;
+               //console.log('set true', value)
+             }
+           }
+           if (state == false) {
+             value = ""
+             input.className += " invalid"; valid = false;
+           }
+           //console.log(input.dataset.id,value , 240);
+   
+         } else if (input.tagName == "SELECT") {
+           
+           if (input.value == "") {
+             input.className += " invalid"; valid = false;
+            // document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
+           } else {        
+             value = input.value;
+             input.classList.remove('invalid');
+             //console.log(value, "value select",240)
+           }
+           //console.log(input.dataset.id,`[${value}]` , 240);
+         }
+       
+         if (valid== false){
+           NotValidCount +=1;
           
-          const ll = document.getElementsByName(input.dataset.id);
-          let state = false;
-  
-          for (let l of ll) {
-            if (l.checked == true) {
-              input.classList.remove('invalid');
-              state = true;
-              value = l.value;
-              //console.log('set true', value)
-            }
-          }
-          if (state == false) {
-            value = ""
-            input.className += " invalid"; valid = false;
-          }
-          //console.log(input.dataset.id,value , 240);
-  
-        } else if (input.tagName == "SELECT") {
-          
-          if (input.value == "") {
-            input.className += " invalid"; valid = false;
-           // document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
-          } else {        
-            value = input.value;
-            input.classList.remove('invalid');
-            //console.log(value, "value select",240)
-          }
-          //console.log(input.dataset.id,`[${value}]` , 240);
-        }
-      
-        if (valid== false){
-          NotValidCount +=1;
-         
-          
-          document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
-         // window.scrollTo({ top: 0, behavior: 'smooth' });
-         document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
-        }
-        if (valid == true && NotValidCount==0) {
-          document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
-          if (document.getElementById("alarm_emsFormBuilder")) document.getElementById("emsFormBuilder-message-area-view").innerHTML = ""
-        } 
+           
+           document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
+          // window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
+         }
+         if (valid == true && NotValidCount==0) {
+           document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
+           if (document.getElementById("alarm_emsFormBuilder")) document.getElementById("emsFormBuilder-message-area-view").innerHTML = ""
+         } 
+       }catch(re){
+
+       }
       }
 
   
@@ -1495,7 +1501,7 @@ function fun_upload_file_emsFormBuilder(id ,type){
   
               if(response.data.success===true)
               {
-              r = response.data.file.url;
+           //   r = response.data.file.url;
               files_emsFormBuilder[indx].url = response.data.file.url;
               files_emsFormBuilder[indx].state = 2;
               //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
@@ -1806,14 +1812,14 @@ function validation_before_send_emsFormBuilder(){
   for (const v of valueJson_ws){
    // require +=  v.required== true && v.type!=="file"   ? 1 : 0;
    // console.log(v.type , v.required ,require);
-    
+    console.log(v.type)
     if(v.type=="file" ){
       if( v.required== true){
         require +=1;
-         if (document.getElementById(v.id_).files[0]==undefined ){
+       /*   if (document.getElementById(v.id_).files[0]==undefined ){
           fill += 1;
           }else{          
-          }
+          } */
         console.log(`file is ${fill}`);       
       }
     }else{
@@ -1824,47 +1830,52 @@ function validation_before_send_emsFormBuilder(){
       }
     }
   }
+  //210720-8YO43
   //console.log(valueJson_ws ,sendBack_emsFormBuilder_pub)
   for (const row of sendBack_emsFormBuilder_pub){
     //console.log(sendBack_emsFormBuilder_pub);
     
-  // console.log('row');
-    count[0] +=1;
-    if(row.type=="file"){
+ //  console.log('row' ,row.type , row);
+    //count[0] +=1;
+    if(row.value=="@file@"){
+      console.log(`flie lengh[${document.getElementById(row.id).files.length}]`)
+      if (document.getElementById(row.id).files.length>=1 )fill += 1;
 
     }else if(row.type!="file"){
       //console.log(valueJson_ws);
       let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-     
-
+      console.log(row ,"row");
+      console.log(valueJson_ws ,"row");
       if(valueJson_ws[indx].type=="multiselect" || valueJson_ws[indx].type=="option"  || valueJson_ws[indx].type=="Select" ||valueJson_ws[indx].type=="checkbox") {
       //const id = row.type=="checkbox" ? valueJson_ws[indx].parents : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
       //console.log(row.type, valueJson_ws[indx].type ,id);
-       let id = -1;
-        if(row.type=="checkbox"){
+       let id = valueJson_ws.findIndex(x => x.id_ ==valueJson_ws[indx].parents);
+       if(row.type=="checkbox" || row.type=="radio"){
           id= valueJson_ws[indx].parents ;
           // console.log(row ,valueJson_ws[indx],valueJson_ws[indx].parents ,id , "checkbox" ,7777);
            id =valueJson_ws.findIndex(x => x.id_ ==valueJson_ws[indx].parents)
-         }else{
+         }else if(row.type=="select-one"){
            ///id =valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
-           id=indx;
-           console.log(`id[${id}] indx[${indx}]`,valueJson_ws[id] , valueJson_ws[indx] , "Ncheckbox" ,7777);
+           id= valueJson_ws[indx].parents 
+           id =valueJson_ws.findIndex(x => x.id_ ==row.id_)
+           //console.log(`id[${id}] indx[${indx}]`,valueJson_ws[id] , valueJson_ws[indx] , "Ncheckbox" ,7777);
          }
         
-     
+     //    console.log(id,indx , valueJson_ws[id],fill, "OP");
         fill +=  id!=-1 && valueJson_ws[id].required==true  ? 1 :0;
-       
+      //  console.log(fill,valueJson_ws[id].required==true , "OP");
       }else{
-        console.log(valueJson_ws[indx].type ,indx , valueJson_ws[indx],fill, "other");
         fill += valueJson_ws[indx].required== true ? 1 :0; 
-        console.log(valueJson_ws[indx].required== true,fill, "other"); 
+       // console.log(valueJson_ws[indx].type ,indx , valueJson_ws[indx],fill, "other");
+      
       }
-      if(row.value.length>0) count[1] +=1;
+     // if(row.value.length>0) count[1] +=1;
     }else{
-      if(row.value.length>0) count[1] +=1;
+     // if(row.value.length>0) count[1] +=1;
     }
 
   }
+  count[1]=fill;
   console.log(count ,`rquire[${require}] filed[${fill}]`);
  // require= require>fill ? 1 :0;
   console.log(count,require);

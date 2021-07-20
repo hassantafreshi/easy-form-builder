@@ -903,12 +903,13 @@ class _Public {
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 			//error_log($_FILES["file"]["name"]);			
-			$name = 'emsfb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			//error_log($name);
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));
 			//$upload = wp_upload_bits($_FILES["file"]["name"], null, file_get_contents($_FILES["file"]["tmp_name"]));
 			//$upload['url'] will gives you uploaded file path
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload , 'type'=>$_FILES['file']['type']); 
+			//error_log($upload);	
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
 			$response = array( 'success' => false  ,'error'=>__("File Permissions Error", 'easy-form-builder')); 

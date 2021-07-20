@@ -85,6 +85,7 @@ for (let v of valueJson_ws) {
       const drog = v.fileDrogAndDrop ? v.fileDrogAndDrop : false; // برای تشخیص اینکه حالت دراگ اند دراپ هست یا نه
       let acception =`.zip,.rar`;
       let typeFile ="Zip"
+ 
       if(v.file=="Image"){
         acception =`.png,.jpg,.jpeg`;  
         typeFile= "Photo"; 

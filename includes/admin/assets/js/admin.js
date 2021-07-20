@@ -395,7 +395,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
 
 function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
   step = parseInt(step);
-
+  console.log(`id[${id}] id_[${id_}] value[${value}] type[${type}] value_of[${value_of}] group[${group}]`)
   let highestAmount = group !== "option" ? Number(document.getElementById(`${id_}-amount`).value) : null;
   highestAmount_emsFormBuilder = highestAmount;
   let ob = {};
@@ -404,7 +404,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
 
   if (group === "notOption") {
 
-
+    console.log(type)
     if (value_of == "name") {
       ob = { id_: id_, name: value, type: type, step: step, amount: highestAmount }
       //${efb_var.text[`${type}`].toUpperCase()}
@@ -465,7 +465,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
       value == null || value == undefined ? value = 'Gregorian' : 0;
       ob = fun_date_ob_pro_emsFormBuilder(id_, value, type, step, highestAmount)
     } else if (type === "file") {
-      (value == null || value == undefined) && value.length > 2 ? value = 'Document' : 0;
+      value = (value == null || value == undefined) && value.length > 2 ? 'Document' : value;
       ob = { id_: id_, file: value, type: type, step: step, amount: highestAmount }
     }
 
@@ -522,6 +522,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
           valueJson_ws_p[foundIndex].clander ? valueJson_ws_p[foundIndex].clander = ob.clander : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], clander);
           break;
         case "file":
+          console.log(ob.file)
           const file = { file: ob.file };
           valueJson_ws_p[foundIndex].file ? valueJson_ws_p[foundIndex].file = ob.file : valueJson_ws_p[foundIndex] = Object.assign(valueJson_ws_p[foundIndex], file);
 
@@ -647,6 +648,7 @@ function fun_edit_emsFormBuilder() {
       //تابع سازده استپ ها اینجا صدا زده شود
       //مقدار های عنوان و ایکون بعد از ساخت استپ ها وارد شود
     }
+    console.log(v)
     if (v.type != "option") {
 
       id_ = v.id_

@@ -182,18 +182,19 @@ function emsFormBuilder_show_content_message(id) {
   const indx = valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
   const msg_id = valueJson_ws_messages[indx].msg_id;
   //console.l(valueJson_ws_messages[indx],msg_id);
-
+  
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
-
+  
   const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
+  console.log(content)
 
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   const m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
-
+  
  
   form_type_emsFormBuilder = formType;
   console.log(form_type_emsFormBuilder)
