@@ -33,9 +33,9 @@ class Create {
 		}
 
 		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );
-		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
-		add_action( 'admin_init', array( $this, 'register_create' ) );
-		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
+	//	add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
+	//	add_action( 'admin_init', array( $this, 'register_create' ) );
+	
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
 
 		
@@ -63,6 +63,7 @@ class Create {
 	}
 
 
+	/*
 	public function register_create() {
 		
 		if ( false == get_option( $this->setting_name ) ) {
@@ -70,7 +71,7 @@ class Create {
 		}
 		
 		
-	}
+	} */
 
 	
 
@@ -292,10 +293,7 @@ class Create {
 	
 	}
 
-	public function fun_Emsfb_creator()
-	{
-		
-	}
+
 
 	public function add_form_structure(){
 	

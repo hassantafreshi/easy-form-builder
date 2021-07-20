@@ -329,7 +329,7 @@ function validateForm_emsFormBuilder_view() {
           input.classList.remove('invalid');
           value = input.value
         }
-        //console.log(input.type , 789999);
+       // console.log(input.type ,input.tagName , 789999);
         switch(input.type){
           case 'email':
           req===true ? valid= valid_email_emsFormBuilder(input) : valid=true;

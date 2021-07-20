@@ -45,9 +45,11 @@ input[type=text].emsFormBuilder_v,input[type=number].emsFormBuilder_v,select.ems
 }
 
 input.invalid.emsFormBuilder ,
-label.invalid.emsFormBuilder  {
-    border: 1px solid #e03a0666!important;
-    background: antiquewhite;
+label.invalid.emsFormBuilder , 
+textarea.invalid.emsFormBuilder , 
+select.invalid.emsFormBuilder  {
+    border: 1px solid #e00606d9!important;
+    background: rgba(252, 107, 107, 0.472);
 }
 
 

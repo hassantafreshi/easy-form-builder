@@ -113,8 +113,9 @@ class _Public {
 				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
 				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"pleaseUploadAFILE" => __('Please upload a file','easy-form-builder'),
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 				"messages" => __('Messages','easy-form-builder'),
@@ -145,14 +146,16 @@ class _Public {
 				"send" => __('Send','easy-form-builder'),
 				"subscribe" => __('Subscribe','easy-form-builder'),
 				"contactUs" => __('Contact us','easy-form-builder'),
-				"support" => __('Support','easy-form-builder'),
-				"send" => __('Send','easy-form-builder'),
+				"support" => __('Support','easy-form-builder'),				
 				"register" => __('Register','easy-form-builder'),
 				"passwordRecovery" => __('Password recovery','easy-form-builder'),
-				"info" => __('information'),
+				"date" => __('Date','easy-form-builder'),
+				"info" => __('Info','easy-form-builder'),
+				"response" => __('Response','easy-form-builder'),
 				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
 				"noComment" => __('No comment','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
+				"by" => __('By','easy-form-builder'),
 				"please" => __('Please','easy-form-builder')
 				];
 			//	error_log($this->value[0]->form_type);
@@ -245,6 +248,12 @@ class _Public {
 				"trackingCode" => __('Tracking Code','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
+				"date" => __('Date','easy-form-builder'),
+				"info" => __('Info','easy-form-builder'),
+				"reply" => __('Reply','easy-form-builder'),
+				"send" => __('Send','easy-form-builder'),
+				"by" => __('By','easy-form-builder'),
+				"response" => __('Response','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 
 				];

@@ -1665,9 +1665,11 @@ function create_form_by_type_emsfb(id) {
   } else if (id == "survey") {
     form_type_emsFormBuilder = "survey";
     formName_ws = form_type_emsFormBuilder
-    /*   const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.3,"type":"survey","icon-1":"fa fa-bell"}];
+     const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.3,"type":"survey","icon-1":"fa fa-bell"},{"id_":"a1ssso13a","name":"What is your favorite color ?","type":"radiobutton","step":1,"amount":1,"required":true},{"id_":"64xmuzowk","name":"Blue","parents":"a1ssso13a","type":"option","step":null},{"id_":"kgy5ezwda","name":"Green","parents":"a1ssso13a","type":"option","step":null},{"id_":"uceyp8e9i","name":"Red","parents":"a1ssso13a","type":"option","step":null},{"id_":"m78afg3gl","name":"Black","parents":"a1ssso13a","type":"option","step":null},{"id_":"hj1t2ehe2","name":"White","parents":"a1ssso13a","type":"option","step":null}];
+  
       localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
-      valueJson_ws_p =json;     */
+      valueJson_ws_p =json;
+    
 
   } else if (id == "reservation") {
 
