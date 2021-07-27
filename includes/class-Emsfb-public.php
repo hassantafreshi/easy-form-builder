@@ -156,6 +156,7 @@ class _Public {
 				"noComment" => __('No comment','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"by" => __('By','easy-form-builder'),
+				"formShowonlyLoggedUser" => __('Pleas Login, Form only showing to logged in users','easy-form-builder'),
 				"please" => __('Please','easy-form-builder')
 				];
 			//	error_log($this->value[0]->form_type);
@@ -182,6 +183,26 @@ class _Public {
 					$send['user_registered']=$user->data->user_registered;
 					$send['user_image']=get_avatar_url(get_current_user_id());
 					$value=$send;
+				}
+
+				$m = str_replace("\\","",$value );
+				$m = json_decode($m,true);
+				$stateForm =false;
+				foreach($m as $row){
+					if($row['EfbVersion']){
+
+					//	echo json_encode($row) ."</br>";
+						if($row['stateForm']) $stateForm =$row['stateForm'];
+						//break;
+					}
+				}
+			
+				$user = wp_get_current_user();
+			
+				if(($stateForm=="true" || $stateForm== true )&& ($user->id == 0 || $user->id == null)) {
+					
+							$value = "";
+							$state="notShow";
 				}
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			

@@ -16,6 +16,7 @@ let edit_emsFormBuilder = false;
 let formName_ws = `EasyFormBuilder-${Math.random().toString(36).substr(2, 3)}`;
 let email_efb = "null";
 let trackingCode_efb = 'false';
+let state_form_efb="false"
 let form_ID_emsFormBuilder = 0;
 let highestAmount_emsFormBuilder;
 let form_type_emsFormBuilder = 'form';
@@ -226,7 +227,7 @@ function run_code_ws_2() {
     const v = document.getElementById("form_name").value;
     formName_ws = v ? v : `Emsfb-${Math.random().toString(36).substr(2, 3)}`
     if (valueJson_ws_p == 0) {
-      valueJson_ws_p.push({ formname: formName_ws, email: email_efb, trackingCode: trackingCode_efb })
+      valueJson_ws_p.push({ formname: formName_ws, email: email_efb, trackingCode: trackingCode_efb ,stateForm:state_form_efb })
       saveLocalStorage_emsFormBuilder()
     } else {
       valueJson_ws_p[0].formName=formName_ws;
@@ -242,7 +243,7 @@ function run_code_ws_2() {
       const v = document.getElementById("email__efb").value;
       email_efb = v ? v : email_efb;
       if (valueJson_ws_p == 0) {
-        valueJson_ws_p.push({ formname: formName_ws, email: email_efb, trackingCode: trackingCode_efb })
+        valueJson_ws_p.push({ formname: formName_ws, email: email_efb, trackingCode: trackingCode_efb,stateForm:state_form_efb })
         saveLocalStorage_emsFormBuilder()
       } else {
         const v = document.getElementById("email__efb").value;
@@ -274,6 +275,33 @@ function run_code_ws_2() {
           valueJson_ws_p[0].trackingCode =trackingCode_efb
         }else{
           Object.assign(valueJson_ws_p[0], { trackingCode: trackingCode_efb })
+          val.EfbVersion = 1.3;
+        }
+        saveLocalStorage_emsFormBuilder()
+  
+      }
+
+    })// end event trackingcode_emsFormBuilder
+  }
+
+
+
+  if (document.getElementById("state_form_emsFormBuilder")) {
+    document.getElementById("state_form_emsFormBuilder").addEventListener("click", (e) => {
+      let checked = document.getElementById("state_form_emsFormBuilder").checked;
+      // console.log(`checked [${checked}]`);
+      //  console.log(valueJson_ws_p);
+      state_form_efb = `${checked}`;
+
+
+      if (valueJson_ws_p == 0) {
+        valueJson_ws_p.push({ formname: formName_ws, email: email_efb, stateForm: state_form_efb })
+        saveLocalStorage_emsFormBuilder()
+      } else {
+        if(valueJson_ws_p[0].stateForm){
+          valueJson_ws_p[0].stateForm =state_form_efb
+        }else{
+          Object.assign(valueJson_ws_p[0], { stateForm: state_form_efb })
           val.EfbVersion = 1.3;
         }
         saveLocalStorage_emsFormBuilder()
@@ -329,8 +357,8 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   else if (elementId == "file") atr = Object.assign(atr, { 6: { id: `${rndm}-fileDrogAndDrop_${elementId}`, fileDrogAndDrop: fileDrogAndDropV } })
 
   let amount;
-  let ll = document.getElementsByClassName(`dropZone`);
-  ll = document.getElementsByTagName(`a`);
+  //let ll = document.getElementsByClassName(`dropZone`);
+  let ll = document.getElementsByTagName(`a`);
   for (let l of ll) {
     //789
     if (l.dataset.id) amount = Number(l.dataset.id) + 1;
@@ -367,7 +395,7 @@ function addNewElement_emsFormBuilder(elementId, rndm, value) {
   const statusOfDelete = rndm != "emaillogin" && rndm != "passwordlogin" && rndm != "emailRegisterEFB" && rndm != "passwordRegisterEFB" && rndm != "usernameRegisterEFB" ? true : false;
 
   const newElement = `
-  <div id="${rndm}" class="section border border-primary rounded mb-0 h-30 view overlay ml-3 mr-3 mt-2 mb-1" draggable="true">
+  <div id="${rndm}" class="section border border-primary rounded mb-0 h-30 view overlay ml-3 mr-3 mt-2 mb-1 dragable" draggable="true">
     <div class="card-header success-color white-text" > 
       <a data-toggle="collapse" data-target="#${rndm}-c" data-id="${amount}" onClick="funIconArrow_emsFormBuilder('${rndm}')" > <i class="fa fa-caret-down" id="${rndm}-icon"> </i> </a> 
       <a class="mb-0 ml-1 mr-1 mt-1 mb-1"   data-toggle="collapse" data-target="#${rndm}-c" id="${rndm}-b" onClick="funIconArrow_emsFormBuilder('${rndm}')">
@@ -626,6 +654,7 @@ function fun_edit_emsFormBuilder() {
       document.getElementById('form_name').value = v.formName;
       if (formName_ws != "login" && formName_ws != "register" && v.trackingCode) document.getElementById('trackingcode_emsFormBuilder').checked = v.trackingCode == "true" ? true : false;
       if (formName_ws != "login" && formName_ws != "register" && v.email) document.getElementById('email__efb').value = v.email;
+      if (formName_ws != "login" && formName_ws != "register" && v.stateForm) document.getElementById('state_form_emsFormBuilder').checked = v.stateForm == "true" ? true : false;;
  //     if (formName_ws != "login" && formName_ws != "register" ) document.getElementById('email__efb_div').classList.add('invisible')
       createSteps();
       for (let i = 1; i <= v.steps; i++) {
@@ -1126,7 +1155,7 @@ function createSteps() {
       name = name == "tabName" ? "name" : "icon";
 
       //emsfb version of form creator emsfb:1 ,
-      const ob = { steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws, EfbVersion: 1.3, type: form_type_emsFormBuilder, trackingCode: trackingCode_efb,email:email_efb }
+      const ob = { steps: stepMax_ws, [`${name}-${no}`]: el.value, formName: formName_ws, EfbVersion: 1.3, type: form_type_emsFormBuilder, trackingCode: trackingCode_efb,email:email_efb ,stateForm:state_form_efb }
       //console.log(ob);
 
       if (name == "icon") {
@@ -1541,6 +1570,7 @@ function add_form_builder_emsFormBuilder() {
             </br>
             <!-- show tracking code in form creator -->
             ${formName_ws != "login" && formName_ws != "register" && formName_ws != "survey" ? ` <input type="checkbox" class="form-check-input emsFormBuilder " id="trackingcode_emsFormBuilder"><label class="form-check-label px-2" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>` : ``}     
+            ${formName_ws != "login" && formName_ws != "register"  ? ` <input type="checkbox" class="form-check-input emsFormBuilder " id="state_form_emsFormBuilder"><label class="form-check-label px-2" for="state_form_emsFormBuilder">${efb_var.text.onlyLoggedUser}</label>` : ``}     
              </div>
           </div>
           <div class="tab" id="tabInfo">
@@ -1715,5 +1745,4 @@ function add_div_over_emsFormBuilder() {
 </div>`;
 
 }
-
 

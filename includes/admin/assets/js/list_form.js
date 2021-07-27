@@ -410,8 +410,9 @@ function fun_ws_show_edit_form(id) {
           ${form_type_efb != "login" && form_type_efb != "register" ? ` </br><h5> ${efb_var.text.alertEmail}: <small>${efb_var.text.whenEasyFormBuilderRecivesNewMessage} </small></h5><input placeholder="1,2,3.." type="email"  name="email__efb" class=" emsFormBuilder" id="email__efb" >  ` : ``}     
           <div class="form-group mx-3">
           </br>
-          ${form_type_efb != "login" && form_type_efb != "register" ? `<input type="checkbox" class="form-check-input" id="trackingcode_emsFormBuilder" id="trackingcode_emsFormBuilder" > ` :``}
-             <label class="form-check-label" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>       
+          ${form_type_efb != "login" && form_type_efb != "register" ? `<input type="checkbox" class="form-check-input emsFormBuilder " id="trackingcode_emsFormBuilder"><label class="form-check-label px-2" for="trackingcode_emsFormBuilder">${efb_var.text.showTrackingCode}</label>` :``}
+          ${form_type_efb != "login" && form_type_efb != "register"  ? ` <input type="checkbox" class="form-check-input emsFormBuilder " id="state_form_emsFormBuilder"><label class="form-check-label px-2" for="state_form_emsFormBuilder">${efb_var.text.onlyLoggedUser}</label>` : ``}     
+                  
            </div>
       </div>
       <div class="tab" id="tabInfo">

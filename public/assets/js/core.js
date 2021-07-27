@@ -13,6 +13,7 @@ let formName =""
 let files_emsFormBuilder =[];
 let sitekye_emsFormBuilder =""
 let trackingCode_state_emsFormBuilder =""
+let form_state_emsFormBuilder =""
 let recaptcha_emsFormBuilder;
 let poster_emsFormBuilder ='';
 let pro_w_emsFormBuilder=false;
@@ -48,6 +49,7 @@ jQuery (function() {
         console.log(vs.trackingCode);
         sitekye_emsFormBuilder =vs.siteKey;
         trackingCode_state_emsFormBuilder =vs.trackingCode;
+        form_state_emsFormBuilder = vs.stateForm ? vs.stateForm : "";
         //console.log(trackingCode_state_emsFormBuilder)
       }else{
      //   console.log(ajax_object_efm)
@@ -59,8 +61,9 @@ jQuery (function() {
 
   //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
     if( ajax_object_efm.state!=='settingError' ){
-     
-      if(ajax_object_efm.state=='form'){
+      if(ajax_object_efm.state=='notShow'){
+        fun_not_show_emsFormBuilder();
+      }else if(ajax_object_efm.state=='form'){
         //console.log("id",ajax_object_efm.id);
         fun_render_view(ajax_object_efm.ajax_value,1);
       }else if (ajax_object_efm.state=='tracker'){
@@ -358,7 +361,11 @@ function fun_render_view(val,check){
     //console.log(valueJson_ws);
     if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
-    if(valueJson_ws[0].EfbVersion>1.2) trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode=="true" ? true : false;
+    if(valueJson_ws[0].EfbVersion>1.2) {
+      trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode=="true" ? true : false;
+      form_state_emsFormBuilder =valueJson_ws[0].stateForm=="true" ? true : false;
+  
+    }
   /*   console.log(valueJson_ws[0]);
     console.log(trackingCode_state_emsFormBuilder , valueJson_ws[0].trackingCode )
     console.log(valueJson_ws[0].steps); */
@@ -1548,6 +1555,19 @@ function fun_tracking_show_emsFormBuilder(){
 
         </form>      
       </div>
+  </div>
+</div>`
+}
+
+
+
+function fun_not_show_emsFormBuilder(){
+  document.getElementById("body_emsFormBuilder").innerHTML= ` <div class="row d-flex justify-content-center align-items-center">
+  <div class="col-md-12 ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}">
+      <div id="emsFormBuilder-form-view-track" >
+        
+              <h3 class="step-name f-setp-name" id ="step-name">${ajax_object_efm.text.formShowonlyLoggedUser}</h3> 
+                     
   </div>
 </div>`
 }
