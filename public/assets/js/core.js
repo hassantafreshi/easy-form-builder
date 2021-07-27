@@ -1866,6 +1866,7 @@ function validation_before_send_emsFormBuilder(){
       let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       console.log(row ,"row");
       console.log(valueJson_ws ,"row");
+
       if(valueJson_ws[indx].type=="multiselect" || valueJson_ws[indx].type=="option"  || valueJson_ws[indx].type=="Select" ||valueJson_ws[indx].type=="checkbox") {
       //const id = row.type=="checkbox" ? valueJson_ws[indx].parents : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
       //console.log(row.type, valueJson_ws[indx].type ,id);
@@ -1879,6 +1880,8 @@ function validation_before_send_emsFormBuilder(){
            id= valueJson_ws[indx].parents 
            id =valueJson_ws.findIndex(x => x.id_ ==row.id_)
            //console.log(`id[${id}] indx[${indx}]`,valueJson_ws[id] , valueJson_ws[indx] , "Ncheckbox" ,7777);
+         }else if(row.type=="multiselect"){
+           fill += row.value && row.value.length>0 ?  1 :0;
          }
         
      //    console.log(id,indx , valueJson_ws[id],fill, "OP");

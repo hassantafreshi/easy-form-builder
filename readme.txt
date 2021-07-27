@@ -42,6 +42,7 @@ How *Easy Form Builder* makes your life easier:
 - Create drag and drop file selection forms (Available in pro version)
 - Create multistep (20 steps) form (Available in pro version)
 - Create form by Advanced input like Date, URL, Range, Color, Multi Select (available in pro version)
+- Create 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -94,6 +95,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+
+= 2.0 =
+* Add new features (Set forms to be for logged-in users only)
 
 
 = 1.34.5 =

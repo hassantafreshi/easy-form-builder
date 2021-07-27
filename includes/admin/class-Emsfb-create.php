@@ -99,10 +99,14 @@ class Create {
 		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
 		$pro =false;
+
 		$ac= $this->get_activeCode_Emsfb();
+
 		if (md5($_SERVER['SERVER_NAME'])==$ac){
 			$pro=true;
 		}
+
+
 		if(	$pro==true){
 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
@@ -268,7 +272,7 @@ class Create {
 			"register" => __('Register'),
 			"username" => __('Username'),
 			"showTrackingCode" => __('Show tracking Code','easy-form-builder'),
-			"onlyLoggedUser" => __('Only for logged-in users','easy-form-builder'),
+			"onlyLoggedUser" => __('Show the form to logged in users only','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),
 			"alertEmail" => __('Alert Email','easy-form-builder'),
 			"whenEasyFormBuilderRecivesNewMessage" => __('(When the Form recives a new message, It will send an notification email to below email)','easy-form-builder'),
