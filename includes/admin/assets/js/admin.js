@@ -66,6 +66,11 @@ const elements = {
   14: { type: 'url', icon: 'fa-link', pro_ws: true },
   15: { type: 'range', icon: 'fa-arrows-h', pro_ws: true },
   16: { type: 'color', icon: 'fa-paint-brush', pro_ws: true },
+  17: { type: 'rating', icon: 'fa-paint-brush', pro_ws: false },
+  18: { type: 'maps', icon: 'fa-paint-brush', pro_ws: false },
+  19: { type: 'esignature', icon: 'fa-paint-brush', pro_ws: false },
+  /*20: { type: 'divider', icon: 'fa-paint-brush', pro_ws: false },
+  21: { type: 'html', icon: 'fa-paint-brush', pro_ws: false },*/
 }
 function run_code_ws_1() {
   if (localStorage.getItem("valueJson_ws_p")) {
@@ -203,7 +208,7 @@ function validateForm_emsFormBuilder() {
         if (document.getElementById("alarm_emsFormBuilder")) document.getElementById("message-area").innerHTML = ""
       }
     }else if(input.id=="email__efb"){
-      console.log('email');
+     // console.log('email');
     }
   }
   if (valid == true) { document.getElementsByClassName("step")[currentTab_ws].className += " finish"; } return valid;
@@ -458,6 +463,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
     } else if (type == "file") {
       //Object.assign(ob,{file:"Document"}) ;
     }
+    console.log(ob);
   } else if (group === "option") {
 
     // add group to array object  789
@@ -499,7 +505,7 @@ function addOject_emsFormBuilder(id, id_, value, type, value_of, group, step) {
 
 
   }
-
+  console.log(ob);
   if (Object.keys(valueJson_ws_p).length === 0) {
     if (ob.id_) valueJson_ws_p.push(ob);
     saveLocalStorage_emsFormBuilder()
@@ -778,13 +784,14 @@ function deleteButtonCreator_emsFormBuilder() {
       let foundIndex = Object.keys(valueJson_ws_p).length > 0 ? valueJson_ws_p.findIndex(x => x.id_ == el.id) : -1
 
       let found = Object.keys(valueJson_ws_p).length > 0 ? valueJson_ws_p.find(x => x.id_ == el.id) : -1;
-
+      console.log(found);
+    
 
       if (foundIndex != -1) valueJson_ws_p.splice(foundIndex, 1);
 
       if (found && found !== -1 && (found.type === "radiobutton" || found.type === "checkbox" || found.type === "multiselect")) {
         const id = found.id_;
-
+        
         //  foundIndex = -1;
         while (foundIndex != -1) {
           foundIndex = valueJson_ws_p.findIndex(x => x.parents == id);
@@ -795,6 +802,13 @@ function deleteButtonCreator_emsFormBuilder() {
         saveLocalStorage_emsFormBuilder()
       }
       saveLocalStorage_emsFormBuilder()
+      if (found!==-1 && found.type =="esignature" && valueJson_ws_p.findIndex(x => x.type == "esignature") ==-1) {
+        const esignatures = document.querySelectorAll(`[data-id='esignature']`);
+          //disable all esignatures btn when added
+          for(let es of esignatures){           
+            if(es.classList.contains('disabled') ) es.classList.remove('disabled')
+          }
+      }
     });
   }
 }
@@ -926,9 +940,20 @@ function eventCreatorOfInsertInput_emsFormBuilder(dropZone) {
       }
 
 
-      if (type == "text" || type == "password" || type == "button" || type == "number" || type == "tel" || type == "textarea" || type == "image" || type == "email" || type == "date" || type == "url" || type == "color" || type == "range" || type == "file") {
+      if (type == "text" || type == "password" || type == "button" || type == "number" 
+      || type == "tel" || type == "textarea" || type == "image" || type == "email"
+      || type == "date" || type == "file" || type=="maps" || type=="esignature" || type=="rating") {
 
         value = document.getElementById(el.id).value;
+        if (type=="esignature") {
+          
+          const esignatures = document.querySelectorAll(`[data-id='esignature']`);
+          //disable all esignatures btn when added
+          for(let es of esignatures){
+           
+            if(!es.classList.contains('disabled') ) es.classList.add('disabled')
+          }
+        }
       } else if (type == "radiobutton" || type == "checkbox" || type == "multiselect") {
         value = document.getElementById(el.id).value;
       } else {
@@ -1106,7 +1131,7 @@ function createSteps() {
     for (const e in elements) {
 
       if ((pro_ws == elements[e].pro_ws) || (pro_ws == true)) {
-        tags += `<div class="el el-${elements[e].type} btn  ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? ` ` : `btn-dark `}  btn-m btn-block mat-shadow" id="${elements[e].type}-${i}" ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? ` onClick="over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')" ` : `draggable="true"`}  ><i class="fa ${elements[e].icon} bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
+        tags += `<div class="el el-${elements[e].type} btn  ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? ` ` : `btn-dark `}  btn-m btn-block mat-shadow" data-id="${elements[e].type}" id="${elements[e].type}-${i}" ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? ` onClick="over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')" ` : `draggable="true"`}  ><i class="fa ${elements[e].icon} bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       } else {
         tags += `<div class="el el-${elements[e].type} limited btn ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? ` ` : `btn-warning `} btn-m btn-block" id="${elements[e].type}-${i}" ${form_type_emsFormBuilder == 'login' || (form_type_emsFormBuilder == 'register' && elements[e].type == "password") ? `  onClick="over_message_emsFormBuilder('${efb_var.text.alert}','${efb_var.text.thisElemantWouldNotRemoveableLoginform}')" ` : ` draggable="true"`} ><i class="fa fa-unlock-alt bttn"></i>${efb_var.text[`${elements[e].type}`]}</div>`
       }
@@ -1255,10 +1280,12 @@ function createSteps() {
           let value = "";
           let amount = 0;
 
+       //   console.log(type);
 
-
-          if (type == "text" || type == "password" || type == "button" || type == "number" || type == "tel" || type == "textarea" || type == "image" || type == "email" || type == "date" || type == "file") {
-
+          if (type == "text" || type == "password" || type == "button" || type == "number" 
+              || type == "tel" || type == "textarea" || type == "image" || type == "email"
+              || type == "date" || type == "file" || type=="maps" || type=="esignature" || type=="divider") {
+               console.log(`type is [${type}]`);
             value = document.getElementById(el.id).value;
           } else if (type == "radiobutton" || type == "checkbox") {
             value = document.getElementById(el.id).value;
@@ -1302,7 +1329,7 @@ function createSteps() {
 
 
           const step = dropZone.id.substring((dropZone.id.search("-") + 1), dropZone.id.length)
-
+          console.log(type , group);
           addOject_emsFormBuilder(id, id_, value, type, value_of, group, step);
         });
       }

@@ -336,8 +336,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <h6 class="my-3">${efb_var.text.response} </h6>`;
   for (const c of content) {
     let value = `<b>${c.value}</b>`;
-    //console.l(`value up ${value}`)    ;
-    if (c.value == "@file@" && c.state == 2) {
+   // console.log(`value up ${value}` ,c)    ;
+    if ((c.value == "@file@" && c.state == 2)|| c.type=="esignature" || c.type=="rating"  || c.type=="maps" ) {
       if (c.type == "Image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
       } else if (c.type == "Document") {
@@ -358,7 +358,32 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
-      } else {
+      } else if (c.type=="esignature" ){
+        value = `</br><img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
+      }else if(c.type=="rating"){
+        const rate =parseInt(c.value) ;
+        let star ="☆☆☆☆☆"
+        switch(rate){
+          case 1:
+            star ="☆☆☆☆★"
+          break
+          case 2:
+            star ="☆☆☆★★"
+          break
+          case 3:
+            star ="☆☆★★★"
+          break
+          case 4:
+            star ="☆★★★★"
+          break
+          case 5:
+            star ="★★★★★"
+          break   
+        }
+        value =`</br><h3 class="text-warning" >${star}</h3>`
+       }else if(c.type=="maps"){
+  
+       }else {
         //console.l(c.url ,c.url.length)
         value = `</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
       }
@@ -827,6 +852,7 @@ function fun_show_setting__emsFormBuilder() {
   let secretkey = 'null';
   let email = 'null';
   let trackingcode = 'null';
+  let apikey = 'null';
   //console.l(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
@@ -849,6 +875,7 @@ function fun_show_setting__emsFormBuilder() {
     secretkey = f(`secretKey`);
     email = f(`emailSupporter`);
     trackingcode = f(`trackingCode`);
+    apikey = f(`apiKey`);
   }
 
 
@@ -881,6 +908,16 @@ function fun_show_setting__emsFormBuilder() {
       </div>
     </div>
 
+    <div class="py-2">
+    <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="reCAPTCHAHelp">${efb_var.text.googleMaps}   <h6>
+     <small id="reCAPTCHAHelp" class="form-text text-muted mx-3 mb-3"><a target="_blank" href="https://developers.google.com/maps/documentation/javascript/get-api-key">${efb_var.text.googleMaps} </a>${efb_var.text.protectsYourWebsiteFromFraud}<a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></small>
+    <div class="form-group mx-5">
+      <label for="sitekey_maps_emsFormBuilder">${efb_var.text.apiKey}</label>
+      <input type="text" class="form-control ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_maps_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apikey !== "null" ? `value="${apikey}"` : ""}>
+      <small class="text-danger" id="sitekey_maps_emsFormBuilder-message"></small>
+    </div>
+  </div>
+  
     <div class="py-2">
       <h6 class="border-bottom border-info mx-3 mt-2" aria-describedby="AlertEmailHelp">${efb_var.text.alertEmail}<h6>
        <small id="AlertEmailHelp" class="form-text text-muted mx-3 mb-3">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</small>
@@ -943,8 +980,8 @@ function fun_set_setting_emsFormBuilder() {
     const el = document.getElementById(id);
     console.log(el);
     if (el.type !== "checkbox") {
-
-      if (el.value.length > 0 && el.value.length < 20 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder") {
+   //   console.log(el.type , el.id ,el.value.length ,el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" );
+      if (el.value.length > 0 && el.value.length < 15 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder") {
         document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
@@ -969,7 +1006,7 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['activeCode_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'trackingcode_emsFormBuilder'];
+  const ids = ['activeCode_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder' ,'sitekey_maps_emsFormBuilder', 'email_emsFormBuilder', 'trackingcode_emsFormBuilder'];
   let state = true
   for (id of ids) {
     if (v(id) === false) {
@@ -984,9 +1021,10 @@ function fun_set_setting_emsFormBuilder() {
     const sitekey = f(`sitekey_emsFormBuilder`);
     const secretkey = f(`secretkey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
+    const apikey = f (`sitekey_maps_emsFormBuilder`)
     let trackingcode = f(`trackingcode_emsFormBuilder`);
     trackingcode = false; //form v1.3
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, trackingCode: `${trackingcode}` });
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey,apiKey:apikey, emailSupporter: email, trackingCode: `${trackingcode}` });
   }
 }
 

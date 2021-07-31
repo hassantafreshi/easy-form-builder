@@ -35,7 +35,9 @@ input[type=text].emsFormBuilder_v,input[type=number].emsFormBuilder_v,select.ems
     -webkit-appearance: none
 }
 
-
+.canvas_efb{
+  width: 100%;
+}
 
 
 
@@ -511,11 +513,7 @@ video.emsFormBuilder {
     padding: 1%;
     margin: 1%;
   }
-  
-  .multiselect-item-label--active{
-   
-  }
-  
+
   .multiselect-clear{
     padding: 0 5px; 
   }
@@ -678,3 +676,67 @@ hr.solid {
  
   
 /* drog and drop section end*/
+
+/* rating section */
+
+.rate-efb {
+  height: auto;
+  padding: 0 10px;
+}
+.star-efb{
+  font-size: xx-large!important;
+}
+.rate-efb:not(:checked) > input {
+  position:absolute;
+  top:-9999px;
+}
+.rate-efb:not(:checked) > label {
+  float:right;
+  width:auto;
+  overflow:hidden;
+  white-space:nowrap;
+  cursor:pointer;
+  color:rgb(93, 93, 93);
+}
+.rate-efb:not(:checked) > label:before {
+ content: '★ ';
+}
+.rate-efb > input:checked ~ label {
+  color: #ffc700;    
+}
+.rate-efb:not(:checked) > label:hover,
+.rate-efb:not(:checked) > label:hover ~ label {
+  color: #deb217;  
+}
+.rate-efb > input:checked + label:hover,
+.rate-efb > input:checked + label:hover ~ label,
+.rate-efb > input:checked ~ label:hover,
+.rate-efb > input:checked ~ label:hover ~ label,
+.rate-efb > label:hover ~ input:checked ~ label {
+  color: #c59b08;
+}
+
+/* Modified from: https://github.com/mukulkant/Star-rating-using-pure-css */
+/* rating section  end*/
+
+
+/* maps  section */
+
+#map {
+  height: 100%;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  padding-left: 10px;
+}
+/* maps  section end */

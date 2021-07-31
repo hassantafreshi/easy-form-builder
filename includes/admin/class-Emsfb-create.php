@@ -99,12 +99,8 @@ class Create {
 		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
 		$pro =false;
-
 		$ac= $this->get_activeCode_Emsfb();
-
-		if (md5($_SERVER['SERVER_NAME'])==$ac){
-			$pro=true;
-		}
+		if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
 
 
 		if(	$pro==true){
@@ -190,6 +186,11 @@ class Create {
 			"url" => __('url','easy-form-builder'),
 			"range" => __('range','easy-form-builder'),
 			"color" => __('color','easy-form-builder'),
+			"rating" => __('Rating','easy-form-builder'),
+			"maps" => __('Maps','easy-form-builder'),
+			"divider" => __('Divider','easy-form-builder'),
+			"esignature" => __('E-signature','easy-form-builder'),
+			"html" => __('Html','easy-form-builder'),
 			"fileType" => __('File Type','easy-form-builder'),
 			"label" => __('Label:*','easy-form-builder'),
 			"class" => __('Class','easy-form-builder'),

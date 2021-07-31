@@ -26,7 +26,7 @@ class _Public {
 		$this->db = $wpdb;
 
 		
-		//add_action('init',  array($this,'modify_jquery'));
+	
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -126,6 +126,7 @@ class _Public {
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
+				"formIsNotShownMaps" => __('The form is not shown, Becuase You Have not added Maps API at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
@@ -156,6 +157,7 @@ class _Public {
 				"noComment" => __('No comment','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"by" => __('By','easy-form-builder'),
+				"clear" => __('Clear','easy-form-builder'),
 				"formShowonlyLoggedUser" => __('Pleas Login, Form only showing to logged in users','easy-form-builder'),
 				"please" => __('Please','easy-form-builder')
 				];
@@ -169,10 +171,8 @@ class _Public {
 
 					$typeOfForm ="userIsLogin";
 					$user = wp_get_current_user();
-			//		$Value = $value->data;
 					$state="userIsLogin";
-				//	$poster = get_avatar_url(get_current_user_id());
-
+				
 
 
 					$send['state']=true;
@@ -204,6 +204,17 @@ class _Public {
 							$value = "";
 							$state="notShow";
 				}
+				$apiKey ="not";
+				if(strpos($value ,'maps')){
+					$ob = json_decode($stng);
+					$apiKey=$ob->apiKey;
+					if(empty($apiKey)){
+						$state ='MapsAPINotSet';
+										
+					}			
+				}
+				
+			
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'ajax_value' =>$value,
@@ -218,6 +229,14 @@ class _Public {
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  
+
+
+		 if($apiKey!='not' && !empty($apiKey)){
+			
+				//&callback=initMap
+				wp_register_script('googleMaps', 'https://maps.googleapis.com/maps/api/js?key='.$apiKey.'&language='.$lang.'&libraries=&v=weekly&channel=2', array() , null, true);
+				wp_enqueue_script('googleMaps');							
+		}
 
 	 	$content="<div id='body_emsFormBuilder'><h1></h1><div>";
 		return $content; 
@@ -262,6 +281,7 @@ class _Public {
 				"messages" => __('Messages','easy-form-builder'),
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
+				"formIsNotShownMaps" => __('The form is not shown, Becuase You Have not added Maps API at setting of Easy Form Builder Plugin.','easy-form-builder'),
 				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
@@ -288,6 +308,8 @@ class _Public {
 			$stng="setting was not added";
 			$state="tracker";
 		}
+		
+
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -409,6 +431,7 @@ class _Public {
 			if(gettype($r)=="object"){
 				$setting =json_decode($r->setting);
 				$secretKey=$setting->secretKey;
+				
 			//	error_log($setting->activeCode);
 				if(!empty($setting->activeCode) && md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
 					//error_log('pro == true');
@@ -427,6 +450,7 @@ class _Public {
 						$captcha_success =json_decode($verify['body']);
 					$not_captcha=false;	 
 				}
+	
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 
@@ -843,6 +867,17 @@ class _Public {
 			$r = false;
 			if($value!=null){
 				$r=true;
+		 		if(strpos($value[0] ,'maps')){
+					$ob = json_decode($stng);
+					$apiKey=$ob->apiKey;
+					if(!empty($apiKey)){
+						wp_register_script('googleMaps', 'https://maps.googleapis.com/maps/api/js?key='.$apiKey.'&language='.$lang.'&callback=initMap', null , null, true);
+						wp_enqueue_script('googleMaps');					
+					}else{
+						$response = array( 'success' => false  , "m" =>__("Contact to admin,API MAPS NSET", 'easy-form-builder')); 
+					}
+				} 
+				
 				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
@@ -1104,6 +1139,8 @@ class _Public {
 				   $siteKey=$v;
 			   }elseif ($k=="trackingCode" && $state=="pub"){
 				   $trackingCode=$v;
+			   }elseif($k=="apiKey" && $state=="pub"){
+					$apiKey=$v;
 			   }
 		   }
 		   
@@ -1111,7 +1148,7 @@ class _Public {
    
 	   if($state=="pub"){
 			
-		   $rtr =	array('trackingCode' => ''.$trackingCode.'' , 'siteKey' => ''.$siteKey.'');
+		   $rtr =	array('trackingCode' => ''.$trackingCode.'' , 'siteKey' => ''.$siteKey.'' , 'apiKey' => ''.$apiKey.'');
 		   $rtrn =json_encode($rtr);
 	   }else{
 		   $rtrn=$value[0];
@@ -1125,16 +1162,6 @@ class _Public {
 	}
 
 
-	
-	function modify_jquery() {
-		//this function added jquery vesrion 3.5.1 for multiselect
-/* 		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
-			wp_deregister_script('jquery');
-			wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
-			wp_enqueue_script('jquery');
-		} */
-	
-	}
 	public function load_textdomain(): void {
 		//error_log('load_textdomain');
         load_plugin_textdomain(

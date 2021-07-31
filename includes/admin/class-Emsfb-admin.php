@@ -123,7 +123,7 @@ class Admin {
                 $lang = explode('_', $lang)[0];
             }
 
-            $ac = $this->get_activeCode_Emsfb();
+            $stng = $this->get_setting_admin_efb();
 
             //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
             wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
@@ -140,6 +140,16 @@ class Admin {
             //source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
             wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
             wp_enqueue_script('popper-js'); 
+            // google map  caller
+           if(!empty($stng['apiKey'])){
+                   $apikey = $stng['apiKey'];
+                    wp_register_script('googleMaps', 'https://maps.googleapis.com/maps/api/js?key='.$apikey.'&language='.$lang.'', null , null, true);
+                    //wp_register_script('googleMaps', 'https://maps.googleapis.com/maps/api/js?key='.$apikey.'&language='.$lang.'&callback=initMap', null , null, true);
+                    wp_enqueue_script('googleMaps');					
+              }
+          
+
+  
 
         }
     }
@@ -565,21 +575,28 @@ class Admin {
         return $ip;
     }
 
-    public function get_activeCode_Emsfb() {
+    public function get_setting_admin_efb() {
         // اکتیو کد بر می گرداند
 
         $table_name = $this->db->prefix . "Emsfb_setting";
         $value      = $this->db->get_results("SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1");
-        $rtrn       = 'null';
+        $ctiveCode       = '';
+        $apiKey       = '';
+        $siteKey       = '';
         if (count($value) > 0) {
             foreach ($value[0] as $key => $val) {
                 $r    = json_decode($val);
-                $rtrn = $r->activeCode;
+                $activeCode = $r->activeCode;
+                $apiKey = $r->apiKey;
+                $siteKey =$r->siteKey;
                 break;
             }
         }
+        $rtrn =	array('activeCode' => ''.$activeCode.'' , 'siteKey' => ''.$siteKey.'' , 'apiKey' => ''.$apiKey.'');
         return $rtrn;
     }
+
+
 
     public function get_not_read_message() {
         //error_log('get_not_read_message');

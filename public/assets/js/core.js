@@ -20,6 +20,11 @@ let pro_w_emsFormBuilder=false;
 const fileSizeLimite_emsFormBuilder =8300000;
 let select_options_emsFormBuilder=[];
 let form_type_emsFormBuilder='form';
+let mousePostion_efb = {x: 0, y: 0 };
+let draw_mouse_efb = false;
+let c2d_contex_efb
+let lastMousePostion_efb = mousePostion_efb;
+let canvas_id_efb ="";
 
 //exportView_emsFormBuilder مقدار المان ها را در خود نگه می دارد
 //sendBack_emsFormBuilder_pub مقدار فرم پر شده توسط کاربر در خود نگه می دارد
@@ -37,8 +42,9 @@ jQuery (function() {
     //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
     
     if(typeof ajax_object_efm == 'undefined') return;
+    console.log(ajax_object_efm);
     poster_emsFormBuilder =ajax_object_efm.poster;
-    //console.log("poster_emsFormBuilder",ajax_object_efm);
+    console.log("poster_emsFormBuilder",ajax_object_efm);
   //  console.log(ajax_object_efm.rtl,'return');
     if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
       form_type_emsFormBuilder=ajax_object_efm.type;
@@ -69,9 +75,9 @@ jQuery (function() {
       }else if (ajax_object_efm.state=='tracker'){
         //console.log("tracker");
         fun_tracking_show_emsFormBuilder()
-      }else if(ajax_object_efm.state=='settingError'){
+      }else if(ajax_object_efm.state=='settingError' || ajax_object_efm.state=='MapsAPINotSet'){
         //console.log("settingError");
-        fun_show_alert_setting_emsFormBuilder()
+        fun_show_alert_setting_emsFormBuilder(ajax_object_efm.state)
       }else if (ajax_object_efm.state=='userIsLogin'){
         document.getElementById('body_emsFormBuilder').innerHTML=show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
       }
@@ -370,7 +376,7 @@ function fun_render_view(val,check){
     console.log(trackingCode_state_emsFormBuilder , valueJson_ws[0].trackingCode )
     console.log(valueJson_ws[0].steps); */
     for (let v of valueJson_ws) {
-     
+     //console.log(v);
       let el="";
       let id;
       let req;
@@ -522,7 +528,68 @@ function fun_render_view(val,check){
             exportView_emsFormBuilder[indx].required = false;
           }
           break
-      }
+        case 'esignature':
+          id = v.id ? v.id : v.id_;
+          req = v.required ? v.required : false;
+          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
+        
+          <div class="col-12">
+              <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
+             <canvas type="canvas" data-code="${v.id_}" data-id="${v.id_}-efb-canvas"  id='${id}' name="${id}" class=" border  canvas_efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}"  height="160"  >update your browser!</canvas>
+             <small class="text-danger" id="${v.id_}-message"></small>
+             <input type="hidden" id="${v.id_}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+             <a class="btn btn-danger m-1" data-id="${v.id_}" id="${v.id_}-sefb-sig-clr" onClick="fun_clear_esignature_efb('${v.id_}')">${ajax_object_efm.text.clear}</a>
+           </div>
+        </div>`
+          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
+          break;
+        case 'maps':
+        case'map':
+          id = v.id ? v.id : v.id_;
+          req = v.required ? v.required : false;
+          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
+        
+          <div class="col-12">
+              <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
+             <canvas type="canvas" data-code="${v.id_}" data-id="${v.id_}-efb-canvas"  id='${id}' name="${id}" class=" border  canvas_efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}"  height="160"  >update your browser!</canvas>
+             <small class="text-danger" id="${v.id_}-message"></small>
+             <input type="hidden" id="${v.id_}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+             <a class="btn btn-danger m-1" data-id="${v.id_}" id="${v.id_}-sefb-sig-clr" onClick="fun_clear_esignature_efb('${v.id_}')">${ajax_object_efm.text.clear}</a>
+           </div>
+        </div>`
+          console.log('test');
+        el = `
+        <div class="col-12">
+        <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
+        <div id="floating-panel"><input id="delete-markers"  type="button" value="${ajax_object_efm.text.clear}" /></div>
+        <div id="map" height="250"></div>
+        </div>`
+          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
+          break;
+        case 'rating':
+          id = v.id ? v.id : v.id_;
+          req = v.required ? v.required : false;
+          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
+                 <div class="col-12 d-flex justify-content-center" id="${v.id_}">
+                  <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>                    
+                   <div class="rate-efb d-flex justify-content-center" id="${v.id_}">
+                    <input type="radio" data-id="${v.id_}" id="star5" name="rate-efb" value="5" data-star="star" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
+                    <label for="star5" title="5stars" class="star-efb"></label>
+                    <input type="radio" data-id="${v.id_}" id="star4" name="rate-efb" value="4"  data-star="star" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} "  />
+                    <label for="star4"  title="4stars" class="star-efb"></label>
+                    <input type="radio" data-id="${v.id_}" id="star3" name="rate-efb"  data-star="star"  value="3" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
+                    <label for="star3" title="3stars" class="star-efb"></label>
+                    <input type="radio" data-id="${v.id_}" id="star2"  data-star="star"  name="rate-efb" value="2" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
+                    <label for="star2" title="2stars" class="star-efb"></label>
+                    <input type="radio" data-id="${v.id_}" id="star1" data-star="star" name="rate-efb" value="1" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
+                    <label for="star1" title="1stars" class="star-efb"></label>
+                  </div>
+                </div>
+                <small class="text-danger" id="${v.id_}-message"></small>
+              </div>`
+          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
+          break;
+        }
     }
     //console.log(ajax_object_efm )
     
@@ -944,14 +1011,15 @@ function ShowTab_emsFormBuilder_view(n) {
   
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
       //console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
-      if (el.type != "submit" ) {
+      //console.log(el.tagName =="CANVAS" , el.tagName);
+      if (el.type != "submit" && el.tagName !="CANVAS" && !el.classList.contains("rating-efb") && !el.classList.contains("map-efb")) {
        
         if( el.type =="file"){
           const ob = valueJson_ws.find(x => x.id_ ===  el.dataset.id);
           files_emsFormBuilder.push ({id:el.id ,value:"@file@", state:0 , url:"" ,type:"file" , name:ob.name, session: sessionPub_emsFormBuilder});
           //console.log(files_emsFormBuilder);
         }
-  
+        
         el.addEventListener("change", (e) => {
          // e.preventDefault();
           let ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
@@ -993,7 +1061,7 @@ function ShowTab_emsFormBuilder_view(n) {
               //console.log(value,ob.name);
             break;
             case "email":
-              console.log('email')
+             // console.log('email')
               state=valid_email_emsFormBuilder(el);
               value = state==true ? el.value :'';
               console.log(value,'email')
@@ -1020,6 +1088,7 @@ function ShowTab_emsFormBuilder_view(n) {
             case undefined:
               //select_options_emsFormBuilder
             //  console.log(el.id ,exportView_emsFormBuilder)
+            
               let check=false;
               for(ex of exportView_emsFormBuilder){
               //  console.log(ex.id_ ,'cont');
@@ -1060,6 +1129,86 @@ function ShowTab_emsFormBuilder_view(n) {
           const o = [{ id_: id_, name: ob.name, type:el.type, value: el.value, session: sessionPub_emsFormBuilder }];
           fun_sendBack_emsFormBuilder(o[0]);
         });
+      } else if (el.tagName =="CANVAS"){
+
+        console.log('CANVAS',el.dataset.code ,el)
+        const canvas =  el
+        c2d_contex_efb = canvas.getContext("2d");
+        c2d_contex_efb.lineWidth = 5;
+        c2d_contex_efb.strokeStyle = "#000";
+
+        canvas.addEventListener("mousedown", (e)=> {
+          draw_mouse_efb = true;
+          canvas_id_efb = el.dataset.code;
+          lastMousePostion_efb = getmousePostion_efb(canvas, e);
+        }, false);
+
+        canvas.addEventListener("mouseup", (e)=> {
+          draw_mouse_efb = false;
+          console.log(el.dataset.code);
+          const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
+          const value = document.getElementById(`${el.dataset.code}-sig-data`).value;
+          console.log(value);
+          const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+          // console.log(o ,968)
+           fun_sendBack_emsFormBuilder(o[0]);
+        }, false);
+
+        canvas.addEventListener("mousemove", (e)=> {mousePostion_efb = getmousePostion_efb(canvas, e); }, false);
+
+        // touch event support for mobile
+        canvas.addEventListener("touchmove", (e)=> {
+         // canvas_id_efb = el.dataset.code;
+          let touch = e.touches[0];
+          let ms = new MouseEvent("mousemove", { clientY: touch.clientY ,clientX: touch.clientX});
+          canvas.dispatchEvent(ms);
+        }, false);
+
+        canvas.addEventListener("touchstart", (e)=> {
+          canvas_id_efb = el.dataset.code;
+          mousePostion_efb = getTouchPos_efb(canvas, e);
+          let touch = e.touches[0];
+          let ms = new MouseEvent("mousedown", {
+            clientY: touch.clientY,
+            clientX: touch.clientX
+          });
+          canvas.dispatchEvent(ms);
+        }, false);
+
+        canvas.addEventListener("touchend", (e)=> {
+          let ms = new MouseEvent("mouseup", {});
+          canvas.dispatchEvent(ms);
+          const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
+          const value = document.getElementById(`${el.dataset.code}-sig-data`).value;
+          console.log(value);
+          const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+          fun_sendBack_emsFormBuilder(o[0]);
+        }, false);
+
+      } else if ( el.classList.contains('rating-efb')){
+//            console.log(el)
+            el.addEventListener("click", ()=> {
+              console.log(el)
+              const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
+              const value = el.value;
+              console.log(value,ob.type);
+              const o = [{ id_: el.dataset.id, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+              // console.log(o ,968)
+               fun_sendBack_emsFormBuilder(o[0]);
+               
+            }, false);
+      } else if ( el.classList.contains('map-efb')){
+           
+            el.addEventListener("click", ()=> {
+              
+              const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
+             /*  const value = el.value;
+              console.log(value,ob.type); */
+              const o = [{ id_: el.dataset.id, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+              // console.log(o ,968)
+               fun_sendBack_emsFormBuilder(o[0]);
+               
+            }, false);
       }
   
     }//end for
@@ -1078,7 +1227,7 @@ function ShowTab_emsFormBuilder_view(n) {
     } else {
       sendBack_emsFormBuilder_pub.push(ob);
     }
-   // console.log(sendBack_emsFormBuilder_pub);
+   console.log(sendBack_emsFormBuilder_pub);
   }
   function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
     //console.log(ob ,2223,"first")
@@ -1702,12 +1851,16 @@ function fun_emsFormBuilder_show_messages(content,by,track,date){
   <h6 class="my-3"> ${ajax_object_efm.text.response} </h6>`;
   for (const c of content){
     //JSON.parse(content.replace(/[\\]/g, ''))
-    //console.log("c12",c);
+    console.log(c , c.type =="rating");
     let value = `<b>${c.value}</b>`;
     //console.log(`value up ${value}`)    ;
-    if (c.value =="@file@" && c.state==2){
+    //if (c.value =="@file@" && c.state==2){
+      if ((c.value == "@file@" && c.state == 2)|| c.type=="esignature" || c.type=="rating"  || c.type=="map") {
      if(c.type=="Image"){
       value =`</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
+     }
+     else if(c.type=="esignature"){
+      value =`</br><img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
      }else if(c.type=="Document"){
       value =`</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
      }else if(c.type=="Media"){
@@ -1725,6 +1878,29 @@ function fun_emsFormBuilder_show_messages(content,by,track,date){
         }else{
           value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
+     }else if(c.type=="rating"){
+      const rate =parseInt(c.value) ;
+      let star ="☆☆☆☆☆"
+      switch(rate){
+        case 1:
+          star ="☆☆☆☆★"
+        break
+        case 2:
+          star ="☆☆☆★★"
+        break
+        case 3:
+          star ="☆☆★★★"
+        break
+        case 4:
+          star ="☆★★★★"
+        break
+        case 5:
+          star ="★★★★★"
+        break   
+      }
+      value =`</br><h3 class="text-warning" >${star}</h3>`
+     }else if(c.type=="map"){
+
      }else{
       if (c.url.length!=0)value =`</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
       }
@@ -1802,11 +1978,12 @@ function fun_emsFormBuilder__add_a_response_to_messages(message,userIp,track,dat
 }
 
 
-function fun_show_alert_setting_emsFormBuilder(){
+function fun_show_alert_setting_emsFormBuilder(state){
+  const urlVideo = state =="MapsAPINotSet" ? "URLMapsAPINotSet" : "https://www.youtube.com/embed/a1jbMqunzkQ";
   const m= `<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">
             ${ajax_object_efm.text.error}</br>
-            ${ajax_object_efm.text.formIsNotShown}</br>
-            <a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
+            ${state =="MapsAPINotSet" ? ajax_object_efm.text.formIsNotShownMaps : ajax_object_efm.text.formIsNotShown}</br>
+            <a href="${urlVideo}"  target="_blank" class="font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
   if (document.getElementById('body_emsFormBuilder')) { 
     document.getElementById('body_emsFormBuilder').innerHTML=m;
   }else if(document.getElementById('body_tracker_emsFormBuilder')){
@@ -1887,6 +2064,12 @@ function validation_before_send_emsFormBuilder(){
      //    console.log(id,indx , valueJson_ws[id],fill, "OP");
         fill +=  id!=-1 && valueJson_ws[id].required==true  ? 1 :0;
       //  console.log(fill,valueJson_ws[id].required==true , "OP");
+      }else if (valueJson_ws[indx].type=="esignature" || valueJson_ws[indx].type=="rating" || valueJson_ws[indx].type=="map"){
+        //esignatures
+        console.log(valueJson_ws[indx].type)
+        id =sendBack_emsFormBuilder_pub.findIndex(x => x.id_ ==valueJson_ws[indx].id_)
+        console.log(valueJson_ws[indx] ,sendBack_emsFormBuilder_pub[id].value);
+        fill += id!=-1 && sendBack_emsFormBuilder_pub[id].value.length>=1  ?1 :0 ;
       }else{
         fill += valueJson_ws[indx].required== true ? 1 :0; 
        // console.log(valueJson_ws[indx].type ,indx , valueJson_ws[indx],fill, "other");
@@ -2105,3 +2288,143 @@ function onloadRecaptchakEFB(){
 if(document.getElementById('overpage-efb')) document.getElementById('overpage-efb').remove();
 }
 /* remove overpage after loading recaptcha */ 
+
+
+
+/* clear esignature function */
+function fun_clear_esignature_efb(id){
+  const canvas =   document.querySelector(`[data-id='${id}-efb-canvas']`);
+  document.getElementById(`${id}-sig-data`).value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+  const c2d = canvas.getContext("2d");
+  c2d.clearRect(0, 0, canvas.width, canvas.height);
+  var w = canvas.width;
+  canvas.width = 1;
+  canvas.width = w;
+  c2d.lineWidth = 5;
+  c2d.strokeStyle = "#000";
+  c2d.save();
+  const o = [{ id_: id }];
+  // console.log(o ,968)
+   fun_sendBack_emsFormBuilder(o[0]);
+}
+
+window.requestAnimFrame = ((callback) => {
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimaitonFrame ||
+    function(callback) {
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
+
+function getmousePostion_efb(canvasDom, mouseEvent) {
+  let rct = canvasDom.getBoundingClientRect();
+  return {
+    y: mouseEvent.clientY - rct.top,
+    x: mouseEvent.clientX - rct.left
+  }
+}
+
+function getTouchPos_efb(canvasDom, touchEvent) {
+  let rct = canvasDom.getBoundingClientRect();
+  return {
+    y: touchEvent.touches[0].clientY - rct.top,
+    x: touchEvent.touches[0].clientX - rct.left
+  }
+}
+
+function renderCanvas_efb() {
+  if (draw_mouse_efb) {
+    console.log( canvas_id_efb)
+    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+    c2d_contex_efb.lineTo(mousePostion_efb.x, mousePostion_efb.y);
+    c2d_contex_efb.stroke();
+    lastMousePostion_efb = mousePostion_efb;
+
+    const data = document.querySelector(`[data-id='${canvas_id_efb}-efb-canvas']`).toDataURL();
+   // console.log(data)
+    document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
+   // image.setAttribute("src", data);
+  }
+}
+
+
+(function drawLoop() {
+  requestAnimFrame(drawLoop);
+  renderCanvas_efb();
+})();
+/* clear esignature function  end*/
+
+
+/* map section */
+
+let map;
+let markers = [];
+
+//document.addEventListener('ondomready', function(){
+  function initMap() {
+    console.log('initMap');
+    setTimeout(function() {
+      // code to be executed after 1 second
+      console.log('test map function',google,document.getElementById("map"))
+      const haightAshbury = { lat: 37.769, lng: -122.446 };
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 12,
+        center: haightAshbury,
+        mapTypeId: "terrain",
+      });
+      console.log('map function');
+      // This event listener will call addMarker() when the map is clicked.
+      map.addListener("click", (event) => {
+       if (markers.length <1)  addMarker(event.latLng);
+      });
+      // add event listeners for the buttons
+     
+      document
+        .getElementById("delete-markers")
+        .addEventListener("click", deleteMarkers);
+      // Adds a marker at the center of the map.
+      addMarker(haightAshbury);
+    }, 1000);
+  }
+
+//});
+console.log('testinit')
+initMap();
+// Adds a marker to the map and push to the array.
+function addMarker(position) {
+  const marker = new google.maps.Marker({
+    position,
+    map,
+  });
+
+  markers.push(marker);
+    console.log(markers.length)
+}
+
+// Sets the map on all markers in the array.
+function setMapOnAll(map) {
+  for (let i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+}
+
+// Removes the markers from the map, but keeps them in the array.
+function hideMarkers() {
+  setMapOnAll(null);
+}
+
+// Shows any markers currently in the array.
+function showMarkers() {
+  setMapOnAll(map);
+}
+
+// Deletes all markers in the array by removing references to them.
+function deleteMarkers() {
+  hideMarkers();
+  markers = [];
+}
+/* map section end */
