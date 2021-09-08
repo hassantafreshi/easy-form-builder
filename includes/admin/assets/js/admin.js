@@ -1494,34 +1494,75 @@ function add_form_builder_emsFormBuilder (){
 function add_dasboard_emsFormBuilder(){
  
   const boxs=[
-              {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'fa-check-square'},
-              {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'fa-envelope'},
-              {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'fa-user-plus'},
-              {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'fa-sign-in'},
-              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'fa-bell'},
-              {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'fa-life-ring'},
-              {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:false, icon:'fa-bar-chart'},
-              {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'fa-calendar-plus-o'},
+              {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square'},
+              {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope'},
+              {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus'},
+              {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right'},
+              {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell'},
+              {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check'},
+              {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line'},
+              {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'},
               ]
         let value=`<!-- boxs -->`;
         for(let i of boxs){
        
-        value +=`<div class="col-sm-6 my-2 ${efb_var.rtl==1 ? 'rtl-text' :''}">
+/*         value +=`<div class="col-sm-6 my-2 ${efb_var.rtl==1 ? 'rtl-text' :''}">
         <div class="card emsFormBuilder-form-card">
         ${i.status==false ? `<div class="overlay-emsFormBuilder"><i class="fa fa-lock"></i><p>${efb_var.text.availableSoon}</p></div>`:``}
           <div class="card-body">
             <h5 class="card-title"><i class="fa ${i.icon}" aria-hidden="true"></i> ${i.title}</h5>
             <p class="card-text">${i.desc}</p>
             <a href="#" id="${i.id}" class="btn  emsFormBuilder efbCreateNewForm">${efb_var.text.create}</a>
-          </div></div></div>`
+          </div></div></div>` */
+          console.log(efb_var.rtl)
+          value += `
+          <div class="col card ${efb_var.rtl==1 ? 'rtl-text' :''} "> <div class="card-body">
+         
+          <h5 class="card-title"><i class="efb ${i.icon} me-2"></i>${i.title} </h5>
+          <p class="card-text efb float-start mt-3">${i.desc}</p>
+          ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
+          </div></div>`
         }
+        console.log(efb_var.images.logo)
+       document.getElementById('tab_container').innerHTML = `
+       <div class="top_circle-efb-2"></div>
 
-       document.getElementById('tab_container').innerHTML = `<nav class="navbar navbar-light">
-       <a class="navbar-brand" href="https://whitestudio.team/?s=pwp">
-         <img src="https://whitestudio.team/img/easy-form-builder.svg" width="50" class="d-inline-block align-top" alt="">
-         ${efb_var.text.easyFormBuilder}
-       </a>
-     </nav><div class="row"><div class="row  my-3 col-2"></div><div class="row mx-5 my-2 col-8 center">${value}</div><div class="row  my-5 col-2"></div></div>`
+     <section id="header-efb">
+     <div class="row mx-5">
+                <div class="col-lg-7 mt-5 col-md-12">
+                    <img src="${efb_var.images.logo}"" class="description-logo efb">
+                    <h1 class="efb">${efb_var.text.easyFormBuilder}</h1>
+                    <h3 class="efb">${efb_var.text.byWhiteStudioTeam}</h3>
+                    <div class="clearfix"></div>
+                    <p class="card-text efb pb-3">
+                        Easy Form Builder is a user-friendly form creator that allows you to create professional multistep forms within minutes.
+                        You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts
+                        into
+                        order to easily create unlimited custom multistep forms. A unique tracking ID allows you to
+                        connect
+                        any submission to an individual request .                        
+                    </p>
+                    <button type="button" class="btn efb btn-primary btn-lg" href="#content-efb">
+                        <i class="efb bi-plus-circle me-2"></i>${efb_var.text.createForms} 
+                    </button>
+                    <button type="button" class="btn mt-1 efb btn-outline-pink btn-lg">
+                        <i class="efb bi-info-circle me-2"></i>${efb_var.text.tutorial} 
+                    </button>
+                </div>
+                <div class="col-lg-5 col-md-12 ">
+           
+                        <img src="${efb_var.images.head}" class="img-fluid">
+               
+                </div>
+            </div>    
+            </section> 
+            <section id="content-efb">
+        <h4 class="title-holder">
+            <img src="${efb_var.images.title}" class="title">
+            <i class="efb bi-arrow-down-circle title-icon me-2"></i>Forms
+        </h4>
+     <div class="container"><div class="row row-cols-1 row-cols-md-2 g-4">${value}<div class="row  my-5 col-2"></div></div></div>
+     </section>`
      
      
        const newform_=document.getElementsByClassName("efbCreateNewForm")

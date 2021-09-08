@@ -108,13 +108,16 @@ class Create {
 
 				wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
 					'pro' => $pro,
-					'rtl' => is_admin() ,
+					'rtl' => is_rtl(),
 					'text' => [
 						"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
 						"DragAndDropUI" => __('Drag and drop UI','easy-form-builder')]
 							));
 		}
-
+		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.svg',
+		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
+		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
+	];
 		$lang = [
 			"create" => __('Create','easy-form-builder'),
 			"define" => __('Define','easy-form-builder'),
@@ -146,6 +149,7 @@ class Create {
 			"yes" => __('Yes','easy-form-builder'),
 			"numberOfSteps" => __('Number of steps','easy-form-builder'),
 			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
+			"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
 			"getProVersion" => __('Get Pro version','easy-form-builder'),
@@ -263,6 +267,8 @@ class Create {
 			"message" => __('Message','easy-form-builder'),
 			"subject" => __('Subject','easy-form-builder'),
 			"phone" => __('Phone','easy-form-builder'),
+			"createForms" => __('Create Forms','easy-form-builder'),
+			"tutorial" => __('Tutorial','easy-form-builder'),
 			"register" => __('Register'),
 			"username" => __('Username'),
 			
@@ -274,8 +280,11 @@ class Create {
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
 			'pro' => $pro,
-			'rtl' => is_admin() ,
-			'text' => $lang	
+			'rtl' => is_rtl() ,
+			'text' => $lang	,
+			'images' => $img,
+			
+
 					));
 
 			
