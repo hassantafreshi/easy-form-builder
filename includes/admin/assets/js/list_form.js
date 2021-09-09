@@ -84,9 +84,8 @@ function fun_emsFormBuilder_render_view(x){
  
  }else{
   fun_backButton(1);
-  document.getElementById('emsFormBuilder-content').innerHTML=`<div class="col-md-12  d-flex mat-shadow">
-  <div class="m-5 p-1 col text-center"> <a type="button" class="btn btn-info" href="admin.php?page=Emsfb_create" ><i class="fa fa-plus" placeholder="preview"></i> Create Form</a> </div>
-  </div>`
+  document.getElementById('emsFormBuilder-content').innerHTML=head_introduce_efb('panel')
+  document.getElementById('emsFormBuilder-content').classList.add('m-1');
  }
  
 
@@ -138,7 +137,22 @@ function emsFormBuilder_delete (id){
 </div></div></div>`;
 window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+function noti_message_efb(title,message,sec){
+    sec = sec*1000
+    /* Alert the copied text */
+    document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert alert-dismissible alert-info mx-5 alert-info ${efb_var.rtl==1 ? 'rtl-text' :''}" role="alert">
+    <h4 class="alert-heading">${title}</h4>
+    <p>${message}</p>
+    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+  </div>`
+    setTimeout(function () {
+        jQuery('.alert_efb').hide();
+        document.getElementById('alert_efb').innerHTML =""
+    }, sec);
 
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('.alert').alert()
+}
 function emsFormBuilder_popUp_message (title,message){
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML+=`
@@ -233,8 +247,8 @@ function emsFormBuilder_show_content_message (id){
     <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
     
      <div class="mx-4 my-1 border-bottom border-info pb-1" id="conver_emsFormBuilder">
-     
-      <div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>
+     <div class="lds-hourglass"></div> <h3 class="efb">${efb_var.text.loading}</h3></div>
+     <div class="card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>
      </br>
       ${m} 
      </div>
@@ -851,7 +865,7 @@ function fun_show_content_page_emsFormBuilder(state){
       state=1;
     }else{ */
       window.location.reload();
-      document.getElementById('emsFormBuilder-content').innerHTML=`<h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i>${efb_var.text.loading}</h2>`
+      document.getElementById('emsFormBuilder-content').innerHTML=`<div class="card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     //}
 
   }else if(state=="setting"){
@@ -1014,7 +1028,7 @@ function fun_show_setting__emsFormBuilder(){
 
 <div class="m-2 row">
  <a type="submit" class="btn btn-primary" onClick="fun_set_setting_emsFormBuilder()" id="btn_set_setting_emsFormBuilder"><i class="px-1 fa fa-floppy-o" aria-hidden="true"></i>${efb_var.text.save}</a>
- <div id="loading_message_emsFormBuilder" class="efb-color text-center mx-2 invisible"><i class="fas fa-spinner fa-pulse"></i>${efb_var.text.waiting}...</div>
+ <div class="card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.waiting}</div>
  </div>
 
 </div>`
@@ -1158,16 +1172,17 @@ function fun_send_setting_emsFormBuilder(data){
 function fun_find_track_emsFormBuilder(){
   //function find track code
   const el =document.getElementById("track_code_emsFormBuilder").value;
-  //console.l(el);
-  if (el.length!=12 ){
-    emsFormBuilder_popUp_message("Error","Tracking Code is not valid.");
+ 
+  if (el.length>10 ){
+    console.log('len >10')
+    noti_message_efb("Error","Tracking Code is not valid.",4);
    
   }else{
     //console.l('fun_find_track_emsFormBuilder',el  )
       document.getElementById('track_code_emsFormBuilder').disabled=true;
       document.getElementById('track_code_btn_emsFormBuilder').disabled=true;
       const btnValue = document.getElementById('track_code_btn_emsFormBuilder').innerHTML;
-      document.getElementById('track_code_btn_emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i>`;
+      document.getElementById('track_code_btn_emsFormBuilder').innerHTML=`<i class="bi-hourglass-split"></i>`;
       //console.l(btnValue);
 
    
@@ -1193,7 +1208,7 @@ function fun_find_track_emsFormBuilder(){
               document.getElementById('track_code_btn_emsFormBuilder').disabled=false;
               document.getElementById('track_code_btn_emsFormBuilder').innerHTML=btnValue;
             } else {             
-              emsFormBuilder_popUp_message("Erorr",res.data.m);
+              noti_message_efb(efb_var.text.error,res.data.m,4);
               document.getElementById('track_code_emsFormBuilder').disabled=false;
               document.getElementById('track_code_btn_emsFormBuilder').disabled=false;
               document.getElementById('track_code_btn_emsFormBuilder').innerHTML=btnValue

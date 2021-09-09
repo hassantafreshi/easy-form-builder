@@ -114,10 +114,10 @@ class Create {
 						"DragAndDropUI" => __('Drag and drop UI','easy-form-builder')]
 							));
 		}
-		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.svg',
+		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
-	];
+		];
 		$lang = [
 			"create" => __('Create','easy-form-builder'),
 			"define" => __('Define','easy-form-builder'),
@@ -148,8 +148,6 @@ class Create {
 			"no" => __('NO','easy-form-builder'),
 			"yes" => __('Yes','easy-form-builder'),
 			"numberOfSteps" => __('Number of steps','easy-form-builder'),
-			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
-			"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
 			"getProVersion" => __('Get Pro version','easy-form-builder'),
@@ -267,12 +265,16 @@ class Create {
 			"message" => __('Message','easy-form-builder'),
 			"subject" => __('Subject','easy-form-builder'),
 			"phone" => __('Phone','easy-form-builder'),
-			"createForms" => __('Create Forms','easy-form-builder'),
-			"tutorial" => __('Tutorial','easy-form-builder'),
 			"register" => __('Register'),
 			"username" => __('Username'),
 			
+			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
+			"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),
+			"createForms" => __('Create Forms','easy-form-builder'),
+			"tutorial" => __('Tutorial','easy-form-builder'),
+			"efbIsTheUserSentence" => __('Easy Form Builder is the user-friendly form creator that allows you to create professional multistep forms within minutes.','easy-form-builder'),
+			"efbYouDontNeedAnySentence" => __('You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking Code allows you to connect any submission to an individual request.  ','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );

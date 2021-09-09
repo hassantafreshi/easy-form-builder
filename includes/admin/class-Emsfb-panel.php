@@ -182,6 +182,13 @@ class Panel_edit  {
 				"survey" => __('Survey','easy-form-builder'),
 				"chart" => __('Chart','easy-form-builder'),
 				"noComment" => __('No comment','easy-form-builder'),
+				"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
+				"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
+				"createForms" => __('Create Forms','easy-form-builder'),
+				"tutorial" => __('Tutorial','easy-form-builder'),
+				"tobeginSentence" => __('To begin, you should to be Create a from into Easy Form Builder Plugin. for create a form click below button.','easy-form-builder'),
+				"efbIsTheUserSentence" => __('Easy Form Builder is the user-friendly form creator that allows you to create professional multistep forms within minutes.','easy-form-builder'),
+				"efbYouDontNeedAnySentence" => __(' You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking Code allows you to connect any submission to an individual request.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
@@ -189,7 +196,10 @@ class Panel_edit  {
 
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
-
+			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
+			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
+			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
+			];
 			$pro =false;
 			$ac= $this->get_activeCode_Emsfb();
 			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
@@ -199,7 +209,8 @@ class Panel_edit  {
 				'pro' => $pro,
 				'check' => 0,
 				'rtl' => $rtl,
-				'text' => $lang		));
+				'text' => $lang,
+				'images' => $img		));
 
 		
 			if($pro==true){
@@ -232,47 +243,64 @@ class Panel_edit  {
 		
 			?>
 			<div id="body_emsFormBuilder" class="m-2"> 
+			
 				<div id="msg_emsFormBuilder" class="mx-2">
 
 				
 				</div>
-			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-				<a class="navbar-brand" href="#">
-					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
-					<?php _e('Easy Form Builder','easy-form-builder') ?>
-				</a>
-				<button class="navbar-toggler" id="navbartogglerb" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-
-				<div class="collapse navbar-collapse" id="navbarToggler">
-					<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-					<li class="nav-item">
-						<a class="nav-link active" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php _e('Forms','easy-form-builder') ?><span class="sr-only">(current)</span></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php _e('Setting','easy-form-builder') ?></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link " onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
-					</li>
-					</ul>
-					<div class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Search track No.','easy-form-builder') ?>">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
+				
+			<!-- new nav  -->
+			<div class="top_circle-efb-2"></div>
+			<div class="top_circle-efb-1"></div>
+				<nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+					<div class="container">
+						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
+							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="logo efb">
+							Easy Form Builder</a>
+						<button class="navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon efb"></span>
+						</button>
+						<div class="collapse navbar-collapse" id="navbarSupportedContent">
+							<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+								<li class="nav-item">
+									<a class="nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php _e('Forms','easy-form-builder') ?></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php _e('Setting','easy-form-builder') ?></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link efb"onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
+								</li>
+							</ul>
+							<div class="d-flex">
+								<form class="d-flex">
+									<i class="efb bi-search search-icon"></i>
+									<input class="form-control efb search-form-control efb me-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Search track No.','easy-form-builder') ?>">
+									<button class="btn efb btn-outline-pink me-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
+								</form>
+								<div class="nav-icon efb me-2">
+									<a class="nav-link efb" href="https://whitestudio.team/?login" target="blank"><i class="efb bi-person"></i></a>
+								</div>
+								<div class="nav-icon efb">
+									<a class="nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb bi-gear"></i></a>
+								</div>
+							</div>
+						</div>
 					</div>
-				</div>
-			</nav>
+				</nav>
+				<div id="alert_efb" class="mx-5"></div>
+			<!-- end  new nav  -->
 
 
 					<div class="row mb-2">					
 					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
 					</div>
 					<div class="row" id ="emsFormBuilder-content">
-					 <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2>
+				 	<div class="card-body text-center my-5"><div class="lds-hourglass"></div> <h3 class="efb"><?php _e('Loading','easy-form-builder') ?></h3></div>
+					<!--  <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2> -->
 					</div>
 					<div class="row mt-2 d-flex justify-content-center align-items-center ">
 					<button type="button" id="more_emsFormBuilder" class="mat-shadow emsFormBuilder p-3" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>

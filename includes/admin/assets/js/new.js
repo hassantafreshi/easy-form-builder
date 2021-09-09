@@ -1,5 +1,5 @@
 //stepNavEfb add class to divider of steps
-//Copywrite 2021
+//Copyright 2021
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
@@ -2426,6 +2426,7 @@ const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|
 const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, `${value}`); }
 
 const open_whiteStudio_efb = (state) => {
+  console.log('open_whiteStudio_efb')
   let link = `https://whitestudio.team/`
   switch (state) {
     case 'mapErorr':
@@ -2437,7 +2438,8 @@ const open_whiteStudio_efb = (state) => {
       break;
     case 'publishForm':
       link += `?publish-form`
-      // چگونه فرم را منتشر کنیم
+      // چگونه فرم را  منتشر کنیم
+      // how create and publish form
       break;
     case 'emptyStep':
       link += `?empty-step`

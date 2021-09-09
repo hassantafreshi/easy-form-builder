@@ -21,26 +21,30 @@ You don't need any coding skills to use *Easy Form Builder*. Simply drag and dro
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
 
-- Create unlimited forms
-- Create multistep (limited steps) form 
-- Create sample file upload form
-- Create Support forms
-- Create subscription or newsletters signup forms
-- Create Login (sign-in) forms
-- Create Registration (sign-up) forms
+- Create unlimited forms for free
+- Create multistep (limited steps) form for free
+- Create sample file upload form for free
+- Create Support forms for free
+- Create subscription or newsletters signup forms for free
+- Create Login (sign-in) forms for free
+- Create Registration (sign-up) forms for free
+- []Create Surveys (poll) and analyse for free.
 - Get export of subscribers list to csv format file
-- Get notified by email when a form has been submitted
-- Add tracking pixels
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized
-- Instant reply functionality
-- Mobile-friendly responsive forms
-- Unique tracking ID finder
-- User-friendly and feature-rich panel to manage your forms and their responses.
-- Form validation
+- Get notified by email when a form has been submitted for free
+- Add tracking pixels for free
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
+- Instant reply functionality for free
+- Mobile-friendly responsive forms for free
+- Unique tracking ID finder for free
+- User-friendly and feature-rich panel to manage your forms and their responses for free
+- Form validation 
 - Support RTL language
 - Create drag and drop file selection forms (Available in pro version)
-- Create multistep (20 steps) form (Available in pro version)
+- Create multi-step (unlimited steps) form (Available in pro version)
 - Create form by Advanced input like Date, URL, Range, Color, Multi Select (available in pro version)
+- []Advanced input (element) like maps , Esign , Yes/No question , ......
+- []Get export of result of Surveys to csv format file (Available in pro version)
+- []Get export of response of forms to csv format file (Available in pro version)
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
@@ -55,7 +59,12 @@ Please consider you could add 1 form in every page or post.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
-= Development Keys for LOCALHOST =
+= []Development Google captcha Keys for LOCALHOST =
+
+**Site key:** `6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI`
+**Secret key:** `6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe`
+
+= []Development Google maps Keys for LOCALHOST =
 
 **Site key:** `6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI`
 **Secret key:** `6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe`

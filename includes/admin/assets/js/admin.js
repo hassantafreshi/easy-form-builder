@@ -1238,8 +1238,20 @@ function createSteps() {
   
 }
 
-function helpLink_emsFormBuilder() {
-  window.open("https://www.youtube.com/watch?v=7jS01CEtbDg", "_blank")
+function Link_emsFormBuilder(state) {
+  let link ='https://whitestudio.team/'
+  switch(state){
+    case  'Tutorial':
+      link = '"https://whitestudio.team/?publish-form"';
+    break;
+    case  'ws':
+      link = link
+    break;
+    case  'efb':
+      link = "https://wordpress.org/plugins/easy-form-builder/";
+    break;
+  }
+  window.open(link, "_blank")
 }
 
 function stepName_emsFormBuilder(i) {
@@ -1516,46 +1528,17 @@ function add_dasboard_emsFormBuilder(){
           </div></div></div>` */
           console.log(efb_var.rtl)
           value += `
-          <div class="col card ${efb_var.rtl==1 ? 'rtl-text' :''} "> <div class="card-body">
+          <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card"><div class="card-body">
          
           <h5 class="card-title"><i class="efb ${i.icon} me-2"></i>${i.title} </h5>
           <p class="card-text efb float-start mt-3">${i.desc}</p>
           ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
-          </div></div>`
+          </div></div></div>`
         }
         console.log(efb_var.images.logo)
        document.getElementById('tab_container').innerHTML = `
        <div class="top_circle-efb-2"></div>
-
-     <section id="header-efb">
-     <div class="row mx-5">
-                <div class="col-lg-7 mt-5 col-md-12">
-                    <img src="${efb_var.images.logo}"" class="description-logo efb">
-                    <h1 class="efb">${efb_var.text.easyFormBuilder}</h1>
-                    <h3 class="efb">${efb_var.text.byWhiteStudioTeam}</h3>
-                    <div class="clearfix"></div>
-                    <p class="card-text efb pb-3">
-                        Easy Form Builder is a user-friendly form creator that allows you to create professional multistep forms within minutes.
-                        You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts
-                        into
-                        order to easily create unlimited custom multistep forms. A unique tracking ID allows you to
-                        connect
-                        any submission to an individual request .                        
-                    </p>
-                    <button type="button" class="btn efb btn-primary btn-lg" href="#content-efb">
-                        <i class="efb bi-plus-circle me-2"></i>${efb_var.text.createForms} 
-                    </button>
-                    <button type="button" class="btn mt-1 efb btn-outline-pink btn-lg">
-                        <i class="efb bi-info-circle me-2"></i>${efb_var.text.tutorial} 
-                    </button>
-                </div>
-                <div class="col-lg-5 col-md-12 ">
-           
-                        <img src="${efb_var.images.head}" class="img-fluid">
-               
-                </div>
-            </div>    
-            </section> 
+          ${head_introduce_efb('create')}
             <section id="content-efb">
         <h4 class="title-holder">
             <img src="${efb_var.images.title}" class="title">
@@ -1674,5 +1657,28 @@ function add_div_over_emsFormBuilder(){
 </div>`;
 
 }
+
+
+function head_introduce_efb(state){
+  const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
+  return `     <section id="header-efb" class="efb ${state=="create" ?'':'card col-12 bg-warning'}">
+  <div class="row mx-5">
+              <div class="col-lg-7 mt-5 col-md-12">
+                  <img src="${efb_var.images.logo}"" class="description-logo efb">
+                  <h1 class="efb" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
+                  <h3 class="efb  ${state=="create" ?'card-text ':'text-darkb'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+                  <div class="clearfix"></div>
+                  <p class=" ${state=="create" ?'card-text ':'text-dark'}efb pb-3">
+                  ${state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` }                                                               
+                  </p>
+                  <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.createForms}</a>
+                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle me-2"></i>${efb_var.text.tutorial}</a>
+              </div>
+              <div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>
+    </div>    
+  </section> `
+}
+
+
 
 

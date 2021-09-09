@@ -162,23 +162,20 @@ class Admin {
 
 
                 //code_v2 start
-
-                wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
-                wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
-
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
-                wp_enqueue_script('efb-bootstrap-min-js'); 
-
-               
-
+                
                 wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
                 wp_enqueue_script('efb-jquery-min-js'); 
-
-                wp_enqueue_script('efb-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
-                wp_enqueue_script('efb-min-js'); 
-
-                wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.select.min.js');
+                
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
+                wp_enqueue_script('efb-bootstrap-min-js'); 
+                wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+                wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+                
+                wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
                 wp_enqueue_script('efb-bootstrap-select-js'); 
+
+                wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
+                wp_enqueue_script('efb-main-js'); 
 
                 //code_v2 end
 
