@@ -18,6 +18,17 @@ let c2d_contex_efb
 let lastMousePostion_efb = mousePostion_efb;
 let canvas_id_efb = "";
 let fileEfb;
+
+
+window.onload=(()=>{
+  // remove all notifications from other plugins or wordpress
+    setTimeout(()=>{
+        for (const el of document.querySelectorAll(".notice")) {
+            el.remove()
+        }
+    },100)
+})
+
 //اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
 for (const el of document.querySelectorAll(".showBtns")) {
 
@@ -2576,7 +2587,7 @@ const saveFormEfb = () => {
       <h5 class="mt-3 efb">Short Code: <strong>${trackingCode}</strong></h5>
       <input type="text" class="hide-input efb" value="${trackingCode}" id="myInput">
       <div id="alert"></div>
-      <button type="button" class="btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb()">
+      <button type="button" class="btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('myInput')">
           <i class="efb bi-clipboard-check me-2"></i>Copy Code
       </button>
       <button type="button" class="btn efb btn-outline-pink btn-lg m-3" data-bs-toggle="modal" data-bs-target="#Preview" onclick="previewformEfb()">
@@ -2706,7 +2717,7 @@ function create_form_efb() {
        <div class="test"><h5 class="mt-3">Tracking Code: <strong>210201-SMHTH06</strong></h5>
                     <input type="text" class="hide-input" value="210201-SMHTH06" id="myInput">
                     <div id="alert"></div>
-                    <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb()">
+                    <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('myInput')">
                         <i class="efb bi-clipboard-check me-2"></i>Copy Treacking Code
                     </button></div>`
       content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center">
@@ -2880,26 +2891,7 @@ function fun_renderform_Efb() {
   }//end try
   return true;
 }//end function
-function copyCodeEfb() {
-  /* Get the text field */
-  var copyText = document.getElementById("myInput");
 
-  /* Select the text field */
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-  /* Copy the text inside the text field */
-  document.execCommand("copy");
-
-  /* Alert the copied text */
-  document.getElementById('alert').innerHTML = '<div class="efb alert alert-info alert-dismissible mt-5" role="alert">\n' +
-    '<strong>Copied to Clipboard</strong>' +
-    '<button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>' +
-    '</div>';
-  setTimeout(function () {
-    jQuery('.alert').hide();
-  }, 3400);
-}
 
 function setAtrOfElefb(id, text, color, time) {
 
@@ -2967,7 +2959,7 @@ previewPcFormEfb = (mobile) => {
        <div class="test"><h5 class="mt-3">Tracking Code: <strong>210201-SMHTH06</strong></h5>
                     <input type="text" class="hide-input" value="210201-SMHTH06" id="myInput">
                     <div id="alert"></div>
-                    <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb()">
+                    <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb(myInput')">
                         <i class="efb bi-clipboard-check me-2"></i>Copy Treacking Code
                     </button></div>`
       content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center">
@@ -3706,4 +3698,9 @@ function ReadyElForViewEfb(content) {
 
 
 }
+
+
+
+
+ 
 

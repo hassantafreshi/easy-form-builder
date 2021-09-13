@@ -187,7 +187,7 @@ class Create {
 			"range" => __('range','easy-form-builder'),
 			"color" => __('color','easy-form-builder'),
 			"fileType" => __('File Type','easy-form-builder'),
-			"label" => __('Label:*','easy-form-builder'),
+			"label" => __('Label','easy-form-builder'),
 			"class" => __('Class','easy-form-builder'),
 			"id" => __('ID','easy-form-builder'),
 			"tooltip" => __('Tooltip','easy-form-builder'),

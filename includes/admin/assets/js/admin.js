@@ -1513,7 +1513,7 @@ function add_dasboard_emsFormBuilder(){
               {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell'},
               {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check'},
               {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line'},
-              {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'},
+             /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
               ]
         let value=`<!-- boxs -->`;
         for(let i of boxs){
@@ -1682,3 +1682,11 @@ function head_introduce_efb(state){
 
 
 
+window.onload=(()=>{
+
+    setTimeout(()=>{
+        for (const el of document.querySelectorAll(".notice")) {
+            el.remove()
+        }
+    },50)
+})

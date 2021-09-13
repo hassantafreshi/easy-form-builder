@@ -186,10 +186,31 @@ class Panel_edit  {
 				"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
 				"createForms" => __('Create Forms','easy-form-builder'),
 				"tutorial" => __('Tutorial','easy-form-builder'),
+				"forms" => __('Forms','easy-form-builder'),
 				"tobeginSentence" => __('To begin, you should to be Create a from into Easy Form Builder Plugin. for create a form click below button.','easy-form-builder'),
 				"efbIsTheUserSentence" => __('Easy Form Builder is the user-friendly form creator that allows you to create professional multistep forms within minutes.','easy-form-builder'),
 				"efbYouDontNeedAnySentence" => __(' You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking Code allows you to connect any submission to an individual request.','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
+				"newResponse" => __('New Response','easy-form-builder'),
+				"read" => __('Read','easy-form-builder'),
+				"copy" => __('Copy','easy-form-builder'),
+				"general" => __('General','easy-form-builder'),
+				"setting" => __('Setting','easy-form-builder'),
+				"maps" => __('Maps','easy-form-builder'),
+				"aPIKey" => __('API KEY','easy-form-builder'),
+				"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
+				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),
+				"noResponse" => __('No Response','easy-form-builder'),
+				"offerGoogleCloud" => __('To activite reCAPTCHA and Maps you have to sign up in Google cloud service which its basic service is free and Google give <b> $350 worth of credits </b> to the new users of Cloud service.','easy-form-builder'),
+				"getOfferTextlink" => __('To get the credit you must only click here to start','easy-form-builder'),
+				"clickHere" => __('Click here','easy-form-builder'),
+				"SpecialOffer" => __('Special offer','easy-form-builder'),
+				"googleKeys" => __('Google Keys','easy-form-builder'),
+				"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
+				"emailServer" => __('Email server','easy-form-builder'),
+				"beforeUsingYourEmailServers" => __('Before using your Email servers, you need to verify the status of e-mail servers and make sure that they are all running.','easy-form-builder'),
+				"emailSetting" => __('Email Settings','easy-form-builder'),
+				"clickToCheckEmailServer" => __('Click To Check Email Server','easy-form-builder'),
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
@@ -252,7 +273,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
-				<nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
 							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="logo efb">
@@ -266,13 +287,13 @@ class Panel_edit  {
 									<a class="nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php _e('Forms','easy-form-builder') ?></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
-								</li>
-								<li class="nav-item">
 									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php _e('Setting','easy-form-builder') ?></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link efb"onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
+									<a class="nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
 								</li>
 							</ul>
 							<div class="d-flex">
@@ -292,8 +313,13 @@ class Panel_edit  {
 					</div>
 				</nav>
 				<div id="alert_efb" class="mx-5"></div>
-			<!-- end  new nav  -->
-
+				<!-- end  new nav  -->
+					<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="modal-content efb " id="settingModalEfb-sections">
+									<div class="modal-header efb"> <h5 class="modal-title" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
+					</div></div></div>
 
 					<div class="row mb-2">					
 					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
@@ -305,6 +331,8 @@ class Panel_edit  {
 					<div class="row mt-2 d-flex justify-content-center align-items-center ">
 					<button type="button" id="more_emsFormBuilder" class="mat-shadow emsFormBuilder p-3" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>
 					</div>
+
+
 				</div>
 			<?php
 
