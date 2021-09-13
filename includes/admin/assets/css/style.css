@@ -1637,8 +1637,6 @@ margin-top: 3.4rem!important;
 }
 
 .efb.crd {
-    border: 1px solid rgba(0,0,0,.125);
-    border-radius: 1.25rem;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -1648,4 +1646,27 @@ margin-top: 3.4rem!important;
     background-clip: border-box;
     margin: 1% 2%;
     padding: 0% 1% 1%;
+    border: none!important;
+    border-radius: 20px!important;
+    box-shadow: 0px 2px 30px rgb(84 131 207 / 15%) !important;
+}
+
+img.crcle-footer {
+    width: 40%;
+    background-color: #eb5892;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 0px;
+    right: 12%;
+    opacity: 0.4;
+    z-index: 0;
+}
+
+img.left_circle-efb {
+    width: 58%;
+    background-color:#d630727a;
+    border-radius: 49%;
+    position: absolute;
+    top: 37%;
+    right: 67%;
 }

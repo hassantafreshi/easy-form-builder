@@ -22,12 +22,18 @@ let fileEfb;
 
 window.onload=(()=>{
   // remove all notifications from other plugins or wordpress
+  
     setTimeout(()=>{
-        for (const el of document.querySelectorAll(".notice")) {
-            el.remove()
-        }
+      for (const el of document.querySelectorAll(".notice")) {
+        el.remove()
+        
+        // console.log(document.getElementsByTagName("BODY")[0],'test')
+      }
+      
     },100)
+    
 })
+//jQuery(document).ready(function(){jQuery("body").addClass("folded")})
 
 //اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
 for (const el of document.querySelectorAll(".showBtns")) {

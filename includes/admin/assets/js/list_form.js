@@ -899,26 +899,38 @@ function fun_show_help__emsFormBuilder() {
   for (const l in listOfHow_emsfb) {
     //console.l(l);
     str += `
-  <div class="m-1">
-  <div class=" bg-info " >
-  <!-- <button id="heading${l}" class=" btn-block card-header btn bg-info text-white" data-toggle="collapse" data-target="#collapse${l}" aria-expanded="true" aria-controls="collapseOne"> --!>
-  <a id="heading${l}" class=" btn-block card-header btn bg-info text-white" target="_blank" href="${listOfHow_emsfb[l].url}">
-    <h6 class="mb-0 ">
-      ${listOfHow_emsfb[l].title}
-      </h6>
-      </a>
-  </div>
-  </div>
-<!--  <div id="collapse${l}" class="collapse ${l == 0 ? ' show' : ''}" aria-labelledby="heading${l}" data-parent="#accordion">
-    <div class="card-body align-self-center">
-      <iframe width="560" height="315" src="${listOfHow_emsfb[l].url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
-  </div>
-  </div> --!>
+
+    <a class="btn efb btn-darkb text-white btn-lg d-block mx-3 mt-2" href="${listOfHow_emsfb[l].url}">
+        <i class="efb bi-youtube mx-1"></i>${listOfHow_emsfb[l].title}
+   </a>
+
   `
   }
-  document.getElementById('emsFormBuilder-content').innerHTML = `<div id="accordion" class="m-5">${str}
-  </div>`;
+  document.getElementById('emsFormBuilder-content').innerHTML = `
+  <img src="${efb_var.images.title}"  class="crcle-footer">
+  <div class="container row">
+  <h4 class="title-holder">
+      <img src="${efb_var.images.title}" class="title">
+      <i class="efb bi-info-circle title-icon me-2"></i>${efb_var.text.help}
+  </h4>
+  <div class="crd efb col-md-7"><div class="card-body"> <div class="d-grid gap-2">
+  ${str}
+  </div></div></div>
+  <div class="col-md-4 mx-1 py-5 crd efb">
+                  <img src="${efb_var.images.logo}"  class="description-logo efb">
+                  <h1 class="efb" onclick="Link_emsFormBuilder('efb')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
+                  <h3 class="efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
+                  <div class="clearfix"></div>
+                  <p class=" card-text efb pb-3 fs-7">
+                  ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
+                  </p>
+                  <a class="btn efb btn-danger btn-lg" href="#form"><i class="efb bi-gem me-2"></i>${efb_var.text.getProVersion}</a>
+                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle me-2"></i>${efb_var.text.documents}</a>
+              </div>
+  </div>
+
+ 
+  `;
 
 }
 function fun_show_setting__emsFormBuilder() {
@@ -984,7 +996,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <a class="mx-5" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>
                                 <div class="card-body mx-4">
                                     <input type="text" class="form-control efb h-d-efb" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
-                                    <span id="activeCode_emsFormBuilder-message" class="text-danger"></spam>
+                                    <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
 
                                 <h5 class="card-title mt-4 ">
@@ -1005,7 +1017,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <div class="row col-12">
                                             <div class="col-md-8">
                                               <input type="text"  class="form-control efb h-d-efb " id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>
-                                              <span id="shortCode_emsFormBuilder-message" class="text-danger"></spam>
+                                              <span id="shortCode_emsFormBuilder-message" class="text-danger"></span>
                                             </div> 
                                               <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink btn-lg " onclick="copyCodeEfb('shortCode_emsFormBuilder')">
                                                   <i class="efb bi-clipboard-check me-2"></i> ${efb_var.text.copy}
@@ -1031,10 +1043,10 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2">${efb_var.text.siteKey}</label>
                                 <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
-                                <span id="sitekey_emsFormBuilder-message" class="text-danger"></spam>
+                                <span id="sitekey_emsFormBuilder-message" class="text-danger"></span>
                                 <label class="form-label mx-2  mt-4">${efb_var.text.SecreTKey}</label>
                                 <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
-                                <span id="secretkey_emsFormBuilder-message" class="text-danger"></spam>
+                                <span id="secretkey_emsFormBuilder-message" class="text-danger"></span>
                             </div>
                             <h5 class="card-title mt-4 ">
                                 <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
@@ -1043,7 +1055,7 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.apiKeyMap}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
-                                <span id="apikey_map_emsFormBuilder-message" class="text-danger"></spam>
+                                <span id="apikey_map_emsFormBuilder-message" class="text-danger"></span>
                             </div>
                               <!--End Google-->
                             </div>
@@ -1058,7 +1070,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="card-body mx-4">
                                     <label class="form-label mx-2">${efb_var.text.email}</label>
                                     <input type="email" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
-                                    <span id="email_emsFormBuilder-message" class="text-danger"></spam>
+                                    <span id="email_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
                                 
                                 <h5 class="card-title mt-4 ">
@@ -1731,10 +1743,15 @@ function clickToCheckEmailServer(){
 }
 window.onload = (() => {
   // remove all notifications from other plugins or wordpress
+
+
+  //jQuery(document).ready(function(){jQuery("body").addClass("folded")})
   setTimeout(() => {
     for (const el of document.querySelectorAll(".notice")) {
       el.remove()
+      //console.log(document.getElementsByTagName("BODY")[0],'test')
     }
+    //folded
   }, 50)
 })
 

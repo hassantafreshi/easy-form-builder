@@ -195,8 +195,11 @@ class Panel_edit  {
 				"read" => __('Read','easy-form-builder'),
 				"copy" => __('Copy','easy-form-builder'),
 				"general" => __('General','easy-form-builder'),
+				"help" => __('Help','easy-form-builder'),
 				"setting" => __('Setting','easy-form-builder'),
 				"maps" => __('Maps','easy-form-builder'),
+				"youCanFindTutorial" => __('You can find tutorial in beside box and if you need more tutorials click on "Document" button.','easy-form-builder'),
+				"proUnlockMsg" => __('You can get pro version and gain unlimited access to all plugin services.','easy-form-builder'),
 				"aPIKey" => __('API KEY','easy-form-builder'),
 				"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
 				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),
@@ -273,6 +276,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
+			
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">

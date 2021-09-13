@@ -267,7 +267,7 @@ class Create {
 			"phone" => __('Phone','easy-form-builder'),
 			"register" => __('Register'),
 			"username" => __('Username'),
-			
+			"proUnlockMsg" => __('You can get pro version and gain unlimited access to all plugin services.','easy-form-builder'),
 			"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
 			"byWhiteStudioTeam" => __('By WhiteStudio.team','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),

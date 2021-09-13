@@ -1537,7 +1537,9 @@ function add_dasboard_emsFormBuilder(){
         }
         console.log(efb_var.images.logo)
        document.getElementById('tab_container').innerHTML = `
-       <div class="top_circle-efb-2"></div>
+
+       <img src="${efb_var.images.title}" class="left_circle-efb">
+
           ${head_introduce_efb('create')}
             <section id="content-efb">
         <h4 class="title-holder">
@@ -1663,12 +1665,12 @@ function head_introduce_efb(state){
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
   return `     <section id="header-efb" class="efb ${state=="create" ?'':'card col-12 bg-warning'}">
   <div class="row mx-5">
-              <div class="col-lg-7 mt-5 col-md-12">
+              <div class="col-lg-7 mt-5 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}"" class="description-logo efb">
                   <h1 class="efb" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
                   <h3 class="efb  ${state=="create" ?'card-text ':'text-darkb'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="clearfix"></div>
-                  <p class=" ${state=="create" ?'card-text ':'text-dark'}efb pb-3">
+                  <p class=" ${state=="create" ?'card-text ':'text-dark'}efb pb-3 fs-6">
                   ${state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` }                                                               
                   </p>
                   <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.createForms}</a>
