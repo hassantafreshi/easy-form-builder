@@ -17,6 +17,7 @@ class Admin {
 
     //private $wpdb;
     public function __construct() {
+        
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
@@ -174,8 +175,7 @@ class Admin {
                 wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
                 wp_enqueue_script('efb-bootstrap-select-js'); 
 
-                wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
-                wp_enqueue_script('efb-main-js'); 
+                
 
                 //code_v2 end
 

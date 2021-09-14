@@ -211,7 +211,6 @@ class _Public {
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"define" => __('Define','easy-form-builder'),
 				"loading" => __('Loading','easy-form-builder'),
-				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
 				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),

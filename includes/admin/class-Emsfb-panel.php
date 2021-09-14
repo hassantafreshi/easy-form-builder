@@ -89,22 +89,23 @@ class Panel_edit  {
 				"zip" => __('Zip','easy-form-builder'),
 				"required" => __('Required','easy-form-builder'),
 				"button" => __('button','easy-form-builder'),
-				"text" => __('text','easy-form-builder'),
-				"password" => __('password','easy-form-builder'),
-				"email" => __('email','easy-form-builder'),
-				"number" => __('number','easy-form-builder'),
+				"text" => __('Text','easy-form-builder'),
+				"password" => __('Password','easy-form-builder'),
+				"email" => __('Email','easy-form-builder'),
+				"number" => __('Number','easy-form-builder'),
 				"file" => __('file','easy-form-builder'),
-				"date" => __('date','easy-form-builder'),
-				"tel" => __('tel','easy-form-builder'),
-				"textarea" => __('textarea','easy-form-builder'),
-				"checkbox" => __('checkbox','easy-form-builder'),
-				"radiobutton" => __('radiobutton','easy-form-builder'),
-				"multiselect" => __('multiselect','easy-form-builder'),
-				"url" => __('url','easy-form-builder'),
-				"range" => __('range','easy-form-builder'),
-				"color" => __('color','easy-form-builder'),
+				"date" => __('Date Picker','easy-form-builder'),
+				"tel" => __('Tel','easy-form-builder'),
+				"textarea" => __('Long Text','easy-form-builder'),
+				"checkbox" => __('Check Box','easy-form-builder'),
+				"radiobutton" => __('Radio Button','easy-form-builder'),
+				"radio" => __('Radio Button','easy-form-builder'),
+				"multiselect" => __('Multiple Select','easy-form-builder'),
+				"url" => __('URL','easy-form-builder'),
+				"range" => __('Range','easy-form-builder'),
+				"color" => __('Color Picker','easy-form-builder'),
 				"fileType" => __('File Type','easy-form-builder'),
-				"label" => __('Label:*','easy-form-builder'),
+				"label" => __('Label','easy-form-builder'),
 				"class" => __('Class','easy-form-builder'),
 				"id" => __('ID','easy-form-builder'),
 				"tooltip" => __('Tooltip','easy-form-builder'),
@@ -164,7 +165,7 @@ class Panel_edit  {
 				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
 				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
 				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
-				"step" => __('step','easy-form-builder'),
+				"step" => __('Step','easy-form-builder'),
 				"advancedCustomization" => __('Advanced customization','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"downloadCSVFile" => __(' Download CSV file','easy-form-builder'),
@@ -214,9 +215,124 @@ class Panel_edit  {
 				"beforeUsingYourEmailServers" => __('Before using your Email servers, you need to verify the status of e-mail servers and make sure that they are all running.','easy-form-builder'),
 				"emailSetting" => __('Email Settings','easy-form-builder'),
 				"clickToCheckEmailServer" => __('Click To Check Email Server','easy-form-builder'),
+
+				//v2 translate 
+				"dadfile" => __('D&D File Upload','easy-form-builder'), //v2 
+				"field" => __('Field','easy-form-builder'), //v2 
+				"advanced" => __('Advanced','easy-form-builder'), //v2 
+				"switch" => __('Switch','easy-form-builder'), //v2 
+				"locationPicker" => __('Location Picker','easy-form-builder'), //v2 
+				"rating" => __('Rating','easy-form-builder'), //v2 
+				"esign" => __('Signature','easy-form-builder'), //v2 
+				"yesNo" => __('Yes/No','easy-form-builder'), //v2 
+				"htmlCode" => __('HTML Code','easy-form-builder'), //v2 
+				"pcPreview" => __('PC Preview','easy-form-builder'), //v2 
+				"youDoNotAddAnyInput" => __('You do not add any field','easy-form-builder'), //v2 
+				"copyShortcode" => __('Copy shortcode','easy-form-builder'), //v2 
+				"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'), //v2 
+				"previewForm" => __('Preview Form','easy-form-builder'), //v2 
+				"activateProVersion" => __('Activate Pro Version','easy-form-builder'), //v2 
+				"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'), //v2 
+				"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'), //v2 
+				"sampleDescription" => __('Sample description','easy-form-builder'), //v2 
+				"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 
+				"editField" => __('Edit Field','easy-form-builder'), //v2 
+				"description" => __('Description','easy-form-builder'), //v2 
+				"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'), //v2 
+				"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 
+				"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'), //v2 
+				"dontShowIconsStepsName" => __('Don\'t show Icons & Steps name','easy-form-builder'), //v2 
+				"dontShowProgressBar" => __('Don\'t show progress bar','easy-form-builder'), //v2 
+				"showTheFormTologgedUsers" => __('Show the form to logged in users only','easy-form-builder'), //v2 
+				"labelSize" => __('Label size','easy-form-builder'), //v2 
+				"default" => __('Default','easy-form-builder'), //v2 
+				"small" => __('Small','easy-form-builder'), //v2 
+				"large" => __('Large','easy-form-builder'), //v2 
+				"xlarge" => __('XLarge','easy-form-builder'), //v2 
+				"xxlarge" => __('XXLarge','easy-form-builder'), //v2 
+				"xxxlarge" => __('XXXLarge','easy-form-builder'), //v2 
+				"labelPostion" => __('Label Postion','easy-form-builder'), //v2 
+				"align" => __('Align','easy-form-builder'), //v2 
+				"left" => __('Left','easy-form-builder'), //v2 
+				"center" => __('Center','easy-form-builder'), //v2 
+				"right" => __('Right','easy-form-builder'), //v2 
+				"width" => __('Width','easy-form-builder'), //v2 
+				"cSSClasses" => __('CSS Classes','easy-form-builder'), //v2 
+				"defaultValue" => __('Default value','easy-form-builder'), //v2 
+				"placeholder" => __('Placeholder','easy-form-builder'), //v2 
+				"enterAdminEmailReceiveNoti" => __('Enter Admin Email to receive notification email','easy-form-builder'), //v2 
+				"corners" => __('Corners','easy-form-builder'), //v2 
+				"rounded" => __('Rounded','easy-form-builder'), //v2 
+				"square" => __('Square','easy-form-builder'), //v2 
+				"icon" => __('Icon','easy-form-builder'), //v2 
+				"buttonColor" => __('Button Color','easy-form-builder'), //v2 
+				"blue" => __('Blue','easy-form-builder'), //v2 
+				"darkBlue" => __('Dark Blue','easy-form-builder'), //v2 
+				"lightBlue" => __('Light Blue','easy-form-builder'), //v2 
+				"grayLight" => __('Gray Light','easy-form-builder'), //v2 
+				"grayLighter" => __('Gray Lighter','easy-form-builder'), //v2 
+				"green" => __('Green','easy-form-builder'), //v2 
+				"pink" => __('Pink','easy-form-builder'), //v2 
+				"yellow" => __('Yellow','easy-form-builder'), //v2 
+				"light" => __('Light','easy-form-builder'), //v2 
+				"Red" => __('red','easy-form-builder'), //v2 
+				"grayDark" => __('Gray Dark','easy-form-builder'), //v2 
+				"white" => __('White','easy-form-builder'), //v2 
+				"clr" => __('Color','easy-form-builder'), //v2 
+				"borderColor" => __('Border Color','easy-form-builder'), //v2 
+				"height" => __('Height','easy-form-builder'), //v2 
+				"name" => __('Name','easy-form-builder'), //v2 
+				"latitude" => __('Latitude','easy-form-builder'), //v2 
+				"longitude" => __('Longitude','easy-form-builder'), //v2 
+				"exDot" => __('ex.','easy-form-builder'), //v2 
+				"pleaseDoNotAddJsCode" => __('(Please do not add Javascript or jQuery codes to html codes for security reasons)','easy-form-builder'), //v2 
+				"button1Value" => __('Button 1 value','easy-form-builder'), //v2 
+				"button2Value" => __('Button 2 value','easy-form-builder'), //v2 
+				"iconList" => __('Icons list','easy-form-builder'), //v2 
+				"previous" => __('Previous','easy-form-builder'), //v2 
+				"next" => __('next','easy-form-builder'), //v2 
+				"invalidEmail" => __('Invalid email address”','easy-form-builder'), //v2 
+				"noCodeAddedYet" => __('Code has not yet been added. Click on','easy-form-builder'), //v2 
+				"andAddingHtmlCode" => __(' and adding html code.','easy-form-builder'), //v2 
+				"proMoreStep" => __('for use mor steps XXXXXX','easy-form-builder'), //v2 
+				"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps in setting of plugin and try again.','easy-form-builder'), //v2 
+				"howToAddGoogleMap" => __('How to Add Google Map to Easy form Builder WordPress Plugin','easy-form-builder'), //v2 
+				"deletemarkers" => __('Delete markers','easy-form-builder'), //v2 
+				"updateUrbrowser" => __('update your browser','easy-form-builder'), //v2 
+				"stars" => __('Stars','easy-form-builder'), //v2 
+				"nothingSelected" => __('Nothing selected','easy-form-builder'), //v2 
+				"duplicate" => __('Duplicate','easy-form-builder'), //v2 
+				"availableProVersion" => __('Available in pro version','easy-form-builder'), //v2 
+				"mobilePreview" => __('Mobile Preview','easy-form-builder'), //v2 
+				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
+				"finish" => __('Finish','easy-form-builder'), //v2 
+				"dragAndDropA" => __('Drag & Drop a','easy-form-builder'), //v2 
+				"browseFile" => __('Browse File','easy-form-builder'), //v2 
+				"removeTheFile" => __('Remove the file','easy-form-builder'), //v2 
+				"enterAPIKey" => __('Enter API KEY','easy-form-builder'), //v2 
+				"formSetting" => __('Form Settings','easy-form-builder'), //v2 
+				"select" => __('Select','easy-form-builder'), //v2 
+				"up" => __('Up','easy-form-builder'), //v2 
+				"red" => __('Red','easy-form-builder'), //v2 
+				"Red" => __('Red','easy-form-builder'), //v2 
+
+				"name" => __('Name','easy-form-builder'), //v2 
+				"add" => __('Add','easy-form-builder'), //v2 
+				"code" => __('Code','easy-form-builder'), //v2 
+				"star" => __('Star','easy-form-builder'), //v2 
+				"form" => __('Form','easy-form-builder'), //v2
+				"black" => __('Black','easy-form-builder'), //v2  
+				"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
+				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
+				"ddate" => __('Date','easy-form-builder'),
+				
+				//v2 translate end
+
 			];
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
+
+			
 
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
@@ -249,6 +365,9 @@ class Panel_edit  {
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0
 						));
+
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
+			wp_enqueue_script('efb-main-js'); 
 
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
@@ -328,12 +447,12 @@ class Panel_edit  {
 					<div class="row mb-2">					
 					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
 					</div>
-					<div class="row" id ="emsFormBuilder-content">
+					<div class="row" id ="content-efb">
 				 	<div class="card-body text-center my-5"><div class="lds-hourglass"></div> <h3 class="efb"><?php _e('Loading','easy-form-builder') ?></h3></div>
 					<!--  <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2> -->
 					</div>
-					<div class="row mt-2 d-flex justify-content-center align-items-center ">
-					<button type="button" id="more_emsFormBuilder" class="mat-shadow emsFormBuilder p-3" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>
+					<div class="mt-3 d-flex justify-content-center align-items-center ">
+					<button type="button" id="more_emsFormBuilder" class="efb btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>
 					</div>
 
 

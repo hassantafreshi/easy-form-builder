@@ -1259,68 +1259,35 @@ function stepName_emsFormBuilder(i) {
   
 }
 
-
-function actionSendData_emsFormBuilder(){
-  data ={};
-  //console.log('actionSendData_emsFormBuilder');
-  jQuery(function ($) {
-    //console.log('in');
-    //console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
-    if (state_check_ws_p==1){
-      data={
-        action:"add_form_Emsfb",
-        value: localStorage.getItem("valueJson_ws_p"),
-        name:formName_ws,
-        type:form_type_emsFormBuilder,
-        nonce:efb_var.nonce
-      };
-    }else{
-      data={
-        action:"update_form_Emsfb",
-        value: localStorage.getItem("valueJson_ws_p"),
-        name:document.getElementById('form_name').value,
-        nonce:efb_var.nonce,
-        id:form_ID_emsFormBuilder
-      };
-    }
-    
-    $.post(ajaxurl,data,function(res){
-     // console.log("res",res);
-      if(res.data.r=="insert"){
-        if(res.data.value && res.data.success==true){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
-          localStorage.removeItem('valueJson_ws_p');
-        }else{
-           alert(res , "error")
-          
-          
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1</span>
-          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
-        
-        }
-      }else if(res.data.r=="update" && res.data.success==true){
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.formUpdated}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formUpdatedDone}</span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
-        localStorage.removeItem('valueJson_ws_p');
-        document.getElementById('back_emsFormBuilder').removeAttribute("onclick");
-        document.getElementById('back_emsFormBuilder').addEventListener("click", (e) => {
-          location.reload();
-          return false;
-        })
-      }else{
-        if(res.data.m==null || res.data.m.length>1){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
-          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
-        }else{
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
-          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
-        }
-       
-      
-      }
-    })
-  });
-
+function show_message_result_form_set_EFB(state ,m){ //V2
+  const title =`
+  <h4 class="title-holder efb">
+     <img src="${efb_var.images.title}" class="title efb">
+     ${state!=0 ?`<i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}` :`<i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.error}` }
+  </h4>
+  `;
+  let content =``
+if(state!=0){
+  content=` <h3 class="efb"><b>${efb_var.text.goodJob}</b> ${state==1 ? efb_var.text.formIsBuild :efb_var.text.formUpdatedDone}</h3>
+  <h5 class="mt-3 efb">${efb_var.text.trackingCode}: <strong>${m}</strong></h5>
+  <input type="text" class="hide-input efb" value="${m}" id="trackingCodeEfb">
+  <div id="alert"></div>
+  <button type="button" class="btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
+      <i class="efb bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
+  </button>
+  <button type="button" class="btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
+      <i class="efb bi-question mx-1"></i>${efb_var.text.help}
+  </button>
+  <button type="button" class="btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
+      <i class="efb bi-x mx-1"></i>${efb_var.text.close}
+  </button>
+  `
+}else {
+  content =`<h3 class="efb">${m}</h3>`
 }
+  
+  document.getElementById('settingModalEfb-body').innerHTML=`<div class="card-body text-center efb">${title}${content}</div>`
+}//END show_message_result_form_set_EFB
 
 
 function unlimted_version_emsFormBuilder(m,s) {
@@ -1339,6 +1306,82 @@ function unlimted_version_emsFormBuilder(m,s) {
   <div>
 </div>`;
 
+}
+
+
+
+function actionSendData_emsFormBuilder(){
+  data ={};
+  var name = valj_efb[0].formName
+  console.log('actionSendData_emsFormBuilder' ,state_check_ws_p,localStorage.getItem("valj_efb"));
+  jQuery(function ($) {
+    //console.log('in');
+    //console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
+    if (state_check_ws_p==1){
+      data={
+        action:"add_form_Emsfb",
+        value: localStorage.getItem("valj_efb"),
+        name:name,
+        type:form_type_emsFormBuilder,
+        nonce:efb_var.nonce
+      };
+    }else{
+      data={
+        action:"update_form_Emsfb",
+        value: localStorage.getItem("valj_efb"),
+        name:name,
+        nonce:efb_var.nonce,
+        id:form_ID_emsFormBuilder
+      };
+    }
+    
+    $.post(ajaxurl,data,function(res){
+     // console.log("res",res);
+      if(res.data.r=="insert"){
+        if(res.data.value && res.data.success==true){
+          state_check_ws_p=0;
+          form_ID_emsFormBuilder=parseInt(res.data.id)
+          console.log(res ,form_ID_emsFormBuilder)
+          show_message_result_form_set_EFB(1,res.data.value)
+         /*  document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.done}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formIsBuild} </span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `; */
+          //localStorage.removeItem('valueJson_ws_p');
+        }else{
+           alert(res , "error")
+           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1`)
+         
+          /* 
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1</span>
+          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+         */
+        }
+      }else if(res.data.r=="update" && res.data.success==true){
+        show_message_result_form_set_EFB(2,res.data.value)
+     /*    localStorage.removeItem('valueJson_ws_p');
+        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.formUpdated}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formUpdatedDone}</span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
+        document.getElementById('back_emsFormBuilder').removeAttribute("onclick");
+        document.getElementById('back_emsFormBuilder').addEventListener("click", (e) => {
+          location.reload();
+          return false;
+        }) */
+      }else{
+        if(res.data.m==null || res.data.m.length>1){
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
+          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+        }else{
+          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
+          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+        }
+       
+      
+      }
+    })
+  });
+
+}
+
+
+function fun_report_error(fun ,err){
+  console.log(fun,err)
 }
 
 
@@ -1538,10 +1581,9 @@ function add_dasboard_emsFormBuilder(){
         console.log(efb_var.images.logo)
        document.getElementById('tab_container').innerHTML = `
 
-       <img src="${efb_var.images.title}" class="left_circle-efb">
-
           ${head_introduce_efb('create')}
             <section id="content-efb">
+            <img src="${efb_var.images.title}" class="left_circle-efb">
         <h4 class="title-holder">
             <img src="${efb_var.images.title}" class="title">
             <i class="efb bi-arrow-down-circle title-icon me-2"></i>Forms
@@ -1566,7 +1608,8 @@ function add_dasboard_emsFormBuilder(){
 
 function create_form_by_type_emsfb(id){
   const state =false;
-
+  document.getElementById('header-efb').innerHTML=``;
+  document.getElementById('content-efb').innerHTML=``;
   if(id==="form"){ 
     //console.log('add')
     // if the blank form clicked just active create form
@@ -1620,8 +1663,9 @@ function create_form_by_type_emsfb(id){
   }else if(id=="reservation"){
 
   }
-
-      add_form_builder_emsFormBuilder();
+  
+    creator_form_builder_Efb();
+     // add_form_builder_emsFormBuilder();
     
 }
 
@@ -1663,7 +1707,7 @@ function add_div_over_emsFormBuilder(){
 
 function head_introduce_efb(state){
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
-  return `     <section id="header-efb" class="efb ${state=="create" ?'':'card col-12 bg-warning'}">
+  return `     <section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
   <div class="row mx-5">
               <div class="col-lg-7 mt-5 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}"" class="description-logo efb">
@@ -1678,8 +1722,251 @@ function head_introduce_efb(state){
               </div>
               <div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>
     </div>    
+
+
+    
+
   </section> `
 }
+
+
+function previewFormEfb(state){//v2
+  /* document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb('Save'); */
+  console.log('previewFormEfb', valj_efb)
+  let content = `<!--efb.app-->`
+  let step_no = 0;
+  let head = ``
+  let icons = ``
+  let pro_bar = ``
+  //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`
+  //content =`<span class='efb row efb'>`
+  if (state != "show") {
+    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
+      show_modal_efb(`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.formNotFound}</p></div>`, efb_var.text.previewForm, '', 'saveBox');
+      myModal.show();
+      return;
+    }
+    show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
+    myModal.show();
+  }
+  const len = valj_efb.length;
+  const p = calPLenEfb(len)
+
+  setTimeout(() => {
+
+    //const  valj_efb_ = valj_efb.sort((a,b) => (a.amount - b.amount))
+    console.log(valj_efb)
+    //valj_efb=valj_efb_
+    try {
+      valj_efb.forEach((value, index) => {
+        console.log(index, value.step, value.amount, 'pre')
+        if (step_no < value.step && value.type == "step") {
+          step_no += 1;
+          head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  ${value.label_text_color} ">${value.name}</strong></li>`
+          content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `</fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
+          console.log(step_no, value.step, head, 'pre');
+
+          if (valj_efb[0].show_icon == false) { }
+        }
+        if (value.type == 'step') {
+          steps_index_efb.push(index)
+          //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="m-2 content-efb row">` 
+        } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
+          // content+='<div class="mb-3">'
+          content += addNewElement(value.type, value.id_, true, true);
+          //  content+=`<div id="${value.id_}_fb" class="m-2"></div></div>`
+
+        }
+      })
+      step_no += 1;
+      const trckCd = `
+              <div class="test"><h5 class="mt-3">${efb_var.text.trackingCode}: <strong>210201-SMHTH06</strong></h5>
+              <input type="text" class="hide-input" value="210201-SMHTH06" id="trackingCodeEfb">
+              <div id="alert"></div>
+              <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
+                  <i class="efb bi-clipboard-check me-2"></i>${efb_var.text.copyTrackingcode}
+              </button></div>`
+      content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center">
+              <h4 class="efb my-1">
+                  <i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}
+              </h4>
+              <h3 class="efb">${efb_var.text.thanksFillingOutform}</h3>
+            ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
+                    
+                    
+                
+      </fieldset>`
+      head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    } catch {
+      console.error(`Preview of Pc Form has an Error`)
+    }
+
+
+
+
+
+    if (content.length > 10) content += `</div>`
+
+    console.log(head);
+
+    head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="mb-2 px-2">${head}</ul>` : ''}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="progress mx-5"><div class="efb progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}
+    
+    `
+
+    document.getElementById(`settingModalEfb_`).classList.add('pre-efb')
+    content = `  
+    <div class="px-0 pt-2 pb-0 my-1 col-12 text-center" id="view-efb">
+    <h4 id="title_efb" class="${valj_efb[1].label_text_color}">${valj_efb[1].name}</h4>
+    <p id="desc_efb" class="${valj_efb[1].message_text_color}">${valj_efb[1].message}</p>
+    
+     <form id="msform"> ${head} <div class="my-5 py-2 px-5">${content}</div> </form>
+    </div>
+    `
+    /*    document.getElementById(`settingModalEfb_`).classList.add('pre-efb')
+       content=ReadyElForViewEfb(false);
+       document.getElementById('dropZone').innerHTML = ''; */
+    const t = valj_efb[0].steps == 1 ? 0 : 1;
+    if (state == 'pc') {
+      document.getElementById('dropZone').innerHTML = '';
+      show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+      add_buttons_zone_efb(t, 'settingModalEfb-body')
+    } else if (state == "mobile") {
+      const frame = `
+        <div class="smartphone">
+        <div class="content" >
+            <div id="parentMobileView">
+            <div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3>
+            </div>
+         
+        </div>
+        
+      </div> `
+      show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
+      ReadyElForViewEfb(content)
+
+
+    } else {
+      //778899
+      //state=="show"
+      //content is hold elemant and should added to a innerHTML
+      add_buttons_zone_efb(t, 'settingModalEfb-body')
+    }
+
+
+
+
+    // در اینجا ویژگی ها مربوط به نقشه و امضا و ستاره  و مولتی سلکت اضافه شود
+    try {
+      valj_efb.forEach((v, i) => {
+        console.log(v, i)
+        switch (v.type) {
+          case "maps":
+            initMap();
+            break;
+          case "esign":
+            console.log('CANVAS', v.id_)
+
+            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+            c2d_contex_efb.lineWidth = 5;
+            c2d_contex_efb.strokeStyle = "#000";
+
+            document.getElementById(`${v.id_}_`).addEventListener("mousedown", (e) => {
+              draw_mouse_efb = true;
+              c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+              canvas_id_efb = v.id_;
+              lastMousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e);
+              console.log(canvas_id_efb, 'canvas')
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("mouseup", (e) => {
+              draw_mouse_efb = false;
+
+              // const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
+              const value = document.getElementById(`${v.id_}-sig-data`).value;
+              console.log(value);
+              // const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+              // console.log(o ,968)
+              // fun_sendBack_emsFormBuilder(o[0]);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
+
+            // touch event support for mobile
+            document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
+              // canvas_id_efb = el.dataset.code;
+              let touch = e.touches[0];
+              let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
+              canvas_id_efb = v.id_;
+              c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+              mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
+              let touch = e.touches[0];
+              let ms = new MouseEvent("mousedown", {
+                clientY: touch.clientY,
+                clientX: touch.clientX
+              });
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
+              let ms = new MouseEvent("mouseup", {});
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+              const value = document.getElementById(`${v.id_}-sig-data`).value;
+            }, false);
+
+            (function drawLoop() {
+              requestAnimFrame(drawLoop);
+              renderCanvas_efb(v.id_);
+            })();
+            break;
+          case "multiselect":
+            jQuery(function () {
+              jQuery('.selectpicker').selectpicker();
+            });
+            setTimeout(() => {
+              //const v = valj_efb.find(x=>x.id_==rndm);
+              const opd = document.querySelector(`[data-id='${v.id_}_options']`)
+              console.log(v, `"timeout" ${v.corner} ${v.el_border_color} ${v.el_text_size}`, opd)
+              opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
+            }, 350);
+            // document.querySelector(`[data-id='${v.id_}_options']`).className += `efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
+            break;
+          case "rating":
+            /*    const rate_efbs = document.querySelector(` [data-id='${v.id_}-el']`)
+               for(let rate_efb of rate_efbs){
+                // console.log(rate_efb.value, v ,rate_efb);
+                 rate_efb.addEventListener("click", (e)=> {
+                     console.log(rate_efb.value, v.id_ ,rate_efb);
+                       document.getElementById(`${v.id_}-stared`).innerHTML = rate_efb.value;
+                   })
+               }  */
+            break;
+          case "dadfile":
+            set_dadfile_fun_efb(v.id_, i)
+            break;
+
+        }
+      })
+    } catch {
+      console.error(`Preview of Pc Form has an Error`)
+    }
+    if (state != 'mobile') handle_navbtn_efb(valj_efb[0].steps, 'pc')
+
+   // if (state != "show") myModal.show();
+   step_el_efb=valj_efb[0].steps;
+  // console.log(`step_el_efb[${step_el_efb}] js[${valj_efb[0].steps}]`)
+  }, (len * (Math.log(len)) * p)) //nlogn
+  //funSetPosElEfb(valj_efb[v].dataId ,valj_efb[v].label_position)
+  // وقتی پنجره پیش نمایش بسته شد دوباره المان ها اضافه شود به دارگ زون
+  // تابع اضافه کردن
+  //editFormEfb()
+}//end function v2
+
 
 
 

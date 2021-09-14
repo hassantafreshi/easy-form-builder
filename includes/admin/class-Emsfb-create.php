@@ -36,7 +36,7 @@ class Create {
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
+		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
 
 		
 		
@@ -91,6 +91,13 @@ class Create {
 				bdy[0].classList.add("bg-color");
 				
 			</script>
+			<div id="alert_efb" class="mx-5"></div>
+			<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="modal-content efb " id="settingModalEfb-sections">
+									<div class="modal-header efb"> <h5 class="modal-title" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
+					</div></div></div>
             <div id="tab_container">
            
         	</div>
@@ -109,9 +116,7 @@ class Create {
 				wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
 					'pro' => $pro,
 					'rtl' => is_rtl(),
-					'text' => [
-						"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
-						"DragAndDropUI" => __('Drag and drop UI','easy-form-builder')]
+					'text' => $lang,
 							));
 		}
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -141,7 +146,7 @@ class Create {
 			"reply" => __('Reply','easy-form-builder'),
 			"messages" => __('Messages','easy-form-builder'),
 			"close" => __('Close','easy-form-builder'),
-			"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
+			"pleaseWaiting" => __('Please Waiting','easy-form-builder'), //v2
 			"loading" => __('Loading','easy-form-builder'),
 			"remove" => __('Remove!','easy-form-builder'),
 			"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
@@ -150,14 +155,23 @@ class Create {
 			"numberOfSteps" => __('Number of steps','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
+			"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'),
 			"getProVersion" => __('Get Pro version','easy-form-builder'),
 			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
 			"email" => __('Email','easy-form-builder'),
 			"trackingCode" => __('Tracking code','easy-form-builder'),		
 			"save" => __('Save','easy-form-builder'),
+			"pcPreview" => __('PC Preview','easy-form-builder'),
+			"help" => __('Help','easy-form-builder'),
 			"waiting" => __('Waiting','easy-form-builder'),
 			"saved" => __('Saved','easy-form-builder'),
-			"error" => __('Error,','easy-form-builder'),
+			"error" => __('Error','easy-form-builder'),
+			"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'),
+			"previewForm" => __('Preview Form','easy-form-builder'),
+			"activateProVersion" => __('Activate Pro Version','easy-form-builder'),
+			"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'),
+			"copyShortcode" => __('Copy shortcode','easy-form-builder'),
+			"youDoNotAddAnyInput" => __('You do not add any fields','easy-form-builder'),
 			"stepName" => __('Step Name','easy-form-builder'),
 			"IconOfStep" => __('Icon of step','easy-form-builder'),
 			"define" => __('Define','easy-form-builder'),
@@ -170,24 +184,34 @@ class Create {
 			"media" => __('Media','easy-form-builder'),
 			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),
 			"zip" => __('Zip','easy-form-builder'),
-			"required" => __('Required','easy-form-builder'),
+			"required" => __('Required','easy-form-builder'),//v2
 			"button" => __('button','easy-form-builder'),
-			"text" => __('text','easy-form-builder'),
+			"text" => __('Text','easy-form-builder'),
 			"password" => __('Password','easy-form-builder'),
 			"emailOrUsername" => __('Email or Username','easy-form-builder'),
 			"number" => __('number','easy-form-builder'),
-			"file" => __('file','easy-form-builder'),
-			"date" => __('date','easy-form-builder'),
+			"file" => __('File Upload','easy-form-builder'),
+			"dadfile" => __('D&D File Upload','easy-form-builder'),
+			"date" => __('Date Picker','easy-form-builder'),
 			"tel" => __('tel','easy-form-builder'),
-			"textarea" => __('textarea','easy-form-builder'),
-			"checkbox" => __('checkbox','easy-form-builder'),
-			"radiobutton" => __('radiobutton','easy-form-builder'),
-			"multiselect" => __('multiselect','easy-form-builder'),
-			"url" => __('url','easy-form-builder'),
+			"maps" => __('Maps','easy-form-builder'),
+			"textarea" => __('Long Text','easy-form-builder'),
+			"checkbox" => __('Check Box','easy-form-builder'),
+			"radiobutton" => __('Radio Button','easy-form-builder'),
+			"radio" => __('Radio Button','easy-form-builder'),
+			"select" => __('Select','easy-form-builder'),
+			"multiselect" => __('Multiple Select','easy-form-builder'),
+			"switch" => __('Switch','easy-form-builder'),
+			"url" => __('URL','easy-form-builder'),
 			"range" => __('range','easy-form-builder'),
-			"color" => __('color','easy-form-builder'),
+			"locationPicker" => __('Location Picker','easy-form-builder'),
+			"color" => __('Color Picker','easy-form-builder'),
 			"fileType" => __('File Type','easy-form-builder'),
 			"label" => __('Label','easy-form-builder'),
+			"rating" => __('Rating','easy-form-builder'),
+			"esign" => __('Signature','easy-form-builder'),
+			"htmlCode" => __('HTML Code','easy-form-builder'),
+			"yesNo" => __('Yes/No','easy-form-builder'),
 			"class" => __('Class','easy-form-builder'),
 			"id" => __('ID','easy-form-builder'),
 			"tooltip" => __('Tooltip','easy-form-builder'),
@@ -222,7 +246,7 @@ class Create {
 			"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),			
 			"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
 			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
-			"formNotFound" => __('Form is not found','easy-form-builder'),
+			"formNotFound" => __('Form does not found','easy-form-builder'),
 			"errorV01" => __('Error Code:V01','easy-form-builder'),
 			"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
@@ -276,6 +300,135 @@ class Create {
 			"efbIsTheUserSentence" => __('Easy Form Builder is the user-friendly form creator that allows you to create professional multistep forms within minutes.','easy-form-builder'),
 			"efbYouDontNeedAnySentence" => __('You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking Code allows you to connect any submission to an individual request.  ','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
+			//v2 translate 
+			"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'),//v2
+			"sampleDescription" => __('Sample description','easy-form-builder'),//v2
+			"editField" => __('Edit Field','easy-form-builder'),//v2
+			"description" => __('Description','easy-form-builder'),//v2
+			"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'),
+			"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 
+			"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'), //v2 
+			"dontShowIconsStepsName" => __('Don\'t show Icons & Steps name','easy-form-builder'), //v2 
+			"dontShowProgressBar" => __('Don\'t show progress bar','easy-form-builder'), //v2 
+			"showTheFormTologgedUsers" => __('Show the form to logged in users only','easy-form-builder'), //v2 
+			"labelSize" => __('Label size','easy-form-builder'), //v2 
+			"default" => __('Default','easy-form-builder'), //v2 
+			"small" => __('Small','easy-form-builder'), //v2 
+			"large" => __('Large','easy-form-builder'), //v2 
+			"xlarge" => __('XLarge','easy-form-builder'), //v2 
+			"xxlarge" => __('XXLarge','easy-form-builder'), //v2 
+			"xxxlarge" => __('XXXLarge','easy-form-builder'), //v2 
+			"labelPostion" => __('Label Postion','easy-form-builder'), //v2 
+			"beside" => __('Beside','easy-form-builder'), //v2 
+			"align" => __('Align','easy-form-builder'), //v2 
+			"left" => __('Left','easy-form-builder'), //v2 
+			"center" => __('Center','easy-form-builder'), //v2 
+			"right" => __('Right','easy-form-builder'), //v2 
+			"width" => __('Width','easy-form-builder'), //v2 
+			"cSSClasses" => __('CSS Classes','easy-form-builder'), //v2 
+			"defaultValue" => __('Default value','easy-form-builder'), //v2 
+			"placeholder" => __('Placeholder','easy-form-builder'), //v2 
+			"enterAdminEmailReceiveNoti" => __('Enter Admin Email to receive notification email','easy-form-builder'), //v2 
+			"corners" => __('Corners','easy-form-builder'), //v2 
+			"rounded" => __('Rounded','easy-form-builder'), //v2 
+			"square" => __('Square','easy-form-builder'), //v2 
+			"icon" => __('Icon','easy-form-builder'), //v2 
+			"buttonColor" => __('Button Color','easy-form-builder'), //v2 
+			"blue" => __('Blue','easy-form-builder'), //v2 
+			"darkBlue" => __('Dark Blue','easy-form-builder'), //v2 
+			"lightBlue" => __('Light Blue','easy-form-builder'), //v2 
+			"grayLight" => __('Gray Light','easy-form-builder'), //v2 
+			"grayLighter" => __('Gray Lighter','easy-form-builder'), //v2 
+			"green" => __('Green','easy-form-builder'), //v2 
+			"pink" => __('Pink','easy-form-builder'), //v2 
+			"yellow" => __('Yellow','easy-form-builder'), //v2 
+			"light" => __('Light','easy-form-builder'), //v2 
+			"Red" => __('red','easy-form-builder'), //v2 
+			"grayDark" => __('Gray Dark','easy-form-builder'), //v2 
+			"white" => __('White','easy-form-builder'), //v2 
+			"clr" => __('Color','easy-form-builder'), //v2 
+			"borderColor" => __('Border Color','easy-form-builder'), //v2 
+			"height" => __('Height','easy-form-builder'), //v2 
+			"latitude" => __('Latitude','easy-form-builder'), //v2 
+			"longitude" => __('Longitude','easy-form-builder'), //v2 
+			"exDot" => __('ex.','easy-form-builder'), //v2 
+			"pleaseDoNotAddJsCode" => __('(Please do not add Javascript or jQuery codes to html codes for security reasons)','easy-form-builder'), //v2 
+			"button1Value" => __('Button 1 value','easy-form-builder'), //v2 
+			"button2Value" => __('Button 2 value','easy-form-builder'), //v2 
+			"iconList" => __('Icons list','easy-form-builder'), //v2 
+			"previous" => __('Previous','easy-form-builder'), //v2 
+			"next" => __('next','easy-form-builder'), //v2 
+			"invalidEmail" => __('Invalid email address”','easy-form-builder'), //v2 
+			"noCodeAddedYet" => __('Code has not yet been added. Click on','easy-form-builder'), //v2 
+			"andAddingHtmlCode" => __(' and adding html code.','easy-form-builder'), //v2 
+			"proMoreStep" => __('for use mor steps XXXXXX','easy-form-builder'), //v2 
+			"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps in setting of plugin and try again.','easy-form-builder'), //v2 
+			"howToAddGoogleMap" => __('How to Add Google Map to Easy form Builder WordPress Plugin','easy-form-builder'), //v2 
+			"deletemarkers" => __('Delete markers','easy-form-builder'), //v2 
+			"updateUrbrowser" => __('update your browser','easy-form-builder'), //v2 
+			"clear" => __('Clear','easy-form-builder'), //v2 
+			"star" => __('Star','easy-form-builder'), //v2 
+			"stars" => __('Stars','easy-form-builder'), //v2 
+			"nothingSelected" => __('Nothing selected','easy-form-builder'), //v2 
+			"duplicate" => __('Duplicate','easy-form-builder'), //v2 
+			"availableProVersion" => __('Available in pro version','easy-form-builder'), //v2 
+			"mobilePreview" => __('Mobile Preview','easy-form-builder'), //v2 
+			"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
+			"finish" => __('Finish','easy-form-builder'), //v2 
+			"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'), //v2 
+			"dragAndDropA" => __('Drag & Drop a','easy-form-builder'), //v2 
+			"browseFile" => __('Browse File','easy-form-builder'), //v2 
+			"removeTheFile" => __('Remove the file','easy-form-builder'), //v2 
+			"offerGoogleCloud" => __('To activite reCAPTCHA and Maps you have to sign up in Google cloud service which its basic service is free and Google give <b> $350 worth of credits </b> to the new users of Cloud service.','easy-form-builder'), //v2 
+			"getOfferTextlink" => __('To get the credit you must only click here to start','easy-form-builder'), //v2 
+			"SpecialOffer" => __('Special offer','easy-form-builder'), //v2 
+			"trackingCodeFinder" => __('Tracking code Finder','easy-form-builder'), //v2 
+			"copyAndPasteBelowShortCodeTrackingCodeFinder" => __('Copy and Paste below short-code of tracking code finder in any page or post.','easy-form-builder'), //v2 
+			"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'), //v2 
+			"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'), //v2 
+			"alertEmail" => __('Alert Email','easy-form-builder'), //v2 
+			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'), //v2 
+			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'), //v2 
+			"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'), //v2 
+			"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'), //v2 
+			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'), //v2 
+			"siteKey" => __('SITE KEY','easy-form-builder'), //v2 
+			"enterSITEKEY" => __('Enter SITE KEY','easy-form-builder'), //v2 
+			"SecreTKey" => __('SECRET KEY','easy-form-builder'), //v2 
+			"EnterSECRETKEY" => __('Enter SECRET KEY','easy-form-builder'), //v2 
+			"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'), //v2 
+			"aPIKey" => __('API KEY','easy-form-builder'), //v2 
+			"enterAPIKey" => __('Enter API KEY','easy-form-builder'), //v2 
+			"clearFiles" => __('Clear Files','easy-form-builder'), //v2 
+			"enterAdminEmail" => __('Enter Admin Email','easy-form-builder'), //v2 
+			"emailServer" => __('Email server','easy-form-builder'), //v2 
+			"beforeUsingYourEmailServers" => __('Before using your Email servers, you need to verify the status of e-mail servers and make sure that they are all running.','easy-form-builder'), //v2 
+			"clickToCheckEmailServer" => __('Click To Check Email Server','easy-form-builder'), //v2 
+			"emailSetting" => __('Email Settings','easy-form-builder'), //v2 
+			"setting" => __('Setting','easy-form-builder'), //v2 
+			"general" => __('General','easy-form-builder'), //v2 
+			"googleKeys" => __('Google Keys','easy-form-builder'), //v2 
+			"enterActivateCode" => __('Enter Activate Code','easy-form-builder'), //v2 
+			"formSetting" => __('Form Settings','easy-form-builder'), //v2 
+			"up" => __('Up','easy-form-builder'), //v2
+			"red" => __('Red','easy-form-builder'), //v2 
+			"Red" => __('Red','easy-form-builder'), //v2 
+			"field" => __('Field','easy-form-builder'), //v2 
+			"advanced" => __('Advanced','easy-form-builder'), //v2 
+			"form" => __('Form','easy-form-builder'), //v2 
+
+
+			"name" => __('Name','easy-form-builder'), //v2 
+			"add" => __('Add','easy-form-builder'), //v2 
+			"code" => __('Code','easy-form-builder'), //v2 
+			"star" => __('Star','easy-form-builder'), //v2 
+			"form" => __('Form','easy-form-builder'), //v2 
+			"black" => __('Black','easy-form-builder'), //v2 
+			"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
+			"reportProblem" => __('Report problem','easy-form-builder'), //v2 
+			"ddate" => __('Date','easy-form-builder'),
+			//v2 translate end
+			
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -296,6 +449,9 @@ class Create {
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
+
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
+			wp_enqueue_script('efb-main-js'); 
 
 
 	
@@ -331,8 +487,8 @@ class Create {
 		$this->email =  $email;
 		$this->value =  sanitize_text_field($_POST['value']);
 		$this->formtype =  sanitize_text_field($_POST['type']);
-		if($this->isHTML($_POST['value']) ||$this->isHTML($_POST['type'])){
-			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag" ,'easy-form-builder')); 
+		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+			$response = array( 'success' => false , "m"=> __("You don't allow to use Scripts tag" ,'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -340,16 +496,16 @@ class Create {
 		//error_log('$this->insert_db();');
 		$this->insert_db();
 		if($this->id_ !=0){
-			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]"); 
+			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{
-			$response = array( 'success' => false , "m"=> __("Form not Created!" ,'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=> __("The form is not Created!" ,'easy-form-builder')); 
 		}
 		//error_log($response);
 		wp_send_json_success($response,$_POST);
 		die();
 		
 	}
-	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
+	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 	
 		
