@@ -315,6 +315,7 @@ class Panel_edit  {
 				"up" => __('Up','easy-form-builder'), //v2 
 				"red" => __('Red','easy-form-builder'), //v2 
 				"Red" => __('Red','easy-form-builder'), //v2 
+			
 
 				"name" => __('Name','easy-form-builder'), //v2 
 				"add" => __('Add','easy-form-builder'), //v2 
@@ -324,7 +325,11 @@ class Panel_edit  {
 				"black" => __('Black','easy-form-builder'), //v2  
 				"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
 				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
-				"ddate" => __('Date','easy-form-builder'),
+				"ddate" => __('Date','easy-form-builder'),//v2
+				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
+				"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
+				"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+
 				
 				//v2 translate end
 
@@ -341,8 +346,8 @@ class Panel_edit  {
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
 			];
 			$pro =false;
-			$ac= $this->get_activeCode_Emsfb();
-			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
+			$ac= $this->get_setting_Emsfb();
+			if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -356,8 +361,19 @@ class Panel_edit  {
 			if($pro==true){
 				// اگر پولی بود این کد لود شود 
 				//پایان کد نسخه پرو
-				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
+				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
+			}
+
+			if($ac->apiKeyMap){
+				$k= $ac->apiKeyMap;
+				$lang = get_locale();
+					if ( strlen( $lang ) > 0 ) {
+					$lang = explode( '_', $lang )[0];
+					}
+				//error_log($lang);
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lang.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				wp_enqueue_script('googleMaps-js');
 			}
 			
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
@@ -452,13 +468,13 @@ class Panel_edit  {
 					<!--  <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2> -->
 					</div>
 					<div class="mt-3 d-flex justify-content-center align-items-center ">
-					<button type="button" id="more_emsFormBuilder" class="efb btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>
+					<button type="button" id="more_emsFormBuilder" class="efb btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="bi-chevron-double-down"></i></button>
 					</div>
 
 
 				</div>
 			<?php
-
+		
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 				//check ip from share internet
@@ -472,6 +488,7 @@ class Panel_edit  {
 
 
 			
+			$this->send_email_state('to@gmail.com','testMailServer','content',$ac->activeCode);
 
 			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
@@ -492,7 +509,7 @@ class Panel_edit  {
 			echo "Easy Form Builder: You dont access this section";
 		}
 	}
-	public function get_activeCode_Emsfb()
+	public function get_setting_Emsfb()
 	{
 		// اکتیو کد بر می گرداند	
 		
@@ -503,10 +520,11 @@ class Panel_edit  {
 			foreach($value[0] as $key=>$val){
 			$r =json_decode($val);
 			$rtrn =$r->activeCode;
+			//error_log($r->apiKeyMap);
 			break;
 			} 
 		}
-		return $rtrn;
+		return $r;
 	}
 
 
@@ -519,6 +537,45 @@ class Panel_edit  {
 		$rtrn='null';
 		//error_log(json_encode($value));
 		return $value;
+	}
+
+
+	public function send_email_state($to ,$sub ,$cont,$pro){
+	//v2
+	//report bug if subject is reportProblem
+	//test mail server if subject is testMailServer
+		$mailResult = 'n';
+		//error_log($mailResult);
+		$usr =get_user_by('id','1');
+		//error_log(json_encode($usr));
+		 $email= $usr->user_email;
+		 $role = $usr->roles[0];
+		 $name = $usr->display_name;
+
+		 
+
+		$from =$name." <".$email.">";
+		if($sub=="reportProblem" || $sub =="testMailServer" )
+		{
+			$cont .="<span>website:". $_SERVER['SERVER_NAME'] . "</span></br>";
+			$cont .="<span>IP:". $_SERVER['REMOTE_ADDR'] . "</span></br>";
+			$cont .="<span>Pro user:".$pro . "</span></br>";
+		}
+		if($to=="test"){$to="hasan.tafreshi@gmail.com";}
+		$message ='<!DOCTYPE html> <html> <body><p>'. $cont. '</p>
+		</body> </html>';
+		//error_log($from);
+		$headers = array(
+		 'MIME-Version: 1.0\r\n',
+		 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+		 'From:'.$from.''
+		 );
+		$mailResult = wp_mail( $to,$sub, $cont, $headers );
+		error_log('$cont');
+		error_log($cont);
+		error_log($mailResult);
+		if ($mailResult=='n' || strlen($mailResult)<1){ return false;
+		}else {return true;}
 	}
 
 

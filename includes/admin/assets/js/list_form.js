@@ -154,22 +154,7 @@ function emsFormBuilder_delete(id) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function noti_message_efb(title, message, sec) {
-  sec = sec * 1000
-  /* Alert the copied text */
-  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert alert-dismissible alert-info mx-5 alert-info ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
-    <h4 class="alert-heading">${title}</h4>
-    <p>${message}</p>
-    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
-  </div>`
-  setTimeout(function () {
-    jQuery('.alert_efb').hide();
-    document.getElementById('alert_efb').innerHTML = ""
-  }, sec);
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  $('.alert').alert()
-}
 function emsFormBuilder_popUp_message(title, message) {
   // این پنجره برای نمایش پیام های عمومی است
   document.getElementById('wpwrap').innerHTML += `
@@ -640,12 +625,12 @@ function fun_delete_form_with_id_by_server(id) {
       //console.l(res);
       if (res.success == true) {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.done, '', 3)
+          noti_message_efb(efb_var.text.done, '', 3 , 'info')
         }, 3)
       } else {
         //console.l(res);
         setTimeout(() => {
-          noti_message_efb(efb_var.text.error, '', 3)
+          noti_message_efb(efb_var.text.error, '', 3 ,'danger')
         }, 3)
       }
     })
@@ -1093,11 +1078,11 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="mx-5"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2">${efb_var.text.siteKey}</label>
-                                <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
-                                <span id="sitekey_emsFormBuilder-message" class="text-danger"></span>
-                                <label class="form-label mx-2  mt-4">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
-                                <span id="secretkey_emsFormBuilder-message" class="text-danger"></span>
+                                <input type="text" class="form-control col-12 efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
+                                <span id="sitekey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                                <label class="form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                <input type="text" class="form-control col-12 efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
+                                <span id="secretkey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
                             <h5 class="card-title mt-4 ">
                                 <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
@@ -1105,8 +1090,8 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="mx-5">${efb_var.text.youNeedAPIgMaps} <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> </p>
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.apiKeyMap}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
-                                <span id="apikey_map_emsFormBuilder-message" class="text-danger"></span>
+                                <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
+                                <span id="apikey_map_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
                             </div>
@@ -1121,10 +1106,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="card-body mx-4">
                                     <label class="form-label mx-2">${efb_var.text.email}</label>
                                     <input type="email" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
-                                    <span id="email_emsFormBuilder-message" class="text-danger"></span>
+                                    <span id="email_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                                 </div>
                                 
-                                <h5 class="card-title mt-4 ">
+                                <h5 class="card-title mt-4 col-12 efb ">
                                     <i class="efb bi-envelope m-3"></i>${efb_var.text.emailServer}
                                 </h5>
                                 <p class="mx-5">${efb_var.text.beforeUsingYourEmailServers}</p>
@@ -1285,7 +1270,7 @@ function fun_find_track_emsFormBuilder() {
   const el = document.getElementById("track_code_emsFormBuilder").value;
 
   if (el.length < -1) {
-    noti_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 10);
+    noti_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7 ,'warning');
 
   } else {
     //console.l('fun_find_track_emsFormBuilder',el  )
@@ -1318,7 +1303,7 @@ function fun_find_track_emsFormBuilder() {
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue;
         } else {
-          noti_message_efb(efb_var.text.error, res.data.m, 4);
+          noti_message_efb(efb_var.text.error, res.data.m, 4 ,'warning');
           document.getElementById('track_code_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue
@@ -1350,7 +1335,7 @@ function clear_garbeg_emsFormBuilder() {
       if (res.data.success == true) {
         noti_message_efb(efb_var.text.done, res.data.m, 4.7);
       } else {
-        noti_message_efb(efb_var.text.error, res.data.m, 4.7);
+        noti_message_efb(efb_var.text.error, res.data.m, 4.7 ,'danger');
 
       }
     })
@@ -1781,7 +1766,7 @@ function copyCodeEfb(id) {
   document.execCommand("copy");
 
   /* Alert the copied text */
-  noti_message_efb(efb_var.text.copiedClipboard, '', 3.7)
+  noti_message_efb(efb_var.text.copiedClipboard, '', 3.7,'info')
 }
 function clickToCheckEmailServer() {
   document.getElementById('clickToCheckEmailServer').classList.add('disabled')
@@ -1789,8 +1774,28 @@ function clickToCheckEmailServer() {
   document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`
   // call and waitning response
 
-  document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
-  document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
+  jQuery(function ($) {
+    //console.l('clear_garbeg_emsFormBuilder');  
+    data = {
+      action: "check_email_server_efb",
+      nonce: ajax_object_efm_core.nonce,
+      value:'testMailServer'
+    };
+
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
+
+      if (res.data.success == true) {
+        noti_message_efb(efb_var.text.done,efb_var.text.serverEmailAble, 3.7);
+      } else {
+ 
+        noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 7 ,'danger');
+
+      }
+      document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
+     document.getElementById('clickToCheckEmailServer').classList.remove('disabled') 
+    })
+  });
+
 }
 
 

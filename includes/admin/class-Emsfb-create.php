@@ -105,20 +105,33 @@ class Create {
 		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
 		$pro =false;
-		$ac= $this->get_activeCode_Emsfb();
-		if (md5($_SERVER['SERVER_NAME'])==$ac){
+	
+		$ac= $this->get_setting_Emsfb();
+		if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){
 			$pro=true;
 		}
 		if(	$pro==true){
-				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
+				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
 
-				wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
+			/* 	wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
 					'pro' => $pro,
 					'rtl' => is_rtl(),
-					'text' => $lang,
-							));
+					'text' => $lang
+							)); */
 		}
+
+		if($ac->apiKeyMap){
+			$k= $ac->apiKeyMap;
+			$lang = get_locale();
+				if ( strlen( $lang ) > 0 ) {
+				$lang = explode( '_', $lang )[0];
+				}
+			//error_log($lang);
+			wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lang.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+			wp_enqueue_script('googleMaps-js');
+		}
+
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
@@ -165,7 +178,7 @@ class Create {
 			"help" => __('Help','easy-form-builder'),
 			"waiting" => __('Waiting','easy-form-builder'),
 			"saved" => __('Saved','easy-form-builder'),
-			"error" => __('Error','easy-form-builder'),
+			"error" => __('Error,','easy-form-builder'),
 			"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'),
 			"previewForm" => __('Preview Form','easy-form-builder'),
 			"activateProVersion" => __('Activate Pro Version','easy-form-builder'),
@@ -398,7 +411,7 @@ class Create {
 			"EnterSECRETKEY" => __('Enter SECRET KEY','easy-form-builder'), //v2 
 			"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'), //v2 
 			"aPIKey" => __('API KEY','easy-form-builder'), //v2 
-			"enterAPIKey" => __('Enter API KEY','easy-form-builder'), //v2 
+			
 			"clearFiles" => __('Clear Files','easy-form-builder'), //v2 
 			"enterAdminEmail" => __('Enter Admin Email','easy-form-builder'), //v2 
 			"emailServer" => __('Email server','easy-form-builder'), //v2 
@@ -416,7 +429,7 @@ class Create {
 			"field" => __('Field','easy-form-builder'), //v2 
 			"advanced" => __('Advanced','easy-form-builder'), //v2 
 			"form" => __('Form','easy-form-builder'), //v2 
-
+			"clickHere" => __('Click here','easy-form-builder'),
 
 			"name" => __('Name','easy-form-builder'), //v2 
 			"add" => __('Add','easy-form-builder'), //v2 
@@ -426,8 +439,11 @@ class Create {
 			"black" => __('Black','easy-form-builder'), //v2 
 			"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
 			"reportProblem" => __('Report problem','easy-form-builder'), //v2 
-			"ddate" => __('Date','easy-form-builder'),
+			"ddate" => __('Date','easy-form-builder'),//v2
+			"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
+			"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
 			//v2 translate end
+			
 			
 		];
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
@@ -526,7 +542,7 @@ class Create {
 		
 		
 	}
-	public function get_activeCode_Emsfb()
+	public function get_setting_Emsfb()
 	{
 		// اکتیو کد بر می گرداند	
 		
@@ -537,10 +553,11 @@ class Create {
 			foreach($value[0] as $key=>$val){
 			$r =json_decode($val);
 			$rtrn =$r->activeCode;
+			//error_log($r->apiKeyMap);
 			break;
 			} 
 		}
-		return $rtrn;
+		return $r;
 	}
 }
 

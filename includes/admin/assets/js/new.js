@@ -2685,6 +2685,7 @@ const saveFormEfb = () => {
     </div>
     `
     show_modal_efb(body,efb_var.text.error, btnIcon, 'error')
+    myModal.show();
   }
 },100)
 }//end function
@@ -3518,9 +3519,8 @@ function ReadyElForViewEfb(content) {
 
 }
 
-function noti_message_efb(title, message, sec) {
-  sec = sec * 1000
-  /* Alert the copied text */
+/* function noti_message_efb(title, message, sec) {
+
   document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert alert-dismissible alert-info mx-5 alert-info {$efb_var.rtl==1 ? 'rtl-text' :''}" role="alert">
   <h4 class="alert-heading">${title}</h4>
   <div class="mx-2">${message}</div>
@@ -3534,7 +3534,7 @@ function noti_message_efb(title, message, sec) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   $('.alert').alert()
-}
+} */
 
 
 
@@ -3558,6 +3558,30 @@ function alert_message_efb(title, message) {
   </button>
 </div>
   `
+}
+function noti_message_efb(title, message, sec ,alert) {
+  sec = sec * 1000
+  /* Alert the copied text */
+  alert = alert ? `alert-${alert}` : 'alert-info';
+  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert ${alert} alert-dismissible  mx-5 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    <h4 class="alert-heading">${title}</h4>
+    <p>${message}</p>
+    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+  </div>`
+  setTimeout(function () {
+    jQuery('.alert_efb').hide();
+    document.getElementById('alert_efb').innerHTML = ""
+  }, sec);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('.alert').alert()
+}
+
+
+function gm_authFailure() {
+  const body =`<p class="fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
+  noti_message_efb(efb_var.text.error, body, 120 ,'danger')
+
 }
 
 
