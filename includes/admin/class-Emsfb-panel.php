@@ -23,7 +23,7 @@ class Panel_edit  {
 				"createDate" => __('Create Date','easy-form-builder'),
 				"edit" => __('Edit','easy-form-builder'),
 				"content" => __('Content','easy-form-builder'),
-				"trackNo" => __('Track No.','easy-form-builder'),
+				"trackNo" => __('Tracking Code','easy-form-builder'),
 				"formDate" => __('Form Date','easy-form-builder'),
 				"by" => __('By','easy-form-builder'),
 				"ip" => __('IP','easy-form-builder'),
@@ -50,19 +50,19 @@ class Panel_edit  {
 				"proVersion" => __('Pro Version','easy-form-builder'),
 				"getProVersion" => __('Get Pro version','easy-form-builder'),
 				"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
-				"enterActivateCode" => __('Enter Activate Code','easy-form-builder'),
+				"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),
 				"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
 				"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'),
 				"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'),
 				"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
 				"siteKey" => __('SITE KEY','easy-form-builder'),
-				"enterSITEKEY" => __('Enter SITE KEY','easy-form-builder'),
+				"enterSITEKEY" => __('Enter the SITE KEY','easy-form-builder'),
 				"SecreTKey" => __('SECRET KEY','easy-form-builder'),
-				"EnterSECRETKEY" => __('Enter SECRET KEY','easy-form-builder'),
+				"EnterSECRETKEY" => __('Enter the SECRET KEY','easy-form-builder'),
 				"alertEmail" => __('Alert Email','easy-form-builder'),
 				"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
 				"email" => __('Email','easy-form-builder'),
-				"enterAdminEmail" => __('Enter Admin Email','easy-form-builder'),
+				"enterAdminEmail" => __('Enter an Admin Email','easy-form-builder'),
 				"clearFiles" => __('Clear Files','easy-form-builder'),
 				"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),
 				"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'),
@@ -315,6 +315,8 @@ class Panel_edit  {
 				"up" => __('Up','easy-form-builder'), //v2 
 				"red" => __('Red','easy-form-builder'), //v2 
 				"Red" => __('Red','easy-form-builder'), //v2 
+				"sending" => __('Sending','easy-form-builder'), //v2 
+				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
 			
 
 				"name" => __('Name','easy-form-builder'), //v2 
@@ -438,7 +440,7 @@ class Panel_edit  {
 							<div class="d-flex">
 								<form class="d-flex">
 									<i class="efb bi-search search-icon"></i>
-									<input class="form-control efb search-form-control efb me-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Search track No.','easy-form-builder') ?>">
+									<input class="form-control efb search-form-control efb-rounded efb me-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Enter the Tracking Code','easy-form-builder') ?>">
 									<button class="btn efb btn-outline-pink me-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
 								</form>
 								<div class="nav-icon efb me-2">

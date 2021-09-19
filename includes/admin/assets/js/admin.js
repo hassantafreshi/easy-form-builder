@@ -1780,22 +1780,9 @@ function previewFormEfb(state){//v2
         }
       })
       step_no += 1;
-      const trckCd = `
-              <div class="test"><h5 class="mt-3">${efb_var.text.trackingCode}: <strong>210201-SMHTH06</strong></h5>
-              <input type="text" class="hide-input" value="210201-SMHTH06" id="trackingCodeEfb">
-              <div id="alert"></div>
-              <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
-                  <i class="efb bi-clipboard-check me-2"></i>${efb_var.text.copyTrackingcode}
-              </button></div>`
-      content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center">
-              <h4 class="efb my-1">
-                  <i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}
-              </h4>
-              <h3 class="efb">${efb_var.text.thanksFillingOutform}</h3>
-            ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
-                    
-                    
-                
+
+      content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
+      ${loading_messge_efb()}                
       </fieldset>`
       head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
     } catch {

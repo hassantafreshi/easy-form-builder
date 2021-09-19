@@ -242,6 +242,17 @@ class _Public {
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"sync" => __('Sync','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
+				"entrTrkngNo" => __('Enter the Tracking Code','easy-form-builder'),
+				"search" => __('Search','easy-form-builder'),
+				"guest" => __('Guest','easy-form-builder'),
+				"info" => __('Info','easy-form-builder'),
+				"response" => __('Response','easy-form-builder'),
+				"reply" => __('Reply','easy-form-builder'),
+				"ddate" => __('Date','easy-form-builder'),//v2
+				"by" => __('By','easy-form-builder'),
+				"sending" => __('Sending','easy-form-builder'), //v2 
+				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
+				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
 
 				];
 		
@@ -277,8 +288,11 @@ class _Public {
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
-		wp_register_style( 'Emsfb-admin-css',  plugins_url('../public/assets/css/style.css',__FILE__), true );
-		wp_enqueue_style( 'Emsfb-admin-css' );
+
+	/* 	wp_register_style( 'Emsfb-admin-css',  plugins_url('../public/assets/css/style.css',__FILE__), true );
+		wp_enqueue_style( 'Emsfb-admin-css' ); */
+
+		
 		
 		if(is_rtl()){
 			wp_register_style( 'Emsfb-css-rtl',  plugins_url('../public/assets/css/style-rtl.css',__FILE__), true);
@@ -286,7 +300,7 @@ class _Public {
 		}
 	
 		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
-		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
+/* 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap4-6-0-css' );
 
 		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
@@ -304,7 +318,7 @@ class _Public {
 
 		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
 		wp_register_style( 'font-awesome-animation-css',  plugins_url('../public/assets/css/font-awesome-animation.min.css',__FILE__), true );
-		wp_enqueue_style( 'font-awesome-animation-css' );
+		wp_enqueue_style( 'font-awesome-animation-css' ); */
 	
 
 		//source:https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
@@ -325,11 +339,32 @@ class _Public {
 		//source:https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css
 		wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap-multiselect-css' );
+
+
+
+
+		/* v2 */
+
+
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-css');
+
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
+		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-select-css');
+		
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
+		wp_enqueue_style('Emsfb-style-css');
+
+
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
+		wp_enqueue_script('efb-main-js'); 
+		/* end v2 */
 
 		
-		/* wp_register_script('recaptcha-code', 'https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js', null, null, true);
-		wp_enqueue_script('recaptcha-code');  */
+
 	
 		$params = array(
 			'hl' => $lang
@@ -770,7 +805,7 @@ class _Public {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>__("Please enter a vaild values", 'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=>__("Please enter a vaild value", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -964,8 +999,12 @@ class _Public {
 
 				$by=__("Guest" , 'easy-form-builder');
 
+				error_log(json_encode(wp_get_current_user()));
+				
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
-					$by = get_user_by('id',$r);
+					$usr= wp_get_current_user();
+					$by = $usr->user_nicename;
+					error_log($by);
 				}
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
 				//error_log('track');

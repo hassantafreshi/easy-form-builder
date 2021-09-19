@@ -14,6 +14,7 @@ jQuery(function () {
   // console.log(ajax_object_efm.ajax_value);
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
+  console.log(ajax_object_efm)
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(10); //778899
 });
@@ -45,13 +46,21 @@ function fun_emsFormBuilder_render_view(x) {
         }
         rows += `
        <tr class="" id="emsFormBuilder-tr-${i.form_id}" >                    
-        <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}">[EMS_Form_Builder id=${Number(i.form_id)}]</th>
+        <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}" >
+          [EMS_Form_Builder id=${Number(i.form_id)}]  
+        </th>
         <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
         <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
         <td > 
         <button type="button" class="efb btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb bi-trash"></i></button>
         <button type="button" class="efb btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb bi-pencil"></i></button>
         <button type="button" class="efb btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb bi-chat text-muted"></i>`}</button>
+        <input type="text"  class="efb d-none" value="[EMS_Form_Builder id=${Number(i.form_id)}]" id="${i.form_id}-fc">
+        <button type="button" class="efb d-none btn btn-darkb text-white btn-sm bi-clipboard-check" 
+          onClick ="copyCodeEfb('${i.form_id}-fc')" 
+          data-bs-toggle="tooltip" data-bs-placement="bottom"
+          title="${efb_var.text.copy}">
+        </button>
         </td>                               
        </tr>
        ` ;
@@ -96,7 +105,7 @@ function fun_emsFormBuilder_render_view(x) {
   for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)) {
 
     el.addEventListener("click", (e) => {
-
+      console.log(el)
       emsFormBuilder_messages(el.dataset.id)
 
 
@@ -521,7 +530,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
   const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
   //console.l(message,id)
-  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Sending...`;
+  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
   const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];
@@ -529,7 +538,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length < 1 || isHTML(message)) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     return
   }
   fun_send_replayMessage_ajax_emsFormBuilder(ob, id)
@@ -816,7 +825,7 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   //console.l(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object_efm.ajax_url)
   if (message.length < 1) {
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = "Please Enter message";
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
@@ -844,7 +853,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         document.getElementById('replayM_emsFormBuilder').value = "";
 
         fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
-        let chatHistory = document.getElementById("resp_efb");
+        const chatHistory = document.getElementById("resp_efb");
         chatHistory.scrollTop = chatHistory.scrollHeight;
       } else {
         //console.l(res);
@@ -1757,10 +1766,11 @@ function copyCodeEfb(id) {
   /* Get the text field */
   var copyText = document.getElementById(id);
   //  var copyText = document.getElementById("myInput");
-
+  console.log(copyText.type);
   /* Select the text field */
   copyText.select();
-  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+   copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
 
   /* Copy the text inside the text field */
   document.execCommand("copy");

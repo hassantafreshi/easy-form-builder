@@ -2,7 +2,7 @@
     background-color: #eee;
 }
 
-#emsFormBuilder-form ,
+/* #emsFormBuilder-form ,
 #emsFormBuilder-form-view ,
 #emsFormBuilder-form-view-track
 {
@@ -11,7 +11,7 @@
     font-family: revert;
     padding: 40px;
     border-radius: 0px 10px
-}
+} */
 
 #emsFormBuilder-form-title,
 #emsFormBuilder-form-title-view
@@ -616,4 +616,6 @@ a#btn_Show_recovery_efb{
 .preview-overpage-efb {
 	position: absolute !important;
 }
+
+
 /* overpage */

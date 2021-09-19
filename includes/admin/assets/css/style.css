@@ -11,9 +11,10 @@
 #alert_content_efb {
 position: absolute;
 margin: 10%;
-z-index: 10;
+z-index: 1070!important;
 width: 40%;
 }
+
 a.navbar-brand.efb,
 a.nav-link.efb {
 text-decoration: none;
@@ -368,7 +369,7 @@ opacity: 0.4;
     opacity: 0.8;
 }
 .form-control.efb {
-border-radius: 20px!important;
+
 color: #a5a3d1!important; 
 
 }
@@ -386,7 +387,7 @@ border: 1px solid #bbc2d5;
 }
 
 .form-control.efb textarea {
-border-radius: 20px!important;
+
 }
 .search-form-control.efb {
 padding-left: 40px!important;
@@ -1221,7 +1222,7 @@ textarea.h-xxxl-efb {
     height: 37rem;
 }
 .efb-rounded{
-    border-radius: 30px!important;
+    border-radius: 20px!important;
 }
 .h-l-efb.efb-rounded{
     border-radius: 30px!important;
@@ -1687,3 +1688,25 @@ img.left_circle-efb {
 .wpforms-container input[type=checkbox]:after {
     display: none !important;
 }
+
+
+
+/* style public */
+.card-public.efb{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #ffffffb0;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+}
+
+
+button.btn-close {
+    background-color: #f0f8ff00!important;
+}
+
+

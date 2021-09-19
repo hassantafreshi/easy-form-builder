@@ -8,7 +8,6 @@ let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
 let steps_index_efb = [] // hold index of steps
 let valj_efb = [];
-console.log(`text`, efb_var.text.form)
 let formName_Efb = efb_var.text.form
 let pro_test = false
 let maps_efb = [];
@@ -2774,23 +2773,13 @@ function create_form_efb() {
       }
     })
     step_no += 1;
-    const trckCd = `
-       <div class="test"><h5 class="mt-3">${efb_var.text.trackingCode}: <strong>210201-SMHTH06</strong></h5>
-                    <input type="text" class="hide-input" value="210201-SMHTH06" id="trackingCodeEfb">
-                    <div id="alert"></div>
-                    <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
-                        <i class="efb bi-clipboard-check me-2"></i>${efb_var.text.copyTrackingcode}
-                    </button></div>`
-    content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center">
-                    <h4 class="efb my-1">
-                        <i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}
-                    </h4>
-                    <h3 class="efb">${efb_var.text.thanksFillingOutform}</h3>
-                   ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
-                    
-                    
-                
-      </fieldset>`
+  
+    content += `</fieldset>
+    
+                <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
+                ${loading_messge_efb()}
+               </fieldset>
+      `
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch {
     console.error(`Preview of Pc Form has an Error`)
@@ -3331,18 +3320,20 @@ function handle_navbtn_efb(steps, device) {
   setProgressBar_efb(current_s_efb);
   if (steps > 1) {
 
-    if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("invisible"); }
-
+    if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
+    
     jQuery("#next_efb").click(function () {
-
-      if ((current_s_efb + 1) == steps_len_efb) {
-        jQuery("#prev_efb").addClass("invisible");
-        jQuery("#next_efb").addClass("invisible");
-        //send to server after validation
+      var cp = current_s_efb + 1
+      if (cp == steps_len_efb) {
+        console.log('here')
+        jQuery("#prev_efb").addClass("d-none");
+        jQuery("#next_efb").addClass("d-none");
+        //send to server after validation 778899
+        send_data_efb();
       }
 
 
-      if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("invisible"); }
+      if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       next_s_efb = current_s.next();
       var nxt = "" + (current_s_efb + 1) + "";
@@ -3351,7 +3342,7 @@ function handle_navbtn_efb(steps, device) {
 
 
       next_s_efb.show();
-
+     
       current_s.animate({ opacity_efb: 0 }, {
         step: function (now) {
           // for making fielset appear animation
@@ -3419,10 +3410,13 @@ function handle_navbtn_efb(steps, device) {
       jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
       jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
 
-      jQuery("#btn_send_efb").toggleClass("invisible");
+      jQuery("#btn_send_efb").toggleClass("d-none");
+      
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       next_s_efb = current_s.next();
       next_s_efb.show();
+
+      send_data_efb();
 
       current_s.animate({ opacity_efb: 0 }, {
         step: function (now) {
@@ -3563,7 +3557,7 @@ function noti_message_efb(title, message, sec ,alert) {
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
-  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert ${alert} alert-dismissible  mx-5 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb alert ${alert} alert-dismissible  mx-5 ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h4 class="alert-heading">${title}</h4>
     <p>${message}</p>
     <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
@@ -3574,7 +3568,7 @@ function noti_message_efb(title, message, sec ,alert) {
   }, sec);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  $('.alert').alert()
+  jQuery('.alert').alert()
 }
 
 
@@ -3582,6 +3576,33 @@ function gm_authFailure() {
   const body =`<p class="fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
   noti_message_efb(efb_var.text.error, body, 120 ,'danger')
 
+}
+
+function funTnxEfb(val){
+  console.log('funTnxEfb')
+  const trckCd = `
+  <div class="test"><h5 class="mt-3">${efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+               <input type="text" class="hide-input" value="${val}" id="trackingCodeEfb">
+               <div id="alert"></div>
+               <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
+                   <i class="efb bi-clipboard-check me-2"></i>${efb_var.text.copyTrackingcode}
+               </button></div>`
+  return `
+                      <h4 class="efb my-1">
+                        <i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}
+                    </h4>
+                    <h3 class="efb">${efb_var.text.thanksFillingOutform}</h3>
+                   ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
+  
+  `
+}
+
+
+function send_data_efb(){
+  console.log('send_data_efb');
+  //if is preview 210201-SMHTH06 then recive from server and show
+  const cp = funTnxEfb('210201-SMHTH06')
+  document.getElementById('efb-final-step').innerHTML=cp
 }
 
 

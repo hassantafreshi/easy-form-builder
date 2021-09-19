@@ -121,7 +121,7 @@ class Create {
 							)); */
 		}
 
-		if($ac->apiKeyMap){
+		if(strlen($ac->apiKeyMap)>5){
 			$k= $ac->apiKeyMap;
 			$lang = get_locale();
 				if ( strlen( $lang ) > 0 ) {
@@ -406,14 +406,14 @@ class Create {
 			"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'), //v2 
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'), //v2 
 			"siteKey" => __('SITE KEY','easy-form-builder'), //v2 
-			"enterSITEKEY" => __('Enter SITE KEY','easy-form-builder'), //v2 
+			"enterSITEKEY" => __('Enter the SITE KEY','easy-form-builder'), //v2 
 			"SecreTKey" => __('SECRET KEY','easy-form-builder'), //v2 
-			"EnterSECRETKEY" => __('Enter SECRET KEY','easy-form-builder'), //v2 
+			"EnterSECRETKEY" => __('Enter the SECRET KEY','easy-form-builder'), //v2 
 			"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'), //v2 
 			"aPIKey" => __('API KEY','easy-form-builder'), //v2 
 			
 			"clearFiles" => __('Clear Files','easy-form-builder'), //v2 
-			"enterAdminEmail" => __('Enter Admin Email','easy-form-builder'), //v2 
+			"enterAdminEmail" => __('Enter an Admin Email','easy-form-builder'), //v2 
 			"emailServer" => __('Email server','easy-form-builder'), //v2 
 			"beforeUsingYourEmailServers" => __('Before using your Email servers, you need to verify the status of e-mail servers and make sure that they are all running.','easy-form-builder'), //v2 
 			"clickToCheckEmailServer" => __('Click To Check Email Server','easy-form-builder'), //v2 
@@ -421,7 +421,7 @@ class Create {
 			"setting" => __('Setting','easy-form-builder'), //v2 
 			"general" => __('General','easy-form-builder'), //v2 
 			"googleKeys" => __('Google Keys','easy-form-builder'), //v2 
-			"enterActivateCode" => __('Enter Activate Code','easy-form-builder'), //v2 
+			"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'), //v2 
 			"formSetting" => __('Form Settings','easy-form-builder'), //v2 
 			"up" => __('Up','easy-form-builder'), //v2
 			"red" => __('Red','easy-form-builder'), //v2 
