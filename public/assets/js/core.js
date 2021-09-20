@@ -356,12 +356,8 @@ function fun_render_view(val,check){
     exportView_emsFormBuilder =[];
     valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
     valj_efb= valueJson_ws
-    const p = calPLenEfb(len);
-    const len = valj_efb.length;
-    setTimeout(()=>{
-        document.getElementById('dropZone').innerHTML =create_form_efb()
-
-    },(len * (Math.log(len)) * p))
+  
+    previewFormEfb('run');
   // const vs=ajax_object_efm.form_setting.setting;
    //console.log('ajax_object_efm',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
     //console.log(valueJson_ws);

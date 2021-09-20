@@ -192,7 +192,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<div id='body_emsFormBuilder'><div id='dropZone'><h1>Easy Form Builder</h1></div></div><div id='alert_efb' class='mx-5'></div>";
+	 	$content="<div id='body_efb' class='card card-public pb-3 efb'><h1 class='invisible'>Easy Form Builder</h1></div><div id='alert_efb' class='mx-5'></div>";
 		return $content; 
 		
 		// 
@@ -252,6 +252,7 @@ class _Public {
 				"by" => __('By','easy-form-builder'),
 				"sending" => __('Sending','easy-form-builder'), //v2 
 				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
+				"finish" => __('Finish','easy-form-builder'), //v2 
 				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
 
 				];
@@ -298,9 +299,30 @@ class _Public {
 			wp_register_style( 'Emsfb-css-rtl',  plugins_url('../public/assets/css/style-rtl.css',__FILE__), true);
 			wp_enqueue_style( 'Emsfb-css-rtl' );
 		}
+
+		/* v2 */
+
+
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-css');
+
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-icons-css');
+		
+		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
+		wp_enqueue_style('Emsfb-bootstrap-select-css');
+		
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
+		wp_enqueue_style('Emsfb-style-css');
+
+
+
+		/* end v2 */
 		//v2
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
 		wp_enqueue_script('efb-main-js'); 
+
+		
 	
 		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
 /* 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
@@ -335,8 +357,8 @@ class _Public {
 		wp_enqueue_script('core_js');
 
 		//source:https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css
-		wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
-		wp_enqueue_style( 'bootstrap-multiselect-css' );
+		/* wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
+		wp_enqueue_style( 'bootstrap-multiselect-css' ); */
 
 
 

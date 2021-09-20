@@ -1708,9 +1708,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   amount_el_efb = editState == false ? amount_el_efb + 1 : valj_efb[indexVJ].amount;
   element_name = editState == false ? elementId : valj_efb[indexVJ].name;
   let optn = '<!-- options -->';
-  console.log(`step_el_efb[${step_el_efb}] steps[${valj_efb[0].steps}] elemat[${elementId}]`)
+  console.log(`step_el_efb[${step_el_efb}] steps[${valj_efb[0].steps}] elemat[${elementId}]`,previewSate)
   step_el_efb >= 1 && editState == false && elementId == "steps" ? step_el_efb = step_el_efb + 1 : 0;
-  if (editState != false) {
+  if (editState != false && previewSate!=true) {
     step_el_efb = valj_efb[0].steps;
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZone')
@@ -2446,7 +2446,7 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
-  console.log(state, id, state == 0 ? 'd-block' : 'd-none', 'previewMobile')
+  console.log(state, id, state == 0 ? 'd-block' : 'd-none')
 
 
   const stng = `  <div class="col-sm-10 efb">
@@ -2476,7 +2476,8 @@ let add_buttons_zone_efb = (state, id) => {
   } else {
     c = `<div class="position-absolute row bottom-0 mx-5 translate-middle-x  showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
   }
-  if (id != 'preview') { document.getElementById(id).innerHTML += c } else {
+  console.log(id)
+  if (id != 'preview'  && id != 'body_efb') { document.getElementById(id).innerHTML += c } else {
     return c;
   }
 }
@@ -3601,3 +3602,229 @@ function send_data_efb(){
 
 
 
+function previewFormEfb(state){//v2
+  /* document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb('Save'); */
+  console.log('previewFormEfb', valj_efb)
+  let content = `<!--efb.app-->`
+  let step_no = 0;
+  let head = ``
+  let icons = ``
+  let pro_bar = ``
+  const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
+  //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`
+  //content =`<span class='efb row efb'>`
+  if (state != "show" && state !="run") {
+    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
+      show_modal_efb(`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.formNotFound}</p></div>`, efb_var.text.previewForm, '', 'saveBox');
+      myModal.show();
+      return;
+    }
+    if(state =="pc"){
+      show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
+      myModal.show();
+    }
+  }
+  const len = valj_efb.length;
+  const p = calPLenEfb(len)
+  console.log(len , valj_efb);
+  setTimeout(() => {
+
+    //const  valj_efb_ = valj_efb.sort((a,b) => (a.amount - b.amount))
+    console.log(valj_efb)
+    //valj_efb=valj_efb_
+    try {
+      valj_efb.forEach((value, index) => {
+        console.log(index, value.step, value.amount, 'pre')
+        if (step_no < value.step && value.type == "step") {
+          step_no += 1;
+          head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  ${value.label_text_color} ">${value.name}</strong></li>`
+          content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `</fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
+          console.log(step_no, value.step, head, 'pre');
+
+          if (valj_efb[0].show_icon == false) { }
+        }
+        if (value.type == 'step') {
+          steps_index_efb.push(index)
+          //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="m-2 content-efb row">` 
+        } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
+          // content+='<div class="mb-3">'
+
+          content += addNewElement(value.type, value.id_, true, true);
+          //  content+=`<div id="${value.id_}_fb" class="m-2"></div></div>`
+
+        }
+      })
+      step_no += 1;
+
+      content += `</fieldset><fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
+      ${loading_messge_efb()}                
+      </fieldset>`
+      head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+    } catch(error) {
+      console.error(`Preview of Pc Form has an Error`,error)
+    }
+
+
+
+
+
+    if (content.length > 10) content += `</div>`
+
+    console.log(head);
+
+    head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="mb-2 px-2">${head}</ul>` : ''}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="progress mx-5"><div class="efb progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}
+    
+    `
+
+    document.getElementById(id).classList.add('pre-efb')
+    content = `  
+    <div class="px-0 pt-2 pb-0 my-1 col-12 text-center" id="view-efb">
+    <h4 id="title_efb" class="${valj_efb[1].label_text_color}">${valj_efb[1].name}</h4>
+    <p id="desc_efb" class="${valj_efb[1].message_text_color}">${valj_efb[1].message}</p>
+    
+     <form id="msform"> ${head} <div class="my-5 py-2 px-5">${content}</div> </form>
+    </div>
+    `
+
+    const t = valj_efb[0].steps == 1 ? 0 : 1;
+    if (state == 'pc') {
+      document.getElementById('dropZone').innerHTML = '';
+      show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+      add_buttons_zone_efb(t, 'settingModalEfb-body')
+    } else if (state == "mobile") {
+      const frame = `
+        <div class="smartphone">
+        <div class="content" >
+            <div id="parentMobileView">
+            <div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3>
+            </div>
+         
+        </div>
+        
+      </div> `
+      show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
+      ReadyElForViewEfb(content)
+
+
+    } else {
+      //778899
+      //state=="show"
+      //content is hold elemant and should added to a innerHTML
+      document.getElementById(id).innerHTML=content;
+      document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id)
+    }
+
+
+
+
+    // در اینجا ویژگی ها مربوط به نقشه و امضا و ستاره  و مولتی سلکت اضافه شود
+    try {
+      valj_efb.forEach((v, i) => {
+        console.log(v, i)
+        switch (v.type) {
+          case "maps":
+            initMap();
+            break;
+          case "esign":
+            console.log('CANVAS', v.id_)
+
+            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+            c2d_contex_efb.lineWidth = 5;
+            c2d_contex_efb.strokeStyle = "#000";
+
+            document.getElementById(`${v.id_}_`).addEventListener("mousedown", (e) => {
+              draw_mouse_efb = true;
+              c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+              canvas_id_efb = v.id_;
+              lastMousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e);
+              console.log(canvas_id_efb, 'canvas')
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("mouseup", (e) => {
+              draw_mouse_efb = false;
+
+              // const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
+              const value = document.getElementById(`${v.id_}-sig-data`).value;
+              console.log(value);
+              // const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
+              // console.log(o ,968)
+              // fun_sendBack_emsFormBuilder(o[0]);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
+
+            // touch event support for mobile
+            document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
+              // canvas_id_efb = el.dataset.code;
+              let touch = e.touches[0];
+              let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
+              canvas_id_efb = v.id_;
+              c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
+              mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
+              let touch = e.touches[0];
+              let ms = new MouseEvent("mousedown", {
+                clientY: touch.clientY,
+                clientX: touch.clientX
+              });
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+            }, false);
+
+            document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
+              let ms = new MouseEvent("mouseup", {});
+              document.getElementById(`${v.id_}_`).dispatchEvent(ms);
+              const value = document.getElementById(`${v.id_}-sig-data`).value;
+            }, false);
+
+            (function drawLoop() {
+              requestAnimFrame(drawLoop);
+              renderCanvas_efb(v.id_);
+            })();
+            break;
+          case "multiselect":
+            jQuery(function () {
+              jQuery('.selectpicker').selectpicker();
+            });
+            setTimeout(() => {
+              //const v = valj_efb.find(x=>x.id_==rndm);
+              const opd = document.querySelector(`[data-id='${v.id_}_options']`)
+              console.log(v, `"timeout" ${v.corner} ${v.el_border_color} ${v.el_text_size}`, opd)
+              opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
+            }, 350);
+            // document.querySelector(`[data-id='${v.id_}_options']`).className += `efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
+            break;
+          case "rating":
+            /*    const rate_efbs = document.querySelector(` [data-id='${v.id_}-el']`)
+               for(let rate_efb of rate_efbs){
+                // console.log(rate_efb.value, v ,rate_efb);
+                 rate_efb.addEventListener("click", (e)=> {
+                     console.log(rate_efb.value, v.id_ ,rate_efb);
+                       document.getElementById(`${v.id_}-stared`).innerHTML = rate_efb.value;
+                   })
+               }  */
+            break;
+          case "dadfile":
+            set_dadfile_fun_efb(v.id_, i)
+            break;
+
+        }
+      })
+    } catch {
+      console.error(`Preview of Pc Form has an Error`)
+    }
+    if (state != 'mobile') handle_navbtn_efb(valj_efb[0].steps, 'pc')
+
+   // if (state != "show") myModal.show();
+   step_el_efb=valj_efb[0].steps;
+  // console.log(`step_el_efb[${step_el_efb}] js[${valj_efb[0].steps}]`)
+  }, (len * (Math.log(len)) * p)) //nlogn
+  //funSetPosElEfb(valj_efb[v].dataId ,valj_efb[v].label_position)
+  // وقتی پنجره پیش نمایش بسته شد دوباره المان ها اضافه شود به دارگ زون
+  // تابع اضافه کردن
+  //editFormEfb()
+}//end function v2
