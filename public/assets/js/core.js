@@ -38,11 +38,12 @@ jQuery (function() {
     if(typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder =ajax_object_efm.poster;
     efb_var=ajax_object_efm
+    console.log('efb_Var');
     //console.log("poster_emsFormBuilder",ajax_object_efm);
   //  console.log(ajax_object_efm.rtl,'return');
     if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
       form_type_emsFormBuilder=ajax_object_efm.type;
-      console.log(form_type_emsFormBuilder);
+     
       if(ajax_object_efm.type!="userIsLogin"){
         const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       
@@ -61,6 +62,7 @@ jQuery (function() {
      
       if(ajax_object_efm.state=='form'){
         //console.log("id",ajax_object_efm.id);
+        console.log(ajax_object_efm)
         fun_render_view(ajax_object_efm.ajax_value,1);
       }else if (ajax_object_efm.state=='tracker'){
         //console.log("tracker");
@@ -349,13 +351,21 @@ var opetionSelect_emsFormBuilder = function(data){
 /* new code multiSelect end */
 
 function fun_render_view(val,check){
+  console.log(val)
     let options_multiSelect=[];
     exportView_emsFormBuilder =[];
     valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
+    valj_efb= valueJson_ws
+    const p = calPLenEfb(len);
+    const len = valj_efb.length;
+    setTimeout(()=>{
+        document.getElementById('dropZone').innerHTML =create_form_efb()
+
+    },(len * (Math.log(len)) * p))
   // const vs=ajax_object_efm.form_setting.setting;
    //console.log('ajax_object_efm',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
     //console.log(valueJson_ws);
-    if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
+ /*    if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
     formName = valueJson_ws[0].formName
     console.log(valueJson_ws[0].steps);
     for (let v of valueJson_ws) {
@@ -597,7 +607,7 @@ function fun_render_view(val,check){
           field:ajax_object_efm.text.field});
       }
     }
-    
+     */
 
  
     
@@ -2119,3 +2129,6 @@ function noti_message_efb(title, message, sec ,alert) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   jQuery('.alert').alert()
 }
+
+
+

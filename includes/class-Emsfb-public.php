@@ -192,7 +192,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<div id='body_emsFormBuilder'><h1></h1><div>";
+	 	$content="<div id='body_emsFormBuilder'><div id='dropZone'><h1>Easy Form Builder</h1></div></div><div id='alert_efb' class='mx-5'></div>";
 		return $content; 
 		
 		// 
@@ -298,24 +298,22 @@ class _Public {
 			wp_register_style( 'Emsfb-css-rtl',  plugins_url('../public/assets/css/style-rtl.css',__FILE__), true);
 			wp_enqueue_style( 'Emsfb-css-rtl' );
 		}
+		//v2
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
+		wp_enqueue_script('efb-main-js'); 
 	
 		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
 /* 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap4-6-0-css' );
-
 		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
 		wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
 		wp_enqueue_style('Font_Awesome-5');
-
 		//source : https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
 		wp_register_style('Font_Awesome-4', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 		wp_enqueue_style('Font_Awesome-4');
-
 		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0
 		wp_register_style( 'choices-css',  plugins_url('../public/assets/css/choices.min.css',__FILE__), true );
 		wp_enqueue_style( 'choices-css' );
-
-
 		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
 		wp_register_style( 'font-awesome-animation-css',  plugins_url('../public/assets/css/font-awesome-animation.min.css',__FILE__), true );
 		wp_enqueue_style( 'font-awesome-animation-css' ); */
@@ -359,8 +357,7 @@ class _Public {
 		wp_enqueue_style('Emsfb-style-css');
 
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
-		wp_enqueue_script('efb-main-js'); 
+
 		/* end v2 */
 
 		
@@ -495,7 +492,6 @@ class _Public {
 								error_log("---------");
 								error_log($value->id_);
 								error_log($value->value);
-
 								foreach($value as $key=>$val){
 									if ($key=="id_"){
 										if($val=='usernameRegisterEFB') $state =0;
@@ -1069,7 +1065,7 @@ class _Public {
  	// error_log(gettype($value));
 	$rtrn;
 	$siteKey;
-	$trackingCode;
+	$trackingCode ="";
 
 	
 	if(count($value)>0){

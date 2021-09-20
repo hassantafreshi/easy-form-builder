@@ -7,8 +7,7 @@ let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
 let steps_index_efb = [] // hold index of steps
-let valj_efb = [];
-let formName_Efb = efb_var.text.form
+let valj_efb = []; 
 let pro_test = false
 let maps_efb = [];
 
@@ -18,6 +17,10 @@ let c2d_contex_efb
 let lastMousePostion_efb = mousePostion_efb;
 let canvas_id_efb = "";
 let fileEfb;
+let formName_Efb ;
+setTimeout(()=>{formName_Efb = efb_var.text.form
+  console.log(efb_var ,valj_efb)
+},500)
 //اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
 
 
@@ -2738,11 +2741,12 @@ async function previewFormMobileEfb() {
 }
 
 function create_form_efb() {
-
+  console.log('create_form_efb')
   let content = `<!--efb.app-->`
   let step_no = 0;
   let head = ``
   const len = valj_efb.length;
+  console.log(valj_efb);
   const p = calPLenEfb(len)
 
 
@@ -2781,8 +2785,8 @@ function create_form_efb() {
                </fieldset>
       `
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
-  } catch {
-    console.error(`Preview of Pc Form has an Error`)
+  } catch(error){
+    console.error(`Preview of Pc Form has an Error`,error)
   }
 
   if (content.length > 10) content += `</div>`
@@ -2794,7 +2798,7 @@ function create_form_efb() {
 
 
 
-  document.getElementById(`settingModalEfb_`).classList.add('pre-efb')
+ // if (document.getElementById(`settingModalEfb_`)) document.getElementById(`settingModalEfb_`).classList.add('pre-efb')
   content = `  
     <div class="px-0 pt-2 pb-0 my-1 col-12 text-center" id="view-efb">
     <h4 id="title_efb" class="${valj_efb[1].label_text_color}">${valj_efb[1].name}</h4>
@@ -3477,24 +3481,14 @@ function ReadyElForViewEfb(content) {
     console.log("val" ,valj_efb[0])
     console.log("val" ,valj_efb)
     </script>   
-    <link rel="stylesheet" href="https://merciful-useful-spider.glitch.me/bootstrap-select.css" />
-    <link href="https://merciful-useful-spider.glitch.me/bootstrap.min.css" rel="stylesheet">
-    <link href="https://merciful-useful-spider.glitch.me/style.css" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-
-  <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&language=en&libraries=&v=weekly&channel=2' id='googleMaps-js'></script>
+    
+ 
   </head>
     <body>
     ${content}
     ${btns}
   
-    <script src="https://merciful-useful-spider.glitch.me/bootstrap.min.js"><\/script>
-    <script src="https://merciful-useful-spider.glitch.me/bootstrap.bundle.min.js"><\/script>
-    <script src="https://merciful-useful-spider.glitch.me/bootstrap-select.min.js"><\/script>
-   
-    <script src="https://merciful-useful-spider.glitch.me/new.js"><\/script>
-    <script>
+  
     
    
     handle_navbtn_efb(${valj_efb[0].steps},'mobile')
