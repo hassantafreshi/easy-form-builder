@@ -582,7 +582,7 @@ function fun_ws_show_list_messages(value) {
          <th scope="row" class="">${v.track}</th>
          <td class="">${v.date}</td>
             <td> 
-            <button type="button" class="efb btn btn-comment btn-sm" >
+            <button type="button" class="efb btn btn-comment btn-sm" id="btn-m-${v.msg_id}" >
              ${Number(state) == 0 ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb ${iconRead} text-muted"></i> `}</button>
             </td>                               
             </tr>` ;
@@ -715,13 +715,13 @@ function fun_update_message_state_by_id(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        let iconRead = 'fa fa-envelope-open-o';
+        let iconRead = `<i class="efb bi-envelope-open text-muted"></iv>`;
         if (form_type_emsFormBuilder == 'subscribe') {
-          iconRead = 'fa fa-user-o';
+          iconRead = `<i class="efb bi-person text-muted"></iv>`;
         } else if (form_type_emsFormBuilder == 'register') {
-          iconRead = 'fa fa-user-o';
+          iconRead = `<i class="efb bi-person text-muted"></iv>`;
         }
-        document.getElementById(`icon-${id}`).className = iconRead;
+        document.getElementById(`btn-m-${id}`).innerHTML=iconRead;
         document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
         // console.log(res.data.ajax_value ,res);
         if (res.data.ajax_value != undefined) {

@@ -1347,14 +1347,14 @@ function actionSendData_emsFormBuilder(){
           //localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
-           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1`)
+           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Code:400-1`)
          
           /* 
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1</span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
          */
         }
-      }else if(res.data.r=="update" && res.data.success==true){
+      }else if(res.data.r=="update" || res.data.r=="updated" && res.data.success==true){
         show_message_result_form_set_EFB(2,res.data.value)
      /*    localStorage.removeItem('valueJson_ws_p');
         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${efb_var.text.formUpdated}</h1></br> <span>${efb_var.text.goodJob}, ${efb_var.text.formUpdatedDone}</span></br></br> <h3>${efb_var.text.formCode}: <b>${res.data.value}</b><h3></br> <input type="text" class="emsFormBuilder" value="${res.data.value}"> `;
@@ -1365,11 +1365,14 @@ function actionSendData_emsFormBuilder(){
         }) */
       }else{
         if(res.data.m==null || res.data.m.length>1){
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
-          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+          console.log(res.data)
+          show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Code:400-400`)
+          /* document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
+          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`; */
         }else{
-          document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
-          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+          show_message_result_form_set_EFB(0,res.data.value ,`${res.data.m},Code:400-400`)
+          /* document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
+          <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`; */
         }
        
       

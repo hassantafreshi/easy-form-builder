@@ -152,6 +152,53 @@ class _Public {
 				"noComment" => __('No comment','easy-form-builder'),
 				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
+				"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'), //v2 
+				"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'), //v2 		
+				"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 		
+				"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'), //v2 
+				"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 			
+				"default" => __('Default','easy-form-builder'), //v2 
+				"defaultValue" => __('Default value','easy-form-builder'), //v2 
+				"name" => __('Name','easy-form-builder'), //v2 
+				"latitude" => __('Latitude','easy-form-builder'), //v2 
+				"longitude" => __('Longitude','easy-form-builder'), //v2 
+				"previous" => __('Previous','easy-form-builder'), //v2 
+				"next" => __('next','easy-form-builder'), //v2 
+				"invalidEmail" => __('Invalid email address”','easy-form-builder'), //v2 
+				"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps in setting of plugin and try again.','easy-form-builder'), //v2 
+				"howToAddGoogleMap" => __('How to Add Google Map to Easy form Builder WordPress Plugin','easy-form-builder'), //v2 
+				"deletemarkers" => __('Delete markers','easy-form-builder'), //v2 
+				"updateUrbrowser" => __('update your browser','easy-form-builder'), //v2 
+				"stars" => __('Stars','easy-form-builder'), //v2 
+				"nothingSelected" => __('Nothing selected','easy-form-builder'), //v2 
+				"availableProVersion" => __('Available in pro version','easy-form-builder'), //v2 
+				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
+				"finish" => __('Finish','easy-form-builder'), //v2 
+
+				"select" => __('Select','easy-form-builder'), //v2 
+				"up" => __('Up','easy-form-builder'), //v2 
+				"red" => __('Red','easy-form-builder'), //v2 
+				"Red" => __('Red','easy-form-builder'), //v2 
+				"sending" => __('Sending','easy-form-builder'), //v2 
+				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
+			
+
+				"name" => __('Name','easy-form-builder'), //v2 
+				"add" => __('Add','easy-form-builder'), //v2 
+				"error" => __('error','easy-form-builder'), //v2 
+				"code" => __('Code','easy-form-builder'), //v2 
+				"star" => __('Star','easy-form-builder'), //v2 
+				"form" => __('Form','easy-form-builder'), //v2
+				"black" => __('Black','easy-form-builder'), //v2  
+				"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
+				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
+				"ddate" => __('Date','easy-form-builder'),//v2
+				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
+				"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
+				"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+				"done" => __('Done','easy-form-builder'),//vs2
+				"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'), //v2 
+				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),//v2
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
@@ -192,7 +239,13 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<div id='body_efb' class='card card-public pb-3 efb'><h1 class='invisible'>Easy Form Builder</h1></div><div id='alert_efb' class='mx-5'></div>";
+	 	$content="<div id='body_efb' class='card card-public pb-3 efb'>
+		 <div class='text-center'>
+		 <div class='lds-hourglass efb text-center'></div><h2 class='efb text-center text-darkb'>".__('Please Waiting','easy-form-builder')."</h2>
+		 </div>
+		 <p class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</p> 
+		 </div><div id='alert_efb' class='mx-5'></div>
+		 <script>let sitekye_emsFormBuilder='".$stng->sitekey."'</script>";
 		return $content; 
 		
 		// 
@@ -254,6 +307,7 @@ class _Public {
 				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
 				"finish" => __('Finish','easy-form-builder'), //v2 
 				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
+				"error" => __('error','easy-form-builder'), //v2 
 
 				];
 		
@@ -392,7 +446,8 @@ class _Public {
 		// نمونه اصلی
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
-		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB', null , null, true);
+		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB&render=explicit#asyncload', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
 				wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
@@ -410,7 +465,7 @@ class _Public {
 
 
 	  public function get_ajax_form_public(){
-	//	error_log('get_ajax_form_public');
+		error_log('get_ajax_form_public');
 		
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
@@ -423,6 +478,18 @@ class _Public {
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
 		$email=get_option('admin_email');
+
+		$this->id = sanitize_text_field($_POST['id']);
+		$table_name = $this->db->prefix . "Emsfb_form";
+		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+		$fs =str_replace('\\', '', $this->value[0]->form_structer);
+		error_log($fs);
+		$formObj= json_decode($fs,true);
+		
+		error_log($formObj[0]['captcha']);
+		
+		error_log('db');
+		
 		if(true){
 			$not_captcha=true;
 			$captcha_success;
@@ -434,18 +501,23 @@ class _Public {
 					//error_log('pro == true');
 					$pro=true;
 				}
+				error_log($_POST['valid']);
 				$response=$_POST['valid'];
 				
 				$args = array(
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				
-				if(strlen($secretKey)>3){
-					$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-						//error_log(json_encode($verify));
+				if($formObj[0]['captcha']==true){
+					if(strlen($secretKey)>5){
+						$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+							//error_log(json_encode($verify));
 						$captcha_success =json_decode($verify['body']);
-					$not_captcha=false;	 
+						$not_captcha=false;	 
+					}else{
+						//secretkey is not valid
+						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key' , 'easy-form-builder')); 
+					}
 				}
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
@@ -454,12 +526,14 @@ class _Public {
 		error_log($captcha_success->succes);
 		error_log($not_captcha); */
 		if ($not_captcha==false && $captcha_success->success==false  ) {
-		  $response = array( 'success' => false  , 'm'=>__('Error, Captcha has been errored!' , 'easy-form-builder')); 
+		  $response = array( 'success' => false  , 'm'=>__('Error, Captcha problem!' , 'easy-form-builder')); 
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}else if ( $not_captcha==true || $captcha_success->success==true) {
-			//error_log('code');
-			//error_log($not_captcha);
+			 error_log('code');
+			 error_log($_POST['value']);
+			 error_log($_POST['name']);
+			 error_log($_POST['id']);
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>__("Please enter a vaild value" , 'easy-form-builder')); 
 				wp_send_json_success($response,$_POST);
@@ -481,7 +555,7 @@ class _Public {
 						case "form":
 							
 							$this->get_ip_address();
-							//$ip = $this->ip;
+							$ip = $this->ip;
 							$check=	$this->insert_message_db();
 							
 				

@@ -56,14 +56,14 @@ class Admin {
             add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //یک فرم بر اساس ي دی حذف می کند
             add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   // اطلاعات یک فرم را بر اساسا آی دی بر می گرداند
             add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);           // اطلاعات یک مسیج را بر می گرداند بر اساس ای دی
-            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   // اطلاعات یک مسیج را بر می گرداند بر اساس ای دی
+            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   // اطلاعات همه مسیج را بر می گرداند بر اساس ای دی
             add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);                //فرم را بروز رسانی می کند
             add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']); // وضععیت پیام را بروز رسانی می کند وضعیت خوانده شدن
             add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);   // پاسخ ادمین را در دیتابیس ذخیره می کند
             add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                   // پاسخ ادمین را در دیتابیس ذخیره می کند
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
-            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);                 //فایل های غیر ضروری را پاک می کند
+            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل
 
         }
 

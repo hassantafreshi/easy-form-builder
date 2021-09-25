@@ -413,7 +413,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
-			
+			<script>let sitekye_emsFormBuilder="<?php $stng->sitekey ?>"</script>;
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
