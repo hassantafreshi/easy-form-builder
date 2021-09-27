@@ -137,8 +137,7 @@ class Panel_edit  {
 				"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 				"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),			
 				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
 				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),			
@@ -306,7 +305,7 @@ class Panel_edit  {
 				"mobilePreview" => __('Mobile Preview','easy-form-builder'), //v2 
 				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
 				"finish" => __('Finish','easy-form-builder'), //v2 
-				"dragAndDropA" => __('Drag & Drop a','easy-form-builder'), //v2 
+				"dragAndDropA" => __('Drag & Drop the','easy-form-builder'), //v2 
 				"browseFile" => __('Browse File','easy-form-builder'), //v2 
 				"removeTheFile" => __('Remove the file','easy-form-builder'), //v2 
 				"enterAPIKey" => __('Enter API KEY','easy-form-builder'), //v2 
@@ -331,6 +330,7 @@ class Panel_edit  {
 				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
 				"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
 				"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 
 				
 				//v2 translate end
@@ -413,7 +413,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
-			<script>let sitekye_emsFormBuilder="<?php $stng->sitekey ?>"</script>;
+			<script>let sitekye_emsFormBuilder="<?php if($stng->sitekey) $stng->sitekey ?>" </script>
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
@@ -503,7 +503,7 @@ class Panel_edit  {
 					'user_ip'=> $ip,
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
-					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png'
+					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg'
 					
 				));
 					

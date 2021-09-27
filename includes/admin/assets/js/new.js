@@ -8,7 +8,7 @@ let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
 let steps_index_efb = [] // hold index of steps
 let valj_efb = []; 
-let pro_test = false
+let pro_efb = false
 let maps_efb = [];
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
@@ -21,8 +21,11 @@ let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
 
-setTimeout(()=>{formName_Efb = efb_var.text.form
-  console.log(efb_var ,valj_efb)
+
+setTimeout(()=>{
+  formName_Efb = efb_var.text.form
+  pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
+  
 },500)
 //اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
 
@@ -86,7 +89,7 @@ function creator_form_builder_Efb() {
   for (let ob of objct) {
     els += `
     <div class="col-3 draggable-efb" draggable="true" id="${ob.id}">
-     ${ob.pro == true ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
+     ${ob.pro == true && pro_efb==false ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
       <button type="button" class="btn efb btn-select-form float-end" id="${ob.id}_b"><i class="efb ${ob.icon}"></i><span class="d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
@@ -336,7 +339,7 @@ function show_setting_window_efb(idset) {
 
   const fileTypeEls = `
         <label for="fileTypeEl" class="efb mt-3 bi-file-earmark-medical me-2 ">${efb_var.text.fileType}</label>
-        <select  data-id="${idset}" class="efb elEdit form-select"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">                                            
+        <select  data-id="${idset}" class="efb elEdit form-select border-d efb-rounded"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">                                            
         <option value="document" ${valj_efb[indx].type && valj_efb[indx].type == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
         <option value="image" ${valj_efb[indx].type && valj_efb[indx].type == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
         <option value="media" ${valj_efb[indx].type && valj_efb[indx].type == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
@@ -536,7 +539,7 @@ function show_setting_window_efb(idset) {
                       ${ElementAlignEls('label')}
                       ${ElementAlignEls('description')}
                       ${widthEls}     
-                      ${selectHeightEls()}                 
+                    <!--  //{$selectHeightEls()}                 -->
                       ${classesEls}
                       </div>
                   </div>
@@ -797,434 +800,437 @@ function show_setting_window_efb(idset) {
 
 let change_el_edit_Efb = (el) => {
   const indx = el.dataset.id != "button_group" ? valj_efb.findIndex(x => x.dataId == el.dataset.id) : 0;
+  const len_Valj =valj_efb.length;
   let clss = ''
   let postId
   console.log(el)
-  switch (el.id) {
-    case "labelEl":
-      valj_efb[indx].name = el.value;
-      document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
-      break;
-    case "desEl":
-      valj_efb[indx].message = el.value;
-      document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
-      break;
-    case "adminFormEmailEl":
-      if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
-      {
-        valj_efb[0].email = el.value;
-        return true;
-      }
-      else {
-        alert(efb_var.text.invalidEmail);
-      }
-
-      break;
-    case "requiredEl":
-      valj_efb[indx].required = el.checked
-      console.log(valj_efb[indx].id_, document.getElementById(`${valj_efb[indx].id_}_req`))
-      document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
-      const aId = {
-        email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
-        textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-        multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
-      }
-      postId = aId[valj_efb[indx].type]
-      id = valj_efb[indx].id_
-      console.log(id, aId)
-      document.getElementById(`${id}${postId}`).classList.toggle('required')
-      //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-      break;
-    case "SendemailEl":
-      valj_efb[0].sendEmail = el.checked
-      valj_efb[0].email_to = el.dataset.id.replace('-id', '');
-      break;
-    case "formNameEl":
-      valj_efb[0].formName = el.value
-      console.log(valj_efb[0])
-      break;
-    case "trackingCodeEl":
-      valj_efb[0].trackingCode = el.checked
-      break;
-    case "captchaEl":
-      valj_efb[0].captcha = el.checked
-      break;
-    case "showSIconsEl":
-      valj_efb[0].show_icon = el.checked
-      break;
-    case "showSprosiEl":
-      valj_efb[0].show_pro_bar = el.checked
-      break;
-    case "showformLoggedEl":
-      valj_efb[0].stateForm = el.checked
-      break;
-    case "placeholderEl":
-      document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
-
-      valj_efb[indx].placeholder = el.value;
-      break;
-    case "valueEl":
-      if (el.dataset.tag != 'yesNo') {
-        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
-        valj_efb[indx].value = el.value;
-      } else {
-        //yesNo
-        id = `${valj_efb[indx].id_}_${el.dataset.no}`
-        document.getElementById(id).value = el.value;
-        document.getElementById(`${id}_lab`).innerHTML = el.value;
-        el.dataset.no == 1 ? valj_efb[indx].button_1_text = el.value : valj_efb[indx].button_2_text = el.value
+  setTimeout(()=>{
+    switch (el.id) {
+      case "labelEl":
+        valj_efb[indx].name = el.value;
+        document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
+        break;
+      case "desEl":
+        valj_efb[indx].message = el.value;
+        document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+        break;
+      case "adminFormEmailEl":
+        if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
+        {
+          valj_efb[0].email = el.value;
+          return true;
+        }
+        else {
+          alert(efb_var.text.invalidEmail);
+        }
+  
+        break;
+      case "requiredEl":
+        valj_efb[indx].required = el.checked
+        console.log(valj_efb[indx].id_, document.getElementById(`${valj_efb[indx].id_}_req`))
+        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
+        const aId = {
+          email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
+          textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
+        }
+        postId = aId[valj_efb[indx].type]
+        id = valj_efb[indx].id_
+        console.log(id, aId)
+        document.getElementById(`${id}${postId}`).classList.toggle('required')
+        //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
+        break;
+      case "SendemailEl":
+        valj_efb[0].sendEmail = el.checked
+        valj_efb[0].email_to = el.dataset.id.replace('-id', '');
+        break;
+      case "formNameEl":
+        valj_efb[0].formName = el.value
+        console.log(valj_efb[0])
+        break;
+      case "trackingCodeEl":
+        valj_efb[0].trackingCode = el.checked
+        break;
+      case "captchaEl":
+        valj_efb[0].captcha = el.checked
+        break;
+      case "showSIconsEl":
+        valj_efb[0].show_icon = el.checked
+        break;
+      case "showSprosiEl":
+        valj_efb[0].show_pro_bar = el.checked
+        break;
+      case "showformLoggedEl":
+        valj_efb[0].stateForm = el.checked
+        break;
+      case "placeholderEl":
+        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
+  
+        valj_efb[indx].placeholder = el.value;
+        break;
+      case "valueEl":
+        if (el.dataset.tag != 'yesNo') {
+          document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
+          valj_efb[indx].value = el.value;
+        } else {
+          //yesNo
+          id = `${valj_efb[indx].id_}_${el.dataset.no}`
+          document.getElementById(id).value = el.value;
+          document.getElementById(`${id}_lab`).innerHTML = el.value;
+          el.dataset.no == 1 ? valj_efb[indx].button_1_text = el.value : valj_efb[indx].button_2_text = el.value
+          console.log(valj_efb[indx])
+          //value="${valj_efb[indx].button_1_text}"
+          console.log(el);
+        }
+        break;
+      case "classesEl":
+        const v = el.value.replace(` `, `,`);
+        //document.querySelector(`[data-id="${idset}"]`).classes=el.value;
+        valj_efb[indx].classes = v;
+        break;
+      case "sizeEl":
+        postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
+        const op = el.options[el.selectedIndex].value;
+        valj_efb[indx].size = op;
+        get_position_col_el(valj_efb[indx].dataId, true);
+        break;
+      case "cornerEl":
+        console.log(el.dataset.side)
+        const co = el.options[el.selectedIndex].value;
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          valj_efb[indx].corner = co;
+          postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
+          let cornEl = document.getElementById(postId);
+          console.log(co);
+          if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
+          //efb-square
+          console.log(`data-tag[${el.dataset.tag}]`, `${postId}options`, el.dataset.tag == 'select' || el.dataset.tag == 'multiselect', cornEl);
+          console.log(cornEl, cornEl.classList.contains('efb-square'));
+          cornEl.classList.toggle('efb-square')
+          if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
+  
+  
+        } else {
+          console.log('test', el.options[el.selectedIndex].value)
+          valj_efb[0].corner = co;
+          postId = document.getElementById('btn_send_efb');
+          console.log(postId)
+          postId.classList.toggle('efb-square')
+          document.getElementById('next_efb').classList.toggle('efb-square')
+          document.getElementById('prev_efb').classList.toggle('efb-square')
+        }
+        break;
+      case "labelFontSizeEl":
+        //console.log('label_text_sizeEl')
+        valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
+        let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
+        const sizef = el.options[el.selectedIndex].value
+        fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
+        if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
+        console.log(valj_efb[indx], indx)
+        break;
+      case "fileTypeEl":
+        valj_efb[indx].file = el.options[el.selectedIndex].value;
+        valj_efb[indx].value = el.options[el.selectedIndex].value;
+        document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${valj_efb[indx].file.toUpperCase()}`
         console.log(valj_efb[indx])
-        //value="${valj_efb[indx].button_1_text}"
-        console.log(el);
-      }
-      break;
-    case "classesEl":
-      const v = el.value.replace(` `, `,`);
-      //document.querySelector(`[data-id="${idset}"]`).classes=el.value;
-      valj_efb[indx].classes = v;
-      break;
-    case "sizeEl":
-      postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
-      const op = el.options[el.selectedIndex].value;
-      valj_efb[indx].size = op;
-      get_position_col_el(valj_efb[indx].dataId, true);
-      break;
-    case "cornerEl":
-      console.log(el.dataset.side)
-      const co = el.options[el.selectedIndex].value;
-      if (el.dataset.side == "undefined" || el.dataset.side == "") {
-        valj_efb[indx].corner = co;
-        postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-        let cornEl = document.getElementById(postId);
-        console.log(co);
-        if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
-        //efb-square
-        console.log(`data-tag[${el.dataset.tag}]`, `${postId}options`, el.dataset.tag == 'select' || el.dataset.tag == 'multiselect', cornEl);
-        console.log(cornEl, cornEl.classList.contains('efb-square'));
-        cornEl.classList.toggle('efb-square')
-        if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
-
-
-      } else {
-        console.log('test', el.options[el.selectedIndex].value)
-        valj_efb[0].corner = co;
-        postId = document.getElementById('btn_send_efb');
-        console.log(postId)
-        postId.classList.toggle('efb-square')
-        document.getElementById('next_efb').classList.toggle('efb-square')
-        document.getElementById('prev_efb').classList.toggle('efb-square')
-      }
-      break;
-    case "labelFontSizeEl":
-      //console.log('label_text_sizeEl')
-      valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
-      let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
-      const sizef = el.options[el.selectedIndex].value
-      fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
-      if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
-      console.log(valj_efb[indx], indx)
-      break;
-    case "fileTypeEl":
-      valj_efb[indx].file = el.options[el.selectedIndex].value;
-      valj_efb[indx].value = el.options[el.selectedIndex].value;
-      document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${valj_efb[indx].file.toUpperCase()}`
-      console.log(valj_efb[indx])
-      break;
-    case "btnColorEl":
-      console.log(valj_efb[indx]);
-      valj_efb[indx].button_color = el.options[el.selectedIndex].value;
-      console.log(clss, el.dataset.tag)
-      clss = el.options[el.selectedIndex].value;
-      if (indx != 0) {
-        if (el.dataset.tag != "yesNo") {
-          document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className, clss)
-        } else {
-          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, clss)
-          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, clss)
+        break;
+      case "btnColorEl":
+        console.log(valj_efb[indx]);
+        valj_efb[indx].button_color = el.options[el.selectedIndex].value;
+        console.log(clss, el.dataset.tag)
+        clss = el.options[el.selectedIndex].value;
+        if (indx != 0) {
+          if (el.dataset.tag != "yesNo") {
+            document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className, clss)
+          } else {
+            document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, clss)
+            document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, clss)
+          }
         }
-      }
-      else {
-        valj_efb[0].button_color = clss
-        document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className, clss)
-        document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className, clss)
-        document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className, clss)
-      }
-      console.log(valj_efb[indx])
-      break;
-    case "selectColorEl":
-      console.log(valj_efb[indx], el);
-
-      let color = ''
-      //valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
-      postId = ''
-      if (el.dataset.el == "label") {
-        valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
-        postId = valj_efb[indx].type != 'step' ? '_labG' : '_lab'
-      }
-      else if (el.dataset.el == "description") {
-        valj_efb[indx].message_text_color = el.options[el.selectedIndex].value;
-        postId = '-des'
-      }
-      else if (el.dataset.el == "icon") {
-        valj_efb[indx].icon_color = el.options[el.selectedIndex].value;
-        postId = '_icon'
-      } else if (el.dataset.el == "el") {
-        valj_efb[indx].el_text_color = el.options[el.selectedIndex].value;
-        postId = '_'
-      }
-      if (el.dataset.tag != "form" &&
-        ((el.dataset.tag == "select" && el.dataset.el != "el")
-          || (el.dataset.tag == "radio" && el.dataset.el != "el")
-          || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
-          || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
-          || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
-      ) {
-        document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, el.options[el.selectedIndex].value)
-      } else if (el.dataset.tag == "form") {
-        if (el.dataset.el != "icon" && el.dataset.el != "el") {
-          document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, el.options[el.selectedIndex].value)
-        } else if (el.dataset.el == "icon") {
-          document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
+        else {
+          valj_efb[0].button_color = clss
+          document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className, clss)
+          document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className, clss)
+          document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className, clss)
+        }
+        console.log(valj_efb[indx])
+        break;
+      case "selectColorEl":
+        console.log(valj_efb[indx], el);
+  
+        let color = ''
+        //valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
+        postId = ''
+        if (el.dataset.el == "label") {
+          valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
+          postId = valj_efb[indx].type != 'step' ? '_labG' : '_lab'
+        }
+        else if (el.dataset.el == "description") {
+          valj_efb[indx].message_text_color = el.options[el.selectedIndex].value;
+          postId = '-des'
+        }
+        else if (el.dataset.el == "icon") {
+          valj_efb[indx].icon_color = el.options[el.selectedIndex].value;
+          postId = '_icon'
         } else if (el.dataset.el == "el") {
-          document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, el.options[el.selectedIndex].value)
-
+          valj_efb[indx].el_text_color = el.options[el.selectedIndex].value;
+          postId = '_'
         }
-        //button_group_button_single_text
-      } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
-        const objOptions = valj_efb.filter(obj => {
-          return obj.parent === valj_efb[indx].id_
-        })
-        for (let obj of objOptions) {
-          let optin = document.getElementById(`${obj.id_}_lab`);
-          optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)
-          console.log(optin.className, el.options[el.selectedIndex].value)
-        }
-
-        //find list of options by id  from valueJson
-        // change color of el by id finded of
-      } else if (el.dataset.tag == "select") {
-        console.log(valj_efb[indx].id_);
-        const objOptions = valj_efb.filter(obj => {
-          return obj.parent === valj_efb[indx].id_
-        })
-        for (let obj of objOptions) {
-          try {
-            let optin = document.querySelector(`[data-op="${obj.id_op}"]`);
-            optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)
-            console.log(optin.className, el.options[el.selectedIndex].value, optin.value, obj)
-          } catch {
-            console.log('catch error')
+        if (el.dataset.tag != "form" &&
+          ((el.dataset.tag == "select" && el.dataset.el != "el")
+            || (el.dataset.tag == "radio" && el.dataset.el != "el")
+            || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
+            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
+        ) {
+          document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, el.options[el.selectedIndex].value)
+        } else if (el.dataset.tag == "form") {
+          if (el.dataset.el != "icon" && el.dataset.el != "el") {
+            document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, el.options[el.selectedIndex].value)
+          } else if (el.dataset.el == "icon") {
+            document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
+          } else if (el.dataset.el == "el") {
+            document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, el.options[el.selectedIndex].value)
+  
           }
-        }
-
-        //find list of options by id  from valueJson
-        // change color of el by id finded of
-      } else if (el.dataset.tag == "yesNo") {
-        console.log('')
-        document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, el.options[el.selectedIndex].value)
-        document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, el.options[el.selectedIndex].value)
-
-      }
-      console.log(valj_efb[indx], document.getElementById(`${valj_efb[indx].id_}${postId}`), postId)
-      break;
-
-    case "selectBorderColorEl":
-      console.log(indx, valj_efb[indx].el_border_color, el.options[el.selectedIndex].value)
-      valj_efb[indx].el_border_color = el.options[el.selectedIndex].value;
-      postId = '_'
-
-      if (el.dataset.tag == "dadfile") { postId = "_box" }
-      else if (el.dataset.tag == "multiselect" || el.dataset.tag == "select") { postId = "_options" }
-      //console.log('selectBorderColorEl',el.options[el.selectedIndex].value,document.getElementById(`${valj_efb[indx].id_}${postId}`).className)
-      // setTimeout(()=>{ document.getElementById('selectBorderColorEl').disabled =true },100)
-      //setAtrOfElefb('settingModalEfb-body','Waiting','alert-warning',5000)
-      setTimeout(() => {
-        const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);
-
-        //const l = document.getElementById(`${valj_efb[indx].id_}${postId}`);
-        const color = colorBorderChangerEfb(l.className, el.options[el.selectedIndex].value);
-        l.className = color;
-        console.log(color);
-      }, 100)
-      // document.getElementById('selectBorderColorEl').disabled =false
-      //setAtrOfElefb('selectBorderColorEl','Done','alert-info',7000)
-      break
-    case "selectHeightEl":
-      el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
-      console.log(valj_efb[indx].el_height, el.dataset.tag == "rating", el.dataset.tag);
-      let fsize = 'fs-6';
-      if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
-      else if (valj_efb[indx].el_height == 'h-xl-efb') { fsize = 'fs-4'; }
-      else if (valj_efb[indx].el_height == 'h-xxl-efb') { fsize = 'fs-3'; }
-      else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
-      else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
-      if (el.dataset.tag == "select") {
-        postId = `${valj_efb[indx].id_}_options`
-      } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
-        valj_efb[indx].label_text_size = fsize;
-        const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
-        setTimeout(() => {
+          //button_group_button_single_text
+        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
+          const objOptions = valj_efb.filter(obj => {
+            return obj.parent === valj_efb[indx].id_
+          })
           for (let obj of objOptions) {
-            console.log(`fsize is [${fsize}] height[${valj_efb[indx].el_height}]`)
-            valj_efb[indx].el_text_size = fsize;
-            document.getElementById(`${obj.id_}_lab`).className = inputHeightChangerEfb(document.getElementById(`${obj.id_}_lab`).className, el.options[el.selectedIndex].value)
-            document.getElementById(`${obj.id_}_lab`).className = inputHeightChangerEfb(document.getElementById(`${obj.id_}_lab`).className, fsize)
-            document.getElementById(obj.id_).className = inputHeightChangerEfb(document.getElementById(obj.id_).className, fsize)
-            console.log(`${document.getElementById(obj.id_).className}`, fsize)
-            //document.querySelector(`[data-id="${obj.dataId}"]`).className = fontSizeChangerEfb(document.querySelector(`[data-id='${obj.dataId}']`).className, )
+            let optin = document.getElementById(`${obj.id_}_lab`);
+            optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)
+            console.log(optin.className, el.options[el.selectedIndex].value)
           }
-        }, objOptions.length * 2);
-        break;
-
-      } else if (el.dataset.tag == "form") {
-        postId = `btn_send_efb`;
-        document.getElementById(`btn_send_efb`).className = inputHeightChangerEfb(document.getElementById(`btn_send_efb`).className, el.options[el.selectedIndex].value)
-        document.getElementById(`next_efb`).className = inputHeightChangerEfb(document.getElementById(`next_efb`).className, el.options[el.selectedIndex].value)
-        document.getElementById(`prev_efb`).className = inputHeightChangerEfb(document.getElementById(`prev_efb`).className, el.options[el.selectedIndex].value)
-        break;
-      } else if (el.dataset.tag == "maps") {
-        postId = `${valj_efb[indx].id_}-map`;
-      } else if (el.dataset.tag == "dadfile") {
-        postId = `${valj_efb[indx].id_}_box`;
-      } else if (el.dataset.tag == "multiselect") {
-        //h-xxl-efb
-        postId = `${valj_efb[indx].id_}_options`;
-        let msel = document.querySelector(`[data-id="${postId}"]`)
-        console.log(msel, fsize);
-        msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
-        msel.className = fontSizeChangerEfb(msel.className, fsize)
-        valj_efb[indx].el_text_size = fsize
-      } else if (el.dataset.tag == "rating") {
-        postId = valj_efb[indx].id_;
-        setTimeout(() => {
-          const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
-          console.log(postId, newClass, document.getElementById(`${postId}_star1`).className, "rating")
-          document.getElementById(`${postId}_star1`).className = newClass;
-          document.getElementById(`${postId}_star2`).className = newClass;
-          document.getElementById(`${postId}_star3`).className = newClass;
-          document.getElementById(`${postId}_star4`).className = newClass;
-          document.getElementById(`${postId}_star5`).className = newClass;
-        }, 10);
-        break;
-      } else if (el.dataset.tag == "switch") {
-        postId = `${valj_efb[indx].id_}-switch`;
-      } else if (el.dataset.tag == "yesNo") {
-        setTimeout(() => {
-          postId = `${valj_efb[indx].id_}_b_1`;
-          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-          postId = `${valj_efb[indx].id_}_b_2`;
-          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-        }, 10);
-        break;
-      } else {
-        console.log(el.id, valj_efb[indx].el_text_color)
-        postId = `${valj_efb[indx].id_}_`
-      }
-      setTimeout(() => {
-        document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-      }, 10)
-
-      console.log(valj_efb[indx], document.getElementById(`${valj_efb[indx].id_}${postId}`), postId)
-      break;
-    case 'SingleTextEl':
-      let iidd = ""
-      if (el.dataset.side == "undefined" || el.dataset.side == "") {
-        // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
-        iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
-        valj_efb[indx].icon = el.value;
-      } else {
-        console.log(el.dataset.side)
-        iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
-        el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
-      }
-      console.log(valj_efb[indx], iddd, document.getElementById(iddd));
-      document.getElementById(iddd).innerHTML = el.value;
-      break;
-    case 'iconEl':
-      console.log(valj_efb[indx].id_);
-      let di = '';
-      if (el.dataset.side == "undefined" || el.dataset.side == "") {
-        di = indx != 0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon`;
-        valj_efb[indx].icon = el.value;
-      } else {
-        console.log(el.dataset.side)
-        di = el.dataset.side == "Next" ? `button_group_Next_icon` : `button_group_Previous_icon`
-        el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = el.value : valj_efb[0].button_Previous_icon = el.value
-      }
-      console.log(valj_efb[indx]);
-      document.getElementById(`${di}`).className = `${el.value} me-2`;
-      break;
-    case 'marksEl':
-      valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
-      console.log(valj_efb[indx]);
-      break;
-    case 'letEl':
-      const lat = parseFloat(el.value);
-      const lon = parseFloat(document.getElementById('lonEl').value)
-      console.log(lat, lon, typeof lat)
-      map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-        center: { lat: lat, lng: lon },
-        zoom: 8,
-      })
-      valj_efb[indx].lat = lat;
-      console.log(valj_efb[indx]);
-      break;
-    case 'lonEl':
-      const lonLoc = parseFloat(el.value);
-      const letLoc = parseFloat(document.getElementById('letEl').value)
-      map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-        center: { lat: letLoc, lng: lonLoc },
-        zoom: 8,
-      })
-      valj_efb[indx].lng = lonLoc;
-      console.log(valj_efb[indx]);
-      break;
-    case 'EditOption':
-      el.dataset.id;
-      const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-      console.log(el.dataset.id, valj_efb, valj_efb[iindx]);
-
-      if (iindx != -1) {
-        valj_efb[iindx].value = el.value;
-        if (el.dataset.tag == "select" || el.dataset.tag == "multiselect") {
-          //Select
-          document.querySelector(`[data-op="${el.dataset.id}"]`).innerHTML = el.value;
-          document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-        } else {
-          //radio || checkbox
-          console.log(el.dataset.id)
-          document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-          document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+  
+          //find list of options by id  from valueJson
+          // change color of el by id finded of
+        } else if (el.dataset.tag == "select") {
+          console.log(valj_efb[indx].id_);
+          const objOptions = valj_efb.filter(obj => {
+            return obj.parent === valj_efb[indx].id_
+          })
+          for (let obj of objOptions) {
+            try {
+              let optin = document.querySelector(`[data-op="${obj.id_op}"]`);
+              optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)
+              console.log(optin.className, el.options[el.selectedIndex].value, optin.value, obj)
+            } catch {
+              console.log('catch error')
+            }
+          }
+  
+          //find list of options by id  from valueJson
+          // change color of el by id finded of
+        } else if (el.dataset.tag == "yesNo") {
+          console.log('')
+          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, el.options[el.selectedIndex].value)
+  
         }
-        el.setAttribute('value', valj_efb[iindx].value);
-        el.setAttribute('defaultValue', valj_efb[iindx].value);
-      }
-      break;
-    case "htmlCodeEl":
-      console.log('htmlCodeEl');
-      postId = valj_efb.findIndex(x => x.id_ == el.dataset.id);
-      if (el.value.length > 2) {
-        document.getElementById(`${el.dataset.id}_html`).innerHTML = el.value;
-        document.getElementById(`${el.dataset.id}_html`).classList.remove('sign-efb')
-        valj_efb[postId].value = el.value;
-      } else {
+        console.log(valj_efb[indx], document.getElementById(`${valj_efb[indx].id_}${postId}`), postId)
+        break;
+  
+      case "selectBorderColorEl":
+        console.log(indx, valj_efb[indx].el_border_color, el.options[el.selectedIndex].value)
+        valj_efb[indx].el_border_color = el.options[el.selectedIndex].value;
+        postId = '_'
+  
+        if (el.dataset.tag == "dadfile") { postId = "_box" }
+        else if (el.dataset.tag == "multiselect" || el.dataset.tag == "select") { postId = "_options" }
+  
+        setTimeout(() => {
+          const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);
+  
+          //const l = document.getElementById(`${valj_efb[indx].id_}${postId}`);
+          const color = colorBorderChangerEfb(l.className, el.options[el.selectedIndex].value);
+          l.className = color;
+          console.log(color);
+        }, 100)
+        // document.getElementById('selectBorderColorEl').disabled =false
+        //setAtrOfElefb('selectBorderColorEl','Done','alert-info',7000)
+        break
+      case "selectHeightEl":
+        el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
+        console.log(valj_efb[indx].el_height, el.dataset.tag == "rating", el.dataset.tag);
+        let fsize = 'fs-6';
+        if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
+        else if (valj_efb[indx].el_height == 'h-xl-efb') { fsize = 'fs-4'; }
+        else if (valj_efb[indx].el_height == 'h-xxl-efb') { fsize = 'fs-3'; }
+        else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
+        else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
+        if (el.dataset.tag == "select") {
+          postId = `${valj_efb[indx].id_}_options`
+        } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
+          valj_efb[indx].label_text_size = fsize;
+          const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
+          setTimeout(() => {
+            for (let obj of objOptions) {
+              console.log(`fsize is [${fsize}] height[${valj_efb[indx].el_height}]`)
+              valj_efb[indx].el_text_size = fsize;
+              let clslabel = document.getElementById(`${obj.id_}_lab`).className 
+              clslabel = inputHeightChangerEfb(clslabel, el.options[el.selectedIndex].value)
+              clslabel = inputHeightChangerEfb(clslabel, fsize)
+              document.getElementById(obj.id_).className = inputHeightChangerEfb(document.getElementById(obj.id_).className, fsize)
+              console.log(`fsize ${document.getElementById(obj.id_).className}`, fsize)
+              //document.querySelector(`[data-id="${obj.dataId}"]`).className = fontSizeChangerEfb(document.querySelector(`[data-id='${obj.dataId}']`).className, )
+            }
+          }, objOptions.length * len_Valj);
+          break;
+  
+        } else if (el.dataset.tag == "form") {
+          postId = `btn_send_efb`;
+          document.getElementById(`btn_send_efb`).className = inputHeightChangerEfb(document.getElementById(`btn_send_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`next_efb`).className = inputHeightChangerEfb(document.getElementById(`next_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`prev_efb`).className = inputHeightChangerEfb(document.getElementById(`prev_efb`).className, el.options[el.selectedIndex].value)
+          break;
+        } else if (el.dataset.tag == "maps") {
+          postId = `${valj_efb[indx].id_}-map`;
+        } else if (el.dataset.tag == "dadfile") {
+          postId = `${valj_efb[indx].id_}_box`;
+        } else if (el.dataset.tag == "multiselect") {
+          //h-xxl-efb
+          postId = `${valj_efb[indx].id_}_options`;
+          let msel = document.querySelector(`[data-id="${postId}"]`)
+          console.log(msel, fsize);
+          msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
+          msel.className = fontSizeChangerEfb(msel.className, fsize)
+          valj_efb[indx].el_text_size = fsize
+        } else if (el.dataset.tag == "rating") {
+          postId = valj_efb[indx].id_;
+          setTimeout(() => {
+            const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
+            console.log(postId, newClass, document.getElementById(`${postId}_star1`).className, "rating")
+            document.getElementById(`${postId}_star1`).className = newClass;
+            document.getElementById(`${postId}_star2`).className = newClass;
+            document.getElementById(`${postId}_star3`).className = newClass;
+            document.getElementById(`${postId}_star4`).className = newClass;
+            document.getElementById(`${postId}_star5`).className = newClass;
+          }, 10);
+          break;
+        } else if (el.dataset.tag == "switch") {
+          postId = `${valj_efb[indx].id_}-switch`;
+        } else if (el.dataset.tag == "yesNo") {
+          setTimeout(() => {
+            postId = `${valj_efb[indx].id_}_b_1`;
+            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+            postId = `${valj_efb[indx].id_}_b_2`;
+            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+          }, 10);
+          break;
+        } else {
+          console.log(el.id, valj_efb[indx].el_text_color)
+          postId = `${valj_efb[indx].id_}_`
+        }
+        setTimeout(() => {
+          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+        }, 10)
+  
+        console.log(valj_efb[indx], document.getElementById(`${valj_efb[indx].id_}${postId}`), postId)
+        break;
+      case 'SingleTextEl':
+        let iidd = ""
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
+          iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
+          valj_efb[indx].icon = el.value;
+        } else {
+          console.log(el.dataset.side)
+          iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
+          el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
+        }
+        console.log(valj_efb[indx], iddd, document.getElementById(iddd));
+        document.getElementById(iddd).innerHTML = el.value;
+        break;
+      case 'iconEl':
+        console.log(valj_efb[indx].id_);
+        let di = '';
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          di = indx != 0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon`;
+          valj_efb[indx].icon = el.value;
+        } else {
+          console.log(el.dataset.side)
+          di = el.dataset.side == "Next" ? `button_group_Next_icon` : `button_group_Previous_icon`
+          el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = el.value : valj_efb[0].button_Previous_icon = el.value
+        }
+        console.log(valj_efb[indx]);
+        document.getElementById(`${di}`).className = `${el.value} me-2`;
+        break;
+      case 'marksEl':
+        valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
+        console.log(valj_efb[indx]);
+        break;
+      case 'letEl':
+        const lat = parseFloat(el.value);
+        const lon = parseFloat(document.getElementById('lonEl').value)
+        console.log(lat, lon, typeof lat)
+        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+          center: { lat: lat, lng: lon },
+          zoom: 8,
+        })
+        valj_efb[indx].lat = lat;
+        console.log(valj_efb[indx]);
+        break;
+      case 'lonEl':
+        const lonLoc = parseFloat(el.value);
+        const letLoc = parseFloat(document.getElementById('letEl').value)
+        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+          center: { lat: letLoc, lng: lonLoc },
+          zoom: 8,
+        })
+        valj_efb[indx].lng = lonLoc;
+        console.log(valj_efb[indx]);
+        break;
+      case 'EditOption':
+        el.dataset.id;
+        const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        console.log(el.dataset.id, valj_efb, valj_efb[iindx]);
+  
+        if (iindx != -1) {
+          valj_efb[iindx].value = el.value;
+          if (el.dataset.tag == "select" || el.dataset.tag == "multiselect") {
+            //Select
+            document.querySelector(`[data-op="${el.dataset.id}"]`).innerHTML = el.value;
+            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+          } else {
+            //radio || checkbox
+            console.log(el.dataset.id)
+            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+          }
+          el.setAttribute('value', valj_efb[iindx].value);
+          el.setAttribute('defaultValue', valj_efb[iindx].value);
+        }
+        break;
+      case "htmlCodeEl":
+        console.log('htmlCodeEl');
+        postId = valj_efb.findIndex(x => x.id_ == el.dataset.id);
+        if (el.value.length > 2) {
+          document.getElementById(`${el.dataset.id}_html`).innerHTML = el.value;
+          document.getElementById(`${el.dataset.id}_html`).classList.remove('sign-efb')
+          valj_efb[postId].value = el.value;
+        } else {
+  
+          document.getElementById(`${el.dataset.id}_html`).classList.add('sign-efb')
+          document.getElementById(`${el.dataset.id}_html`).innerHTML = `
+            <div class="efb noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
+            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
+            <i class="efb bi-gear-fill text-success"></i></button> ${efb_var.text.andAddingHtmlCode}
+            </div>`
+          valj_efb[postId].value = '';
+  
+        }
+  
+        break;
+    }
 
-        document.getElementById(`${el.dataset.id}_html`).classList.add('sign-efb')
-        document.getElementById(`${el.dataset.id}_html`).innerHTML = `
-          <div class="efb noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
-          ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
-          <i class="efb bi-gear-fill text-success"></i></button> ${efb_var.text.andAddingHtmlCode}
-          </div>`
-        valj_efb[postId].value = '';
-
-      }
-
-      break;
-  }
+  },len_Valj*10)
 }
 
 
@@ -1315,7 +1321,7 @@ function show_delete_window_efb(idset) {
       confirmBtn.addEventListener("click", () => {
 
         activeEl_efb = 0;
-        if (pro_test == false) {
+        if (pro_efb == false) {
           step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
         }
 
@@ -1776,8 +1782,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     editState == false && valj_efb.length>2 ? step_el_efb+=1 :0;
   }
   console.log(step_el_efb, elementId)
-  if (editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_test == false && step_el_efb < 3) || pro_test == true)) { sampleElpush_efb(rndm, elementId); }
-  console.log(editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_test == false && step_el_efb < 3) || pro_test == true))
+  if (editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_efb == false && step_el_efb < 3) || pro_efb == true)) { sampleElpush_efb(rndm, elementId); }
+  console.log(editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_efb == false && step_el_efb < 3) || pro_efb == true))
   //const idd = editState==false && elementId=="steps" ? `${rndm}` : rndm
   let iVJ = editState == false ? valj_efb.length - 1 : valj_efb.findIndex(x => x.id_ == rndm);
   console.log(iVJ, valj_efb[iVJ])
@@ -1804,7 +1810,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>
-        <input type="${elementId}" class="efb input-efb mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}" value="${valj_efb[iVJ].value}" ${previewSate != true ? 'disabled' : ''}>
+        <input type="${elementId}" class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}" value="${valj_efb[iVJ].value}" ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       //  if(editState==false) sampleElpush_efb(rndm, elementId);
@@ -1828,7 +1834,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
        ${label}
         <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>        
-          <input type="${elementId}" class="efb input-efb emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
+          <input type="${elementId}" class="efb input-efb px-2 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
           ${desc}`
       dataTag = elementId;
 
@@ -1837,7 +1843,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
                 ${label}
                 <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>
-                <textarea  id="${rndm}_"  placeholder="${elementId}"  class="efb input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
+                <textarea  id="${rndm}_"  placeholder="${elementId}"  class="efb px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
                 ${desc}
             `
       dataTag = "textarea";
@@ -1880,7 +1886,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         for (const i of optns_obj) {
           optn += `<div class="efb form-check " id="${i.id_}-v">
           <input class="efb form-check-input emsFormBuilder_v ${valj_efb[iVJ].el_text_size} " data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
-          <label class="efb  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
+          <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
           </div>`
         }//end for 
 
@@ -1890,11 +1896,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optn = `
        <div class="efb form-check" id="${op_1}-v">
        <input class="efb emsFormBuilder_v form-check-input ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
-       <label class="efb  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
+       <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
        </div>
        <div class="efb form-check" id="${op_2}-v">
            <input class="efb emsFormBuilder_v form-check-input  ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
-           <label class="efb ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].el_height} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
+           <label class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
        </div>`
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
         optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2);
@@ -1977,9 +1983,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           <i class="efb bi-x-lg text-danger"></i>
           </button>`
       }
-      //(step_el_efb <=2|| step_el_efb > 2 ) && pro_test== true
+      //(step_el_efb <=2|| step_el_efb > 2 ) && pro_efb== true
       console.log(step_el_efb)
-      if (step_el_efb <= 2 || (step_el_efb > 2 && pro_test == true)) {
+      if (step_el_efb <= 2 || (step_el_efb > 2 && pro_efb == true)) {
         valj_efb[0].steps =editState==false ?  step_el_efb :valj_efb[0].steps 
         newElement += ` 
         <div class="efb row my-2  ${shwBtn} efbField stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
@@ -2127,7 +2133,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
     const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "url" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "date" || dataTag == "color" || dataTag == "html" || dataTag == "tel" || dataTag == "range" || dataTag == "yesNo") ? true : false;
-    console.log(dataTag, `${pro_test == false && pro_el}`);
+    console.log(dataTag, `${pro_efb == false && pro_el}`);
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb bi-gear-fill text-success"></i>
@@ -2146,9 +2152,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     newElement += `
     <div class=" my-2  ${shwBtn} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `col-md-10 row`} col-sm-12   efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
-    ${previewSate != true && pro_test == false && pro_el ? proActiv : ''}
+    ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
-    ${previewSate != true && pro_test == false && pro_el ? '</div>' : ''}
+    ${previewSate != true && pro_efb == false && pro_el ? '</div>' : ''}
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ` </button> </button> </div></div>` : '</div>'}
    
     
@@ -2157,7 +2163,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
     console.log(dataTag);
   } else if (dataTag == 'step' && previewSate != true) {
-    if (elementId == "steps" && pro_test == false && step_el_efb == 3) {
+    if (elementId == "steps" && pro_efb == false && step_el_efb == 3) {
       amount_el_efb = amount_el_efb - 1;
       step_el_efb = 2;
       valj_efb[0].steps = 2
@@ -2417,7 +2423,7 @@ function obj_resort_row(step) {
       }
     }
   }
-  /*   if(pro_test==false) step_el_efb = step_el_efb-1;
+  /*   if(pro_efb==false) step_el_efb = step_el_efb-1;
     valj_efb[0].steps = valj_efb[0].steps-1; */
   fub_shwBtns_efb()
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
@@ -2491,7 +2497,7 @@ const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-
 const colorBtnChangerEfb = (classes, color) => { return classes.replace(/(btn-select-form|btn-primary|btn-muted|btn-secondary|btn-pinkEfb|btn-success|btn-white|btn-light|text-colorDEfb|btn-danger|btn-warning|btn-info|btn-dark|btn-default)/, `${color}`); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-\w+/gi, `${color}`); }
 const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d-efb|h-l-efb|h-xl-efb|h-xxl-efb|h-xxxl-efb)/, `${value}`); }
-const fontSizeChangerEfb = (classes, value) => { return classes.replace(/(fs-7|fs-5|fs-4|fs-3|fs-6)/, `${value}`); }
+const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
@@ -2627,7 +2633,7 @@ const saveFormEfb = () => {
       icon =""
 
     } else {
-      if (pro_test == false) { proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true }
+      if (pro_efb == false) { proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true }
       for (let s = 1; s <= valj_efb[0].steps; s++) {
         const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");
         console.log(stepState, 'stepState', s, valj_efb.findIndex(x => x.step == s && x.type != "step"), stp, "while")
@@ -2783,7 +2789,7 @@ function create_form_efb() {
     step_no += 1;
     console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`)
     content += `
-                ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
+                ${sitekye_emsFormBuilder.length>1  ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 </fieldset>
     
                 <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
@@ -2959,6 +2965,7 @@ jQuery(function(jQuery){
     // document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb();
     if (jQuery('#settingModalEfb_').hasClass('save-efb')) {
       jQuery('#settingModalEfb_').removeClass('save-efb')
+     
 
     }
     if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
@@ -2971,6 +2978,9 @@ jQuery(function(jQuery){
     if (jQuery('#modal-footer-efb')) {
       jQuery('#modal-footer-efb').remove()
     }
+
+    var val = loading_messge_efb();
+   if(jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
 
   });
 });
@@ -3215,7 +3225,7 @@ function ui_dadfile_efb(indx, previewSate) {
   <button type="button" class="efb btn ${valj_efb[indx].button_color} btn-lg" id="${valj_efb[indx].id_}_b">
       <i class="efb bi-upload me-2"></i>${efb_var.text.browseFile}
   </button>
-  <input type="file" hidden="" data-type="dadfile" data-ID='${valj_efb[indx].id_}' class="efb emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
+  <input type="file" hidden="" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
 
 }
 
@@ -3276,7 +3286,8 @@ function viewfileEfb(id, indx) {
     }
     fileReader.readAsDataURL(fileEfb);
   } else {
-    alert("The file is not the right file type");
+    noti_message_efb('', efb_var.text.fileIsNotRight, 70 ,'danger')
+    
     document.getElementById(`${id}_box`).innerHTML.classList.remove("active");
     //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
   }
@@ -3380,9 +3391,11 @@ function handle_navbtn_efb(steps, device) {
         jQuery("#prev_efb").removeClass("d-none"); 
       }
       console.log()
-        if (current_s_efb==steps){
-        if(sitekye_emsFormBuilder && sitekye_emsFormBuilder.length>1)jQuery("#next_efb").toggleClass('disabled');
-        jQuery("#next_efb").text(efb_var.text.send);
+        if (current_s_efb==steps){            
+          if(sitekye_emsFormBuilder && sitekye_emsFormBuilder.length>1)jQuery("#next_efb").toggleClass('disabled');
+          var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${efb_var.text.send}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+          jQuery("#next_efb").html(val);
+         // `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         }
 
         /* 
@@ -3400,8 +3413,9 @@ function handle_navbtn_efb(steps, device) {
         
       }else if (cs==steps){
         console.log(cs , steps)
-        jQuery("#next_efb").text(efb_var.text.next);
-        //if(sitekye_emsFormBuilder.length>1)   jQuery("#next_efb").toggleClass('disabled');
+        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        jQuery("#next_efb").html(val);
+        if(sitekye_emsFormBuilder.length>1 )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       prev_s_efb = current_s.prev();
@@ -3432,7 +3446,7 @@ function handle_navbtn_efb(steps, device) {
       current_s_efb = current_s_efb-1;
       setProgressBar_efb(current_s_efb,steps_len_efb);
       if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
-      if(verifyCaptcha_efb.length>1 ) jQuery("#next_efb").toggleClass("d-none");
+     // if(verifyCaptcha_efb.length>1  ) jQuery("#next_efb").removeClass("disabled");
     });
 
 
@@ -3705,7 +3719,7 @@ function previewFormEfb(state){//v2
       step_no += 1;
      // console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`)
       content += `
-           ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
+           ${sitekye_emsFormBuilder.length>1? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
           </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
             ${loading_messge_efb()}                

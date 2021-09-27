@@ -108,8 +108,7 @@ class _Public {
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
 				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),				
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
 				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
@@ -199,10 +198,13 @@ class _Public {
 				"done" => __('Done','easy-form-builder'),//vs2
 				"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'), //v2 
 				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),//v2
+				"browseFile" => __('Browse File','easy-form-builder'), //v2 
+				"dragAndDropA" => __('Drag & Drop the','easy-form-builder'), //v2 
+				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
-				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png';
+				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 							
 				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
@@ -277,8 +279,7 @@ class _Public {
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
 				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
+				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),			
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
 				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
@@ -328,12 +329,12 @@ class _Public {
 			   'form_setting' => $stng,
 			   'user_name'=> wp_get_current_user()->display_name,
 			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png',
+			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<div id='body_tracker_emsFormBuilder'><h1></h1><div>";
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><h1></h1><div>";
 		return $content; 
 
 	}
@@ -469,7 +470,7 @@ class _Public {
 		
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Secure Error 403', 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security  error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -864,7 +865,7 @@ class _Public {
 	  public function get_ajax_track_public(){
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Secure Error 403', 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security  error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -990,6 +991,7 @@ class _Public {
 
 
 	public function file_upload_public(){
+		error_log('file_upload_public');
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
@@ -1009,12 +1011,13 @@ class _Public {
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 			//error_log($_FILES["file"]["name"]);			
-			$name = 'emsfb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			//error_log($name);
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));
 			//$upload = wp_upload_bits($_FILES["file"]["name"], null, file_get_contents($_FILES["file"]["tmp_name"]));
 			//$upload['url'] will gives you uploaded file path
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload , 'type'=>$_FILES['file']['type']); 
+			//error_log($upload);	
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
 			$response = array( 'success' => false  ,'error'=>__("File Permissions Error", 'easy-form-builder')); 
@@ -1031,7 +1034,7 @@ class _Public {
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Secure Error 403' , 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security  error 403' , 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}

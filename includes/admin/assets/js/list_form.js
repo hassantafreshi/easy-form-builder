@@ -4,6 +4,7 @@ let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
+const colors_efb =['#0013CB','#E90056','#7CEF00','#FFBA00','#FF3888','#526AFF','#FFC738','#A6FF38','#303563','#7D324E','#5D8234','#8F783A','#FB5D9D','#FFA938','#45B2FF','#A6FF38','#0011B4','#8300AD','#E9FB00','#FFBA00']
 
 jQuery(function () {
   //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
@@ -374,7 +375,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       if (c.type == "Image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
       } else if (c.type == "Document") {
-        value = `</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
+        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
       } else if (c.type == "Media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -393,7 +394,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }
       } else {
         //console.l(c.url ,c.url.length)
-        value = `</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
+        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
       }
     }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
@@ -1713,7 +1714,8 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     // console.log()
     opetionsOfCharts[t] = {
       'title': titles[t],
-      'height': 300
+      'height': 300,
+       colors:colors_efb
     };
     const countCol = colname[t].length;
     const rows = Array.from(Array(countCol), () => Array(2).fill(0));

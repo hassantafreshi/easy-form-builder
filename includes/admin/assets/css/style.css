@@ -187,6 +187,10 @@ border-radius: 20px!important;
 .modal-dialog.save-efb{
 max-width: 70%;
 } 
+
+#settingModalEfb_{
+    margin-left: 8%;
+}
 /* .modal-content2 {
 left: -79%!important;
 
@@ -1017,6 +1021,53 @@ font-size: 2.7rem!important;
 .efb.fs-2{
 font-size: 3.5rem!important;
 }
+
+
+.efb.fs-8.form-check-input {
+font-size: 0.7rem!important;;
+min-width: 0.7rem;
+height: 0.7rem;
+margin-top: 3px;
+}
+.efb.fs-7.form-check-input {
+/*  font-size: smaller; */
+font-size: 1rem!important;;
+min-width: 1rem;
+height: 1rem;
+margin-top: 4px;
+}
+.efb.fs-6.form-check-input{
+font-size: 1.2rem!important;
+min-width: 1.2rem;
+height: 1.2rem;
+margin-top: 6px;
+}
+.efb.fs-5.form-check-input{
+font-size: 1.5rem!important;
+min-width: 1.5rem;
+height: 1.5rem;
+margin-top: 8px;
+}
+.efb.fs-4.form-check-input{
+font-size: 2.0rem!important;
+min-width: 2rem;
+height: 2rem;
+margin-top: 10px;
+}
+.efb.fs-3.form-check-input{
+font-size: 2.7rem!important;
+min-width: 2.7rem;
+height: 2.7rem;
+margin-top: 12px;
+}
+.efb.fs-2.form-check-input{
+font-size: 3.5rem!important;
+min-width: 3.5rem;
+height: 3.5rem;
+margin-top: 14px;
+}
+
+
 /* font size of label end */
 
 /* modal */
@@ -1111,30 +1162,37 @@ input[type="textarea"].h-d-efb,textarea.h-d-efb{
     font-size: 0.9rem !important;
     
 }
+input[type=file].h-d-efb{
+  height: 40px;
+  font-size: 1.3rem !important; 
+ 
+
+    
+}
 input[type=file].h-l-efb{
     height: 4rem;
-    font-size: 2.1rem!important;
+    font-size: 2.3rem!important;
     
 }
 
 /* xlarge height size */
 input[type=file].h-xl-efb {
     height: 5rem;
-    font-size: 2.8rem!important;
+    font-size: 2.9rem!important;
    
 }
 
 /* xxlarge height size */
 input[type=file].h-xxl-efb {
     height: 6rem;
-    font-size: 3.4rem!important;
+    font-size: 3.6rem!important;
    
 }
 
 /* xxxlarge height size */
 input[type=file].h-xxxl-efb{
     height: 7rem;
-    font-size: 4.1rem!important;
+    font-size: 4.3rem!important;
    
 }
 

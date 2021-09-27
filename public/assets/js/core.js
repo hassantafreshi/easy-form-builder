@@ -26,38 +26,27 @@ let valueJson_ws = []
 
 jQuery (function() {
   //789 امنیت باید اضافه شود به این قسمت
-   
-     //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object_efm.ajax_value مقدار جی سون
-    //ajax_object_efm.language زبان بر می گرداند
-  //   console.log("ajax_object_efm_state",ajax_object_efm);
-    //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
-    //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
-    //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
-    
+
+    console.log(ajax_object_efm);
     if(typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder =ajax_object_efm.poster;
     efb_var=ajax_object_efm
-//    console.log('efb_Var' ,ajax_object_efm.ajax_value);
-    //console.log("poster_emsFormBuilder",ajax_object_efm);
-  //  console.log(ajax_object_efm.rtl,'return');
-  
-    const ajax_value = JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, ''));
-    console.log(ajax_value ,ajax_value[0].captcha==true)
-    if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
-      form_type_emsFormBuilder=ajax_object_efm.type;
-     
-      if(ajax_object_efm.type!="userIsLogin"){
-        const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
-      
-       if(ajax_value[0].captcha==true) sitekye_emsFormBuilder =vs.siteKey;
-        trackingCode_state_emsFormBuilder =vs.trackingCode;
-      }else{
-     //   console.log(ajax_object_efm)
+    if (ajax_object_efm.state!='tracker'){
+      const ajax_value = JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, ''));
+      if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
         form_type_emsFormBuilder=ajax_object_efm.type;
-      }
-      
+       
+        if(ajax_object_efm.type!="userIsLogin"){
+          const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+        
+         if(ajax_value[0].captcha==true) sitekye_emsFormBuilder =vs.siteKey;
+          trackingCode_state_emsFormBuilder =vs.trackingCode;
+        }else{
+       //   console.log(ajax_object_efm)
+          form_type_emsFormBuilder=ajax_object_efm.type;
+        }
     }
+  }
 
 
   //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
@@ -918,8 +907,8 @@ function ShowTab_emsFormBuilder_view(n) {
       if (el.type != "submit" ) {
        
         if( el.type =="file"){
-          const ob = valueJson_ws.find(x => x.id_ ===  el.dataset.id);
-          files_emsFormBuilder.push ({id:el.id ,value:"@file@", state:0 , url:"" ,type:"file" , name:ob.name, session: sessionPub_emsFormBuilder});
+          const ob = valueJson_ws.find(x => x.id_ ===  el.dataset.vid);
+          files_emsFormBuilder.push ({id:ob.id_ ,value:"@file@", state:0 , url:"" ,type:"file" , name:ob.name, session: sessionPub_emsFormBuilder});
           //console.log(files_emsFormBuilder);
         }
   
@@ -987,6 +976,10 @@ function ShowTab_emsFormBuilder_view(n) {
                 }
               }
             break;
+            case "file":
+              console.log(`[file] switch file`)
+              valid_file_emsFormBuilder(id_)
+              break
             case undefined:
               //select_options_emsFormBuilder
             //  console.log(el.id ,exportView_emsFormBuilder)
@@ -1372,7 +1365,7 @@ function ShowTab_emsFormBuilder_view(n) {
     // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
     // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
     // روی تست ولیدت را تست کن ببین مشکل از کجاست
-    
+      console.log(`[file]`,id ,valueJson_ws)
     if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove(); 
     let file =''
     if( true) {
@@ -1380,11 +1373,12 @@ function ShowTab_emsFormBuilder_view(n) {
       file = f.file && f.file.length>3 ? f.file :'Zip' ;
       //console.log(`file type`,file)
     }
-   
+    console.log(`[file]`,file)
     let check =0;
     let rtrn = false;
     let fileName =''
-    const el = document.getElementById(id);
+    const i =`${id}_`;
+    const el = document.getElementById(i);
     let accept = el.accept.split(",");
     if(file ==="Document"){      
       accept.push('msword');
@@ -1471,14 +1465,16 @@ function fun_upload_file_emsFormBuilder(id ,type){
   //این تابع فایل را به سمت سرور ارسال می کند
   const indx = files_emsFormBuilder.findIndex(x => x.id === id);
 
-  //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
+  console.log('[file]', indx , files_emsFormBuilder[indx] , id ,files_emsFormBuilder);
   files_emsFormBuilder[indx].state =1;
   files_emsFormBuilder[indx].type =type;
   let r=""
   jQuery(function($) {
       var fd = new FormData();
-      var file = jQuery(document).find('#'+id);
-      var caption = jQuery(this).find('#'+id);
+      var idn= '#'+id+'_'
+      var file = jQuery(document).find(idn);
+      console.log(`[file]`,file)
+      var caption = jQuery(this).find(idn);
       var individual_file = file[0].files[0];
       fd.append("file", individual_file);
       var individual_capt = caption.val();
@@ -1864,9 +1860,9 @@ function validation_before_send_emsFormBuilder(){
   console.log(sendBack_emsFormBuilder_pub);  */
   for (const v of valueJson_ws){
     require +=  v.required== true && v.type!=="file"   ? 1 : 0;
-
     if(v.type=="file" ){
-      if(document.getElementById(v.id_).files[0]==undefined && v.required== true){
+     
+      if(document.getElementById(`${v.id_}_`).files[0]==undefined && v.required== true){
         fill -=  1 ;
         console.log(`file is ${fill}`);
       }
@@ -1877,7 +1873,7 @@ function validation_before_send_emsFormBuilder(){
   // console.log('row');
     count[0] +=1;
     if(row.type=="file"){
-
+      console.log(row)
     }else if(row.type!="file"){
       //console.log(valueJson_ws);
       let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);

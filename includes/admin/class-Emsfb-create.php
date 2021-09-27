@@ -89,7 +89,7 @@ class Create {
 				
 				let bdy =document.getElementsByTagName('body');
 				bdy[0].classList.add("bg-color");
-				
+				const sitekye_emsFormBuilder= ""
 			</script>
 			<div id="alert_efb" class="mx-5"></div>
 			<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
@@ -252,7 +252,6 @@ class Create {
 			"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
 			"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
 			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-			"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
 			"orClickHere" => __(' or click here','easy-form-builder'),
 			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
 			"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
@@ -389,7 +388,7 @@ class Create {
 			"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
 			"finish" => __('Finish','easy-form-builder'), //v2 
 			"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'), //v2 
-			"dragAndDropA" => __('Drag & Drop a','easy-form-builder'), //v2 
+			"dragAndDropA" => __('Drag & Drop the','easy-form-builder'), //v2 
 			"browseFile" => __('Browse File','easy-form-builder'), //v2 
 			"removeTheFile" => __('Remove the file','easy-form-builder'), //v2 
 			"offerGoogleCloud" => __('To activite reCAPTCHA and Maps you have to sign up in Google cloud service which its basic service is free and Google give <b> $350 worth of credits </b> to the new users of Cloud service.','easy-form-builder'), //v2 
@@ -442,6 +441,7 @@ class Create {
 			"ddate" => __('Date','easy-form-builder'),//v2
 			"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
 			"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+			"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 			//v2 translate end
 			
 			

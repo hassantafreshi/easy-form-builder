@@ -219,7 +219,7 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -246,7 +246,7 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -277,7 +277,7 @@ class Admin {
     public function update_message_state_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -312,7 +312,7 @@ class Admin {
     public function get_form_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -334,7 +334,7 @@ class Admin {
     public function get_messages_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -355,7 +355,7 @@ class Admin {
     public function get_all_response_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -391,7 +391,7 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -441,7 +441,7 @@ class Admin {
         // با این مضنون که پاسخ شما داده شده است
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403','easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403','easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -501,7 +501,7 @@ class Admin {
         //اطلاعات ردیف ترک را بر می گرداند
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403'  ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403'  ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -528,7 +528,7 @@ class Admin {
         //پاک کردن فایل های اضافی
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -587,7 +587,7 @@ class Admin {
         //پاک کردن فایل های اضافی
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Secure Error 403','easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security  error 403','easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
