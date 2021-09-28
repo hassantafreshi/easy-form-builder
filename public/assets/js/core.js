@@ -903,7 +903,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
-      //console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
+      console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
       if (el.type != "submit" ) {
        
         if( el.type =="file"){
@@ -914,7 +914,7 @@ function ShowTab_emsFormBuilder_view(n) {
   
         el.addEventListener("change", (e) => {
          // e.preventDefault();
-
+          
           let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
           console.log(el.type ,el.dataset.vid ,ob);
           let value =""
@@ -942,8 +942,8 @@ function ShowTab_emsFormBuilder_view(n) {
             case "checkbox":
             case "radio":
               value = el.value; 
-              ob.name =document.getElementById(ob.parents).innerText
-             // console.log(value);
+              if(ob.type=="switch") value= el.checked==true ? ajax_object_efm.text.on :ajax_object_efm.text.off;
+              console.log(el.checked,value,ob)              
             break;
             case "select-one":
               value =el.value;        
@@ -1013,10 +1013,10 @@ function ShowTab_emsFormBuilder_view(n) {
           
           if(value!="" || value.length>1){
            // console.log(el ,ob  ,355)
-            const type = el.type || 'multiselect';
+            const type = ob.type
            // console.log(type ,355)
             const o = [{ id_: id_, name: ob.name, type:type, value: value, session: sessionPub_emsFormBuilder }];
-           // console.log(o ,968)
+            console.log(o ,968)
             fun_sendBack_emsFormBuilder(o[0] ,355);
             //console.log(sendBack_emsFormBuilder_pub, el.type);
           }
@@ -1050,15 +1050,20 @@ function ShowTab_emsFormBuilder_view(n) {
   
   
   function fun_sendBack_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-    //console.log(sendBack_emsFormBuilder_pub.length ,ob, ob.id_)
+  
     if (sendBack_emsFormBuilder_pub.length) {
-      const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+      let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
       //console.log(indx ,"indx")
-      indx==-1 ? sendBack_emsFormBuilder_pub.push(ob): sendBack_emsFormBuilder_pub[indx] = ob;
+        if(indx!=-1 && ob.type!="switch" &&( sendBack_emsFormBuilder_pub[indx].type=="checkbox" ||  sendBack_emsFormBuilder_pub[indx].type=="multiselect" )){
+          indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value ==ob.value );
+          indx==-1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
+          console.log('multi' ,indx)
+        }else{ indx==-1 ? sendBack_emsFormBuilder_pub.push(ob): sendBack_emsFormBuilder_pub[indx].value = ob.value; }
+
     } else {
-      sendBack_emsFormBuilder_pub.push(ob);
+       sendBack_emsFormBuilder_pub.push(ob);
     }
-   // console.log(sendBack_emsFormBuilder_pub);
+    console.log(sendBack_emsFormBuilder_pub);
   }
   function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
     //console.log(ob ,2223,"first")

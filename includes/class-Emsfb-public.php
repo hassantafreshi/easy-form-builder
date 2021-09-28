@@ -201,6 +201,8 @@ class _Public {
 				"browseFile" => __('Browse File','easy-form-builder'), //v2 
 				"dragAndDropA" => __('Drag & Drop the','easy-form-builder'), //v2 
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
+				"on" => __('On','easy-form-builder'), //v2 
+				"off" => __('Off','easy-form-builder'), //v2 
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
@@ -309,6 +311,7 @@ class _Public {
 				"finish" => __('Finish','easy-form-builder'), //v2 
 				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
 				"error" => __('error','easy-form-builder'), //v2 
+	
 
 				];
 		
@@ -372,13 +375,15 @@ class _Public {
 
 
 
-		/* end v2 */
+	
+
+
 		//v2
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
 		wp_enqueue_script('efb-main-js'); 
 
 		
-	
+		/* end v2 */
 		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
 /* 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
 		wp_enqueue_style( 'bootstrap4-6-0-css' );

@@ -244,7 +244,7 @@ function show_setting_window_efb(idset) {
   <label for="labelPostionEl" class="mt-3 col-12 bi-arrows-angle-contract me-2 efb">${efb_var.text.labelPostion}</label>
     <div class="btn-group btn-group-toggle col-12 efb" data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">    
       <label class=" btn btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','up')">
-        <input type="radio" name="options" class="opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
+        <input type="radio" name="options" class="opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
       <span class="efb border-right border border-light "></span>
       <label class=" btn btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','besie')">
         <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
@@ -1885,7 +1885,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         console.log(optns_obj)
         for (const i of optns_obj) {
           optn += `<div class="efb form-check " id="${i.id_}-v">
-          <input class="efb form-check-input emsFormBuilder_v ${valj_efb[iVJ].el_text_size} " data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
+          <input class="efb form-check-input emsFormBuilder_v ${valj_efb[iVJ].el_text_size} " data-type="${elementId}" data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
           <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
           </div>`
         }//end for 
@@ -1951,18 +1951,18 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb col-md-10 col-sm-12" id ="${rndm}-f">
       <div class="efb star-efb d-flex justify-content-center"> 
-                        <input type="radio" id="${rndm}-star5" data-vid='${rndm}' data-type="rating" class="emsFormBuilder_v"   data-star='star'  name="${rndm}-star-efb" value="5" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
-                        <label id="${rndm}_star5" for="star5"  ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',5)"` : ''} title="5stars" class="efb ${valj_efb[iVJ].el_height} star-efb">5 ${efb_var.text.stars}</label>
-                        <input type="radio" id="${rndm}-star4 data-vid='${rndm}'" data-type="rating" class="emsFormBuilder_v"  data-star='star' name="${rndm}-star-efb" value="4" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
-                        <label id="${rndm}_star4"  for="star4" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',4)"` : ''} title="4stars" class="efb ${valj_efb[iVJ].el_height} star-efb">4 ${efb_var.text.stars}</label>
-                        <input type="radio" id="${rndm}-star3" data-vid='${rndm}' data-type="rating" class="emsFormBuilder_v"  data-star='star' name="${rndm}-star-efb" data-name="star" value="3"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
-                        <label id="${rndm}_star3" for="star3"  ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',3)"` : ''} title="3stars" class="efb ${valj_efb[iVJ].el_height} star-efb">3 ${efb_var.text.stars}</label>
-                        <input type="radio" id="${rndm}-star2" data-vid='${rndm}' data-type="rating" class="emsFormBuilder_v"  data-star='star' data-name="star" name="${rndm}-star-efb" value="2"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
-                        <label id="${rndm}_star2" for="star2" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',2)"` : ''} title="2stars" class="efb ${valj_efb[iVJ].el_height} star-efb">2 ${efb_var.text.stars}</label>
-                        <input type="radio" id="${rndm}-star1" data-vid='${rndm}' data-type="rating" class="emsFormBuilder_v" data-star='star' data-name="star" name="${rndm}-star-efb" value="1"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
-                        <label id="${rndm}_star1" for="star1" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',1)"` : ''} title="1star" class="efb  ${valj_efb[iVJ].el_height} star-efb">1 ${efb_var.text.star}</label>
+                        <input type="radio" id="${rndm}-star5" data-vid='${rndm}' data-type="rating" class="efb"   data-star='star'  name="${rndm}-star-efb" value="5" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
+                        <label id="${rndm}_star5" for="${rndm}-star5"  ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',5)"` : ''} title="5stars" class="efb ${valj_efb[iVJ].el_height} star-efb">5 ${efb_var.text.stars}</label>
+                        <input type="radio" id="${rndm}-star4" data-vid='${rndm}' data-type="rating" class="efb"  data-star='star' name="${rndm}-star-efb" value="4" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
+                        <label id="${rndm}_star4"  for="${rndm}-star4" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',4)"` : ''} title="4stars" class="efb ${valj_efb[iVJ].el_height} star-efb">4 ${efb_var.text.stars}</label>
+                        <input type="radio" id="${rndm}-star3" data-vid='${rndm}' data-type="rating" class="efb"  data-star='star' name="${rndm}-star-efb" data-name="star" value="3"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
+                        <label id="${rndm}_star3" for="${rndm}-star3"  ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',3)"` : ''} title="3stars" class="efb ${valj_efb[iVJ].el_height} star-efb">3 ${efb_var.text.stars}</label>
+                        <input type="radio" id="${rndm}-star2" data-vid='${rndm}' data-type="rating" class="efb"  data-star='star' data-name="star" name="${rndm}-star-efb" value="2"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
+                        <label id="${rndm}_star2" for="${rndm}-star2" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',2)"` : ''} title="2stars" class="efb ${valj_efb[iVJ].el_height} star-efb">2 ${efb_var.text.stars}</label>
+                        <input type="radio" id="${rndm}-star1" data-vid='${rndm}' data-type="rating" class="efb" data-star='star' data-name="star" name="${rndm}-star-efb" value="1"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
+                        <label id="${rndm}_star1" for="${rndm}-star1" ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',1)"` : ''} title="1star" class="efb  ${valj_efb[iVJ].el_height} star-efb">1 ${efb_var.text.star}</label>
       </div>  
-      <input type="hidden" class"efb ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-stared" >   
+      <input type="hidden" data-vid="${rndm}" data-type="rating" class="emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-stared" >   
       <div class="efb mb-3">${desc}</div>
         `
       dataTag = elementId;
@@ -2113,11 +2113,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="col-md-10 col-sm-12 efb"  id='${rndm}-f'>
       <div class="btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
-      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb  ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
-        <input type="radio" name="options" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
+      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
+        <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
       <span class="border-right border border-light efb"></span>
-      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].corner}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb   ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
-        <input type="radio" name="options" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_2" value="${valj_efb[iVJ].button_2_text}"> <span id="${rndm}_2_lab">${valj_efb[iVJ].button_2_text}</span></label>
+      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
+        <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_2" value="${valj_efb[iVJ].button_2_text}"> <span id="${rndm}_2_lab">${valj_efb[iVJ].button_2_text}</span></label>
     </div>
         ${desc}`
 
