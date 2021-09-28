@@ -814,7 +814,7 @@ if(el.files[0] && el.files[0].size<15000000){
    let message = `${efb_var.text.pleaseUploadA} ${file}`;
    el.classList.add('text-warning');
    el.classList.remove('text-secondary');
-   if(el.files[0]) message=  el.files[0].size<15000000? `Please upload a ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;
+   if(el.files[0]) message=  el.files[0].size<15000000? `Please upload the ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;
    el.setAttribute("data-title", message);
    document.getElementById(`${id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${message}</small>`;
   

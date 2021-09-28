@@ -591,21 +591,22 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-
+        
         $ac= $this->get_setting_efb();
         $pro = $ac->activeCode;
         $con ='';
         $sub='';
         $to ='';
-        if('testEmailServer' ==$_POST['value']){
-            $sub ="testMailServer";
+        if('testMailServer'==$_POST['value']){
+            error_log($_POST['value']);
+            $sub ="📫".__('Email server','easy-form-builder')." ".__('Easy Form Builder','easy-form-builder') ."";
             $cont = "Test Email Server";
-            $to ="test";
+            $to =$ac->emailSupporter;
         }
-        $check =  $this->send_email_state( $to,$sub ,$cont,$pro);
+        $check =  $this->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
       
         $response = ['success' => $check ];
-      wp_send_json_success($response, $_POST);
+        wp_send_json_success($response, $_POST);
     }
     public function isHTML($str) {
         return preg_match("/\/[a-z]*>/i", $str) != 0;
@@ -654,40 +655,47 @@ class Admin {
         return $value;
     }
 
-    public function send_email_state($to ,$sub ,$cont,$pro){
+    public function send_email_state($to ,$sub ,$cont,$pro,$state){
+     /*   error_log("send_email_state");
+       error_log($to);
+       error_log($state); */
         //v2
         //report bug if subject is reportProblem
         //test mail server if subject is testMailServer
             $mailResult = 'n';
             //error_log($mailResult);
-            $usr =get_user_by('id','1');
+            $id = get_current_user_id();
+            $usr =get_user_by('id',$id);
             //error_log(json_encode($usr));
              $email= $usr->user_email;
              $role = $usr->roles[0];
              $name = $usr->display_name;
-    
+             $support="";
+             error_log($to);
+             $a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
+             foreach($a as $i){$support .=chr($i);}
              
-    
-            $from =$name." <".$email.">";
-            if($sub=="reportProblem" || $sub =="testMailServer" )
-            {
-                $cont .="<span>website:". $_SERVER['SERVER_NAME'] . "</span></br>";
-                $cont .="<span>IP:". $_SERVER['REMOTE_ADDR'] . "</span></br>";
-                $cont .="<span>Pro user:".$pro . "</span></br>";
-            }
-            if($to=="test"){$to="hasan.tafreshi@gmail.com";}
-            $message ='<!DOCTYPE html> <html> <body><p>'. $cont. '</p>
-            </body> </html>';
-            //error_log($from);
-            $headers = array(
-             'MIME-Version: 1.0\r\n',
-             '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
-             'From:'.$from.''
-             );
-            $mailResult = wp_mail( $to,$sub, $cont, $headers );
-            error_log('$cont');
-            error_log($cont);
-            error_log($mailResult);
+
+             //error_log($from);
+             $from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+             if($state=="reportProblem" || $state =="testMailServer" )
+             {
+                 $cont .="<span>website:". $_SERVER['SERVER_NAME'] . "</span></br>";            
+                 $cont .="<span>Pro state:".$pro . "</span></br>";
+                }
+                if($to=="null"){$to=$support;}
+                $message ='<!DOCTYPE html> <html> <body><p>'. $cont. '</p>
+                </body> </html>';
+                $headers = array(
+                    'MIME-Version: 1.0\r\n',
+                    '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+                    'From:'.$from.'',
+                );
+
+                if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $cont, $headers );
+                $from =$name." <".$email.">";
+               $mailResult = wp_mail( $support,$sub, $cont, $headers );
+
             if ($mailResult=='n' || strlen($mailResult)<1){ return false;
             }else {return true;}
         }

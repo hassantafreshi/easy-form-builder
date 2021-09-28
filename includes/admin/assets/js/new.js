@@ -815,14 +815,23 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
         break;
       case "adminFormEmailEl":
-        if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
-        {
-          valj_efb[0].email = el.value;
-          return true;
+       
+        if(efb_var.smtp=="true"){
+          if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
+          {
+            valj_efb[0].email = el.value;
+            return true;
+          }
+          else {
+            document.getElementById("adminFormEmailEl").value = "";
+            noti_message_efb(efb_var.text.error,efb_var.text.invalidEmail,10,"danger");
+          }
+        }else{
+         // trackingCodeEl.checked=false;
+          document.getElementById("adminFormEmailEl").value = "";
+          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
         }
-        else {
-          alert(efb_var.text.invalidEmail);
-        }
+      
   
         break;
       case "requiredEl":
@@ -841,18 +850,33 @@ let change_el_edit_Efb = (el) => {
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
       case "SendemailEl":
-        valj_efb[0].sendEmail = el.checked
-        valj_efb[0].email_to = el.dataset.id.replace('-id', '');
+        if(efb_var.smtp=="true"){
+          valj_efb[0].sendEmail = el.checked
+          valj_efb[0].email_to = el.dataset.id.replace('-id', '');
+        }else{
+         // trackingCodeEl.checked=false;
+          document.getElementById("SendemailEl").checked = false;
+          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
+        }
+      
         break;
       case "formNameEl":
         valj_efb[0].formName = el.value
         console.log(valj_efb[0])
         break;
       case "trackingCodeEl":
-        valj_efb[0].trackingCode = el.checked
+        valj_efb[0].trackingCode = el.checked;
+
         break;
       case "captchaEl":
-        valj_efb[0].captcha = el.checked
+       
+        if(efb_var.captcha=="true"){
+          valj_efb[0].captcha = el.checked
+        }else{
+         // trackingCodeEl.checked=false;
+          document.getElementById("captchaEl").checked = false;
+          noti_message_efb(efb_var.text.reCAPTCHA,efb_var.text.reCAPTCHASetError,20,"danger")
+        }
         break;
       case "showSIconsEl":
         valj_efb[0].show_icon = el.checked
@@ -2037,7 +2061,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"  id='${rndm}-f'  data-id="${rndm}-el" >
-      <select class="form-select efb ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+      <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
       <option selected>${efb_var.text.nothingSelected}</option>
       ${optn}
       </select>
@@ -3285,17 +3309,21 @@ function viewfileEfb(id, indx) {
       }
     }
     fileReader.readAsDataURL(fileEfb);
+    document.getElementById(`${id}_-message`).innerHTML="";
   } else {
-    noti_message_efb('', efb_var.text.fileIsNotRight, 70 ,'danger')
+    const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[valj_efb[indx].file]}`;
+    document.getElementById(`${id}_-message`).innerHTML=m;
+    noti_message_efb('', m, 4 ,'danger')
     
     document.getElementById(`${id}_box`).innerHTML.classList.remove("active");
     //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
+    fileEfb =[];
   }
 }
 
 
 function validExtensions_efb_fun(type, fileType) {
-  console.log(fileType)
+ // console.log(fileType ,type)
 
   let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
   if (type == "document") {
@@ -3902,7 +3930,8 @@ function previewFormEfb(state){//v2
 function fun_prev_send(){
   jQuery(function () {
     var stp=(valj_efb[0].steps)+1;
-    
+    var wtn= loading_messge_efb();
+    jQuery('#efb-final-step').html(wtn);
     var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
     prev_s_efb = current_s.prev();
     jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
@@ -3947,7 +3976,15 @@ function verifyCaptcha(token){
   if(token.length>1){
     verifyCaptcha_efb=token;
     const id = valj_efb[0].steps >1 ? 'next_efb' :'btn_send_efb'
-    document.getElementById(id).classList.toggle('disabled');
-   
+    document.getElementById(id).classList.remove('disabled');
+    setTimeout(()=>{timeOutCaptcha()},61000)   
   }
+}
+
+
+function timeOutCaptcha(){
+  const id = valj_efb[0].steps >1 ? 'next_efb' :'btn_send_efb'
+  document.getElementById(id).classList.add('disabled');
+ // ajax_object_efm.text.errorVerifyingRecaptcha
+ noti_message_efb( ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha,7,'warning');
 }

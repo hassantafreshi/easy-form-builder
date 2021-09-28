@@ -265,7 +265,7 @@ class Create {
 			"registered" => __('Registered','easy-form-builder'),
 			"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
 			"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-			"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+			"pleaseUploadA" => __('Please upload the','easy-form-builder'),
 			"trackingForm" => __('Tracking Form','easy-form-builder'),
 			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
@@ -402,6 +402,7 @@ class Create {
 			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'), //v2 
 			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'), //v2 
 			"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'), //v2 
+			"reCAPTCHASetError" => __('Please go to setting of easy form builder and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
 			"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'), //v2 
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'), //v2 
 			"siteKey" => __('SITE KEY','easy-form-builder'), //v2 
@@ -439,13 +440,17 @@ class Create {
 			"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
 			"reportProblem" => __('Report problem','easy-form-builder'), //v2 
 			"ddate" => __('Date','easy-form-builder'),//v2
-			"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
-			"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+			"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
+			"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 			"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 			//v2 translate end
 			
 			
 		];
+		$smtp =false;
+		$captcha =false;
+		if(strlen($ac->siteKey)>5){$captcha="true";}
+		if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -454,6 +459,8 @@ class Create {
 			'rtl' => is_rtl() ,
 			'text' => $lang	,
 			'images' => $img,
+			'captcha'=>$captcha,
+			'smtp'=>$smtp
 			
 
 					));

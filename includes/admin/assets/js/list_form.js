@@ -987,6 +987,7 @@ function fun_show_setting__emsFormBuilder() {
   let email = 'null';
   let trackingcode = 'null';
   let apiKeyMap = 'null';
+  let smtp ='null';
   //console.l(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
@@ -1010,6 +1011,8 @@ function fun_show_setting__emsFormBuilder() {
     email = f(`emailSupporter`);
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`)
+    smtp=f('smtp');
+
   }
 
 
@@ -1078,7 +1081,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <div id="message-google-efb"></div>
                                 
                              <!--Google-->
-                             <div class="m-3 p-3 efb alert-info" role="">
+                             <div class="m-3 p-3 efb alert-info d-none" role="">
                                 <h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4>
                                 <div>${googleCloudOffer()} </div>
                               </div>
@@ -1127,7 +1130,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <button type="button" class="btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
                                         <i class="efb bi-chevron-double-up me-2 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
-                                   
+                                   <input type="hidden" id="smtp_emsFormBuilder" value="${smtp=="null" ? 'false' : smtp}">
                                 </div>
                                 <!--End Email-->
                             </div>
@@ -1154,16 +1157,17 @@ function fun_set_setting_emsFormBuilder() {
   const f = (id) => {
     const el = document.getElementById(id)
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email") {
+    if (el.type == "text" || el.type == "email" || el.type=="hidden") {
       return el.value;
     } else if (el.type == "checkbox") {
       return el.checked;
-    }
+    } 
     return "NotFoundEl"
   }
   const v = (id) => {
     const el = document.getElementById(id);
-
+    console.log(id);
+    if(id=='smtp_emsFormBuilder') {return true}
     if (el.type !== "checkbox") {
 
       if (el.value.length > 0 && el.value.length < 20 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder") {
@@ -1191,7 +1195,7 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder'];
+  const ids = ['smtp_emsFormBuilder','apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder'];
   let state = true
   for (id of ids) {
     if (v(id) === false) {
@@ -1208,7 +1212,8 @@ function fun_set_setting_emsFormBuilder() {
     const email = f(`email_emsFormBuilder`);
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}` });
+    const smtp = f('smtp_emsFormBuilder')
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`,smtp:smtp });
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1251,6 +1256,8 @@ function fun_send_setting_emsFormBuilder(data) {
       //console.l(`messages`,res);
       let m = ''
       let t = efb_var.text.done
+      let lrt ="info"
+      let time =3.7
       if (res.success == true) {
         //console.l(`resp`,res);
         valueJson_ws_setting = data.message;
@@ -1263,13 +1270,17 @@ function fun_send_setting_emsFormBuilder(data) {
           //console.l(res.data);
           t = efb_var.text.error
           m = res.data.m;
+          lrt="danger";
+          time=7;
         }
       } else {
         //console.l(res);.
         t = '';
         m = res;
+        lrt="danger";
+        time=7;
       }
-      noti_message_efb(t, m, 3.7)
+      noti_message_efb(t, m, time,lrt)
     })
   });
 }

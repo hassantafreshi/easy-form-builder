@@ -53,6 +53,7 @@ class Panel_edit  {
 				"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),
 				"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
 				"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'),
+				"reCAPTCHASetError" => __('Please go to setting of easy form builder and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
 				"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'),
 				"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
 				"siteKey" => __('SITE KEY','easy-form-builder'),
@@ -150,7 +151,7 @@ class Panel_edit  {
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload the','easy-form-builder'),
 				"please" => __('Please','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
@@ -328,8 +329,8 @@ class Panel_edit  {
 				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
 				"ddate" => __('Date','easy-form-builder'),//v2
 				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
-				"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
-				"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+				"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
+				"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 
 				
@@ -349,6 +350,10 @@ class Panel_edit  {
 			];
 			$pro =false;
 			$ac= $this->get_setting_Emsfb();
+			$smtp =false;
+			$captcha =false;
+			if(strlen($ac->siteKey)>5){$captcha="true";}
+			if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}
 			if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -357,7 +362,9 @@ class Panel_edit  {
 				'check' => 0,
 				'rtl' => $rtl,
 				'text' => $lang,
-				'images' => $img		));
+				'images' => $img,
+				'captcha'=>$captcha,
+				'smtp'=>$smtp		));
 
 		
 			if($pro==true){
@@ -395,7 +402,9 @@ class Panel_edit  {
 		
 			$table_name = $this->db->prefix . "Emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
-		
+						
+
+			$stings = json_decode($stng[0]->setting);
 
 			$lang = get_locale();
 		
@@ -415,7 +424,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
-			<script>let sitekye_emsFormBuilder="<?php if($stng->sitekey) $stng->sitekey ?>" </script>
+			<script>let sitekye_emsFormBuilder="<?php if($stings->siteKey)echo $stings->siteKey ?>" </script>
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
@@ -575,9 +584,9 @@ class Panel_edit  {
 		 'From:'.$from.''
 		 );
 		$mailResult = wp_mail( $to,$sub, $cont, $headers );
-		error_log('$cont');
+	/* 	error_log('$cont');
 		error_log($cont);
-		error_log($mailResult);
+		error_log($mailResult); */
 		if ($mailResult=='n' || strlen($mailResult)<1){ return false;
 		}else {return true;}
 	}

@@ -110,7 +110,13 @@ class _Public {
 				"preview" => __('Preview','easy-form-builder'),
 				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),				
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload the','easy-form-builder'),
+				"fileSizeIsTooLarge" => __('The file size is too large , Allowed Maximum size is 8MB.','easy-form-builder'),
+				"documents" => __('Documents','easy-form-builder'),
+				"document" => __('Document','easy-form-builder'),
+				"image" => __('Image','easy-form-builder'),
+				"media" => __('Media','easy-form-builder'),		
+				"zip" => __('Zip','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
@@ -122,7 +128,7 @@ class _Public {
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
+				"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
 				"PleaseFillForm" => __('Please fill in the form.','easy-form-builder'),
@@ -184,7 +190,6 @@ class _Public {
 
 				"name" => __('Name','easy-form-builder'), //v2 
 				"add" => __('Add','easy-form-builder'), //v2 
-				"error" => __('error','easy-form-builder'), //v2 
 				"code" => __('Code','easy-form-builder'), //v2 
 				"star" => __('Star','easy-form-builder'), //v2 
 				"form" => __('Form','easy-form-builder'), //v2
@@ -193,8 +198,8 @@ class _Public {
 				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
 				"ddate" => __('Date','easy-form-builder'),//v2
 				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
-				"sMTPNotWork" => __('SMTP is not working because the application cannot connect to the SMTP server.contact to your Host support','easy-form-builder'),//v2
-				"aPIkeyGoogleMapsFeild" => __('Goolge Maps Loading Errors.','easy-form-builder'),//v2
+				"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
+				"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 				"done" => __('Done','easy-form-builder'),//vs2
 				"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'), //v2 
 				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),//v2
@@ -203,6 +208,7 @@ class _Public {
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 				"on" => __('On','easy-form-builder'), //v2 
 				"off" => __('Off','easy-form-builder'), //v2 
+			
 				];
 				$typeOfForm =$this->value[0]->form_type;
 				$value = $this->value[0]->form_structer;
@@ -242,14 +248,16 @@ class _Public {
 			   'rtl' => is_rtl(),
 			   'text' =>$text 
 		 ));  
-
+		 $k="";
+		 $valstng= json_decode($stng);
+		 if($valstng->siteKey){$k =$valstng->siteKey;}
 	 	$content="<div id='body_efb' class='card card-public pb-3 efb'>
 		 <div class='text-center'>
 		 <div class='lds-hourglass efb text-center'></div><h2 class='efb text-center text-darkb'>".__('Please Waiting','easy-form-builder')."</h2>
 		 </div>
 		 <p class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</p> 
 		 </div><div id='alert_efb' class='mx-5'></div>
-		 <script>let sitekye_emsFormBuilder='".$stng->sitekey."'</script>";
+		 <script>let sitekye_emsFormBuilder='".$k."'</script>";
 		return $content; 
 		
 		// 
@@ -283,14 +291,14 @@ class _Public {
 				"preview" => __('Preview','easy-form-builder'),
 				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),			
 				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
+				"pleaseUploadA" => __('Please upload the','easy-form-builder'),
 				"trackingForm" => __('Tracking Form','easy-form-builder'),
 				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
 				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 				"messages" => __('Messages','easy-form-builder'),
 				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
 				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-				"errorVerifyingRecaptcha" => __('Error verifying recaptcha','easy-form-builder'),
+				"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),
 				"orClickHere" => __(' or click here','easy-form-builder'),
 				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
 				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'),
