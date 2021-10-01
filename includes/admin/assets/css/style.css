@@ -180,10 +180,10 @@ color: #ffc257;
 transition: 0.5s;
 }
 
-.btn-secondary.efb {
+/* .btn-secondary.efb {
 border-radius: 20px!important;
 transition: 0.5s;
-}
+} */
 /* inja */
 .modal-content.efb {
 border: none!important;
@@ -380,7 +380,7 @@ opacity: 0.4;
 }
 .form-control.efb {
 
-color: #a5a3d1!important; 
+color: #595b6e!important; 
 
 }
 .field-selected-efb {
@@ -599,9 +599,10 @@ color: #4e5f96!important;
 background-repeat: no-repeat!important;
 }
 .form-select.efb {
-height: 45px!important;;
+min-height: 45px;
 color: #545b6e!important;
 box-shadow: 0px 2px 20px rgba(84, 131, 207, 0.15)!important;
+max-width: -webkit-fill-available!important;
 }
 .text-danger.efb {
 color: #ff455f!important;
@@ -1831,3 +1832,5 @@ button.btn-close {
  {
     height: 45px!important;
 }
+
+

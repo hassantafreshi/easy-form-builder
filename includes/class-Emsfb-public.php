@@ -1130,23 +1130,23 @@ class _Public {
 
 	public function send_email_Emsfb($to , $track ,$pro , $state){
   
-   $cont = "['.$track.']";
+   $cont = $track;
    $subject ="📮 ".__('You have Recived New Message', 'easy-form-builder');
    if($state=="notiToUserFormFilled_TrackingCode"){
 	$subject =__('We Recived your Message', 'easy-form-builder');
-	$message ="<h2>".__('Thanks for filling out our form!', 'easy-form-builder')."</h2>
+	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 			<p>". __('Tracking code' , 'easy-form-builder').": ".$cont." </p>
 			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 	$cont=$message;
    }elseif($state=="notiToUserFormFilled"){
 	$subject =__('We Recived your Message.', 'easy-form-builder');
-	$message ="<h2>".__('Thanks for filling out our form!', 'easy-form-builder')."</h2>
+	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="register"){
-	$subject =__('Thank you for registering.', 'easy-form-builder');   
+	$subject =__('Thank You for registering.', 'easy-form-builder');   
 	$message ="<h2>".__('Welecome', 'easy-form-builder')."</h2>
 	".$cont."
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
@@ -1160,7 +1160,7 @@ class _Public {
 	$cont=$message;
    }elseif ($state=="survey"){
 	$subject =__('welecome', 'easy-form-builder');   
-	$message ="<h2>".__('TThank you for taking the time to complete this survey.', 'easy-form-builder')."</h2>
+	$message ="<h2>".__('Thank You for taking the time to complete this survey.', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;

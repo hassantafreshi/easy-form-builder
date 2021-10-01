@@ -1312,7 +1312,7 @@ function unlimted_version_emsFormBuilder(m,s) {
 
 function actionSendData_emsFormBuilder(){
   data ={};
-  var name = valj_efb[0].formName
+  var name = formName_Efb
   console.log('actionSendData_emsFormBuilder' ,state_check_ws_p,localStorage.getItem("valj_efb"));
   jQuery(function ($) {
     //console.log('in');
@@ -1610,6 +1610,8 @@ function add_dasboard_emsFormBuilder(){
 
 
 function create_form_by_type_emsfb(id){
+  console.log(id);
+  //formsforms
   const state =false;
   document.getElementById('header-efb').innerHTML=``;
   document.getElementById('content-efb').innerHTML=``;
@@ -1618,47 +1620,47 @@ function create_form_by_type_emsfb(id){
     // if the blank form clicked just active create form
     //required: true
     form_type_emsFormBuilder="form"
-    formName_ws = form_type_emsFormBuilder
+    formName_Efb = form_type_emsFormBuilder
   }else if(id==="contact"){ 
-    // if contact has clicked add Json of contact and go to step 3
     //contactUs
     form_type_emsFormBuilder="form";
-    formName_ws = efb_var.text.contactUs
-    const json =[{"steps": "1","name-1": efb_var.text.contactUs,"formName":efb_var.text.contactUs,"EfbVersion": 1.2,"type": "contact","icon-1": "fa fa-envelope"},{"id_": "xnr4fjtik","name": efb_var.text.firstName,"type": "text","step": 1,"amount": 1,"required": true},{"id_": "ng98mihl7","name": efb_var.text.lastName,"type": "text","step": 1,"amount": 2,"required": true},{"id_": "ihfqg325b","name": efb_var.text.email,"type": "email","step": 1,"amount": 3,"required": true},{"id_": "x7cs8pqk6","name":efb_var.text.phone,"type": "tel","step": 1,"amount": 4},{"id_": "bd1i5oe9j","name": efb_var.text.message,"type": "textarea","step": 1,"amount": 5,"required": true}]
-    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
-    valueJson_ws_p =json;
+    formName_Efb = form_type_emsFormBuilder
+    const json =[{"type":"form","steps":1,"formName":efb_var.text.contactUs ,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-secondary","icon":"","button_Next_text":"next","button_Previous_text":"previous","button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"2jpzt59do","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_title":"null","thank_you_message":"null","email_title":"null","emaill_message":"null","email_subject":"null","sendEmail":true,"stateForm":false},{"id_":"1","type":"step","dataId":"1","classes":"stepNavEfb","id":"1","name":"Contact Us","icon":"","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-muted","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},{"id_":"uoghulv7f","dataId":"uoghulv7f-id","type":"text","placeholder":"First Name","value":"","size":"50","message":"","id":"","classes":"","name":"First Name","required":true,"amount":3,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"xzdeosw2q","dataId":"xzdeosw2q-id","type":"text","placeholder":"Last Name","value":"","size":"50","message":"","id":"","classes":"","name":"Last Name","required":true,"amount":5,"step":2,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"2jpzt59do","dataId":"2jpzt59do-id","type":"email","placeholder":"Enter your email ","value":"","size":"100","message":"","id":"","classes":"","name":"Email","required":true,"amount":6,"step":2,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"dvgl7nfn0","dataId":"dvgl7nfn0-id","type":"textarea","placeholder":"Enter your message","value":"","size":"100","message":"","id":"","classes":"","name":"Message","required":true,"amount":7,"step":2,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-xl-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
+    
+    localStorage.setItem('valj_efb', JSON.stringify(json))
+    valj_efb =json;
   }else if(id==="register" ){
-    // if register has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="register";
-    formName_ws ="register";
+    formName_Efb =form_type_emsFormBuilder;
     json =[{"steps":"1","name-1":efb_var.text.register,"formName":efb_var.text.register,"EfbVersion":1.2,"type":"register","icon-1":"fa fa-user-plus"},{"id_":"usernameRegisterEFB","name":efb_var.text.username,"type":"text","step":1,"amount":1,"required":true},{"id_":"emailRegisterEFB","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true},{"id_":"passwordRegisterEFB","name":efb_var.text.password,"type":"password","step":1,"amount":3,"required":true}];
-    valueJson_ws_p =json;
-    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+    valj_efb =json;
+    localStorage.setItem('valj_efb', JSON.stringify(json))
   }else if(id==="login"){ 
      // if login has clicked add Json of contact and go to step 3
      form_type_emsFormBuilder="login";
-     formName_ws =form_type_emsFormBuilder;
+     formName_Efb =form_type_emsFormBuilder;   
      json =[{"steps":"1","name-1":efb_var.text.login,"formName":efb_var.text.login,"EfbVersion":1.2,"type":"login","icon-1":"fa fa-sign-in"},{"id_":"emaillogin","name":efb_var.text.emailOrUsername,"type":"text","step":1,"amount":1,"required":true},{"id_":"passwordlogin","name":efb_var.text.password,"type":"password","step":1,"amount":2,"required":true}];
-     valueJson_ws_p =json;
-     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+     valj_efb =json;
+     localStorage.setItem('valj_efb', JSON.stringify(json))
    
   }else if(id==="support"){
     // if support has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder="form";
-    formName_ws =form_type_emsFormBuilder
-   const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"How can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":efb_var.text.subject,"type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":efb_var.text.message,"type":"textarea","step":1,"amount":3,"required": true}];
-   localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
-   valueJson_ws_p =json;
+    formName_Efb =form_type_emsFormBuilder;
+   //const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.support,"EfbVersion":1.2,"type":"form","icon-1":"fa fa-support"},{"id_":"khlewd90v","required":true,"type":"multiselect","step":1,"amount":1,"name":"How can we help you?"},{"id_":"4polea9sp","name":"Accounting & Sell question","parents":"khlewd90v","type":"option","step":null},{"id_":"5o6k6epyd","name":"Technical & support question","parents":"khlewd90v","type":"option","step":null},{"id_":"sophw2b2q","name":"General question","parents":"khlewd90v","type":"option","step":null},{"id_":"4rcet7l27","name":efb_var.text.subject,"type":"text","step":1,"amount":2},{"id_":"0i98gvfyw","name":efb_var.text.message,"type":"textarea","step":1,"amount":3,"required": true}];
+    const  json =[{"type":"form","steps":1,"formName":efb_var.text.support,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-secondary","icon":"","button_Next_text":"next","button_Previous_text":"previous","button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-xxl-efb","email_to":"qas87uoct","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_title":"null","thank_you_message":"null","email_title":"null","emaill_message":"null","email_subject":"null","sendEmail":true,"stateForm":false},{"id_":"1","type":"step","dataId":"1","classes":"stepNavEfb","id":"1","name":"Support","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-dark","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},{"id_":"rhglopgi8","dataId":"rhglopgi8-id","type":"select","placeholder":"Select","value":"","size":"100","message":"","id":"","classes":"","name":"How can we help you?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"b2xssuo2w","dataId":"b2xssuo2w-id","parent":"rhglopgi8","type":"option","value":"Accounting & Sell question","id_op":"n470h48lg","step":"1","amount":3},{"id_":"b2xssuo2w","dataId":"b2xssuo2w-id","parent":"rhglopgi8","type":"option","value":"Technical & support question","id_op":"zu7f5aeob","step":"1","amount":4},{"id_":"jv1l79ir1","dataId":"jv1l79ir1-id","parent":"rhglopgi8","type":"option","value":"General question","id_op":"jv1l79ir1","step":"1","amount":5},{"id_":"59c0hfpyo","dataId":"59c0hfpyo-id","type":"text","placeholder":"Enter a subject","value":"","size":"100","message":"","id":"","classes":"","name":"Subject","required":0,"amount":6,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"qas87uoct","dataId":"qas87uoct-id","type":"email","placeholder":"Enter your email","value":"","size":"100","message":"","id":"","classes":"","name":"Email","required":true,"amount":10,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"cqwh8eobv","dataId":"cqwh8eobv-id","type":"textarea","placeholder":"Long Text","value":"","size":"100","message":"","id":"","classes":"","name":"Message","required":true,"amount":8,"step":2,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
+   localStorage.setItem('valj_efb', JSON.stringify(json))
+   valj_efb =json;
   }else if(id==="subscription"){
     // if subscription has clicked add Json of contact and go to step 3
       form_type_emsFormBuilder="subscribe";
-      formName_ws = form_type_emsFormBuilder
+      formName_Efb = form_type_emsFormBuilder
       const  json =[{"steps":"1","name-1":" ","formName":efb_var.text.subscribe,"EfbVersion":1.2,"type":"subscribe","icon-1":"fa fa-bell"},{"id_":"92os2cfq22","name":efb_var.text.firstName,"type":"text","step":1,"amount":1,"required":false},{"id_":"92os2cfqc","name":efb_var.text.email,"type":"email","step":1,"amount":2,"required":true}];
-      localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
-      valueJson_ws_p =json;    
+      localStorage.setItem('valj_efb', JSON.stringify(json))
+      valj_efb =json;    
   }else if(id=="survey") {
     form_type_emsFormBuilder="survey";
-    formName_ws = form_type_emsFormBuilder
+    formName_Efb = form_type_emsFormBuilder
   /*   const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.2,"type":"survey","icon-1":"fa fa-bell"}];
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;     */
@@ -1668,6 +1670,12 @@ function create_form_by_type_emsfb(id){
   }
   
     creator_form_builder_Efb();
+
+  if(id!="form"){
+    setTimeout(() => {
+      editFormEfb()
+    }, 100)
+  }
      // add_form_builder_emsFormBuilder();
     
 }

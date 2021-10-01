@@ -8,7 +8,7 @@ let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
 let steps_index_efb = [] // hold index of steps
 let valj_efb = []; 
-let pro_efb = false
+//let pro_efb = false
 let maps_efb = [];
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
@@ -20,7 +20,7 @@ let fileEfb;
 let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
-
+let devlop_efb=true;
 
 setTimeout(()=>{
   formName_Efb = efb_var.text.form
@@ -56,8 +56,8 @@ function creator_form_builder_Efb() {
       button_single_text: 'send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: 'next', button_Previous_text: 'previous',
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
-      show_pro_bar: false, captcha: false, thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',
-      sendEmail: false, stateForm: false
+      show_pro_bar: false, captcha: false,private:false, thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',
+      sendEmail: false, 
     });
   }
   console.log(efb_var);
@@ -74,7 +74,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.date, icon: 'bi-calendar-date', id: 'date', pro: true },
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },
- /*  { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, */
+  { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: true },
@@ -95,17 +95,17 @@ function creator_form_builder_Efb() {
     </div>
     `
   }
-  const navs = [
+  let navs = [
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
     { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
-    { name: efb_var.text.help, icon: 'bi-question-square', fun: `` },
-    { name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` },
+    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `` },
+    
   ]
+  if(devlop_efb==true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
   let nav = "<!--efb.app-->";
   for (let ob in navs) {
-    nav += `  
-  <li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} me-1 "></i>${navs[ob].name}</a></li>`
+    nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} me-1 "></i>${navs[ob].name}</a></li>`
   }
   document.getElementById(`content-efb`).innerHTML = `
   <div class="m-5">
@@ -210,7 +210,7 @@ function show_setting_window_efb(idset) {
   <label class="form-check-label efb" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
   </div>`;
   const captchaEls = `<div class="mx-1 my-3 efb">
-  <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="captchaEl" ${valj_efb[0].captcha && valj_efb[0].captcha == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
+  <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="captchaEl" ${valj_efb[0].captcha && valj_efb[0].captcha == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
   <label class="form-check-label efb" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
   </div>`;
   const showSIconsEls = `<div class="mx-1 my-3 efb">
@@ -221,8 +221,16 @@ function show_setting_window_efb(idset) {
   <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
   <label class="form-check-label efb" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
   </div>`;
+
+  /* 
+
+     
+   
+      email_to: false, show_icon: false, 
+      show_pro_bar: false, captcha: false, 
+  */
   const showformLoggedEls = `<div class="mx-1 my-3 efb">
-  <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
+  <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
   <label class="form-check-label efb" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
   </div>`;
 
@@ -286,16 +294,17 @@ function show_setting_window_efb(idset) {
     `
   const classesEls = `
     <label for="cssClasses" class="efb mt-3 bi-journal-code me-2">${efb_var.text.cSSClasses}</label>
-    <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value=${valj_efb[indx].classes}` : ''}>
+    <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
     `
   const valueEls = `
   <label for="valueEl" class="efb mt-3 bi-cursor-text me-2">${efb_var.text.defaultValue}</label>
-    <input type="text"  data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value=${valj_efb[indx].value}` : ''}>
+    <input type="text"  data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
     `
   const placeholderEls = `
     <label for="placeholderEl" class="efb mt-3 bi-patch-exclamation me-2">${efb_var.text.placeholder}</label>
-    <input type="text"  data-id="${idset}" class="elEdit text-muted form-control  border-d efb-rounded efb mb-3"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value=${valj_efb[indx].placeholder}` : ''}>
+    <input type="text"  data-id="${idset}" class="elEdit text-muted form-control  border-d efb-rounded efb mb-3"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
     `
+
 
   const cornerEls = (side) => {
 
@@ -540,7 +549,7 @@ function show_setting_window_efb(idset) {
                       ${ElementAlignEls('label')}
                       ${ElementAlignEls('description')}
                       ${widthEls}     
-                    <!--  //{$selectHeightEls()}                 -->
+                      ${el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectHeightEls() : ''}               
                       ${classesEls}
                       </div>
                   </div>
@@ -892,6 +901,7 @@ let change_el_edit_Efb = (el) => {
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
   
         valj_efb[indx].placeholder = el.value;
+        console.log(valj_efb[indx] ,el.value)
         break;
       case "valueEl":
         if (el.dataset.tag != 'yesNo') {
@@ -1164,14 +1174,13 @@ let change_el_edit_Efb = (el) => {
         if (el.dataset.side == "undefined" || el.dataset.side == "") {
           // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
           iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
-          valj_efb[indx].icon = el.value;
+          valj_efb[indx].button_single_text = el.value ;
         } else {
-          console.log(el.dataset.side)
           iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
           el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
-        }
-        console.log(valj_efb[indx], iddd, document.getElementById(iddd));
+        }        
         document.getElementById(iddd).innerHTML = el.value;
+        console.log( iddd, document.getElementById(iddd),el.value);
         break;
       case 'iconEl':
         console.log(valj_efb[indx].id_);
@@ -1789,7 +1798,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         `;
       }
       const t = valj_efb[0].steps == 1 ? 0 : 1;
-      editState == false ? add_buttons_zone_efb(0, 'dropZone') : add_buttons_zone_efb(t, 'dropZone')
+      editState == false   ? add_buttons_zone_efb(0, 'dropZone') : add_buttons_zone_efb(t, 'dropZone')
 
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
 
@@ -1799,7 +1808,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
         el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
       });
-      add_buttons_zone_efb(0, 'dropZone');
+     // add_buttons_zone_efb(0, 'dropZone');
 
     }
 
@@ -1868,7 +1877,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
                 ${label}
                 <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>
-                <textarea  id="${rndm}_"  placeholder="${elementId}"  class="efb px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
+                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
                 ${desc}
             `
       dataTag = "textarea";
@@ -2063,7 +2072,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"  id='${rndm}-f'  data-id="${rndm}-el" >
       <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
-      <option selected>${efb_var.text.nothingSelected}</option>
+      <option selected disabled>${efb_var.text.nothingSelected}</option>
       ${optn}
       </select>
       ${desc}
@@ -2199,7 +2208,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     }
     console.log(valj_efb[0]);
     if (!document.getElementById('button_group')) {
-      add_buttons_zone_efb(0, 'dropZone')
+      console.log('document.getElementById(button_group)')
+       add_buttons_zone_efb(0, 'dropZone')
       fub_shwBtns_efb();
     } else if (valj_efb[0].steps > 1) {
       fun_handle_buttons_efb(true)
@@ -2496,22 +2506,22 @@ let add_buttons_zone_efb = (state, id) => {
   const btnPos = id != "dropZone" ? ' text-center' : ''
   const s = `
   <div class="${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"><i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"></i><span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <button id="btn_send_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"><i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"></i><span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
   <div class="${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb ${valj_efb[0].button_color}  ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i></button>
+  <button id="prev_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i></button>
   </div>
   `
   let c = `<div class="test mt-5 efb">`
   if (id != "dropZone") {
-    c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
+     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
     c = `<div class="position-absolute row bottom-0 mx-5 translate-middle-x  showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
   }
   console.log(id)
-  if (id != 'preview'  && id != 'body_efb') { document.getElementById(id).innerHTML += c } else {
+  if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
     return c;
   }
 }
@@ -2519,7 +2529,8 @@ let add_buttons_zone_efb = (state, id) => {
 
 
 const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|text-colorDEfb|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
-const colorBtnChangerEfb = (classes, color) => { return classes.replace(/(btn-select-form|btn-primary|btn-muted|btn-secondary|btn-pinkEfb|btn-success|btn-white|btn-light|text-colorDEfb|btn-danger|btn-warning|btn-info|btn-dark|btn-default)/, `${color}`); }
+//const colorBtnChangerEfb = (classes, color) => { return classes.replace(/(btn-select-form|btn-primary|btn-muted|btn-secondary|btn-pinkEfb|btn-success|btn-white|btn-light|text-colorDEfb|btn-danger|btn-warning|btn-info|btn-dark|btn-default)/, `${color}`); }
+const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-\w+/gi, `${color}`); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-\w+/gi, `${color}`); }
 const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d-efb|h-l-efb|h-xl-efb|h-xxl-efb|h-xxxl-efb)/, `${value}`); }
 const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
@@ -2599,7 +2610,7 @@ let editFormEfb = () => {
                 center: { lat: lat, lng: lon },
                 zoom: 8,
               })
-            }, (len * 20) + 10);
+            }, (len * 10) + 10);
           } else if (type == "multiselect") {
             jQuery(function () {
               jQuery('.selectpicker').selectpicker();
@@ -2621,7 +2632,7 @@ let editFormEfb = () => {
 
     fub_shwBtns_efb()
     enableDragSort('dropZone');
-  }, (len * 20));
+  }, (len * 10));
 
  
 }//editFormEfb end
