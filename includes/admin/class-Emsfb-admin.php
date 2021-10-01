@@ -30,7 +30,11 @@ class Admin {
         // Check exists require function
         if (!function_exists('wp_get_current_user')) {
             include(ABSPATH . "wp-includes/pluggable.php");
+           
         }
+        
+        include(EMSFB_PLUGIN_DIRECTORY."includes/functions.php");
+        
 
         // Add plugin caps to admin role
         if (is_admin() and is_super_admin()) {
@@ -40,6 +44,7 @@ class Admin {
         // Actions.
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
+        add_action('test_call_efb', [$this, 'test_call_efb']);
         $this->ip = $this->get_ip_address();
 
         //$current_user->display_name
@@ -219,13 +224,13 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
 
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -246,7 +251,7 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -259,7 +264,7 @@ class Admin {
         }
 
         if ($this->isScript(json_encode($_POST['value'])) || $this->isScript(json_encode($_POST['name']))) {
-            $response = ['success' => false, "m" => __("You don't allow to use HTML tag" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("You are not allowed use HTML tag" ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -277,12 +282,12 @@ class Admin {
     public function update_message_state_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']))) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -295,7 +300,7 @@ class Admin {
         //error_log(json_encode($_POST['value']));
 /*         if ($_POST['value']) {
             if ($this->isHTML(json_encode($_POST['value']))) {
-                $response = ['success' => false, "m" => __("You don't allow to use HTML tag")];
+                $response = ['success' => false, "m" => __("You are not allowed use HTML tag")];
                 wp_send_json_success($response, $_POST);
                 die();
             }
@@ -312,12 +317,12 @@ class Admin {
     public function get_form_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -334,12 +339,12 @@ class Admin {
     public function get_messages_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -355,12 +360,12 @@ class Admin {
     public function get_all_response_id_Emsfb() {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -391,23 +396,23 @@ class Admin {
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page" ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
         if (empty($_POST['message'])) {
-            $response = ['success' => false, "m" => __("Something went wrong,Please refresh the page and Enter values ,'easy-form-builder'")];
+            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page.'easy-form-builder'")];
             wp_send_json_success($response, $_POST);
             die();
         }
 
         if ($this->isHTML(json_encode($_POST['message']))) {
-            $response = ['success' => false, "m" => __("You don't allow to use HTML tag",'easy-form-builder')];
+            $response = ['success' => false, "m" => __("You are not allowed use HTML tag",'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -432,6 +437,12 @@ class Admin {
 
         $m        = __('Message was sent', 'easy-form-builder');
         $response = ['success' => true, "m" => $m];
+
+        $ac= $this->get_setting_efb();
+        $pro = $ac->activeCode;
+
+        $efbFunction = new efbFunction(); 
+        $efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, $_POST);
 
     }
@@ -441,7 +452,7 @@ class Admin {
         // با این مضنون که پاسخ شما داده شده است
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403','easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403','easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -452,7 +463,7 @@ class Admin {
             die();
         }
         if ($this->isHTML(json_encode($_POST['message']))) {
-            $response = ['success' => false, "m" => __("You don't allow to use HTML tag"  ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("You are not allowed use HTML tag"  ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -501,7 +512,7 @@ class Admin {
         //اطلاعات ردیف ترک را بر می گرداند
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403'  ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403'  ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -528,7 +539,7 @@ class Admin {
         //پاک کردن فایل های اضافی
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403' ,'easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -587,7 +598,7 @@ class Admin {
         //پاک کردن فایل های اضافی
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security  error 403','easy-form-builder')];
+            $response = ['success' => false, 'm' => __('Security Error 403','easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -603,7 +614,8 @@ class Admin {
             $cont = "Test Email Server";
             $to =$ac->emailSupporter;
         }
-        $check =  $this->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
+        $efbFunction = new efbFunction();   
+        $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
       
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
@@ -655,53 +667,11 @@ class Admin {
         return $value;
     }
 
-    public function send_email_state($to ,$sub ,$cont,$pro,$state){
-     /*   error_log("send_email_state");
-       error_log($to);
-       error_log($state); */
-        //v2
-        //report bug if subject is reportProblem
-        //test mail server if subject is testMailServer
-            $mailResult = 'n';
-            //error_log($mailResult);
-            $id = get_current_user_id();
-            $usr =get_user_by('id',$id);
-            //error_log(json_encode($usr));
-             $email= $usr->user_email;
-             $role = $usr->roles[0];
-             $name = $usr->display_name;
-             $support="";
-             error_log($to);
-             $a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
-             foreach($a as $i){$support .=chr($i);}
-             
-
-             //error_log($from);
-             $from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-             if($state=="reportProblem" || $state =="testMailServer" )
-             {
-                 $cont .="<span>website:". $_SERVER['SERVER_NAME'] . "</span></br>";            
-                 $cont .="<span>Pro state:".$pro . "</span></br>";
-                }
-                if($to=="null"){$to=$support;}
-                $message ='<!DOCTYPE html> <html> <body><p>'. $cont. '</p>
-                </body> </html>';
-                $headers = array(
-                    'MIME-Version: 1.0\r\n',
-                    '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
-                    'From:'.$from.'',
-                );
-
-                if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $cont, $headers );
-                $from =$name." <".$email.">";
-               $mailResult = wp_mail( $support,$sub, $cont, $headers );
-
-            if ($mailResult=='n' || strlen($mailResult)<1){ return false;
-            }else {return true;}
-        }
+   
 
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
-
+  
+       
 }
 
 new Admin();

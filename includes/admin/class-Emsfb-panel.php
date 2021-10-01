@@ -14,6 +14,7 @@ class Panel_edit  {
 	public function __construct() {
 		global $wpdb;
 		$this->db = $wpdb;
+		
 		if ( is_admin() ) {
 			$rtl = is_rtl();
 			$lang = [
@@ -53,7 +54,7 @@ class Panel_edit  {
 				"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),
 				"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
 				"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'),
-				"reCAPTCHASetError" => __('Please go to setting of easy form builder and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
+				"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
 				"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'),
 				"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
 				"siteKey" => __('SITE KEY','easy-form-builder'),
@@ -78,7 +79,6 @@ class Panel_edit  {
 				"error" => __('Error,','easy-form-builder'),
 				"stepName" => __('Step Name','easy-form-builder'),
 				"IconOfStep" => __('Icon of step','easy-form-builder'),
-				"define" => __('Define','easy-form-builder'),
 				"stepTitles" => __('Step Titles','easy-form-builder'),
 				"elements" => __('Elements:','easy-form-builder'),
 				"delete" => __('Delete','easy-form-builder'),
@@ -238,7 +238,7 @@ class Panel_edit  {
 				"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 
 				"editField" => __('Edit Field','easy-form-builder'), //v2 
 				"description" => __('Description','easy-form-builder'), //v2 
-				"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'), //v2 
+				"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'), //v2 
 				"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 
 				"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'), //v2 
 				"dontShowIconsStepsName" => __('Don\'t show Icons & Steps name','easy-form-builder'), //v2 
@@ -349,12 +349,19 @@ class Panel_edit  {
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
 			];
 			$pro =false;
-			$ac= $this->get_setting_Emsfb();
+			$efbFunction = new efbFunction(); 
+			$ac= $efbFunction->get_setting_Emsfb();
 			$smtp =false;
 			$captcha =false;
-			if(strlen($ac->siteKey)>5){$captcha="true";}
-			if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}
-			if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
+			if(gettype($ac)!="string"){
+				if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
+				if(strlen($ac->siteKey)>5){$captcha="true";}
+				if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}else{
+					$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
+				}			
+			}else{
+				$smtp_m = __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on "Click To Check Email Server"','easy-form-builder');
+			}			
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -374,7 +381,7 @@ class Panel_edit  {
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
 
-			if($ac->apiKeyMap){
+			if(gettype($ac)!="string" && $ac->apiKeyMap){
 				$k= $ac->apiKeyMap;
 				$lang = get_locale();
 					if ( strlen( $lang ) > 0 ) {
@@ -402,12 +409,11 @@ class Panel_edit  {
 		
 			$table_name = $this->db->prefix . "Emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
-						
-
-			$stings = json_decode($stng[0]->setting);
+			
 
 			$lang = get_locale();
-		
+			$k ="";
+			if(gettype($ac)!="string" && $ac->siteKey)$k= $ac->siteKey;	
 			if ( strlen( $lang ) > 0 ) {
 				$lang = explode( '_', $lang )[0];
 				}
@@ -424,7 +430,7 @@ class Panel_edit  {
 			<!-- new nav  -->
 			<div class="top_circle-efb-2"></div>
 			<div class="top_circle-efb-1"></div>
-			<script>let sitekye_emsFormBuilder="<?php if($stings->siteKey)echo $stings->siteKey ?>" </script>
+			<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>" </script>
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
 						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
@@ -482,10 +488,7 @@ class Panel_edit  {
 					</div>
 					<div class="mt-3 d-flex justify-content-center align-items-center ">
 					<button type="button" id="more_emsFormBuilder" class="efb btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="bi-chevron-double-down"></i></button>
-					</div>
-
-
-				</div>
+					</div></div>
 			<?php
 		
 			$ip =0;
@@ -500,8 +503,6 @@ class Panel_edit  {
 			}
 
 
-			
-			$this->send_email_state('to@gmail.com','testMailServer','content',$ac->activeCode);
 
 			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
@@ -522,23 +523,7 @@ class Panel_edit  {
 			echo "Easy Form Builder: You dont access this section";
 		}
 	}
-	public function get_setting_Emsfb()
-	{
-		// اکتیو کد بر می گرداند	
-		
-		$table_name = $this->db->prefix . "Emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
-		$rtrn='null';
-		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$r =json_decode($val);
-			$rtrn =$r->activeCode;
-			//error_log($r->apiKeyMap);
-			break;
-			} 
-		}
-		return $r;
-	}
+
 
 
 	
@@ -552,11 +537,9 @@ class Panel_edit  {
 		return $value;
 	}
 
-
+/* 
 	public function send_email_state($to ,$sub ,$cont,$pro){
-	//v2
-	//report bug if subject is reportProblem
-	//test mail server if subject is testMailServer
+
 		$mailResult = 'n';
 		//error_log($mailResult);
 		$usr =get_user_by('id','1');
@@ -583,13 +566,12 @@ class Panel_edit  {
 		 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
 		 'From:'.$from.''
 		 );
-		$mailResult = wp_mail( $to,$sub, $cont, $headers );
-	/* 	error_log('$cont');
-		error_log($cont);
-		error_log($mailResult); */
-		if ($mailResult=='n' || strlen($mailResult)<1){ return false;
-		}else {return true;}
-	}
+		$mailResult = wp_mail( $to,$sub, $cont, $headers );		
+		//if($mailResult==1)echo "<h1 class='text-danger' id=mailResult'>".$mailResult."<h1>";
+	    return $mailResult;
+		/* if ($mailResult=='n' || strlen($mailResult)<1 || $mailResult==false || $mailResult=="false" || $mailResult!=1 || $mailResult<>1){ return false;
+		}else {return true;} * /
+	} */
 
 
 	

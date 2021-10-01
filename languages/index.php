@@ -8,7 +8,7 @@
 					"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 
 					"editField" => __('Edit Field','easy-form-builder'), //v2 
 					"description" => __('Description','easy-form-builder'), //v2 
-					"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'), //v2 
+					"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'), //v2 
 					"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 
 					"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'), //v2 
 					"dontShowIconsStepsName" => __('Don\'t show Icons & Steps name','easy-form-builder'), //v2 

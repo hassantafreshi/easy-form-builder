@@ -86,10 +86,11 @@ class _Public {
 		$state="form";
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
-			$stng="setting was not added";
+			$stng=__("Settings not found",'easy-form-builder');
 			$state="form";
 			
 		}
+		
 		$text = [
 				"error" => __('Error,','easy-form-builder'),
 				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
@@ -160,7 +161,7 @@ class _Public {
 				"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'), //v2 
 				"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'), //v2 		
 				"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 		
-				"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'), //v2 
+				"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'), //v2 
 				"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 			
 				"default" => __('Default','easy-form-builder'), //v2 
 				"defaultValue" => __('Default value','easy-form-builder'), //v2 
@@ -208,9 +209,11 @@ class _Public {
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
 				"on" => __('On','easy-form-builder'), //v2 
 				"off" => __('Off','easy-form-builder'), //v2 
+				"settingsNfound" =>__('Settings not found','easy-form-builder'),//v2
 			
 				];
 				$typeOfForm =$this->value[0]->form_type;
+				//error_log($this->value[0]);
 				$value = $this->value[0]->form_structer;
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
@@ -249,8 +252,10 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 		 $k="";
-		 $valstng= json_decode($stng);
-		 if($valstng->siteKey){$k =$valstng->siteKey;}
+		 if(gettype($stng)!="string"){
+			 $valstng= json_decode($stng);
+			 if($valstng->siteKey){$k =$valstng->siteKey;}
+		 }
 	 	$content="<div id='body_efb' class='card card-public pb-3 efb'>
 		 <div class='text-center'>
 		 <div class='lds-hourglass efb text-center'></div><h2 class='efb text-center text-darkb'>".__('Please Waiting','easy-form-builder')."</h2>
@@ -319,6 +324,7 @@ class _Public {
 				"finish" => __('Finish','easy-form-builder'), //v2 
 				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
 				"error" => __('error','easy-form-builder'), //v2 
+				"settingsNfound" =>__("Settings not found",'easy-form-builder'),//v2
 	
 
 				];
@@ -329,7 +335,7 @@ class _Public {
 		$state="tracker";
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
-			$stng="setting was not added";
+			$stng=__("Settings not found",'easy-form-builder');
 			$state="tracker";
 		}
 		
@@ -483,7 +489,7 @@ class _Public {
 		
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Security  error 403', 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security Error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -492,15 +498,19 @@ class _Public {
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
 		$email=get_option('admin_email');
-
+		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
-		error_log($fs);
+		//error_log($fs);
 		$formObj= json_decode($fs,true);
-		
-		error_log($formObj[0]['captcha']);
+		$email_fa = $formObj[0]["email"];
+		$trackingCode = $formObj[0]["trackingCode"];
+		$send_email_to_user_state =$formObj[0]["sendEmail"];
+		$email_user="null";
+
+
 		
 		error_log('db');
 		
@@ -536,7 +546,7 @@ class _Public {
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 
-	/* 	error_log($type);
+		/* 	error_log($type);
 		error_log($captcha_success->succes);
 		error_log($not_captcha); */
 		if ($not_captcha==false && $captcha_success->success==false  ) {
@@ -544,10 +554,10 @@ class _Public {
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}else if ( $not_captcha==true || $captcha_success->success==true) {
-			 error_log('code');
+		/* 	 error_log('code');
 			 error_log($_POST['value']);
 			 error_log($_POST['name']);
-			 error_log($_POST['id']);
+			 error_log($_POST['id']); */
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>__("Please enter a vaild value" , 'easy-form-builder')); 
 				wp_send_json_success($response,$_POST);
@@ -558,12 +568,19 @@ class _Public {
 			$this->id = sanitize_text_field($_POST['id']);
 			
 			
-			
+			$fs =str_replace('\\', '', $this->value);
+			$valobj = json_decode($fs , true);
+			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+				foreach($valobj as $key => $val){				
+						error_log($val["id_"]);
+						if ($val["id_"]==$formObj[0]["email_to"]){
+							error_log('formObj[$key]["id_"]');
+							$email_user=$val["value"];
+						}
+				} 
+			}
+			error_log($email_user);
 
-				/* 	$en = json_decode($this->value , true);
-					foreach($en as $key=>$val){
-					error_log($val);
-					} */
 			
 					switch($type){
 						case "form":
@@ -573,15 +590,22 @@ class _Public {
 							$check=	$this->insert_message_db();
 							
 				
-							$r= $this->get_setting_Emsfb('setting');
+							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
-								$setting =json_decode($r->setting);								
+								//$setting =json_decode($r->setting);								
 								if (strlen($setting->emailSupporter)>2){
 								//	error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
 			
-								$this->send_email_Emsfb($email,$check);
+								$this->send_email_Emsfb($email,$check,$pro,"newMessage");
+								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
+									if($trackingCode=="true"||$trackingCode=="true")
+									{ $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
+									}else{
+									 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
+									}
+								}
 							}
 					 
 			
@@ -594,35 +618,7 @@ class _Public {
 							$password;
 							$email = 'null';
 							$m = str_replace("\\","",$this->value);
-							$registerValues = json_decode($m,true);
-							/* 
-							foreach($registerValues as $value){
-								//error_log(json_encode($value));
-								$state =-1; //0 username 1 password
-								error_log("---------");
-								error_log($value->id_);
-								error_log($value->value);
-								foreach($value as $key=>$val){
-									if ($key=="id_"){
-										if($val=='usernameRegisterEFB') $state =0;
-										else if($val=='passwordRegisterEFB') $state =1;
-										else if($val=='emailRegisterEFB') $state =2;
-										else $state=-1;
-									}
-									if($key=="value" && $state==0){
-										$username=$val;
-									}
-									if($key=="value" && $state==1){
-										$password=$val;
-										$val = '*******';
-										
-										error_log($val);
-									}
-									if($key=="value" && $state==2){
-										$email=$val;
-									}
-								}//end foreach 2
-							}//end foreach 1  */
+							$registerValues = json_decode($m,true);					
 							foreach ($registerValues as &$rv) {
 								if ($rv['id_'] == 'passwordRegisterEFB'){
 									$password=$rv['value'];
@@ -668,19 +664,13 @@ class _Public {
 									if(gettype($state)=="object"){
 
 										$to = $email;
-										$efb ='<p> '. __("sent by:") . home_url(). '</p>';
-										if($pro==false) $efb ='<p> '. __("from").':'. home_url(). ' '. __("sent by:" , 'easy-form-builder') .'  <b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-										$subject ="". __("Welcome to" , 'easy-form-builder')." " .get_bloginfo('name');
-										$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-										$message ='<!DOCTYPE html> <html> <body><p>'.  __('username')  .':'.$username .' </p> <p>'. __('password')  .':'.$username.'</p>
-										<p> '.$efb. '</p>
-										</body> </html>';
-										//error_log($from);
-										$headers = array(
-										 'MIME-Version: 1.0\r\n',
-										 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
-										 'From:'.$from.''
-										 );
+									
+										
+										
+										if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
+											$m ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$username."</p>";
+											$this->send_email_Emsfb($email_user,$m,$pro,"register");
+									    }
 										$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									}
 								}
@@ -821,19 +811,20 @@ class _Public {
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db();
 			
-							$r= $this->get_setting_Emsfb('setting');
+							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
-								$setting =json_decode($r->setting);
+								//$setting =json_decode($r->setting);
 								if (strlen($setting->emailSupporter)>2){
 								//	error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
+								}													
+								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
+									 $this->send_email_Emsfb($email_user,"",$pro,"subscribe");
 								}
-			
-								$this->send_email_Emsfb($email,$check);
 							}
 			
 			
-							$response = array( 'success' => true , 'm' =>'Text message'); 
+							$response = array( 'success' => true , 'm' =>__('Done', 'easy-form-builder')); 
 							wp_send_json_success($response,$_POST);
 						break;
 						case "survey":
@@ -841,19 +832,22 @@ class _Public {
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db();
 			
-							$r= $this->get_setting_Emsfb('setting');
+							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
-								$setting =json_decode($r->setting);
+								//$setting =json_decode($r->setting);
 								if (strlen($setting->emailSupporter)>2){
 								//	error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
 			
-								$this->send_email_Emsfb($email,$check);
+								
+								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
+									$this->send_email_Emsfb($email_user,"",$pro,"survey");
+							    }
 							}
 			
 			
-							$response = array( 'success' => true , 'm' =>'survey added'); 
+							$response = array( 'success' => true , 'm' =>__('survey has been completed', 'easy-form-builder')); 
 							wp_send_json_success($response,$_POST);
 						break;
 						case "reservation":
@@ -861,14 +855,14 @@ class _Public {
 
 						
 						default:
-						$response = array( 'success' => false  ,'m'=>__('Secure Error 405', 'easy-form-builder')); 
+						$response = array( 'success' => false  ,'m'=>__('Security Error 405', 'easy-form-builder')); 
 						wp_send_json_success($response,$_POST);
 					}
 
 		}
 		//recaptcha end
 	}else{
-		$response = array( 'success' => false , "m"=>__("Error,Setting is not set" , 'easy-form-builder')); 
+		$response = array( 'success' => false , "m"=>__("Error,Setting not Found" , 'easy-form-builder')); 
 		wp_send_json_success($response,$_POST);
 	}
 
@@ -878,7 +872,7 @@ class _Public {
 	  public function get_ajax_track_public(){
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Security  error 403', 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security Error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -911,7 +905,7 @@ class _Public {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>__("Please enter a vaild value", 'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=>__("Please enter vaild values", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -1007,7 +1001,7 @@ class _Public {
 		error_log('file_upload_public');
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Secure Error 403')); 
+			$response = array( 'success' => false  , 'm'=>__('Security Error 403')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -1047,7 +1041,7 @@ class _Public {
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>__('Security  error 403' , 'easy-form-builder')); 
+			$response = array( 'success' => false  , 'm'=>__('Security Error 403' , 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -1066,7 +1060,7 @@ class _Public {
 		
 
 		if($this->isHTML($_POST['message'])){
-			$response = array( 'success' => false , "m"=> __("You don't allow to use HTML tag", 'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=> __("You are not allowed use HTML tag", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -1076,6 +1070,7 @@ class _Public {
 			$setting =json_decode($r->setting);
 			$secretKey=$setting->secretKey;
 			$email =$setting->emailSupporter ;
+			$pro = $setting->activeCode;
 			//error_log($email);
 			$response=$_POST['valid'];
 			$id;
@@ -1124,32 +1119,59 @@ class _Public {
 				//	error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}
-			
-				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track);}
-
-				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 
-				wp_send_json_success($response,$_POST);
 				
-			
+				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage");}
+				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 
+				wp_send_json_success($response,$_POST);							
 			
 		}
 
 	}//end function
 
-	public function send_email_Emsfb($to , $track){
-	//	error_log("send_email_Emsfb");
-		//error_log($to);
-/*    $message ='<!DOCTYPE html> <html> <body><h3>A New Message has been Received ,Track No: ['.$track.']</h3>
-   <p>This message is sent by <b>Easy Form Builder</b> plugin from '. home_url().' </p>
-   <p> <a href="'.wp_login_url().'">Email Owner: '. home_url().' </a> </body> </html>'; */
-   $message ='<!DOCTYPE html> <html> <body><h3>'. __('A New Message has been Received.') . __('Tracking Code','easy-form-builder')  .': ['.$track.']</h3>
-   <p> '. __("sent by Easy form builder", 'easy-form-builder') .'<b>'. __('Easy Form Builder' , 'easy-form-builder') .'</b> '. home_url(). '</p>
-   <p> <a href="'.wp_login_url().'">Email Owner: '. home_url().' </a></p> </body> </html>';
+	public function send_email_Emsfb($to , $track ,$pro , $state){
   
-   $subject ="📮 ".__('Easy Form Builder:You have Recived New Response', 'easy-form-builder');
-   $from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+   $cont = "['.$track.']";
+   $subject ="📮 ".__('You have Recived New Message', 'easy-form-builder');
+   if($state=="notiToUserFormFilled_TrackingCode"){
+	$subject =__('We Recived your Message', 'easy-form-builder');
+	$message ="<h2>".__('Thanks for filling out our form!', 'easy-form-builder')."</h2>
+			<p>". __('Tracking code' , 'easy-form-builder').": ".$cont." </p>
+			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+			";
+	$cont=$message;
+   }elseif($state=="notiToUserFormFilled"){
+	$subject =__('We Recived your Message.', 'easy-form-builder');
+	$message ="<h2>".__('Thanks for filling out our form!', 'easy-form-builder')."</h2>
+	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+	";
+	$cont=$message;
+   }elseif ($state=="register"){
+	$subject =__('Thank you for registering.', 'easy-form-builder');   
+	$message ="<h2>".__('Welecome', 'easy-form-builder')."</h2>
+	".$cont."
+	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+	";
+	$cont=$message;
+   }elseif ($state=="subscribe"){
+	$subject =__('welecome', 'easy-form-builder');   
+	$message ="<h2>".__('Thank You For Subscribing!', 'easy-form-builder')."</h2>
+	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+	";
+	$cont=$message;
+   }elseif ($state=="survey"){
+	$subject =__('welecome', 'easy-form-builder');   
+	$message ="<h2>".__('TThank you for taking the time to complete this survey.', 'easy-form-builder')."</h2>
+	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+	";
+	$cont=$message;
+   }
+   error_log("state");
+   error_log($state);
+   error_log($cont);
+   $efbFunction = new efbFunction();   
+   $check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
    //error_log($from);
-   $headers = array(
+   /*    $headers = array(
 	'MIME-Version: 1.0\r\n',
 	'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
     'From:'.$from.''
@@ -1160,7 +1182,7 @@ class _Public {
       }//Message was sent!
       else  {
 		//error_log("message wasn't sent");
-      }//message wasn't sent
+      }//message wasn't sent */
 	}
 
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }

@@ -1044,7 +1044,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </h5>
                                 <a class="mx-5" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>
                                 <div class="card-body mx-4">
-                                    <input type="text" class="form-control efb h-d-efb" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
+                                    <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
 
@@ -1065,10 +1065,10 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="card-body mx-4">
                                         <div class="row col-12">
                                             <div class="col-md-8">
-                                              <input type="text"  class="form-control efb h-d-efb " id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>
+                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded" id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>
                                               <span id="shortCode_emsFormBuilder-message" class="text-danger"></span>
                                             </div> 
-                                              <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink btn-lg " onclick="copyCodeEfb('shortCode_emsFormBuilder')">
+                                              <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink " onclick="copyCodeEfb('shortCode_emsFormBuilder')">
                                                   <i class="efb bi-clipboard-check me-2"></i> ${efb_var.text.copy}
                                               </button>
                                           </div>
@@ -1091,10 +1091,10 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="mx-5"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2">${efb_var.text.siteKey}</label>
-                                <input type="text" class="form-control col-12 efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
+                                <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
                                 <span id="sitekey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                                 <label class="form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="form-control col-12 efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
+                                <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
                                 <span id="secretkey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
                             <h5 class="card-title mt-4 ">
@@ -1103,7 +1103,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="mx-5">${efb_var.text.youNeedAPIgMaps} <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> </p>
                             <div class="card-body mx-4">                                   
                                 <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
+                                <input type="text" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
                                 <span id="apikey_map_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
@@ -1118,7 +1118,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="mx-5">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
                                 <div class="card-body mx-4">
                                     <label class="form-label mx-2">${efb_var.text.email}</label>
-                                    <input type="email" class="form-control efb h-d-efb ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
+                                    <input type="email" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
                                     <span id="email_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                                 </div>
                                 

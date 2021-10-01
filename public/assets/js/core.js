@@ -33,7 +33,9 @@ jQuery(function () {
   efb_var = ajax_object_efm
   if (ajax_object_efm.state != 'tracker') {
     const ajax_value = JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, ''));
-    if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== "setting was not added") {
+    console.log(ajax_object_efm.form_setting);
+    console.log(ajax_object_efm.text.settingsNfound);
+    if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
       form_type_emsFormBuilder = ajax_object_efm.type;
 
       if (ajax_object_efm.type != "userIsLogin") {

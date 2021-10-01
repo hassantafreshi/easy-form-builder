@@ -1822,3 +1822,12 @@ button.btn-close {
     height: auto;
 }
 
+#shortCode_emsFormBuilder,
+#email_emsFormBuilder,
+#apikey_map_emsFormBuilder,
+#secretkey_emsFormBuilder,
+#sitekey_emsFormBuilder,
+#activeCode_emsFormBuilder
+ {
+    height: 45px!important;
+}

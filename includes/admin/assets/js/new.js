@@ -55,7 +55,8 @@ function creator_form_builder_Efb() {
       type: 'form', steps: 1, formName: efb_var.text.form, email: '', trackingCode: '', EfbVersion: 2,
       button_single_text: 'send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: 'next', button_Previous_text: 'previous',
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
-      el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, show_pro_bar: false, captcha: false,
+      el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
+      show_pro_bar: false, captcha: false, thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',
       sendEmail: false, stateForm: false
     });
   }

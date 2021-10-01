@@ -104,32 +104,36 @@ class Create {
 		<?php
 		wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 		wp_enqueue_script('Emsfb-listicons-js');
+
 		$pro =false;
-	
-		$ac= $this->get_setting_Emsfb();
-		if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){
-			$pro=true;
-		}
-		if(	$pro==true){
-				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
-				wp_enqueue_script('whitestudio-admin-pro-js');
+		$efbFunction = new efbFunction(); 
+		$ac= $efbFunction->get_setting_Emsfb();
+		
+		if(gettype($ac)!="string"){
+			if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){
+				$pro=true;
+			}
+			if(	$pro==true){
+					wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
+					wp_enqueue_script('whitestudio-admin-pro-js');
 
-			/* 	wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
-					'pro' => $pro,
-					'rtl' => is_rtl(),
-					'text' => $lang
-							)); */
-		}
+				/* 	wp_localize_script('whitestudio-admin-pro-js','efb_var',array(
+						'pro' => $pro,
+						'rtl' => is_rtl(),
+						'text' => $lang
+								)); */
+			}
 
-		if(strlen($ac->apiKeyMap)>5){
-			$k= $ac->apiKeyMap;
-			$lang = get_locale();
-				if ( strlen( $lang ) > 0 ) {
-				$lang = explode( '_', $lang )[0];
-				}
-			//error_log($lang);
-			wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lang.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-			wp_enqueue_script('googleMaps-js');
+			if(strlen($ac->apiKeyMap)>5){
+				$k= $ac->apiKeyMap;
+				$lang = get_locale();
+					if ( strlen( $lang ) > 0 ) {
+					$lang = explode( '_', $lang )[0];
+					}
+				//error_log($lang);
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lang.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				wp_enqueue_script('googleMaps-js');
+			}
 		}
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -317,7 +321,7 @@ class Create {
 			"sampleDescription" => __('Sample description','easy-form-builder'),//v2
 			"editField" => __('Edit Field','easy-form-builder'),//v2
 			"description" => __('Description','easy-form-builder'),//v2
-			"thisEmailNotificationReceive" => __('This Email will receive notification email','easy-form-builder'),
+			"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'),
 			"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 
 			"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'), //v2 
 			"dontShowIconsStepsName" => __('Don\'t show Icons & Steps name','easy-form-builder'), //v2 
@@ -402,7 +406,7 @@ class Create {
 			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'), //v2 
 			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'), //v2 
 			"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'), //v2 
-			"reCAPTCHASetError" => __('Please go to setting of easy form builder and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
+			"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'), //v2 
 			"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'), //v2 
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'), //v2 
 			"siteKey" => __('SITE KEY','easy-form-builder'), //v2 
@@ -449,8 +453,16 @@ class Create {
 		];
 		$smtp =false;
 		$captcha =false;
-		if(strlen($ac->siteKey)>5){$captcha="true";}
-		if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}
+		$smtp_m = "";
+		error_log(gettype($ac)!="string");
+		if(gettype($ac)!="string"){
+			if(strlen($ac->siteKey)>5){$captcha="true";}
+			if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}else{
+				$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
+			}			
+		}else{
+			$smtp_m = __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on "Click To Check Email Server"','easy-form-builder');
+		}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -460,7 +472,8 @@ class Create {
 			'text' => $lang	,
 			'images' => $img,
 			'captcha'=>$captcha,
-			'smtp'=>$smtp
+			'smtp'=>$smtp,
+			"smtp_message"=>$smtp
 			
 
 					));
@@ -511,7 +524,7 @@ class Create {
 		$this->value =  sanitize_text_field($_POST['value']);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
-			$response = array( 'success' => false , "m"=> __("You don't allow to use Scripts tag" ,'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=> __("You are not allowed use Scripts tag" ,'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
@@ -558,13 +571,13 @@ class Create {
 		$rtrn='null';
 		if(count($value)>0){		
 			foreach($value[0] as $key=>$val){
-			$r =json_decode($val);
-			$rtrn =$r->activeCode;
+			$rtrn =json_decode($val);
+			//$rtrn =$r->activeCode;
 			//error_log($r->apiKeyMap);
 			break;
 			} 
 		}
-		return $r;
+		return $rtrn;
 	}
 }
 
