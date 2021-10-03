@@ -686,10 +686,15 @@ function fun_get_form_by_id(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        //console.l(res.data.ajax_value ,res);
-        const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
+   //     console.log(res.data.ajax_value ,res);
+       let v= res.data.ajax_value.replace(/[\\]/g, '')
+        
+       //      let value=v; */
+       console.log(v);
+  
+       const value = JSON.parse(v);
         const len = value.length
-        console.log(res);
+       // console.log(res);
         setTimeout(() => {
           formName_Efb = valj_efb[0].formName;
           form_ID_emsFormBuilder = id;
@@ -964,13 +969,13 @@ function fun_show_help__emsFormBuilder() {
   </div></div></div>
   <div class="col-md-4 mx-1 py-5 crd efb">
                   <img src="${efb_var.images.logo}"  class="description-logo efb">
-                  <h1 class="efb" onclick="Link_emsFormBuilder('efb')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
-                  <h3 class="efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
+                  <h1 class="efb pointer-efb" onclick="Link_emsFormBuilder('ws')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
+                  <h3 class="efb pointer-efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="clearfix"></div>
                   <p class=" card-text efb pb-3 fs-7">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="btn efb btn-danger btn-lg" href="#form"><i class="efb bi-gem me-2"></i>${efb_var.text.getProVersion}</a>
+                  <a class="btn efb btn-danger btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem me-2"></i>${efb_var.text.getProVersion}</a>
                   <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle me-2"></i>${efb_var.text.documents}</a>
               </div>
   </div>
@@ -1042,7 +1047,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="card-title mt-4 ">
                                     <i class="efb bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="mx-5" href="${proUrl_ws}">${efb_var.text.clickHereGetActivateCode}</a>
+                                <a class="mx-5 efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
                                 <div class="card-body mx-4">
                                     <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>

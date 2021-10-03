@@ -801,7 +801,7 @@ class _Public {
 									$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 								}
 							}
-							$m=__('If your email is corrected, the new password will sent to your eamil', 'easy-form-builder');
+							$m=__('If your email is correct, the new password will sent to your eamil.', 'easy-form-builder');
 							$response = array( 'success' => true , 'm' =>$m); 
 							wp_send_json_success($response,$_POST);
 						break;
@@ -982,17 +982,10 @@ class _Public {
 
 	public function get_ip_address(){
 		//source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			//check ip from share internet
-			$ip = $_SERVER['HTTP_CLIENT_IP'];
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			//to check ip is pass from proxy
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		} else {
-			$ip = $_SERVER['REMOTE_ADDR'];
-		}
-	 $this->ip = $ip;
-	 //error_log($ip);
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+	 $this->ip = $ip;	 
 	 return $ip;
 	}//end function
 
@@ -1165,24 +1158,12 @@ class _Public {
 	";
 	$cont=$message;
    }
-   error_log("state");
+/*    error_log("state");
    error_log($state);
-   error_log($cont);
+   error_log($cont); */
    $efbFunction = new efbFunction();   
    $check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
-   //error_log($from);
-   /*    $headers = array(
-	'MIME-Version: 1.0\r\n',
-	'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
-    'From:'.$from.''
-	);
-   $sent = wp_mail($to, $subject, strip_tags($message), $headers);
-      if($sent) {
-		//error_log(__("Message was sent"));
-      }//Message was sent!
-      else  {
-		//error_log("message wasn't sent");
-      }//message wasn't sent */
+
 	}
 
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }

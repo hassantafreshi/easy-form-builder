@@ -269,7 +269,7 @@ class Admin {
             die();
         }
         $id         = number_format($_POST['id']);
-        $value      = sanitize_text_field($_POST['value']);
+        $value      = ($_POST['value']);
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "Emsfb_form";
         //,`form_name` =>
@@ -626,17 +626,9 @@ class Admin {
 
     public function get_ip_address() {
         //source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            //check ip from share internet
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        }
-        elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            //to check ip is pass from proxy
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
-        else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {$ip = $_SERVER['REMOTE_ADDR'];}
         return $ip;
     }
 
@@ -651,7 +643,6 @@ class Admin {
 			foreach($value[0] as $key=>$val){
 			$r =json_decode($val);
 			$rtrn =$r->activeCode;
-			//error_log($r->apiKeyMap);
 			break;
 			} 
 		}

@@ -358,6 +358,15 @@ background-image: linear-gradient(65deg,#eb5892 0,#2c3c91 100%);
 border-radius: 100px;
 transition: 0.5s;
 }
+
+.btn-muted.efb {
+    background-color: #6e6e6e;
+    background-image: linear-gradient(300deg,#6e6e6e 0,#4c4c4cad 100%);
+    border: none;
+    border-radius: 100px;
+    transition: 0.5s;
+}
+
 .top_circle-efb-1 {
 height: 800px;
 width: 800px;
@@ -1554,13 +1563,13 @@ display: table;
 /* form show */
 
 
-#msform {
+/* #efbform {
 text-align: center;
 position: relative;
 margin-top: 20px
-}
+} */
 /* 
-#msform fieldset {
+#efbform fieldset {
 background: white;
 border: 0 none;
 border-radius: 0.5rem;
@@ -1574,8 +1583,8 @@ position: relative
 */
 
 
-/* #msform input,
-#msform textarea {
+/* #efbform input,
+#efbform textarea {
 padding: 8px 15px 8px 15px;
 border: 1px solid #ccc;
 border-radius: 0px;
@@ -1589,9 +1598,9 @@ background-color: #ECEFF1;
 font-size: 16px;
 letter-spacing: 1px
 } */
-
-#msform input:focus,
-#msform textarea:focus {
+/* 
+#efbform input:focus,
+#efbform textarea:focus {
 -moz-box-shadow: none !important;
 -webkit-box-shadow: none !important;
 box-shadow: none !important;
@@ -1599,7 +1608,7 @@ border: 1px solid #202a8d;
 outline-width: 0
 }
 
-#msform .action-button {
+#efbform .action-button {
 width: 100px;
 
 font-weight: bold;
@@ -1612,12 +1621,12 @@ margin: 10px 0px 10px 5px;
 float: right
 }
 
-#msform .action-button:hover,
-#msform .action-button:focus {
+#efbform .action-button:hover,
+#efbform .action-button:focus {
 background-color: #202a8d
 }
 
-#msform .action-button-previous {
+#efbform .action-button-previous {
 width: 100px;
 background: #616161;
 font-weight: bold;
@@ -1630,15 +1639,16 @@ margin: 10px 5px 10px 0px;
 float: right
 }
 
-#msform .action-button-previous:hover,
-#msform .action-button-previous:focus {
+#efbform .action-button-previous:hover,
+#efbform .action-button-previous:focus {
 background-color: #000000
 }
-
+ */
 
 #steps-efb {
 overflow: hidden;
-color: lightgrey
+color: lightgrey;
+text-align: center!important;
 }
 
 #steps-efb .active {
@@ -1831,6 +1841,10 @@ button.btn-close {
 #activeCode_emsFormBuilder
  {
     height: 45px!important;
+}
+.efb.pointer-efb,
+.efb.pointer-efb:hover{
+    cursor: pointer;
 }
 
 

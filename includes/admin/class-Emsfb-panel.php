@@ -332,6 +332,7 @@ class Panel_edit  {
 				"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
 				"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
+				"thisElemantNotAvailable" => __('TThe Field is not available in this type forms','easy-form-builder'),//v2
 
 				
 				//v2 translate end
@@ -433,7 +434,7 @@ class Panel_edit  {
 			<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>" </script>
 				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
 					<div class="container">
-						<a class="navbar-brand efb" href="https://whitestudio.team" target="blank">
+						<a class="navbar-brand efb" href="admin.php?page=Emsfb_create" >
 							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="logo efb">
 							Easy Form Builder</a>
 						<button class="navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

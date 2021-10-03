@@ -172,7 +172,7 @@ class Create {
 			"numberOfSteps" => __('Number of steps','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
-			"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'),
+			"youUseProElements" => __('You are Using Pro version field. For saving this element in the form, activate Pro version.','easy-form-builder'),
 			"getProVersion" => __('Get Pro version','easy-form-builder'),
 			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
 			"email" => __('Email','easy-form-builder'),
@@ -298,8 +298,9 @@ class Create {
 			"createsurveyForm" => __('Create survey or poll or questionnaire forms ','easy-form-builder'),
 			"createReservationyForm" => __('Create reservation or booking forms ','easy-form-builder'),
 			"send" => __('Send','easy-form-builder'),
-			"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
-			"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login or Register form.','easy-form-builder'),
+			"thisElemantAvailableRemoveable" => __('This Field is available and removeable.','easy-form-builder'),
+			"thisElemantNotAvailable" => __('The Field is not available in this type forms','easy-form-builder'),
+			"thisElemantWouldNotRemoveableLoginform" => __('The Field would not removeable in Login or Register form.','easy-form-builder'),
 			"firstName" => __('First name','easy-form-builder'),
 			"lastName" => __('Last name','easy-form-builder'),
 			"message" => __('Message','easy-form-builder'),
@@ -521,7 +522,8 @@ class Create {
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		$this->value =  sanitize_text_field($_POST['value']);
+		$this->value = $_POST['value'];
+		error_log($this->value);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> __("You are not allowed use Scripts tag" ,'easy-form-builder')); 
