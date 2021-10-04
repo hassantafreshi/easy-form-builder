@@ -17,7 +17,7 @@ class Panel_edit  {
 		
 		if ( is_admin() ) {
 			$rtl = is_rtl();
-			$lang = [
+		/* 	$lang = [
 				"create" => __('Create','easy-form-builder'),
 				"define" => __('Define','easy-form-builder'),
 				"formName" => __('Form Name','easy-form-builder'),
@@ -146,7 +146,7 @@ class Panel_edit  {
 				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
 				"formNotFound" => __('Form is not found','easy-form-builder'),
 				"errorV01" => __('Error Code:V01','easy-form-builder'),
-				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+				"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
 				"registered" => __('Registered','easy-form-builder'),
 				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
@@ -332,12 +332,12 @@ class Panel_edit  {
 				"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
 				"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
-				"thisElemantNotAvailable" => __('TThe Field is not available in this type forms','easy-form-builder'),//v2
+				"thisElemantNotAvailable" => __('The Field is not available in this type forms','easy-form-builder'),//v2 
 
 				
 				//v2 translate end
 
-			];
+			];*/
 			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
 			wp_enqueue_script('Emsfb-listicons-js');
 
@@ -351,7 +351,10 @@ class Panel_edit  {
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
+			//$lng =new lng();
 			$ac= $efbFunction->get_setting_Emsfb();
+			$lang = $efbFunction->text_efb("panel");
+			//error_log($lngg);
 			$smtp =false;
 			$captcha =false;
 			if(gettype($ac)!="string"){

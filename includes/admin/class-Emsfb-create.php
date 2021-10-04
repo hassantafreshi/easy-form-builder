@@ -264,7 +264,7 @@ class Create {
 			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
 			"formNotFound" => __('Form does not found','easy-form-builder'),
 			"errorV01" => __('Error Code:V01','easy-form-builder'),
-			"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
+			"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
 			"registered" => __('Registered','easy-form-builder'),
 			"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		

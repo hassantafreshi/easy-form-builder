@@ -23,6 +23,7 @@ let verifyCaptcha_efb =""
 let devlop_efb=true;
 
 setTimeout(()=>{
+  console.log(efb_var)
   formName_Efb = efb_var.text.form
   pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
   
@@ -2137,7 +2138,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
               <i class="efb bi-gear-fill text-success"></i></button>${efb_var.text.andAddingHtmlCode}
           </div></div></div> `;
       } else {
-        ui = valj_efb[iVJ].value.replace(/@!/g,`"`);
+        ui = valj_efb[iVJ].value.replace(/@!/g,`"`) +  "<!--endhtml first -->";
         ui =`<div ${ previewSate==false ? `class="bg-light" id="${rndm}_html" `: ''}> ${ui} </div>`
        // console.error( ui);
        console.log(`step_ indside html ${step_el_efb}`,'pre' ,valj_efb[iVJ]);
@@ -2189,16 +2190,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <i class="efb bi-gem text-dark"> ${efb_var.text.availableProVersion}</i>`;
 
     ps = elementId=="html" ? 'col-md-12': 'col-md-10'
+    endTags = previewSate==false ? `</button> </button> </div></div>` : `</div></div>`
     newElement += `
     <div class=" my-2  ${shwBtn} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12   efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
+    
     ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el ? '</div>' : ''}
-    ${(previewSate == true && elementId != 'option') || previewSate != true ? ` </button> </button> </div></div>` : '</div>'}
-   
-    
-    
+    ${(previewSate == true && elementId != 'option' && elementId!="html") || previewSate != true ? endTags : '</div>'}
+    ${ previewSate == true && elementId=="html" || true ?   "<!--endhtml -->" : ''}
+
     `
 
     console.log(dataTag);
@@ -2225,6 +2227,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   console.log(valj_efb)
 
   console.log(`step_ before return ${step_el_efb}`,'pre' ,valj_efb[iVJ]);
+  console.log(`step_el_efb[${step_el_efb}] type[${valj_efb[iVJ].type}]  end newElemants`, 'pre_');
+  console.log(newElement, 'prevu');
   return newElement;
 }
 //id,id_,value
@@ -2379,13 +2383,19 @@ const loadingShow_efb = (title) => {
 </div>`
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  console.log(elementId ,efb_var.text)
-  let pro = false;
+  console.log(elementId ,rndm)
+  let pro = pro_efb;
   if (elementId == "multiselect" || elementId == "dadfile" || elementId == "url" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "date" || elementId == "color" || elementId == "html" || elementId == "tel" || elementId == "range" || elementId == "yesNo") { pro = true }
   console.log(elementId, "push");
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps") {
-    console.log(`step_ other[${step_el_efb}]`)
+
+    console.log(`id_: ${rndm}, dataId: ${rndm}-id, type: ${elementId}, placeholder:${efb_var.text[elementId]}, 
+    value: '', size: 100, message: ${efb_var.text.sampleDescription},
+    id: '', classes: '', name: ${efb_var.text[elementId]}, required: 0, amount: ${amount_el_efb}, step: ${step_el_efb}, corner: 'efb-rounded',label_text_size: 'fs-6',
+    label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
+    el_text_color:${txt_color}, message_text_color: 'text-muted', el_height: 'h-d-efb',label_align: 'txt-left', message_align: 'justify-content-start',
+    el_align: 'justify-content-start', pro: ${pro}`)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: efb_var.text[elementId], value: '', size: 100, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-rounded', label_text_size: 'fs-6',
@@ -2410,8 +2420,10 @@ let sampleElpush_efb = (rndm, elementId) => {
       console.log(valj_efb[(valj_efb.length) - 1]);
     } else if (elementId == "maps") {
       Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1 });
-      document.getElementById('maps').draggable = false;
-      document.getElementById('maps_b').classList.add('disabled')
+      setTimeout(()=>{
+        document.getElementById('maps').draggable = false;
+       if(document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
+      },valj_efb.length*5);
     }
   } else if (elementId == "html") {
     console.log(`step_ html[${step_el_efb}]`)
@@ -2444,7 +2456,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 
 
   }
-
+  console.log(valj_efb);
 }
 let optionElpush_efb = (parent, value, rndm, op) => {
 
@@ -2815,7 +2827,7 @@ function create_form_efb() {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7 ${value.label_text_color} ">${value.name}</strong></li>`
-        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `</fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
+        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
         console.log(step_no, value.step, head, 'pre');
 
         if (valj_efb[0].show_icon == false) { }
@@ -2834,11 +2846,11 @@ function create_form_efb() {
     console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`)
     content += `
                 ${sitekye_emsFormBuilder.length>1  ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-                </fieldset>
+                <!-- fieldset formNew 1 --> </fieldset> 
     
                 <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
                 ${loading_messge_efb()}
-               </fieldset>
+                <!-- fieldset formNew 2 --> </fieldset>
       `
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb fs-7 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch(error){
@@ -3711,8 +3723,8 @@ function send_data_efb(){
 
 
 
-function previewFormEfb(state){//v2
-  /* document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb('Save'); */
+function previewFormEfb(state){
+  //v2
   console.log('previewFormEfb', valj_efb ,'pre')
   let content = `<!--efb.app-->`
   let step_no = 0;
@@ -3723,7 +3735,9 @@ function previewFormEfb(state){//v2
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   let timeout = len * (Math.log(len)) * p;
-  timeout<510 ; timeout=510;
+console.log(timeout , 'timeout');
+  timeout<510 ? timeout=510 : 0;
+
   //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`
   //content =`<span class='efb row efb'>`
   if (state != "show" && state !="run") {
@@ -3747,37 +3761,43 @@ function previewFormEfb(state){//v2
     //valj_efb=valj_efb_
     try {
       valj_efb.forEach((value, index) => {
-        console.log(`index[${index}] value.step[${value.step}] value.step[${value.amount}] value[${value.type}] step_no[${step_no}]`, 'pre')
+        console.log(`index[${index}] value.step[${value.step}] value.step[${value.amount}] value[${value.type}] step_no[${step_no}]`, 'pre_')
         if (step_no < value.step && value.type == "step") {
-          console.log(`step_no < value.step` ,step_no ,"pre");
+          console.log(`step_no < value.step` ,step_no ,"pre__");
           step_no += 1;
           head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7  ${value.label_text_color} ">${value.name}</strong></li>`
-          content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `</fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
-          console.log(step_no, value.step, head, 'pre');
+          content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `<!-- fieldset!!! --> </fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
+          console.log(`step_no[${step_no}] type[${value.type}]  step_no < value.step && value.type == "step"`, 'pre_');
 
           if (valj_efb[0].show_icon == false) { }
         }
 
         if (value.type == 'step' && value.type != 'html') {
-          console.log(`value.type == 'step` ,value.type , step_no ,"pre");
+          console.log(`step_no[${step_no}] type[${value.type}]  value.type == 'step' && value.type != 'html'`, 'pre_');
           steps_index_efb.push(index)
           //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="m-2 content-efb row">` 
         } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
           // content+='<div class="mb-3">'
-          console.log(`(value.type != 'step' && value.type != 'form' && value.type != 'option'` ,"pre");
+          console.log(`step_no[${step_no}] type[${value.type}]  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
           content += addNewElement(value.type, value.id_, true, true);
+          console.log(`step_no[${step_no}] type[${value.type}] addNewElemen  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
+          if(value.type=="html") content+="<!--testHTML-->"
+          console.log(content , "pre_html")
+         
           //  content+=`<div id="${value.id_}_fb" class="m-2"></div></div>`
 
         }
+        console.log(`step_no[${step_no}] type[${value.type}] foreach` ,"pre_");
       })
+
       step_no += 1;
-      console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}] step_no[${step_no}]`,'pre')
+      console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}] step_no[${step_no}]`,'pre_')
       content += `
            ${sitekye_emsFormBuilder.length>1? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-          </fieldset>
+           <!-- fieldset1 --> </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
             ${loading_messge_efb()}                
-          </fieldset>`
+            <!-- fieldset2 --></fieldset>`
       head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb fs-7 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
     } catch(error) {
       console.error(`Preview of Pc Form has an Error`,error)

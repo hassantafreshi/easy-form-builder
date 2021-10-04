@@ -354,7 +354,7 @@ function validateForm_emsFormBuilder_view() {
               //console.log(check ,999)
               valid=false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.enterٰValidURL}</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.enterValidURL}</small>`
             }else{
               valid=true;
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
