@@ -32,7 +32,8 @@ jQuery(function () {
   poster_emsFormBuilder = ajax_object_efm.poster;
   efb_var = ajax_object_efm
   if (ajax_object_efm.state != 'tracker') {
-    const ajax_value = JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, ''));
+    console.log(ajax_object_efm)
+    const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
     console.log(ajax_object_efm.form_setting);
     console.log(ajax_object_efm.text.settingsNfound);
     if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
@@ -65,7 +66,7 @@ jQuery(function () {
       //console.log("settingError");
       fun_show_alert_setting_emsFormBuilder()
     } else if (ajax_object_efm.state == 'userIsLogin') {
-      document.getElementById('body_emsFormBuilder').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
+      document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
     }
   } else {
     fun_show_alert_setting_emsFormBuilder()
@@ -1186,7 +1187,7 @@ function endMessage_emsFormBuilder_view() {
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
         //console.log(`error => ${file.state}`,file)
         checkFile = -100;
-        document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
          <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-sm m-1" onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>`;
         return;
 
@@ -1213,7 +1214,7 @@ function endMessage_emsFormBuilder_view() {
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             //console.log(`error => ${file.state}`,file)
             checkFile = -100;
-            document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+            document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
                <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-sm m-1" onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>`;
             return;
 
@@ -1899,7 +1900,7 @@ function validation_before_send_emsFormBuilder() {
   require = require > fill ? 1 : 0;
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
     //console.log(sendBack_emsFormBuilder_pub)
-    document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-sm m-1" onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>`;
     // window.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('body_efb').scrollIntoView(true);
@@ -1920,33 +1921,16 @@ function validation_before_send_emsFormBuilder() {
 
 
 function show_user_profile_emsFormBuilder(ob) {
-
-
-  return `<div class="padding ">
-  <div class="row container d-flex justify-content-center" >
-      <div class="col-xl-6 col-md-12 text-center" id="emsFormBuilder-form">
-          <div class="">
-              <div class="row mx-0">
-                  <div class="col-sm-12 bg-c-lite-green user-profile">
-                      <div class="card-block text-center text-dark">
-                          <div class="mb-5"> <img src="${ob.user_image}" class="userProfileImageEFB" alt="${ob.display_name}"> </div>
-                          <h6 class="f-w-600">${ob.display_name}</h6>
-                          <p>${ob.user_login}</p> 
-                         
-                          <button type="button"  class="btn btn-lg btn-block mat-shadow emsFormBuilder btn-type-efb  " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
-                      </div>
-                  </div>
-                  
-              </div>
-          </div>
-      </div>
-  </div>
-</div>`
+  return `<div class="mt-5"><div class="card-block text-center text-dark">
+              <div class="mb-3"> <img src="${ob.user_image}" class="userProfileImageEFB" alt="${ob.display_name}"> </div>
+              <h6 class="display-6 mb-1">${ob.display_name}</h6> <p class="">${ob.user_login}</p>                          
+              <button type="button"  class="btn btn-lg btn-danger efb mt-1 " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
+          </div> </div>`
 }
 
 
 function emsFormBuilder_logout() {
-  document.getElementById('emsFormBuilder-form').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder text-center"></h1> <h3 class="text-center">${ajax_object_efm.text.pleaseWaiting}<h3>`;
+  document.getElementById('body_efb').innerHTML = loading_messge_efb();
 
   form_type_emsFormBuilder = "logout";
   formName = "logout";
@@ -2017,22 +2001,23 @@ function response_fill_form_efb(res) {
       case 'form':
       case 'survey':
         document.getElementById('efb-final-step').innerHTML = funTnxEfb(res.data.track)
-        //document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+        //document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${trackingCode_state_emsFormBuilder=="true" && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
         break;
       case 'subscribe':
-        document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
         break;
       case 'recovery':
       case 'register':
         console.log(res.data.m);
-        document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${res.data.m}</h3></br></br></h3>`;
+      //  document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${res.data.m}</h3></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',res.data.m);
         break;
       case 'login':
 
 
         if (res.data.m.state == true) {
           //console.log(res.data);
-          document.getElementById('body_emsFormBuilder').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
+          document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
 
           location.reload();
         } else {
@@ -2064,7 +2049,7 @@ function response_fill_form_efb(res) {
     console.log(`res : error`, res.data.m)
     //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
     //${ajax_object_efm.text.somethingWentWrongPleaseRefresh}
-    document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2"> ${res.data.m}</span>
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2"> ${res.data.m}</span>
     <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-sm m-1" onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>`;
 
 
@@ -2080,7 +2065,7 @@ function response_Valid_tracker_efb(res) {
   } else {
     //console.log(`res : error`)      
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
-    document.getElementById('body_efb-track').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
      <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl == 1 ? 'fa fa-angle-double-right' : 'fa fa-angle-double-left'}"></i></button></div>`;
 
   }

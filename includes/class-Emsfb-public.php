@@ -210,6 +210,10 @@ class _Public {
 				"on" => __('On','easy-form-builder'), //v2 
 				"off" => __('Off','easy-form-builder'), //v2 
 				"settingsNfound" =>__('Settings not found','easy-form-builder'),//v2
+				"lastName" => __('Last Name','easy-form-builder'),
+				"firstName" => __('First Name','easy-form-builder'),
+				"contactusForm" => __('Contact-us Form','easy-form-builder'),
+				"registerForm" => __('Register Form','easy-form-builder'),
 			
 				];
 				$typeOfForm =$this->value[0]->form_type;
@@ -252,15 +256,19 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 		 $k="";
+		 $pro=false;
 		 if(gettype($stng)!="string"){
 			 $valstng= json_decode($stng);
 			 if($valstng->siteKey){$k =$valstng->siteKey;}
+			 if($valstng->activeCode) $pro = true;
 		 }
+		 $efb_m ="<p class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		 if($pro==true) $efb_m="";
 	 	$content="<div id='body_efb' class='card card-public pb-3 efb'>
 		 <div class='text-center'>
-		 <div class='lds-hourglass efb text-center'></div><h2 class='efb text-center text-darkb'>".__('Please Waiting','easy-form-builder')."</h2>
+		 <div class='lds-hourglass efb text-center mt-5'></div><h3 class='efb text-center text-darkb'>".__('Please Waiting','easy-form-builder')."</h2>
 		 </div>
-		 <p class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</p> 
+		 
 		 </div><div id='alert_efb' class='mx-5'></div>
 		 <script>let sitekye_emsFormBuilder='".$k."'</script>";
 		return $content; 
@@ -351,7 +359,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><h1></h1><div>";
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div>";
 		return $content; 
 
 	}
@@ -540,7 +548,7 @@ class _Public {
 						$not_captcha=false;	 
 					}else{
 						//secretkey is not valid
-						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key' , 'easy-form-builder')); 
+						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys' , 'easy-form-builder')); 
 					}
 				}
 			}
@@ -613,7 +621,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "register":
-							//error_log("register");
+							error_log("register");
 							$username ;
 							$password;
 							$email = 'null';
@@ -629,8 +637,8 @@ class _Public {
 									$email=$rv['value'];
 								}
 							}
-							//$registerValues =json_encode($registerValues);
-							//error_log($registerValues);
+							$registerValues =json_encode($registerValues);
+							error_log($registerValues);
 							
 							$this->value=json_encode($registerValues);
 							$creds = array();
@@ -641,7 +649,7 @@ class _Public {
 							$state =wp_insert_user($creds);
 							$response;
 							//error_log(json_encode($state));
-							$m =__('Your information is successfully registered','easy-form-builder');
+							$m =__('Your account has been successfully created! You will receive an email containing your information','easy-form-builder');
 
 							// hide password
 
@@ -668,10 +676,10 @@ class _Public {
 										
 										
 										if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
-											$m ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$username."</p>";
-											$this->send_email_Emsfb($email_user,$m,$pro,"register");
+											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
+											$this->send_email_Emsfb($email_user,$ms,$pro,"register");
 									    }
-										$sent = wp_mail($to, $subject, strip_tags($message), $headers);
+										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									}
 								}
 								$response = array( 'success' => true , 'm' =>$m); 

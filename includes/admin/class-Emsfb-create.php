@@ -448,6 +448,8 @@ class Create {
 			"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
 			"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
 			"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
+			"lastName" => __('Last Name','easy-form-builder'),
+			"firstName" => __('First Name','easy-form-builder'),
 			//v2 translate end
 			
 			

@@ -21,13 +21,21 @@ let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
 let devlop_efb=true;
+efb_var_waitng=(time)=>{
+  setTimeout(()=>{
+    if(typeof (efb_var)== "object"){
+      console.log(efb_var)
+      formName_Efb = efb_var.text.form
+      pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
+      return;
+    }else{
+      console.log('not efb_var')
+      efb_var_waitng(100)
+    }
+  },time)
+}
 
-setTimeout(()=>{
-  console.log(efb_var)
-  formName_Efb = efb_var.text.form
-  pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
-  
-},500)
+efb_var_waitng(400)
 //اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
 
 
@@ -97,6 +105,7 @@ function creator_form_builder_Efb() {
   }
   
   for (let ob of objct) {
+    if (ob.id=="html" && formName_Efb=="login"){dragab=true; disable="disable"}
     els += `
     <div class="col-3 draggable-efb" draggable="${dragab}" id="${ob.id}">
      ${ob.pro == true && pro_efb==false ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
@@ -313,8 +322,6 @@ function show_setting_window_efb(idset) {
     <label for="placeholderEl" class="efb mt-3 bi-patch-exclamation me-2">${efb_var.text.placeholder}</label>
     <input type="text"  data-id="${idset}" class="elEdit text-muted form-control  border-d efb-rounded efb mb-3"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
     `
-
-
   const cornerEls = (side) => {
 
     return `
@@ -2170,7 +2177,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
   }
-
+  const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
     const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "url" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "date" || dataTag == "color" || dataTag == "html" || dataTag == "tel" || dataTag == "range" || dataTag == "yesNo") ? true : false;
     console.log(dataTag, `${pro_efb == false && pro_el}`);
@@ -2181,9 +2188,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <!--<button type="button" class="efb btn btn-edit btn-sm" id="dupElEFb" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}-id')">
     <i class="efb bi-files text-warning"></i> -->
     </button>
-    <button type="button" class="efb btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id')"> 
-    <i class="efb bi-x-lg text-danger"></i>`
+    ${ addDeleteBtnState ? '': `<button type="button" class="efb btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id')"> <i class="efb bi-x-lg text-danger"></i>`}
 
+    `
     const proActiv = `⭐ 
     <div class="btn-edit-holder d-none zindex-10-efb " id="btnSetting-${rndm}-id">
     <button type="button" class="btn efb btn-pro-efb btn-sm px-2 mx-3" id="pro"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
@@ -2313,7 +2320,7 @@ let get_position_col_el = (dataId, state) => {
   let el_parent = document.getElementById(valj_efb[indx].id_);
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`)
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`)
-  console.log(el_input, el_label, el_parent, "post");
+  //console.log(el_input, el_label, el_parent, "post");
   let parent_col = ``;
   let label_col = `col-md-12`;
   let input_col = `col-md-12`;
@@ -2384,7 +2391,7 @@ const loadingShow_efb = (title) => {
 }
 let sampleElpush_efb = (rndm, elementId) => {
   console.log(elementId ,rndm)
-  let pro = pro_efb;
+  let pro = false;
   if (elementId == "multiselect" || elementId == "dadfile" || elementId == "url" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "date" || elementId == "color" || elementId == "html" || elementId == "tel" || elementId == "range" || elementId == "yesNo") { pro = true }
   console.log(elementId, "push");
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
@@ -2526,12 +2533,12 @@ let add_buttons_zone_efb = (state, id) => {
   const btnPos = id != "dropZone" ? ' text-center' : ''
   const s = `
   <div class="${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"><i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"></i><span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <button id="btn_send_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
   <div class="${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i></button>
+  <button id="prev_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
   let c = `<div class="test mt-5 efb">`
@@ -3486,7 +3493,9 @@ function handle_navbtn_efb(steps, device) {
       var val = valj_efb.find(x => x.step == s)
       console.log(val, 'val');
       jQuery("#title_efb").attr('class', val['label_text_color']);
+      jQuery("#title_efb").attr('class', "text-center");
       jQuery("#desc_efb").attr('class', val['message_text_color']);
+      jQuery("#desc_efb").attr('class', "text-center");
       jQuery("#title_efb").text(val['name']);
       jQuery("#desc_efb").text(val['message']);
       prev_s_efb.show();
@@ -3993,7 +4002,9 @@ function fun_prev_send(){
     var val = valj_efb.find(x => x.step == s)
     console.log(val, 'val');
     jQuery("#title_efb").attr('class', val['label_text_color']);
+    jQuery("#title_efb").attr('class', "text-center");
     jQuery("#desc_efb").attr('class', val['message_text_color']);
+    jQuery("#desc_efb").attr('class', "text-center");
     jQuery("#title_efb").text(val['name']);
     jQuery("#desc_efb").text(val['message']);
     jQuery("#prev_efb").toggleClass("d-none");
