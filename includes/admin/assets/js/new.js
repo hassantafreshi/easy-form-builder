@@ -65,8 +65,9 @@ function creator_form_builder_Efb() {
       button_single_text: 'send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: 'next', button_Previous_text: 'previous',
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
-      show_pro_bar: false, captcha: false,private:false, thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',
-      sendEmail: false, 
+      show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,
+      thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',font:true,
+      
     });
   }
   console.log(efb_var);
@@ -1293,7 +1294,8 @@ let change_el_edit_Efb = (el) => {
 
 function pro_show_efb(state) {
   console.log('pro_Show_efb');
-  const message = state == 1 ? efb_var.text.proUnlockMsg : `${efb_var.text.ifYouNeedCreateMoreThan2Steps} ${efb_var.text.proVersion}`;
+   let message = state;
+  if(typeof state!="string") message = state == 1 ? efb_var.text.proUnlockMsg : `${efb_var.text.ifYouNeedCreateMoreThan2Steps} ${efb_var.text.proVersion}`;
   const body = `<div class="efb pro-version-efb-modal"><i class="efb bi-gem"></i></div>
   <h5 class="efb txt-center">${message}</h5>
   <div class="efb text-center"><button type="button" class="btn efb btn-primary btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
@@ -1329,6 +1331,9 @@ const show_modal_efb = (body, title, icon, type) => {
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new')
     document.getElementById("settingModalEfb_").classList.add('save-efb')
+  }else if(type=="chart"){
+    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
   } else {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.remove('modal-new')
@@ -2533,12 +2538,12 @@ let add_buttons_zone_efb = (state, id) => {
   const btnPos = id != "dropZone" ? ' text-center' : ''
   const s = `
   <div class="${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
   <div class="${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  " id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb  ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
+  <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  mx-2 fs-6" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
   let c = `<div class="test mt-5 efb">`
@@ -2579,7 +2584,7 @@ const open_whiteStudio_efb = (state) => {
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
-      link = `?pro`
+      link += `#pricing`
       break;
     case 'publishForm':
       link += `?publish-form`
@@ -2992,6 +2997,7 @@ function copyCodeEfb(id) {
   copyText.select();
   copyText.setSelectionRange(0, 99999); /* For mobile devices */
 
+  console.log(copyText.value);
   /* Copy the text inside the text field */
   document.execCommand("copy");
 

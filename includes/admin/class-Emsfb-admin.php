@@ -159,8 +159,8 @@ class Admin {
             wp_enqueue_style('Font_Awesome-4'); */
 
             //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
-            wp_register_style('font-awesome-animation-css', plugins_url('../../public/assets/css/font-awesome-animation.min.css', __FILE__), true);
-            wp_enqueue_style('font-awesome-animation-css');
+          /*   wp_register_style('font-awesome-animation-css', plugins_url('../../public/assets/css/font-awesome-animation.min.css', __FILE__), true);
+            wp_enqueue_style('font-awesome-animation-css'); */
 
             //source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
            /*  wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
@@ -438,10 +438,10 @@ class Admin {
         $m        = __('Message was sent', 'easy-form-builder');
         $response = ['success' => true, "m" => $m];
 
-        $ac= $this->get_setting_efb();
+        $efbFunction = new efbFunction(); 
+        $ac= $efbFunction->get_setting_efb();
         $pro = $ac->activeCode;
 
-        $efbFunction = new efbFunction(); 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, $_POST);
 
@@ -603,7 +603,8 @@ class Admin {
             die("secure!");
         }
         
-        $ac= $this->get_setting_efb();
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_efb();
         $pro = $ac->activeCode;
         $con ='';
         $sub='';
@@ -614,7 +615,6 @@ class Admin {
             $cont = "Test Email Server";
             $to =$ac->emailSupporter;
         }
-        $efbFunction = new efbFunction();   
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
       
         $response = ['success' => $check ];
@@ -632,7 +632,7 @@ class Admin {
         return $ip;
     }
 
-	public function get_setting_efb()
+/* 	public function get_setting_efb()
 	{
 		// اکتیو کد بر می گرداند	
 		
@@ -648,10 +648,8 @@ class Admin {
 		}
 		return $r;
 	}
-
+ */
     public function get_not_read_message() {
-        //error_log('get_not_read_message');
-
         $table_name = $this->db->prefix . "Emsfb_msg_";
         $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
         $rtrn       = 'null';

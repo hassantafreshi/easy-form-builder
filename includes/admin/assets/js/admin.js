@@ -64,7 +64,7 @@ const elements = {
   15: { type: 'range', icon: 'fa-arrows-h', pro_ws: true },
   16: { type: 'color', icon: 'fa-paint-brush', pro_ws: true },
 }
-function run_code_ws_1(){
+/* function run_code_ws_1(){
   if (localStorage.getItem("valueJson_ws_p")) {
     valueJson_ws_p = JSON.parse(localStorage.getItem("valueJson_ws_p"));
     // valueJson_ws_p.reverse((a, b) => b.amount - a.amount)[0]
@@ -87,9 +87,9 @@ function run_code_ws_1(){
   ShowTab_emsFormBuilder(currentTab_ws);
   //console.log(document.getElementById("prevBtn").style.display ,'prevBtn')
 
-}
+} */
 
-function ShowTab_emsFormBuilder(n) {
+/* function ShowTab_emsFormBuilder(n) {
   if(n==-1  && currentTab_ws==-1) {
     console.log(n,currentTab_ws ,n!=-1  && currentTab_ws!=-1);
     return
@@ -111,21 +111,18 @@ function ShowTab_emsFormBuilder(n) {
    // console.log(document.getElementById("prevBtn").style.display ,'1')
   }
 
-  /* if (n == (x.length - 1)) {
-    document.getElementById("nextBtn").innerHTML = '<i class="fa fa-angle-double-right"></i>';
-  } else {
-    document.getElementById("nextBtn").innerHTML = '<i class="fa fa-angle-double-right"></i>';
-  } */
+
 
 
   
     
-    fixStepIndicator(n)
+  //   fixStepIndicator(n) 
   
   //console.log(document.getElementById("prevBtn").style.display ,'exit')
 }
+ */
 
-function nextPrev(n) {
+/* function nextPrev(n) {
  
   if(currentTab_ws==0 && n==-1){
   
@@ -180,7 +177,7 @@ function nextPrev(n) {
   ShowTab_emsFormBuilder(currentTab_ws);
   
  
-}
+} */
 
 
 
@@ -204,15 +201,12 @@ function validateForm_emsFormBuilder() {
     }
   }
   if (valid == true) { document.getElementsByClassName("step")[currentTab_ws].className += " finish"; } return valid;
-  /* 
-    for (i = 0; i < y.length; i++) {
-      if (y[i].value == ""  ) { y[i].className += " invalid"; valid = false; }
-    } if (valid) { document.getElementsByClassName("step")[currentTab_ws].className += " finish"; } return valid; */
+
 }
-function fixStepIndicator(n) { var i, x = document.getElementsByClassName("step"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
+/* function fixStepIndicator(n) { var i, x = document.getElementsByClassName("step"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 
-
-function run_code_ws_2(){
+ */
+/* function run_code_ws_2(){
 
 document.getElementById("steps").addEventListener("change", (e) => {
   createSteps()
@@ -233,7 +227,7 @@ document.getElementById("form_name").addEventListener("change", (e) => {
 
 })// end event change formName_ws
 
-}
+} */
 
 
 function addNewElement_emsFormBuilder(elementId, rndm, value) {
@@ -558,7 +552,7 @@ function fillinput_emsFormBuilder() {
   }
 }//end function fillinput_emsFormBuilder
 //edit_emsFormBuilder content of dropZone
-function fun_edit_emsFormBuilder(){
+/* function fun_edit_emsFormBuilder(){
   valueJson_ws_p = importJson;
   document.getElementById('steps').disabled = true;
   let foundIndex = valueJson_ws_p.findIndex(x => x.steps == stepMax_ws);
@@ -671,7 +665,7 @@ function fun_edit_emsFormBuilder(){
     optionCreator_emsFormBuilder(el);
   }
 }//end edit_emsFormBuilder 
-
+ */
 
 function deleteButtonCreator_emsFormBuilder() {
   for (const el of document.querySelectorAll(".delete")) {
@@ -1611,6 +1605,7 @@ function add_dasboard_emsFormBuilder(){
 
 function create_form_by_type_emsfb(id){
   const state =false;
+  localStorage.removeItem('valj_efb');
   document.getElementById('header-efb').innerHTML=``;
   document.getElementById('content-efb').innerHTML=``;
   if(id==="form"){ 
@@ -1674,9 +1669,14 @@ function create_form_by_type_emsfb(id){
   /*   const  json =[{"steps":"1","name-1":efb_var.text.survey,"formName":efb_var.text.survey,"EfbVersion":1.2,"type":"survey","icon-1":"fa fa-bell"}];
     localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
     valueJson_ws_p =json;     */
-    const json =[{"type":"survey","steps":1,"formName":efb_var.text.survey,"email":"","trackingCode":"","EfbVersion":2,"button_single_text":"Submit","button_color":"btn-primary","icon":"","button_Next_text":"next","button_Previous_text":"previous","button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-xl-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"thank_you_title":"null","thank_you_message":"null","email_title":"null","emaill_message":"null","email_subject":"null","sendEmail":false},{"id_":"1","type":"step","dataId":"1","classes":"stepNavEfb","id":"1","name":"Survey form","icon":"","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},{"id_":"6af03cgwb","dataId":"6af03cgwb-id","type":"select","placeholder":"Select","value":"","size":100,"message":"","id":"","classes":"","name":"what is your favorite food ?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pasta","id_op":"n9r68xhl1","step":"1","amount":3},{"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pizza","id_op":"khp0a798x","step":"1","amount":4},{"id_":"6x1lv1ufx","dataId":"6x1lv1ufx-id","parent":"6af03cgwb","type":"option","value":"Fish and seafood","id_op":"6x1lv1ufx","step":"1","amount":5},{"id_":"yythlx4tt","dataId":"yythlx4tt-id","parent":"6af03cgwb","type":"option","value":"Vegetables","id_op":"yythlx4tt","step":"1","amount":6},{"id_":"fe4q562zo","dataId":"fe4q562zo-id","type":"checkbox","placeholder":"Check Box","value":"","size":"50","message":"","id":"","classes":"","name":"Lnaguage","required":0,"amount":7,"step":"1","corner":"efb-rounded","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"khd2i7ubz","dataId":"khd2i7ubz-id","parent":"fe4q562zo","type":"option","value":"English","id_op":"khd2i7ubz","step":"1","amount":8},{"id_":"93hao0zca","dataId":"93hao0zca-id","parent":"fe4q562zo","type":"option","value":"French","id_op":"93hao0zca","step":"1","amount":9},{"id_":"75bcbj6s1","dataId":"75bcbj6s1-id","parent":"fe4q562zo","type":"option","value":"German","id_op":"75bcbj6s1","step":"1","amount":10},{"id_":"lh1csq8mw","dataId":"lh1csq8mw-id","parent":"fe4q562zo","type":"option","value":"Russian","id_op":"lh1csq8mw","step":"1","amount":11},{"id_":"5gopt8r6b","dataId":"5gopt8r6b-id","parent":"fe4q562zo","type":"option","value":"Portuguese","id_op":"5gopt8r6b","step":"1","amount":12},{"id_":"v57zhziyi","dataId":"v57zhziyi-id","parent":"fe4q562zo","type":"option","value":"Hindi","id_op":"v57zhziyi","step":"1","amount":13},{"id_":"16suwyx5m","dataId":"16suwyx5m-id","type":"radio","placeholder":"Radio Button","value":"","size":"50","message":"","id":"","classes":"","name":"Gender","required":0,"amount":14,"step":"1","corner":"efb-rounded","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"ha0sfnwbp","dataId":"ha0sfnwbp-id","parent":"16suwyx5m","type":"option","value":"Male","id_op":"ha0sfnwbp","step":"1","amount":15},{"id_":"w3jpyg24h","dataId":"w3jpyg24h-id","parent":"16suwyx5m","type":"option","value":"Female","id_op":"w3jpyg24h","step":"1","amount":16},{"id_":"in4xa2y0f","dataId":"in4xa2y0f-id","parent":"16suwyx5m","type":"option","value":"Non-binary","id_op":"in4xa2y0f","step":"1","amount":17},{"id_":"1028hto5a","dataId":"1028hto5a-id","parent":"16suwyx5m","type":"option","value":"Transgender","id_op":"1028hto5a","step":"1","amount":18},{"id_":"rz3vkawya","dataId":"rz3vkawya-id","parent":"16suwyx5m","type":"option","value":"Intersex","id_op":"rz3vkawya","step":"1","amount":19},{"id_":"2oezrrpny","dataId":"2oezrrpny-id","parent":"16suwyx5m","type":"option","value":"I prefer not to say","id_op":"2oezrrpny","step":"1","amount":20}];
-    localStorage.setItem('valueJson_ws_p', JSON.stringify(json))
+    const json =[{"type":"survey","steps":1,"formName":efb_var.text.survey,"email":"","trackingCode":"","EfbVersion":2,"button_single_text":"Submit","button_color":"btn-primary","icon":"","button_Next_text":"next","button_Previous_text":"previous","button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-xl-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"thank_you_title":"null","thank_you_message":"null","email_title":"null","emaill_message":"null","email_subject":"null","sendEmail":false},{"id_":"1","type":"step","dataId":"1","classes":"stepNavEfb","id":"1","name":"Survey form","icon":"","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},{"id_":"6af03cgwb","dataId":"6af03cgwb-id","type":"select","placeholder":"Select","value":"","size":100,"message":"","id":"","classes":"","name":"what is your favorite food ?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
+    {"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pasta","id_op":"n9r68xhl1","step":"1","amount":3},
+    {"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pizza","id_op":"khp0a798x","step":"1","amount":4},
+    {"id_":"6x1lv1ufx","dataId":"6x1lv1ufx-id","parent":"6af03cgwb","type":"option","value":"Fish and seafood","id_op":"6x1lv1ufx","step":"1","amount":5},
+    {"id_":"yythlx4tt","dataId":"yythlx4tt-id","parent":"6af03cgwb","type":"option","value":"Vegetables","id_op":"yythlx4tt","step":"1","amount":6},
+    {"id_":"fe4q562zo","dataId":"fe4q562zo-id","type":"checkbox","placeholder":"Check Box","value":"","size":"50","message":"","id":"","classes":"","name":"Lnaguage","required":0,"amount":7,"step":"1","corner":"efb-rounded","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"khd2i7ubz","dataId":"khd2i7ubz-id","parent":"fe4q562zo","type":"option","value":"English","id_op":"khd2i7ubz","step":"1","amount":8},{"id_":"93hao0zca","dataId":"93hao0zca-id","parent":"fe4q562zo","type":"option","value":"French","id_op":"93hao0zca","step":"1","amount":9},{"id_":"75bcbj6s1","dataId":"75bcbj6s1-id","parent":"fe4q562zo","type":"option","value":"German","id_op":"75bcbj6s1","step":"1","amount":10},{"id_":"lh1csq8mw","dataId":"lh1csq8mw-id","parent":"fe4q562zo","type":"option","value":"Russian","id_op":"lh1csq8mw","step":"1","amount":11},{"id_":"5gopt8r6b","dataId":"5gopt8r6b-id","parent":"fe4q562zo","type":"option","value":"Portuguese","id_op":"5gopt8r6b","step":"1","amount":12},{"id_":"v57zhziyi","dataId":"v57zhziyi-id","parent":"fe4q562zo","type":"option","value":"Hindi","id_op":"v57zhziyi","step":"1","amount":13},{"id_":"16suwyx5m","dataId":"16suwyx5m-id","type":"radio","placeholder":"Radio Button","value":"","size":"50","message":"","id":"","classes":"","name":"Gender","required":0,"amount":14,"step":"1","corner":"efb-rounded","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":"txt-left","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},{"id_":"ha0sfnwbp","dataId":"ha0sfnwbp-id","parent":"16suwyx5m","type":"option","value":"Male","id_op":"ha0sfnwbp","step":"1","amount":15},{"id_":"w3jpyg24h","dataId":"w3jpyg24h-id","parent":"16suwyx5m","type":"option","value":"Female","id_op":"w3jpyg24h","step":"1","amount":16},{"id_":"in4xa2y0f","dataId":"in4xa2y0f-id","parent":"16suwyx5m","type":"option","value":"Non-binary","id_op":"in4xa2y0f","step":"1","amount":17},{"id_":"1028hto5a","dataId":"1028hto5a-id","parent":"16suwyx5m","type":"option","value":"Transgender","id_op":"1028hto5a","step":"1","amount":18},{"id_":"rz3vkawya","dataId":"rz3vkawya-id","parent":"16suwyx5m","type":"option","value":"Intersex","id_op":"rz3vkawya","step":"1","amount":19},{"id_":"2oezrrpny","dataId":"2oezrrpny-id","parent":"16suwyx5m","type":"option","value":"I prefer not to say","id_op":"2oezrrpny","step":"1","amount":20}];
     valueJson_ws_p =json; 
+    localStorage.setItem('valj_efb', JSON.stringify(json))
   }else if(id=="reservation"){
 
   }

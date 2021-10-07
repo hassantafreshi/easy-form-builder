@@ -6,6 +6,8 @@ namespace Emsfb;
  * Class _Public
  * @package Emsfb
  */
+require_once('functions.php');
+
 class _Public {
 	/**
 	 * _Public constructor.
@@ -91,137 +93,16 @@ class _Public {
 			
 		}
 		
-		$text = [
-				"error" => __('Error,','easy-form-builder'),
-				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-				"define" => __('Define','easy-form-builder'),
-				"loading" => __('Loading','easy-form-builder'),
-				"trackingCode" => __('Tracking code','easy-form-builder'),
-				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
-				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
-				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
-				"formNotFound" => __('Form is not found','easy-form-builder'),
-				"errorV01" => __('Error Code:V01','easy-form-builder'),
-				"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
-				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
-				"registered" => __('Registered','easy-form-builder'),
-				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
-				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),				
-				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload the','easy-form-builder'),
-				"fileSizeIsTooLarge" => __('The file size is too large , Allowed Maximum size is 8MB.','easy-form-builder'),
-				"documents" => __('Documents','easy-form-builder'),
-				"document" => __('Document','easy-form-builder'),
-				"image" => __('Image','easy-form-builder'),
-				"media" => __('Media','easy-form-builder'),		
-				"zip" => __('Zip','easy-form-builder'),
-				"trackingForm" => __('Tracking Form','easy-form-builder'),
-				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
-				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
-				"messages" => __('Messages','easy-form-builder'),
-				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
-				"alert" => __('Alert!','easy-form-builder'),
-				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),				
-				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
-				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
-				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-				"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),
-				"orClickHere" => __(' or click here','easy-form-builder'),
-				"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
-				"PleaseFillForm" => __('Please fill in the form.','easy-form-builder'),
-				"selectOption" => __('Select an option','easy-form-builder'),
-				"selected" => __('Selected','easy-form-builder'),
-				"selectedAllOption" => __('Select All','easy-form-builder'),
-				"field" => __('Field','easy-form-builder'),
-				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
-				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'),
-				"trackingCode" => __('Tracking code','easy-form-builder'),
-				"sync" => __('Sync','easy-form-builder'),
-				"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
-				"thankYou" => __('Thank you','easy-form-builder'),
-				"login" => __('Login','easy-form-builder'),
-				"logout" => __('Logout','easy-form-builder'),
-				"YouSubscribed" => __('You are subscribed','easy-form-builder'),
-				"send" => __('Send','easy-form-builder'),
-				"subscribe" => __('Subscribe','easy-form-builder'),
-				"contactUs" => __('Contact us','easy-form-builder'),
-				"support" => __('Support','easy-form-builder'),
-				"send" => __('Send','easy-form-builder'),
-				"register" => __('Register','easy-form-builder'),
-				"passwordRecovery" => __('Password recovery','easy-form-builder'),
-				"info" => __('information'),
-				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
-				"noComment" => __('No comment','easy-form-builder'),
-				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'), //v2 
-				"youUseProElements" => __('You are Using Pro version field. For saving  this element in the form, activate Pro version.','easy-form-builder'), //v2 		
-				"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'), //v2 		
-				"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'), //v2 
-				"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'), //v2 			
-				"default" => __('Default','easy-form-builder'), //v2 
-				"defaultValue" => __('Default value','easy-form-builder'), //v2 
-				"name" => __('Name','easy-form-builder'), //v2 
-				"latitude" => __('Latitude','easy-form-builder'), //v2 
-				"longitude" => __('Longitude','easy-form-builder'), //v2 
-				"previous" => __('Previous','easy-form-builder'), //v2 
-				"next" => __('next','easy-form-builder'), //v2 
-				"invalidEmail" => __('Invalid email address”','easy-form-builder'), //v2 
-				"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps in setting of plugin and try again.','easy-form-builder'), //v2 
-				"howToAddGoogleMap" => __('How to Add Google Map to Easy form Builder WordPress Plugin','easy-form-builder'), //v2 
-				"deletemarkers" => __('Delete markers','easy-form-builder'), //v2 
-				"updateUrbrowser" => __('update your browser','easy-form-builder'), //v2 
-				"stars" => __('Stars','easy-form-builder'), //v2 
-				"nothingSelected" => __('Nothing selected','easy-form-builder'), //v2 
-				"availableProVersion" => __('Available in pro version','easy-form-builder'), //v2 
-				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'), //v2 
-				"finish" => __('Finish','easy-form-builder'), //v2 
-
-				"select" => __('Select','easy-form-builder'), //v2 
-				"up" => __('Up','easy-form-builder'), //v2 
-				"red" => __('Red','easy-form-builder'), //v2 
-				"Red" => __('Red','easy-form-builder'), //v2 
-				"sending" => __('Sending','easy-form-builder'), //v2 
-				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
-			
-
-				"name" => __('Name','easy-form-builder'), //v2 
-				"add" => __('Add','easy-form-builder'), //v2 
-				"code" => __('Code','easy-form-builder'), //v2 
-				"star" => __('Star','easy-form-builder'), //v2 
-				"form" => __('Form','easy-form-builder'), //v2
-				"black" => __('Black','easy-form-builder'), //v2  
-				"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'), //v2 
-				"reportProblem" => __('Report problem','easy-form-builder'), //v2 
-				"ddate" => __('Date','easy-form-builder'),//v2
-				"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),//v2
-				"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),//v2
-				"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),//v2
-				"done" => __('Done','easy-form-builder'),//vs2
-				"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'), //v2 
-				"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),//v2
-				"browseFile" => __('Browse File','easy-form-builder'), //v2 
-				"dragAndDropA" => __('Drag & Drop the','easy-form-builder'), //v2 
-				"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'), //v2 
-				"on" => __('On','easy-form-builder'), //v2 
-				"off" => __('Off','easy-form-builder'), //v2 
-				"settingsNfound" =>__('Settings not found','easy-form-builder'),//v2
-				"lastName" => __('Last Name','easy-form-builder'),
-				"firstName" => __('First Name','easy-form-builder'),
-				"contactusForm" => __('Contact-us Form','easy-form-builder'),
-				"registerForm" => __('Register Form','easy-form-builder'),
-			
-				];
 				$typeOfForm =$this->value[0]->form_type;
 				//error_log($this->value[0]);
 				$value = $this->value[0]->form_structer;
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
-							
+				$efbFunction = new efbFunction();   
+				//translate v2
+				$showform =["error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];
+				
+				$text= $efbFunction->text_efb($showform);
 				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 
 					$typeOfForm ="userIsLogin";
@@ -280,63 +161,12 @@ class _Public {
 	public function EMS_Form_Builder_track(){
 		//tracking code show
 		$lang = get_locale();
-		$text = [
-				"trackingCode" => __('Tracking code','easy-form-builder'),
-				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
-				"alert" => __('Alert!','easy-form-builder'),
-				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
-				"error" => __('Error,','easy-form-builder'),
-				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-				"define" => __('Define','easy-form-builder'),
-				"loading" => __('Loading','easy-form-builder'),
-				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
-				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
-				"formNotFound" => __('Form is not found','easy-form-builder'),
-				"errorV01" => __('Error Code:V01','easy-form-builder'),
-				"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
-				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
-				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-				"enterThePhones" => __('Please Enter the phone number','easy-form-builder'),
-				"registered" => __('Registered','easy-form-builder'),
-				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
-				"preview" => __('Preview','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),			
-				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload the','easy-form-builder'),
-				"trackingForm" => __('Tracking Form','easy-form-builder'),
-				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
-				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
-				"messages" => __('Messages','easy-form-builder'),
-				"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
-				"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-				"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),
-				"orClickHere" => __(' or click here','easy-form-builder'),
-				"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
-				"thanksFillingOutform" => __('Thanks for filling out our form.','easy-form-builder'),
-				"trackingCode" => __('Tracking Code','easy-form-builder'),
-				"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
-				"sync" => __('Sync','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"entrTrkngNo" => __('Enter the Tracking Code','easy-form-builder'),
-				"search" => __('Search','easy-form-builder'),
-				"guest" => __('Guest','easy-form-builder'),
-				"info" => __('Info','easy-form-builder'),
-				"response" => __('Response','easy-form-builder'),
-				"reply" => __('Reply','easy-form-builder'),
-				"ddate" => __('Date','easy-form-builder'),//v2
-				"by" => __('By','easy-form-builder'),
-				"sending" => __('Sending','easy-form-builder'), //v2 
-				"enterYourMessage" => __('Please Enter your message','easy-form-builder'), //v2 
-				"finish" => __('Finish','easy-form-builder'), //v2 
-				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
-				"error" => __('error','easy-form-builder'), //v2 
-				"settingsNfound" =>__("Settings not found",'easy-form-builder'),//v2
-	
 
-				];
-		
+				$efbFunction = new efbFunction();   
+				//translate v2
+				//$showform =["error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm", ];
+				$trackfinder=["trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
+				$text= $efbFunction->text_efb($trackfinder);
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
@@ -359,7 +189,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div>";
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='mx-5'></div>";
 		return $content; 
 
 	}
@@ -404,45 +234,14 @@ class _Public {
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
 		wp_enqueue_script('efb-main-js'); 
 
-		
-		/* end v2 */
-		//source :https://getbootstrap.com/docs/4.6/getting-started/introduction/
-/* 		wp_register_style( 'bootstrap4-6-0-css',  plugins_url('../public/assets/css/bootstrapv4-6-0.min.css',__FILE__), true );
-		wp_enqueue_style( 'bootstrap4-6-0-css' );
-		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
-		wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
-		wp_enqueue_style('Font_Awesome-5');
-		//source : https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
-		wp_register_style('Font_Awesome-4', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
-		wp_enqueue_style('Font_Awesome-4');
-		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006288/BBBootstrap/choices.min.css?version=7.0.0
-		wp_register_style( 'choices-css',  plugins_url('../public/assets/css/choices.min.css',__FILE__), true );
-		wp_enqueue_style( 'choices-css' );
-		//source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
-		wp_register_style( 'font-awesome-animation-css',  plugins_url('../public/assets/css/font-awesome-animation.min.css',__FILE__), true );
-		wp_enqueue_style( 'font-awesome-animation-css' ); */
-	
-
-		//source:https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
-	/* 	wp_enqueue_script( 'popper-js', plugins_url('../public/assets/js/popper.min.js',__FILE__), array('jquery'), null, true );
-		wp_enqueue_script('popper-js'); */
-
-
-
 
 		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0
-		wp_register_script('choices-js', plugins_url('../public/assets/js/choices.min.js',__FILE__), array('jquery'), null, true);
-		wp_enqueue_script('choices-js');
+		/* wp_register_script('choices-js', plugins_url('../public/assets/js/choices.min.js',__FILE__), array('jquery'), null, true);
+		wp_enqueue_script('choices-js'); */
 
 		
 		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('core_js');
-
-		//source:https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css
-		/* wp_register_style( 'bootstrap-multiselect-css',  plugins_url('../public/assets/css/bootstrap-multiselect.css',__FILE__), true );
-		wp_enqueue_style( 'bootstrap-multiselect-css' ); */
-
-
 
 
 		/* v2 */
@@ -478,8 +277,8 @@ class _Public {
 		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB&render=explicit#asyncload', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
-				wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
-				wp_enqueue_script('Emsfb-listicons-js');
+				/* wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
+				wp_enqueue_script('Emsfb-listicons-js'); */
 
 
 				
@@ -517,10 +316,10 @@ class _Public {
 		$trackingCode = $formObj[0]["trackingCode"];
 		$send_email_to_user_state =$formObj[0]["sendEmail"];
 		$email_user="null";
-
-
+		$check;
 		
-		error_log('db');
+	
+
 		
 		if(true){
 			$not_captcha=true;
@@ -579,7 +378,8 @@ class _Public {
 			$fs =str_replace('\\', '', $this->value);
 			$valobj = json_decode($fs , true);
 			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-				foreach($valobj as $key => $val){				
+				foreach($valobj as $key => $val){	
+						
 						error_log($val["id_"]);
 						if ($val["id_"]==$formObj[0]["email_to"]){
 							error_log('formObj[$key]["id_"]');
@@ -587,12 +387,12 @@ class _Public {
 						}
 				} 
 			}
-			error_log($email_user);
 
-			
+		  
+		
 					switch($type){
 						case "form":
-							
+						
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$check=	$this->insert_message_db();
@@ -605,15 +405,24 @@ class _Public {
 								//	error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
-			
+								
 								$this->send_email_Emsfb($email,$check,$pro,"newMessage");
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 									if($trackingCode=="true"||$trackingCode=="true")
-									{ $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
+									{
+										
+										
+									$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
 									}else{
 									 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
 									}
 								}
+							}
+		
+					
+							if(strlen($email_fa)>4){
+								error_log($email_fa);
+								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 					 
 			
@@ -830,7 +639,10 @@ class _Public {
 									 $this->send_email_Emsfb($email_user,"",$pro,"subscribe");
 								}
 							}
-			
+							if(strlen($email_fa)>4){
+								error_log($email_fa);
+								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
+							}
 			
 							$response = array( 'success' => true , 'm' =>__('Done', 'easy-form-builder')); 
 							wp_send_json_success($response,$_POST);
@@ -853,6 +665,10 @@ class _Public {
 									$this->send_email_Emsfb($email_user,"",$pro,"survey");
 							    }
 							}
+							if(strlen($email_fa)>4){
+								error_log($email_fa);
+								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
+							}
 			
 			
 							$response = array( 'success' => true , 'm' =>__('survey has been completed', 'easy-form-builder')); 
@@ -861,6 +677,10 @@ class _Public {
 						case "reservation":
 						break;
 
+						if(strlen($email_fa)>4){
+							error_log($email_fa);
+							$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
+						}
 						
 						default:
 						$response = array( 'success' => false  ,'m'=>__('Security Error 405', 'easy-form-builder')); 
@@ -1038,6 +858,7 @@ class _Public {
 
 	public function set_rMessage_id_Emsfb(){
 
+
 		// این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند 
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
@@ -1075,7 +896,7 @@ class _Public {
 			//error_log($email);
 			$response=$_POST['valid'];
 			$id;
-				$id =number_format(sanitize_text_field($_POST['id']));
+				$id=number_format(sanitize_text_field($_POST['id']));
 				$m=sanitize_text_field($_POST['message']);
 			
 				
@@ -1097,7 +918,13 @@ class _Public {
 					'read_' => 0
 					
 				));  
-				$table_name = $this->db->prefix . "Emsfb_msg_";
+
+
+			
+	
+
+
+			
 				//error_log($id);
 				$this->db->update($table_name,array('read_'=>0),array('msg_id' => $id) );
 
@@ -1110,18 +937,28 @@ class _Public {
 					$by = $usr->user_nicename;
 					error_log($by);
 				}
+				$table_name = $this->db->prefix . "Emsfb_msg_";
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
-				//error_log('track');
-				//error_log($id);
-				/* error_log('setting->emailSupporter');
-				error_log(json_encode($setting));
-				error_log($setting->emailSupporter); */
+				$form_id  = $value[0]->form_id;
+				$table_name = $this->db->prefix . "Emsfb_form";
+				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
+				$valn =str_replace('\\', '', $vald[0]->form_structer);
+				$valn= json_decode($valn,true);
+				$usr;
+				$email_fa = $valn[0]["email"];
+
 				if (strlen($setting->emailSupporter)>0){
 				//	error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}
 				
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage");}
+
+				error_log($email_fa);
+				if(strlen($email_fa)>4){
+					
+					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage");
+				}
 				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 
 				wp_send_json_success($response,$_POST);							
 			

@@ -1848,3 +1848,9 @@ button.btn-close {
 }
 
 
+fieldset.efb {
+    background: transparent;
+    border: transparent;
+}
+
+

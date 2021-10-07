@@ -36,8 +36,7 @@ class efbFunction {
 			"formDate" => __('Form Date','easy-form-builder'),
 			"by" => __('By','easy-form-builder'),
 			"ip" => __('IP','easy-form-builder'),
-			"guest" => __('Guest','easy-form-builder'),
-			"info" => __('Info','easy-form-builder'),
+			"guest" => __('Guest','easy-form-builder'),			
 			"response" => __('Response','easy-form-builder'),
 			"date" => __('Date','easy-form-builder'),
 			"videoDownloadLink" => __('Video Download Link','easy-form-builder'),
@@ -54,11 +53,8 @@ class efbFunction {
 			"numberOfSteps" => __('Number of steps','easy-form-builder'),
 			"titleOfStep" => __('Title of step','easy-form-builder'),
 			"proVersion" => __('Pro Version','easy-form-builder'),
-			"getProVersion" => __('Get Pro version','easy-form-builder'),
-			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
-			"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),
-			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
-			"reCAPTCHA" => __('Please go to Easy Form Builder Panel > Setting > Google Keysand set Keys of Google reCAPTCHA','easy-form-builder'),
+			"getProVersion" => __('Get Pro version','easy-form-builder'),					
+			"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'),
 			"protectsYourWebsiteFromFraud" => __('Click here to watch a video tutorial.','easy-form-builder'),
 			"enterSITEKEY" => __('SECRET KEY','easy-form-builder'),
 			"alertEmail" => __('Alert Email','easy-form-builder'),
@@ -76,7 +72,7 @@ class efbFunction {
 			"delete" => __('Delete','easy-form-builder'),
 			"newOption" => __('New option','easy-form-builder'),
 			"media" => __('(Video or Audio)','easy-form-builder'),
-			"zip" => __('Required','easy-form-builder'),
+			"required" => __('Required','easy-form-builder'),
 			"button" => __('Text','easy-form-builder'),
 			"password" => __('Password','easy-form-builder'),
 			"email" => __('Email','easy-form-builder'),
@@ -102,8 +98,7 @@ class efbFunction {
 			"formCode" => __('Form Code','easy-form-builder'),
 			"close" => __('Close','easy-form-builder'),
 			"done" => __('Done','easy-form-builder'),
-			"demo" => __('Demo','easy-form-builder'),
-			"alert" => __('Alert!','easy-form-builder'),
+			"demo" => __('Demo','easy-form-builder'),			
 			"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
 			"availableInProversion" => __('This option is available in Pro version','easy-form-builder'),
 			"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
@@ -119,10 +114,7 @@ class efbFunction {
 			"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
 			"clickHereForActiveProVesrsion" => __('Click here for Active Pro vesrsion','easy-form-builder'),
 			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
-			"somethingWentWrongTryAgain" => __('Please Enter the phone number','easy-form-builder'),
-			"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
-			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
+			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),									
 			"formNotFound" => __('Form is not found','easy-form-builder'),
 			"errorV01" => __('Error Code:V01','easy-form-builder'),
 			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
@@ -263,12 +255,12 @@ class efbFunction {
 			"button2Value" => __('Button 2 value','easy-form-builder'),
 			"iconList" => __('Icons list','easy-form-builder'),
 			"previous" => __('Previous','easy-form-builder'),
-			"next" => __('Invalid email addressâ€','easy-form-builder'),
+			"next" => __('Next','easy-form-builder'),
 			"noCodeAddedYet" => __('Code has not yet been added. Click on','easy-form-builder'),
 			"andAddingHtmlCode" => __(' and adding html code.','easy-form-builder'),
-			"proMoreStep" => __('for use mor steps XXXXXX','easy-form-builder'),
-			"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps in setting of plugin and try again.','easy-form-builder'),
-			"howToAddGoogleMap" => __('How to Add Google Map to Easy form Builder WordPress Plugin','easy-form-builder'),
+			"proMoreStep" => __('When you activate pro version, so you can create unlimited form steps.','easy-form-builder'),
+			"aPIkeyGoogleMapsError" => __('API key of Google maps has not been added. Please add API key of google maps on Easy Form Builder > Panel > setting > Google Keys and try again.','easy-form-builder'),
+			"howToAddGoogleMap" => __('How to Add Google maps to Easy form Builder WordPress Plugin','easy-form-builder'),
 			"deletemarkers" => __('Delete markers','easy-form-builder'),
 			"updateUrbrowser" => __('update your browser','easy-form-builder'),
 			"stars" => __('Stars','easy-form-builder'),
@@ -294,16 +286,16 @@ class efbFunction {
 			"black" => __('Black','easy-form-builder'),
 			"pleaseReporProblem" => __('Please report the following problem to Easy Form builder team','easy-form-builder'),
 			"reportProblem" => __('Report problem','easy-form-builder'),
-			"ddate" => __('Your e-mail server able to send Emails','easy-form-builder'),
+			"ddate" => __('Date','easy-form-builder'),
+			"serverEmailAble" => __('Your e-mail server able to send Emails','easy-form-builder'),
 			"sMTPNotWork" => __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),
 			"aPIkeyGoogleMapsFeild" => __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => __('The file is not the right file type','easy-form-builder'),
 			"thisElemantNotAvailable" => __('The Field is not available in this type forms','easy-form-builder'),
 			"numberSteps" => __('Edit','easy-form-builder'),
-			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
-			"email" => __('Email','easy-form-builder'),
+			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),			
 			"trackingCode" => __('Tracking code','easy-form-builder'),
-			"text" => __('Email or Username','easy-form-builder'),
+			"text" => __('Text','easy-form-builder'),
 			"multiselect" => __('Contact-us Form','easy-form-builder'),
 			"newForm" => __('New Form','easy-form-builder'),
 			"registerForm" => __('Register Form','easy-form-builder'),
@@ -329,59 +321,32 @@ class efbFunction {
 			"username" => __('Username','easy-form-builder'),
 			"allStep" => __('all step','easy-form-builder'),
 			"beside" => __('Beside','easy-form-builder'),
-			"invalidEmail" => __('Clear','easy-form-builder'),
+			"invalidEmail" => __('Invalid Email address','easy-form-builder'),
 			"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'),
-			"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),
-			"alertEmail" => __('Alert Email','easy-form-builder'),
+			"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),			
 			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
-			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
-			"reCAPTCHA" => __('Please go to Easy Form Builder Panel > Setting > Google Keys and set Keys of Google reCAPTCHA','easy-form-builder'),
-			"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'),
+			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),					
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
-			"siteKey" => __('SITE KEY','easy-form-builder'),
-			"enterSITEKEY" => __('Enter the SITE KEY','easy-form-builder'),
+			"siteKey" => __('SITE KEY','easy-form-builder'),			
 			"SecreTKey" => __('SECRET KEY','easy-form-builder'),
 			"EnterSECRETKEY" => __('Enter the SECRET KEY','easy-form-builder'),
-			"clearFiles" => __('Clear Files','easy-form-builder'),
-			"enterAdminEmail" => __('Enter an Admin Email','easy-form-builder'),
-			"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),
-			"form" => __('Date','easy-form-builder'),
+			"clearFiles" => __('Clear Files','easy-form-builder'),			
+			"enterActivateCode" => __('Enter the Activate Code','easy-form-builder'),			
 			"error" => __('Error,','easy-form-builder'),
-			"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-			"define" => __('Define','easy-form-builder'),
-			"loading" => __('Loading','easy-form-builder'),
-			"trackingCode" => __('Tracking code','easy-form-builder'),
-			"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
+			"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),										
 			"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),
 			"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
-			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
-			"formNotFound" => __('Form is not found','easy-form-builder'),
-			"errorV01" => __('Error Code:V01','easy-form-builder'),
-			"enterÙ°ValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
-			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
-			"registered" => __('Registered','easy-form-builder'),
-			"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),
-			"preview" => __('Preview','easy-form-builder'),
-			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-			"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-			"pleaseUploadA" => __('Please upload the','easy-form-builder'),
+			"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),			
 			"fileSizeIsTooLarge" => __('The file size is too large , Allowed Maximum size is 8MB.','easy-form-builder'),
 			"documents" => __('Documents','easy-form-builder'),
 			"document" => __('Document','easy-form-builder'),
 			"image" => __('Image','easy-form-builder'),
 			"media" => __('Media','easy-form-builder'),
-			"zip" => __('Zip','easy-form-builder'),
-			"trackingForm" => __('Tracking Form','easy-form-builder'),
-			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
-			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
-			"messages" => __('Messages','easy-form-builder'),
-			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
-			"alert" => __('Alert!','easy-form-builder'),
-			"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
-			"enterThePhones" => __('Please watch this tutorial','easy-form-builder'),
-			"somethingWentWrongPleaseRefresh" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-			"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),
-			"orClickHere" => __(' or click here','easy-form-builder'),
+			"zip" => __('Zip','easy-form-builder'),				
+			"alert" => __('Alert!','easy-form-builder'),			
+			"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
+			"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
+			"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),			
 			"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
 			"PleaseFillForm" => __('Please fill in the form.','easy-form-builder'),
 			"selectOption" => __('Select an option','easy-form-builder'),
@@ -391,69 +356,31 @@ class efbFunction {
 			"sync" => __('Sync','easy-form-builder'),
 			"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
 			"thankYou" => __('Thank you','easy-form-builder'),
-			"login" => __('Login','easy-form-builder'),
-			"logout" => __('Logout','easy-form-builder'),
 			"YouSubscribed" => __('You are subscribed','easy-form-builder'),
-			"send" => __('Send','easy-form-builder'),
-			"subscribe" => __('Subscribe','easy-form-builder'),
-			"contactUs" => __('Contact us','easy-form-builder'),
-			"support" => __('Support','easy-form-builder'),
 			"passwordRecovery" => __('Password recovery','easy-form-builder'),
-			"info" => __('information','easy-form-builder'),
-			"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
-			"noComment" => __('No comment','easy-form-builder'),
+			"info" => __('information','easy-form-builder'),						
 			"waitingLoadingRecaptcha" => __('Waiting for loading recaptcha','easy-form-builder'),
-			"please" => __('Please','easy-form-builder'),
-			"serverEmailAble" => __('Done','easy-form-builder'),
-			"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'),
-			"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),
 			"on" => __('On','easy-form-builder'),
 			"off" => __('Off','easy-form-builder'),
 			"settingsNfound" => __('Settings not found','easy-form-builder'),
-			//NotFound!! panel
 			"content" => __('Content','easy-form-builder'),
 			"red" => __('Red','easy-form-builder'),
 			"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'),
 			"ifShowTrackingCodeToUser" => __("If you don't want to show tracking code to user, don't mark below option.",'easy-form-builder'),
-			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),
-			"required" => __('Required','easy-form-builder'),
+			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),			
 			"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
-			//NotFound!! create
 			"emailOrUsername" => __('Email or Username','easy-form-builder'),
 			"contactusForm" => __('Contact-us Form','easy-form-builder'),
 			"clear" => __('Clear','easy-form-builder'),
-			 //notfound!! formshow
-			"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
-			"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
-			//notFound!! trackingFinde
 			"entrTrkngNo" => __('Enter the Tracking Code','easy-form-builder'),
 			"search" => __('Search','easy-form-builder'),
 
-			//panel create public
-			"lastName" => __('Last Name','easy-form-builder'),
-			"firstName" => __('First Name','easy-form-builder'),
+			
 		];
-		$panel=["create", "define", "formName", "createDate", "edit", "content", "trackNo", "formDate", "by", "ip", "guest", "info", "response", "date", "videoDownloadLink", "downloadViedo", "youCantUseHTMLTagOrBlank", "error", "reply", "messages", "close", "pleaseWaiting", "loading", "remove", "areYouSureYouWantDeleteItem", "no", "yes", "numberOfSteps", "easyFormBuilder", "titleOfStep", "proVersion", "getProVersion", "clickHereGetActivateCode", "enterActivateCode", "reCAPTCHAv2", "reCAPTCHA", "reCAPTCHASetError", "protectsYourWebsiteFromFraud", "clickHereWatchVideoTutorial", "siteKey", "enterSITEKEY", "SecreTKey", "EnterSECRETKEY", "alertEmail", "whenEasyFormBuilderRecivesNewMessage", "email", "enterAdminEmail", "clearFiles", "youCanRemoveUnnecessaryFileUploaded", "clearUnnecessaryFiles", "trackingCode", "ifShowTrackingCodeToUser", "showTrackingCode", "trackingCodeFinder", "copyAndPasteBelowShortCodeTrackingCodeFinder", "save", "waiting", "saved", "error", "stepName", "IconOfStep", "stepTitles", "elements", "delete", "newOption", "documents", "image", "media", "videoOrAudio", "zip", "required", "button", "text", "password", "email", "number", "file", "date", "tel", "textarea", "checkbox", "radiobutton", "radio", "multiselect", "url", "range", "color", "fileType", "label", "class", "id", "tooltip", "formUpdated", "goodJob", "formUpdatedDone", "formIsBuild", "formCode", "close", "done", "demo", "alert", "pleaseFillInRequiredFields", "availableInProversion", "formNotBuilded", "someStepsNotDefinedCheck", "ifYouNeedCreateMoreThan2Steps", "youCouldCreateMinOneAndMaxtwo", "youCouldCreateMinOneAndMaxtwenty", "preview", "somethingWentWrongPleaseRefresh", "formNotCreated", "atFirstCreateForm", "formNotBuilded", "allowMultiselect", "DragAndDropUI", "clickHereForActiveProVesrsion", "someStepsNotDefinedCheck", "ifYouNeedCreateMoreThan2Steps", "youCouldCreateMinOneAndMaxtwo", "youCouldCreateMinOneAndMaxtwenty", "selectOpetionDisabled", "pleaseEnterTheTracking", "somethingWentWrongTryAgain", "enterThePhone", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "youNotPermissionUploadFile", "pleaseUploadA", "please", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "howConfigureEFB", "howGetGooglereCAPTCHA", "howActivateAlertEmail", "howCreateAddForm", "howActivateTracking", "howWorkWithPanels", "howAddTrackingForm", "howFindResponse", "pleaseEnterVaildValue", "step", "advancedCustomization", "orClickHere", "downloadCSVFile", "downloadCSVFileSub", "login", "thisInputLocked", "thisElemantAvailableRemoveable", "thisElemantWouldNotRemoveableLoginform", "send", "contactUs", "support", "subscribe", "login", "logout", "survey", "chart", "noComment", "easyFormBuilder", "byWhiteStudioTeam", "createForms", "tutorial", "forms", "tobeginSentence", "efbIsTheUserSentence", "efbYouDontNeedAnySentence", "please", "newResponse", "read", "copy", "general", "help", "setting", "maps", "youCanFindTutorial", "proUnlockMsg", "aPIKey", "youNeedAPIgMaps", "copiedClipboard", "noResponse", "offerGoogleCloud", "getOfferTextlink", "clickHere", "SpecialOffer", "googleKeys", "youNeedAPIgMaps", "emailServer", "beforeUsingYourEmailServers", "emailSetting", "clickToCheckEmailServer", "dadfile", "field", "advanced", "switch", "locationPicker", "rating", "esign", "yesNo", "htmlCode", "pcPreview", "youDoNotAddAnyInput", "copyShortcode", "copyTrackingcode", "previewForm", "activateProVersion", "itAppearedStepsEmpty", "youUseProElements", "sampleDescription", "fieldAvailableInProversion", "editField", "description", "thisEmailNotificationReceive", "activeTrackingCode", "addGooglereCAPTCHAtoForm", "dontShowIconsStepsName", "dontShowProgressBar", "showTheFormTologgedUsers", "labelSize", "default", "small", "large", "xlarge", "xxlarge", "xxxlarge", "labelPostion", "align", "left", "center", "right", "width", "cSSClasses", "defaultValue", "placeholder", "enterAdminEmailReceiveNoti", "corners", "rounded", "square", "icon", "buttonColor", "blue", "darkBlue", "lightBlue", "grayLight", "grayLighter", "green", "pink", "yellow", "light", "Red", "grayDark", "white", "clr", "borderColor", "height", "name", "latitude", "longitude", "exDot", "pleaseDoNotAddJsCode", "button1Value", "button2Value", "iconList", "previous", "next", "invalidEmail", "noCodeAddedYet", "andAddingHtmlCode", "proMoreStep", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "duplicate", "availableProVersion", "mobilePreview", "thanksFillingOutform", "finish", "dragAndDropA", "browseFile", "removeTheFile", "enterAPIKey", "formSetting", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "fileIsNotRight",
-		 "thisElemantNotAvailable","lastName","firstName","registerForm","contactusForm" ];
+	
 		$rtrn =[];
-		$val=$panel;
-		error_log($inp);
-		switch($inp){
-			case "panel":
-				$val=$panel;
-			break;
-			case "create":
-				$val =$creat;
-			break;
-			case "showform":
-				$val =$showform;
-			break;
-			case "finderform":
-				$val =$finderform;
-			break;
-		}
 		$st="//lang";
-		foreach ($val as $key => $value) {
+		foreach ($inp as $key => $value) {
 			$rtrn +=["".$value.""=>"".$lang[$value].""];
 		}
 		array_push($rtrn,[$st]);
@@ -462,6 +389,7 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state){
+		
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = 'n';
 			   //error_log($mailResult);
@@ -469,7 +397,7 @@ class efbFunction {
 			   $usr =get_user_by('id',$id);
 			   //error_log(json_encode($usr));
 				$support="";
-				error_log($to);
+				//error_log($to);
 				$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
 				foreach($a as $i){$support .=chr($i);}
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -481,8 +409,8 @@ class efbFunction {
 				if($to=="null"){$to=$support;}
 				   
 				$message = $this->email_template_efb($pro,$state,$cont);  
-				error_log("message");
-				error_log($message);
+			//	error_log("message");
+				//error_log($message);
 				if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $message, $headers );
 				$mailResult = wp_mail( $support,$sub, $message, $headers);
 				if($state=="reportProblem" || $state =="testMailServer" )
@@ -524,8 +452,7 @@ class efbFunction {
 			$title =__('Hi Dear User', 'easy-form-builder');
 			$message=$m;
 		}
-		error_log($state);
-		error_log($m);
+	
 		$val ="
 		<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional //EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns='http://www.w3.org/1999/xhtml' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml' lang='en'><head> <link rel='stylesheet' type='text/css' hs-webfonts='true' href='https://fonts.googleapis.com/css?family=Lato|Lato:i,b,bi'> <title>Email template</title> <meta property='og:title' content='Email template'> <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <style type='text/css'> a {  color: inherit; font-weight: bold; color: #253342; text-decoration : none } h1 { font-size: 56px; } h2 { font-size: 28px; font-weight: 900; } p { font-weight: 100; } td { vertical-align: top; } #email { margin: auto; width: 600px; background-color: white; } button { font: inherit; background-color: #ff4b93; border: none; padding: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; color: white; border-radius: 5px;  } .subtle-link { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #CBD6E2; } </style></head>
 		<body bgcolor='#F5F8FA' style='width: 100%; margin: auto 0; padding:0; font-family:Lato, sans-serif; font-size:18px; color:#33475B; word-break:break-word'>
@@ -583,9 +510,6 @@ class efbFunction {
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
 		$email="null";
-	/* 	error_log("response_to_user_by_msd_id");
-		error_log($msg_id);
-		error_log(gettype($msg_id)); */
 		$table_name = $this->db->prefix . "Emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
 		//error_log("json_encode(user_data)");
@@ -594,19 +518,10 @@ class efbFunction {
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
 		$user_res = json_decode($user_res,true);
-	/* 	error_log($user_res[0]['id_']);
-		error_log($trackingCode);
- */
 		$table_name = $this->db->prefix . "Emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
-		//error_log(gettype($data));
-		
-		//error_log($data[0]->form_structer);
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
-/* 		error_log(json_encode($data));
-		error_log(gettype($data)); */
-		//$data = json_decode($data,true);
 
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
 			foreach($user_res as $key=>$val){
