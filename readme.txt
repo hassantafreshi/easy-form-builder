@@ -29,12 +29,12 @@ How *Easy Form Builder* makes your life easier:
 - Create Login (sign-in) forms for free
 - Create Registration (sign-up) forms for free
 - Create Surveys (poll) and analyse for free.
-- Get export of subscribers list to csv format file
+- Get export of subscribers list to csv format file for free
 - Get notified by email when a form has been submitted for free
-- Add tracking pixels (tracking code) for free
+- Showing the confirmation code filled in forms for fress
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
 - Instant reply functionality for free
-- Send notification email when user have a new message for free
+- Send notification email when the user have a new message for free
 - Mobile-friendly responsive forms
 - Unique tracking ID finder for free
 - User-friendly and feature-rich panel to manage your forms and their responses for free
@@ -75,7 +75,7 @@ Please consider you could add 1 form in every page or post.
 4. Panel of Easy form builder
 5. List of responses
 6. Setting of Easy Form Builder
-7. Form submitted and tracking code (tracking pixels)
+7. Form submitted and Confirmation Code (tracking pixels)
 
 
 == Frequently Asked Questions ==
@@ -89,7 +89,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 4. [How to create and add a form with *Easy Form Builder*](https://www.youtube.com/embed/7jS01CEtbDg)
 
-5. [How to activate a tracking code in *Easy Form Builder*](https://www.youtube.com/embed/im3aKby4E14)
+5. [How to activate a Confirmation Code in *Easy Form Builder*](https://www.youtube.com/embed/im3aKby4E14)
 
 6. [How to work with panels in *Easy Form Builder*](https://www.youtube.com/embed/7jS01CEtbDg)
 

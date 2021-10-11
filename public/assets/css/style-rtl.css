@@ -16,3 +16,13 @@ label.emsFormBuilder {
     text-align: initial;
 }
 
+input[type="email"]:-moz-placeholder {
+    text-align: right;
+}
+input[type="email"]:-ms-input-placeholder {
+    text-align: right;
+}
+input[type="email"]::-webkit-input-placeholder {
+    text-align: right;
+}
+

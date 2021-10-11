@@ -1262,8 +1262,9 @@ function show_message_result_form_set_EFB(state ,m){ //V2
   `;
   let content =``
 if(state!=0){
+  console.log(`efb_var.text.shortcode[${efb_var.text.shortcode}]`);
   content=` <h3 class="efb"><b>${efb_var.text.goodJob}</b> ${state==1 ? efb_var.text.formIsBuild :efb_var.text.formUpdatedDone}</h3>
-  <h5 class="mt-3 efb">${efb_var.text.trackingCode}: <strong>${m}</strong></h5>
+  <h5 class="mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="hide-input efb" value="${m}" id="trackingCodeEfb">
   <div id="alert"></div>
   <button type="button" class="btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
@@ -1570,9 +1571,9 @@ function add_dasboard_emsFormBuilder(){
           value += `
           <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card"><div class="card-body">
          
-          <h5 class="card-title"><i class="efb ${i.icon} me-2"></i>${i.title} </h5>
+          <h5 class="card-title"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <p class="card-text efb float-start mt-3">${i.desc}</p>
-          ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
+          ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
           </div></div></div>`
         }
         console.log(efb_var.images.logo)
@@ -1580,10 +1581,10 @@ function add_dasboard_emsFormBuilder(){
 
           ${head_introduce_efb('create')}
             <section id="content-efb">
-            <img src="${efb_var.images.title}" class="left_circle-efb">
+            <img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}">
         <h4 class="title-holder">
             <img src="${efb_var.images.title}" class="title">
-            <i class="efb bi-arrow-down-circle title-icon me-2"></i>Forms
+            <i class="efb bi-arrow-down-circle title-icon mx-1"></i>Forms
         </h4>
      <div class="container"><div class="row row-cols-1 row-cols-md-2 g-4">${value}<div class="row  my-5 col-2"></div></div></div>
      </section>`
@@ -1740,8 +1741,8 @@ function head_introduce_efb(state){
                   <p class=" ${state=="create" ?'card-text ':'text-dark'}efb pb-3 fs-6">
                   ${state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` }                                                               
                   </p>
-                  <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle me-2"></i>${efb_var.text.createForms}</a>
-                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle me-2"></i>${efb_var.text.tutorial}</a>
+                  <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
+                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>
               </div>
               <div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>
     </div>    

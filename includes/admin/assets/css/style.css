@@ -409,7 +409,7 @@ border: 1px solid #bbc2d5;
 
 }
 .search-form-control.efb {
-padding-left: 40px!important;
+padding-left: 40px;
 }
 .search-icon.efb {
 position: relative;
@@ -1786,8 +1786,16 @@ img.left_circle-efb {
     background-color:#d630727a;
     border-radius: 49%;
     position: absolute;
-    top: 37%;
+    top: 40%;
     right: 67%;
+}
+img.right_circle-efb {
+    width: 58%;
+    background-color:#d630727a;
+    border-radius: 49%;
+    position: absolute;
+    top: 40%;
+    left: 67%;
 }
 
 #header-efb.bg-color{

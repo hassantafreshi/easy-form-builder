@@ -528,7 +528,7 @@ class Admin {
             $response = ['success' => true, "ajax_value" => $value];
         }
         else {
-            $response = ['success' => false, "m" => __("Tracking Code not found!"  ,'easy-form-builder')];
+            $response = ['success' => false, "m" => __("Confirmation Code not found!"  ,'easy-form-builder')];
         }
 
         wp_send_json_success($response, $_POST);

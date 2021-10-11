@@ -76,7 +76,7 @@ function fun_emsFormBuilder_render_view(x) {
 
     document.getElementById('content-efb').innerHTML = `
    <h4 class="title-holder"> <img src="${efb_var.images.title}" class="title">
-                <i class="efb bi-archive title-icon me-2"></i>${efb_var.text.forms}
+                <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
             </h4>
     <div class="card">
     <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
@@ -601,7 +601,7 @@ function fun_ws_show_list_messages(value) {
 
   document.getElementById('content-efb').innerHTML = `${head}
     <h4 class="title-holder"> <img src="${efb_var.images.title}" class="title">
-    <i class="efb bi-archive title-icon me-2"></i>${efb_var.text.messages}
+    <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
     <div class="card">
     <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
@@ -981,8 +981,8 @@ function fun_show_help__emsFormBuilder() {
                   <p class=" card-text efb pb-3 fs-7">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="btn efb btn-danger btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem me-2"></i>${efb_var.text.getProVersion}</a>
-                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle me-2"></i>${efb_var.text.documents}</a>
+                  <a class="btn efb btn-danger btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem mx-1"></i>${efb_var.text.getProVersion}</a>
+                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
 
@@ -1034,7 +1034,7 @@ function fun_show_setting__emsFormBuilder() {
   <div class="container">
             <h4 class="title-holder">
                 <img src="${efb_var.images.title}" class="title">
-                <i class="efb bi-gear title-icon me-2"></i>Setting
+                <i class="efb bi-gear title-icon mx-1"></i>Setting
             </h4>
             <div class="crd efb">
                 <div class="card-body">
@@ -1065,7 +1065,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="mx-5">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
                                 <div class="card-body text-center">
                                     <button type="button" class="btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
-                                        <i class="efb bi-x-lg me-2"></i>${efb_var.text.clearUnnecessaryFiles}
+                                        <i class="efb bi-x-lg mx-1"></i>${efb_var.text.clearUnnecessaryFiles}
                                     </button>
                                 </div>
                                 <div class="clearfix"></div>
@@ -1076,11 +1076,11 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="card-body mx-4">
                                         <div class="row col-12">
                                             <div class="col-md-8">
-                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded" id="shortCode_emsFormBuilder" value="[EMS_Form_Builder_tracking_finder]" readonly>
+                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
                                               <span id="shortCode_emsFormBuilder-message" class="text-danger"></span>
                                             </div> 
                                               <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink " onclick="copyCodeEfb('shortCode_emsFormBuilder')">
-                                                  <i class="efb bi-clipboard-check me-2"></i> ${efb_var.text.copy}
+                                                  <i class="efb bi-clipboard-check mx-1"></i> ${efb_var.text.copy}
                                               </button>
                                           </div>
                                 </div>
@@ -1139,7 +1139,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="mx-5">${efb_var.text.beforeUsingYourEmailServers}</p>
                                 <div class="card-body mx-4">
                                     <button type="button" class="btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
-                                        <i class="efb bi-chevron-double-up me-2 text-center"></i>${efb_var.text.clickToCheckEmailServer}
+                                        <i class="efb bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
                                 </div>
@@ -1148,7 +1148,7 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
                       
                         <button type="button" id="save-stng-efb" class="btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
-                            <i class="efb bi-save me-2"></i>${efb_var.text.save}
+                            <i class="efb bi-save mx-1"></i>${efb_var.text.save}
                         </button>
                   
                 </div>

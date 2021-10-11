@@ -40,7 +40,7 @@ class _Public {
 		add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
 		
 		
-		add_shortcode( 'EMS_Form_Builder_tracking_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
+		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		
@@ -159,7 +159,7 @@ class _Public {
 
 
 	public function EMS_Form_Builder_track(){
-		//tracking code show
+		//Confirmation Code show
 		$lang = get_locale();
 
 				$efbFunction = new efbFunction();   
@@ -767,7 +767,7 @@ class _Public {
 				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
-				$response = array( 'success' => false  , "m" =>__("Tracking Code not found!", 'easy-form-builder')); 
+				$response = array( 'success' => false  , "m" =>__("Confirmation Code not found!", 'easy-form-builder')); 
 			}
 		
 			wp_send_json_success($response,$_POST);
@@ -973,7 +973,7 @@ class _Public {
    if($state=="notiToUserFormFilled_TrackingCode"){
 	$subject =__('We Recived your Message', 'easy-form-builder');
 	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
-			<p>". __('Tracking code' , 'easy-form-builder').": ".$cont." </p>
+			<p>". __('Confirmation Code' , 'easy-form-builder').": ".$cont." </p>
 			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 	$cont=$message;

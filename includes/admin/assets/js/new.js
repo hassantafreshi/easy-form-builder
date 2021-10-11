@@ -1299,7 +1299,7 @@ function pro_show_efb(state) {
   const body = `<div class="efb pro-version-efb-modal"><i class="efb bi-gem"></i></div>
   <h5 class="efb txt-center">${message}</h5>
   <div class="efb text-center"><button type="button" class="btn efb btn-primary btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
-    <i class="efb bi-gem me-2"></i>
+    <i class="efb bi-gem mx-1"></i>
       ${efb_var.text.activateProVersion}
     </button>
   </div>`
@@ -3710,7 +3710,7 @@ function funTnxEfb(val,title,message){
                <input type="text" class="hide-input" value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
-                   <i class="efb bi-clipboard-check me-2"></i>${efb_var.text.copyTrackingcode}
+                   <i class="efb bi-clipboard-check mx-1"></i>${efb_var.text.copyTrackingcode}
                </button></div>`
   return `
                       <h4 class="efb my-1">

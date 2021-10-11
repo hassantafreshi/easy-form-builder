@@ -32,7 +32,7 @@ class efbFunction {
 			"formName" => __('Form Name','easy-form-builder'),
 			"createDate" => __('Create Date','easy-form-builder'),
 			"edit" => __('Content','easy-form-builder'),
-			"trackNo" => __('Tracking Code','easy-form-builder'),
+			"trackNo" => __('Confirmation Code','easy-form-builder'),
 			"formDate" => __('Form Date','easy-form-builder'),
 			"by" => __('By','easy-form-builder'),
 			"ip" => __('IP','easy-form-builder'),
@@ -58,10 +58,10 @@ class efbFunction {
 			"protectsYourWebsiteFromFraud" => __('Click here to watch a video tutorial.','easy-form-builder'),
 			"enterSITEKEY" => __('SECRET KEY','easy-form-builder'),
 			"alertEmail" => __('Alert Email','easy-form-builder'),
-			"enterAdminEmail" => __('If you do not want to show tracking code to user, do not mark below option.','easy-form-builder'),
-			"showTrackingCode" => __('Show tracking Code','easy-form-builder'),
-			"trackingCodeFinder" => __('Tracking code Finder','easy-form-builder'),
-			"copyAndPasteBelowShortCodeTrackingCodeFinder" => __('Copy and Paste below short-code of tracking code finder in any page or post.','easy-form-builder'),
+			"enterAdminEmail" => __('If you do not want to show Confirmation Code to user, do not mark below option.','easy-form-builder'),
+			"showTrackingCode" => __('Show Confirmation Code','easy-form-builder'),
+			"trackingCodeFinder" => __('Confirmation Code Finder','easy-form-builder'),
+			"copyAndPasteBelowShortCodeTrackingCodeFinder" => __('Copy and Paste below short-code of Confirmation Code finder in any page or post.','easy-form-builder'),
 			"save" => __('Save','easy-form-builder'),
 			"waiting" => __('Waiting','easy-form-builder'),
 			"saved" => __('Saved','easy-form-builder'),
@@ -114,7 +114,7 @@ class efbFunction {
 			"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
 			"clickHereForActiveProVesrsion" => __('Click here for Active Pro vesrsion','easy-form-builder'),
 			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-			"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),									
+			"pleaseEnterTheTracking" => __('Please enter the Confirmation Code','easy-form-builder'),									
 			"formNotFound" => __('Form is not found','easy-form-builder'),
 			"errorV01" => __('Error Code:V01','easy-form-builder'),
 			"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
@@ -124,13 +124,13 @@ class efbFunction {
 			"pleaseUploadA" => __('Please upload the','easy-form-builder'),
 			"please" => __('Please','easy-form-builder'),
 			"trackingForm" => __('Tracking Form','easy-form-builder'),
-			"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
+			"trackingCodeIsNotValid" => __('Confirmation Code is not valid.','easy-form-builder'),
 			"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
 			"howConfigureEFB" => __('How to configure Easy Form Builder','easy-form-builder'),
 			"howGetGooglereCAPTCHA" => __('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
 			"howActivateAlertEmail" => __('How to activate the alert email for new form submission','easy-form-builder'),
 			"howCreateAddForm" => __('How to create and add a form with Easy Form Builder','easy-form-builder'),
-			"howActivateTracking" => __('How to activate a tracking code in Easy Form Builder','easy-form-builder'),
+			"howActivateTracking" => __('How to activate a Confirmation Code in Easy Form Builder','easy-form-builder'),
 			"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
 			"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
 			"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
@@ -159,7 +159,7 @@ class efbFunction {
 			"forms" => __('Forms','easy-form-builder'),
 			"tobeginSentence" => __('To begin, you should to be Create a from into Easy Form Builder Plugin. for create a form click below button.','easy-form-builder'),
 			"efbIsTheUserSentence" => __('Easy Form Builder is the user-friendly form creator that allows you to create professional multistep forms within minutes.','easy-form-builder'),
-			"efbYouDontNeedAnySentence" => __(' You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking Code allows you to connect any submission to an individual request.','easy-form-builder'),
+			"efbYouDontNeedAnySentence" => __(' You do not need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation Code allows you to connect any submission to an individual request.','easy-form-builder'),
 			"newResponse" => __('New Response','easy-form-builder'),
 			"read" => __('Read','easy-form-builder'),
 			"copy" => __('Copy','easy-form-builder'),
@@ -193,8 +193,9 @@ class efbFunction {
 			"htmlCode" => __('HTML Code','easy-form-builder'),
 			"pcPreview" => __('PC Preview','easy-form-builder'),
 			"youDoNotAddAnyInput" => __('You do not add any field','easy-form-builder'),
-			"copyShortcode" => __('Copy shortcode','easy-form-builder'),
-			"copyTrackingcode" => __('Copy Tracking Code','easy-form-builder'),
+			"copyShortcode" => __('Copy ShortCode','easy-form-builder'),
+			"shortcode" => __('ShortCode','easy-form-builder'),
+			"copyTrackingcode" => __('Copy Confirmation Code','easy-form-builder'),
 			"previewForm" => __('Preview Form','easy-form-builder'),
 			"activateProVersion" => __('Activate Pro Version','easy-form-builder'),
 			"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'),
@@ -204,7 +205,7 @@ class efbFunction {
 			"editField" => __('Edit Field','easy-form-builder'),
 			"description" => __('Description','easy-form-builder'),
 			"thisEmailNotificationReceive" => __('Get email notifications','easy-form-builder'),
-			"activeTrackingCode" => __('Active Tracking Code','easy-form-builder'),
+			"activeTrackingCode" => __('Active Confirmation Code','easy-form-builder'),
 			"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'),
 			"dontShowIconsStepsName" => __('Do not show Icons & Steps name','easy-form-builder'),
 			"dontShowProgressBar" => __('Do not show progress bar','easy-form-builder'),
@@ -294,7 +295,7 @@ class efbFunction {
 			"thisElemantNotAvailable" => __('The Field is not available in this type forms','easy-form-builder'),
 			"numberSteps" => __('Edit','easy-form-builder'),
 			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),			
-			"trackingCode" => __('Tracking code','easy-form-builder'),
+			"trackingCode" => __('Confirmation Code','easy-form-builder'),
 			"text" => __('Text','easy-form-builder'),
 			"multiselect" => __('Contact-us Form','easy-form-builder'),
 			"newForm" => __('New Form','easy-form-builder'),
@@ -366,13 +367,13 @@ class efbFunction {
 			"content" => __('Content','easy-form-builder'),
 			"red" => __('Red','easy-form-builder'),
 			"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'),
-			"ifShowTrackingCodeToUser" => __("If you don't want to show tracking code to user, don't mark below option.",'easy-form-builder'),
+			"ifShowTrackingCodeToUser" => __("If you don't want to show Confirmation Code to user, don't mark below option.",'easy-form-builder'),
 			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),			
 			"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => __('Email or Username','easy-form-builder'),
 			"contactusForm" => __('Contact-us Form','easy-form-builder'),
 			"clear" => __('Clear','easy-form-builder'),
-			"entrTrkngNo" => __('Enter the Tracking Code','easy-form-builder'),
+			"entrTrkngNo" => __('Enter the Confirmation Code','easy-form-builder'),
 			"search" => __('Search','easy-form-builder'),
 
 			
@@ -412,7 +413,7 @@ class efbFunction {
 			//	error_log("message");
 				//error_log($message);
 				if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $message, $headers );
-				$mailResult = wp_mail( $support,$sub, $message, $headers);
+				//$mailResult = wp_mail( $support,$sub, $message, $headers);
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
 				 $cont .="website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:". $usr->user_email.
@@ -445,7 +446,7 @@ class efbFunction {
 			<button><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: white;'>".__('Get Pro version','easy-form-builder')."</a></button>";
 		}elseif($state=="newMessage"){
 			$message ="<h2>".__('A New Message has been Received.', 'easy-form-builder')."</h2>
-			<p>". __('Tracking code' , 'easy-form-builder').": ".$m." </p>
+			<p>". __('Confirmation Code' , 'easy-form-builder').": ".$m." </p>
 			<button><a href='".home_url()."' target='_blank' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 		}else{

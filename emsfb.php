@@ -2,7 +2,7 @@
 /**
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
- * Description:         Easily create multi-step forms with tracking code support by using Easy Form Builder's drag & drop form wizard. This is the free version with limits.
+ * Description:         Easily create multi-step forms with Confirmation Code support by using Easy Form Builder's drag & drop form wizard. This is the free version with limits.
  * Version:             2.0
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
