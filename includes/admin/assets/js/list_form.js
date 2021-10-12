@@ -981,7 +981,7 @@ function fun_show_help__emsFormBuilder() {
                   <p class=" card-text efb pb-3 fs-7">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="btn efb btn-danger btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem mx-1"></i>${efb_var.text.getProVersion}</a>
+                  <a class="btn efb btn-warning text-white btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
                   <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
@@ -1034,7 +1034,7 @@ function fun_show_setting__emsFormBuilder() {
   <div class="container">
             <h4 class="title-holder">
                 <img src="${efb_var.images.title}" class="title">
-                <i class="efb bi-gear title-icon mx-1"></i>Setting
+                <i class="efb bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
             <div class="crd efb">
                 <div class="card-body">

@@ -129,7 +129,7 @@ class Panel_edit  {
 									<a class="nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
+									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('Help','easy-form-builder') ?></a>
 								</li>
 							</ul>
 							<div class="d-flex">

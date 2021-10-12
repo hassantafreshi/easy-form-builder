@@ -2695,7 +2695,7 @@ const saveFormEfb = () => {
    
     //settingModalEfb-body
     const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-    show_modal_efb("", "", "bi-gem", "saveLoadingBox")
+    show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
 
     let timeout =1000;
     check_show_box=()=>{
