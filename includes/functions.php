@@ -7,6 +7,9 @@ namespace Emsfb;
  * @package Emsfb
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // No direct access allow ;)
 
 
 class efbFunction {
@@ -82,7 +85,7 @@ class efbFunction {
 			"textarea" => __('Long Text','easy-form-builder'),
 			"checkbox" => __('Check Box','easy-form-builder'),
 			"radiobutton" => __('Radio Button','easy-form-builder'),
-			"radio" => __('Multiple Select','easy-form-builder'),
+			"radio" => __('Radio','easy-form-builder'),
 			"url" => __('URL','easy-form-builder'),
 			"range" => __('Range','easy-form-builder'),
 			"color" => __('Color Picker','easy-form-builder'),
@@ -199,7 +202,7 @@ class efbFunction {
 			"previewForm" => __('Preview Form','easy-form-builder'),
 			"activateProVersion" => __('Activate Pro Version','easy-form-builder'),
 			"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'),
-			"youUseProElements" => __('You are Using Pro version field. For savingthis element in the form, activate Pro version.','easy-form-builder'),
+			"youUseProElements" => __('You are Using Pro version field. For saving this element in the form, activate Pro version.','easy-form-builder'),
 			"sampleDescription" => __('Sample description','easy-form-builder'),
 			"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'),
 			"editField" => __('Edit Field','easy-form-builder'),
@@ -297,7 +300,7 @@ class efbFunction {
 			"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),			
 			"trackingCode" => __('Confirmation Code','easy-form-builder'),
 			"text" => __('Text','easy-form-builder'),
-			"multiselect" => __('Contact-us Form','easy-form-builder'),
+			"multiselect" => __('Multiple Select','easy-form-builder'),
 			"newForm" => __('New Form','easy-form-builder'),
 			"registerForm" => __('Register Form','easy-form-builder'),
 			"loginForm" => __('Login Form','easy-form-builder'),

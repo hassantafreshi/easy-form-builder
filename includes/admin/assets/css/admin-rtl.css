@@ -31,3 +31,8 @@ input[type="email"]::-webkit-input-placeholder {
     text-align: right;
 }
 
+
+.btn-edit-holder {
+    float: left!important;
+}
+

@@ -20,7 +20,7 @@ let fileEfb;
 let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
-let devlop_efb=true;
+let devlop_efb=false;
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
@@ -1330,7 +1330,11 @@ const show_modal_efb = (body, title, icon, type) => {
     //settingModalEfb-sections
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new')
-    document.getElementById("settingModalEfb_").classList.add('save-efb')
+    if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
+  }else if (type == "saveLoadingBox") {
+    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
+    document.getElementById('settingModalEfb-body').innerHTML=loading_messge_efb();
   }else if(type=="chart"){
     document.getElementById("settingModalEfb").classList.remove('modal-new')
     if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
@@ -2413,7 +2417,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-rounded', label_text_size: 'fs-6',
       label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: 'txt-left', message_align: 'justify-content-start',
-      el_align: 'justify-content-start', pro: pro
+      el_align: 'justify-content-start', pro: pro ,icon_input:'',
     })
 
     /*     if (elementId == "email") {
@@ -2674,24 +2678,44 @@ const saveFormEfb = () => {
 
   let proState = true;
   let stepState = true;
-  document.getElementById(`settingModalEfb`).innerHTML = loadingShow_efb('Save');
-
-  setTimeout(()=>{
-
+  let body = ``;
+  let btnText = ``;
+  let btnFun = ``
+  let message = ``;
+  let state = false
+  let title = efb_var.text.error;
+  let icon = `bi-exclamation-triangle-fill`
+  let box = `error`
+  let btnIcon = `bi-question-lg`
+  let returnState= false;
   
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show();
+  setTimeout(()=>{
+    
+    
+   
+    //settingModalEfb-body
+    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    show_modal_efb("", "", "bi-gem", "saveLoadingBox")
+
+    let timeout =1000;
+    check_show_box=()=>{
+     
+      setTimeout(() => {
+        if(returnState==false){
+          console.log('check_show_box');
+          check_show_box();
+          timeout =500;
+        }else{
+          console.log('run 2778');
+         show_modal_efb(body, title, icon, box)
+        }
+      }, timeout);
+    }
+    
   try {
     
-    let body = ``;
-    let btnText = ``;
-    let btnFun = ``
-    let message = ``;
-    let state = false
-    let title = efb_var.text.error;
-    let icon = `bi-exclamation-triangle-fill`
-    let box = `error`
-    let btnIcon = `bi-question-lg`
+
+    
     console.log('saveFormEfb function [forEND]')
     if (valj_efb.length < 3) {
       console.log('not element added')
@@ -2699,7 +2723,7 @@ const saveFormEfb = () => {
       btnFun = `open_whiteStudio_efb('notInput')`
       message = efb_var.text.youDoNotAddAnyInput
       icon =""
-
+      
     } else {
       if (pro_efb == false) { proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true }
       for (let s = 1; s <= valj_efb[0].steps; s++) {
@@ -2723,7 +2747,8 @@ const saveFormEfb = () => {
       localStorage.setItem('valj_efb', JSON.stringify(valj_efb));
       
       localStorage.setItem("valueJson_ws_p",JSON.stringify(valj_efb))
-      actionSendData_emsFormBuilder()
+     // console.log(document.getElementById('settingModalEfb-body').innerHTML ,"settingModalEfb");
+      returnState =actionSendData_emsFormBuilder()
 
     } else if (proState == false) {
       console.log('added pro elements');
@@ -2733,15 +2758,20 @@ const saveFormEfb = () => {
       title = efb_var.text.proVersion
       icon = 'bi-gem'
       btnIcon= icon;
+      returnState=true;
+ 
     } else if (stepState == false) {
 
       btnText = efb_var.text.help
       btnFun = `open_whiteStudio_efb('emptyStep')`
       message = efb_var.text.itAppearedStepsEmpty
-
+     
+      returnState=true;
+     
     }
     console.log(`valj_efb[${valj_efb.length}]`)
     if (state == false) {
+      
       btn = `<button type="button" class="btn efb btn-outline-pink btn-lg mt-3 mb-3 text-capitalize" onClick ="${btnFun}">
       <i class="efb ${btnIcon} me-2"></i> ${btnText} </button>`
       body = `
@@ -2751,8 +2781,12 @@ const saveFormEfb = () => {
         ${btn}
         </div>
       `
+      check_show_box();
     }
-    show_modal_efb(body, title, icon, box)
+   
+  
+   
+   
     myModal.show();
   } catch(error) {
     btnIcon ='bi-bug'

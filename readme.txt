@@ -4,7 +4,7 @@ Tags: 				    form builder, form creator, contact form, support form, subscribe 
 Donate link: 			https://ko-fi.com/whitestudio
 Stable tag: 			2.0
 Requires at least: 		4.7
-Tested up to: 			5.7.2
+Tested up to: 			5.8.1
 Requires PHP:			5.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -20,7 +20,6 @@ You don't need any coding skills to use *Easy Form Builder*. Simply drag and dro
 
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
-
 - Create unlimited forms for free
 - Create multistep (limited steps) form for free
 - Create sample file upload form for free

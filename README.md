@@ -41,28 +41,32 @@ You don’t need any coding skills to use Easy Form Builder. Simply drag and dro
 
 Features:
 -   Simple drag and drop functionality
--   Create unlimited forms
--   Create multistep (limited steps) form
--   Create sample file upload form
--   Create Support forms
--   Create subscription or newsletters signup forms
--   Create Login (sign-in) forms
--   Create Registration (sign-up) forms
--   Priority Support
--   Get export of subscribers list to csv format file
--   Get notified by email when a form has been submitted
--   Add tracking pixels
--   Reliable spam protection through Google’s reCAPTCHA v2 and localized
--   Instant reply functionality
+-   Create unlimited forms for free
+-   Create multistep (limited steps) form for free
+-   Create sample file upload form for free
+-   Create Support forms for free
+-   Create subscription or newsletters signup forms for free
+-   Create Login (sign-in) forms for free
+-   Create Registration (sign-up) forms for free
+-   Create Surveys (poll) and analyse for free.
+-   Get export of subscribers list to csv format file for free
+-   Get notified by email when a form has been submitted for free
+-   Showing the confirmation code filled in forms for fress
+-   Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
+-   Instant reply functionality for free
+-   Send notification email when the user have a new message for free
 -   Mobile-friendly responsive forms
--   Unique tracking ID finder
--   User-friendly and feature-rich panel to manage your forms and their responses.
--   Form validation
+-   Unique tracking ID finder for free
+-   User-friendly and feature-rich panel to manage your forms and their responses for free
+-   Form validation  
 -   Support RTL language
--   Create drag and drop file selection forms
--   Create form by Advanced input like Date, URL, Range, Color, Multi Select 
-
-
+-   Present survey (poll) results in the form of Charts for free
+-   Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating and Switch button (available in pro version)
+-   Create drag and drop file upload forms (Available in pro version)
+-   Create multi-step (unlimited steps) form (Available in pro version)
+-   Create form by Advanced input like Date, URL, Range, Color, Multi Select (available in pro version)
+-   Get export of result of Surveys to csv format file (Available in pro version)
+-   Get export of response of forms to csv format file (Available in pro version)
 
 
 ## Requirements
@@ -76,9 +80,9 @@ Features:
 
 Thanks goes to these wonderful people
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
+<!--   ALL-CONTRIBUTORS-LIST:START -   Do not remove or modify this section -->
+<!--   prettier-ignore-start -->
+<!--   markdownlint-disable -->
 
 <table align="center">
 <tbody>
@@ -97,10 +101,10 @@ Thanks goes to these wonderful people
 </tbody>
 </table>
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+<!--   markdownlint-restore -->
+<!--   prettier-ignore-end -->
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!--   ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [Easy Form builder](https://whitestudio.team) specification.
 Contributions of any kind are welcome!

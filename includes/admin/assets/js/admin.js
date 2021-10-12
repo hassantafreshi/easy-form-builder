@@ -1342,7 +1342,7 @@ function actionSendData_emsFormBuilder(){
           //localStorage.removeItem('valueJson_ws_p');
         }else{
            alert(res , "error")
-           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Code:400-1`)
+           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
          
           /* 
           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh},Error Code:400-1</span>
@@ -1361,11 +1361,11 @@ function actionSendData_emsFormBuilder(){
       }else{
         if(res.data.m==null || res.data.m.length>1){
           console.log(res.data)
-          show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh},Code:400-400`)
+          show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
           /* document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${efb_var.text.somethingWentWrongPleaseRefresh} <br> Code:400-400 <br> </span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`; */
         }else{
-          show_message_result_form_set_EFB(0,res.data.value ,`${res.data.m},Code:400-400`)
+          show_message_result_form_set_EFB(0,res.data.value ,`${res.data.m}, Code:400-400`)
           /* document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>${efb_var.text.error}</h3> <span>${res.data.m}<br> </span>
           <div class="display-btn"> <button type="button" id="prevBtn" onclick="nextPrev(0)" class="p-3" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`; */
         }
@@ -1373,6 +1373,7 @@ function actionSendData_emsFormBuilder(){
       
       }
     })
+    return true;
   });
 
 }

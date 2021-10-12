@@ -41,7 +41,7 @@ class Install {
 		$sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
 			`form_id` int(11) NOT NULL AUTO_INCREMENT,
 			`form_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`form_structer` text COLLATE utf8mb4_unicode_ci NOT NULL,
+			`form_structer` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
 			`form_email` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL, 
 			`form_type` varchar(15) COLLATE utf8mb4_unicode_ci NULL DEFAULT  'form',
 			`form_created_by` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -58,7 +58,7 @@ class Install {
 			`track` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL,
 			`ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 			`form_title_x` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
-			`content` text COLLATE utf8mb4_unicode_ci NOT NULL,		
+			`content` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,		
 			`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 			`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
 			`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
