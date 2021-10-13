@@ -358,7 +358,7 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-
+//response7788
 
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -370,11 +370,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <h6 class="efb ">${efb_var.text.response} </h6>`;
   for (const c of content) {
     let value = `<b>${c.value}</b>`;
-    //console.l(`value up ${value}`)    ;
+    console.log(`value up ${value}`,c)    ;
     if (c.value == "@file@" && c.state == 2) {
       if (c.type == "Image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
-      } else if (c.type == "Document") {
+      }else if (c.type == "Document") {
         value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
       } else if (c.type == "Media") {
         const audios = ['mp3', 'wav', 'ogg'];
@@ -396,7 +396,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         //console.l(c.url ,c.url.length)
         value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
       }
-    }
+    }else if (c.type == "esign") {
+      value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
+    } 
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
     m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
   }

@@ -1738,8 +1738,10 @@ function create_dargAndDrop_el() {
         }
 
       } else if (t == "multiselect") {
+        const id = `#${rndm}_options`
         jQuery(function () {
-          jQuery('.selectpicker').selectpicker();
+           console.log(rndm , "selectpicker",el)
+          jQuery(id).selectpicker();
         });
         setTimeout(() => {
           const v = valj_efb.find(x => x.id_ == rndm);
@@ -2129,7 +2131,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       ui = ` 
       ${label}
-      <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12" efb  id='${rndm}-f' data-id="${rndm}-el">
+      <!-- multiselect test -->
+      <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"   id='${rndm}-f' data-id="${rndm}-el">
       <select class="selectpicker  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} efb" id='${rndm}_options' multiple="" data-live-search="false" tabindex="-98" ${previewSate != true ? 'disabled' : ''}>
       ${optn}
       </select>

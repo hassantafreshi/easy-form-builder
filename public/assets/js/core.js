@@ -1470,7 +1470,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  <h6 class="efb ">${ajax_object_efm.text.response} </h6>`;;
   for (const c of content) {
     let value = `<b>${c.value}</b>`;
-    //console.l(`value up ${value}`)    ;
+    console.l(`value up ${value}` ,c)    ;
     if (c.value == "@file@" && c.state == 2) {
       if (c.type == "Image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
