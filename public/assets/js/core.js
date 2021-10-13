@@ -355,256 +355,6 @@ function fun_render_view(val, check) {
   state_efb = "run";
   previewFormEfb('run');
 
-  // const vs=ajax_object_efm.form_setting.setting;
-  //console.log('ajax_object_efm',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
-  //console.log(valueJson_ws);
-  /*    if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
-     formName = valueJson_ws[0].formName
-     console.log(valueJson_ws[0].steps);
-     for (let v of valueJson_ws) {
-     
-       let el="";
-       let id;
-       let req;
-       let classData =``;
-       switch (v.type) {
-         case 'text':
-         case 'password':
-         case 'email':
-         case 'number':
-         case 'image':
-         case 'date':
-         case 'tel':
-         case 'url':
-         case 'range':
-         case 'color':
-           id = v.id ? v.id : v.id_;
-           req = v.required ? v.required : false;
-           //console.log(v.required , "required");
-          
-           if (v.type=="date") { 
-             //console.log(v ,231)
-            if (v.clander=="Persian" || v.clander=="Arabic") {
-               v.type="text";
-              if (v.clander=="Arabic"){
-                classData="hijri-picker" 
-                el =` <link href="bootstrap-datetimepicker-ar.css" rel="stylesheet" />`
-               }else{
-                  classData="jalali-picker";
-               }
-             };
-           }
-           else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
-           el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-           if (v.clander=="Persian" || v.clander=="Arabic") {
-             el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-             el +=`    
-             <script>
-             
-             jQuery(function($) {
-     
-               initDefault();
-     
-           });
-     
-           function initDefault() {
-            
-               $(".hijri-picker").hijriDatePicker({
-                   hijri:true,
-                   showSwitcher:false
-               });
-           }
-           </script>`;
-           }
-     
-           exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
-           break;
-         case 'file':
-           id = v.id ? v.id : v.id_;
-           req = v.required ? v.required : false;
-           const drog = v.fileDrogAndDrop ? v.fileDrogAndDrop : false; // برای تشخیص اینکه حالت دراگ اند دراپ هست یا نه
-           let acception =`.zip`;
-           let typeFile ="Zip"
-           if(v.file=="Image"){
-             acception =`.png,.jpg,.jpeg`;  
-             typeFile= "Photo"; 
-           }else if (v.file=="Media"){
-             acception =`.mp3,.mp4,.wav,.wav,.AVI,.WebM,.MKV,.FLV`;
-             typeFile= v.file; 
-           }else if (v.file =="Document"){
-             acception =`.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp`;
-             typeFile= v.file; 
-           }else if (v.file =="Zip"){
-             acception =`.zip,.rar`;
-             typeFile= v.file; 
-           }
-           classData = drog==true ? "form-control-file text-secondary emsFormBuilder" : "" ;
-           el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${ajax_object_efm.text.DragAndDropA} ${typeFile} ${ajax_object_efm.text.orClickHere}"`:``}>`
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-          
-           exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
-           break;
-         case 'textarea':
-           id = v.id ? v.id : v.id_;
-           req = v.required ? v.required : false;
-           el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
-           break
-         case 'button':
-           id = v.id ? v.id : v.id_;
-           el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, amount:v.amount });
-           break
-         case 'checkbox':
-         case 'radiobutton':
-           id = v.id ? v.id : v.id_;
-           const typ = v.type == "checkbox" ? "checkbox" : "radio";
-           req = v.required ? v.required : false;
-           console.log(v.type , "required");
-           const m = v.type =="radiobutton" ? "m-2" : '';
-           el = `<div class=" emsFormBuilder"><div class="row ${m}"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-           // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
-           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
-           break
-         case 'multiselect':
-           id = v.id ? v.id : v.id_;
-           req = v.required ? v.required : false;
-           //console.log(v.required , "required");
-           let multiSelect=false;
-          // console.log(v)
-           if(v.allowMultiSelect==true){
-             multiSelect=true;
-             el += `<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><div id='${id}' name="${v.id_}" class=" multiple-emsFormBuilder ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v  `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}" }> </div>`
-             
-           }else{
-           
-             el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v test`}  ${v.required == true ? 'require' : ''}" value=""  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
-           }
-           el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-           
-           exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount ,multiselect:multiSelect});
-           break
-         case 'option':
-           id = v.id ? v.id : v.id_;
-           const indx = exportView_emsFormBuilder.findIndex(x => x.parents === v.parents);
-           // console.log(exportView_emsFormBuilder[indx], v);
-           if (indx > -1){
-             req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
-             //console.log(`req ${req}`, exportView_emsFormBuilder[indx].required, exportView_emsFormBuilder[indx])
-             //console.log(indx, exportView_emsFormBuilder[indx]);
-             if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-10 emsFormBuilder_option"><label for="${v.parents}" class=
-              >${v.name}</label></div></div>`
-          
-           //  if (exportView_emsFormBuilder[indx].type == "select") exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
-             if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) {
-               console.log(exportView_emsFormBuilder[indx].element.includes("<option") )
-               console.log(exportView_emsFormBuilder[indx])
-               if (!exportView_emsFormBuilder[indx].element.includes("<option") ) { 
-                  exportView_emsFormBuilder[indx].element +=  ` <option style="display:none">Select an option</option>`;
-                 }
-                 exportView_emsFormBuilder[indx].element +=  `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}"  data-id="${v.id_}">${v.name}</option>`;
-               
-             }
-             if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==true) options_multiSelect.push({parents:v.parents, id:id, class:`${v.class ? `${v.class}` : 'emsFormBuilder'}`, value:v.name , name:v.name, dataId:v.id_ } )
- 
-             //console.log(v.parents)
-             exportView_emsFormBuilder[indx].required = false;
-           }
-           break
-       }
-     }
-     //console.log(ajax_object_efm )
-     
-     const button_name = ajax_object_efm.type!="form" && ajax_object_efm.type!="survey" ? ajax_object_efm.text[ajax_object_efm.type] : ajax_object_efm.text.send
-     const content = `<!-- commenet --!><div class="m-2">
-     <div class="row d-flex justify-content-center align-items-center">
-         <div class="col-md-12">
-             <div id="body_efb" >
-           ${sitekye_emsFormBuilder ? ` <div class=" overpage-efb preview-overpage-efb " id="overpage-efb"> <h1 class="mx-1 mt-5 text-info text-center"> ${ajax_object_efm.text.waitingLoadingRecaptcha}</h> </div>` :`<!-- recaptcha not added  -->`} 
-             <form id="body_efb-id">
-                 <h1 class='emsFormBuilder' id="body_efb-title">Form Bulider</h1>                
-                 <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
-                     <span class="emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="fa fa-tachometer"></i></span> 
-                     <div class="emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
-                     </div>
-                     <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
-                 </div>
-                 <div class="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
-                     <h5 class="emsFormBuilder-step-name-view f-setp-name emsFormBuilder" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
-                 </div>
-                 <div id="emsFormBuilder-message-area-view"></div>
-                 <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
-                 </div>
-                 <div  id="emsFormBuilder-tabInfo-view">
-                 </div>
-                 <div  id="emsFormBuilder-tabList-view">
-                 </div>           
-                 <div class="thanks-message text-center" id="efb-final-step"> 
-                     <h3>${ajax_object_efm.text.registered}</h3> <span>${ajax_object_efm.text.yourInformationRegistered}</span>
-                 </div>
-                 <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
-                 <!-- recaptcha  -->
-                 ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-                 <!-- recaptcha end  -->
-                    
-                 ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view " class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow-efb btn-type-efb btn-lg-efb    " onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
-                 </div>
-               </form>      
-             </div>
-         </div>
-     </div>
-     </div>`;
- 
- 
-     if (check ==1) {if (document.getElementById('body_emsFormBuilder')) document.getElementById('body_emsFormBuilder').innerHTML =content}
-     else {return content}
-     
-     
-     
-     if (exportView_emsFormBuilder.length > 0) {
-       const steps = valueJson_ws[0].steps;
-       const fname = valueJson_ws[0].formName;
-       //console.log(steps, fname)
-     
-       document.getElementById('body_efb-title').innerHTML = String(valueJson_ws[0].formName);
-       document.getElementById('emsFormBuilder-step-name-view').innerHTML = valueJson_ws[0]['name-1'];
-       //emsFormBuilder-all-steps-view
-       ////console.log(document.getElementById('body_efb-title').value)
-     
-     
-     
-     }
-     
-     ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
-     createStepsOfPublic()
- 
-     
-    if(options_multiSelect.length>0){
-       for (const el of document.querySelectorAll(`.multiple-emsFormBuilder`)) {
-         data=[]
-         for(const opt of options_multiSelect){
-          // console.log(row)
-           if(opt.parents==el.id){
-             data.push({label: opt.name, value: opt.value})
-           }
-         }
-         //console.log(data)
-         //ajax_object_efm.text
-         Motus.ElementMultiselect.init(el, data, opetionSelect_emsFormBuilder , 
-           {selectOption:ajax_object_efm.text.selectOption,
-           selected:ajax_object_efm.text.selected,
-           selectedAllOption:ajax_object_efm.text.selectedAllOption,
-           field:ajax_object_efm.text.field});
-       }
-     }
-      */
-
-
-
 }
 
 
@@ -712,14 +462,14 @@ function emsFormBuilder_nevButton_view(n) {
 
 function validateForm_emsFormBuilder_view() {
   let x, y, i, valid = true, NotValidCount = 0;
-  //console.log('validateForm_emsFormBuilder_view');
+  console.log('validateForm_emsFormBuilder_view');
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
   let value
   try {
     for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
       //require
-      //console.log(`type[${el.type}]`);
+      console.log(`type[${el.type}]`);
       const req = input.classList.contains('require');
       if (input.tagName == "INPUT") {
         if (input.value == "" && input.classList.contains('require')) {
@@ -906,14 +656,44 @@ function createStepsOfPublic() {
 
 
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+    //validate change
     console.log(el.type, 7889, el.classList.contains('multiple-emsFormBuilder'))
     if (el.type != "submit") {
-
-      if (el.type == "file") {
+     switch(el.type){
+       case "file":
+         console.log('file!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
         files_emsFormBuilder.push({ id: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
-        //console.log(files_emsFormBuilder);
-      }
+       break;
+       case "hidden":
+        console.log('hidden',el.dataset);
+        let id_ ="";
+        let name ="";
+        let type= "";
+        let value = "";
+        if(el.dataset.type=="" ){
+          //el.dataset.type=="esign"
+          // type ="esign";
+          // id_=el.dataset.vid;
+          // value=el.value;
+          // const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+          // name = ob.name;
+        }else if(false){
+
+        }
+        const o = [{ id_:id_, name: name, type: type, value: value, session: sessionPub_emsFormBuilder }];
+       if(value!="") fun_sendBack_emsFormBuilder(o[0]);
+       break;
+       
+     }
+      // if (el.type == "file") {
+      //   const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+      //   files_emsFormBuilder.push({ id: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
+      //   //console.log(files_emsFormBuilder);
+      // }else if(el.type=="hidden"){
+        
+        
+      // }
 
       el.addEventListener("change", (e) => {
         // e.preventDefault();
@@ -923,7 +703,7 @@ function createStepsOfPublic() {
         let value = ""
         const id_ = el.dataset.vid
         let state
-        //  console.log(el.type);
+        console.log(el.type);
         switch (el.type) {
           case "text":
           case "color":
@@ -981,8 +761,9 @@ function createStepsOfPublic() {
             break;
           case "file":
             console.log(`[file] switch file`)
-            valid_file_emsFormBuilder(id_)
-            break
+            valid_file_emsFormBuilder(id_);
+            //value= value ==true ? "true": "";
+            break;
           case undefined:
             //select_options_emsFormBuilder
             //  console.log(el.id ,exportView_emsFormBuilder)
@@ -1025,7 +806,7 @@ function createStepsOfPublic() {
         }
       });
     } else if (el.type == "submit") {
-
+      console.log(el.type);
       el.addEventListener("click", (e) => {
         //console.log(el, el.value, el.dataset.id)
         const id_ = el.dataset.vid
@@ -1053,7 +834,7 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-
+  console.log(ob);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     //console.log(indx ,"indx")
@@ -1842,11 +1623,12 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
+    console.log(row ,"validate" ,valueJson_ws);
     // console.log(row);
     // console.log('row');
     count[0] += 1;
     if (row.type == "file") {
-      console.log(row)
+      console.log(row ,"validate")
     } else if (row.type != "file") {
       //console.log(valueJson_ws);
       let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
@@ -1855,10 +1637,10 @@ function validation_before_send_emsFormBuilder() {
       if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {
         console.log(valueJson_ws[indx].type, valueJson_ws[indx].parents, valueJson_ws, indx, "multiselect");
         const exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);
-        console.log(valueJson_ws[indx], indx, exists, "multiselect");
+        console.log(valueJson_ws[indx], indx, exists, "validate");
         fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
       } else {
-        console.log(valueJson_ws[indx].type, indx, valueJson_ws[indx], "other");
+        console.log(valueJson_ws[indx].type, indx, valueJson_ws[indx], "validate");
         fill += valueJson_ws[indx].required == true ? 1 : 0;
       }
       if (row.value.length > 0) count[1] += 1;
@@ -1867,7 +1649,7 @@ function validation_before_send_emsFormBuilder() {
     }
 
   }
-  //console.log(count ,`rquire[${require}] filed[${fill}]`);
+  console.log(count ,`rquire[${require}] filed[${fill}] validate`);
   require = require > fill ? 1 : 0;
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
     //console.log(sendBack_emsFormBuilder_pub)

@@ -97,9 +97,6 @@ class Admin {
             wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js' . $this->plugin_version, null, null, true);
             wp_enqueue_script('whiteStudioMessage');
 
-            //source : https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
-          /*   wp_register_style('bootstrap4-6-0-css', plugins_url('../../public/assets/css/bootstrapv4-6-0.min.css', __FILE__), true);
-            wp_enqueue_style('bootstrap4-6-0-css'); */
 
             wp_enqueue_script('serverJs', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/server.js', null, null, true);
             wp_localize_script(

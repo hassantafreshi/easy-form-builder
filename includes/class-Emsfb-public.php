@@ -199,19 +199,24 @@ class _Public {
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
-
-	/* 	wp_register_style( 'Emsfb-admin-css',  plugins_url('../public/assets/css/style.css',__FILE__), true );
-		wp_enqueue_style( 'Emsfb-admin-css' ); */
-
-		
 		
 		if(is_rtl()){
-			wp_register_style( 'Emsfb-css-rtl',  plugins_url('../public/assets/css/style-rtl.css',__FILE__), true);
-			wp_enqueue_style( 'Emsfb-css-rtl' );
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true);
+			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
 		/* v2 */
+		wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
+		wp_enqueue_script('efb-jquery-min-js'); 
+		
+		wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
+		wp_enqueue_script('efb-bootstrap-min-js'); 
 
+		wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+		wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+		
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
+		wp_enqueue_script('efb-bootstrap-select-js'); 
 
 		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-css');
@@ -219,73 +224,43 @@ class _Public {
 		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
-		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
-		wp_enqueue_style('Emsfb-bootstrap-select-css');
 		
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
 		wp_enqueue_style('Emsfb-style-css');
 
 
-
-	
-
-
-		//v2
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
 		wp_enqueue_script('efb-main-js'); 
 
-
-		//source:https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0
-		/* wp_register_script('choices-js', plugins_url('../public/assets/js/choices.min.js',__FILE__), array('jquery'), null, true);
-		wp_enqueue_script('choices-js'); */
-
-		
-		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
-		wp_enqueue_script('core_js');
-
-
-		/* v2 */
-
-
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
-		wp_enqueue_style('Emsfb-bootstrap-css');
-
-		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
-		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
 		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-select-css');
-		
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
-		wp_enqueue_style('Emsfb-style-css');
+
 
 
 
 		/* end v2 */
 
 		
-
+		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
+		wp_enqueue_script('core_js');
 	
 		$params = array(
 			'hl' => $lang
 		  );
-		//برای تنظیم زبان من رباط نیستم اینجا باید پارمتر ست بشه
-		// نمونه اصلی
+		//change langugae recaptcha
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
-		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+	//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB&render=explicit#asyncload', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
-				/* wp_enqueue_script( 'Emsfb-listicons-js', plugins_url('../public/assets/js/listicons.js',__FILE__), array('jquery'), null, true );
-				wp_enqueue_script('Emsfb-listicons-js'); */
-
 
 				
-				wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
-				wp_enqueue_script('jquery');
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
+		wp_enqueue_script('jquery');
 
-		// 'ar' 'az' 'dv' 'he' 'ckb' 'fa' 'ur' 'arc' rtl language 
+		
 	  }
 
 

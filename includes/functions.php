@@ -34,14 +34,15 @@ class efbFunction {
 			"define" => __('Define','easy-form-builder'),
 			"formName" => __('Form Name','easy-form-builder'),
 			"createDate" => __('Create Date','easy-form-builder'),
-			"edit" => __('Content','easy-form-builder'),
+			"edit" => __('Edit','easy-form-builder'),
+			"content" => __('Content','easy-form-builder'),
 			"trackNo" => __('Confirmation Code','easy-form-builder'),
 			"formDate" => __('Form Date','easy-form-builder'),
 			"by" => __('By','easy-form-builder'),
 			"ip" => __('IP','easy-form-builder'),
 			"guest" => __('Guest','easy-form-builder'),			
 			"response" => __('Response','easy-form-builder'),
-			"date" => __('Date','easy-form-builder'),
+			"date" => __('Date Picker','easy-form-builder'),
 			"videoDownloadLink" => __('Video Download Link','easy-form-builder'),
 			"downloadViedo" => __('Download Viedo','easy-form-builder'),
 			"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
@@ -80,7 +81,7 @@ class efbFunction {
 			"password" => __('Password','easy-form-builder'),
 			"email" => __('Email','easy-form-builder'),
 			"number" => __('Number','easy-form-builder'),
-			"file" => __('Date Picker','easy-form-builder'),
+			"file" => __('File Upload','easy-form-builder'),
 			"tel" => __('Tel','easy-form-builder'),
 			"textarea" => __('Long Text','easy-form-builder'),
 			"checkbox" => __('Check Box','easy-form-builder'),
@@ -328,7 +329,7 @@ class efbFunction {
 			"invalidEmail" => __('Invalid Email address','easy-form-builder'),
 			"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'),
 			"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),			
-			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
+			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder receives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
 			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),					
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
 			"siteKey" => __('SITE KEY','easy-form-builder'),			
@@ -419,7 +420,7 @@ class efbFunction {
 				//$mailResult = wp_mail( $support,$sub, $message, $headers);
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
-				 $cont .="website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:". $usr->user_email.
+				 $cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:". $usr->user_email.
 				 " role:".$usr->roles[0]." name:".$usr->display_name."";                      
 				 $mailResult = wp_mail( $support,$state, $cont, $headers );
 				}

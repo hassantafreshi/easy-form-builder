@@ -1323,7 +1323,7 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     if (!document.getElementById('modalConfirmBtnEfb')) document.getElementById('settingModalEfb-sections').innerHTML += `
     <div class="efb modal-footer" id="modal-footer-efb">
-      <button type="button" class="efb btn btn-danger" data-bs-dismiss="modal"id="modalConfirmBtnEfb">
+      <button type="button" class="efb btn btn-danger" data-bs-dismiss="modal" id="modalConfirmBtnEfb">
           ${efb_var.text.yes}
       </button> 
     </div>`
@@ -1989,7 +1989,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12" id ="${rndm}-f">
-      <canvas class="efb sign-efb ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color} " data-code="${rndm}"  data-id="${rndm}-el" id="${rndm}_" width="600" height="200">
+      <canvas class="efb sign-efb bg-white ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color} " data-code="${rndm}"  data-id="${rndm}-el" id="${rndm}_" width="600" height="200">
           ${efb_var.text.updateUrbrowser}
       </canvas>
      ${previewSate == true ? `<input type="hidden" data-type="esign" data-vid='${rndm}' class="efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">` : ``}
@@ -2208,7 +2208,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ps = elementId=="html" ? 'col-md-12': 'col-md-10'
     endTags = previewSate==false ? `</button> </button> </div></div>` : `</div></div>`
     newElement += `
-    <div class=" my-2  ${shwBtn} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12   efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
+    <div class="efb my-2  ${previewSate == true &&( pos[1]=="col-md-12" || pos[1]=="col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     
     ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
@@ -2218,8 +2218,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${ previewSate == true && elementId=="html" || true ?   "<!--endhtml -->" : ''}
 
     `
-
-    console.log(dataTag);
+//
+    console.log(dataTag ,`p0`,pos[0] ,`p1`, pos[1] );
   } else if (dataTag == 'step' && previewSate != true) {
     if (elementId == "steps" && pro_efb == false && step_el_efb == 3) {
       amount_el_efb = amount_el_efb - 1;
@@ -3205,6 +3205,10 @@ function fun_clear_esign_efb(id) {
   c2d.strokeStyle = "#000";
   c2d.save();
   const o = [{ id_: id }];
+  //remove  from object
+  const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === id);
+  if (indx!=-1)sendBack_emsFormBuilder_pub.splice(indx,1)
+  console.log(sendBack_emsFormBuilder_pub,indx,id);
 
 }
 
@@ -3383,6 +3387,8 @@ function viewfileEfb(id, indx) {
                  aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button> 
             <img src="${fileURL}" alt="image">
             </div>`;
+
+          //  files_emsFormBuilder.push({ id: valj_efb[indx].id_, value: "@file@", state: 0, url: "", type: "file", name: valj_efb[indx].name, session: sessionPub_emsFormBuilder });
       } else {
         box.innerHTML = box_v;
       }
@@ -3933,11 +3939,12 @@ console.log(timeout , 'timeout');
               draw_mouse_efb = false;
 
               // const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
-              const value = document.getElementById(`${v.id_}-sig-data`).value;
-              console.log(value);
-              // const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
-              // console.log(o ,968)
-              // fun_sendBack_emsFormBuilder(o[0]);
+              const el = document.getElementById(`${v.id_}-sig-data`);
+              const value = el.value;
+             console.log(value,el.dataset,v);
+              const o = [{ id_: v.id_, name: v.name, type:v.type, value: value, session: sessionPub_emsFormBuilder }];
+              console.log(o ,968)
+              fun_sendBack_emsFormBuilder(o[0]);
             }, false);
 
             document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
