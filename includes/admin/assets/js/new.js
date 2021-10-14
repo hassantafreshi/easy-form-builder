@@ -83,7 +83,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.date, icon: 'bi-calendar-date', id: 'date', pro: true },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
@@ -1740,7 +1740,7 @@ function create_dargAndDrop_el() {
       } else if (t == "multiselect") {
         const id = `#${rndm}_options`
         jQuery(function () {
-           console.log(rndm , "selectpicker",el)
+          // console.log(rndm , "selectpicker",el)
           jQuery(id).selectpicker();
         });
         setTimeout(() => {
@@ -1974,7 +1974,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       //
       break;
     case 'switch':
-
+//onClick="switchGetStateEfb("${rndm}") 
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12" id ="${rndm}-f">
@@ -2131,7 +2131,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       ui = ` 
       ${label}
-      <!-- multiselect test -->
+      <!-- multiselect  -->
       <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"   id='${rndm}-f' data-id="${rndm}-el">
       <select class="selectpicker  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} efb" id='${rndm}_options' multiple="" data-live-search="false" tabindex="-98" ${previewSate != true ? 'disabled' : ''}>
       ${optn}
@@ -2172,10 +2172,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="col-md-10 col-sm-12 efb"  id='${rndm}-f'>
       <div class="btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
-      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
+      <label for="${rndm}_1" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
         <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
       <span class="border-right border border-light efb"></span>
-      <label class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
+      <label for="${rndm}_2" onClick="yesNoGetEFB('${valj_efb[iVJ].button_2_text}' ,'${rndm}')" class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
         <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_2" value="${valj_efb[iVJ].button_2_text}"> <span id="${rndm}_2_lab">${valj_efb[iVJ].button_2_text}</span></label>
     </div>
         ${desc}`
@@ -3190,9 +3190,26 @@ function deleteMarkers_efb() {
 
 function fun_get_rating_efb(v, no) {
   document.getElementById(`${v}-stared`).value = no;
-  document.getElementById(`${v}-star${no}`).checked = true;
+  document.getElementById(`${v}-star${no}`).checked = true; 
+  if(typeof(sendBack_emsFormBuilder_pub)!="undefined" ){
+    const indx = valj_efb.findIndex(x=>x.id_==v)
+    const o = [{ id_:v, name:valj_efb[indx].name, amount:valj_efb[indx].amount, type: "rating", value: no, session: sessionPub_emsFormBuilder }];
+    fun_sendBack_emsFormBuilder(o[0])
+  }
 }
 
+function switchGetStateEfb(id){
+  console.log(id, "switchGetStateEfb");
+}
+
+function yesNoGetEFB(v,id){
+  if(typeof(sendBack_emsFormBuilder_pub)!="undefined" ){
+    const indx = valj_efb.findIndex(x=>x.id_==id)
+    console.log(valj_efb,indx,id);
+    const o = [{ id_:id, name:valj_efb[indx].name, amount:valj_efb[indx].amount, type: "yesNo", value: v, session: sessionPub_emsFormBuilder }];
+    fun_sendBack_emsFormBuilder(o[0])
+  }
+}
 
 
 /* clear esignature function */
@@ -3917,6 +3934,7 @@ console.log(timeout , 'timeout');
 
     // در اینجا ویژگی ها مربوط به نقشه و امضا و ستاره  و مولتی سلکت اضافه شود
     try {
+      const len = valj_efb.length;
       valj_efb.forEach((v, i) => {
         console.log(v, i)
         switch (v.type) {
@@ -3945,7 +3963,7 @@ console.log(timeout , 'timeout');
               const el = document.getElementById(`${v.id_}-sig-data`);
               const value = el.value;
              console.log(value,el.dataset,v);
-              const o = [{ id_: v.id_, name: v.name, type:v.type, value: value, session: sessionPub_emsFormBuilder }];
+              const o = [{ id_: v.id_, name: v.name, amount:v.amount, type:v.type, value: value, session: sessionPub_emsFormBuilder }];
               console.log(o ,968)
               fun_sendBack_emsFormBuilder(o[0]);
             }, false);
@@ -3984,15 +4002,33 @@ console.log(timeout , 'timeout');
             })();
             break;
           case "multiselect":
-            jQuery(function () {
-              jQuery('.selectpicker').selectpicker();
-            });
-            setTimeout(() => {
-              //const v = valj_efb.find(x=>x.id_==rndm);
-              const opd = document.querySelector(`[data-id='${v.id_}_options']`)
-              console.log(v, `"timeout" ${v.corner} ${v.el_border_color} ${v.el_text_size}`, opd)
-              opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
-            }, 350);
+            let callback =1;
+            function mutlselect (len){
+              setTimeout(() => {
+                //const v = valj_efb.find(x=>x.id_==rndm);
+                callback +=1;
+                const opd = document.querySelector(`[data-id='${v.id_}_options']`);
+                console.log(callback,opd);
+                if(opd!=null){
+                  //  console.log(v, `"timeout" ${v.corner} ${v.el_border_color} ${v.el_text_size}`, opd)
+                  opd.className += ` efb emsFormBuilder_v  ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`;
+                  console.log('multiselect');
+                  opd.onclick = function getMultiSelectvalue (){
+                    console.log('multiselect');
+                    console.log ( v.id_);
+                    
+                  }
+
+                  jQuery(function () {
+                    jQuery('.selectpicker').selectpicker();
+                  });
+                
+                }else{
+                  mutlselect(10*callback);
+                }
+              }, len);
+            }
+            mutlselect(len);
             // document.querySelector(`[data-id='${v.id_}_options']`).className += `efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
             break;
           case "rating":

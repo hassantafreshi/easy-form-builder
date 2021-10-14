@@ -666,23 +666,34 @@ function createStepsOfPublic() {
         files_emsFormBuilder.push({ id: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
        break;
        case "hidden":
-        console.log('hidden',el.dataset);
-        let id_ ="";
-        let name ="";
-        let type= "";
-        let value = "";
-        if(el.dataset.type=="" ){
-          //el.dataset.type=="esign"
-          // type ="esign";
-          // id_=el.dataset.vid;
-          // value=el.value;
-          // const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-          // name = ob.name;
-        }else if(false){
+         const idHidden = `#${el.id}`;
+        console.log('hidden',el.dataset,idHidden);
 
-        }
-        const o = [{ id_:id_, name: name, type: type, value: value, session: sessionPub_emsFormBuilder }];
-       if(value!="") fun_sendBack_emsFormBuilder(o[0]);
+      //   let id_ ="";
+      //   let name ="";
+      //   let type= "";
+      //   let value = "";
+      //   let indx = -1;
+      //   if(el.dataset.type=="rating" ){         
+      //      type ="rating";
+      //      id_=el.dataset.vid;
+      //      value=el.value;
+      //      const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+      //      console.log(ob ,el.value,"rating");
+      //      name = ob.name;
+      //   }else if(false){
+
+      //   }
+      //   const o = [{ id_:id_, name: name, type: type, value: value, session: sessionPub_emsFormBuilder }];
+      //  if(value!="") {fun_sendBack_emsFormBuilder(o[0]);
+      //   console.log(sendBack_emsFormBuilder_pub, 'sendBack_emsFormBuilder_pub')
+      // }
+      //  else{
+      //    if(id_!="" && value==""){
+      //      indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == id_)
+      //     if(indx !=-1 ) sendBack_emsFormBuilder_pub.splice(indx, 1)
+      //    }
+      //  }
        break;
        
      }
@@ -764,6 +775,10 @@ function createStepsOfPublic() {
             valid_file_emsFormBuilder(id_);
             //value= value ==true ? "true": "";
             break;
+          case "hidden":
+            
+         
+            break;
           case undefined:
             //select_options_emsFormBuilder
             //  console.log(el.id ,exportView_emsFormBuilder)
@@ -799,19 +814,19 @@ function createStepsOfPublic() {
           // console.log(el ,ob  ,355)
           const type = ob.type
           // console.log(type ,355)
-          const o = [{ id_: id_, name: ob.name, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          const o = [{ id_: id_, name: ob.name,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           console.log(o, 968)
-          fun_sendBack_emsFormBuilder(o[0], 355);
+          fun_sendBack_emsFormBuilder(o[0]);
           //console.log(sendBack_emsFormBuilder_pub, el.type);
         }
       });
     } else if (el.type == "submit") {
-      console.log(el.type);
+      console.log(el.type ,el);
       el.addEventListener("click", (e) => {
         //console.log(el, el.value, el.dataset.id)
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
-        const o = [{ id_: id_, name: ob.name, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
+        const o = [{ id_: id_, name: ob.name, amount:ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
         console.log(o);
         fun_sendBack_emsFormBuilder(o[0]);
       });
@@ -1496,6 +1511,8 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         //console.l(c.url ,c.url.length)
         value = `</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
       }
+    }else if (c.type == "esign") {
+      value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
     }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
     m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `

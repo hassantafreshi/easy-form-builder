@@ -398,7 +398,16 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
     }else if (c.type == "esign") {
       value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
-    } 
+    }else if(c.type=="maps"){
+
+    }else if(c.type=="rating"){
+      value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
+      console.log(parseInt(c.value));
+      for(let i=0 ; i<parseInt(c.value) ; i++){
+        value += `<i class="bi bi-star-fill"></i>`
+      }
+      value+="</div>";
+    }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
     m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
   }
