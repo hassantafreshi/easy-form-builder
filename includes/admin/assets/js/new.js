@@ -56,7 +56,7 @@ function creator_form_builder_Efb() {
   console.log(`text [${efb_var.text.name}]`)
   remove_other_noti()
   console.log('creator_form_builder_Efb()')
-
+  
   console.log(valj_efb)
   if(valj_efb.length<2){
     step_el_efb = 1;
@@ -83,7 +83,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.date, icon: 'bi-calendar-date', id: 'date', pro: true },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+ // { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
@@ -3334,16 +3334,43 @@ create_dadfile_efb = (id, indx) => {
 
 
 function removeFileEfb(id, indx) {
-  console.log('remove')
+  console.log('remove',id, indx)
   fileEfb = "";
   //dropAreaEfb.classList.add("active");
   document.getElementById(`${id}_box`).innerHTML = ui_dadfile_efb(indx)
-
+  
   setTimeout(() => {
     create_dadfile_efb(id, indx);
-  }, 100)
+    document.getElementById(`${id}_`).addEventListener('change',()=>{
+      console.log("new on change");
+      valid_file_emsFormBuilder(id);
+    }) 
 
-}
+  }, 500)
+
+  if(typeof(sendBack_emsFormBuilder_pub)!="undefined"){
+    let inx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id);
+    
+    console.log("remove",inx,sendBack_emsFormBuilder_pub)
+      if(inx!=-1) {
+        sendBack_emsFormBuilder_pub.splice(inx,1)
+        inx = files_emsFormBuilder.findIndex(x=>x.id_ ==id)
+        files_emsFormBuilder[inx].url ="";
+      }
+      else{
+        inx = files_emsFormBuilder.findIndex(x=>x.id_ ==id)
+        console.log("remove files_emsFormBuilder",inx,files_emsFormBuilder);
+        if(inx!=-1) {
+          files_emsFormBuilder[inx].url ="";
+          setTimeout(() => {
+            inx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id);
+            console.log("remove sendBack_emsFormBuilder_pub",inx,sendBack_emsFormBuilder_pub);
+            if(inx!=-1) {sendBack_emsFormBuilder_pub.splice(inx,1)}
+          }, 100);
+        }
+     }
+  }
+}//end function
 
 
 function ui_dadfile_efb(indx, previewSate) {
@@ -3352,7 +3379,7 @@ function ui_dadfile_efb(indx, previewSate) {
   <button type="button" class="efb btn ${valj_efb[indx].button_color} btn-lg" id="${valj_efb[indx].id_}_b">
       <i class="efb bi-upload me-2"></i>${efb_var.text.browseFile}
   </button>
-  <input type="file" hidden="" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
+ <input type="file" hidden="" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
 
 }
 
@@ -3361,7 +3388,7 @@ function viewfileEfb(id, indx) {
   console.log('viewfileEfb');
   let fileType = fileEfb.type;
   const filename = fileEfb.name
-  console.log(filename, fileEfb)
+  console.log(filename, fileEfb,indx)
 
   //let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
   let icon = ``;
@@ -3397,6 +3424,7 @@ function viewfileEfb(id, indx) {
   </div>`
 
   if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
+    console.log('validExtensions_efb_fun');
     let fileReader = new FileReader();
     fileReader.onload = () => {
       let fileURL = fileReader.result;
@@ -3428,7 +3456,7 @@ function viewfileEfb(id, indx) {
 
 
 function validExtensions_efb_fun(type, fileType) {
- // console.log(fileType ,type)
+  console.log('[file]',fileType ,type , )
 
   let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
   if (type == "document") {

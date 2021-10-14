@@ -663,7 +663,7 @@ function createStepsOfPublic() {
        case "file":
          console.log('file!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-        files_emsFormBuilder.push({ id: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
+        files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
        break;
        case "hidden":
          const idHidden = `#${el.id}`;
@@ -852,7 +852,7 @@ function fun_sendBack_emsFormBuilder(ob) { // این تابع آبجکت ارس�
   console.log(ob);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-    //console.log(indx ,"indx")
+    console.log(indx ,"indxindx" ,sendBack_emsFormBuilder_pub , ob.id_)
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
@@ -993,10 +993,11 @@ function endMessage_emsFormBuilder_view() {
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {
         //console.log("files upload" , sendBack_emsFormBuilder_pub );
-        for (const file of files_emsFormBuilder) { sendBack_emsFormBuilder_pub.push(file); }
+        for (const file of files_emsFormBuilder) {if(sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == file.id_)==-1) sendBack_emsFormBuilder_pub.push(file); }
 
         //console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
       }
+      //final vaidation
       if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder()
     } else {
       const timeValue = setInterval(function () {
@@ -1222,7 +1223,7 @@ function valid_file_emsFormBuilder(id) {
     el.classList.remove('text-warning');
     el.classList.add('text-secondary');
     if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove(); */
-
+    console.log('[file] fun_upload_file_emsFormBuilder');
     fun_upload_file_emsFormBuilder(id, file);
 
     rtrn = true;
@@ -1262,7 +1263,7 @@ function findPosition(obj) {
 
 function fun_upload_file_emsFormBuilder(id, type) {
   //این تابع فایل را به سمت سرور ارسال می کند
-  const indx = files_emsFormBuilder.findIndex(x => x.id === id);
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
 
   console.log('[file]', indx, files_emsFormBuilder[indx], id, files_emsFormBuilder);
   files_emsFormBuilder[indx].state = 1;
@@ -1294,13 +1295,21 @@ function fun_upload_file_emsFormBuilder(id, type) {
 
         if (response.data.success === true) {
           r = response.data.file.url;
-          files_emsFormBuilder[indx].url = response.data.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
+            if(response.data.file.error){
+              noti_message_efb("",response.data.file.error,14,"danger");
+              return;
+            }
+            files_emsFormBuilder[indx].url = response.data.file.url;
+            files_emsFormBuilder[indx].state = 2;
+            files_emsFormBuilder[indx].id = idn;
+          console.log(files_emsFormBuilder[indx] ,response.data  )
+
+          const ob = valueJson_ws.find(x => x.id_ === id);
+            console.log(id , ob);
+          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name,amount:ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url:files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
+          fun_sendBack_emsFormBuilder(o[0]);
         } else {
-          files_emsFormBuilder[indx].state = 3;
-          files_emsFormBuilder[indx].url = individual_file.name;
-          //console.log(`files_emsFormBuilder[indx].state [${files_emsFormBuilder[indx].state}] [${individual_file.name}]`);
+          //show message file type is not correct;        
         }
       }
     });
@@ -1644,11 +1653,20 @@ function validation_before_send_emsFormBuilder() {
     // console.log(row);
     // console.log('row');
     count[0] += 1;
-    if (row.type == "file") {
-      console.log(row ,"validate")
-    } else if (row.type != "file") {
+    if (row.value == "@file@") {
+      
+      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      console.log(`===================================================> ${indx} , ${row.value}  , validate 22`)
+      if(indx!=-1){
+    //  fill += valueJson_ws[indx].required == true ? 1 : 0;  
+      if(row.url.length>5){ 
+         fill += valueJson_ws[indx].required == true ? 1 : 0;
+         count[1] += 1;
+        }
+      }
+    } else if (row.type != "@file@") {
       //console.log(valueJson_ws);
-      let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
 
       console.log(valueJson_ws[indx], valueJson_ws)
       if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {
@@ -1672,9 +1690,7 @@ function validation_before_send_emsFormBuilder() {
     //console.log(sendBack_emsFormBuilder_pub)
     document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
-    // window.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('body_efb').scrollIntoView(true);
-    //sendBack_emsFormBuilder_pub=[];
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws) {
       if (v.type != 'file' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select') {
@@ -1712,12 +1728,6 @@ function emsFormBuilder_logout() {
   actionSendData_emsFormBuilder();
 }
 
-
-/* new Code */
-/* new Code */
-/* new Code */
-/* new Code */
-/* new Code */
 /* new Code */
 
 

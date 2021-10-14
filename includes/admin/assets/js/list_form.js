@@ -28,11 +28,12 @@ function fun_emsFormBuilder_render_view(x) {
   // v2
 
   let rows = ""
+  let o_rows =""
   count_row_emsFormBuilder = x;
   let count = 0;
   fun_backButton(2);
   if (valueJson_ws_form.length > 0) {
-    //console.log(valueJson_ws_form);
+    console.log(valueJson_ws_form);
     for (let i of valueJson_ws_form) {
       console.log(i)
       if (x > count) {
@@ -45,7 +46,10 @@ function fun_emsFormBuilder_render_view(x) {
           }
           //console.l(`ajax_object_efm return` ,ims , newM , i.form_id)
         }
-        rows += `
+        
+
+        function creatRow(){
+         return `
        <tr class="pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
         <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}" >
           [EMS_Form_Builder id=${Number(i.form_id)}]  
@@ -64,11 +68,13 @@ function fun_emsFormBuilder_render_view(x) {
         </button></th>
         </td>                               
        </tr>
-       ` ;
+       `
+        }
+        newM != true  ? o_rows +=creatRow() : rows +=creatRow(); 
         count += 1;
       }
     }
-
+    rows += o_rows;
     if (valueJson_ws_form.length < x) {
       document.getElementById("more_emsFormBuilder").style.display = "none";
     }
@@ -368,15 +374,16 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <p class="small mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
   <hr>
   <h6 class="efb ">${efb_var.text.response} </h6>`;
+  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
     let value = `<b>${c.value}</b>`;
     console.log(`value up ${value}`,c)    ;
-    if (c.value == "@file@" && c.state == 2) {
-      if (c.type == "Image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
-      }else if (c.type == "Document") {
-        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
-      } else if (c.type == "Media") {
+    if (c.value == "@file@") {
+      if (c.type == "Image" ||c.type == "image") {
+        value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
+      }else if (c.type == "Document" ||c.type == "document") {
+        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank">${efb_var.text.download}</a>`
+      } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
         audios.forEach(function (aud) {
@@ -478,12 +485,13 @@ function fun_emsFormBuilder_more() {
 
 // تابع نمایش ویرایش فرم
 function fun_ws_show_edit_form(id) {
-  valj_efb = JSON.parse(localStorage.getItem("valj_efb"));
+  //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));
   console.log(localStorage.getItem('valj_efb'), id, efb_var);
+  const len = valj_efb.length;
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()
-  }, 100)
+  }, 500)
   /* document.getElementById('content-efb').innerHTML = `<div class="col-md-12 ">
   <div id="emsFormBuilder-form" >
   <form id="emsFormBuilder-form-id" class="${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -701,24 +709,25 @@ function fun_get_form_by_id(id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         //     console.log(res.data.ajax_value ,res);
-        let v = res.data.ajax_value.replace(/[\\]/g, '')
-
-        //      let value=v; */
-        console.log(v);
-
-        const value = JSON.parse(v);
-        const len = value.length
-        // console.log(res);
-        setTimeout(() => {
-          formName_Efb = valj_efb[0].formName;
-          form_ID_emsFormBuilder = id;
-          localStorage.setItem('valj_efb', JSON.stringify(value));
-          const edit = { id: res.data.id, edit: true };
-          localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
-          fun_ws_show_edit_form(id);
-        }, len * 6)
-
-        fun_ws_show_edit_form(id)
+        try {
+          let v = res.data.ajax_value.replace(/[\\]/g, '')
+          console.log(v);
+          const value = JSON.parse(v);
+          const len = value.length
+          console.log(value);
+          valj_efb=value;
+          setTimeout(() => {
+            formName_Efb = valj_efb[0].formName;
+            form_ID_emsFormBuilder = id;
+            localStorage.setItem('valj_efb', JSON.stringify(value));
+            const edit = { id: res.data.id, edit: true };
+            localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+            fun_ws_show_edit_form(id);
+          }, len * 6)
+         }catch(error){
+           console.log(error);
+           //reportE
+         }
       } else {
         //console.l(res);
       }
