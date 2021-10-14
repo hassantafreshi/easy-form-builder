@@ -1889,7 +1889,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <!-- ${rndm}-map -->
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>      
-      ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb"><input id="delete-markers-efb" class="btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
+      ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb"><input id="delete-markers_maps_efb-efb" class="btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
         <div id="${rndm}-map" data-type="maps" class="efb maps-efb emsFormBuilder_v ${valj_efb[iVJ].el_height}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " data-id="${rndm}-el" data-name='maps'></div>
         ${desc}`
       dataTag = elementId;
@@ -3097,8 +3097,8 @@ jQuery(function(jQuery){
 /* map section */
 
 let map;
-let markers = [];
-let mark_efb = []
+let markers_maps_efb = [];
+let mark_maps_efb = []
 //document.addEventListener('ondomready', function(){
 function initMap() {
   console.log('initMap');
@@ -3118,13 +3118,13 @@ function initMap() {
       center: location,
       mapTypeId: "roadmap",
     });
-    console.log('map function');
+  
     // This event listener will call addMarker() when the map is clicked.
     if (mark != 0) {
       map.addListener("click", (event) => {
         const latlng = event.latLng.toJSON();
-        mark_efb.push(latlng);
-        if (mark_efb.length <= mark) {
+        mark_maps_efb.push(latlng);
+        if (mark_maps_efb.length <= mark) {
           addMarker(event.latLng);
         }
       });
@@ -3132,8 +3132,8 @@ function initMap() {
 
 
       document
-        .getElementById("delete-markers-efb")
-        .addEventListener("click", deleteMarkers_efb);
+        .getElementById("delete-markers_maps_efb-efb")
+        .addEventListener("click", deletemarkers_maps_efb_efb);
       // Adds a marker at the center of the map.
     } else {
       addMarker(location);
@@ -3149,8 +3149,9 @@ function initMap() {
 function addMarker(position) {
   const lab_map_efb = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const idx = valj_efb.findIndex(x => x.type == "maps")
-  const idxm = (mark_efb.length)
-  console.log(mark_efb.length)
+  const idxm = (mark_maps_efb.length)
+  console.log(mark_maps_efb.length)
+  console.log(mark_maps_efb)
   const lab = idx !== -1 && valj_efb[idx].mark < 2 ? '' : lab_map_efb[idxm % lab_map_efb.length];
   //idx!==-1 && valj_efb[idx].mark ? '' :
   const marker = new google.maps.Marker({
@@ -3159,32 +3160,32 @@ function addMarker(position) {
     map,
   });
 
-  markers.push(marker);
+  markers_maps_efb.push(marker);
 
 }
 
-// Sets the map on all markers in the array.
+// Sets the map on all markers_maps_efb in the array.
 function setMapOnAll(map) {
-  for (let i = 0; i < markers.length; i++) {
-    markers[i].setMap(map);
+  for (let i = 0; i < markers_maps_efb.length; i++) {
+    markers_maps_efb[i].setMap(map);
   }
 }
 
-// Removes the markers from the map, but keeps them in the array.
-function hideMarkers() {
+// Removes the markers_maps_efb from the map, but keeps them in the array.
+function hidemarkers_maps_efb() {
   setMapOnAll(null);
 }
 
-// Shows any markers currently in the array.
-function showMarkers() {
+// Shows any markers_maps_efb currently in the array.
+function showmarkers_maps_efb() {
   setMapOnAll(map);
 }
 
-// Deletes all markers in the array by removing references to them.
-function deleteMarkers_efb() {
-  hideMarkers();
-  markers = [];
-  mark_efb = [];
+// Deletes all markers_maps_efb in the array by removing references to them.
+function deletemarkers_maps_efb_efb() {
+  hidemarkers_maps_efb();
+  markers_maps_efb = [];
+  mark_maps_efb = [];
 }
 /* map section end */
 

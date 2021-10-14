@@ -380,6 +380,7 @@ class efbFunction {
 			"clear" => __('Clear','easy-form-builder'),
 			"entrTrkngNo" => __('Enter the Confirmation Code','easy-form-builder'),
 			"search" => __('Search','easy-form-builder'),
+			"enterThePhones" => __('Enter The Phone No','easy-form-builder'),
 
 			
 		];
@@ -390,7 +391,7 @@ class efbFunction {
 			$rtrn +=["".$value.""=>"".$lang[$value].""];
 		}
 		array_push($rtrn,[$st]);
-		error_log(json_encode($rtrn));
+	//	error_log(json_encode($rtrn));
 			return $rtrn;
 	}
 

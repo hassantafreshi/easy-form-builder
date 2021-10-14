@@ -67,7 +67,7 @@ class _Public {
 
 	public function EMS_Form_Builder($id){
 
-		
+		error_log('form Genrate');
 		$table_name = $this->db->prefix . "Emsfb_form";
 		
 		
@@ -138,10 +138,28 @@ class _Public {
 		 ));  
 		 $k="";
 		 $pro=false;
-		 if(gettype($stng)!="string"){
+
+		 error_log("maps before");
+		 error_log(gettype($stng));
+		 error_log($stng);
+		 if(gettype($stng)!=="integer"){
 			 $valstng= json_decode($stng);
 			 if($valstng->siteKey){$k =$valstng->siteKey;}
-			 if($valstng->activeCode) $pro = true;
+			// if($valstng->activeCode) $pro = true;
+
+
+			
+			 if(strlen($valstng->apiKeyMap)>5){
+				 error_log("maps");
+				 $key= $valstng->apiKeyMap;
+				 $lng = strval(get_locale());
+				 
+					 if ( strlen($lng) > 0 ) {
+					 $lng = explode( '_', $lng )[0];
+					 }
+				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				 wp_enqueue_script('googleMaps-js');
+			 }
 		 }
 		 $efb_m ="<h6 class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
 		 if($pro==true) $efb_m="";
@@ -176,6 +194,20 @@ class _Public {
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=__("Settings not found",'easy-form-builder');
 			$state="tracker";
+		}else{
+
+			$valstng= json_decode($stng);
+			if(strlen($valstng->apiKeyMap)>5){
+				error_log("maps");
+				$key= $valstng->apiKeyMap;
+				$lng = strval(get_locale());
+				
+					if ( strlen($lng) > 0 ) {
+					$lng = explode( '_', $lng )[0];
+					}
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				wp_enqueue_script('googleMaps-js');
+			}
 		}
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
@@ -326,6 +358,9 @@ class _Public {
 						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys' , 'easy-form-builder')); 
 					}
 				}
+
+
+
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 
@@ -1002,7 +1037,7 @@ class _Public {
 	$rtrn;
 	$siteKey;
 	$trackingCode ="";
-
+	$mapKey="";
 	
 	if(count($value)>0){
 		//error_log('count($value)>0');
@@ -1017,6 +1052,8 @@ class _Public {
 				   $siteKey=$v;
 			   }elseif ($k=="trackingCode" && $state=="pub"){
 				   $trackingCode=$v;
+			   }elseif ($k =="apiKeyMap"){
+				$mapKey=$v;
 			   }
 		   }
 		   
@@ -1024,7 +1061,7 @@ class _Public {
    
 	   if($state=="pub"){
 			
-		   $rtr =	array('trackingCode' => ''.$trackingCode.'' , 'siteKey' => ''.$siteKey.'');
+		   $rtr =	array('trackingCode' => ''.$trackingCode.'' , 'siteKey' => ''.$siteKey.'','apiKeyMap' => ''.$mapKey.'');
 		   $rtrn =json_encode($rtr);
 	   }else{
 		   $rtrn=$value[0];

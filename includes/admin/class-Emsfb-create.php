@@ -102,12 +102,12 @@ class Create {
 
 			if(strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
-				$lng = get_locale();
-					if ( strlen( $lang ) > 0 ) {
+				$lng = strval(get_locale());
+				
+					if ( strlen($lng) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
-				//error_log($lang);
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
