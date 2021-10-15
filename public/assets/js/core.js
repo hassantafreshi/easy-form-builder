@@ -657,7 +657,7 @@ function createStepsOfPublic() {
 
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
-    console.log(el.type, 7889, el.classList.contains('multiple-emsFormBuilder'))
+    console.log(el.type ,el, 7889)
     if (el.type != "submit") {
      switch(el.type){
        case "file":
@@ -666,34 +666,6 @@ function createStepsOfPublic() {
         files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
        break;
        case "hidden":
-         const idHidden = `#${el.id}`;
-        console.log('hidden',el.dataset,idHidden);
-
-      //   let id_ ="";
-      //   let name ="";
-      //   let type= "";
-      //   let value = "";
-      //   let indx = -1;
-      //   if(el.dataset.type=="rating" ){         
-      //      type ="rating";
-      //      id_=el.dataset.vid;
-      //      value=el.value;
-      //      const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-      //      console.log(ob ,el.value,"rating");
-      //      name = ob.name;
-      //   }else if(false){
-
-      //   }
-      //   const o = [{ id_:id_, name: name, type: type, value: value, session: sessionPub_emsFormBuilder }];
-      //  if(value!="") {fun_sendBack_emsFormBuilder(o[0]);
-      //   console.log(sendBack_emsFormBuilder_pub, 'sendBack_emsFormBuilder_pub')
-      // }
-      //  else{
-      //    if(id_!="" && value==""){
-      //      indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == id_)
-      //     if(indx !=-1 ) sendBack_emsFormBuilder_pub.splice(indx, 1)
-      //    }
-      //  }
        break;
        
      }
@@ -997,7 +969,7 @@ function endMessage_emsFormBuilder_view() {
 
         //console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
       }
-      //final vaidation
+      //final validation
       if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder()
     } else {
       const timeValue = setInterval(function () {
@@ -1649,14 +1621,10 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
-    console.log(row ,"validate" ,valueJson_ws);
-    // console.log(row);
-    // console.log('row');
     count[0] += 1;
     if (row.value == "@file@") {
       
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-      console.log(`===================================================> ${indx} , ${row.value}  , validate 22`)
       if(indx!=-1){
     //  fill += valueJson_ws[indx].required == true ? 1 : 0;  
       if(row.url.length>5){ 
@@ -1667,15 +1635,10 @@ function validation_before_send_emsFormBuilder() {
     } else if (row.type != "@file@") {
       //console.log(valueJson_ws);
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-
-      console.log(valueJson_ws[indx], valueJson_ws)
-      if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {
-        console.log(valueJson_ws[indx].type, valueJson_ws[indx].parents, valueJson_ws, indx, "multiselect");
-        const exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);
-        console.log(valueJson_ws[indx], indx, exists, "validate");
+      if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {    
+        const exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
         fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
       } else {
-        console.log(valueJson_ws[indx].type, indx, valueJson_ws[indx], "validate");
         fill += valueJson_ws[indx].required == true ? 1 : 0;
       }
       if (row.value.length > 0) count[1] += 1;
@@ -1684,7 +1647,7 @@ function validation_before_send_emsFormBuilder() {
     }
 
   }
-  console.log(count ,`rquire[${require}] filed[${fill}] validate`);
+  //console.log(count ,`rquire[${require}] filed[${fill}] validate`);
   require = require > fill ? 1 : 0;
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
     //console.log(sendBack_emsFormBuilder_pub)

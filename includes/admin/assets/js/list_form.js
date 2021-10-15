@@ -224,8 +224,9 @@ function emsFormBuilder_show_content_message(id) {
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
-
+  console.log(valueJson_ws_messages[indx].content);
   const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
+  console.log(content);
   let m = "<--messages-->"
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
@@ -365,7 +366,7 @@ function fun_emsFormBuilder_back() {
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 //response7788
-
+  console.log("fun_emsFormBuilder_show_messages" , content);
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
    <p class="small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
@@ -406,7 +407,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }else if (c.type == "esign") {
       value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
     }else if(c.type=="maps"){
+     
+      if(typeof(c.value)=="object"){
+        value = `<div id="${c.id_}-map" data-type="maps" class="efb maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
+        marker_maps_efb= c.value;
+        initMap();
 
+      }
     }else if(c.type=="rating"){
       value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
       console.log(parseInt(c.value));

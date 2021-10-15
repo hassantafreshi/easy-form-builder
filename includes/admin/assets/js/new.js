@@ -2243,11 +2243,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       fub_shwBtns_efb();
     }
   }
-  console.log(valj_efb)
 
-  console.log(`step_ before return ${step_el_efb}`,'pre' ,valj_efb[iVJ]);
-  console.log(`step_el_efb[${step_el_efb}] type[${valj_efb[iVJ].type}]  end newElemants`, 'pre_');
-  console.log(newElement, 'prevu');
   return newElement;
 }
 //id,id_,value
@@ -2438,7 +2434,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: 'btn-primary' })
       console.log(valj_efb[(valj_efb.length) - 1]);
     } else if (elementId == "maps") {
-      Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1 });
+      Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1 , zoom:7 });
       setTimeout(()=>{
         document.getElementById('maps').draggable = false;
        if(document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
@@ -3105,36 +3101,54 @@ function initMap() {
 
   setTimeout(function () {
     // code to be executed after 1 second
+    //mrk ==0 show A point 
+    // mrk ==-1 show all point inside  markers_maps_efb
     const idx = valj_efb.findIndex(x => x.type == "maps")
     // lat: 49.24803870604257, lon: -123.10512829684463
     const lat = idx != -1 && valj_efb[idx].lat ? valj_efb[idx].lat : 49.24803870604257;
     const lon = idx != -1 && valj_efb[idx].lng ? valj_efb[idx].lng : -123.10512829684463;
     const mark = idx != -1 ? valj_efb[idx].mark : 1;
+    const zoom = idx != -1 && valj_efb[idx].zoom  && valj_efb[idx].zoom!="" ? valj_efb[idx].zoom  :10;
     console.log('test map function', google, document.getElementById("map"))
     const location = { lat: lat, lng: lon };
 
     map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
-      zoom: 8,
+      zoom: zoom,
       center: location,
       mapTypeId: "roadmap",
     });
   
     // This event listener will call addMarker() when the map is clicked.
-    if (mark != 0) {
+    if (mark != 0 && mark != -1 ) {
       map.addListener("click", (event) => {
         const latlng = event.latLng.toJSON();
-        mark_maps_efb.push(latlng);
-        if (mark_maps_efb.length <= mark) {
+        console.log(`latlng`,latlng ,mark)
+        if (mark_maps_efb.length < mark) {
+          mark_maps_efb.push(latlng);
           addMarker(event.latLng);
         }
       });
       // add event listeners for the buttons
 
 
-      document
-        .getElementById("delete-markers_maps_efb-efb")
-        .addEventListener("click", deletemarkers_maps_efb_efb);
+    if(document.getElementById("delete-markers_maps_efb-efb"))  document.getElementById("delete-markers_maps_efb-efb").addEventListener("click", deletemarkers_maps_efb_efb);
       // Adds a marker at the center of the map.
+    }else if (mark == -1){
+      const lab_map_efb = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let nn=0;
+      for(const mrk of marker_maps_efb){
+        nn+=1;
+        console.log(mrk);
+        const lab = lab_map_efb[nn];
+        const position = { lat: mrk.lat, lng: mrk.lng };
+        const marker = new google.maps.Marker({
+          position,
+          label: lab,
+          map,
+        });
+        markers_maps_efb.push(marker);
+      }
+
     } else {
       addMarker(location);
     }
@@ -3162,11 +3176,19 @@ function addMarker(position) {
 
   markers_maps_efb.push(marker);
 
+  if(typeof(sendBack_emsFormBuilder_pub)!="undefined" ){
+    //mark_maps_efb
+    const vmaps = JSON.stringify(mark_maps_efb);
+    const o = [{ id_:valj_efb[idx].id_, name:valj_efb[idx].name, amount:valj_efb[idx].amount, type: "maps", value: mark_maps_efb, session: sessionPub_emsFormBuilder }];
+    fun_sendBack_emsFormBuilder(o[0])
+  }
+
 }
 
 // Sets the map on all markers_maps_efb in the array.
 function setMapOnAll(map) {
   for (let i = 0; i < markers_maps_efb.length; i++) {
+    console.log('markers_maps_efb mapsmaps')
     markers_maps_efb[i].setMap(map);
   }
 }
@@ -3183,9 +3205,15 @@ function showmarkers_maps_efb() {
 
 // Deletes all markers_maps_efb in the array by removing references to them.
 function deletemarkers_maps_efb_efb() {
+  console.log(sendBack_emsFormBuilder_pub)
   hidemarkers_maps_efb();
   markers_maps_efb = [];
   mark_maps_efb = [];
+
+  if(typeof(sendBack_emsFormBuilder_pub)!="undefined" ){
+    const indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.type=="maps");
+    if (indx!=-1){sendBack_emsFormBuilder_pub.splice(indx,1);}
+  }
 }
 /* map section end */
 
@@ -3857,36 +3885,36 @@ console.log(timeout , 'timeout');
     }
   }
   
-  console.log(len , valj_efb);
+  //console.log(len , valj_efb);
   setTimeout(() => {
 
     //const  valj_efb_ = valj_efb.sort((a,b) => (a.amount - b.amount))
-    console.log(valj_efb)
+    //console.log(valj_efb)
     //valj_efb=valj_efb_
     try {
       valj_efb.forEach((value, index) => {
         console.log(`index[${index}] value.step[${value.step}] value.step[${value.amount}] value[${value.type}] step_no[${step_no}]`, 'pre_')
         if (step_no < value.step && value.type == "step") {
-          console.log(`step_no < value.step` ,step_no ,"pre__");
+          //console.log(`step_no < value.step` ,step_no ,"pre__");
           step_no += 1;
           head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7  ${value.label_text_color} ">${value.name}</strong></li>`
           content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `<!-- fieldset!!! --> </fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
-          console.log(`step_no[${step_no}] type[${value.type}]  step_no < value.step && value.type == "step"`, 'pre_');
+          //console.log(`step_no[${step_no}] type[${value.type}]  step_no < value.step && value.type == "step"`, 'pre_');
 
           if (valj_efb[0].show_icon == false) { }
         }
 
         if (value.type == 'step' && value.type != 'html') {
-          console.log(`step_no[${step_no}] type[${value.type}]  value.type == 'step' && value.type != 'html'`, 'pre_');
+          //console.log(`step_no[${step_no}] type[${value.type}]  value.type == 'step' && value.type != 'html'`, 'pre_');
           steps_index_efb.push(index)
           //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="m-2 content-efb row">` 
         } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
           // content+='<div class="mb-3">'
-          console.log(`step_no[${step_no}] type[${value.type}]  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
+          //console.log(`step_no[${step_no}] type[${value.type}]  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
           content += addNewElement(value.type, value.id_, true, true);
-          console.log(`step_no[${step_no}] type[${value.type}] addNewElemen  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
+          //console.log(`step_no[${step_no}] type[${value.type}] addNewElemen  value.type != 'step' && value.type != 'form' && value.type != 'option'`, 'pre_');
           if(value.type=="html") content+="<!--testHTML-->"
-          console.log(content , "pre_html")
+         //console.log(content , "pre_html")
          
           //  content+=`<div id="${value.id_}_fb" class="m-2"></div></div>`
 
@@ -3895,7 +3923,7 @@ console.log(timeout , 'timeout');
       })
 
       step_no += 1;
-      console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}] step_no[${step_no}]`,'pre_')
+      //console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}] step_no[${step_no}]`,'pre_')
       content += `
            ${sitekye_emsFormBuilder.length>1? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
            <!-- fieldset1 --> </fieldset>
