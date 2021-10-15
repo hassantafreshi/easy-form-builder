@@ -17,7 +17,7 @@ jQuery(function () {
   poster_emsFormBuilder = ajax_object_efm.poster
   console.log(ajax_object_efm)
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
-  fun_emsFormBuilder_render_view(10); //778899
+  fun_emsFormBuilder_render_view(25); //778899
 });
 
 let count_row_emsFormBuilder = 0;
@@ -32,6 +32,28 @@ function fun_emsFormBuilder_render_view(x) {
   count_row_emsFormBuilder = x;
   let count = 0;
   fun_backButton(2);
+
+  function creatRow(i,newM){
+    return ` <tr class="pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
+   <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}" >
+     [EMS_Form_Builder id=${Number(i.form_id)}]  
+   </th>
+   <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
+   <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
+   <td > 
+   <button type="button" class="efb btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb bi-trash"></i></button>
+   <button type="button" class="efb btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb bi-pencil"></i></button>
+   <button type="button" class="efb btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb bi-chat text-muted"></i>`}</button>
+   <input type="text"  class="efb d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
+   <button type="button" class=" d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
+     onClick ="copyCodeEfb('${i.form_id}-fc')" 
+     data-bs-toggle="tooltip" data-bs-placement="bottom"
+     title="${efb_var.text.copy}">
+   </button></th>
+   </td>                               
+  </tr>
+  `
+   }
   if (valueJson_ws_form.length > 0) {
     console.log(valueJson_ws_form);
     for (let i of valueJson_ws_form) {
@@ -48,29 +70,8 @@ function fun_emsFormBuilder_render_view(x) {
         }
         
 
-        function creatRow(){
-         return `
-       <tr class="pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
-        <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}" >
-          [EMS_Form_Builder id=${Number(i.form_id)}]  
-        </th>
-        <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
-        <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
-        <td > 
-        <button type="button" class="efb btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb bi-trash"></i></button>
-        <button type="button" class="efb btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb bi-pencil"></i></button>
-        <button type="button" class="efb btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb bi-chat text-muted"></i>`}</button>
-        <input type="text"  class="efb d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
-        <button type="button" class=" d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
-          onClick ="copyCodeEfb('${i.form_id}-fc')" 
-          data-bs-toggle="tooltip" data-bs-placement="bottom"
-          title="${efb_var.text.copy}">
-        </button></th>
-        </td>                               
-       </tr>
-       `
-        }
-        newM != true  ? o_rows +=creatRow() : rows +=creatRow(); 
+     
+        newM != true  ? o_rows +=creatRow(i,newM) : rows +=creatRow(i,newM); 
         count += 1;
       }
     }

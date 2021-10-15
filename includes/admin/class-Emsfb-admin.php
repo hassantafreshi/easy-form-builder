@@ -145,7 +145,7 @@ class Admin {
                 $lang = explode('_', $lang)[0];
             }
 
-           // $ac = $this->get_setting_efb();
+           // $ac = $this->get_setting_Emsfb();
              //code_v1 start
             //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
 /*             wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
@@ -436,7 +436,7 @@ class Admin {
         $response = ['success' => true, "m" => $m];
 
         $efbFunction = new efbFunction(); 
-        $ac= $efbFunction->get_setting_efb();
+        $ac= $efbFunction->get_setting_Emsfb();
         $pro = $ac->activeCode;
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
@@ -601,7 +601,7 @@ class Admin {
         }
         
         $efbFunction = new efbFunction();   
-        $ac= $efbFunction->get_setting_efb();
+        $ac= $efbFunction->get_setting_Emsfb();
         $pro = $ac->activeCode;
         $con ='';
         $sub='';
@@ -629,7 +629,7 @@ class Admin {
         return $ip;
     }
 
-/* 	public function get_setting_efb()
+/* 	public function get_setting_Emsfb()
 	{
 		// اکتیو کد بر می گرداند	
 		

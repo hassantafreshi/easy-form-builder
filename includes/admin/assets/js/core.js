@@ -26,11 +26,12 @@ jQuery (function() {
     //ajax_object_efm.language زبان بر می گرداند
     //console.log("ajax_object_efm_core",ajax_object_efm_core.nonce);
    
-    
-  if(Number(ajax_object_efm_core.check)==1) { 
-    fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
-    validate_edit_mode_emsFormBuilder=true;
-  }
+    if(typeof ajax_object_efm_core!=undefined){
+      if( Number(ajax_object_efm_core.check)==1) { 
+        fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
+        validate_edit_mode_emsFormBuilder=true;
+      }
+    }
  
 
 });

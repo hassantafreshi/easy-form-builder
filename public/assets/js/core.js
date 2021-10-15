@@ -27,7 +27,7 @@ let valueJson_ws = []
 jQuery(function () {
   //789 امنیت باید اضافه شود به این قسمت
 
-  console.log(ajax_object_efm);
+ // console.log(ajax_object_efm);
   if (typeof ajax_object_efm == 'undefined') return;
   poster_emsFormBuilder = ajax_object_efm.poster;
   efb_var = ajax_object_efm
@@ -1464,40 +1464,57 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  <p class="small mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
  <hr>
  <h6 class="efb ">${ajax_object_efm.text.response} </h6>`;;
-  for (const c of content) {
-    let value = `<b>${c.value}</b>`;
-    console.l(`value up ${value}` ,c)    ;
-    if (c.value == "@file@" && c.state == 2) {
-      if (c.type == "Image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
-      } else if (c.type == "Document") {
-        value = `</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
-      } else if (c.type == "Media") {
-        const audios = ['mp3', 'wav', 'ogg'];
-        let media = "video";
-        audios.forEach(function (aud) {
-          if (c.url.indexOf(aud) !== -1) {
-            media = 'audio';
-          }
-        })
-        if (media == "video") {
-          const len = c.url.length;
-          const type = c.url.slice((len - 3), len);
-          // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
-          value = type !== 'avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
-        } else {
-          value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
+ content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
+ for (const c of content) {
+  let value = `<b>${c.value}</b>`;
+  console.log(`value up ${value}`,c)    ;
+  if (c.value == "@file@") {
+    if (c.type == "Image" ||c.type == "image") {
+      value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
+    }else if (c.type == "Document" ||c.type == "document") {
+      value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank">${efb_var.text.download}</a>`
+    } else if (c.type == "Media" ||c.type == "media") {
+      const audios = ['mp3', 'wav', 'ogg'];
+      let media = "video";
+      audios.forEach(function (aud) {
+        if (c.url.indexOf(aud) !== -1) {
+          media = 'audio';
         }
+      })
+      if (media == "video") {
+        const len = c.url.length;
+        const type = c.url.slice((len - 3), len);
+        // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
+        value = type !== 'avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
       } else {
-        //console.l(c.url ,c.url.length)
-        value = `</br><a class="btn btn-primary" href="${c.url}">${c.name}</a>`
+        value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
       }
-    }else if (c.type == "esign") {
-      value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
+    } else {
+      //console.l(c.url ,c.url.length)
+      value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
     }
-    if (c.id_ == 'passwordRegisterEFB') value = '**********';
-    m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+  }else if (c.type == "esign") {
+    value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
+  }else if(c.type=="maps"){
+   
+    if(typeof(c.value)=="object"){
+      value = `<div id="${c.id_}-map" data-type="maps" class="efb maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+      valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
+      marker_maps_efb= c.value;
+      initMap();
+
+    }
+  }else if(c.type=="rating"){
+    value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
+    console.log(parseInt(c.value));
+    for(let i=0 ; i<parseInt(c.value) ; i++){
+      value += `<i class="bi bi-star-fill"></i>`
+    }
+    value+="</div>";
   }
+  if (c.id_ == 'passwordRegisterEFB') value = '**********';
+  m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+}
   m += '</div>';
   //console.l(`m`,m)
   return m;

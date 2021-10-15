@@ -24,13 +24,14 @@ let devlop_efb=false;
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
-      console.log(efb_var)
+     // console.log(efb_var)
       formName_Efb = efb_var.text.form
       pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
       return;
     }else{
-      console.log('not efb_var')
-      efb_var_waitng(100)
+      console.log('not efb_var',time)
+      time +=50;
+      if(time!=5000)  efb_var_waitng(time)
     }
   },time)
 }
