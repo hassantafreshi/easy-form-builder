@@ -120,10 +120,10 @@ class Create {
 		$smtp =false;
 		$captcha =false;
 		$smtp_m = "";
-		error_log(gettype($ac)!="string");
+		//error_log(gettype($ac)!="string");
 		if(gettype($ac)!="string"){
 			if(strlen($ac->siteKey)>5){$captcha="true";}
-			if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}else{
+			if($ac->smtp!="false"){$smtp=$ac->smtp;}else{
 				$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
 			}			
 		}else{

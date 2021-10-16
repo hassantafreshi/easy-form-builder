@@ -607,13 +607,36 @@ class Admin {
         $sub='';
         $to ='';
         if('testMailServer'==$_POST['value']){
-            error_log($_POST['value']);
-            $sub ="📫".__('Email server','easy-form-builder')." ".__('Easy Form Builder','easy-form-builder') ."";
+
+            if(is_email($_POST['email'])){
+                $to = sanitize_email($_POST['email']);
+            }
+            $sub ="📫 ".__('Email server','easy-form-builder')." [".__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
-            $to =$ac->emailSupporter;
+            if(strlen($to)<5) {
+                $to =$ac->emailSupporter;}
         }
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
-      
+        if($check==true){
+           
+         $newAc["activeCode"] = $ac->activeCode;
+         $newAc["siteKey"] = $ac->siteKey;
+         $newAc["secretKey"] = $ac->secretKey;
+         $newAc["emailSupporter"] = $to;
+         $newAc["apiKeyMap"] = $ac->apiKeyMap;
+         $newAc["smtp"] = "true";
+            
+            $table_name = $this->db->prefix . "Emsfb_setting";
+            $this->db->insert(
+                $table_name,
+                [
+                    'setting' => json_encode($newAc),
+                    'edit_by' => get_current_user_id(),
+                    'date'    => current_time('mysql'),
+                    'email'   => $ac->emailSupporter
+                ]
+            );
+        }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
     }

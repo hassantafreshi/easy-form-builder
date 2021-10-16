@@ -1733,7 +1733,8 @@ function googleCloudOffer() {
 function clickToCheckEmailServer() {
   document.getElementById('clickToCheckEmailServer').classList.add('disabled')
   const nnrhtml = document.getElementById('clickToCheckEmailServer').innerHTML;
-  document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`
+  document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`;
+  const email =document.getElementById('email_emsFormBuilder').value;
   // call and waitning response
 
   jQuery(function ($) {
@@ -1741,7 +1742,8 @@ function clickToCheckEmailServer() {
     data = {
       action: "check_email_server_efb",
       nonce: ajax_object_efm_core.nonce,
-      value: 'testMailServer'
+      value: 'testMailServer',
+      email: email
     };
 
     $.post(ajax_object_efm.ajax_url, data, function (res) {

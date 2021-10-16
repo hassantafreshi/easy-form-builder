@@ -35,11 +35,10 @@ class Panel_edit  {
 			$captcha =false;
 			if(gettype($ac)!="string"){
 				if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
-				if(strlen($ac->siteKey)>5){$captcha="true";}
-				if(strlen($ac->smtp)>3){$smtp=$ac->smtp;}else{
+				if(strlen($ac->siteKey)>5){$captcha="true";}	
+				if($ac->smtp!="false"){$smtp=$ac->smtp;}else{
 					$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
-				}		
-				
+				}	
 				if(strlen($ac->apiKeyMap)>5){
 					error_log('map setting');
 					$k= $ac->apiKeyMap;
