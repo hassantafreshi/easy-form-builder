@@ -2550,7 +2550,7 @@ let add_buttons_zone_efb = (state, id) => {
   <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
-  let c = `<div class="test mt-5 efb">`
+  let c = `<div class="footer-test mt-1 efb">`
   if (id != "dropZone") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
