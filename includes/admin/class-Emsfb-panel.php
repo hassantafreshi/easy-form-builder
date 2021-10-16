@@ -39,11 +39,9 @@ class Panel_edit  {
 				if($ac->smtp!="false"){$smtp=$ac->smtp;}else{
 					$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
 				}	
-				if(strlen($ac->apiKeyMap)>5){
-					error_log('map setting');
+				if(strlen($ac->apiKeyMap)>5){				
 					$k= $ac->apiKeyMap;
-					$lng = strval(get_locale());
-					
+					$lng = strval(get_locale());					
 						if ( strlen($lng) > 0 ) {
 						$lng = explode( '_', $lng )[0];
 						}
@@ -150,7 +148,7 @@ class Panel_edit  {
 									<button class="btn efb btn-outline-pink me-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
 								</form>
 								<div class="nav-icon efb me-2">
-									<a class="nav-link efb" href="https://whitestudio.team/?login" target="blank"><i class="efb bi-person"></i></a>
+									<a class="nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb bi-person"></i></a>
 								</div>
 								<div class="nav-icon efb">
 									<a class="nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb bi-gear"></i></a>

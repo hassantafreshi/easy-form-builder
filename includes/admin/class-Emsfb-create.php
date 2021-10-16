@@ -214,21 +214,21 @@ class Create {
 		));    $this->id_  = $this->db->insert_id; 
 		
 	}
-	public function get_setting_Emsfb()
-	{
-		// اکتیو کد بر می گرداند	
+	// public function get_setting_Emsfb()
+	// {
+	// 	// اکتیو کد بر می گرداند	
 		
-		$table_name = $this->db->prefix . "Emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
-		$rtrn='null';
-		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$rtrn =json_decode($val);			
-			break;
-			} 
-		}
-		return $rtrn;
-	}
+	// 	$table_name = $this->db->prefix . "Emsfb_setting"; 
+	// 	$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+	// 	$rtrn='null';
+	// 	if(count($value)>0){		
+	// 		foreach($value[0] as $key=>$val){
+	// 		$rtrn =json_decode($val);			
+	// 		break;
+	// 		} 
+	// 	}
+	// 	return $rtrn;
+	// }
 }
 
 new Create();

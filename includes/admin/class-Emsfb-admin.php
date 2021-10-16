@@ -145,7 +145,7 @@ class Admin {
                 $lang = explode('_', $lang)[0];
             }
 
-           // $ac = $this->get_setting_Emsfb();
+           
              //code_v1 start
             //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
 /*             wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
