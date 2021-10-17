@@ -95,7 +95,16 @@ class _Public {
 		
 				$typeOfForm =$this->value[0]->form_type;
 				//error_log($this->value[0]);
+				
 				$value = $this->value[0]->form_structer;
+
+				$fs =str_replace('\\', '', $this->value[0]->form_structer);
+
+				$formObj= json_decode($fs,true);
+				$stateForm = $formObj[0]["stateForm"];
+			
+				
+				
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				$efbFunction = new efbFunction();   
@@ -103,6 +112,14 @@ class _Public {
 				$showform =["error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];
 				
 				$text= $efbFunction->text_efb($showform);
+				
+				if(($stateForm==true || $stateForm==1) &&  is_user_logged_in()==false ){
+					$typeOfForm="";
+					$value="";
+					$stng="";
+				}else{
+					$stateForm =false;
+				}
 				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 
 					$typeOfForm ="userIsLogin";
@@ -161,16 +178,26 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }
-		 $efb_m ="<h6 class='text-center text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
+		 $efb_m ="<h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
 		 if($pro==true) $efb_m="";
-	 	$content="<div id='body_efb' class='card card-public pb-3 efb'>
-		 <div class='text-center'>
-		 <div class='lds-hourglass efb text-center mt-5'></div><h3 class='efb text-center text-darkb fs-5'>".__('Please Waiting','easy-form-builder')."</h2>
-		 ".$efb_m."
-		 </div>
-		 
-		 </div><div id='alert_efb' class='mx-5'></div>
-		 <script>let sitekye_emsFormBuilder='".$k."'</script>";
+		 if($stateForm==true){
+			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
+			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Form is locked, Please Login.','easy-form-builder')."</h3>
+			 ".$efb_m."
+			</div> </div>";
+		 }else{
+
+			 $content="<div id='body_efb' class='card card-public pb-3 efb'>
+			 <div class='text-center my-5'>
+			 <div class='lds-hourglass efb text-center my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Please Waiting','easy-form-builder')."</h2>
+			 ".$efb_m."
+			 </div>
+			 
+			 </div><div id='alert_efb' class='mx-5'></div>
+			 <script>let sitekye_emsFormBuilder='".$k."'</script>";
+		 }
+
+		
 		return $content; 
 		
 		// 

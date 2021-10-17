@@ -66,7 +66,7 @@ function creator_form_builder_Efb() {
       button_single_text: 'send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: 'next', button_Previous_text: 'previous',
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
-      show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,
+      show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
       thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',font:true,
       
     });
@@ -345,7 +345,7 @@ function show_setting_window_efb(idset) {
     else { icon = valj_efb[indx].icon }
 
     console.log(icon);
-    return `<label for="iconEl" class="efb form-label  bi-heptagon me-2 mt-2">${t} ${efb_var.text.icon}  <a class="fs-7 efb" href="https://icons.getbootstrap.com/#icons">${efb_var.text.iconList}</a></label>
+    return `<label for="iconEl" class="efb form-label  bi-heptagon me-2 mt-2">${t} ${efb_var.text.icon}  <a class="fs-7 efb" target="_blank" href="https://icons.getbootstrap.com/#icons">${efb_var.text.iconList}</a></label>
       <input type="text" data-id="${idset}" class="efb elEdit text-muted border-d efb-rounded form-control h-d-efb mb-1" data-side="${side}"  placeholder="${efb_var.text.icon}" id="iconEl" required value="${icon}">`
   }
 
@@ -914,7 +914,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].show_pro_bar = el.checked
         break;
       case "showformLoggedEl":
-        valj_efb[0].stateForm = el.checked
+        valj_efb[0].stateForm =el.checked==true ? 1 :0
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
@@ -1213,7 +1213,8 @@ let change_el_edit_Efb = (el) => {
           el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = el.value : valj_efb[0].button_Previous_icon = el.value
         }
         console.log(valj_efb[indx]);
-        document.getElementById(`${di}`).className = `${el.value} me-2`;
+      //  document.getElementById(`${di}`).className = `${el.value} mx-2`;
+        document.getElementById(`${di}`).className =`efb ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}`
         break;
       case 'marksEl':
         valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
@@ -1806,7 +1807,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if (editState == false && valj_efb.length<2) {
 
         valj_efb.push({
-          id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
+          id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
           id: `${step_el_efb}`, name: formName_Efb.toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
           label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
           el_text_color: 'text-labelEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
@@ -1836,7 +1837,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
 
       valj_efb.push({
-        id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
+        id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
         id: `${step_el_efb}`, name: formName_Efb.toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
         label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
         el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
@@ -1889,7 +1890,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <!-- ${rndm}-map -->
-      <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"  id='${rndm}-f'>      
+      <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 "  id='${rndm}-f'>      
       ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb"><input id="delete-markers_maps_efb-efb" class="btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
         <div id="${rndm}-map" data-type="maps" class="efb maps-efb emsFormBuilder_v ${valj_efb[iVJ].el_height}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " data-id="${rndm}-el" data-name='maps'></div>
         ${desc}`
@@ -1921,7 +1922,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       ui = `
       ${label}
-      <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12" id='${rndm}-f'>
+      <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 " id='${rndm}-f'>
       ${desc}
       <div class="efb mb-3" id="uploadFilePreEfb">
                     <label for="${rndm}_" class="efb form-label">
@@ -1966,7 +1967,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12"   data-id="${rndm}-el" id='${rndm}-f'>
-        <div class="efb ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " id="${rndm}_options">
+        <div class="efb ${valj_efb[iVJ].classes} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " id="${rndm}_options">
         ${optn}
         </div>
         <div class="efb mb-3">${desc}</div>`
@@ -2008,7 +2009,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb col-md-10 col-sm-12" id ="${rndm}-f">
-      <div class="efb star-efb d-flex justify-content-center"> 
+      <div class="efb star-efb d-flex justify-content-center ${valj_efb[iVJ].classes}"> 
                         <input type="radio" id="${rndm}-star5" data-vid='${rndm}' data-type="rating" class="efb"   data-star='star'  name="${rndm}-star-efb" value="5" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
                         <label id="${rndm}_star5" for="${rndm}-star5"  ${previewSate == true ? `onClick="fun_get_rating_efb('${rndm}',5)"` : ''} title="5stars" class="efb ${valj_efb[iVJ].el_height} star-efb">5 ${efb_var.text.stars}</label>
                         <input type="radio" id="${rndm}-star4" data-vid='${rndm}' data-type="rating" class="efb"  data-star='star' name="${rndm}-star-efb" value="4" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}>
@@ -2046,7 +2047,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if (step_el_efb <= 2 || (step_el_efb > 2 && pro_efb == true)) {
         valj_efb[0].steps =editState==false ?  step_el_efb :valj_efb[0].steps 
         newElement += ` 
-        <div class="efb row my-2  ${shwBtn} efbField stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <div class="efb row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
         <h2 class="efb col-md-10 col-sm-12 mx-2 my-0"><i class="efb ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
         <small id="${valj_efb[iVJ].id_}-des" class="efb form-text ${valj_efb[iVJ].message_text_color} border-bottom px-4">${valj_efb[iVJ].message}</small>
@@ -2094,7 +2095,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       ui = `
       ${label}
-      <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"  id='${rndm}-f'  data-id="${rndm}-el" >
+      <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'  data-id="${rndm}-el" >
       <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
       <option selected disabled>${efb_var.text.nothingSelected}</option>
       ${optn}
@@ -2133,7 +2134,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = ` 
       ${label}
       <!-- multiselect  -->
-      <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"   id='${rndm}-f' data-id="${rndm}-el">
+      <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb"   id='${rndm}-f' data-id="${rndm}-el">
       <select class="selectpicker  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} efb" id='${rndm}_options' multiple="" data-live-search="false" tabindex="-98" ${previewSate != true ? 'disabled' : ''}>
       ${optn}
       </select>
@@ -2171,7 +2172,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       console.log('YesNo')
       ui = `
       ${label}
-      <div class="col-md-10 col-sm-12 efb"  id='${rndm}-f'>
+      <div class="col-md-10 col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'>
       <div class="btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
       <label for="${rndm}_1" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
         <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
@@ -2212,7 +2213,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ps = elementId=="html" ? 'col-md-12': 'col-md-10'
     endTags = previewSate==false ? `</button> </button> </div></div>` : `</div></div>`
     newElement += `
-    <div class="efb my-2  ${previewSate == true &&( pos[1]=="col-md-12" || pos[1]=="col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
+    <div class="efb my-1  ${previewSate == true &&( pos[1]=="col-md-12" || pos[1]=="col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     
     ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
@@ -2568,6 +2569,7 @@ const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-
 //const colorBtnChangerEfb = (classes, color) => { return classes.replace(/(btn-select-form|btn-primary|btn-muted|btn-secondary|btn-pinkEfb|btn-success|btn-white|btn-light|text-colorDEfb|btn-danger|btn-warning|btn-info|btn-dark|btn-default)/, `${color}`); }
 const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-\w+/gi, `${color}`); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-\w+/gi, `${color}`); }
+//const iconChangerEfb = (classes, icon) => {console.log(classes,icon); return classes.replace(/\bbi+-\w+/gi, `${icon}`); }
 const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d-efb|h-l-efb|h-xl-efb|h-xxl-efb|h-xxxl-efb)/, `${value}`); }
 const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
@@ -2873,7 +2875,7 @@ function create_form_efb() {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7 ${value.label_text_color} ">${value.name}</strong></li>`
-        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
+        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
         console.log(step_no, value.step, head, 'pre');
 
         if (valj_efb[0].show_icon == false) { }
@@ -2918,7 +2920,7 @@ function create_form_efb() {
     <h4 id="title_efb" class="${valj_efb[1].label_text_color} mt-1 text-center efb">${valj_efb[1].name}</h4>
     <p id="desc_efb" class="${valj_efb[1].message_text_color} fs-7 text-center efb">${valj_efb[1].message}</p>
     
-     <form id="efbform"> ${head} <div class="mt-1 pt-2 px-2">${content}</div> </form>
+     <form id="efbform"> ${head} <div class="mt-1 px-2">${content}</div> </form>
     </div>
     `
   return content
@@ -3135,7 +3137,7 @@ function initMap() {
     if(document.getElementById("delete-markers_maps_efb-efb"))  document.getElementById("delete-markers_maps_efb-efb").addEventListener("click", deletemarkers_maps_efb_efb);
       // Adds a marker at the center of the map.
     }else if (mark == -1){
-      const lab_map_efb = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const lab_map_efb = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       let nn=0;
       for(const mrk of marker_maps_efb){
         nn+=1;
@@ -3845,7 +3847,7 @@ function send_data_efb(){
   console.log('send_data_efb');
   //if is preview 210201-SMHTH06 then recive from server and show
   if(state_efb!="run"){
-    const cp = funTnxEfb('210201-SMHTH06')
+    const cp = funTnxEfb('DemoCode-220201')
     document.getElementById('efb-final-step').innerHTML=cp
 
   }else{
@@ -3952,10 +3954,10 @@ console.log(timeout , 'timeout');
     document.getElementById(id).classList.add('pre-efb')
     content = `  
     <div class="px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
-    <h4 id="title_efb" class="${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4>
-    <p id="desc_efb" class="${valj_efb[1].message_text_color} text-center  fs-7 efb">${valj_efb[1].message}</p>
+
+    ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4><p id="desc_efb" class="${valj_efb[1].message_text_color} text-center  fs-7 efb">${valj_efb[1].message}</p>` :`` }
     
-     <form id="efbform"> ${head} <div class="mt-1 pt-2 px-2">${content}</div> </form>
+     <form id="efbform"> ${head} <div class="mt-1 px-2">${content}</div> </form>
     </div>
     `
 

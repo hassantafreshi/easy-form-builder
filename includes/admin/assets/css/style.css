@@ -7,6 +7,7 @@
 .efb{
 
     font-family: 'Roboto', sans-serif!important;
+    font-weight: 400!important;
 }
 #alert_content_efb {
 position: absolute;
@@ -436,6 +437,7 @@ color: #a5a3d1
 color: #a5a3d1 !important;
 font-size: 0.9rem !important;
 opacity: 0.7 !important; /* Firefox */
+font-weight: 400!important;
 }
 .card-text {
 color: #898aa9;
@@ -628,6 +630,9 @@ background-color: #657096;
 }
 .text-darkb.efb{
 color: #202a8d !important;
+}
+.text-pinkEfb.efb{
+color: #ff4b93 !important;
 }
 .text-colorDEfb{
 
@@ -975,9 +980,7 @@ color: #a2b0d5
 
  font-size: 3rem !important;
 }
-.text-pinkEfb{
-color: #ff4b93;
-}
+
 .dadFile-efb h6 {
 font-size: 20px;
 font-weight: 400;
@@ -1018,6 +1021,7 @@ border-radius: 0!important;
 /* font size of label */
 .efb.fs-8 {
 font-size: 0.7rem;
+
 }
 .efb.fs-7 {
 /*  font-size: smaller; */
@@ -1333,33 +1337,33 @@ label.yesno-efb.h-xxxl-efb{
 }
 
 /* placeholder of input */
-.h-d-efb::-webkit-input-placeholder{font-size: 1rem!important;} /* Chrome */
-.h-d-efb:-moz-placeholder{font-size: 1rem!important;} /* Firefox 18- */
-.h-d-efb::-moz-placeholder{font-size: 1rem!important;} /* Firefox 19+ */
-.h-d-efb:-ms-input-placeholder{font-size: 1rem!important;} /* IE */
+.h-d-efb::-webkit-input-placeholder{font-size: 1rem!important;font-weight: 400!important;} /* Chrome */
+.h-d-efb:-moz-placeholder{font-size: 1rem!important;font-weight: 400!important;} /* Firefox 18- */
+.h-d-efb::-moz-placeholder{font-size: 1rem!important;font-weight: 400!important;} /* Firefox 19+ */
+.h-d-efb:-ms-input-placeholder{font-size: 1rem!important;font-weight: 400!important;} /* IE */
 
 
-.h-l-efb::-webkit-input-placeholder{font-size: 1.5rem!important;}
-.h-l-efb:-moz-placeholder{font-size: 1.5rem!important;} 
-.h-l-efb::-moz-placeholder{font-size: 1.5rem!important;} 
-.h-l-efb:-ms-input-placeholder{font-size: 1.5rem!important;} 
+.h-l-efb::-webkit-input-placeholder{font-size: 1.5rem!important;font-weight: 400!important;}
+.h-l-efb:-moz-placeholder{font-size: 1.5rem!important;font-weight: 400!important;} 
+.h-l-efb::-moz-placeholder{font-size: 1.5rem!important;font-weight: 400!important;} 
+.h-l-efb:-ms-input-placeholder{font-size: 1.5rem!important;font-weight: 400!important;} 
 
 
-.h-xl-efb::-webkit-input-placeholder{font-size: 2rem!important;}
-.h-xl-efb:-moz-placeholder{font-size: 2rem!important;} 
-.h-xl-efb::-moz-placeholder{font-size: 2rem!important;} 
-.h-xl-efb:-ms-input-placeholder{font-size: 2rem!important;} 
+.h-xl-efb::-webkit-input-placeholder{font-size: 2rem!important;font-weight: 400!important;}
+.h-xl-efb:-moz-placeholder{font-size: 2rem!important;font-weight: 400!important;} 
+.h-xl-efb::-moz-placeholder{font-size: 2rem!important;font-weight: 400!important;} 
+.h-xl-efb:-ms-input-placeholder{font-size: 2rem!important;font-weight: 400!important;} 
 
-.h-xxl-efb::-webkit-input-placeholder{font-size: 2.7rem!important;}
-.h-xxl-efb:-moz-placeholder{font-size: 2.7rem!important;} 
-.h-xxl-efb::-moz-placeholder{font-size: 2.7rem!important;} 
-.h-xxl-efb:-ms-input-placeholder{font-size: 2.7rem!important;} 
+.h-xxl-efb::-webkit-input-placeholder{font-size: 2.7rem!important;font-weight: 400!important;}
+.h-xxl-efb:-moz-placeholder{font-size: 2.7rem!important;font-weight: 400!important;} 
+.h-xxl-efb::-moz-placeholder{font-size: 2.7rem!important;font-weight: 400!important;} 
+.h-xxl-efb:-ms-input-placeholder{font-size: 2.7rem!important;font-weight: 400!important;} 
 
 
-.h-xxxl-efb::-webkit-input-placeholder{font-size: 3.5rem!important}
-.h-xxxl-efb:-moz-placeholder{font-size: 3.5rem!important} 
-.h-xxxl-efb::-moz-placeholder{font-size: 3.5rem!important} 
-.h-xxxl-efb:-ms-input-placeholder{font-size: 3.5rem!important} 
+.h-xxxl-efb::-webkit-input-placeholder{font-size: 3.5rem!important;font-weight: 400!important;}
+.h-xxxl-efb:-moz-placeholder{font-size: 3.5rem!important;font-weight: 400!important;} 
+.h-xxxl-efb::-moz-placeholder{font-size: 3.5rem!important;font-weight: 400!important;} 
+.h-xxxl-efb:-ms-input-placeholder{font-size: 3.5rem!important;font-weight: 400!important;} 
 
 /* switch height */
 
@@ -1532,6 +1536,7 @@ height:100%;
 .border-pinkEfb {
 border-color: #ff4b93!important;
 }
+
 .border-darkBEfb {
 border-color: #202a8d!important;
 }
@@ -1859,6 +1864,7 @@ button.btn-close {
 fieldset.efb {
     background: transparent;
     border: transparent;
+    padding: 0% 2%!important
 }
 
 

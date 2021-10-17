@@ -616,6 +616,7 @@ class Admin {
             if(strlen($to)<5) {
                 $to =$ac->emailSupporter;}
         }
+        
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
         if($check==true){
            
@@ -633,7 +634,7 @@ class Admin {
                     'setting' => json_encode($newAc),
                     'edit_by' => get_current_user_id(),
                     'date'    => current_time('mysql'),
-                    'email'   => $ac->emailSupporter
+                    'email'   => $to
                 ]
             );
         }
