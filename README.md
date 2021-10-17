@@ -15,7 +15,7 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
 
 <br>
 <table width="100%">
-    <caption>Easy Form Builder available in these languages and <a href="https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/">you can translate  in your own language.</a> </caption>
+    <caption>Easy Form Builder available in these languages and <a href="https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/">you can translate the plugin in  your mother tongue language.</a> </caption>
     <tbody>
               <tr>
             <td><a href="https://wordpress.org/plugins/easy-form-builder/">English</a></td>
