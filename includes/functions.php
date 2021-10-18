@@ -137,7 +137,8 @@ class efbFunction {
 			"howCreateAddForm" => __('How to create and add a form with Easy Form Builder','easy-form-builder'),
 			"howActivateTracking" => __('How to activate a Confirmation Code in Easy Form Builder','easy-form-builder'),
 			"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
-			"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
+			"howAddTrackingForm" => __('How to add The Confirmation Code Finder to a post, page, or custom post type
+   ','easy-form-builder'),
 			"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
 			"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
 			"step" => __('Step','easy-form-builder'),
@@ -214,7 +215,7 @@ class efbFunction {
 			"addGooglereCAPTCHAtoForm" => __('Add Google reCAPTCHA to the form ','easy-form-builder'),
 			"dontShowIconsStepsName" => __('Do not show Icons & Steps name','easy-form-builder'),
 			"dontShowProgressBar" => __('Do not show progress bar','easy-form-builder'),
-			"showTheFormTologgedUsers" => __('Show the form to logged in users only','easy-form-builder'),
+			"showTheFormTologgedUsers" => __('Private form','easy-form-builder'),
 			"labelSize" => __('Label size','easy-form-builder'),
 			"default" => __('Default','easy-form-builder'),
 			"small" => __('Small','easy-form-builder'),

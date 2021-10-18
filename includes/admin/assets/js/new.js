@@ -3849,9 +3849,10 @@ function send_data_efb(){
   if(state_efb!="run"){
     const cp = funTnxEfb('DemoCode-220201')
     document.getElementById('efb-final-step').innerHTML=cp
-
+    current_s_efb=1;
   }else{
     console.log(sendBack_emsFormBuilder_pub);
+   
    endMessage_emsFormBuilder_view()
   }
 }

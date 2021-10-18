@@ -182,7 +182,7 @@ class _Public {
 		 if($pro==true) $efb_m="";
 		 if($stateForm==true){
 			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
-			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Form is locked, Please Login.','easy-form-builder')."</h3>
+			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Form is Private, Please Login.','easy-form-builder')."</h3>
 			 ".$efb_m."
 			</div> </div>";
 		 }else{

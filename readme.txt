@@ -1,7 +1,7 @@
-=== Easy Form Builder ===
+=== Easy Form Builder - WP EFB ===
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
-Donate link: 			https://ko-fi.com/whitestudio
+Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
 Stable tag: 			2.0
 Requires at least: 		4.7
 Tested up to: 			5.8.1
@@ -92,7 +92,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 6. [How to work with panels in *Easy Form Builder*](https://www.youtube.com/embed/7jS01CEtbDg)
 
-7. [How to add a tracking form to a post, page, or custom post type](https://www.youtube.com/embed/c1_gCFihrH8)
+7. [How to add The Confirmation Code Finder to a post, page, or custom post type
+   ](https://www.youtube.com/embed/c1_gCFihrH8)
 
 8. [How to find a response through a tracking ID](https://www.youtube.com/embed/vqKi9BJbO7k)
 
