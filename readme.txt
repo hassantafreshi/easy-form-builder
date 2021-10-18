@@ -95,7 +95,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 7. [How to add The Confirmation Code Finder to a post, page, or custom post type
    ](https://www.youtube.com/embed/c1_gCFihrH8)
 
-8. [How to find a response through a tracking ID](https://www.youtube.com/embed/vqKi9BJbO7k)
+8. [How to find a response through a Confirmation Code](https://www.youtube.com/embed/vqKi9BJbO7k)
 
 
 == Changelog ==
