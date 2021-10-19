@@ -67,7 +67,7 @@ class _Public {
 
 	public function EMS_Form_Builder($id){
 
-		error_log('form Genrate');
+		//error_log('form Genrate');
 		$table_name = $this->db->prefix . "Emsfb_form";
 		
 		
@@ -101,9 +101,8 @@ class _Public {
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
 
 				$formObj= json_decode($fs,true);
-				$stateForm = $formObj[0]["stateForm"];
 			
-				
+		
 				
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
@@ -113,12 +112,12 @@ class _Public {
 				
 				$text= $efbFunction->text_efb($showform);
 				
-				if(($stateForm==true || $stateForm==1) &&  is_user_logged_in()==false ){
+				if(($formObj[0]["stateForm"]==true || $formObj[0]["stateForm"]==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
 					$value="";
 					$stng="";
 				}else{
-					$stateForm =false;
+					$formObj[0]["stateForm"] =false;
 				}
 				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 
@@ -156,18 +155,18 @@ class _Public {
 		 $k="";
 		 $pro=false;
 
-		 error_log("maps before");
-		 error_log(gettype($stng));
-		 error_log($stng);
+		//error_log("maps before");
+		//error_log(gettype($stng));
+		//error_log($stng);
 		 if(gettype($stng)!=="integer"){
 			 $valstng= json_decode($stng);
-			 if($valstng->siteKey){$k =$valstng->siteKey;}
+			 if($valstng->siteKey && $formObj[0]["captcha"]==true){$k =$valstng->siteKey;}
 			// if($valstng->activeCode) $pro = true;
 
 
 			
 			 if(strlen($valstng->apiKeyMap)>5){
-				 error_log("maps");
+				 //error_log("maps");
 				 $key= $valstng->apiKeyMap;
 				 $lng = strval(get_locale());
 				 
@@ -180,7 +179,7 @@ class _Public {
 		 }
 		 $efb_m ="<h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
 		 if($pro==true) $efb_m="";
-		 if($stateForm==true){
+		 if($formObj[0]["stateForm"]==true){
 			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
 			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Form is Private, Please Login.','easy-form-builder')."</h3>
 			 ".$efb_m."
@@ -225,7 +224,7 @@ class _Public {
 
 			$valstng= json_decode($stng);
 			if(strlen($valstng->apiKeyMap)>5){
-				error_log("maps");
+				//error_log("maps");
 				$key= $valstng->apiKeyMap;
 				$lng = strval(get_locale());
 				
@@ -327,7 +326,7 @@ class _Public {
 
 
 	  public function get_ajax_form_public(){
-		error_log('get_ajax_form_public');
+		//error_log('get_ajax_form_public');
 		
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
@@ -362,12 +361,12 @@ class _Public {
 			if(gettype($r)=="object"){
 				$setting =json_decode($r->setting);
 				$secretKey=$setting->secretKey;
-			//	error_log($setting->activeCode);
+			//error_log($setting->activeCode);
 				if(!empty($setting->activeCode) && md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
 					//error_log('pro == true');
 					$pro=true;
 				}
-				error_log($_POST['valid']);
+				//error_log($_POST['valid']);
 				$response=$_POST['valid'];
 				
 				$args = array(
@@ -418,9 +417,9 @@ class _Public {
 			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 				foreach($valobj as $key => $val){	
 						
-						error_log($val["id_"]);
+						//error_log($val["id_"]);
 						if ($val["id_"]==$formObj[0]["email_to"]){
-							error_log('formObj[$key]["id_"]');
+							//error_log('formObj[$key]["id_"]');
 							$email_user=$val["value"];
 						}
 				} 
@@ -440,7 +439,7 @@ class _Public {
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);								
 								if (strlen($setting->emailSupporter)>2){
-								//	error_log($setting->emailSupporter);
+								//error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
 								
@@ -459,7 +458,7 @@ class _Public {
 		
 					
 							if(strlen($email_fa)>4){
-								error_log($email_fa);
+								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 					 
@@ -468,7 +467,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "register":
-							error_log("register");
+							//error_log("register");
 							$username ;
 							$password;
 							$email = 'null';
@@ -485,7 +484,7 @@ class _Public {
 								}
 							}
 							$registerValues =json_encode($registerValues);
-							error_log($registerValues);
+							//error_log($registerValues);
 							
 							$this->value=json_encode($registerValues);
 							$creds = array();
@@ -636,7 +635,7 @@ class _Public {
 								if(gettype($state)=="object"){
 									
    								 	$newpass = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"),0,9);									
-									error_log($newpass);
+									//error_log($newpass);
 									$id =(int) $state->data->ID;
 									 wp_set_password($newpass ,$id);
 									$to = $email;
@@ -678,7 +677,7 @@ class _Public {
 								}
 							}
 							if(strlen($email_fa)>4){
-								error_log($email_fa);
+								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 			
@@ -694,7 +693,7 @@ class _Public {
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (strlen($setting->emailSupporter)>2){
-								//	error_log($setting->emailSupporter);
+								//error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
 			
@@ -704,7 +703,7 @@ class _Public {
 							    }
 							}
 							if(strlen($email_fa)>4){
-								error_log($email_fa);
+								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 			
@@ -716,7 +715,7 @@ class _Public {
 						break;
 
 						if(strlen($email_fa)>4){
-							error_log($email_fa);
+							//error_log($email_fa);
 							$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 						}
 						
@@ -857,7 +856,7 @@ class _Public {
 
 
 	public function file_upload_public(){
-		error_log('file_upload_public');
+		//error_log('file_upload_public');
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>__('Security Error 403')); 
@@ -968,12 +967,12 @@ class _Public {
 
 				$by=__("Guest" , 'easy-form-builder');
 
-				error_log(json_encode(wp_get_current_user()));
+				//error_log(json_encode(wp_get_current_user()));
 				
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
 					$usr= wp_get_current_user();
 					$by = $usr->user_nicename;
-					error_log($by);
+					//error_log($by);
 				}
 				$table_name = $this->db->prefix . "Emsfb_msg_";
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
@@ -986,13 +985,13 @@ class _Public {
 				$email_fa = $valn[0]["email"];
 
 				if (strlen($setting->emailSupporter)>0){
-				//	error_log($setting->emailSupporter);
+				//error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}
 				
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage");}
 
-				error_log($email_fa);
+				//error_log($email_fa);
 				if(strlen($email_fa)>4){
 					
 					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage");
@@ -1060,7 +1059,7 @@ class _Public {
  
  
 	 $value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
- 	// error_log(gettype($value));
+ 	//error_log(gettype($value));
 	$rtrn;
 	$siteKey;
 	$trackingCode ="";

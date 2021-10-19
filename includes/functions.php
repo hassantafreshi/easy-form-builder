@@ -23,7 +23,7 @@ class efbFunction {
     }
 
 	function test_call_efb(){
-		error_log('test functions Coll Done!');
+		//error_log('test functions Coll Done!');
 
 		
 	}
@@ -392,7 +392,7 @@ class efbFunction {
 			$rtrn +=["".$value.""=>"".$lang[$value].""];
 		}
 		array_push($rtrn,[$st]);
-	//	error_log(json_encode($rtrn));
+		//error_log(json_encode($rtrn));
 			return $rtrn;
 	}
 

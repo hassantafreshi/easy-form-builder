@@ -1867,4 +1867,8 @@ fieldset.efb {
     padding: 0% 2%!important
 }
 
+.btn-group-toggle.efb{
+    direction: ltr!important;
+}
+
 

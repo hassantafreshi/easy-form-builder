@@ -36,6 +36,7 @@ jQuery (function() {
 
 });
 function fun_render_view_core_emsFormBuilder(check){
+  //v2
   // valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
   exportView_emsFormBuilder =[];
   valueJson_ws =  JSON.parse(localStorage.getItem("valueJson_ws_p"));
@@ -160,7 +161,7 @@ for (let v of valueJson_ws) {
   }
 }
 //console.log(`form_type_emsFormBuilder [${form_type_emsFormBuilder}]`);
-console.log(form_type_emsFormBuilder,efb_var.text[form_type_emsFormBuilder]  )
+//console.log(form_type_emsFormBuilder,efb_var.text[form_type_emsFormBuilder]  )
 const button_name = form_type_emsFormBuilder!="form" ? efb_var.text[form_type_emsFormBuilder] : efb_var.text.send
 const content = `<!-- commenet --!><div class="m-2">
 <div class="row d-flex justify-content-center align-items-center">
@@ -205,15 +206,8 @@ else {return content}
 if (exportView_emsFormBuilder.length > 0) {
   const steps = valueJson_ws[0].steps;
   const fname = valueJson_ws[0].formName;
-  //console.log(steps, fname)
-
   document.getElementById('emsFormBuilder-form-view-title').innerHTML = String(valueJson_ws[0].formName);
   document.getElementById('emsFormBuilder-step-name-view').innerHTML = valueJson_ws[0]['name-1'];
-  //emsFormBuilder-all-steps-view
-  //console.log(document.getElementById('emsFormBuilder-form-view-title').value)
-
-
-
 }
 
 ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
@@ -222,14 +216,6 @@ createStepsOfPublic()
 
 }
 
-
-
-/* document.addEventListener("DOMContentLoaded", function (event) {
-
-
-  ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
-
-}); */
 
 function ShowTab_emsFormBuilder_view(n) {
   var x = document.getElementsByClassName("emsFormBuilder-tab-view");
@@ -569,7 +555,7 @@ function createStepsOfPublic() {
     } /* else if (el.type == "select-one" || el.type =="select-multiple"){
       //789
       // در اینجا مقدار را می توان گرفت برای مولتی سلکت و غیره
-      console.log('selec one',el.id ,el.type)
+      //console.log('selec one',el.id ,el.type)
       const dv = document.getElementById(`emsFormBuilder-${el.id}`);
 
     }  */

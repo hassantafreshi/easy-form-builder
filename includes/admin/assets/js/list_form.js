@@ -12,10 +12,10 @@ jQuery(function () {
   //ajax_object_efm.language زبان بر می گرداند
   //ajax_object_efm.messages_state پیام های خوانده نشده را بر می گرداند
 
-  // console.log(ajax_object_efm.ajax_value);
+  // //console.log(ajax_object_efm.ajax_value);
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
-  console.log(ajax_object_efm)
+  //console.log(ajax_object_efm)
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(25); //778899
 });
@@ -55,14 +55,14 @@ function fun_emsFormBuilder_render_view(x) {
   `
    }
   if (valueJson_ws_form.length > 0) {
-    console.log(valueJson_ws_form);
+    //console.log(valueJson_ws_form);
     for (let i of valueJson_ws_form) {
-      console.log(i)
+      //console.log(i)
       if (x > count) {
         //console.log(i.form_id)
         let newM = false;
         for (let ims of ajax_object_efm.messages_state) {
-          // console.log(`ajax_object_efm return` ,ims)
+          // //console.log(`ajax_object_efm return` ,ims)
           if (ims.form_id == i.form_id) {
             newM = true;
           }
@@ -113,7 +113,7 @@ function fun_emsFormBuilder_render_view(x) {
   for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)) {
 
     el.addEventListener("click", (e) => {
-      console.log(el)
+      //console.log(el)
       emsFormBuilder_messages(el.dataset.id)
 
 
@@ -123,7 +123,7 @@ function fun_emsFormBuilder_render_view(x) {
 }
 
 function emsFormBuilder_waiting_response() {
-  console.log(108, document.getElementById('emsFormBuilder-list'))
+  //console.log(108, document.getElementById('emsFormBuilder-list'))
   document.getElementById('emsFormBuilder-list').innerHTML = loading_messge_efb()
 }
 
@@ -140,22 +140,6 @@ function emsFormBuilder_get_edit_form(id) {
 // نمایش پنجره پیغام حذف یک ردیف  فرم
 function emsFormBuilder_delete(id) {
   //v2
-  // پنجره مطمئن هستی می خوای فرم پاک کنی نمایش بده 
-  //areYouSureYouWantDeleteItem
-  /*     document.getElementById('wpwrap').innerHTML+=`
-    <div class=" overpage preview-overpage ${efb_var.rtl==1 ? 'rtl-text' :''}" id="overpage">
-    <div class="overpage-mbox">
-    <div class="card-body m-13 bg-dark">
-      <h5 class="card-title text-white"><i class="px-2 fas fa-trash"></i>${efb_var.text.remove}</h5>
-      <br>
-        <h4 class="text-white">${efb_var.text.areYouSureYouWantDeleteItem}</h4>
-      <br>
-      <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.no}</button>
-      <button class="btn btn-danger" onclick=" fun_confirm_remove_emsFormBuilder(${Number(id)})">${efb_var.text.yes}</button>
-    </div>
-    <div>
-  </div></div></div>`; */
-  console.log('emsFormBuilder_delete')
   const body = `<div class="efb  mb-3"><div class="efb clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill me-2', 'deleteBox')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -172,42 +156,9 @@ function emsFormBuilder_delete(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function emsFormBuilder_popUp_message(title, message) {
-  // این پنجره برای نمایش پیام های عمومی است
-  document.getElementById('wpwrap').innerHTML += `
-  <div class=" overpage preview-overpage ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
-  <div class="overpage-mbox">
-  <div class="card-body m-13 bg-dark">
-    <h5 class="card-title text-white"><i class="px-2 fa fa-bell-o "></i> ${title}</h5>
-    <br>
-      <h4 class="text-white">${message}</h4>
-    <br>
-    <button class="btn btn-primary" onclick=" close_overpage_emsFormBuilder(1)">${efb_var.text.close}</button>
-  </div>
-  <div>
-</div></div></div>`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function emsFormBuilder_popUp_loading() {
-  // این پنجره برای نمایش پیام های عمومی است
-  document.getElementById('wpwrap').innerHTML += `
-  <div class=" overpage preview-overpage ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
-  <div class="overpage-mbox">
-  <div class="card-body m-13 bg-dark text-center">
-
-    <br>
-    <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-     <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3>
-    <br>
-  </div>
-  <div>
-</div></div></div>`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 function emsFormBuilder_show_content_message(id) {
   // v2
-  console.log('emsFormBuilder_show_content_message', id)
+  //console.log('emsFormBuilder_show_content_message', id)
   const formType = form_type_emsFormBuilder;
   //console.log(form_type_emsFormBuilder)
   // پنجره نمایش فرم ثبت شده کاربر
@@ -216,39 +167,23 @@ function emsFormBuilder_show_content_message(id) {
   const objOptions = valueJson_ws_messages.filter(obj => {
     return obj.msg_id === id.toString()
   })
-
-
-  console.log(objOptions, valueJson_ws_messages, id);
   const msg_id = valueJson_ws_messages[indx].msg_id;
-  //console.l(valueJson_ws_messages[indx],msg_id);
-
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
-  console.log(valueJson_ws_messages[indx].content);
   const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
-  console.log(content);
+  //console.log(content);
   let m = "<--messages-->"
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
-  console.log(m)
-
   form_type_emsFormBuilder = formType;
-  console.log(form_type_emsFormBuilder)
+  //console.log(form_type_emsFormBuilder)
 
   const replayM = function () {
     let r
     if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
-      /* 
-      <div class="mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
-           <label for="replayM_emsFormBuilder" class="form-label m-2">${efb_var.text.reply}:
-               textarea</label>
-           <textarea class=" efb form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}></textarea>
-       </div>
-      
-      */
       r = `   
       <div class="mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
         <label for="replayM_emsFormBuilder" class="form-label m-2">${efb_var.text.reply}:</label>
@@ -258,28 +193,16 @@ function emsFormBuilder_show_content_message(id) {
      <button type="submit" class="btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb bi-reply mx-1"></i> ${efb_var.text.reply} </button>
      <p class="mx-2 my-1 text-pinkEfb" id="replay_state__emsFormBuilder"></p>
      </div></div>`;
-    } else {
-      r = '<!-- comment --!>';
-    }
-
+    } else {r = '<!-- comment --!>';}
     return r;
   }
-  //210407-TD74K
 
   const body = `
     <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
       ${m} 
      </div>
      ${replayM()}
-     </div>
-      
-     </div>
-   
-  </div>
-  <div>
-
-
-</div></div>`;
+     </div></div></div><div></div></div>`;
 
 
 
@@ -294,20 +217,6 @@ function emsFormBuilder_show_content_message(id) {
 
 }
 
-function fun_add_event_CloseMenu() {
-  //console.log(`fun_add_event_CloseMenu`)
-
-  /*  $(document).ready(function(){
-     $('#action_menu_btn').click(function(){
-       $('.action_menu').toggle();
-     });
-     }); */
-
-  /*   document.getElementById("close-menu").addEventListener("click",event => {
-      document.getElementById('action_menu').style.display= "none";
-      }); */
-
-}
 // نمایش و عدم نمایش دکمه های صفحه اصلی
 function fun_backButton(state) {
   //console.l(`fun_backButton` , document.getElementById("more_emsFormBuilder").style.display ,state)
@@ -367,7 +276,7 @@ function fun_emsFormBuilder_back() {
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 //response7788
-  console.log("fun_emsFormBuilder_show_messages" , content);
+  //console.log("fun_emsFormBuilder_show_messages" , content);
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
    <p class="small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
@@ -379,7 +288,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
     let value = `<b>${c.value}</b>`;
-    console.log(`value up ${value}`,c)    ;
+    //console.log(`value up ${value}`,c)    ;
     if (c.value == "@file@") {
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
@@ -396,7 +305,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         if (media == "video") {
           const len = c.url.length;
           const type = c.url.slice((len - 3), len);
-          // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
+          // //console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
           value = type !== 'avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
@@ -418,7 +327,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
     }else if(c.type=="rating"){
       value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
-      console.log(parseInt(c.value));
+      //console.log(parseInt(c.value));
       for(let i=0 ; i<parseInt(c.value) ; i++){
         value += `<i class="bi bi-star-fill"></i>`
       }
@@ -465,7 +374,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         if(media=="video"){          
           const len =c.url.length;
           const type = c.url.slice((len-3),len);
-         // console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
+         // //console.log(`poster_emsFormBuilder [${poster_emsFormBuilder}]`);
           value = type !=='avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` :`<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         }else{
           value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
@@ -495,60 +404,13 @@ function fun_emsFormBuilder_more() {
 // تابع نمایش ویرایش فرم
 function fun_ws_show_edit_form(id) {
   //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));
-  console.log(localStorage.getItem('valj_efb'), id, efb_var);
+  //console.log(localStorage.getItem('valj_efb'), id, efb_var);
   const len = valj_efb.length;
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()
   }, 500)
-  /* document.getElementById('content-efb').innerHTML = `<div class="col-md-12 ">
-  <div id="emsFormBuilder-form" >
-  <form id="emsFormBuilder-form-id" class="${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-      <h1 id="emsFormBuilder-form-title">${efb_var.text.easyFormBuilder}</h1>
-      
-      <div class="all-steps" id="all-steps"> 
-          <span class="step"><i class="fa fa-tachometer"></i></span> 
-          <span class="step"><i class="fa fa-briefcase"></i></span> 
-          <div class="addStep" id="addStep" >
-          </div>
-          <span class="step"><i class="px-1 fa fa-floppy-o"></i></span> 
-      </div>
-      <div class="all-steps" > 
-          <h5 class="step-name f-setp-name" id ="step-name">${efb_var.text.define}</h5> 
-      </div>
-      <div id="message-area"></div>
-      <div class="tab" id="firsTab">
-          <h5>${efb_var.text.formName}:*</h5>
-          <input placeholder="" type="text"  name="setps" class="require emsFormBuilder" id="form_name" max="20">
-          </br>
-          <h5>${efb_var.text.numberOfSteps}:*</h5>
-          <input placeholder="1,2,3.." type="number"  name="setps" class="require emsFormBuilder" id="steps" max="20">
-      </div>
-      <div class="tab" id="tabInfo">
-
-      </div>
-      <div  id="tabList">
-
-      </div>
-      <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-          <h3>${efb_var.text.done}</h3> <span>${efb_var.text.formIsBuild}</span>
-      </div>
-      <div style="overflow:auto;" id="nextprevious">
-          <div style="float:right;"> <button type="button" id="prevBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(-1)"><i class="fa fa-angle-double-left"></i></button> <button type="button" id="nextBtn" class="mat-shadow emsFormBuilder p-3" onclick="nextPrev(1)"><i class="fa fa-angle-double-right"></i></button> </div>
-          <div style="float:left;"> 
-              <button type="button" class="mat-shadow emsFormBuilder p-3" onClick="helpLink_emsFormBuilder()"><i class="fa fa-question" placeholder="Help"></i></button>
-              <button type="button" class="mat-shadow emsFormBuilder p-3" onClick="preview_emsFormBuilder()"><i class="fa fa-eye" placeholder="preview"></i></button>
-              
-          </div>
-      </div>
-
-    </form>      
-  </div>
-</div>`;
-  form_ID_emsFormBuilder = id;
-  run_code_ws_1();
-  run_code_ws_2();
-  fun_render_view_core_emsFormBuilder(); */
+ 
 
 }
 
@@ -604,11 +466,11 @@ function fun_ws_show_list_messages(value) {
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
   }
-  /// console.log(value);
+  /// //console.log(value);
   if (value.length > 0) {
     for (const v of value) {
       const state = Number(v.read_);
-      console.log(v);
+      //console.log(v);
       rows += `<tr class="efb pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
          <th scope="row" class="">${v.track}</th>
          <td class="">${v.date}</td>
@@ -682,10 +544,10 @@ function fun_delete_form_with_id_by_server(id) {
 
 
 function emsFormBuilder_messages(id) {
-  // console.log(`ajax_object_efm.ajax_value[${id}]  $`)
+  // //console.log(`ajax_object_efm.ajax_value[${id}]  $`)
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
-  // console.log(ajax_object_efm.ajax_value);
-  console.log(row.form_type, form_type_emsFormBuilder)
+  // //console.log(ajax_object_efm.ajax_value);
+  //console.log(row.form_type, form_type_emsFormBuilder)
 
   form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
@@ -695,7 +557,7 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  console.log('fun_open_message_emsFormBuilder')
+  //console.log('fun_open_message_emsFormBuilder')
   //console.log(msg_id,state ,valueJson_ws_messages);
   //console.log(form_type_emsFormBuilder)
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
@@ -717,13 +579,13 @@ function fun_get_form_by_id(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        //     console.log(res.data.ajax_value ,res);
+        //     //console.log(res.data.ajax_value ,res);
         try {
           let v = res.data.ajax_value.replace(/[\\]/g, '')
-          console.log(v);
+          //console.log(v);
           const value = JSON.parse(v);
           const len = value.length
-          console.log(value);
+          //console.log(value);
           valj_efb=value;
           setTimeout(() => {
             formName_Efb = valj_efb[0].formName;
@@ -734,7 +596,7 @@ function fun_get_form_by_id(id) {
             fun_ws_show_edit_form(id);
           }, len * 6)
          }catch(error){
-           console.log(error);
+           //console.log(error);
            //reportE
          }
       } else {
@@ -761,7 +623,7 @@ function fun_update_message_state_by_id(id) {
         }
         document.getElementById(`btn-m-${id}`).innerHTML = iconRead;
         document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
-        // console.log(res.data.ajax_value ,res);
+        //console.log(res.data.ajax_value ,res);
         if (res.data.ajax_value != undefined) {
           const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
           localStorage.setItem('valueJson_ws_p', JSON.stringify(value));
@@ -770,7 +632,7 @@ function fun_update_message_state_by_id(id) {
           fun_ws_show_edit_form(id)
         }
       } else {
-        // console.log(res);
+        //console.log(res);
       }
     })
   });
@@ -793,11 +655,11 @@ function fun_update_message_state_by_id(id) {
         }
         document.getElementById(`icon-${id}`).className = iconRead;
         document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
-        // console.log(res.data.ajax_value ,res);
+        //console.log(res.data.ajax_value ,res);
         if (res.data.ajax_value != undefined) {
           const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
           const len = value.length
-          console.log(res);
+          //console.log(res);
           setTimeout(() => {
             formName_Efb = valj_efb[0].formName;
             localStorage.setItem('valj_efb', JSON.stringify(value));
@@ -807,7 +669,7 @@ function fun_update_message_state_by_id(id) {
           }, len * 6)
         }
       } else {
-        // console.log(res);
+        //console.log(res);
       }
     })
   });
@@ -1020,7 +882,7 @@ function fun_show_help__emsFormBuilder() {
 
 }
 function fun_show_setting__emsFormBuilder() {
-  // console.log( 610,ajax_object_efm.setting);
+  // //console.log( 610,ajax_object_efm.setting);
   let activeCode = 'null';
   let sitekey = 'null';
   let secretkey = 'null';
@@ -1056,7 +918,7 @@ function fun_show_setting__emsFormBuilder() {
   }
 
 
-  // console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
+  // //console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
   //console.l(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
 
   document.getElementById('content-efb').innerHTML = `
@@ -1206,7 +1068,7 @@ function fun_set_setting_emsFormBuilder() {
   }
   const v = (id) => {
     const el = document.getElementById(id);
-    console.log(id);
+    //console.log(id);
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 
@@ -1380,7 +1242,7 @@ function fun_find_track_emsFormBuilder() {
 
 function clear_garbeg_emsFormBuilder() {
   //  emsFormBuilder_popUp_loading()
-  console.log(document.getElementById('clrUnfileEfb'))
+  //console.log(document.getElementById('clrUnfileEfb'))
   const innrhtm = document.getElementById('clrUnfileEfb').innerHTML;
   document.getElementById('clrUnfileEfb').innerHTML = `<i class="bi bi-hourglass-split"></i>`
   document.getElementById('clrUnfileEfb').classList.add('disabled')
@@ -1427,18 +1289,18 @@ function clear_garbeg_emsFormBuilder() {
 
     count += 1;
     i_count += i_count == -1 ? +2 : 1;
-/*     console.log(content, "CheckValue");
-    console.log(`i_count [${i_count}]`, "CheckValue"); */
+/*     //console.log(content, "CheckValue");
+    //console.log(`i_count [${i_count}]`, "CheckValue"); */
     let countMultiNo = [];
     let NoMulti = [];
-/*     console.log(`i_count [${i_count}]`);
-    console.log(rows); */
+/*     //console.log(`i_count [${i_count}]`);
+    //console.log(rows); */
     // let rows ={};
-    //  console.log(content.length);
+    //  //console.log(content.length);
 
     //  const row = new Array(1000).fill('null@EFB');
     for (c in content) {
-      // console.log(content[c],"chck");
+      // //console.log(content[c],"chck");
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if (content[c].type != "checkbox") {
@@ -1452,11 +1314,11 @@ function clear_garbeg_emsFormBuilder() {
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = content[c].name;
 
-          /* console.log(content[c].name, content[c], c, rows[0][parseInt(value_col_index)]);
-          console.log(`rows[parseInt(${i_count})][parseInt(${value_col_index})]`, `rows[0][parseInt(${value_col_index})]`);
-          console.log(`row[${[parseInt(i_count)]}][${[parseInt(value_col_index)]}] [${content[c].value}],"NCheck","CheckValue"`);
+          /* //console.log(content[c].name, content[c], c, rows[0][parseInt(value_col_index)]);
+          //console.log(`rows[parseInt(${i_count})][parseInt(${value_col_index})]`, `rows[0][parseInt(${value_col_index})]`);
+          //console.log(`row[${[parseInt(i_count)]}][${[parseInt(value_col_index)]}] [${content[c].value}],"NCheck","CheckValue"`);
           //  rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-          console.log(`row cel [${rows[parseInt(i_count)][parseInt(value_col_index)]}]`, rows[parseInt(i_count)], content[c].value, "NCheck", "CheckValue"); */
+          //console.log(`row cel [${rows[parseInt(i_count)][parseInt(value_col_index)]}]`, rows[parseInt(i_count)], content[c].value, "NCheck", "CheckValue"); */
         } 
 
         rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
@@ -1478,7 +1340,7 @@ function clear_garbeg_emsFormBuilder() {
             rows = rows.concat(row);
             rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
             rows[parseInt(r)][0] = rows.length - 1;
-            console.log(rows.length, i_count + 1, 'lenlen', rows[parseInt(r)][parseInt(value_col_index)])
+            //console.log(rows.length, i_count + 1, 'lenlen', rows[parseInt(r)][parseInt(value_col_index)])
           }
         } else {
           //if checkbox title is Nexists
@@ -1492,20 +1354,20 @@ function clear_garbeg_emsFormBuilder() {
       }//end else
       
     }
-    console.log(rows, "rslt")
-    console.log(`i_count [${i_count}]`);
+    //console.log(rows, "rslt")
+    //console.log(`i_count [${i_count}]`);
     //  exp.push(rows);
   }
   const col_index = rows[0].findIndex(x => x == 'null@EFB');
-  console.log(rows.length);
+  //console.log(rows.length);
   const exp = Array.from(Array(rows.length), () => Array(col_index).fill(efb_var.text.noComment));
   for (e in exp) {
     for (let i = 0; i < col_index; i++) {
       if (rows[e][i] != "null@EFB") exp[e][i] = rows[e][i];
     }
   }
-  console.log(exp);
-  // console.log(exp);
+  //console.log(exp);
+  // //console.log(exp);
   localStorage.setItem('rows_ws_p', JSON.stringify(exp));
   //  localStorage.setItem('head_ws_p', JSON.stringify(head));
 }
@@ -1562,8 +1424,8 @@ function convertToCSV_emsFormBuilder(objArray) {
 function generat_csv_emsFormBuilder() {
   //const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  /* console.log(head);
-  console.log(exp); */
+  /* //console.log(head);
+  //console.log(exp); */
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   //040820
 
@@ -1578,7 +1440,7 @@ function convert_to_dataset_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
   let rows = exp;
   
-   console.log(rows); 
+   //console.log(rows); 
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
@@ -1600,28 +1462,24 @@ function convert_to_dataset_emsFormBuilder() {
     } else {
       //console.log(rows[col]);
       for (let c of rows[col]) {
-        // console.log(c);
+        // //console.log(c);
         titleTable.push(c);
       }
     }
   }
-  /* console.log(titleTable);
-  console.log(entry);
-  console.log(countEnrty );  */
+  /* //console.log(titleTable);
+  //console.log(entry);
+  //console.log(countEnrty );  */
   emsFormBuilder_chart(titleTable, entry, countEnrty);
 }
 
 
-function unlimted_show_panel_emsFormBuilder(m) {
 
-  document.getElementById('body_emsFormBuilder').innerHTML += unlimted_version_emsFormBuilder(m, 0);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
 
 function emsFormBuilder_chart(titles, colname, colvalue) {
   //window.scrollTo({ top: 0, behavior: 'smooth' });
-  /* console.log(titles);
-  console.log(colname); */
+  /* //console.log(titles);
+  //console.log(colname); */
   let publicidofchart
   let chartview = "<!-- charts -->";
   let chartId = [];
@@ -1652,7 +1510,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     }
  
   /*End Add div of charts */
-console.log( document.getElementById('overpage-chart'));
+//console.log( document.getElementById('overpage-chart'));
   document.getElementById('overpage-chart').innerHTML = chartview
 
   /* convert to dataset */
@@ -1660,7 +1518,7 @@ console.log( document.getElementById('overpage-chart'));
   let rowsOfCharts = [];
   let opetionsOfCharts = [];
   for (let t in titles) {
-    // console.log()
+    // //console.log()
     opetionsOfCharts[t] = {
       'title': titles[t],
       'height': 300,
@@ -1693,10 +1551,10 @@ console.log( document.getElementById('overpage-chart'));
     /* drawPieChart */
 
     try {
-      // console.log(titles[t]);
+      // //console.log(titles[t]);
       google.charts.setOnLoadCallback(drawPieChartArr[t]);
     } catch (error) {
-      // console.log('error');
+      // //console.log('error');
     }
 
   }// end for 1
@@ -1718,8 +1576,8 @@ function googleCloudOffer() {
   var copyText = document.getElementById(id);
   //  var copyText = document.getElementById("myInput");
 
-  console.log(copyText.value);
-  console.log(copyText.type);
+  //console.log(copyText.value);
+  //console.log(copyText.type);
  
   copyText.select();
    copyText.setSelectionRange(0, 99999); 
