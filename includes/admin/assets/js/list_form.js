@@ -1336,7 +1336,7 @@ function clear_garbeg_emsFormBuilder() {
             rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
           } else {
             const r = rows.length
-            const row = Array.from(Array(1), () => Array(100).fill('null@EFB'))
+            const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
             rows = rows.concat(row);
             rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
             rows[parseInt(r)][0] = rows.length - 1;
@@ -1361,6 +1361,7 @@ function clear_garbeg_emsFormBuilder() {
   const col_index = rows[0].findIndex(x => x == 'null@EFB');
   //console.log(rows.length);
   const exp = Array.from(Array(rows.length), () => Array(col_index).fill(efb_var.text.noComment));
+  console.log(exp);
   for (e in exp) {
     for (let i = 0; i < col_index; i++) {
       if (rows[e][i] != "null@EFB") exp[e][i] = rows[e][i];
@@ -1438,19 +1439,20 @@ function convert_to_dataset_emsFormBuilder() {
 
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
+  
   let rows = exp;
   
-   console.log(valj_efb_); 
-   console.log(rows); 
+   
+  console.log(rows); 
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
   for (col in rows) {
     if (col != 0) {
       for (let c in rows[col]) {
-        if (rows[col][c] != 'null@EFB') {
+        if (rows[col][c] != 'null@EFB' && rows[col][c] !='notCount@EFB') {
           const indx = entry[c].findIndex(x => x == rows[col][c]);
+          console.log(`rows[col][c] [${rows[col][c]}] col[${col}] c[${c}]`);
           if (indx != -1) {
             countEnrty[c][indx] += 1;
           } else {
@@ -1469,10 +1471,11 @@ function convert_to_dataset_emsFormBuilder() {
       }
     }
   }
-  /* //console.log(titleTable);
-  //console.log(entry);
-  //console.log(countEnrty );  */
+  console.log(titleTable);
+  console.log(entry);
+  console.log(countEnrty ); 
   emsFormBuilder_chart(titleTable, entry, countEnrty);
+ 
 }
 
 
@@ -1528,10 +1531,13 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     };
     const countCol = colname[t].length;
     const rows = Array.from(Array(countCol), () => Array(2).fill(0));
+    const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
     for (let r in colname[t]) {
+      console.log(`r[${r}] t[${t}] name[${colname[t][r]}] value[${colvalue[t][r]}]`);
       rows[r][0] = colname[t][r];
       rows[r][1] = colvalue[t][r];
     }//end for 2
+    console.log(rows)
     rowsOfCharts[t] = rows;
     //console.log(publicRows);
     google.charts.load('current', { packages: ['corechart'] });
