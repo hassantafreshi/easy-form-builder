@@ -92,6 +92,15 @@ class _Public {
 			$state="form";
 			
 		}
+		$r= $this->get_setting_Emsfb('setting');
+		if(gettype($r)=="object"){
+			$setting =json_decode($r->setting);
+			if(md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
+				error_log($setting->activeCode);
+				//error_log('pro == true');
+				$pro=true;
+			}
+		}
 		
 				$typeOfForm =$this->value[0]->form_type;
 				//error_log($this->value[0]);
@@ -153,7 +162,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 		 $k="";
-		 $pro=false;
+		// $pro=false;
 
 		//error_log("maps before");
 		//error_log(gettype($stng));
@@ -178,6 +187,7 @@ class _Public {
 			 }
 		 }
 		 $efb_m ="<h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
+		 error_log($pro);
 		 if($pro==true) $efb_m="";
 		 if($formObj[0]["stateForm"]==true){
 			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>

@@ -842,9 +842,17 @@ width: 85%;
 
 
 div#dropZone {
-padding-bottom: 83%;
+    padding-bottom: 10%;
 }
 
+#dropZone.pb{
+    padding-bottom: 40%;
+}
+
+#efb-dd {
+    margin-top: 18%;
+    margin-bottom: 18%;
+}
 /* new code */
 
 .star-efb {
@@ -1870,5 +1878,7 @@ fieldset.efb {
 .btn-group-toggle.efb{
     direction: ltr!important;
 }
+
+
 
 

@@ -37,7 +37,7 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
 
 ## Features 💡
 
-You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique tracking ID allows you to connect any submission to an individual request.
+You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 Features:
 -   Simple drag and drop functionality
@@ -56,7 +56,7 @@ Features:
 -   Instant reply functionality for free
 -   Send notification email when the user have a new message for free
 -   Mobile-friendly responsive forms
--   Unique tracking ID finder for free
+-   Unique Confirmation code ( tracking ID) finder for free
 -   User-friendly and feature-rich panel to manage your forms and their responses for free
 -   Form validation  
 -   Support RTL language

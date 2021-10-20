@@ -832,14 +832,14 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById("more_emsFormBuilder").style.display = "none";
   listOfHow_emsfb = {
     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
-    2: { title: efb_var.text.howConfigureEFB, url: 'https://www.youtube.com/embed/DEQNHMPT0rQ' },
-    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: 'https://www.youtube.com/embed/a1jbMqunzkQ' },
-    4: { title: efb_var.text.howActivateAlertEmail, url: 'https://www.youtube.com/embed/So2RAzu-OHU' },
-    5: { title: efb_var.text.howCreateAddForm, url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
-    6: { title: efb_var.text.howActivateTracking, url: 'https://www.youtube.com/embed/im3aKby4E14' },
-    7: { title: efb_var.text.howWorkWithPanels, url: 'https://www.youtube.com/embed/7jS01CEtbDg' },
-    8: { title: efb_var.text.howAddTrackingForm, url: 'https://www.youtube.com/embed/c1_gCFihrH8' },
-    9: { title: efb_var.text.howFindResponse, url: 'https://www.youtube.com/embed/vqKi9BJbO7k' },
+    2: { title: efb_var.text.howConfigureEFB, url: 'https://youtu.be/dkrAcBGJjLQ' },
+    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: '' },
+    4: { title: efb_var.text.howActivateAlertEmail, url: '' },
+    5: { title: efb_var.text.howCreateAddForm, url: 'https://youtu.be/JSI-lFRA_9I' },
+    6: { title: efb_var.text.howActivateTracking, url: 'https://youtu.be/q0OTaj0iiGs' },
+    7: { title: efb_var.text.howWorkWithPanels, url: '' },
+    8: { title: efb_var.text.howAddTrackingForm, url: 'https://youtu.be/GK99Jcb3_ZY' },
+    9: { title: efb_var.text.howFindResponse, url: 'https://youtu.be/X9cW2j-JkS4' },
   }
 
 
@@ -873,7 +873,7 @@ function fun_show_help__emsFormBuilder() {
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
                   <a class="btn efb btn-warning text-white btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
-                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
 
@@ -1438,9 +1438,11 @@ function convert_to_dataset_emsFormBuilder() {
 
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+  const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
   let rows = exp;
   
-   //console.log(rows); 
+   console.log(valj_efb_); 
+   console.log(rows); 
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles

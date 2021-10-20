@@ -67,7 +67,7 @@ function creator_form_builder_Efb() {
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
-      thank_you_title:'null', thank_you_message:'null', email_title:'null', emaill_message:'null', email_subject:'null',font:true,
+      thank_you_title:'null', thank_you_message:'null', email_temp:'',font:true,
       
     });
   }
@@ -119,7 +119,7 @@ function creator_form_builder_Efb() {
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
     { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
-    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `` },
+    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
     
   ]
   if(devlop_efb==true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
@@ -138,7 +138,14 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="row">
           <div class="col-md-4" id="listElEfb"><div class="row">${els}</div></div>
-         <div class="col-md-8"><div class="crd efb  drag-box"><div class="card-body dropZone row " id="dropZone"></div></div></div></div>
+         <div class="col-md-8"><div class="crd efb  drag-box"><div class="card-body dropZone row " id="dropZone">
+                
+        <div id="efb-dd" class="text-center ">
+        <h1 class="text-muted display-1  bi-plus-circle-dotted"> </h1>
+        <div class="text-muted fs-4">${efb_var.text.dadFieldHere}</div>
+        </div>
+
+         </div></div></div></div>
       </div>
   <div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
@@ -663,7 +670,7 @@ function show_setting_window_efb(idset) {
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder="${efb_var.text.exDot} 49.24803870604257" id="letEl" required value="${valj_efb[indx].lat}">
       <label for="lonEl" class="efb form-label  mt-2">${efb_var.text.longitude}</label>
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder="${efb_var.text.exDot}  -123.10512829684463" id="lonEl" required value="${valj_efb[indx].lng}">
-      <label for="marksEl" class="efb form-label  mt-2">Pickup location by user <a class="fs-7 efb" onClick ="open_whiteStudio_efb('pickupByUser')">help</a></label></label>
+      <label for="marksEl" class="efb form-label  mt-2">${efb_var.text.points}<!--<a class="fs-7 efb" onClick ="open_whiteStudio_efb('pickupByUser')">${efb_var.text.help}</a> --></label></label>
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
       <!--  not   advanced-->
       <div class="efb d-grid gap-2">              
@@ -1712,6 +1719,8 @@ function create_dargAndDrop_el() {
       const rndm = Math.random().toString(36).substr(2, 9);
       const t = e.dataTransfer.getData("text/plain");
       //console.log(t);
+      console.log(valj_efb.length);
+      if(valj_efb.length<2){dropZone.innerHTML="" , dropZone.classList.add('pb')}
       let el = addNewElement(t, rndm, false, false);
       dropZone.innerHTML += el;
       //show buttons del and setting
@@ -3767,7 +3776,7 @@ function ReadyElForViewEfb(content) {
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 if (localStorage.getItem('count_view')>6 && localStorage.getItem('count_view') <10) {
-  noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15)
+ // noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15)
 }
 
 function googleCloudOffer() {
