@@ -202,6 +202,7 @@ class Panel_edit  {
 					'user_ip'=> $ip,
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
+					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg'
 					
 				));
@@ -217,8 +218,18 @@ class Panel_edit  {
 		
 		$table_name = $this->db->prefix . "Emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
-		$rtrn='null';
+
 		//error_log(json_encode($value));
+		return $value;
+	}
+	public function get_not_read_response(){
+		$table_name_msg = $this->db->prefix . "Emsfb_msg_";
+		$table_name_rsp = $this->db->prefix . "Emsfb_rsp_"; 
+		//$table_name = $this->db->prefix . "Emsfb_rsp_"; 
+		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
+		FROM `$table_name_msg` AS t 
+		 INNER JOIN `$table_name_rsp` AS tr 
+		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
 		return $value;
 	}
 

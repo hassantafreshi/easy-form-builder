@@ -1200,7 +1200,7 @@ function fun_tracking_show_emsFormBuilder() {
   <div class="efb ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
        
                 <div class="card card-public mb-3 efb" id="body_efb-track">
-                    <h4 class="title-holder col-12"><i class="efb bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                    <h4 class="title-holder col-12 mt-4"><i class="efb bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="mb-5 row col-md-12">
                         <label for="trackingCodeEfb" class="form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="text-danger mx-1">*</span></label>
@@ -1721,8 +1721,8 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
-  //console.log(res);
-  if (res.success == true) {
+  console.log(res ,message);
+  if (res.success == true && res.data.success==true) {
     //console.log(`response`,res);
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
@@ -1737,9 +1737,10 @@ function response_rMessage_id(res, message) {
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
-    //console.log(res);
+    console.log(res);
    // noti_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="text-danger">${res.data.m}</p>`;
+    noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
 }

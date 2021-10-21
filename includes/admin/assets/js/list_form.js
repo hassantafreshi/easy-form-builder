@@ -4,6 +4,7 @@ let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
+let response_state_efb ;
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
 jQuery(function () {
@@ -15,6 +16,7 @@ jQuery(function () {
   // //console.log(ajax_object_efm.ajax_value);
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
+  response_state_efb=ajax_object_efm.response_state;
   //console.log(ajax_object_efm)
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(25); //778899
@@ -61,16 +63,13 @@ function fun_emsFormBuilder_render_view(x) {
       if (x > count) {
         //console.log(i.form_id)
         let newM = false;
-        for (let ims of ajax_object_efm.messages_state) {
-          // //console.log(`ajax_object_efm return` ,ims)
-          if (ims.form_id == i.form_id) {
-            newM = true;
-          }
-          //console.l(`ajax_object_efm return` ,ims , newM , i.form_id)
-        }
+        const d=  ajax_object_efm.messages_state.findIndex(x=>x.form_id==i.form_id)
+        if(d!=-1){newM = true;  console.log(d)}
+        const b=  ajax_object_efm.response_state.findIndex(x=>x.form_id==i.form_id)
+        if(b!=-1){newM = true;  console.log(b)}
+        //response
         
-
-     
+       //console.log(valueJson_ws_form ,ajax_object_efm.messages_state,ajax_object_efm.response_state)
         newM != true  ? o_rows +=creatRow(i,newM) : rows +=creatRow(i,newM); 
         count += 1;
       }
@@ -469,8 +468,9 @@ function fun_ws_show_list_messages(value) {
   /// //console.log(value);
   if (value.length > 0) {
     for (const v of value) {
-      const state = Number(v.read_);
-      //console.log(v);
+      let state = Number(v.read_);
+      if(response_state_efb.findIndex(x=>x.msg_id==v.msg_id)!=-1){state=0}
+      console.log(v,state);
       rows += `<tr class="efb pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
          <th scope="row" class="">${v.track}</th>
          <td class="">${v.date}</td>
@@ -544,7 +544,7 @@ function fun_delete_form_with_id_by_server(id) {
 
 
 function emsFormBuilder_messages(id) {
-  // //console.log(`ajax_object_efm.ajax_value[${id}]  $`)
+  console.log(`ajax_object_efm.ajax_value[${id}]  $`)
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
   // //console.log(ajax_object_efm.ajax_value);
   //console.log(row.form_type, form_type_emsFormBuilder)

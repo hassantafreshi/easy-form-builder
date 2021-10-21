@@ -69,7 +69,7 @@ class _Public {
 
 		//error_log('form Genrate');
 		$table_name = $this->db->prefix . "Emsfb_form";
-		
+		$pro=false;
 		
 
 		foreach ($id as $row_id){
@@ -167,7 +167,7 @@ class _Public {
 		//error_log("maps before");
 		//error_log(gettype($stng));
 		//error_log($stng);
-		 if(gettype($stng)!=="integer"){
+		 if(gettype($stng)!=="integer" && $stng!= __("Settings not found",'easy-form-builder')){
 			 $valstng= json_decode($stng);
 			 if($valstng->siteKey && $formObj[0]["captcha"]==true){$k =$valstng->siteKey;}
 			// if($valstng->activeCode) $pro = true;
@@ -187,7 +187,7 @@ class _Public {
 			 }
 		 }
 		 $efb_m ="<h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
-		 error_log($pro);
+	
 		 if($pro==true) $efb_m="";
 		 if($formObj[0]["stateForm"]==true){
 			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
@@ -905,7 +905,7 @@ class _Public {
 
 	public function set_rMessage_id_Emsfb(){
 
-
+		//error_log($_POST['message']);
 		// این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند 
 		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
@@ -1006,9 +1006,11 @@ class _Public {
 					
 					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage");
 				}
-				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 
-				wp_send_json_success($response,$_POST);							
-			
+				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 										
+				wp_send_json_success($response,$_POST);	
+		}else{
+			$response = array( 'success' => false , "m"=>__("Message was not sent! <br> Please Contact to admin, Settings Error" , 'easy-form-builder') , "by"=>$by);
+			wp_send_json_success($response,$_POST);	
 		}
 
 	}//end function
