@@ -14,7 +14,9 @@ Easy Form Builder is a user-friendly plugin to help you create powerful forms. W
 == Description ==
 **Easy Form Builder** is a user-friendly form creator that allows you to create professional multistep forms within minutes.
 
-[youtube http://www.youtube.com/watch?v=7jS01CEtbDg]
+[youtube https://youtu.be/JSI-lFRA_9I]
+
+
 
 You don't need any coding skills to use *Easy Form Builder*. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
@@ -54,16 +56,13 @@ How *Easy Form Builder* makes your life easier:
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
 
-**Note:**
-Easy Form Builder uses the popular icon library Font Awesome and is being loaded through Font Awesome’s official  CDN.
-Please consider you could add 1 form in every page or post.
-
 
 == Installation ==
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
+
 
 = Development Google captcha Keys for LOCALHOST =
 
@@ -85,22 +84,22 @@ Please consider you could add 1 form in every page or post.
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
 
-1. [How to configure *Easy Form Builder*](https://www.youtube.com/embed/DEQNHMPT0rQ)
+1. [How to configure *Easy Form Builder*](https://youtu.be/dkrAcBGJjLQ)
 
-2. [How to get Google reCAPTCHA and implement it into *Easy Form Builder*](https://www.youtube.com/embed/a1jbMqunzkQ)
+2. [How to get Google reCAPTCHA and implement it into *Easy Form Builder*](https://youtu.be/AZ9LPPTPuh0)
 
-3. [How to activate the alert email for new form submissions](https://www.youtube.com/embed/So2RAzu-OHU)
+3. [How to activate the alert email for new form submissions](https://youtu.be/Zz3NV6mA-us)
 
-4. [How to create and add a form with *Easy Form Builder*](https://www.youtube.com/embed/7jS01CEtbDg)
+4. [How to create and add a form with *Easy Form Builder*](https://youtu.be/JSI-lFRA_9I)
 
-5. [How to activate a Confirmation Code in *Easy Form Builder*](https://www.youtube.com/embed/im3aKby4E14)
+5. [How to activate a Confirmation Code in *Easy Form Builder*](https://youtu.be/q0OTaj0iiGs)
 
-6. [How to work with panels in *Easy Form Builder*](https://www.youtube.com/embed/7jS01CEtbDg)
+6. [How to work with panels in *Easy Form Builder*](https://youtu.be/SJh5h89P8UU)
 
 7. [How to add The Confirmation Code Finder to a post, page, or custom post type
-   ](https://www.youtube.com/embed/c1_gCFihrH8)
+   ](https://youtu.be/GK99Jcb3_ZY)
 
-8. [How to find a response through a Confirmation Code](https://www.youtube.com/embed/vqKi9BJbO7k)
+8. [How to find a response through a Confirmation Code](https://youtu.be/X9cW2j-JkS4)
 
 
 == Changelog ==

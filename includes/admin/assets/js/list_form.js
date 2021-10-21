@@ -833,11 +833,11 @@ function fun_show_help__emsFormBuilder() {
   listOfHow_emsfb = {
     /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
     2: { title: efb_var.text.howConfigureEFB, url: 'https://youtu.be/dkrAcBGJjLQ' },
-    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: '' },
-    4: { title: efb_var.text.howActivateAlertEmail, url: '' },
+    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: 'https://youtu.be/AZ9LPPTPuh0' },
+    4: { title: efb_var.text.howActivateAlertEmail, url: 'https://youtu.be/Zz3NV6mA-us' },
     5: { title: efb_var.text.howCreateAddForm, url: 'https://youtu.be/JSI-lFRA_9I' },
     6: { title: efb_var.text.howActivateTracking, url: 'https://youtu.be/q0OTaj0iiGs' },
-    7: { title: efb_var.text.howWorkWithPanels, url: '' },
+    7: { title: efb_var.text.howWorkWithPanels, url: 'https://youtu.be/SJh5h89P8UU' },
     8: { title: efb_var.text.howAddTrackingForm, url: 'https://youtu.be/GK99Jcb3_ZY' },
     9: { title: efb_var.text.howFindResponse, url: 'https://youtu.be/X9cW2j-JkS4' },
   }
