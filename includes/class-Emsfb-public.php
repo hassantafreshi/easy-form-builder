@@ -70,17 +70,13 @@ class _Public {
 		//error_log('form Genrate');
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$pro=false;
-		
-
 		foreach ($id as $row_id){
-			//error_log($row_id);
-			//$this->value = $this->db->get_var( "SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = '$row_id'" );				
-			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
-							
+			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
 		}
 		$this->id = $id;
-/* 		error_log($this->value[0]->form_structer);
-		error_log($this->value[0]->form_type); */
+		if($this->value==null){
+			return "<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".__('Form does not exist !!','easy-form-builder')."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
+		}
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -110,9 +106,6 @@ class _Public {
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
 
 				$formObj= json_decode($fs,true);
-			
-		
-				
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				$efbFunction = new efbFunction();   
@@ -163,17 +156,9 @@ class _Public {
 		 ));  
 		 $k="";
 		// $pro=false;
-
-		//error_log("maps before");
-		//error_log(gettype($stng));
-		//error_log($stng);
 		 if(gettype($stng)!=="integer" && $stng!= __("Settings not found",'easy-form-builder')){
 			 $valstng= json_decode($stng);
 			 if($valstng->siteKey && $formObj[0]["captcha"]==true){$k =$valstng->siteKey;}
-			// if($valstng->activeCode) $pro = true;
-
-
-			
 			 if(strlen($valstng->apiKeyMap)>5){
 				 //error_log("maps");
 				 $key= $valstng->apiKeyMap;
@@ -219,7 +204,6 @@ class _Public {
 
 				$efbFunction = new efbFunction();   
 				//translate v2
-				//$showform =["error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm", ];
 				$trackfinder=["trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
 				$text= $efbFunction->text_efb($trackfinder);
 		if ( strlen( $lang ) > 0 ) {
@@ -394,24 +378,13 @@ class _Public {
 						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys' , 'easy-form-builder')); 
 					}
 				}
-
-
-
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
-
-		/* 	error_log($type);
-		error_log($captcha_success->succes);
-		error_log($not_captcha); */
 		if ($not_captcha==false && $captcha_success->success==false  ) {
 		  $response = array( 'success' => false  , 'm'=>__('Error, Captcha problem!' , 'easy-form-builder')); 
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}else if ( $not_captcha==true || $captcha_success->success==true) {
-		/* 	 error_log('code');
-			 error_log($_POST['value']);
-			 error_log($_POST['name']);
-			 error_log($_POST['id']); */
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>__("Please enter a vaild value" , 'easy-form-builder')); 
 				wp_send_json_success($response,$_POST);
@@ -419,17 +392,12 @@ class _Public {
 			}
 			$this->value = sanitize_text_field($_POST['value']);
 			$this->name = sanitize_text_field($_POST['name']);
-			$this->id = sanitize_text_field($_POST['id']);
-			
-			
+			$this->id = sanitize_text_field($_POST['id']);		
 			$fs =str_replace('\\', '', $this->value);
 			$valobj = json_decode($fs , true);
 			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 				foreach($valobj as $key => $val){	
-						
-						//error_log($val["id_"]);
 						if ($val["id_"]==$formObj[0]["email_to"]){
-							//error_log('formObj[$key]["id_"]');
 							$email_user=$val["value"];
 						}
 				} 
@@ -438,14 +406,10 @@ class _Public {
 		  
 		
 					switch($type){
-						case "form":
-						
+						case "form":						
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$check=	$this->insert_message_db();
-							
-				
-							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);								
 								if (strlen($setting->emailSupporter)>2){
@@ -457,8 +421,7 @@ class _Public {
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 									if($trackingCode=="true"||$trackingCode=="true")
 									{
-										
-										
+
 									$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
 									}else{
 									 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
@@ -508,10 +471,6 @@ class _Public {
 							$m =__('Your account has been successfully created! You will receive an email containing your information','easy-form-builder');
 
 							// hide password
-
-							/* error_log('print_r($registerValues,1)');
-							error_log(print_r($registerValues,1)); */
-							//here
 							if(gettype($state)=="object"){
 								foreach($state->errors as $key => $value){
 									$m= $value[0];
@@ -526,11 +485,7 @@ class _Public {
 									$check=	$this->insert_message_db();
 									$state= get_user_by( 'email', $email);
 									if(gettype($state)=="object"){
-
-										$to = $email;
-									
-										
-										
+										$to = $email;								
 										if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
 											$this->send_email_Emsfb($email_user,$ms,$pro,"register");
@@ -565,8 +520,6 @@ class _Public {
 									}
 								}
 							}
-
-							
 							$creds = array();
 							$creds['user_login'] =esc_sql($username);
 							$creds['user_password'] = esc_sql($password);
@@ -574,12 +527,7 @@ class _Public {
 
 							$user = wp_signon( $creds, false );
 							if(isset($user->ID)){
-								//user login in successfully
-								// return user profile and ....
-								//778899
 								$userID = $user->ID;
-								//error_log(json_encode($user));
-
 								wp_set_current_user( $userID, $creds['user_login'] );
 								wp_set_auth_cookie( $userID, true, false );
 								do_action( 'wp_login', $creds['user_login'] );
@@ -592,19 +540,10 @@ class _Public {
 								$send['user_nicename']=$user->data->user_nicename;
 								$send['user_registered']=$user->data->user_registered;
 								$send['user_image']=get_avatar_url($user->data->ID);
-
-								//error_log(json_encode($send));
 								$response = array( 'success' => true , 'm' =>$send); 
 								wp_send_json_success($response,$_POST);
-								
-								//error_log(is_user_logged_in());
 							}else{
-							//	error_log(json_encode($user));
-
-								
 								// user not login
-								// return to user a message you are not login
-								//778899
 								$send=array();
 								$send['state']=false;
 								$send['pro']=$pro;
@@ -838,9 +777,6 @@ class _Public {
 
 
 	public function insert_message_db(){
-	
-		
-		
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$this->db->insert($table_name, array(
@@ -856,8 +792,7 @@ class _Public {
 	}//end function
 
 	public function get_ip_address(){
-		//source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+			if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {$ip = $_SERVER['REMOTE_ADDR'];}
 	 $this->ip = $ip;	 
@@ -906,8 +841,6 @@ class _Public {
 	public function set_rMessage_id_Emsfb(){
 
 		//error_log($_POST['message']);
-		// این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند 
-		// با این مضنون که پاسخ شما داده شده است
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>__('Security Error 403' , 'easy-form-builder')); 
@@ -966,12 +899,6 @@ class _Public {
 					
 				));  
 
-
-			
-	
-
-
-			
 				//error_log($id);
 				$this->db->update($table_name,array('read_'=>0),array('msg_id' => $id) );
 

@@ -2594,7 +2594,7 @@ const open_whiteStudio_efb = (state) => {
       link += `#pricing`
       break;
     case 'publishForm':
-      link += `?publish-form`
+      link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
       // چگونه فرم را  منتشر کنیم
       // how create and publish form
       break;
