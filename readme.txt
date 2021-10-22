@@ -78,7 +78,9 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 4. Panel of Easy form builder
 5. List of responses
 6. Setting of Easy Form Builder
-7. Form submitted and Confirmation Code (tracking pixels)
+7. Present chart of poll
+8. Form submitted and Confirmation Code (tracking pixels)
+9. create a contact-us form
 
 
 == Frequently Asked Questions ==
