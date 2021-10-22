@@ -90,7 +90,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 2. [How to get Google reCAPTCHA and implement it into *Easy Form Builder*](https://youtu.be/AZ9LPPTPuh0)
 
-3. [How to activate the alert email for new form submissions](https://youtu.be/Zz3NV6mA-us)
+3. [How to activate the alert email (Notification Emai) for new form submissions](https://youtu.be/Zz3NV6mA-us)
 
 4. [How to create and add a form with *Easy Form Builder*](https://youtu.be/JSI-lFRA_9I)
 
@@ -102,6 +102,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
    ](https://youtu.be/GK99Jcb3_ZY)
 
 8. [How to find a response through a Confirmation Code](https://youtu.be/X9cW2j-JkS4)
+
+
+
+
 
 
 == Changelog ==
