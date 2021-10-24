@@ -4,14 +4,20 @@
 #  Easy Form Builder
 ###  Easy Form Builder is friendly and Drag and drop form creator
 <div align="center">
-    <a href="https://allcontributors.org">
-        <img src="https://whitestudio.team/img/easy-form-builder.svg" alt="✨  Easy Form Builder  ✨" width="100px" />
+    <a href="https://whitestudio.team">
+        <img src="https://ps.w.org/easy-form-builder/assets/icon.svg" alt="✨  Easy Form Builder  ✨" width="100px" />
     </a>
 </div>
 
-A WordPress plugin to create forms by using an interactive drag & drop wizard. The plugin is published in [WordPress' plugin repository](https://wordpress.org/plugins/easy-form-builder/). 
+A WordPress plugin for create forms by using an interactive drag & drop wizard. The plugin is published in [WordPress' plugin repository](https://wordpress.org/plugins/easy-form-builder/). 
 <br>
 > Call for translators! [We're looking for translators](https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/) to help translate this Plugin for everyone!
+
+<br>
+
+<div align="center">
+<a href="https://www.producthunt.com/posts/easy-form-builder?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-easy-form-builder" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=317019&theme=dark" alt="Easy Form Builder - Multi-step and drag & drop WordPress form builder | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a><br>
+</div>
 
 <br>
 <table width="100%">
@@ -22,10 +28,10 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
             <td><a href="https://da.wordpress.org/plugins/easy-form-builder/">Danish</a></td>
             <td><a href="https://hi.wordpress.org/plugins/easy-form-builder/"> हिन्दी</a></td>
             <td><a href="https://fa.wordpress.org/plugins/easy-form-builder/">فارسی</a></td>
-            <td>
-        </tr>
+            </tr>
     </tbody>
 </table>
+
 
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
@@ -35,38 +41,54 @@ A WordPress plugin to create forms by using an interactive drag & drop wizard. T
 
 
 
+**Version Numbers**
+
+*  Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
+* [Easy Form Builder 1.34.0 – 1.34.5](https://github.com/hassantafreshi/easy-form-builder/tree/Dev) is maintained but no longer extended. (stable)
+* [Easy Form Builder 2.0.0](https://wordpress.org/plugins/easy-form-builder) is under active development. (recommended)
+
+
 ## Features 💡
 
 You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 Features:
--   Simple drag and drop functionality
--   Create unlimited forms for free
--   Create multistep (limited steps) form for free
--   Create sample file upload form for free
--   Create Support forms for free
--   Create subscription or newsletters signup forms for free
--   Create Login (sign-in) forms for free
--   Create Registration (sign-up) forms for free
--   Create Surveys (poll) and analyse for free.
--   Get export of subscribers list to csv format file for free
--   Get notified by email when a form has been submitted for free
--   Showing the confirmation code filled in forms for fress
--   Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
--   Instant reply functionality for free
--   Send notification email when the user have a new message for free
--   Mobile-friendly responsive forms
--   Unique Confirmation code ( tracking ID) finder for free
--   User-friendly and feature-rich panel to manage your forms and their responses for free
--   Form validation  
--   Support RTL language
--   Present survey (poll) results in the form of Charts for free
--   Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating and Switch button (available in pro version)
--   Create drag and drop file upload forms (Available in pro version)
--   Create multi-step (unlimited steps) form (Available in pro version)
--   Create form by Advanced input like Date, URL, Range, Color, Multi Select (available in pro version)
--   Get export of result of Surveys to csv format file (Available in pro version)
--   Get export of response of forms to csv format file (Available in pro version)
+- Simple drag and drop functionality
+- Create unlimited forms for free
+- Create multistep (limited steps) form for free
+- Create sample file upload form for free
+- Create Support forms for free
+- Create subscription or newsletters signup forms for free
+- Create Login (sign-in) forms for free
+- Create Registration (sign-up) forms for free
+- Create Surveys (poll) and analyse for free.
+- Create Private forms (lock forms) or Public forms for free.
+- Get export of subscribers list to CSV format file for free
+- Get notified by email when a form has been submitted for free
+- Showing the confirmation code filled in forms for fress
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
+- Instant reply functionality for free
+- Send notification email when the user have a new message for free
+- Email notification for free
+- Form notification for free
+- Entry Management for free
+- Confirmation Code for free
+- Mobile-friendly responsive forms
+- Unique Confirmation code ( tracking ID) finder for free
+- User-friendly and feature-rich panel to manage your forms and their responses for free
+- Form validation  
+- Support RTL language
+- Present survey (poll) results in Pie Chart for free
+- Create drag and drop file upload forms (Available in pro version)
+- Create multi-step (unlimited steps) form (Available in pro version)
+- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
+- Get export of result of Surveys to CSV format file (Available in pro version)
+- Get export of response of forms to CSV format file (Available in pro version)
+
+
+## Documentation
+
+The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
 
 
 ## Requirements

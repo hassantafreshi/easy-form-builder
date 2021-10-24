@@ -1,4 +1,4 @@
-=== Easy Form Builder - WP EFB ===
+=== Easy Form Builder ===
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
@@ -31,7 +31,7 @@ How *Easy Form Builder* makes your life easier:
 - Create Registration (sign-up) forms for free
 - Create Surveys (poll) and analyse for free.
 - Create Private forms (lock forms) or Public forms for free.
-- Get export of subscribers list to csv format file for free
+- Get export of subscribers list to CSV format file for free
 - Get notified by email when a form has been submitted for free
 - Showing the confirmation code filled in forms for fress
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
@@ -46,12 +46,12 @@ How *Easy Form Builder* makes your life easier:
 - User-friendly and feature-rich panel to manage your forms and their responses for free
 - Form validation  
 - Support RTL language
-- Present survey (poll) results in the form of Charts for free
+- Present survey (poll) results in Pie Chart for free
 - Create drag and drop file upload forms (Available in pro version)
 - Create multi-step (unlimited steps) form (Available in pro version)
 - Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
-- Get export of result of Surveys to csv format file (Available in pro version)
-- Get export of response of forms to csv format file (Available in pro version)
+- Get export of result of Surveys to CSV format file (Available in pro version)
+- Get export of response of forms to CSV format file (Available in pro version)
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
