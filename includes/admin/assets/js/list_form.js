@@ -17,7 +17,9 @@ jQuery(function () {
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb=ajax_object_efm.response_state;
-  //console.log(ajax_object_efm)
+ // console.log(ajax_object_efm)
+  pro_ws = ajax_object_efm.pro =='1' ? true :false;
+  //console.log(`pro ${pro_ws}`)
   //console.l(`poster_emsFormBuilder`,poster_emsFormBuilder)
   fun_emsFormBuilder_render_view(25); //778899
 });
@@ -166,6 +168,7 @@ function emsFormBuilder_show_content_message(id) {
   const objOptions = valueJson_ws_messages.filter(obj => {
     return obj.msg_id === id.toString()
   })
+  //console.log(valueJson_ws_messages[indx])
   const msg_id = valueJson_ws_messages[indx].msg_id;
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
@@ -442,7 +445,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 function fun_ws_show_list_messages(value) {
   //v2
   // show list of filled out of the form;
-  //console.log(form_type_emsFormBuilder)
+//  console.log(value)
   let rows = '';
   let no = 1;
   let head = `<!-- rows -->`;
@@ -453,6 +456,8 @@ function fun_ws_show_list_messages(value) {
     iconRead = 'bi-person';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'register') {
+    const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+    head = `<div > <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
     iconRead = 'bi-person ';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'survey') {
@@ -464,6 +469,9 @@ function fun_ws_show_list_messages(value) {
     </div>`;
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
+  }else if (form_type_emsFormBuilder == 'form'){
+    const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+    head = `<div > <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
   }
   /// //console.log(value);
   if (value.length > 0) {
@@ -507,8 +515,8 @@ function fun_ws_show_list_messages(value) {
     </table>
     </div>
     `;
-
-  if (form_type_emsFormBuilder == 'subscribe' || form_type_emsFormBuilder == 'survey') fun_export_rows_for_Subscribe_emsFormBuilder(value);
+  //console.log(`value`,value)
+  if (form_type_emsFormBuilder != 'login' ) fun_export_rows_for_Subscribe_emsFormBuilder(value);
 
 }
 
@@ -557,10 +565,11 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  //console.log('fun_open_message_emsFormBuilder')
+ //console.log('fun_open_message_emsFormBuilder')
   //console.log(msg_id,state ,valueJson_ws_messages);
   //console.log(form_type_emsFormBuilder)
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
+  ///console.log(msg_id)
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0) {
     fun_update_message_state_by_id(msg_id);
@@ -685,11 +694,11 @@ function fun_get_messages_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      //console.l(`messages`,res);
+      console.log(`messages`,res);
+      
       if (res.success == true) {
-        valueJson_ws_messages = res.data.ajax_value;
-        localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
-        //console.l(`resp`,res);
+        valueJson_ws_messages =  res.data.ajax_value ;
+        localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));  
         fun_ws_show_list_messages(valueJson_ws_messages)
       } else {
         //console.l(res);
@@ -707,14 +716,15 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      //console.l(`messages`,res);
+      //console.log(`messages`,res);
       if (res.success == true) {
 
         // localStorage.setItem('valueJson_ws_messages',JSON.stringify(valueJson_ws_messages) );
         //console.l(`get_all_response_id_Emsfb`,res);
         fun_ws_show_response(res.data.ajax_value)
+        
       } else {
-        //console.l(res);
+        //console.log(res);
       }
     })
   });
@@ -1270,20 +1280,19 @@ function clear_garbeg_emsFormBuilder() {
 
  function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   //json ready for download 
-  //778899
   // let exp =[];
   let head = {};
   let heads = [];
   let ids = [];
   let count = -1;
-
-  //console.log(value);
   let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
   //console.log(`rows[${rows.length}]`);
   rows[0][0] = value.length;
   let i_count = -1;
   for (v of value) {
-    const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'not found', value: 'not found' }
+   // const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'not found', value: 'not found' }
+    const content = JSON.parse(v.content.replace(/[\\]/g, '')) 
+   
     //console.log(content.length);
     // const rows = Array.from(Array(content.length+1), () => Array(100).fill('null@EFB'));
 
@@ -1361,7 +1370,7 @@ function clear_garbeg_emsFormBuilder() {
   const col_index = rows[0].findIndex(x => x == 'null@EFB');
   //console.log(rows.length);
   const exp = Array.from(Array(rows.length), () => Array(col_index).fill(efb_var.text.noComment));
-  console.log(exp);
+  //console.log(exp);
   for (e in exp) {
     for (let i = 0; i < col_index; i++) {
       if (rows[e][i] != "null@EFB") exp[e][i] = rows[e][i];
@@ -1398,7 +1407,7 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
       document.body.removeChild(link);
     }
   }
-
+//  localStorage.removeItem("rows_ws_p")
 }//end function
 
 
@@ -1425,8 +1434,8 @@ function convertToCSV_emsFormBuilder(objArray) {
 function generat_csv_emsFormBuilder() {
   //const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  /* //console.log(head);
-  //console.log(exp); */
+  //console.log(head);
+  //console.log(exp);
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   //040820
 
@@ -1443,7 +1452,7 @@ function convert_to_dataset_emsFormBuilder() {
   let rows = exp;
   
    
-  console.log(rows); 
+ // console.log(rows); 
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles

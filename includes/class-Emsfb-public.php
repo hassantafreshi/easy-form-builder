@@ -456,8 +456,7 @@ class _Public {
 									$email=$rv['value'];
 								}
 							}
-							$registerValues =json_encode($registerValues);
-							//error_log($registerValues);
+						
 							
 							$this->value=json_encode($registerValues);
 							$creds = array();
@@ -777,6 +776,7 @@ class _Public {
 
 
 	public function insert_message_db(){
+		error_log($this->value);
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$this->db->insert($table_name, array(
@@ -961,19 +961,19 @@ class _Public {
 	$cont=$message;
    }elseif ($state=="register"){
 	$subject =__('Thank You for registering.', 'easy-form-builder');   
-	$message ="<h2>".__('Welecome', 'easy-form-builder')."</h2>
+	$message ="<h2>".__('Welcome', 'easy-form-builder')."</h2>
 	".$cont."
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="subscribe"){
-	$subject =__('welecome', 'easy-form-builder');   
+	$subject =__('Welcome', 'easy-form-builder');   
 	$message ="<h2>".__('Thank You For Subscribing!', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="survey"){
-	$subject =__('welecome', 'easy-form-builder');   
+	$subject =__('Welcome', 'easy-form-builder');   
 	$message ="<h2>".__('Thank You for taking the time to complete this survey.', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";

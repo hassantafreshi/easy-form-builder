@@ -948,6 +948,7 @@ function actionSendData_emsFormBuilder() {
 
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
 
+  console.log(JSON.stringify(sendBack_emsFormBuilder_pub))
   //console.log(efb_var.id.id, efb_var.nonce, formName, sendBack_emsFormBuilder_pub);
   jQuery(function ($) {
 

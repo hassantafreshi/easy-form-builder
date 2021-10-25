@@ -203,7 +203,8 @@ class Panel_edit  {
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
-					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg'
+					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
+					'pro'=>$pro
 					
 				));
 					

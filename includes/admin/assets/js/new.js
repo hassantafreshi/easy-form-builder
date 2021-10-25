@@ -84,7 +84,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.date, icon: 'bi-calendar-date', id: 'date', pro: true },
- // { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },

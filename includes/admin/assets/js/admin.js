@@ -9,7 +9,7 @@ let valueJson_ws_p = [];
 let exportJson_ws = [];
 let tabActive_ws = -1;
 const proUrl_ws = `https://whitestudio.team/`
-let pro_ws = true;
+let pro_ws = false;
 let stepMax_ws = 1 
 let edit_emsFormBuilder = false;
 
@@ -24,7 +24,6 @@ if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws
 
 jQuery (function() {
   state_check_ws_p =Number(efb_var.check)
-  ////console.log(efb_var);
   pro_ws = (efb_var.pro=='1' || efb_var.pro==true) ? true : false;
   if(typeof pro_whitestudio !== 'undefined'){    
     pro_ws = pro_whitestudio ;

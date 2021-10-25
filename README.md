@@ -2,7 +2,7 @@
 
 
 #  Easy Form Builder
-###  Easy Form Builder is friendly and Drag and drop form creator
+###  Easy Form Builder is friendly, multi-step and Drag & drop form creator
 <div align="center">
     <a href="https://whitestudio.team">
         <img src="https://ps.w.org/easy-form-builder/assets/icon.svg" alt="✨  Easy Form Builder  ✨" width="100px" />

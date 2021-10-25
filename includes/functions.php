@@ -225,7 +225,7 @@ class efbFunction {
 			"xlarge" => __('XLarge','easy-form-builder'),
 			"xxlarge" => __('XXLarge','easy-form-builder'),
 			"xxxlarge" => __('XXXLarge','easy-form-builder'),
-			"labelPostion" => __('Label Postion','easy-form-builder'),
+			"labelPostion" => __('Label Position','easy-form-builder'),
 			"align" => __('Align','easy-form-builder'),
 			"left" => __('Left','easy-form-builder'),
 			"center" => __('Center','easy-form-builder'),
