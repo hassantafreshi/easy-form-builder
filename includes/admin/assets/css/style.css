@@ -1753,4 +1753,10 @@ fieldset.efb {
 }
 
 
+.efb-btn-lg {
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+    border-radius: .3rem;
+}
+
 

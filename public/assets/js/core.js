@@ -948,7 +948,7 @@ function actionSendData_emsFormBuilder() {
 
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
 
-  console.log(JSON.stringify(sendBack_emsFormBuilder_pub))
+ // console.log(JSON.stringify(sendBack_emsFormBuilder_pub))
   //console.log(efb_var.id.id, efb_var.nonce, formName, sendBack_emsFormBuilder_pub);
   jQuery(function ($) {
 
@@ -1325,7 +1325,7 @@ function emsFormBuilder_show_content_message(value, content) {
   <!-- recaptcha  -->
   ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
-  <p class="mx-2 my-1 text-pinkEfb" id="replay_state__emsFormBuilder">  </p>
+  <p class="mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
 
@@ -1643,7 +1643,6 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
   if (res.data.success == true) {
   
     //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
@@ -1722,7 +1721,7 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
-  console.log(res ,message);
+  //console.log(res ,message);
   if (res.success == true && res.data.success==true) {
     //console.log(`response`,res);
     document.getElementById('replayM_emsFormBuilder').value = "";
@@ -1738,7 +1737,7 @@ function response_rMessage_id(res, message) {
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
-    console.log(res);
+    //console.log(res);
    // noti_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="text-danger">${res.data.m}</p>`;
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')

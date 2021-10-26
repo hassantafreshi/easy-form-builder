@@ -193,7 +193,7 @@ function emsFormBuilder_show_content_message(id) {
       </div>
      <div class="col text-right row mx-1">
      <button type="submit" class="btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb bi-reply mx-1"></i> ${efb_var.text.reply} </button>
-     <p class="mx-2 my-1 text-pinkEfb" id="replay_state__emsFormBuilder"></p>
+     <p class="mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder"></p>
      </div></div>`;
     } else {r = '<!-- comment --!>';}
     return r;
