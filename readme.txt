@@ -109,6 +109,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.0.3 =
+* Fixed issues
 
 = 2.0.2 =
 * UI improvements

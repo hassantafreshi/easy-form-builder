@@ -111,7 +111,7 @@ function creator_form_builder_Efb() {
     els += `
     <div class="col-3 draggable-efb" draggable="${dragab}" id="${ob.id}">
      ${ob.pro == true && pro_efb==false ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
-      <button type="button" class="btn efb btn-select-form float-end ${disable!="disable" ? "btn-muted" :''} id="${ob.id}_b" ${disable}><i class="efb ${ob.icon}"></i><span class="d-block text-capitalize">${ob.name}</span></button>
+      <button type="button" class="btn efb btn-select-form float-end ${disable!="disable" ? "btn-muted" :''}" id="${ob.id}_b" ${disable}><i class="efb ${ob.icon}"></i><span class="d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
   }
@@ -150,7 +150,7 @@ function creator_form_builder_Efb() {
   <div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="modal-content efb " id="settingModalEfb-sections">
-                  <div class="modal-header efb"> <h5 class="modal-title" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${efb_var.text.editField}</span></h5></div>
+                  <div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${efb_var.text.editField}</span></h5></div>
                   <div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
@@ -1720,6 +1720,8 @@ function create_dargAndDrop_el() {
       const t = e.dataTransfer.getData("text/plain");
       //console.log(t);
       console.log(valj_efb.length);
+
+      if(t=="steps" && valj_efb.length<2){return;}
       if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
       let el = addNewElement(t, rndm, false, false);
       dropZoneEFB.innerHTML += el;
@@ -1784,6 +1786,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   //editState == true when form is edit method
   // ایجاد المان
   //console.group('test', elementId)
+  
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   //console.log(elementId ,previewSate ,previewSate!=true,shwBtn);
@@ -1801,6 +1804,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZoneEFB')
   }
+
   //console.log(`step_ 1769 ${step_el_efb}`,'pre');
   newElement = ``;
 
@@ -1842,7 +1846,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       const t = valj_efb[0].steps == 1 ? 0 : 1;
       editState == false   ? add_buttons_zone_efb(0, 'dropZoneEFB') : add_buttons_zone_efb(t, 'dropZoneEFB')
-
+      
+      
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
 
       valj_efb.push({
@@ -2409,7 +2414,9 @@ const loadingShow_efb = (title) => {
 </div>`
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  //console.log(elementId ,rndm)
+  const testb =valj_efb.length;
+  console.log(elementId ,rndm ,valj_efb,testb,step_el_efb);
+  
   let pro = false;
   if (elementId == "multiselect" || elementId == "dadfile" || elementId == "url" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "date" || elementId == "color" || elementId == "html" || elementId == "tel" || elementId == "range" || elementId == "yesNo") { pro = true }
   //console.log(elementId, "push");
@@ -2558,7 +2565,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (id != "dropZoneEFB") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = `<div class="position-absolute row bottom-0 mx-5 translate-middle-x  showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
+    c = `<div class=" row bottom-0 mx-5 showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
   }
   //console.log(id)
   if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -2894,10 +2901,10 @@ function create_form_efb() {
     step_no += 1;
     //console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`)
     content += `
-                ${sitekye_emsFormBuilder.length>1  ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
+                ${sitekye_emsFormBuilder.length>1 &&  valj_efb[0].captcha==true ? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
                 <!-- fieldset formNew 1 --> </fieldset> 
     
-                <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
+                <fieldset data-step="step-${step_no}-efb" class="my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
                 ${loading_messge_efb()}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
@@ -3532,15 +3539,18 @@ function handle_navbtn_efb(steps, device) {
   var opacity_efb;
 
   var steps_len_efb = (steps) + 1;
+  current_s_efb=1
   setProgressBar_efb(current_s_efb,steps_len_efb);
   if (steps > 1) {
 
-  //console.log(`cs[${current_s_efb}]`)
     if (current_s_efb == 1 ) { jQuery("#prev_efb").toggleClass("d-none"); }
     
     jQuery("#next_efb").click(function () {
+      console.log(`next_efb current_s_efb[${current_s_efb}] steps_len_efb${steps_len_efb} `)
       var cp = current_s_efb + 1
       
+      console.log(`cs[${current_s_efb}] stepLen[${steps_len_efb}] step[${steps}] cp[${cp}]`);
+
       if (cp == steps_len_efb) {
         //console.log('here')
         jQuery("#prev_efb").addClass("d-none");
@@ -3574,19 +3584,21 @@ function handle_navbtn_efb(steps, device) {
       });
       current_s_efb += 1;
       setProgressBar_efb(current_s_efb,steps_len_efb);
-      //console.log(current_s_efb, steps)
+      console.log(current_s_efb, steps ,steps_len_efb)
       if (current_s_efb <= steps) {
         var val = valj_efb.find(x => x.step == nxt)
         jQuery("#title_efb").attr('class', val['label_text_color']);
         jQuery("#desc_efb").attr('class', val['message_text_color']);
         jQuery("#title_efb").text(val['name']);
         jQuery("#desc_efb").text(val['message']);
-
+        jQuery("#title_efb").addClass('text-center efb mt-1');
+        jQuery("#desc_efb").addClass('text-center efb fs-7');
         jQuery("#prev_efb").removeClass("d-none"); 
       }
       //console.log()
-        if (current_s_efb==steps){            
-          if(sitekye_emsFormBuilder && sitekye_emsFormBuilder.length>1)jQuery("#next_efb").toggleClass('disabled');
+      console.log(`next_efb current_s_efb[${current_s_efb}] steps_len_efb[${steps_len_efb}] ` ,current_s_efb==(steps_len_efb-1))
+        if (current_s_efb==(steps_len_efb-1)){            
+          if(sitekye_emsFormBuilder && sitekye_emsFormBuilder.length>1 &&  valj_efb[0].captcha==true)jQuery("#next_efb").toggleClass('disabled');
           var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${efb_var.text.send}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
           jQuery("#next_efb").html(val);
          // `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
@@ -3599,17 +3611,21 @@ function handle_navbtn_efb(steps, device) {
     });
 
     jQuery("#prev_efb").click(function () {
-      
       var cs = current_s_efb;
+        console.log(`prev_efb current_s_efb[${current_s_efb}] steps_len_efb${steps_len_efb} ` ,cs == 1 ? 'true' : 'false')
      
-      if (cs == 1) {
-       
+      if (cs == 2) {
+        console.log('cs ==1');
+
+        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        jQuery("#next_efb").html(val);
+        jQuery("#next_efb").toggleClass("d-none"); 
         
       }else if (cs==steps){
         //console.log(cs , steps)
         var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
-        if(sitekye_emsFormBuilder.length>1 )   jQuery("#next_efb").removeClass('disabled');
+        if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       prev_s_efb = current_s.prev();
@@ -3641,14 +3657,19 @@ function handle_navbtn_efb(steps, device) {
       });
       current_s_efb = current_s_efb-1;
       setProgressBar_efb(current_s_efb,steps_len_efb);
-      if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
+      if (current_s_efb == 1) { 
+        jQuery("#prev_efb").toggleClass("d-none"); 
+        jQuery("#next_efb").toggleClass("d-none"); 
+    }
      // if(verifyCaptcha_efb.length>1  ) jQuery("#next_efb").removeClass("disabled");
+
+     console.log(`prev_efb end current_s_efb[${current_s_efb}] steps_len_efb${steps_len_efb} `)
     });
 
 
  
   } else {
-    // if just one step!
+    //One Step section
 
 
     jQuery("#btn_send_efb").click(function () {
@@ -3825,8 +3846,8 @@ function funTnxEfb(val,title,message){
   const t = title  ? title :efb_var.text.done;
   const m = message ? message :efb_var.text.thanksFillingOutform
   const trckCd = `
-  <div class="test"><h5 class="mt-3">${efb_var.text.trackingCode}: <strong>${val}</strong></h5>
-               <input type="text" class="hide-input" value="${val}" id="trackingCodeEfb">
+  <div class="efb"><h5 class="mt-3 efb">${efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+               <input type="text" class="hide-input efb" value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="btn efb btn-primary btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb bi-clipboard-check mx-1"></i>${efb_var.text.copyTrackingcode}
@@ -3843,12 +3864,12 @@ function funTnxEfb(val,title,message){
 
 
 function send_data_efb(){
-  //console.log('send_data_efb');
   //if is preview 210201-SMHTH06 then recive from server and show
   if(state_efb!="run"){
     const cp = funTnxEfb('DemoCode-220201')
+    console.log('send_data_efb',state_efb,cp);
     document.getElementById('efb-final-step').innerHTML=cp
-    current_s_efb=1;
+   // current_s_efb=1;
   }else{
     //console.log(sendBack_emsFormBuilder_pub);
    
@@ -3860,6 +3881,8 @@ function send_data_efb(){
 
 function previewFormEfb(state){
   //v2
+    if(state!="run") state_efb="view";
+  //state_efb
   //console.log('previewFormEfb', valj_efb ,'pre')
   let content = `<!--efb.app-->`
   let step_no = 0;
@@ -3930,7 +3953,7 @@ function previewFormEfb(state){
       content += `
            ${sitekye_emsFormBuilder.length>1? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
            <!-- fieldset1 --> </fieldset>
-          <fieldset data-step="step-${step_no}-efb" class="my-2 steps-efb efb row d-none text-center" id="efb-final-step">
+          <fieldset data-step="step-${step_no}-efb" class="my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
             ${loading_messge_efb()}                
             <!-- fieldset2 --></fieldset>`
       head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb fs-7 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
@@ -3955,7 +3978,7 @@ function previewFormEfb(state){
     content = `  
     <div class="px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
 
-    ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4><p id="desc_efb" class="${valj_efb[1].message_text_color} text-center  fs-7 efb">${valj_efb[1].message}</p>` :`` }
+    ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="efb ${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4><p id="desc_efb" class="${valj_efb[1].message_text_color} text-center  fs-7 efb">${valj_efb[1].message}</p>` :`` }
     
      <form id="efbform"> ${head} <div class="mt-1 px-2">${content}</div> </form>
     </div>

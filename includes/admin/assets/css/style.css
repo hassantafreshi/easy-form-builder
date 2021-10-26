@@ -1747,5 +1747,10 @@ fieldset.efb {
 }
 
 
+#button_group.efb {
+    position: absolute;
+    padding-right: 50%;
+}
+
 
 
