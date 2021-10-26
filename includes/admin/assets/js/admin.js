@@ -232,9 +232,9 @@ function add_dasboard_emsFormBuilder(){
         for(let i of boxs){
           //console.log(efb_var.rtl)
           value += `
-          <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card"><div class="card-body">
+          <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
          
-          <h5 class="card-title"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
+          <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <p class="card-text efb float-start mt-3">${i.desc}</p>
           ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
           </div></div></div>`
@@ -245,8 +245,8 @@ function add_dasboard_emsFormBuilder(){
           ${head_introduce_efb('create')}
             <section id="content-efb">
             <img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}">
-        <h4 class="title-holder">
-            <img src="${efb_var.images.title}" class="title">
+        <h4 class="title-holder efb">
+            <img src="${efb_var.images.title}" class="title efb">
             <i class="efb bi-arrow-down-circle title-icon mx-1"></i>Forms
         </h4>
      <div class="container"><div class="row row-cols-1 row-cols-md-2 g-4">${value}<div class="row  my-5 col-2"></div></div></div>

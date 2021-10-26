@@ -83,10 +83,10 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="title-holder"> <img src="${efb_var.images.title}" class="title">
+   <h4 class="title-holder efb"> <img src="${efb_var.images.title}" class="title efb">
                 <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
             </h4>
-    <div class="card">
+    <div class="card efb">
     <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
         <thead>
             <tr >
@@ -498,10 +498,10 @@ function fun_ws_show_list_messages(value) {
 
 
   document.getElementById('content-efb').innerHTML = `${head}
-    <h4 class="title-holder"> <img src="${efb_var.images.title}" class="title">
+    <h4 class="title-holder efb"> <img src="${efb_var.images.title}" class="title efb">
     <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
-    <div class="card">
+    <div class="card efb">
     <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
     <th scope="col">${efb_var.text.trackNo}</th>
@@ -867,8 +867,8 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById('content-efb').innerHTML = `
   <img src="${efb_var.images.title}"  class="crcle-footer">
   <div class="container row">
-  <h4 class="title-holder">
-      <img src="${efb_var.images.title}" class="title">
+  <h4 class="title-holder efb">
+      <img src="${efb_var.images.title}" class="title efb">
       <i class="efb bi-info-circle title-icon me-2"></i>${efb_var.text.help}
   </h4>
   <div class="crd efb col-md-7"><div class="card-body"> <div class="d-grid gap-2">
@@ -933,8 +933,8 @@ function fun_show_setting__emsFormBuilder() {
 
   document.getElementById('content-efb').innerHTML = `
   <div class="container">
-            <h4 class="title-holder">
-                <img src="${efb_var.images.title}" class="title">
+            <h4 class="title-holder efb">
+                <img src="${efb_var.images.title}" class="title efb">
                 <i class="efb bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
             <div class="crd efb">

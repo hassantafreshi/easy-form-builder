@@ -138,11 +138,11 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="row">
           <div class="col-md-4" id="listElEfb"><div class="row">${els}</div></div>
-         <div class="col-md-8"><div class="crd efb  drag-box"><div class="card-body dropZone row " id="dropZone">
+         <div class="col-md-8"><div class="crd efb  drag-box"><div class="card-body dropZoneEFB row " id="dropZoneEFB">
                 
         <div id="efb-dd" class="text-center ">
         <h1 class="text-muted display-1  bi-plus-circle-dotted"> </h1>
-        <div class="text-muted fs-4">${efb_var.text.dadFieldHere}</div>
+        <div class="text-muted fs-4 efb">${efb_var.text.dadFieldHere}</div>
         </div>
 
          </div></div></div></div>
@@ -151,7 +151,7 @@ function creator_form_builder_Efb() {
       <div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="modal-content efb " id="settingModalEfb-sections">
                   <div class="modal-header efb"> <h5 class="modal-title" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${efb_var.text.editField}</span></h5></div>
-                  <div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
+                  <div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
   `
@@ -1326,7 +1326,7 @@ const show_modal_efb = (body, title, icon, type) => {
   document.getElementById("settingModalEfb-body").innerHTML = body
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
-    document.getElementById("settingModalEfb").classList.contains('modal-new') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new')
+    document.getElementById("settingModalEfb").classList.contains('modal-new-efb') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new-efb')
   }
   else if (type == "deleteBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
@@ -1338,18 +1338,18 @@ const show_modal_efb = (body, title, icon, type) => {
     </div>`
     //settingModalEfb-sections
   } else if (type == "saveBox") {
-    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
   }else if (type == "saveLoadingBox") {
-    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
     document.getElementById('settingModalEfb-body').innerHTML=loading_messge_efb();
   }else if(type=="chart"){
-    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if(!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
   } else {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
-    document.getElementById("settingModalEfb").classList.remove('modal-new')
+    document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
   }
   // myModal.show()
 }
@@ -1483,7 +1483,7 @@ let handleDrag = (item) => {
     lst = selectedItem.parentNode,
     x = event.clientX,
     y = event.clientY;
-  selectedItem.classList.add('drag-sort-active');
+  selectedItem.classList.add('drag-sort-active-efb');
   let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
   if (lst === swapItem.parentNode) {
     swapItem = swapItem !== selectedItem.nextSibling && swapItem.dataset == "steps" && swapItem.id != "1" ? swapItem : swapItem.nextSibling;
@@ -1495,7 +1495,7 @@ let handleDrag = (item) => {
 }
 
 let handleDrop = (item) => {
-  item.target.classList.remove('drag-sort-active');
+  item.target.classList.remove('drag-sort-active-efb');
   sort_obj_el_efb_()
   // sort_obj_efb();
 }
@@ -1536,7 +1536,7 @@ const sort_obj_el_efb = () => {
     } else {
       if (step == 1) {
 
-        //document.getElementById('dropZone').appendChild(el.cloneNode(true))
+        //document.getElementById('dropZoneEFB').appendChild(el.cloneNode(true))
         //console.log(el);
         const indx = valj_efb.findIndex(x => x.dataId == el.dataset.id) // این خط خطا دارد
         //console.log(valj_efb, el.dataset.id, indx)
@@ -1701,8 +1701,8 @@ const delete_option_efb = (id) => {
 //let valj_efb = [];
 function create_dargAndDrop_el() {
   //console.log('create_dargAndDrop_el')
-  const dropZone = document.getElementById("dropZone");
-  dropZone.addEventListener("dragover", (e) => {
+  const dropZoneEFB = document.getElementById("dropZoneEFB");
+  dropZoneEFB.addEventListener("dragover", (e) => {
     e.preventDefault();
   });
   for (const el of document.querySelectorAll(".draggable-efb")) {
@@ -1712,17 +1712,17 @@ function create_dargAndDrop_el() {
     });
    //console.log(el.id , "el.id");
   }
-  dropZone.addEventListener("drop", (e) => {
-    // Add new element to dropZone
+  dropZoneEFB.addEventListener("drop", (e) => {
+    // Add new element to dropZoneEFB
     e.preventDefault();
     if (e.dataTransfer.getData("text/plain") !== "step" && e.dataTransfer.getData("text/plain") != null && e.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
       const t = e.dataTransfer.getData("text/plain");
       //console.log(t);
       console.log(valj_efb.length);
-      if(valj_efb.length<2){dropZone.innerHTML="" , dropZone.classList.add('pb')}
+      if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
       let el = addNewElement(t, rndm, false, false);
-      dropZone.innerHTML += el;
+      dropZoneEFB.innerHTML += el;
       //show buttons del and setting
       fub_shwBtns_efb();
 
@@ -1769,14 +1769,14 @@ function create_dargAndDrop_el() {
 
 
 
-    enableDragSort('dropZone');
+    enableDragSort('dropZoneEFB');
   }); // end drogZone
 
 }
 
 
 /* 
-dropZone.addEventListener("click", (e) => {
+dropZoneEFB.addEventListener("click", (e) => {
 
 }); */
 
@@ -1799,7 +1799,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   if (editState != false && previewSate!=true) {
     step_el_efb = valj_efb[0].steps;
     const t = valj_efb[0].steps == 1 ? 0 : 1;
-    add_buttons_zone_efb(t, 'dropZone')
+    add_buttons_zone_efb(t, 'dropZoneEFB')
   }
   //console.log(`step_ 1769 ${step_el_efb}`,'pre');
   newElement = ``;
@@ -1841,7 +1841,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         `;
       }
       const t = valj_efb[0].steps == 1 ? 0 : 1;
-      editState == false   ? add_buttons_zone_efb(0, 'dropZone') : add_buttons_zone_efb(t, 'dropZone')
+      editState == false   ? add_buttons_zone_efb(0, 'dropZoneEFB') : add_buttons_zone_efb(t, 'dropZoneEFB')
 
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
 
@@ -1851,7 +1851,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
         el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
       });
-     // add_buttons_zone_efb(0, 'dropZone');
+     // add_buttons_zone_efb(0, 'dropZoneEFB');
 
      editState == false && valj_efb.length>2 ? step_el_efb+=1 :0;
     }
@@ -2215,7 +2215,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
     `
     const proActiv = `⭐ 
-    <div class="btn-edit-holder d-none zindex-10-efb " id="btnSetting-${rndm}-id">
+    <div class="btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
     <button type="button" class="btn efb btn-pro-efb btn-sm px-2 mx-3" id="pro"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
     <i class="efb bi-gem text-dark"> ${efb_var.text.availableProVersion}</i>`;
 
@@ -2247,7 +2247,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     //console.log(valj_efb[0]);
     if (!document.getElementById('button_group')) {
       //console.log('document.getElementById(button_group)')
-       add_buttons_zone_efb(0, 'dropZone')
+       add_buttons_zone_efb(0, 'dropZoneEFB')
       fub_shwBtns_efb();
     } else if (valj_efb[0].steps > 1) {
       fun_handle_buttons_efb(true)
@@ -2542,8 +2542,8 @@ let add_buttons_zone_efb = (state, id) => {
       </button>
   </div>
   </div>`;
-  const floatEnd = id == "dropZone" ? 'float-end' : ``;
-  const btnPos = id != "dropZone" ? ' text-center' : ''
+  const floatEnd = id == "dropZoneEFB" ? 'float-end' : ``;
+  const btnPos = id != "dropZoneEFB" ? ' text-center' : ''
   const s = `
   <div class="${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
     <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
@@ -2555,7 +2555,7 @@ let add_buttons_zone_efb = (state, id) => {
   </div>
   `
   let c = `<div class="footer-test mt-1 efb">`
-  if (id != "dropZone") {
+  if (id != "dropZoneEFB") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
     c = `<div class="position-absolute row bottom-0 mx-5 translate-middle-x  showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
@@ -2622,14 +2622,14 @@ const loading_messge_efb = () => {
 }
 let editFormEfb = () => {
   valueJson_ws_p=0; // set ajax to edit mode
-  let dropZone = document.getElementById('dropZone');
-  dropZone.innerHTML = loading_messge_efb();
+  let dropZoneEFB = document.getElementById('dropZoneEFB');
+  dropZoneEFB.innerHTML = loading_messge_efb();
   if (localStorage.getItem("valj_efb")) { valj_efb = JSON.parse(localStorage.getItem("valj_efb")); } // test code => replace from value
   const len = valj_efb.length | 10;
 
 
   setTimeout(() => {
-    dropZone.innerHTML = "<!-- edit efb -->"
+    dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
 
       try {
@@ -2637,7 +2637,7 @@ let editFormEfb = () => {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
           let el = addNewElement(type, valj_efb[v].id_, true, false);
           //console.log(`type [${valj_efb[v].type}] amount[${valj_efb[v].amount}] step[${valj_efb[v].step}]`)
-          dropZone.innerHTML += el;
+          dropZoneEFB.innerHTML += el;
 
           if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
 
@@ -2662,7 +2662,7 @@ let editFormEfb = () => {
 
             //document.querySelector(`[data-id='${valj_efb[v].id_}_options']`).className += `efb ${valj_efb[v].corner} ${valj_efb[v].el_border_color} ${valj_efb[v].el_text_size}`
           }
-         //console.log(dropZone.innerHTML)
+         //console.log(dropZoneEFB.innerHTML)
         }
       } catch (error) {
         console.error('Error', error);
@@ -2670,7 +2670,7 @@ let editFormEfb = () => {
     }
 
     fub_shwBtns_efb()
-    enableDragSort('dropZone');
+    enableDragSort('dropZoneEFB');
   }, (len * 10));
 
  
@@ -2813,9 +2813,9 @@ async function previewFormMobileEfb() {
   // preview of form
 
   const frame = `
-  <div class="smartphone">
-  <div class="content" >
-      <div id="parentMobileView">
+  <div class="smartphone-efb">
+  <div class="content efb" >
+      <div id="parentMobileView-efb">
       <div class="text-center pt-5"> 
       <div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3>
       <h3 class="efb text-darkb">${efb_var.text.efb}</h3>
@@ -2837,13 +2837,13 @@ async function previewFormMobileEfb() {
   const len = valj_efb.length
   const p = calPLenEfb(len)
   if (len > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
-    document.getElementById('parentMobileView').innerHTML = `
+    document.getElementById('parentMobileView-efb').innerHTML = `
        <div class="text-center pt-5 text-darkb efb"> 
        <div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.formNotFound}</p></div>
       </div>
   `
   }
-  document.getElementById('dropZone').innerHTML = '';
+  document.getElementById('dropZoneEFB').innerHTML = '';
   setTimeout(() => {
     const content = create_form_efb()
     ReadyElForViewEfb(content);
@@ -3075,8 +3075,8 @@ jQuery(function(jQuery){
 
     }
     if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
-      //document.getElementById('dropZone').innerHTML = editFormEfb()
-      jQuery('#dropZone').empty().append(editFormEfb());
+      //document.getElementById('dropZoneEFB').innerHTML = editFormEfb()
+      jQuery('#dropZoneEFB').empty().append(editFormEfb());
       jQuery('#settingModalEfb_').removeClass('pre-efb')
       //console.log(`pre-view`);
       //fub_shwBtns_efb()
@@ -3450,7 +3450,7 @@ function viewfileEfb(id, indx) {
   let box_v = `<div class="efb">
   <button type="button" class="btn m-2 btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
        aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
-       <div class="card">
+       <div class="card efb">
         <i class="efb ico-file ${icon} ${valj_efb[indx].icon_color} text-center"></i>
         <span class="efb text-muted">${fileEfb.name}</span>
         </div>
@@ -3749,8 +3749,8 @@ function ReadyElForViewEfb(content) {
     iframe.id = `efbMobileView`;
     iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(html);
     //iframe.src =`file:///home/hassan/Downloads/newUi/index%20-new.html`
-    document.getElementById('parentMobileView').innerHTML = "";
-    document.getElementById('parentMobileView').appendChild(iframe)
+    document.getElementById('parentMobileView-efb').innerHTML = "";
+    document.getElementById('parentMobileView-efb').appendChild(iframe)
   }, 1000)
 
 }
@@ -3963,14 +3963,14 @@ function previewFormEfb(state){
 
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     if (state == 'pc') {
-      document.getElementById('dropZone').innerHTML = '';
+      document.getElementById('dropZoneEFB').innerHTML = '';
       show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
       add_buttons_zone_efb(t, 'settingModalEfb-body')
     } else if (state == "mobile") {
       const frame = `
-        <div class="smartphone">
-        <div class="content" >
-            <div id="parentMobileView">
+        <div class="smartphone-efb">
+        <div class="content efb" >
+            <div id="parentMobileView-efb">
             <div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3>
             </div>
          

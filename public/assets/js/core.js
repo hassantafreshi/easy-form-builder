@@ -1201,7 +1201,7 @@ function fun_tracking_show_emsFormBuilder() {
   <div class="efb ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
        
                 <div class="card card-public mb-3 efb" id="body_efb-track">
-                    <h4 class="title-holder col-12 mt-4"><i class="efb bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                    <h4 class="title-holder efb col-12 mt-4"><i class="efb bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="mb-5 row col-md-12">
                         <label for="trackingCodeEfb" class="form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="text-danger mx-1">*</span></label>

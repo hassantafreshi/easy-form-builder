@@ -274,9 +274,9 @@ class _Public {
 		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
-		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
-		 */
+		
 		
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
 		wp_enqueue_style('Emsfb-style-css');
