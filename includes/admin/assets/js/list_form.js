@@ -993,10 +993,8 @@ function fun_show_setting__emsFormBuilder() {
                                 <div id="message-google-efb"></div>
                                 
                              <!--Google-->
-                             <div class="m-3 p-3 efb alert-info d-none" role="">
-                                <h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4>
-                                <div>${googleCloudOffer()} </div>
-                              </div>
+                            
+                             ${ apiKeyMap=='null' ? `<div class="m-3 p-3 efb alert-info" role=""><h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
                              <h5 class="card-title mt-3">
                                 <i class="efb bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
@@ -1012,7 +1010,8 @@ function fun_show_setting__emsFormBuilder() {
                             <h5 class="card-title mt-3">
                                 <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
-                            <p class="mx-5">${efb_var.text.youNeedAPIgMaps} <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> </p>
+                            <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
+                            <p class="mx-5">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="card-body mx-4 py-1">                                   
                                 <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>

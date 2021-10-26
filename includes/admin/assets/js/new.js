@@ -84,7 +84,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.date, icon: 'bi-calendar-date', id: 'date', pro: true },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+ /*  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
@@ -3775,13 +3775,13 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-if (localStorage.getItem('count_view')>6 && localStorage.getItem('count_view') <10) {
- // noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15)
+if (localStorage.getItem('count_view')>0 && localStorage.getItem('count_view') <5) {
+  noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15 ,"warning")
 }
 
 function googleCloudOffer() {
 
-  return `<p>${efb_var.text.offerGoogleCloud} <a href="#" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
+  return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
 }
 
 
