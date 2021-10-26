@@ -150,7 +150,7 @@ function creator_form_builder_Efb() {
   <div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="modal-content efb " id="settingModalEfb-sections">
-                  <div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${efb_var.text.editField}</span></h5></div>
+                  <div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb">${efb_var.text.editField}</span></h5></div>
                   <div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
@@ -3635,12 +3635,12 @@ function handle_navbtn_efb(steps, device) {
       var s = "" + (current_s_efb - 1) + ""
       var val = valj_efb.find(x => x.step == s)
       //console.log(val, 'val');
-      jQuery("#title_efb").attr('class', val['label_text_color']);
-      jQuery("#title_efb").attr('class', "text-center");
-      jQuery("#desc_efb").attr('class', val['message_text_color']);
-      jQuery("#desc_efb").attr('class', "text-center");
-      jQuery("#title_efb").text(val['name']);
-      jQuery("#desc_efb").text(val['message']);
+       jQuery("#title_efb").attr('class', val['label_text_color']);
+        jQuery("#desc_efb").attr('class', val['message_text_color']);
+        jQuery("#title_efb").text(val['name']);
+        jQuery("#desc_efb").text(val['message']);
+        jQuery("#title_efb").addClass('text-center efb mt-1');
+        jQuery("#desc_efb").addClass('text-center efb fs-7');
       prev_s_efb.show();
 
       current_s.animate({ opacity_efb: 0 }, {
