@@ -132,8 +132,8 @@ class Admin {
             wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
             wp_enqueue_style('Emsfb-bootstrap-css');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
-            wp_enqueue_style('Emsfb-bootstrap-icons-css');
+         /*    wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
+            wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
             
             wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
             wp_enqueue_style('Emsfb-bootstrap-select-css');
