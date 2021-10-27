@@ -12,13 +12,13 @@ License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 Easy Form Builder is a user-friendly plugin to help you create powerful forms. With Easy Form Builder, creating professional forms of any kind becomes a breeze - no coding skills required Via a visual user interface 
 
 == Description ==
-**Easy Form Builder** is a user-friendly form creator that allows you to create professional multistep forms within minutes.
+**Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
 
 [youtube https://youtu.be/JSI-lFRA_9I]
 
 
 
-You don't need any coding skills to use *Easy Form Builder*. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
+You don't need any coding skills to use *Easy Form Builder*. Simply drag and drop your layouts in order to easily create unlimited custom multi step forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
@@ -33,7 +33,7 @@ How *Easy Form Builder* makes your life easier:
 - Create Private forms (lock forms) or Public forms for free.
 - Get export of subscribers list to CSV format file for free
 - Get notified by email when a form has been submitted for free
-- Showing the confirmation code filled in forms for fress
+- Showing the confirmation code filled in forms for fres
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
 - Instant reply functionality for free
 - Send notification email when the user have a new message for free
@@ -46,6 +46,7 @@ How *Easy Form Builder* makes your life easier:
 - User-friendly and feature-rich panel to manage your forms and their responses for free
 - Form validation  
 - Support RTL language
+- Easy to embed forms
 - Present survey (poll) results in Pie Chart for free
 - Create drag and drop file upload forms (Available in pro version)
 - Create multi-step (unlimited steps) form (Available in pro version)
