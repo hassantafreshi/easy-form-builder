@@ -951,7 +951,7 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
                             <!--General-->
                             <div class="m-3">
-                                <h5 class="card-title mt-3">
+                                <h5 class="efb card-title mt-3">
                                     <i class="efb bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
                                 <a class="mx-5 efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
@@ -960,7 +960,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
 
-                                <h5 class="card-title mt-3">
+                                <h5 class="efb card-title mt-3">
                                     <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>
                                 <p class="mx-5">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
@@ -970,7 +970,7 @@ function fun_show_setting__emsFormBuilder() {
                                     </button>
                                 </div>
                                 <div class="clearfix"></div>
-                                <h5 class="card-title mt-3">
+                                <h5 class="efb card-title mt-3">
                                     <i class="efb bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
                                 </h5>
                                 <p class="mx-5">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
@@ -995,7 +995,7 @@ function fun_show_setting__emsFormBuilder() {
                              <!--Google-->
                             
                              ${ apiKeyMap=='null' ? `<div class="m-3 p-3 efb alert-info" role=""><h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
-                             <h5 class="card-title mt-3">
+                             <h5 class="efb card-title mt-3">
                                 <i class="efb bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
                             <p class="mx-5"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
@@ -1007,7 +1007,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
                                 <span id="secretkey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
-                            <h5 class="card-title mt-3">
+                            <h5 class="efb card-title mt-3">
                                 <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
                             <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
@@ -1023,7 +1023,7 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
                             <div class="mx-3">
                                 <!--Email-->
-                                <h5 class="card-title mt-3">
+                                <h5 class="efb card-title mt-3">
                                     <i class="efb bi-at m-3"></i>${efb_var.text.alertEmail}
                                 </h5>
                                 <p class="mx-5">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>

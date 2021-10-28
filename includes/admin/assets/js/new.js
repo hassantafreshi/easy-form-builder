@@ -24,7 +24,7 @@ let devlop_efb=false;
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
-    //console.l(efb_var)
+     //console.log(efb_var)
       formName_Efb = efb_var.text.form
       pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
       return;
@@ -2599,7 +2599,7 @@ const open_whiteStudio_efb = (state) => {
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
-      link += `#pricing`
+      link += `#proBox`
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
@@ -3797,7 +3797,7 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-if (localStorage.getItem('count_view')>0 && localStorage.getItem('count_view') <5) {
+if (localStorage.getItem('count_view')>0 && localStorage.getItem('count_view') <5 && efb_var.maps!="1") {
   noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15 ,"warning")
 }
 

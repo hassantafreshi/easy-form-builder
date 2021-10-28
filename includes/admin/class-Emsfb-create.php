@@ -86,6 +86,7 @@ class Create {
 
 
 		$pro =false;
+		$maps =false;
 		$efbFunction = new efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
 		//v2 translate
@@ -102,6 +103,7 @@ class Create {
 
 			if(strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
+				$maps=true;
 				$lng = strval(get_locale());
 				
 					if ( strlen($lng) > 0 ) {
@@ -119,6 +121,7 @@ class Create {
 		
 		$smtp =false;
 		$captcha =false;
+		
 		$smtp_m = "";
 		//error_log(gettype($ac)!="string");
 		if(gettype($ac)!="string"){
@@ -140,7 +143,8 @@ class Create {
 			'images' => $img,
 			'captcha'=>$captcha,
 			'smtp'=>$smtp,
-			"smtp_message"=>$smtp		
+			"smtp_message"=>$smtp,
+			'maps'=> $maps
 		));
 
 			

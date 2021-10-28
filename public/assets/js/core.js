@@ -867,7 +867,7 @@ function endMessage_emsFormBuilder_view() {
     //   //console.log(sendBack_emsFormBuilder_pub)
     //   //console.log(`countRequired[${countRequired}] valueExistsRequired[${valueExistsRequired}]`)
     document.getElementById('efb-final-step').innerHTML = `<h1 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
-    <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
     // faild form
   } else {

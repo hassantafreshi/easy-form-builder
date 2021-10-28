@@ -74,7 +74,7 @@ function Link_emsFormBuilder(state) {
       link = "https://youtu.be/XjBPQExEvPE";
     break;
     case  'ws':
-      link = link + '#pricing';
+      link = link + '#proBox';
     break;
     case  'efb':
       link = "https://wordpress.org/plugins/easy-form-builder/";

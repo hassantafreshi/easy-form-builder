@@ -33,6 +33,7 @@ class Panel_edit  {
 			//error_log($lngg);
 			$smtp =false;
 			$captcha =false;
+			$maps=false;
 			if(gettype($ac)!="string"){
 				if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
 				if(strlen($ac->siteKey)>5){$captcha="true";}	
@@ -41,6 +42,7 @@ class Panel_edit  {
 				}	
 				if(strlen($ac->apiKeyMap)>5){				
 					$k= $ac->apiKeyMap;
+					$maps =true;
 					$lng = strval(get_locale());					
 						if ( strlen($lng) > 0 ) {
 						$lng = explode( '_', $lng )[0];
@@ -60,7 +62,8 @@ class Panel_edit  {
 				'text' => $lang,
 				'images' => $img,
 				'captcha'=>$captcha,
-				'smtp'=>$smtp		));
+				'smtp'=>$smtp,
+				'maps'=> $maps		));
 
 		
 			if($pro==true){

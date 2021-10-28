@@ -138,8 +138,7 @@ class efbFunction {
 			"howActivateTracking" => __('How to activate a Confirmation Code in Easy Form Builder','easy-form-builder'),
 			"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
 			"points" => __('points','easy-form-builder'),
-			"howAddTrackingForm" => __('How to add The Confirmation Code Finder to a post, page, or custom post type
-   ','easy-form-builder'),
+			"howAddTrackingForm" => __('How to add The Confirmation Code Finder to a post, page, or custom post type','easy-form-builder'),
 			"howFindResponse" => __('How to find a response through a Confirmation Code','easy-form-builder'),
 			"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
 			"step" => __('Step','easy-form-builder'),
