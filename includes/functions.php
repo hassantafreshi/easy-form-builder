@@ -140,7 +140,7 @@ class efbFunction {
 			"points" => __('points','easy-form-builder'),
 			"howAddTrackingForm" => __('How to add The Confirmation Code Finder to a post, page, or custom post type','easy-form-builder'),
 			"howFindResponse" => __('How to find a response through a Confirmation Code','easy-form-builder'),
-			"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
+			"pleaseEnterVaildValue" => __('Please enter a valid value','easy-form-builder'),
 			"step" => __('Step','easy-form-builder'),
 			"advancedCustomization" => __('Advanced customization','easy-form-builder'),
 			"orClickHere" => __(' or click here','easy-form-builder'),

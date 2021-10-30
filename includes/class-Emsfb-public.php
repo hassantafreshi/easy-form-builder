@@ -386,7 +386,7 @@ class _Public {
 		  die();
 		}else if ( $not_captcha==true || $captcha_success->success==true) {
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
-				$response = array( 'success' => false , "m"=>__("Please enter a vaild value" , 'easy-form-builder')); 
+				$response = array( 'success' => false , "m"=>__("Please enter a valid value" , 'easy-form-builder')); 
 				wp_send_json_success($response,$_POST);
 				die();
 			}
@@ -850,7 +850,7 @@ class _Public {
 
 		
 		if(empty($_POST['message']) ){
-			$response = array( 'success' => false , "m"=>__("Please enter a vaild value", 'easy-form-builder')); 
+			$response = array( 'success' => false , "m"=>__("Please enter a valid value", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}

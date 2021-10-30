@@ -28,6 +28,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
             <td><a href="https://da.wordpress.org/plugins/easy-form-builder/">Danish</a></td>
             <td><a href="https://hi.wordpress.org/plugins/easy-form-builder/"> हिन्दी</a></td>
             <td><a href="https://fa.wordpress.org/plugins/easy-form-builder/">فارسی</a></td>
+            <td><a href="https://ar.wordpress.org/plugins/easy-form-builder/">العربی</a></td>
             </tr>
     </tbody>
 </table>
@@ -65,7 +66,7 @@ Features:
 - Create Private forms (lock forms) or Public forms for free.
 - Get export of subscribers list to CSV format file for free
 - Get notified by email when a form has been submitted for free
-- Showing the confirmation code filled in forms for fress
+- Showing the confirmation code filled in forms for free
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
 - Instant reply functionality for free
 - Send notification email when the user have a new message for free
@@ -112,8 +113,12 @@ Thanks goes to these wonderful people
 <td><a href="https://github.com/hassantafreshi/"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan Tafreshi</strong></sub></a><br /><g-emoji class="g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/all-contributors/all-contributors/pulls?q=is%3Apr+reviewed-by%3Akentcdodds">👀</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
 <td><a href="https://github.com/01mrlast"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson Last</strong></sub></a><br /><g-emoji class="g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <g-emoji class="g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji><a title="Talks" href="#talk-kentcdodds">📢</a></td>
 <td><a href="https://github.com/aminkhadivar/"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin Khadivar</strong></sub></a><br /><a href="#design-tbenning" title="Design"><g-emoji class="g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a></td>
-  <td><a href="https://github.com/thaikolja"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja Nolte</strong></sub></a><br> <g-emoji class="g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji><a title="Translation" href="#translation-Berkmann18">🌍</a></td>
+  <td><a href="https://github.com/thaikolja"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja Nolte</strong></sub></a><br> <g-emoji class="g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
+  <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
 <td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
+  <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
+  <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
+<td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
   
 <td></td>

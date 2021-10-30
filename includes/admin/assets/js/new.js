@@ -1906,7 +1906,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <!-- ${rndm}-map -->
       <div class="efb ${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 "  id='${rndm}-f'>      
-      ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb"><input id="delete-markers_maps_efb-efb" class="btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
+      ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb"><input id="delete-markers_maps_efb-efb" class="efb btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
         <div id="${rndm}-map" data-type="maps" class="efb maps-efb emsFormBuilder_v ${valj_efb[iVJ].el_height}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " data-id="${rndm}-el" data-name='maps'></div>
         ${desc}`
       dataTag = elementId;
@@ -2926,8 +2926,8 @@ function create_form_efb() {
  // if (document.getElementById(`settingModalEfb_`)) document.getElementById(`settingModalEfb_`).classList.add('pre-efb')
   content = `  
     <div class="px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
-    <h4 id="title_efb" class="${valj_efb[1].label_text_color} mt-1 text-center efb">${valj_efb[1].name}</h4>
-    <p id="desc_efb" class="${valj_efb[1].message_text_color} fs-7 text-center efb">${valj_efb[1].message}</p>
+    <h4 id="title_efb" class="${valj_efb[1].label_text_color} mt-3 mb-0 text-center efb">${valj_efb[1].name}</h4>
+    <p id="desc_efb" class="${valj_efb[1].message_text_color} fs-7 mb-2 text-center efb">${valj_efb[1].message}</p>
     
      <form id="efbform"> ${head} <div class="mt-1 px-2">${content}</div> </form>
     </div>

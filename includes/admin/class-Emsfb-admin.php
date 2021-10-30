@@ -175,8 +175,7 @@ class Admin {
                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
                 
-                wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
-                wp_enqueue_script('efb-bootstrap-select-js'); 
+  
 
                 
 
@@ -289,7 +288,7 @@ class Admin {
             die();
         }
 /*         if (empty($_POST['value'])) {
-            $response = ['success' => false, "m" => __("Please enter a vaild value")];
+            $response = ['success' => false, "m" => __("Please enter a valid value")];
             wp_send_json_success($response, $_POST);
             die();
         } */

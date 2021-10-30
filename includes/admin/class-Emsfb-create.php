@@ -157,6 +157,9 @@ class Create {
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
 		wp_enqueue_script('efb-main-js'); 
+
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
+		wp_enqueue_script('efb-bootstrap-select-js'); 
 	}
 
 	public function fun_Emsfb_creator()

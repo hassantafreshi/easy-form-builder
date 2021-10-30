@@ -33,7 +33,7 @@ How *Easy Form Builder* makes your life easier:
 - Create Private forms (lock forms) or Public forms for free.
 - Get export of subscribers list to CSV format file for free
 - Get notified by email when a form has been submitted for free
-- Showing the confirmation code filled in forms for fres
+- Showing the confirmation code filled in forms for free
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
 - Instant reply functionality for free
 - Send notification email when the user have a new message for free
