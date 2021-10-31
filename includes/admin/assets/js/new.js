@@ -4008,7 +4008,7 @@ function previewFormEfb(state){
     } else {
       //778899
       //state=="show"
-      //content is hold elemant and should added to a innerHTML
+      //content is hold element and should added to a innerHTML
       document.getElementById(id).innerHTML=content;
       document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id)
     }

@@ -117,7 +117,6 @@ Thanks goes to these wonderful people
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
 <td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
-  <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
 <td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
   
