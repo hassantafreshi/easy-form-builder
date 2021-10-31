@@ -118,7 +118,7 @@ class efbFunction {
 			"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
 			"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
 			"clickHereForActiveProVesrsion" => __('Click here for Active Pro version','easy-form-builder'),
-			"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
+			"selectOpetionDisabled" => __('Select anoption (Disabled in test view)','easy-form-builder'),
 			"pleaseEnterTheTracking" => __('Please enter the Confirmation Code','easy-form-builder'),									
 			"formNotFound" => __('Form is not found','easy-form-builder'),
 			"errorV01" => __('Error Code:V01','easy-form-builder'),
@@ -148,8 +148,8 @@ class efbFunction {
 			"downloadCSVFileSub" => __('Download CSV file of subscriptions','easy-form-builder'),
 			"login" => __('Login','easy-form-builder'),
 			"thisInputLocked" => __('this input is locked','easy-form-builder'),
-			"thisElemantAvailableRemoveable" => __('This element is available and removeable.','easy-form-builder'),
-			"thisElemantWouldNotRemoveableLoginform" => __('This element would not removeable in Login form.','easy-form-builder'),
+			"thisElemantAvailableRemoveable" => __('This element is available and removable.','easy-form-builder'),
+			"thisElemantWouldNotRemoveableLoginform" => __('This element would not removable in Login form.','easy-form-builder'),
 			"send" => __('Send','easy-form-builder'),
 			"contactUs" => __('Contact us','easy-form-builder'),
 			"support" => __('Support','easy-form-builder'),
@@ -205,7 +205,7 @@ class efbFunction {
 			"copyTrackingcode" => __('Copy Confirmation Code','easy-form-builder'),
 			"previewForm" => __('Preview Form','easy-form-builder'),
 			"activateProVersion" => __('Activate Pro Version','easy-form-builder'),
-			"itAppearedStepsEmpty" => __('It is appeared to steps empty','easy-form-builder'),
+			"itAppearedStepsEmpty" => __('It is appeared some steps are empty','easy-form-builder'),
 			"youUseProElements" => __('You are Using Pro version field. For saving this element in the form, activate Pro version.','easy-form-builder'),
 			"sampleDescription" => __('Sample description','easy-form-builder'),
 			"fieldAvailableInProversion" => __('This field available in Pro version','easy-form-builder'),
@@ -257,7 +257,7 @@ class efbFunction {
 			"name" => __('Name','easy-form-builder'),
 			"latitude" => __('Latitude','easy-form-builder'),
 			"longitude" => __('Longitude','easy-form-builder'),
-			"exDot" => __('ex.','easy-form-builder'),
+			"exDot" => __('e.g.','easy-form-builder'),
 			"pleaseDoNotAddJsCode" => __('(Please do not add Javascript or jQuery codes to html codes for security reasons)','easy-form-builder'),
 			"button1Value" => __('Button 1 value','easy-form-builder'),
 			"button2Value" => __('Button 2 value','easy-form-builder'),
@@ -332,7 +332,7 @@ class efbFunction {
 			"invalidEmail" => __('Invalid Email address','easy-form-builder'),
 			"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'),
 			"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),			
-			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder receives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
+			"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder receives a new message, It will send an  alert email to admin of plugin.','easy-form-builder'),
 			"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),					
 			"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
 			"siteKey" => __('SITE KEY','easy-form-builder'),			
@@ -353,7 +353,7 @@ class efbFunction {
 			"zip" => __('Zip','easy-form-builder'),				
 			"alert" => __('Alert!','easy-form-builder'),			
 			"pleaseWatchTutorial" => __('Please watch this tutorial','easy-form-builder'),
-			"formIsNotShown" => __('The form is not shown, Becuase You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
+			"formIsNotShown" => __('The form is not shown, Because You Have not added Google recaptcha at setting of Easy Form Builder Plugin.','easy-form-builder'),
 			"errorVerifyingRecaptcha" => __('Captcha Verification Failed','easy-form-builder'),			
 			"enterThePassword" => __('Password must be at least 8 characters long contain a number and an uppercase letter','easy-form-builder'),
 			"PleaseFillForm" => __('Please fill in the form.','easy-form-builder'),
@@ -374,7 +374,7 @@ class efbFunction {
 			"content" => __('Content','easy-form-builder'),
 			"red" => __('Red','easy-form-builder'),
 			"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'),
-			"ifShowTrackingCodeToUser" => __("If you don't want to show Confirmation Code to user, don't mark below option.",'easy-form-builder'),
+			"ifShowTrackingCodeToUser" => __("If you don't want to show Confirmation Code to users, don't mark below option.",'easy-form-builder'),
 			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),			
 			"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => __('Email or Username','easy-form-builder'),
@@ -537,7 +537,7 @@ class efbFunction {
 				
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
-					$subject ="📮 ".__('You have Recived New Message', 'easy-form-builder');
+					$subject ="📮 ".__('You have received New Message', 'easy-form-builder');
 					$this->send_email_state($email ,$subject ,$trackingCode,$pro,"newMessage");
 					return 1;
 				}

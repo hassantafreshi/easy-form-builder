@@ -603,7 +603,7 @@ class _Public {
 									$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 								}
 							}
-							$m=__('If your email is correct, the new password will sent to your eamil.', 'easy-form-builder');
+							$m=__('If your email is correct, the new password will send to your email.', 'easy-form-builder');
 							$response = array( 'success' => true , 'm' =>$m); 
 							wp_send_json_success($response,$_POST);
 						break;
@@ -945,16 +945,16 @@ class _Public {
 	public function send_email_Emsfb($to , $track ,$pro , $state){
   
    $cont = $track;
-   $subject ="📮 ".__('You have Recived New Message', 'easy-form-builder');
+   $subject ="📮 ".__('You have received New Message', 'easy-form-builder');
    if($state=="notiToUserFormFilled_TrackingCode"){
-	$subject =__('We Recived your Message', 'easy-form-builder');
+	$subject =__('We received your Message', 'easy-form-builder');
 	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 			<p>". __('Confirmation Code' , 'easy-form-builder').": ".$cont." </p>
 			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 	$cont=$message;
    }elseif($state=="notiToUserFormFilled"){
-	$subject =__('We Recived your Message.', 'easy-form-builder');
+	$subject =__('We received your Message.', 'easy-form-builder');
 	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
