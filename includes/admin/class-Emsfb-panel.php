@@ -22,7 +22,8 @@ class Panel_edit  {
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
-			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg'
+			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
+			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/recaptcha.png'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 

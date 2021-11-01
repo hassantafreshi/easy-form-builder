@@ -799,7 +799,7 @@ width: 85%;
 
 
 div#dropZoneEFB {
-    padding-bottom: 10%;
+    padding-bottom: 15%;
 }
 
 #dropZoneEFB.pb{
@@ -1741,7 +1741,7 @@ fieldset.efb {
 }
 
 
-#button_group.efb {
+#button_group_efb {
     position: absolute;
     padding-right: 50%;
 }
@@ -1798,5 +1798,10 @@ margin: 0.1rem 1rem;
 
 
 /*end  multi seclect section */
+
+
+#img_recaptcha_perview_efb{
+    max-width: 300px;
+}
 
 

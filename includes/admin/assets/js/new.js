@@ -24,7 +24,7 @@ let devlop_efb=false;
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
-     //console.log(efb_var)
+      console.log(efb_var)
       formName_Efb = efb_var.text.form
       pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
       return;
@@ -908,10 +908,13 @@ let change_el_edit_Efb = (el) => {
        
         if(efb_var.captcha=="true"){
           valj_efb[0].captcha = el.checked
+          el.checked==true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
+
         }else{
          // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;
           noti_message_efb(efb_var.text.reCAPTCHA,efb_var.text.reCAPTCHASetError,20,"danger")
+          
         }
         break;
       case "showSIconsEl":
@@ -2566,7 +2569,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (id != "dropZoneEFB") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = `<div class=" row bottom-0 mx-5 showBtns m-3 efb" id="button_group" data-id="button_group" data-tag="buttonNav"> ${s} ${d} ${stng} </div>`
+    c = `<div class="bottom-0 mx-5  m-3" id="button_group_efb"> <div class="col-12 mb-2 mt-3 efb ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   //console.l(id)
   if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -3953,7 +3956,9 @@ function previewFormEfb(state){
       //console.l(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}] step_no[${step_no}]`,'pre_')
       content += `
            ${sitekye_emsFormBuilder.length>1? `<div class="row mx-3"><div id="gRecaptcha" class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-           <!-- fieldset1 --> </fieldset>
+           <!-- fieldset1 --> 
+           ${state_efb=="view" && valj_efb[0].captcha==true ? `<div class="col-12 mb-2 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` :''}
+           </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
             ${loading_messge_efb()}                
             <!-- fieldset2 --></fieldset>`
