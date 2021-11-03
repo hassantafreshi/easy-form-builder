@@ -2420,7 +2420,7 @@ const loadingShow_efb = (title) => {
 let sampleElpush_efb = (rndm, elementId) => {
   const testb =valj_efb.length;
   //console.l(elementId ,rndm ,valj_efb,testb,step_el_efb);
-  
+  const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
   if (elementId == "multiselect" || elementId == "dadfile" || elementId == "url" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "date" || elementId == "color" || elementId == "html" || elementId == "tel" || elementId == "range" || elementId == "yesNo") { pro = true }
   //console.l(elementId, "push");
@@ -2431,7 +2431,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: efb_var.text[elementId], value: '', size: 100, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-rounded', label_text_size: 'fs-6',
       label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
-      el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: 'txt-left', message_align: 'justify-content-start',
+      el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro ,icon_input:'',
     })
 
@@ -2477,7 +2477,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
       corner: 'efb-rounded', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'document',
       label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', el_height: 'h-d-efb',
-      label_align: 'txt-left', message_align: 'justify-content-start', el_border_color: 'border-d',
+      label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
