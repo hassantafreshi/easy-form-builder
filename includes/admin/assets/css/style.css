@@ -1533,6 +1533,7 @@ display: table;
 overflow: hidden;
 color: lightgrey;
 text-align: center!important;
+display: flex!important;
 }
 
 #steps-efb .active {
@@ -1803,5 +1804,39 @@ margin: 0.1rem 1rem;
 #img_recaptcha_perview_efb{
     max-width: 300px;
 }
+
+
+input[type=radio]:after,
+input[type=checkbox]:after
+ {
+    display: contents!important;}
+
+input[type=radio].efb.fs-6.form-check-input,
+input[type=checkbox].efb.fs-6.form-check-input 
+{
+    min-width: 20px!important;
+    height: 20px!important}
+input[type=radio].efb.fs-4.form-check-input, 
+input[type=checkbox].efb.fs-4.form-check-input 
+{
+    min-width: 30px!important;
+    height: 30px!important;}
+input[type=radio].efb.fs-3.form-check-input,
+input[type=checkbox].efb.fs-3.form-check-input
+ {
+    min-width: 40px!important;
+    height: 40px!important;}
+input[type=radio].efb.fs-2.form-check-input, 
+input[type=checkbox].efb.fs-2.form-check-input 
+{
+    min-width: 50px!important;
+    height: 50px!important;}
+input[type=radio].efb.fs-2.form-check-input 
+input[type=checkbox].efb.fs-2.form-check-input 
+{
+    min-width: 60px!important;
+    height: 60px!important;}
+
+
 
 
