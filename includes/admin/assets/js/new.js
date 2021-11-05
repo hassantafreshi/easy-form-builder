@@ -63,7 +63,7 @@ function creator_form_builder_Efb() {
     step_el_efb = 1;
     valj_efb.push({
       type: 'form', steps: 1, formName: efb_var.text.form, email: '', trackingCode: '', EfbVersion: 2,
-      button_single_text: 'send', button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: 'next', button_Previous_text: 'previous',
+      button_single_text: efb_var.text.send, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-rounded', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
@@ -1825,7 +1825,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
         valj_efb.push({
           id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-          id: `${step_el_efb}`, name: formName_Efb.toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+          id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
           label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
           el_text_color: 'text-labelEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
         });
@@ -1856,7 +1856,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       valj_efb.push({
         id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-        id: `${step_el_efb}`, name: formName_Efb.toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+        id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
         label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
         el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
       });
@@ -2466,7 +2466,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     step_el_efb = step_el_efb == 0 ? 1 : step_el_efb;
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
-      id: `${step_el_efb}`, name: formName_Efb.toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+      id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
       label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
       el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
@@ -2561,8 +2561,8 @@ let add_buttons_zone_efb = (state, id) => {
   </div>`
   const d = `
   <div class="${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  mx-2 fs-6" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
+  <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  fs-6" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color}  mx-2">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
   let c = `<div class="footer-test mt-1 efb">`
@@ -3603,7 +3603,7 @@ function handle_navbtn_efb(steps, device) {
       //console.l(`next_efb current_s_efb[${current_s_efb}] steps_len_efb[${steps_len_efb}] ` ,current_s_efb==(steps_len_efb-1))
         if (current_s_efb==(steps_len_efb-1)){            
           if(sitekye_emsFormBuilder && sitekye_emsFormBuilder.length>1 &&  valj_efb[0].captcha==true)jQuery("#next_efb").toggleClass('disabled');
-          var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${efb_var.text.send}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+          var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
           jQuery("#next_efb").html(val);
          // `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         }
@@ -3621,13 +3621,13 @@ function handle_navbtn_efb(steps, device) {
       if (cs == 2) {
         //console.l('cs ==1');
 
-        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         jQuery("#next_efb").toggleClass("d-none"); 
         
       }else if (cs==steps){
         //console.l(cs , steps)
-        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
