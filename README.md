@@ -9,6 +9,7 @@
     </a>
 </div>
 
+
 A WordPress plugin for create forms by using an interactive drag & drop wizard. The plugin is published in [WordPress' plugin repository](https://wordpress.org/plugins/easy-form-builder/). 
 <br>
 > Call for translators! [We're looking for translators](https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/) to help translate this Plugin for everyone!

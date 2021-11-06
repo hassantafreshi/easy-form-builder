@@ -1806,10 +1806,14 @@ margin: 0.1rem 1rem;
 }
 
 
-input[type=radio]:after,
-input[type=checkbox]:after
+.efb input[type=radio]:after,
+.efb input[type=checkbox]:after,
+.efb input[type=radio]:checked::before ,
+.efb input[type=checkbox]:checked::before
  {
-    display: contents!important;}
+    display: contents!important;
+    content: "";
+}
 
 input[type=radio].efb.fs-6.form-check-input,
 input[type=checkbox].efb.fs-6.form-check-input 

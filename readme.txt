@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.0.9
+Stable tag: 			2.0.10
 Requires at least: 	4.7
 Tested up to: 			5.8.1
 Requires PHP:			5.4 or higher
@@ -22,37 +22,85 @@ You don't need any coding skills to use *Easy Form Builder*. Simply drag and dro
 
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
-- Create unlimited forms for free
-- Create multistep (limited steps) form for free
-- Create sample file upload form for free
-- Create Support forms for free
-- Create subscription or newsletters signup forms for free
-- Create Login (sign-in) forms for free
-- Create Registration (sign-up) forms for free
-- Create Surveys (poll) and analyse for free.
-- Create Private forms (lock forms) or Public forms for free.
-- Get export of subscribers list to CSV format file for free
-- Get notified by email when a form has been submitted for free
-- Showing the confirmation code filled in forms for free
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
-- Instant reply functionality for free
-- Send notification email when the user have a new message for free
-- Email notification for free
-- Form notification for free
-- Entry Management for free
-- Confirmation Code for free
+- Create unlimited forms for **free**
+- Create multistep (limited steps) form for **free**
+- Create sample file upload form for **free**
+- Create Support forms for **free**
+- Create subscription or newsletters signup forms for **free**
+- Create Login (sign-in) forms for **free**
+- Create Registration (sign-up) forms for **free**
+- Create Surveys (poll) and analyse for **free**.
+- Create Private forms (lock forms) or Public forms for **free**.
+- Get export of subscribers list to CSV format file for **free**
+- Get notified by email when a form has been submitted for **free**
+- Showing the confirmation code filled in forms for **free**
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized for **free**
+- Instant reply functionality for **free**
+- Send notification email when the user have a new message for **free**
+- Email notification for **free**
+- Form notification for **free**
+- Entry Management for **free**
+- Confirmation Code for **free**
 - Mobile-friendly responsive forms
-- Unique Confirmation code ( tracking ID) finder for free
-- User-friendly and feature-rich panel to manage your forms and their responses for free
+- Unique Confirmation code ( tracking ID) finder for **free**
+- User-friendly and feature-rich panel to manage your forms and their responses for **free**
 - Form validation  
 - Support RTL language
 - Easy to embed forms
-- Present survey (poll) results in Pie Chart for free
+- Present survey (poll) results in Pie Chart for **free**
 - Create drag and drop file upload forms (Available in pro version)
 - Create multi-step (unlimited steps) form (Available in pro version)
 - Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
 - Get export of result of Surveys to CSV format file (Available in pro version)
 - Get export of response of forms to CSV format file (Available in pro version)
+
+ 
+**Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
+Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
+
+**SURVEYS (Polls)**
+Besides using contact form, you can use Easy Form Builder to create surveys for **free** and you are able to download or export the result of the survey in a CSV file .
+
+**Subscribe forms (NewsLetter)**
+Create custom subscription forms and easily add them into your posts, pages for **free** and you are able to download or export a list of subscriptions in a CSV file.
+ 
+**ALL THE FIELDS & FEATURES THAT YOU NEED TO SUCCEED**
+From star ratings & file uploads & multi-step contact forms with progressbar, we have all the fields you need and advanced fields like Location Picker & e-sign(signature) & Switch Button.
+The most outstanding feature is that you can do all of it without asking Technical guys and Build Easy Form Builder based on No-code development.
+
+**DRAG & DROP and Multi-step CONTACT FORM BUILDER**
+Easy Form Builder allows you to create custom contact forms in the easiest way. By using our easy to use drag and drop online form builder, you can easily add custom form fields, edit them, and create a support form or contact form  in a minute.
+ 
+ 
+**Easy Form Builder Features**
+- *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
+
+- *Multi Step Form Builder*: Easy Form Builder able you to create multiple step form for **free** and unlimited step form.
+
+- *Entry Management* : In panel Easy Form Builder Easily manage filled forms and response them for **free**.
+
+- *Email Notification* : Quickly respond to incoming inquiries with our instant contact form notification system for **free**.
+
+- *Confirmation Code* : Showing the confirmation code in filled out contact forms or other type of forms for **free**.
+
+- *File Uploads* : with File Uploads you are able to Collect files and media through your contact forms or other forms for **free**.
+
+- *Drag and Drop file upload* : you can upload images, media(video, audio), zip(compress file)  and documents(Doc, MS Word,MS Powerpoint, MS excel and ... ) by drag & drop to your forms like support form.
+
+- *Signature Forms* : Create signature forms or add the signature field to your contact form and so on.
+
+- *User Registration Forms* : Create premade login form and premade user registration form in WordPress for **free**.
+
+- *Surveys* :  create survey or poll forms and analyze the data with reports and view result in chart for **free**.
+
+- *Private Form (Form Locker)* : Manage form permissions and add access control rules including members of site only having access to forms.
+
+- *Location picker (Geolocation)* :  Pick a Location or multiple location by your user or showing your location on forms .
+
+- *Spam Protection* : add Google recaptcha validation for your forms for **free**.
+ 
+
+**Notice** : in each page you would not add more than ONE form.
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
@@ -110,6 +158,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.0.10 =
+* UI improvements
 
 = 2.0.9 =
 * UI improvements
