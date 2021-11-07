@@ -383,6 +383,8 @@ class efbFunction {
 			"entrTrkngNo" => __('Enter the Confirmation Code','easy-form-builder'),
 			"search" => __('Search','easy-form-builder'),
 			"enterThePhones" => __('Enter The Phone No','easy-form-builder'),
+			"conturyList" => __('Country list','easy-form-builder'),
+			"stateProvince" => __('State / Province','easy-form-builder'),
 
 			
 		];
