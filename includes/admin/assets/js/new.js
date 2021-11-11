@@ -672,7 +672,7 @@ function show_setting_window_efb(idset) {
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder="${efb_var.text.exDot} 49.24803870604257" id="letEl" required value="${valj_efb[indx].lat}">
       <label for="lonEl" class="efb form-label  mt-2">${efb_var.text.longitude}</label>
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder="${efb_var.text.exDot}  -123.10512829684463" id="lonEl" required value="${valj_efb[indx].lng}">
-      <label for="marksEl" class="efb form-label  mt-2">${efb_var.text.points}<!--<a class="fs-7 efb" onClick ="open_whiteStudio_efb('pickupByUser')">${efb_var.text.help}</a> --></label></label>
+      <label for="marksEl" class="efb form-label  mt-2">${efb_var.text.points}<a class="fs-7 efb" onClick ="open_whiteStudio_efb('pickupByUser')">${efb_var.text.help}</a></label></label>
       <input type="text" data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
       <!--  not   advanced-->
       <div class="efb d-grid gap-2">              
@@ -2213,7 +2213,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "url" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "date" || dataTag == "color" || dataTag == "html" || dataTag == "tel" || dataTag == "range" || dataTag == "yesNo") ? true : false;
+    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo") ? true : false;
     //console.l(dataTag, `${pro_efb == false && pro_el}`);
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
@@ -2600,7 +2600,7 @@ const open_whiteStudio_efb = (state) => {
   let link = `https://whitestudio.team/`
   switch (state) {
     case 'mapErorr':
-      link += `?help`
+      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
@@ -2612,7 +2612,7 @@ const open_whiteStudio_efb = (state) => {
       // how create and publish form
       break;
     case 'emptyStep':
-      link += `?empty-step`
+      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Create-a-form-on-Easy-Form-Builder#empty-step-alert`
       // پیام استپ خالی چیست و چگونه برطرف شود
       break;
     case 'notInput':
@@ -2620,7 +2620,7 @@ const open_whiteStudio_efb = (state) => {
       // پیام ورودی وجود ندارد چیست و چگونه برطرف شود
       break;
     case 'pickupByUser':
-      link += `?pickupByUser`
+      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
       // pickup location by user
       // چگونگی تنظیم انتخاب لوکیشن توسط کاربر و تعدادش
       // در پنجره تنظیمات نقشه

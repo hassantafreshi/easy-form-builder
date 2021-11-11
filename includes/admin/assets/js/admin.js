@@ -70,7 +70,8 @@ function Link_emsFormBuilder(state) {
     link = "https://youtu.be/JSI-lFRA_9I";
     break;
     case  'createSampleForm':
-      link = "https://youtu.be/XjBPQExEvPE";
+    case  'tutorial':
+      link = "https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder";
       break;
     case  'ws':
       link = link + '#proBox';
@@ -78,7 +79,6 @@ function Link_emsFormBuilder(state) {
     case  'efb':
       link = "https://wordpress.org/plugins/easy-form-builder/";
       break;
-    case  'tutorial':
     case  'wiki':
       link = link + 'documents';
     break;
