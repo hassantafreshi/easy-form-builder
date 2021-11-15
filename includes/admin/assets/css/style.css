@@ -1220,6 +1220,7 @@ input[type=file].h-xxxl-efb{
 
 .hStyleOpEfb{
     display: inline!important;
+    margin: 0px 10px!important;
 }
 
 textarea.h-l-efb {
@@ -1677,14 +1678,14 @@ img.right_circle-efb {
     background-color: #ffe7b3!important;
 }
 
-.wpforms-container input[type=radio]:checked:before,
-.wpforms-container input[type=radio]:before,
-.wpforms-container input[type=checkbox]:checked:before,
-.wpforms-container input[type=checkbox]:before,
-.wpforms-container input[type=radio]:checked:after,
-.wpforms-container input[type=radio]:after,
-.wpforms-container input[type=checkbox]:checked:after,
-.wpforms-container input[type=checkbox]:after {
+.efb input[type=radio]:checked:before,
+.efb input[type=radio]:before,
+.efb input[type=checkbox]:checked:before,
+.efb input[type=checkbox]:before,
+.efb input[type=radio]:checked:after,
+.efb input[type=radio]:after,
+.efb input[type=checkbox]:checked:after,
+.efb input[type=checkbox]:after {
     display: none !important;
 }
 
@@ -1697,12 +1698,17 @@ img.right_circle-efb {
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: #ffffffb0;
     background-clip: border-box;
     border: 1px solid rgba(0,0,0,.125);
     border-radius: .25rem;
 }
 
+input.efb, textarea.efb, select.efb, .seldiv.efb, .select2-choice.efb, .select2-selection--single.efb {
+
+    margin: 0px;
+    padding:0px
+
+}
 
 button.btn-close {
     background-color: #f0f8ff00!important;
@@ -1734,7 +1740,9 @@ button.btn-close {
 fieldset.efb {
     background: transparent;
     border: transparent;
-    padding: 0% 2%!important
+    padding: 0% 2%!important;
+    margin-left: 0px!important;
+    margin-right: 0px!important;
 }
 
 .btn-group-toggle.efb{
@@ -1744,7 +1752,7 @@ fieldset.efb {
 
 #button_group_efb {
     position: absolute;
-    padding-right: 50%;
+    margin-bottom: 10px!important;
 }
 
 
@@ -1752,6 +1760,14 @@ fieldset.efb {
     padding: .5rem 1rem;
     font-size: 1.25rem;
     border-radius: .3rem;
+
+}
+
+#btn_send_efb.h-l-efb,
+#btn_send_efb.h-xl-efb,
+#btn_send_efb.h-xxl-efb,
+#btn_send_efb.h-xxxl-efb{
+    width: 93%!important;
 }
 
 
@@ -1818,8 +1834,9 @@ margin: 0.1rem 1rem;
 input[type=radio].efb.fs-6.form-check-input,
 input[type=checkbox].efb.fs-6.form-check-input 
 {
-    min-width: 20px!important;
-    height: 20px!important}
+    height: 25px!important;
+    margin: 1px!important;
+}
 input[type=radio].efb.fs-4.form-check-input, 
 input[type=checkbox].efb.fs-4.form-check-input 
 {
@@ -1840,6 +1857,11 @@ input[type=checkbox].efb.fs-2.form-check-input
 {
     min-width: 60px!important;
     height: 60px!important;}
+
+
+    .form-select.efb {
+        padding: 0px 35px!important;
+    }
 
 
 

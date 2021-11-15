@@ -53,7 +53,9 @@ class Panel_edit  {
 				}
 			}else{
 				$smtp_m = __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on "Click To Check Email Server"','easy-form-builder');
-			}			
+			}	
+			
+			
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -95,6 +97,9 @@ class Panel_edit  {
 
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
 			wp_enqueue_script('efb-main-js'); 
+
+			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js');
 
 			
 			$table_name = $this->db->prefix . "Emsfb_form";

@@ -94,11 +94,11 @@ class Admin {
         /** Only enqueue scripts and styles on the actual plugin admin pages */
         if (is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")) {
             //notifcation new version
-            wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js' . $this->plugin_version, null, null, true);
-            wp_enqueue_script('whiteStudioMessage');
+          /*   wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js' . $this->plugin_version, null, null, true);
+            wp_enqueue_script('whiteStudioMessage'); */
 
 
-            wp_enqueue_script('serverJs', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/server.js', null, null, true);
+      /*       wp_enqueue_script('serverJs', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/server.js', null, null, true);
             wp_localize_script(
                 'serverJs',
                 'ajax_s_esmf',
@@ -107,7 +107,7 @@ class Admin {
                     'LeastVersion'   => '3.33',
                     'check'          => 0
                 ]
-            );
+            ); */
         }
 
         // if page is edit_forms_Emsfb

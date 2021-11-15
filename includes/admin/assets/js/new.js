@@ -2127,6 +2127,101 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
       break;
+
+      case 'country':
+
+        if (editState != false) {
+          // if edit mode
+          const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
+          const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+          for (const i of optns_obj) {
+            optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
+          }//end for 
+  
+        } else {
+          console.log(typeof countries_local,countries_local)
+          if(typeof countries_local !='object'){
+            optn = `
+            <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb" >${efb_var.text.newOption} 1</option>
+            <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb" >${efb_var.text.newOption} 2</option>
+           `
+            optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
+            optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+            
+          }else{
+            let optn ='<!-- list of counries -->'
+            for(let i=0 ; i<countries_local.length ; i++){   
+              console.log(i,countries_local[i+1])           
+              optn += `<option value="${countries_local[i+1]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${countries_local[i]}" data-op="${countries_local[i]}" class="text-dark efb" >${countries_local[i+1]}</option>`
+              optionElpush_efb(rndm,countries_local[i+1], rndm_1, countries_local[i]);
+              
+              i+=1;
+            }
+
+          }
+          // optionElpush_efb(rndm, 'Option Three', rndm_1, op_5);
+        }
+        ui = `
+        ${label}
+        <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'  data-id="${rndm}-el" >
+        <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+        <option selected disabled>${efb_var.text.nothingSelected}</option>
+        ${optn}
+        </select>
+        ${desc}
+        `
+        dataTag = elementId;
+  
+  
+  
+        break;
+      case 'state':
+
+        if (editState != false) {
+          // if edit mode
+          const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
+          const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+          for (const i of optns_obj) {
+            optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
+          }//end for 
+  
+        } else {
+          console.log(typeof state_local,state_local)
+          if(typeof state_local !='object'){
+            optn = `
+            <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb" >${efb_var.text.newOption} 1</option>
+            <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb" >${efb_var.text.newOption} 2</option>
+           `
+           optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
+           optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+           
+          }else{
+            let optn ='<!-- list of counries -->'
+            for(let i=0 ; i<state_local.length ; i++){              
+              console.log(state_local[i+1])
+              optn += `<option value="${state_local[i+1]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="text-dark efb" >${state_local[i+1]}</option>`
+              optionElpush_efb(rndm,state_local[i+1], rndm_1, state_local[i]);
+           
+              i+=1;
+            }
+
+          }
+          // optionElpush_efb(rndm, 'Option Three', rndm_1, op_5);
+        }
+        ui = `
+        ${label}
+        <div class="${previewSate == true ? pos[3] : `col-md-10`} col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'  data-id="${rndm}-el" >
+        <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+        <option selected disabled>${efb_var.text.nothingSelected}</option>
+        ${optn}
+        </select>
+        ${desc}
+        `
+        dataTag = elementId;
+  
+  
+  
+        break;
     case 'multiselect':
 
       dataTag = 'multiselect';
@@ -2213,7 +2308,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo") ? true : false;
+    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "country" || dataTag == "state") ? true : false;
     //console.l(dataTag, `${pro_efb == false && pro_el}`);
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
@@ -2571,7 +2666,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (id != "dropZoneEFB") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = `<div class="bottom-0 mx-5  m-3" id="button_group_efb"> <div class="col-12 mb-2 mt-3 efb ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
+    c = `<div class="bottom-0 d-flex justify-content-center" id="button_group_efb"> <div class="col-12 mb-2 mt-3 efb ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   //console.l(id)
   if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -3898,8 +3993,8 @@ function previewFormEfb(state){
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
-  let timeout = len * (Math.log(len)) * p;
-//console.l(timeout , 'timeout');
+  let timeout =  (len/4)*(Math.log(len)) * p;
+  console.log(timeout , 'timeout');
   timeout<510 ? timeout=510 : 0;
 
   //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.0.12
+Stable tag: 			2.0.13
 Requires at least: 	4.7
 Tested up to: 			5.8.2
 Requires PHP:			5.4 or higher
@@ -158,6 +158,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 2.0.13 =
+* Fixed issues
+
 = 2.0.12 =
 * UI improvements
 
@@ -204,21 +208,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * localized  spam protection
 
 = 1.33.3 =
-* Fixed issues
-* UI improvements
-
 = 1.33.2 =
-* Fixed issues
-
-
 = 1.33.1 =
+= 1.32.9 =
 * Fixed issues
 * Add subscription form type
 
-= 1.33.0 =
-* Fixed issues
-
-= 1.32.9 =
 * Fixed issues
 
 = 1.32.8 =
@@ -226,12 +221,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Deactive subscription form card
 
 = 1.32.7 =
-* Fixed issues
-
 = 1.32.6 =
-* Fixed issues
-* UI improvements
-
 = 1.32.5 =
 * Add new features (user registration form builder)
 * Fixed issues
@@ -253,11 +243,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Fixed an issue about state of readed messages
 
 = 1.32.0 =
-* Fixed an issue
-
 = 1.31.9 =
-* Fixed an issue
-
 = 1.31.8 =
 * Add new features
 * Localization improvements
@@ -274,30 +260,6 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * UI improvements
 * Fixed issues of Tell and Email validation
 
-= 1.31.5 =
-* UI improvements
-
-= 1.31.4 =
-* UI improvements
-
-= 1.31.3 =
-* UI improvements
-
-= 1.31.2 =
-* UI improvements
-
-= 1.31.1 =
-* Added a new multi-select feature on the plugins’ form builder page
-
-= 1.31 =
-* UI improvements
-
-= 1.30 =
-* Add jQuery version 3.5.1
-* UI improvements
-
-= 1.29 =
-* First release
 
 == Upgrade Notice ==
 = 1.29 =

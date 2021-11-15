@@ -105,7 +105,7 @@ class Create {
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
-				
+				error_log($lng);
 					if ( strlen($lng) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
@@ -113,6 +113,8 @@ class Create {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
+		wp_enqueue_script('addsOnLocal-js');
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
