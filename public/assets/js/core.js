@@ -1560,7 +1560,7 @@ function validation_before_send_emsFormBuilder() {
   require = require > fill ? 1 : 0;
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
     //console.log(sendBack_emsFormBuilder_pub)
-    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger fs-2 efb"></i></h1><h3 class="fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="mb-2 fs-5 efb text-muted">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     document.getElementById('body_efb').scrollIntoView(true);
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
@@ -1698,7 +1698,7 @@ function response_fill_form_efb(res) {
     //console.log(`res : error`, res.data.m)
     //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
     //${ajax_object_efm.text.somethingWentWrongPleaseRefresh}
-    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2"> ${res.data.m}</span>
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger efb fs-3"></i></h1><h3 class="efb fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
 
@@ -1714,7 +1714,7 @@ function response_Valid_tracker_efb(res) {
   } else {
     //console.log(`res : error`)      
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
-    document.getElementById('body_efb-track').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="mb-2">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger efb fs-3"></i></h1><h3 class="efb fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
      <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl == 1 ? 'fa fa-angle-double-right' : 'fa fa-angle-double-left'}"></i></button></div>`;
 
   }

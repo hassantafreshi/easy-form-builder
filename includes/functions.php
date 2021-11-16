@@ -384,7 +384,8 @@ class efbFunction {
 			"search" => __('Search','easy-form-builder'),
 			"enterThePhones" => __('Enter The Phone No','easy-form-builder'),
 			"conturyList" => __('Countries list','easy-form-builder'),
-			"stateProvince" => __('States / Provinces','easy-form-builder'),
+			"stateProvince" => __('States/ Provinces','easy-form-builder'),
+			"thankYouMessage" => __('Thank you message','easy-form-builder'),
 
 			
 		];
