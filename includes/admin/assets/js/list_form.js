@@ -1610,29 +1610,36 @@ function clickToCheckEmailServer() {
   document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`;
   const email =document.getElementById('email_emsFormBuilder').value;
   // call and waitning response
+  console.log(`email len: ${email.length}`);
+  if(email.length>5){
+    jQuery(function ($) {
+      //console.l('clear_garbeg_emsFormBuilder');  
+      data = {
+        action: "check_email_server_efb",
+        nonce: ajax_object_efm_core.nonce,
+        value: 'testMailServer',
+        email: email
+      };
+  
+      $.post(ajax_object_efm.ajax_url, data, function (res) {
+  
+        if (res.data.success == true) {
+          noti_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+        } else {
+  
+          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 7, 'danger');
+  
+        }
+        document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
+        document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
+      })
+    });
 
-  jQuery(function ($) {
-    //console.l('clear_garbeg_emsFormBuilder');  
-    data = {
-      action: "check_email_server_efb",
-      nonce: ajax_object_efm_core.nonce,
-      value: 'testMailServer',
-      email: email
-    };
-
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
-
-      if (res.data.success == true) {
-        noti_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
-      } else {
-
-        noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 7, 'danger');
-
-      }
-      document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
-      document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
-    })
-  });
+  }else{
+    noti_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
+    document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
+    document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
+  }
 
 }
 

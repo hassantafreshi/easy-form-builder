@@ -63,7 +63,7 @@ class efbFunction {
 			"protectsYourWebsiteFromFraud" => __('Click here to watch a video tutorial.','easy-form-builder'),
 			"enterSITEKEY" => __('SECRET KEY','easy-form-builder'),
 			"alertEmail" => __('Alert Email','easy-form-builder'),
-			"enterAdminEmail" => __('If you do not want to show Confirmation Code to the user, do not mark the option below.','easy-form-builder'),
+			"enterAdminEmail" => __('Enter Admin Email to receive email notification','easy-form-builder'),
 			"showTrackingCode" => __('Show Confirmation Code','easy-form-builder'),
 			"trackingCodeFinder" => __('Confirmation Code Finder','easy-form-builder'),
 			"copyAndPasteBelowShortCodeTrackingCodeFinder" => __('Copy and Paste below short-code of Confirmation Code finder in any page or post.','easy-form-builder'),
@@ -417,8 +417,8 @@ class efbFunction {
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
 				);
-				
-				if($to=="null"){$to=$support;}
+				error_log($to);
+				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
 				$message = $this->email_template_efb($pro,$state,$cont);  
 			//	error_log("message");

@@ -601,7 +601,10 @@ class Admin {
         
         $efbFunction = new efbFunction();   
         $ac= $efbFunction->get_setting_Emsfb();
-        $pro = $ac->activeCode;
+        
+        $pro = "not pro";
+        if(strlen($ac->activeCode)!=0) $pro=$ac->activeCode;
+        if(gettype($ac)){}
         $con ='';
         $sub='';
         $to ='';
@@ -613,7 +616,10 @@ class Admin {
             $sub ="📫 ".__('Email server','easy-form-builder')." [".__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
             if(strlen($to)<5) {
-                $to =$ac->emailSupporter;}
+                if(strlen($ac->emailSupporter)!=0) {$to = $ac->emailSupporter;}else{
+                    $to="null";
+                }
+            }
         }
         
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");

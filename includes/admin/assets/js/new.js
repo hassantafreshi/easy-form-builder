@@ -88,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
   /*  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
- /*  { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
+/*   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true }, */
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
@@ -521,6 +521,8 @@ function show_setting_window_efb(idset) {
     case "checkbox":
     case "select":
     case "multiselect":
+    case "conturyList":
+    case "stateProvince":
       const objOptions = valj_efb.filter(obj => {
         return obj.parent === el.id
       })
@@ -571,14 +573,14 @@ function show_setting_window_efb(idset) {
                       ${labelFontSizeEls}
                       ${selectColorEls('label')}
                       ${selectColorEls('description')}
-                      ${el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? cornerEls('') : ''} 
-                      ${el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectBorderColorEls('element') : ''} 
+                      ${el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? cornerEls('') : ''} 
+                      ${el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectBorderColorEls('element') : ''} 
                       ${el.dataset.tag != 'multiselect' ? selectColorEls('el') : ''} 
                       ${labelPostionEls}
                       ${ElementAlignEls('label')}
                       ${ElementAlignEls('description')}
                       ${widthEls}     
-                      ${el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectHeightEls() : ''}               
+                      ${el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectHeightEls() : ''}               
                       ${classesEls}
                       </div>
                   </div>
@@ -971,7 +973,7 @@ let change_el_edit_Efb = (el) => {
           postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
           let cornEl = document.getElementById(postId);
           //console.l(co);
-          if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
+          if (el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'||el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select'  ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
           //efb-square
           //console.l(`data-tag[${el.dataset.tag}]`, `${postId}options`, el.dataset.tag == 'select' || el.dataset.tag == 'multiselect', cornEl);
           //console.l(cornEl, cornEl.classList.contains('efb-square'));
@@ -1051,6 +1053,8 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
+            || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
+            || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
         ) {
           console.log(  postId, valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}${postId}`))
@@ -1081,7 +1085,7 @@ let change_el_edit_Efb = (el) => {
   
           //find list of options by id  from valueJson
           // change color of el by id finded of
-        } else if (el.dataset.tag == "select") {
+        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ) {
           //console.l(valj_efb[indx].id_);
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
@@ -1113,7 +1117,7 @@ let change_el_edit_Efb = (el) => {
         postId = '_'
   
         if (el.dataset.tag == "dadfile") { postId = "_box" }
-        else if (el.dataset.tag == "multiselect" || el.dataset.tag == "select") { postId = "_options" }
+        else if (el.dataset.tag == "multiselect" || el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') { postId = "_options" }
   
         setTimeout(() => {
           const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);
@@ -1135,7 +1139,7 @@ let change_el_edit_Efb = (el) => {
         else if (valj_efb[indx].el_height == 'h-xxl-efb') { fsize = 'fs-3'; }
         else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
         else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
-        if (el.dataset.tag == "select") {
+        if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
           postId = `${valj_efb[indx].id_}_options`
         } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
           valj_efb[indx].label_text_size = fsize;
@@ -1264,7 +1268,7 @@ let change_el_edit_Efb = (el) => {
   
         if (iindx != -1) {
           valj_efb[iindx].value = el.value;
-          if (el.dataset.tag == "select" || el.dataset.tag == "multiselect") {
+          if (el.dataset.tag == "select" || el.dataset.tag == "multiselect" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
             //Select
             document.querySelector(`[data-op="${el.dataset.id}"]`).innerHTML = el.value;
             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
@@ -1431,7 +1435,8 @@ const obj_delete_row = (dataid, is_step) => {
       document.getElementById('maps').draggable = true;
       document.getElementById('maps_b').classList.remove('disabled')
     } else if (valj_efb[foundIndex].type == 'multiselect' || valj_efb[foundIndex].type == 'select'
-      || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox') {
+      ||valj_efb[foundIndex].type == 'conturyList'  || valj_efb[foundIndex].type == 'stateProvince' 
+      || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox' ) {
       obj_delete_options(valj_efb[foundIndex].id_)
       //  foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
     } else if (valj_efb[foundIndex].type == 'email' && valj_efb[0].email_to == valj_efb[foundIndex].id_) {
@@ -1606,7 +1611,7 @@ const sort_obj_el_efb_ = () => {
           //el.dataset.step =step;
           //el.dataset.amount=amount;
         }
-        if (op_state == false && (valj_efb[indx].type == "radio" || valj_efb[indx].type == "checkbox" || valj_efb[indx].type == "select" || valj_efb[indx].type == "multiselect")) {
+        if (op_state == false && (valj_efb[indx].type == "radio" || valj_efb[indx].type == "checkbox" || valj_efb[indx].type == "select" || valj_efb[indx].type == "multiselect" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList')) {
           //console.l('if', 'timeout');
           op_state == true;
           valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ }).forEach((value) => {
@@ -1671,7 +1676,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
   //console.l(indxP, idin, value, id_ob, tag, parentsID);
   let op = `<!-- option --!> 2`
-  if (tag == "select" || tag == "multiselect") {
+  if (tag == "select" || tag == "multiselect" || tag == 'stateProvince' || tag == 'conturyList') {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="${valj_efb[indxP].el_text_color} efb">${value}</option>`
   } else {
     op = `<div class="efb form-check" id="${id_ob}-v">
@@ -2411,7 +2416,7 @@ const funSetCornerElEfb = (dataId, co) => {
     valj_efb[indx].corner = co;
     postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
     let cornEl = document.getElementById(postId);
-    if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.querySelector(`[data-id="${postId}options"]`)
+    if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') cornEl = el.dataset.tag == 'select' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ? document.getElementById(`${postId}options`) : document.querySelector(`[data-id="${postId}options"]`)
     //efb-square
     //console.l(`data-tag[${el.dataset.tag}]`, `${postId} `, el.dataset.tag, cornEl);
     //console.l(cornEl);
