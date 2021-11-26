@@ -24,7 +24,7 @@ let devlop_efb=false;
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
-      console.log(efb_var)
+      //console.log(efb_var)
       formName_Efb = efb_var.text.form
       pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
       return;
@@ -88,8 +88,8 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
   /*  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
-/*   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
-  { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true }, */
+  { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
+  { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
@@ -1057,7 +1057,7 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
         ) {
-          console.log(  postId, valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}${postId}`))
+          //console.log(  postId, valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}${postId}`))
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, el.options[el.selectedIndex].value)
         } else if (el.dataset.tag == "form") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
@@ -1491,14 +1491,27 @@ let enableDragItem = (item) => {
     item.ondragend = handleDrop;
   }
 }
-
+let status_drag_start = false ;
 let handleDrag = (item) => {
+
   const selectedItem = item.target,
-    lst = selectedItem.parentNode,
-    x = event.clientX,
-    y = event.clientY;
-  selectedItem.classList.add('drag-sort-active-efb');
+  lst = selectedItem.parentNode,
+  x = event.clientX,
+  y = event.clientY;
+
   let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
+ 
+  if(status_drag_start==false){
+    for(i of valj_efb){
+      //console.log(selectedItem.previousElementSibling.id);
+      if(i.type!="option"  && i.type!="form" && selectedItem.id!=i.id_ && selectedItem.previousElementSibling.id !=i.id_ ) {
+        document.getElementById(i.id_).classList.add("drophere")
+      }
+    }
+    status_drag_start=true;
+  }
+
+  selectedItem.classList.add('drag-sort-active-efb');
   if (lst === swapItem.parentNode) {
     swapItem = swapItem !== selectedItem.nextSibling && swapItem.dataset == "steps" && swapItem.id != "1" ? swapItem : swapItem.nextSibling;
     if (lst.insertBefore(selectedItem, swapItem)) {
@@ -1511,6 +1524,14 @@ let handleDrag = (item) => {
 let handleDrop = (item) => {
   item.target.classList.remove('drag-sort-active-efb');
   sort_obj_el_efb_()
+  if(status_drag_start==true){
+    for(i of valj_efb){
+      if(i.type!="option" && i.type!="form") 
+      document.getElementById(i.id_).classList.remove("drophere")
+    }
+    status_drag_start=false;
+  }
+  
   // sort_obj_efb();
 }
 
@@ -1690,29 +1711,15 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 }
 const delete_option_efb = (id) => {
   //حذف آپشن ها مولتی سلکت و درایو
-  // const id = document.getElementById('deleteOption').dataset.id
-  //console.l(id, document.getElementById(`${id}-v`), 'delete');
   document.getElementById(`${id}-v`).remove();
-  document.querySelector(`[data-id="${id}"]`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
   if (indx != -1) { valj_efb.splice(indx, 1); }
-
-
 }
 
-/* const updateViewEFB = (el) => {
-  // از طریق گزینه جدید برای سلکت یا مولتی سلکت یا ردیو باتن یا چک باکس اضافه شود هم در یو آی هم در جی سون
-  // اگر در جی سون یا یو آی وجود داشت مقدار آن تغییر کند
-  //console.l(el.value, el.id, el.dataset.parent, el.dataset.type);
-} */
-
-
-/* new d&D */
 
 //drag and drop form creator  (pure javascript)
 //Create by: Hassan Tafreshi
 // Email: hasan.tafreshi@gmail.com
-//let valj_efb = [];
 function create_dargAndDrop_el() {
   //console.l('create_dargAndDrop_el')
   const dropZoneEFB = document.getElementById("dropZoneEFB");
@@ -1723,6 +1730,7 @@ function create_dargAndDrop_el() {
 
     el.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", el.id)
+     
     });
    //console.l(el.id , "el.id");
   }
@@ -2143,11 +2151,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
           const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
           for (const i of optns_obj) {
+            console.log(i.value);
             optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
           }//end for 
   
         } else {
-          console.log(typeof countries_local,countries_local)
+          //console.log(typeof countries_local,countries_local)
           if(typeof countries_local !='object'){
             optn = `
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb" >${efb_var.text.newOption} 1</option>
@@ -2157,13 +2166,16 @@ function addNewElement(elementId, rndm, editState, previewSate) {
             optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
             
           }else{
+            countries_local.sort();
             let optn ='<!-- list of counries -->'
             for(let i=0 ; i<countries_local.length ; i++){   
-              console.log(i,countries_local[i+1])           
-              optn += `<option value="${countries_local[i+1]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${countries_local[i]}" data-op="${countries_local[i]}" class="text-dark efb" >${countries_local[i+1]}</option>`
-              optionElpush_efb(rndm,countries_local[i+1], rndm_1, countries_local[i]);
+              //console.log(i,countries_local[i+1])          
+              const op_id = countries_local[i].replace(" ", "_"); 
+              optn += `<option value="${countries_local[i]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="text-dark efb" >${countries_local[i]}</option>`
               
-              i+=1;
+              optionElpush_efb(rndm,countries_local[i], rndm_1, op_id);
+              
+             // i+=1;
             }
 
           }
@@ -2194,7 +2206,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           }//end for 
   
         } else {
-          console.log(typeof state_local,state_local)
+          //console.log(typeof state_local,state_local)
           if(typeof state_local !='object'){
             optn = `
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb" >${efb_var.text.newOption} 1</option>
@@ -2204,9 +2216,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
            optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
            
           }else{
+            state_local.sort();
             let optn ='<!-- list of counries -->'
             for(let i=0 ; i<state_local.length ; i++){              
-              console.log(state_local[i+1])
+              //console.log(state_local[i+1])
               optn += `<option value="${state_local[i]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="text-dark efb" >${state_local[i]}</option>`
               optionElpush_efb(rndm,state_local[i], rndm_1, state_local[i]);
             }
@@ -2529,7 +2542,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   //console.l(elementId, "push");
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps") {
-    console.log(elementId)
+    //console.log(elementId)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: efb_var.text[elementId], value: '', size: 100, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
@@ -2697,7 +2710,7 @@ const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|
 const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, `${value}`); }
 
 const open_whiteStudio_efb = (state) => {
-  console.log('Whitestudio.team')
+  //console.log('Whitestudio.team')
   let link = `https://whitestudio.team/`
   switch (state) {
     case 'mapErorr':
@@ -4000,7 +4013,7 @@ function previewFormEfb(state){
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   let timeout =  (len/4)*(Math.log(len)) * p;
-  console.log(timeout , 'timeout');
+  //console.log(timeout , 'timeout');
   timeout<510 ? timeout=510 : 0;
 
   //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`

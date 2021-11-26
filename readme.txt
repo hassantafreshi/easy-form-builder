@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.0.15
+Stable tag: 			2.1.0
 Requires at least: 	4.7
 Tested up to: 			5.8.2
 Requires PHP:			5.4 or higher
@@ -54,6 +54,7 @@ How *Easy Form Builder* makes your life easier:
 - Get export of result of Surveys to CSV format file (Available in pro version)
 - Get export of response of forms to CSV format file (Available in pro version)
 
+
  
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
 Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
@@ -71,6 +72,12 @@ The most outstanding feature is that you can do all of it without asking Technic
 **DRAG & DROP and Multi-step CONTACT FORM BUILDER**
 Easy Form Builder allows you to create custom contact forms in the easiest way. By using our easy to use drag and drop online form builder, you can easily add custom form fields, edit them, and create a support form or contact form  in a minute.
  
+ **Countries list field for FORM BUILDER**
+You can easily Add the countries list according to the language of your website (Language of Wordpress site) by adding the Countries list field in Easy Form builder to your forms, you can Create contact us form, support form or any kind of forms included country list field.
+
+ **States / Provinces list field for FORM BUILDER**
+You can easily Add the States/ Provinces list according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field.
+GE
  
 **Easy Form Builder Features**
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
@@ -98,6 +105,10 @@ Easy Form Builder allows you to create custom contact forms in the easiest way. 
 - *Location picker (Geolocation)* :  Pick a Location or multiple location by your user or showing your location on forms .
 
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
+
+- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your form.
+
+- *States / Provinces*:Easy Form Builder able you add states / Provinces list select field (drop down field of states / Provinces list) to your form.
  
 
 **Notice** : in each page you would not add more than ONE form.
@@ -158,8 +169,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.1.0 =
+* UI improvements
+* Add new Fields
 
-= 2.0.15 =
+= 2.0.16 =
 * Fixed issues of sent email
 
 = 2.0.14 =

@@ -1689,6 +1689,38 @@ img.right_circle-efb {
     display: none !important;
 }
 
+.efb input[type=color].h-d-efb{
+    height: 40px;
+    width: 30%;
+}
+.efb input[type=color].h-l-efb{
+    height: 50px;
+    width: 30%;
+}
+.efb input[type=color].h-xl-efb{
+    height: 60px;
+    width: 30%;
+}
+.efb input[type=color].h-xl-efb{
+    height: 70px;
+    width: 30%;
+}
+.efb input[type=color].h-xxl-efb{
+    height: 80px;
+    width: 30%;
+}
+.efb input[type=color].h-xxxl-efb{
+    height: 90px;
+    width: 30%;
+}
+
+
+.drophere.efb{
+    border-left: 20px solid #ffd1d8;
+    border-radius: 50px!important;
+}
+
+
 
 
 /* style public */

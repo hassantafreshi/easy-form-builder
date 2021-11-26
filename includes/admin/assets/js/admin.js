@@ -274,7 +274,7 @@ function create_form_by_type_emsfb(id){
   document.getElementById('header-efb').innerHTML=``;
   document.getElementById('content-efb').innerHTML=``;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-  console.log(efb_var.text.next)
+  //console.log(efb_var.text.next)
   if(id==="form"){ 
     form_type_emsFormBuilder="form"
     formName_Efb = form_type_emsFormBuilder
@@ -289,7 +289,7 @@ function create_form_by_type_emsfb(id){
     {"id_":"2jpzt59do","dataId":"2jpzt59do-id","type":"email","placeholder":efb_var.text.email,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.email,"required":true,"amount":6,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"dvgl7nfn0","dataId":"dvgl7nfn0-id","type":"textarea","placeholder":efb_var.text.enterYourMessage,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":7,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
     
-    console.log(json)
+    //console.log(json)
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb =json;
   }else if(id==="register" ){

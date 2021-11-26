@@ -417,7 +417,7 @@ class efbFunction {
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
 				);
-				error_log($to);
+			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
 				$message = $this->email_template_efb($pro,$state,$cont);  

@@ -478,7 +478,7 @@ function fun_ws_show_list_messages(value) {
     for (const v of value) {
       let state = Number(v.read_);
       if(response_state_efb.findIndex(x=>x.msg_id==v.msg_id)!=-1){state=0}
-      console.log(v,state);
+      //console.log(v,state);
       rows += `<tr class="efb pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
          <th scope="row" class="">${v.track}</th>
          <td class="">${v.date}</td>
@@ -552,7 +552,7 @@ function fun_delete_form_with_id_by_server(id) {
 
 
 function emsFormBuilder_messages(id) {
-  console.log(`ajax_object_efm.ajax_value[${id}]  $`)
+  //console.log(`ajax_object_efm.ajax_value[${id}]  $`)
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
   // //console.log(ajax_object_efm.ajax_value);
   //console.log(row.form_type, form_type_emsFormBuilder)
@@ -694,7 +694,7 @@ function fun_get_messages_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(`messages`,res);
+      //console.log(`messages`,res);
       
       if (res.success == true) {
         valueJson_ws_messages =  res.data.ajax_value ;
