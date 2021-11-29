@@ -362,7 +362,7 @@ class efbFunction {
 			"selectedAllOption" => __('Select All','easy-form-builder'),
 			"sentSuccessfully" => __('Sent successfully','easy-form-builder'),
 			"sync" => __('Sync','easy-form-builder'),
-			"enterTheValueThisField" => __('Please Enter correct value for this field','easy-form-builder'),
+			"enterTheValueThisField" => __('This field is required.','easy-form-builder'),
 			"thankYou" => __('Thank you','easy-form-builder'),
 			"YouSubscribed" => __('You are subscribed','easy-form-builder'),
 			"passwordRecovery" => __('Password recovery','easy-form-builder'),

@@ -452,7 +452,7 @@ function emsFormBuilder_nevButton_view(n) {
 
 function validateForm_emsFormBuilder_view() {
   let x, y, i, valid = true, NotValidCount = 0;
-  //console.log('validateForm_emsFormBuilder_view');
+  console.log('validateForm_emsFormBuilder_view');
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
   let value
@@ -485,14 +485,17 @@ function validateForm_emsFormBuilder_view() {
             break;
           case 'url':
             const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            console.log(el.value,input,check)
             if (check === null && input.classList.contains('require') == true) {
               //console.log(check ,999)
               valid = false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML += `<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterValidURL}</small>`
+              document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterValidURL;
+              //document.getElementById(`${input.id}-row`).innerHTML += `<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterValidURL}</small>`
             } else {
               valid = true;
-              if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove(); input.classList.remove('invalid');
+              document.getElementById(`${id}-message`).innerHTML=""
+              input.classList.remove('invalid');
             }
             break;
           case 'file':
@@ -514,6 +517,7 @@ function validateForm_emsFormBuilder_view() {
 
             } else {
               el.classList.remove('invalid');
+              
               document.getElementById(`${el.id}-message`).innerHTML = ""
             }
             break;
@@ -618,32 +622,61 @@ function createStepsOfPublic() {
           case "color":
           case "number":
           case "date":
-          case "url":
           case "textarea":
             value = el.value;
             const len = el.type == "textarea" ? 5 : el.type == "text" ? 2 : 1;
             //console.log(`valid ${el.type}`)
             if (value.length < len) {
               state = false;
+              el.className = colorBorderChangerEfb(el.className,"border-danger");
               document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
+              const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id_);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
             } else {
-              el.classList.remove('invalid');
+              console.log(el);
+              el.className = colorBorderChangerEfb(el.className,"border-success");
               document.getElementById(`${el.id}-message`).innerHTML = ""
             }
             break;
+            case 'url':
+              const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+              console.log(el.value,che)
+              if (che == null ) {
+                valid = false;
+                el.className = colorBorderChangerEfb(el.className,"border-danger");
+                document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterValidURL;            
+              } else {
+                valid = true;
+                value = el.value;
+                document.getElementById(`${el.id}-message`).innerHTML=""
+                el.className = colorBorderChangerEfb(el.className,"border-success");
+              }
+              break;
           case "checkbox":
           case "radio":
             value = el.value;
+            console.log(ob ,el.value);              
+            console.log(el.id);
             if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
-            //console.log(el.checked, value, ob)
+            if(el.value.length>1 || el.checked==true){
+              document.getElementById(`${ob.id_}_-message`).innerHTML ="";
+            }else{
+            
+              document.getElementById(`${ob.id_}_-message`).innerHTML =ajax_object_efm.text.enterTheValueThisField;
+            
+            }
             break;
           case "select-one":
+          case "select":
             value = el.value;
+            document.getElementById(`${ob.id_}_-message`).innerHTML ="";
+            el.className = colorBorderChangerEfb(el.className,"border-success");
             //console.log(value,ob.name);
             break;
           case "range":
             value = el.value;
-            //console.log(value,ob.name);
+     
+            document.getElementById(`${el.id}-message`).innerHTML ="";
             break;
           case "email":
             state = valid_email_emsFormBuilder(el);
@@ -711,7 +744,7 @@ function createStepsOfPublic() {
         if (value != "" || value.length > 1) {
           // //console.log(el ,ob  ,355)
           const type = ob.type
-          // //console.log(type ,355)
+          console.log(type ,value , ob ,355)
           const o = [{ id_: id_, name: ob.name,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           //console.log(o, 968)
           fun_sendBack_emsFormBuilder(o[0]);
@@ -988,13 +1021,16 @@ function valid_email_emsFormBuilder(el) {
   //console.log(el)
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
-    el.value.match(format) ? 0 : el.classList.add("invalid");
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className,"border-danger");
     document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheEmail;
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
     //document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
     // document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
   }
   else {
-    el.classList.remove('invalid');
+    el.className = colorBorderChangerEfb(el.className,"border-success")
+  //  el.classList.remove('invalid');
    // document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
     document.getElementById(`${el.id}-message`).innerHTML = '';
   }
@@ -1011,7 +1047,9 @@ function valid_password_emsFormBuilder(el) {
   const id = el.id;
   //  console.error("value",el.value.match(format));
   if (!el.value.match(format)) {
-    el.value.match(format) ? 0 : el.classList.add("invalid");
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className,"border-danger");
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
     //870
     // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
 
@@ -1021,7 +1059,7 @@ function valid_password_emsFormBuilder(el) {
     return false;
   }
   else {
-    el.classList.remove('invalid');
+    el.className = colorBorderChangerEfb(el.className,"border-success")
     document.getElementById(`${id}-message`).innerHTML = ""
    // document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false;
     //console.log(`return acepet ${el.value}`);
@@ -1039,17 +1077,19 @@ function valid_phone_emsFormBuilder(el) {
   check += el.value.match(format) ? 0 : 1;
   //console.log( 707,el.classList.contains('require'),)
   if (check > 0) {
-    el.value.match(format) ? 0 : el.classList.add("invalid");
+    el.value.match(format) ? 0 :  el.className = colorBorderChangerEfb(el.className,"border-danger");
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
     //870
     // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
 
     document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterThePhones;
-    document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
+    //document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
   }
   else {
-    el.classList.remove('invalid');
+    el.className = colorBorderChangerEfb(el.className,"border-success")
     document.getElementById(`${id}-message`).innerHTML = ""
-    document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
+  //  document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
     /*     if (document.getElementById("alarm_emsFormBuilder")){
           el.classList.remove('invalid');
                
@@ -1065,8 +1105,8 @@ function valid_file_emsFormBuilder(id) {
   // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
   // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
   // روی تست ولیدت را تست کن ببین مشکل از کجاست
-  //console.log(`[file]`, id, valueJson_ws)
-  if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();
+  console.log(`[file]`, id)
+   document.getElementById(`${id}_-message`).innerHTML="";
   let file = ''
   if (true) {
     const f = valueJson_ws.find(x => x.id_ === id);
@@ -1105,7 +1145,7 @@ function valid_file_emsFormBuilder(id) {
 
   if (check > 0) {
 
-    document.getElementById(`${el.id}-message`) && document.getElementById(`${el.id}-message`).innerHTML.length > 5 ?  document.getElementById(`${el.id}-message`).innerHTML = "" : 0;
+     document.getElementById(`${el.id}-message`).innerHTML = "" ;
     fun_upload_file_emsFormBuilder(id, file);
 
     rtrn = true;

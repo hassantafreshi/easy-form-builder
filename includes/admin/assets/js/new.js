@@ -1957,7 +1957,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12"  id='${rndm}-f'>
-        <input type="${elementId}" class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}" value="${valj_efb[iVJ].value}" ${previewSate != true ? 'disabled' : ''}>
+        <input type="${elementId}" class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length>0 ? value="${valj_efb[iVJ].value}" :''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       //  if(editState==false) sampleElpush_efb(rndm, elementId);
@@ -2369,7 +2369,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "country" || dataTag == "state") ? true : false;
+    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
     //console.l(dataTag, `${pro_efb == false && pro_el}`);
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
@@ -2580,7 +2580,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   //console.l(elementId ,rndm ,valj_efb,testb,step_el_efb);
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
-  if (elementId == "multiselect" || elementId == "dadfile" || elementId == "url" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "date" || elementId == "color" || elementId == "html" || elementId == "tel" || elementId == "range" || elementId == "yesNo") { pro = true }
+  if (elementId == "multiselect" || elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" ) { pro = true }
   //console.l(elementId, "push");
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps") {
@@ -3712,7 +3712,11 @@ function handle_navbtn_efb(steps, device) {
       var cp = current_s_efb + 1
       
       //console.l(`cs[${current_s_efb}] stepLen[${steps_len_efb}] step[${steps}] cp[${cp}]`);
-
+      var state = true
+      if(fun_validation_efb()==false){state=false ; return false};
+  
+      setTimeout(function(){ 
+        if(state=true){
       if (cp == steps_len_efb) {
         //console.l('here')
         jQuery("#prev_efb").addClass("d-none");
@@ -3766,9 +3770,7 @@ function handle_navbtn_efb(steps, device) {
          // `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         }
 
-        /* 
-         
-        */
+      }},200)
 
     });
 
@@ -3835,38 +3837,46 @@ function handle_navbtn_efb(steps, device) {
 
 
     jQuery("#btn_send_efb").click(function () {
+      var state = true
+      if(fun_validation_efb()==false){state=false ; return false};
+  
+      setTimeout(function(){ 
+        if(state=true){
 
-      jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
-      jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
-      
-
-
-      jQuery("#btn_send_efb").toggleClass("d-none");
-
-      
-      var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      next_s_efb = current_s.next();
-      next_s_efb.show();
-
-      
-
-      current_s.animate({ opacity_efb: 0 }, {
-        step: function (now) {
-          // for making fielset appear animation
-          opacity_efb = 1 - now;
-
-          current_s.css({
-            'display': 'none',
-            'position': 'relative'
+        
+          jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
+          jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
+          
+    
+          jQuery("#btn_send_efb").toggleClass("d-none");
+    
+          
+          var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
+          next_s_efb = current_s.next();
+          next_s_efb.show();
+    
+          
+    
+          current_s.animate({ opacity_efb: 0 }, {
+            step: function (now) {
+              // for making fielset appear animation
+              opacity_efb = 1 - now;
+    
+              current_s.css({
+                'display': 'none',
+                'position': 'relative'
+              });
+              next_s_efb.css({ 'opacity_efb': opacity_efb });
+            },
+            duration: 500
           });
-          next_s_efb.css({ 'opacity_efb': opacity_efb });
-        },
-        duration: 500
-      });
-      current_s_efb += 1;
-      setProgressBar_efb(current_s_efb,steps_len_efb);
-      send_data_efb();
-      //send to server after validation
+          current_s_efb += 1;
+          setProgressBar_efb(current_s_efb,steps_len_efb);
+          send_data_efb();
+          //send to server after validation
+       
+      }
+      }, 200);
     })
   }
 
@@ -4381,3 +4391,36 @@ function timeOutCaptcha(){
  // ajax_object_efm.text.errorVerifyingRecaptcha
  noti_message_efb( ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha,7,'warning');
 }
+
+
+function fun_validation_efb(){
+  console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
+  let state =true;
+  for(let row in valj_efb){
+    if(row>1 && valj_efb[row].required==true && current_s_efb ==valj_efb[row].step ){
+      const s = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==valj_efb[row].id_)
+      console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
+      if(s==-1 ){
+        if(state==true) state=false;
+        console.log(`${valj_efb[row].id_}-message`, `${valj_efb[row].id}_`)
+         const id =valj_efb[row].type!="select" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
+        document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.enterTheValueThisField;
+        if(type_validate_efb(valj_efb[row].type)==true)document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
+      }else{
+        console.log('success')
+        const id =valj_efb[row].type!="select" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
+        document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
+        if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
+      }
+    }
+    
+  }
+  return state
+}
+
+function type_validate_efb(type){
+  return type == "select" || type=="text" || type=="password" || type=="email" || type=="conturyList" ||  type=="stateProvince"  || type=="file" || type=="url" || type=="color" || type=="date"  || type=="textarea" || type=="tel" ? true : false;
+}
+
+
+
