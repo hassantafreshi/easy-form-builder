@@ -67,7 +67,7 @@ function creator_form_builder_Efb() {
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
-      thank_you_title:'null', thank_you_message:efb_var.text.thanksFillingOutform, email_temp:'',font:true,
+      thank_you_message:{thankYou:efb_var.text.thanksFillingOutform, done:efb_var.text.done, trackingCode:efb_var.text.trackingCode, error:efb_var.text.error,pleaseFillInRequiredFields:efb_var.text.pleaseFillInRequiredFields }, email_temp:'',font:true,
       
     });
   }
@@ -251,7 +251,15 @@ function show_setting_window_efb(idset) {
   <label class="form-check-label efb" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
   </div>`;
   const thankYouMessageEls = `<label for="thankYouMessageEl" class="form-label mt-2 efb">${efb_var.text.thankYouMessage}</label>
-  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message ? valj_efb[0].thank_you_message : ''}">`;
+  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : efb_var.text.thankYouMessage}">`;
+  const thankYouMessageDoneEls = `<label for="thankYouMessageDoneEl" class="form-label mt-2 efb">${efb_var.text.done} ${efb_var.text.message}</label>
+  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}">`;
+  const thankYouMessageConfirmationCodeEls = `<label for="thankYouMessageConfirmationCodeEl" class="form-label mt-2 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
+  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}">`;
+  const thankYouMessageErrorEls = `<label for="thankYouMessageErrorEl" class="form-label mt-2 efb">${efb_var.text.error} ${efb_var.text.message}</label>
+  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.error}" id="thankYouMessageErrorEl" required value="${valj_efb[0].thank_you_message.error ? valj_efb[0].thank_you_message.error : efb_var.text.error}">`;
+  const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="form-label mt-2 efb">${efb_var.text.required} ${efb_var.text.message}</label>
+  <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.pleaseFillInRequiredFields}" id="thankYouMessagepleaseFillInRequiredFieldsEl" required value="${valj_efb[0].thank_you_message.pleaseFillInRequiredFields ? valj_efb[0].thank_you_message.pleaseFillInRequiredFields : efb_var.text.pleaseFillInRequiredFields}">`;
 
   /* 
 
@@ -821,6 +829,21 @@ function show_setting_window_efb(idset) {
         ${showSprosiEls}
         ${showformLoggedEls}
         ${adminFormEmailEls}
+        <div class="efb d-grid gap-2">
+        <button class="btn efb btn-outline-light mt-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
+          <i class="efb bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
+        </button>
+    </div>
+    <div class="efb collapse mb-3 mt-3 " id="collapseAdvanced">
+            <div class="efb mb-3 px-3 row">   
+        ${thankYouMessageDoneEls}
+        ${thankYouMessageEls}
+        ${thankYouMessageConfirmationCodeEls}
+        
+        </div>
+        </div>        
+    </div>
+    <div class="efb clearfix"></div>
       
         `
       break;
@@ -911,6 +934,25 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].trackingCode = el.checked;
 
         break;
+      case "thankYouMessageDoneEl":
+        valj_efb[0].thank_you_message.done = el.value;
+        break;
+      case "thankYouMessageEl":
+        valj_efb[0].thank_you_message.thankYou = el.value;
+        break;
+      case "thankYouMessageConfirmationCodeEl":
+        valj_efb[0].thank_you_message.trackingCode = el.value;
+        break;
+      case "thankYouMessageErrorEl":
+        valj_efb[0].thank_you_message.error = el.value;
+        break;
+      case "thankYouMessagepleaseFillInRequiredFieldsEl":
+        valj_efb[0].thank_you_message.pleaseFillInRequiredFields = el.value;
+        break;
+
+        /*   
+   
+        ${thankYouMessagepleaseFillInRequiredFieldsEls} */
       case "captchaEl":
        
         if(efb_var.captcha=="true"){
@@ -2804,7 +2846,7 @@ let editFormEfb = () => {
 }//editFormEfb end
 
 const saveFormEfb = () => {
-  //console.l('saveFormEfb function')
+  console.log('saveFormEfb function',valj_efb)
 
   let proState = true;
   let stepState = true;
@@ -3963,10 +4005,13 @@ function gm_authFailure() {
 
 function funTnxEfb(val,title,message){
   //console.l('funTnxEfb')
-  const t = title  ? title :efb_var.text.done;
-  const m = message ? message :efb_var.text.thanksFillingOutform
+  console.log(valj_efb);
+  const done = valj_efb[0].thank_you_message.done || efb_var.text.done
+  const thankYou =valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
+  const t = title  ? title :done ;
+  const m = message ? message : thankYou;
   const trckCd = `
-  <div class="efb"><h5 class="mt-3 efb">${efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb"><h5 class="mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="hide-input efb" value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="btn efb btn-primary efb-btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">

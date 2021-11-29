@@ -77,7 +77,7 @@ You can easily Add the countries list according to the language of your website 
 
  **States / Provinces list field for FORM BUILDER**
 You can easily Add the States/ Provinces list according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field.
-GE
+
  
 **Easy Form Builder Features**
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
@@ -108,7 +108,7 @@ GE
 
 - *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your form.
 
-- *States / Provinces*:Easy Form Builder able you add states / Provinces list select field (drop down field of states / Provinces list) to your form.
+- *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
  
 
 **Notice** : in each page you would not add more than ONE form.

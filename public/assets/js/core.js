@@ -1721,7 +1721,7 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
-  //console.log(res ,message);
+  console.log(res ,message);
   if (res.success == true && res.data.success==true) {
     //console.log(`response`,res);
     document.getElementById('replayM_emsFormBuilder').value = "";
