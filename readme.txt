@@ -106,7 +106,7 @@ You can easily Add the States/ Provinces list according to the language of your 
 
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
-- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your form.
+- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
 
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
  

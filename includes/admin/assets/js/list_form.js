@@ -891,8 +891,8 @@ function fun_show_help__emsFormBuilder() {
   `;
 
 }
-function fun_show_setting__emsFormBuilder() {
-  // //console.log( 610,ajax_object_efm.setting);
+function fun_show_setting__emsFormBuilder() {  
+  
   let activeCode = 'null';
   let sitekey = 'null';
   let secretkey = 'null';
@@ -900,23 +900,15 @@ function fun_show_setting__emsFormBuilder() {
   let trackingcode = 'null';
   let apiKeyMap = 'null';
   let smtp = 'null';
-  //console.l(`valueJson_ws_setting ${valueJson_ws_setting.length}`)
+  let text= efb_var.text;
+  let textList ="<!--list EFB -->";
+  //console.log(ajax_object_efm.setting[0]);
+//JSON.parse(ajax_object_efm.setting[0].text.replace(/[\\]/g, ''))
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
-
-    // اضافه کردن تنظیمات
-
-    if (valueJson_ws_setting.length == 0) valueJson_ws_setting = JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, ''));
-    //console.l(`setting`,valueJson_ws_setting)
-    const f = (name) => {
-      //console.l('valueJson_ws_setting[name]', valueJson_ws_setting[name])
-      if (valueJson_ws_setting[name]) {
-        //console.l(name, valueJson_ws_setting[name]);
-        return valueJson_ws_setting[name]
-      } else {
-        //console.l(name, valueJson_ws_setting[name]);
-        return 'null'
-      }
-    }
+    if (valueJson_ws_setting.length == 0) valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+    const f = (name) => { if (valueJson_ws_setting[name]) {return valueJson_ws_setting[name]} else {return 'null'} }
+   if(valueJson_ws_setting.text)text= valueJson_ws_setting.text
+  // console.log(valueJson_ws_setting, valueJson_ws_setting.text);
     activeCode = f('activeCode');
     sitekey = f(`siteKey`);
     secretkey = f(`secretKey`);
@@ -927,9 +919,10 @@ function fun_show_setting__emsFormBuilder() {
 
   }
 
-
-  // //console.log(`lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);
-  //console.l(`activeCode[${activeCode}] sitekey[${sitekey}] secretkey[${secretkey}] email[${email}] trackingcode[${trackingcode}]`);
+  Object.entries(text).forEach(([key, value]) => {
+    state = key=="easyFormBuilder" ? "d-none" : "d-block";
+  if(key!=0)  textList+=`<input type="text"  id="${key}" class="sen ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
+  } );
 
   document.getElementById('content-efb').innerHTML = `
   <div class="container">
@@ -939,12 +932,12 @@ function fun_show_setting__emsFormBuilder() {
             </h4>
             <div class="crd efb">
                 <div class="card-body">
-
                         <nav>
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button class="efb nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb bi bi-gear mx-2"></i>${efb_var.text.general}</button>
                             <button class="efb nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
+                            <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                         </div>
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
@@ -1047,6 +1040,18 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                         </div>
                       
+                        <div class="tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
+                            <div class="mx-3 my-2">
+                            <!-- Text Section -->
+                               <h5 class="efb card-title mt-3">
+                                 <i class="efb bi-fonts m-3"></i>${efb_var.text.localization}
+                               </h5>
+                               <p class="mx-5">${efb_var.text.translateLocal}</p>
+                                <div id="textList-efb"  class="mt-2 py-2 px-5">${textList} </div>                                
+                                <!-- END Text Section -->
+                            </div>
+                        </div>
+                      
                         <button type="button" id="save-stng-efb" class="btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
                             <i class="efb bi-save mx-1"></i>${efb_var.text.save}
                         </button>
@@ -1056,6 +1061,7 @@ function fun_show_setting__emsFormBuilder() {
         </div>
 `
 
+  for (const el of document.querySelectorAll(`.sen`)) { el.addEventListener("change", (e) => {  text[el.id]=el.value; efb_var.text[el.id]=el.value; })}
 }
 
 
@@ -1125,7 +1131,8 @@ function fun_set_setting_emsFormBuilder() {
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     const smtp = f('smtp_emsFormBuilder')
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp });
+    let text = efb_var.text;
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1155,13 +1162,15 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data) {
-  //console.l(data);
+  data= JSON.stringify(data);
+  console.log(data);
   //ارسال تنظیمات به ووردپرس
   jQuery(function ($) {
     data = {
       action: "set_setting_Emsfb",
       type: "POST",
       nonce: ajax_object_efm_core.nonce,
+      contentType: "application/x-www-form-urlencoded;charset=utf-8",
       message: data
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {

@@ -1136,7 +1136,7 @@ z-index: 10;
 .dadFile-efb.h-d-efb,
 .maps-efb.h-d-efb,
 .sign-efb.h-d-efb{
-    height: 250px;
+    height: 300px;
 }
 .h-d-efb{
   height: fit-content;
@@ -1248,17 +1248,17 @@ textarea.h-xxxl-efb {
 }
 
 .dadFile-efb.h-l-efb{
-    height: 300px;
+    height: 325px;
 }
 .maps-efb.h-xl-efb,
 .sign-efb.h-xl-efb,
 .dadFile-efb.h-xl-efb {
-    height: 325px;
+    height: 350px;
 }
 .maps-efb.h-xxl-efb,
 .sign-efb.h-xxl-efb,
 .dadFile-efb.h-xxl-efb {
-    height: 350px;
+    height: 375px;
 }
 
 .maps-efb.h-xxxl-efb,
@@ -1269,6 +1269,17 @@ textarea.h-xxxl-efb {
 .efb-rounded{
     border-radius: 25px!important;
 }
+
+input[type="text"].efb-rounded,
+input[type="password"].efb-rounded,
+input[type="email"].efb-rounded,
+input[type="tel"].efb-rounded,
+input[type="number"].efb-rounded,
+input[type="url"].efb-rounded,
+input[type="textarea"].efb-rounded{
+padding: 0px 10px!important;
+}
+
 .h-l-efb.efb-rounded{
     border-radius: 30px!important;
     
@@ -1907,6 +1918,14 @@ input[type=checkbox].efb.fs-2.form-check-input
     input.elEdit {
         padding: 0px 5px;
     }
+
+
+    #textList-efb {
+       
+        
+        height: 380px;
+        overflow: auto;
+      }
 
 
 

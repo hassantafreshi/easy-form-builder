@@ -75,6 +75,7 @@ class _Public {
 		}
 		$this->id = $id;
 		if($this->value==null){
+			//formNExist s78
 			return "<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".__('Form does not exist !!','easy-form-builder')."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
 		}
 		$lang = get_locale();
@@ -84,6 +85,7 @@ class _Public {
 		$state="form";
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
+			//settingsNfound s78
 			$stng=__("Settings not found",'easy-form-builder');
 			$state="form";
 			
@@ -156,6 +158,7 @@ class _Public {
 		 ));  
 		 $k="";
 		// $pro=false;
+		//settingsNfound s78
 		 if(gettype($stng)!=="integer" && $stng!= __("Settings not found",'easy-form-builder')){
 			 $valstng= json_decode($stng);
 			 if($valstng->siteKey && $formObj[0]["captcha"]==true){$k =$valstng->siteKey;}
@@ -175,12 +178,13 @@ class _Public {
 	
 		 if($pro==true) $efb_m="";
 		 if($formObj[0]["stateForm"]==true){
+			 //formPrivateM s78
 			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
 			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Form is Private, Please Login.','easy-form-builder')."</h3>
 			 ".$efb_m."
 			</div> </div>";
 		 }else{
-
+			//pleaseWaiting s78
 			 $content="<div id='body_efb' class='card card-public pb-3 efb'>
 			 <div class='text-center my-5'>
 			 <div class='lds-hourglass efb text-center my-2'></div><h3 class='efb text-center text-darkb fs-5'>".__('Please Waiting','easy-form-builder')."</h2>
@@ -212,6 +216,7 @@ class _Public {
 		$state="tracker";
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
+			//settingsNfound s78
 			$stng=__("Settings not found",'easy-form-builder');
 			$state="tracker";
 		}else{
@@ -324,6 +329,7 @@ class _Public {
 		
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
+			//error403 s78
 			$response = array( 'success' => false  , 'm'=>__('Security Error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -375,17 +381,20 @@ class _Public {
 						$not_captcha=false;	 
 					}else{
 						//secretkey is not valid
+						//errorSiteKeyM s78
 						$response = array( 'success' => false  , 'm'=>__('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys' , 'easy-form-builder')); 
 					}
 				}
 			}
 			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 		if ($not_captcha==false && $captcha_success->success==false  ) {
+			//errorCaptcha s78
 		  $response = array( 'success' => false  , 'm'=>__('Error, Captcha problem!' , 'easy-form-builder')); 
 		  wp_send_json_success($response,$_POST);
 		  die();
 		}else if ( $not_captcha==true || $captcha_success->success==true) {
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
+				//pleaseEnterVaildValue s78
 				$response = array( 'success' => false , "m"=>__("Please enter a valid value" , 'easy-form-builder')); 
 				wp_send_json_success($response,$_POST);
 				die();
@@ -467,6 +476,7 @@ class _Public {
 							$state =wp_insert_user($creds);
 							$response;
 							//error_log(json_encode($state));
+							//createAcountDoneM s78
 							$m =__('Your account has been successfully created! You will receive an email containing your information','easy-form-builder');
 
 							// hide password
@@ -546,6 +556,7 @@ class _Public {
 								$send=array();
 								$send['state']=false;
 								$send['pro']=$pro;
+								//incorrectUP s78
 								$send['error']=__('The username or password is incorrect' , 'easy-form-builder');
 								$response = array( 'success' => true , 'm' =>$send); 
 								wp_send_json_success($response,$_POST);
@@ -587,7 +598,9 @@ class _Public {
 									$id =(int) $state->data->ID;
 									 wp_set_password($newpass ,$id);
 									$to = $email;
-									$efb ='<p> '. __("sent by:") . home_url(). '</p>';
+									//sentBy s78
+									//sentBy s78
+									$efb ='<p> '. __("sent by:" , 'easy-form-builder') . home_url(). '</p>';
 									if($pro==false) $efb ='<p> '. __("from").''. home_url(). ' '. __("sent by:" , 'easy-form-builder') .'<b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 									$subject ="". __("Password recovery")."";
 									$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -603,6 +616,7 @@ class _Public {
 									$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 								}
 							}
+							//newPassM s78
 							$m=__('If your email is correct, the new password will send to your email.', 'easy-form-builder');
 							$response = array( 'success' => true , 'm' =>$m); 
 							wp_send_json_success($response,$_POST);
@@ -628,7 +642,7 @@ class _Public {
 								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
-			
+							//done s78
 							$response = array( 'success' => true , 'm' =>__('Done', 'easy-form-builder')); 
 							wp_send_json_success($response,$_POST);
 						break;
@@ -655,7 +669,7 @@ class _Public {
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 			
-			
+							//surveyComplatedM s78
 							$response = array( 'success' => true , 'm' =>__('survey has been completed', 'easy-form-builder')); 
 							wp_send_json_success($response,$_POST);
 						break;
@@ -668,6 +682,7 @@ class _Public {
 						}
 						
 						default:
+						//error405 s78
 						$response = array( 'success' => false  ,'m'=>__('Security Error 405', 'easy-form-builder')); 
 						wp_send_json_success($response,$_POST);
 					}
@@ -675,6 +690,7 @@ class _Public {
 		}
 		//recaptcha end
 	}else{
+		//errorSettingNFound s78
 		$response = array( 'success' => false , "m"=>__("Error,Setting not Found" , 'easy-form-builder')); 
 		wp_send_json_success($response,$_POST);
 	}
@@ -685,6 +701,7 @@ class _Public {
 	  public function get_ajax_track_public(){
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
+			//error403 s78
 			$response = array( 'success' => false  , 'm'=>__('Security Error 403', 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -711,6 +728,7 @@ class _Public {
 
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
 		 // "Error, you are a robot?";
+		 //errorMRobot s78
 		  $response = array( 'success' => false  , 'm'=>__('Error, Are you a robot?' , 'easy-form-builder')); 
 		  wp_send_json_success($response,$_POST);
 		 }
@@ -718,6 +736,7 @@ class _Public {
 		//	 "successful!!";
 
 		if(empty($_POST['value']) ){
+			//enterVValue s78
 			$response = array( 'success' => false , "m"=>__("Please enter vaild values", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -741,7 +760,8 @@ class _Public {
 						$usr =get_user_by('id',$r);
 						$val->rsp_by= $usr->display_name;
 					}else{
-						$val->rsp_by="Guest";
+						//guest s78			
+						$val->rsp_by=__("Guest" , 'easy-form-builder');
 					}				 
 				}
 				//$ip = $this->ip;
@@ -752,6 +772,7 @@ class _Public {
 				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
+				//cCodeNFound s78
 				$response = array( 'success' => false  , "m" =>__("Confirmation Code not found!", 'easy-form-builder')); 
 			}
 		
@@ -823,13 +844,11 @@ class _Public {
 			//error_log($_FILES["file"]["name"]);			
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			//error_log($name);
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));
-			//$upload = wp_upload_bits($_FILES["file"]["name"], null, file_get_contents($_FILES["file"]["tmp_name"]));
-			//$upload['url'] will gives you uploaded file path
-			//error_log($upload);	
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));	
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
+			//errorFilePer s78
 			$response = array( 'success' => false  ,'error'=>__("File Permissions Error", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die('invalid file '.$_FILES['file']['type']);
@@ -843,25 +862,27 @@ class _Public {
 		//error_log($_POST['message']);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
+			//error403 s78
 			$response = array( 'success' => false  , 'm'=>__('Security Error 403' , 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
-		
 		if(empty($_POST['message']) ){
+			//pleaseEnterVaildValue s78
 			$response = array( 'success' => false , "m"=>__("Please enter a valid value", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		if(empty($_POST['id']) ){
+			//errorSomthingWrong s78
 			$response = array( 'success' => false , "m"=>__("Something went wrong ,Please refresh and try again", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-		
 
 		if($this->isHTML($_POST['message'])){
+			//nAllowedUseHtml s78
 			$response = array( 'success' => false , "m"=> __("You are not allowed use HTML tag", 'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -878,18 +899,10 @@ class _Public {
 			$id;
 				$id=number_format(sanitize_text_field($_POST['id']));
 				$m=sanitize_text_field($_POST['message']);
-			
-				
-				//	$message = preg_replace('/\s+/', '', $m);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
-				$table_name = $this->db->prefix . "Emsfb_rsp_";
-				//echo $table_name;
-			
-				//	$m = json_encode($m);
+				$table_name = $this->db->prefix . "Emsfb_rsp_";				
 				$ip =$this->get_ip_address();
-				//error_log($ip);
-				//error_log(get_current_user_id());
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
@@ -901,7 +914,7 @@ class _Public {
 
 				//error_log($id);
 				$this->db->update($table_name,array('read_'=>0),array('msg_id' => $id) );
-
+				//guest s78
 				$by=__("Guest" , 'easy-form-builder');
 
 				//error_log(json_encode(wp_get_current_user()));
@@ -933,6 +946,7 @@ class _Public {
 					
 					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage");
 				}
+				//messageSent s78
 				$response = array( 'success' => true , "m"=>__("Message was sent" , 'easy-form-builder') , "by"=>$by); 										
 				wp_send_json_success($response,$_POST);	
 		}else{
@@ -945,35 +959,47 @@ class _Public {
 	public function send_email_Emsfb($to , $track ,$pro , $state){
   
    $cont = $track;
+   //youRecivedNewMessage s78
    $subject ="📮 ".__('You have received New Message', 'easy-form-builder');
    if($state=="notiToUserFormFilled_TrackingCode"){
+	   //WeRecivedUrM s78
 	$subject =__('We received your Message', 'easy-form-builder');
+	//thankFillForm s78
+	//trackNo s78
 	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 			<p>". __('Confirmation Code' , 'easy-form-builder').": ".$cont." </p>
 			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 	$cont=$message;
    }elseif($state=="notiToUserFormFilled"){
-	$subject =__('We received your Message.', 'easy-form-builder');
+	   //WeRecivedUrM s78
+	   $subject =__('We received your Message.', 'easy-form-builder');
+	   //thankFillForm s78
 	$message ="<h2>".__('Thank You for filling out the form', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="register"){
+	   //thankRegistering s78
 	$subject =__('Thank You for registering.', 'easy-form-builder');   
+	//welcome s78
 	$message ="<h2>".__('Welcome', 'easy-form-builder')."</h2>
 	".$cont."
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="subscribe"){
+	   //welcome s78
 	$subject =__('Welcome', 'easy-form-builder');   
+	//thankSubscribing s78
 	$message ="<h2>".__('Thank You For Subscribing!', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
 	$cont=$message;
    }elseif ($state=="survey"){
+	    //welcome s78
 	$subject =__('Welcome', 'easy-form-builder');   
+	//thankDonePoll s78
 	$message ="<h2>".__('Thank You for taking the time to complete this survey.', 'easy-form-builder')."</h2>
 	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 	";
@@ -1007,8 +1033,10 @@ class _Public {
 	if(count($value)>0){
 		//error_log('count($value)>0');
 		foreach($value[0] as $key=>$val){
-		   
-		   $r =json_decode($val);
+			$v =str_replace('\\', '', $val);
+			/* error_log(gettype($v ));
+			error_log($v); */
+		   $r =json_decode($v);
 		   $i=0;
    
 		   foreach($r as $k=>$v){	

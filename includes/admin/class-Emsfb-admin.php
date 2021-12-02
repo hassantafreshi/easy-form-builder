@@ -463,9 +463,14 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $m = $_POST['message'];
+        error_log(gettype($_POST['message']));
+        error_log($_POST['message']);
+        $m= str_replace('\\', '', $_POST['message']);
+        $m = json_decode($m,true);
 
-        $setting    = sanitize_text_field(json_encode($_POST['message']));
+        error_log(gettype($m));
+        error_log($m->emailSupporter);
+        $setting    = sanitize_text_field($_POST['message']);
         $table_name = $this->db->prefix . "Emsfb_setting";
         $email;
         foreach ($m as $key => $value) {
@@ -488,6 +493,7 @@ class Admin {
  
         }
         //echo $table_name;
+
         $this->db->insert(
             $table_name,
             [
@@ -631,7 +637,7 @@ class Admin {
          $newAc["emailSupporter"] = $to;
          $newAc["apiKeyMap"] = $ac->apiKeyMap;
          $newAc["smtp"] = "true";
-            
+         $newAc["text"] ="text"; //change78 باید لیست جملات اینجا ذخیره شود
             $table_name = $this->db->prefix . "Emsfb_setting";
             $this->db->insert(
                 $table_name,
@@ -658,23 +664,7 @@ class Admin {
         return $ip;
     }
 
-/* 	public function get_setting_Emsfb()
-	{
-		// اکتیو کد بر می گرداند	
-		
-		$table_name = $this->db->prefix . "Emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
-		$rtrn='null';
-		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$r =json_decode($val);
-			$rtrn =$r->activeCode;
-			break;
-			} 
-		}
-		return $r;
-	}
- */
+
     public function get_not_read_message() {
         $table_name = $this->db->prefix . "Emsfb_msg_";
         $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");

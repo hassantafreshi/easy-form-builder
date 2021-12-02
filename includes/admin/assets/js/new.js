@@ -3577,7 +3577,7 @@ function removeFileEfb(id, indx) {
 
 function ui_dadfile_efb(indx, previewSate) {
   return `<div class="icon"><i class="efb fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
-  <h6 id="${valj_efb[indx].id_}_txt" class="text-center">${efb_var.text.dragAndDropA} ${valj_efb[indx].file.toUpperCase()} </h6> <span>OR</span>
+  <h6 id="${valj_efb[indx].id_}_txt" class="text-center m-1">${efb_var.text.dragAndDropA} ${valj_efb[indx].file.toUpperCase()} </h6> <span>OR</span>
   <button type="button" class="efb btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
       <i class="efb bi-upload me-2"></i>${efb_var.text.browseFile}
   </button>
@@ -4403,12 +4403,13 @@ function fun_validation_efb(){
       if(s==-1 ){
         if(state==true) state=false;
         console.log(`${valj_efb[row].id_}-message`, `${valj_efb[row].id}_`)
-         const id =valj_efb[row].type!="select" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
-        document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.enterTheValueThisField;
+         const id =valj_efb[row].type!="select" &&  valj_efb[row].type!="conturyList"  &&  valj_efb[row].type!="stateProvince"? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
+         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.enterTheValueThisField;
+         console.log(id, document.getElementById(id));
         if(type_validate_efb(valj_efb[row].type)==true)document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
       }else{
         console.log('success')
-        const id =valj_efb[row].type!="select" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
+        const id =valj_efb[row].type!="select" && valj_efb[row].type!="conturyList"  && valj_efb[row].type!="stateProvince" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
         if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
       }
@@ -4419,6 +4420,7 @@ function fun_validation_efb(){
 }
 
 function type_validate_efb(type){
+  console.log(type)
   return type == "select" || type=="text" || type=="password" || type=="email" || type=="conturyList" ||  type=="stateProvince"  || type=="file" || type=="url" || type=="color" || type=="date"  || type=="textarea" || type=="tel" ? true : false;
 }
 

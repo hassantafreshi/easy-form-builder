@@ -180,7 +180,7 @@ class efbFunction {
 			"youNeedAPIgMaps" => __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
 			"copiedClipboard" => __('Copied to Clipboard','easy-form-builder'),
 			"noResponse" => __('No Response','easy-form-builder'),
-			"offerGoogleCloud" => __('For using reCAPTCHA and location picker(Maps) sign up in Google cloud service, you will get <b>USD $350</b> worth of credits in Google Cloud only for our users,','easy-form-builder'),
+			"offerGoogleCloud" => __('For using reCAPTCHA and location picker(Maps) sign up in Google cloud service, you will get USD $350 worth of credits in Google Cloud only for our users,','easy-form-builder'),
 			"getOfferTextlink" => __(' Click here to get credits.','easy-form-builder'),
 			"clickHere" => __('Click here','easy-form-builder'),
 			"SpecialOffer" => __('Special offer','easy-form-builder'),
@@ -376,6 +376,8 @@ class efbFunction {
 			"reCAPTCHASetError" => __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'),
 			"ifShowTrackingCodeToUser" => __("If you don't want to show Confirmation Code to users, don't mark below option.",'easy-form-builder'),
 			"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),			
+			"localization" => __('Localization','easy-form-builder'),
+			"translateLocal" => __('You can localize Easy Form Builder in Your language by translating below sentences.','easy-form-builder'),
 			"enterValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => __('Email or Username','easy-form-builder'),
 			"contactusForm" => __('Contact-us Form','easy-form-builder'),
@@ -386,16 +388,50 @@ class efbFunction {
 			"conturyList" => __('Countries list','easy-form-builder'),
 			"stateProvince" => __('States/ Provinces','easy-form-builder'),
 			"thankYouMessage" => __('Thank you message','easy-form-builder'),
+			/* new */
+			"newMessage" => __('New message!', 'easy-form-builder'),
+			"newMessageReceived" => __('A New Message has been Received.', 'easy-form-builder'),
+			"createdBy" => __('Created by','easy-form-builder'),
+			"hiUser" => __('Hi Dear User', 'easy-form-builder'),
+			"sentBy" => __("Sent by:",'easy-form-builder'),
+			"youRecivedNewMessage" => __('You have received New Message', 'easy-form-builder'),
+			"formNExist" => __('Form does not exist !!','easy-form-builder'),
+			"error403" => __('Security Error 403','easy-form-builder'),
+			"formPrivateM" => __('Form is Private, Please Login.','easy-form-builder'),
+			"errorSiteKeyM" => __('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys','easy-form-builder'),
+			"errorCaptcha" => __('Error, Captcha problem!','easy-form-builder'),
+			"createAcountDoneM" => __('Your account has been successfully created! You will receive an email containing your information','easy-form-builder'),
+			"incorrectUP" => __('The username or password is incorrect','easy-form-builder'),
+			"newPassM" => __('If your email is correct, the new password will send to your email.','easy-form-builder'),
+			"surveyComplatedM" => __('survey has been completed','easy-form-builder'),
+			"error405" => __('Security Error 405','easy-form-builder'),
+			"errorSettingNFound" => __('Error,Setting not Found','easy-form-builder'),
+			"errorMRobot" => __('Error, Are you a robot?','easy-form-builder'),
+			"enterVValue" => __('Please enter vaild values','easy-form-builder'),
+			"cCodeNFound" => __('Confirmation Code not found!','easy-form-builder'),
+			"errorFilePer" => __('File Permissions Error','easy-form-builder'),
+			"errorSomthingWrong" => __('Something went wrong ,Please refresh and try again','easy-form-builder'),
+			"nAllowedUseHtml" => __('You are not allowed use HTML tag','easy-form-builder'),
+			"messageSent" => __('Message was sent','easy-form-builder'),
+			"WeRecivedUrM" => __('We received your Message','easy-form-builder'),
+			"thankFillForm" => __('Thank You for filling out the form','easy-form-builder'),
+			"thankRegistering" => __('Thank You for registering.','easy-form-builder'),
+			"welcome" => __('Welcome','easy-form-builder'),
+			"thankSubscribing" => __('Thank You For Subscribing!','easy-form-builder'),
+			"thankDonePoll" => __('Thank You for taking the time to complete this survey.','easy-form-builder'),
+			"thank" => __('Thank','easy-form-builder'),
+
+
 
 			
 		];
 	
 		$rtrn =[];
-		$st="//lang";
+		$st="null";
 		foreach ($inp as $key => $value) {
 			$rtrn +=["".$value.""=>"".$lang[$value].""];
 		}
-		array_push($rtrn,[$st]);
+		array_push($rtrn);
 		//error_log(json_encode($rtrn));
 			return $rtrn;
 	}
@@ -438,6 +474,7 @@ class efbFunction {
 	public function email_template_efb($pro, $state, $m){
 		
 		//EMSFB_PLUGIN_URL . 'public/assets/images/easy-form-builder-m.png'
+		//createdBy s78
 		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'>".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
 		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'>".  __('Created by' , 'easy-form-builder'). " White Studio Team</a>";
 		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'>". __('Easy Form Builder' , 'easy-form-builder')."</a>";
@@ -445,26 +482,33 @@ class efbFunction {
 			$footer= "<a class='subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
 			$header = " <a class='subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
 		}   
-
+		//newMessage s78
 		$title=__('New message!', 'easy-form-builder');
 		
+		//newMessageReceived s78
 		$message ="<h2>".__('A New Message has been Received.', 'easy-form-builder')."</h2>";
 		if($state=="testMailServer"){
+			//goodJob s78
 			$title=__('Good Job','easy-form-builder');
+			//proUnlockMsg s78
+			//createdBy s78
 			$message ="<h2>"
 			. __('You can get pro version and gain unlimited access to all plugin services.','easy-form-builder')."</h2>
 			<p>".  __('Created by' , 'easy-form-builder')." White Studio Team</p>
 			<button><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: white;'>".__('Get Pro version','easy-form-builder')."</a></button>";
 		}elseif($state=="newMessage"){
+			//newMessageReceived s78
+			//trackingCode s78
 			$message ="<h2>".__('A New Message has been Received.', 'easy-form-builder')."</h2>
 			<p>". __('Confirmation Code' , 'easy-form-builder').": ".$m." </p>
 			<button><a href='".home_url()."' target='_blank' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
 		}else{
+			//hiUser s78
 			$title =__('Hi Dear User', 'easy-form-builder');
 			$message=$m;
 		}
-	
+		//sentBy s78
 		$val ="
 		<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional //EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns='http://www.w3.org/1999/xhtml' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml' lang='en'><head> <link rel='stylesheet' type='text/css' hs-webfonts='true' href='https://fonts.googleapis.com/css?family=Lato|Lato:i,b,bi'> <title>Email template</title> <meta property='og:title' content='Email template'> <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <style type='text/css'> a {  color: inherit; font-weight: bold; color: #253342; text-decoration : none } h1 { font-size: 56px; } h2 { font-size: 28px; font-weight: 900; } p { font-weight: 100; } td { vertical-align: top; } #email { margin: auto; width: 600px; background-color: white; } button { font: inherit; background-color: #ff4b93; border: none; padding: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; color: white; border-radius: 5px;  } .subtle-link { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #CBD6E2; } </style></head>
 		<body bgcolor='#F5F8FA' style='width: 100%; margin: auto 0; padding:0; font-family:Lato, sans-serif; font-size:18px; color:#33475B; word-break:break-word'>
@@ -512,8 +556,12 @@ class efbFunction {
 		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 		$rtrn='null';
 		if(count($value)>0){		
+			//error_log(gettype($value[0]));
 			foreach($value[0] as $key=>$val){
-			$rtrn =json_decode($val);
+				$v =str_replace('\\', '', $val);
+			//	error_log(gettype($v ));
+			//	error_log($v);
+			$rtrn =json_decode($v);
 			break;
 			} 
 		}
@@ -540,6 +588,7 @@ class efbFunction {
 				
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
+					//youRecivedNewMessage s78
 					$subject ="📮 ".__('You have received New Message', 'easy-form-builder');
 					$this->send_email_state($email ,$subject ,$trackingCode,$pro,"newMessage");
 					return 1;
