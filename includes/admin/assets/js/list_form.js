@@ -954,6 +954,17 @@ function fun_show_setting__emsFormBuilder() {
                                 </div>
 
                                 <h5 class="efb card-title mt-3">
+                                    <i class="efb bi-bootstrap m-3"></i>${efb_var.text.bootStrapTemp}
+                                </h5>
+                                <h6 class="mx-5 text-warning">${efb_var.text.iUsebootTempW}</h6>
+                                <div class="card-body mx-4 py-1">
+                                
+                                <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder">
+                                <label class="form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
+                              
+                                </div>
+
+                                <h5 class="efb card-title mt-3">
                                     <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>
                                 <p class="mx-5">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
@@ -962,6 +973,7 @@ function fun_show_setting__emsFormBuilder() {
                                         <i class="efb bi-x-lg mx-1"></i>${efb_var.text.clearUnnecessaryFiles}
                                     </button>
                                 </div>
+                           
                                 <div class="clearfix"></div>
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
@@ -1109,6 +1121,10 @@ function fun_set_setting_emsFormBuilder() {
         if (el.type == "email" && el.value.length > 0) {
           return valid_email_emsFormBuilder(el);
         }
+      }
+    }else{
+      if(el.id =="bootstrap_emsFormBuilder"){
+        console.log(el.checked)
       }
     }
     return true;

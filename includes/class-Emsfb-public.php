@@ -92,9 +92,12 @@ class _Public {
 		}
 		$r= $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="object"){
-			$setting =json_decode($r->setting);
+			$setting =str_replace('\\', '', $r->setting);
+			$setting =json_decode($setting);
+			//error_log(gettype( $setting));
+		//	error_log($setting->activeCode);
 			if(md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
-				error_log($setting->activeCode);
+				//error_log($setting->activeCode);
 				//error_log('pro == true');
 				$pro=true;
 			}

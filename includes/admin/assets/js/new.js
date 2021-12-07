@@ -4394,21 +4394,22 @@ function timeOutCaptcha(){
 
 
 function fun_validation_efb(){
-  console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
+ // console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
   let state =true;
+  let idi ="null";
   for(let row in valj_efb){
     if(row>1 && valj_efb[row].required==true && current_s_efb ==valj_efb[row].step ){
       const s = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==valj_efb[row].id_)
-      console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
+     // console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
       if(s==-1 ){
-        if(state==true) state=false;
-        console.log(`${valj_efb[row].id_}-message`, `${valj_efb[row].id}_`)
+        if(state==true){ state=false; idi =valj_efb[row].id_ }
+        //console.log(`${valj_efb[row].id_}-message`, `${valj_efb[row].id}_`)
          const id =valj_efb[row].type!="select" &&  valj_efb[row].type!="conturyList"  &&  valj_efb[row].type!="stateProvince"? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
          document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.enterTheValueThisField;
          console.log(id, document.getElementById(id));
         if(type_validate_efb(valj_efb[row].type)==true)document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
       }else{
-        console.log('success')
+       // console.log('success')
         const id =valj_efb[row].type!="select" && valj_efb[row].type!="conturyList"  && valj_efb[row].type!="stateProvince" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
         if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
@@ -4416,11 +4417,17 @@ function fun_validation_efb(){
     }
     
   }
+  if(idi!="null"){
+   
+      document.getElementById(idi).scrollIntoView(true);
+      
+
+  }
   return state
 }
 
 function type_validate_efb(type){
-  console.log(type)
+ // console.log(type)
   return type == "select" || type=="text" || type=="password" || type=="email" || type=="conturyList" ||  type=="stateProvince"  || type=="file" || type=="url" || type=="color" || type=="date"  || type=="textarea" || type=="tel" ? true : false;
 }
 

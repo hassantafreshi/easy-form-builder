@@ -145,24 +145,6 @@ class Admin {
                 $lang = explode('_', $lang)[0];
             }
 
-           
-             //code_v1 start
-            //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css
-/*             wp_register_style('Font_Awesome-5', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
-            wp_enqueue_style('Font_Awesome-5'); */
-
-            //source : https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
-    /*         wp_register_style('Font_Awesome-4', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
-            wp_enqueue_style('Font_Awesome-4'); */
-
-            //source:https://cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.3.0/font-awesome-animation.min.css
-          /*   wp_register_style('font-awesome-animation-css', plugins_url('../../public/assets/css/font-awesome-animation.min.css', __FILE__), true);
-            wp_enqueue_style('font-awesome-animation-css'); */
-
-            //source :https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
-           /*  wp_enqueue_script('popper-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/popper.min.js');
-            wp_enqueue_script('popper-js');  */
-             //code_v1 end
 
 
                 //code_v2 start

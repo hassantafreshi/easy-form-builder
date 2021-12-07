@@ -419,6 +419,13 @@ class efbFunction {
 			"welcome" => __('Welcome','easy-form-builder'),
 			"thankSubscribing" => __('Thank You For Subscribing!','easy-form-builder'),
 			"thankDonePoll" => __('Thank You for taking the time to complete this survey.','easy-form-builder'),
+			"goToEFBAddEmailM" => __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on "Click To Check Email Server','easy-form-builder'),
+			"errorCheckInputs" => __('Something went wrong,Please check all input','easy-form-builder'),
+			"formNcreated" => __('The form is not Created!','easy-form-builder'),
+			"NAllowedscriptTag" => __('You are not allowed use Scripts tag','easy-form-builder'),
+			"bootStrapTemp" => __('BootStrap Template','easy-form-builder'),
+			"iUsebootTempW" => __('Warning, if your template have used BootStrap framwork then Check below option','easy-form-builder'),
+			"iUsebootTemp" => __('My template have used BootStrap framwork','easy-form-builder'),
 			"thank" => __('Thank','easy-form-builder'),
 
 

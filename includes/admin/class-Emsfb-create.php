@@ -130,9 +130,11 @@ class Create {
 		if(gettype($ac)!="string"){
 			if(strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp!="false"){$smtp=$ac->smtp;}else{
+				//sMTPNotWork s78
 				$smtp_m =__('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder');
 			}			
 		}else{
+			//goToEFBAddEmailM s78
 			$smtp_m = __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on "Click To Check Email Server"','easy-form-builder');
 		}
 
@@ -177,6 +179,7 @@ class Create {
 		$email = '';
 
 		if( empty($_POST['name']) || empty($_POST['value']) ){
+			//errorCheckInputs s78
 			$m = __('Something went wrong,Please check all input','easy-form-builder');
 			$response = array( 'success' => false , "m"=>$m); 
 			wp_send_json_success($response,$_POST);
@@ -195,6 +198,7 @@ class Create {
 		//error_log($this->value);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
+			//NAllowedscriptTag s78
 			$response = array( 'success' => false , "m"=> __("You are not allowed use Scripts tag" ,'easy-form-builder')); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -205,6 +209,7 @@ class Create {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{
+			//formNcreated s78
 			$response = array( 'success' => false , "m"=> __("The form is not Created!" ,'easy-form-builder')); 
 		}
 		//error_log($response);
