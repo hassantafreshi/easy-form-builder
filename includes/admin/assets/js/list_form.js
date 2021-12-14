@@ -952,18 +952,18 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
-
+                                <!--
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-bootstrap m-3"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
                                 <h6 class="mx-5 text-warning">${efb_var.text.iUsebootTempW}</h6>
                                 <div class="card-body mx-4 py-1">
-                                
+                           
                                 <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder">
                                 <label class="form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
-                              
+                               
                                 </div>
-
+                                -->
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>

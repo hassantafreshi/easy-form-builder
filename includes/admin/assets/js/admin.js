@@ -118,7 +118,8 @@ if(state!=0){
   document.getElementById('settingModalEfb-body').innerHTML=`<div class="card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.log('actionSendData_emsFormBuilder')
+console.info('Easy Form Builder > WhiteStudio.team');
+console.log(efb_var);
 
 function actionSendData_emsFormBuilder(){
   data ={};

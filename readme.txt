@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.1.1
+Stable tag: 			2.2.0
 Requires at least: 	4.7
 Tested up to: 			5.8.2
 Requires PHP:			5.4 or higher
@@ -53,6 +53,7 @@ How *Easy Form Builder* makes your life easier:
 - Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
 - Get export of result of Surveys to CSV format file (Available in pro version)
 - Get export of response of forms to CSV format file (Available in pro version)
+- Easily Localization Easy Form Builder to your language for **free** 
 
 
  
@@ -73,11 +74,13 @@ The most outstanding feature is that you can do all of it without asking Technic
 Easy Form Builder allows you to create custom contact forms in the easiest way. By using our easy to use drag and drop online form builder, you can easily add custom form fields, edit them, and create a support form or contact form  in a minute.
  
  **Countries list field for FORM BUILDER**
-You can easily Add the countries list according to the language of your website (Language of Wordpress site) by adding the Countries list field in Easy Form builder to your forms, you can Create contact us form, support form or any kind of forms included country list field.
+You can easily Add the country form according to the language of your website (Language of Wordpress site) by adding the Country form (Countries list) field in Easy Form builder to your forms, you can Create contact us form, support form or any kind of forms included country form (Countries list field) .
 
  **States / Provinces list field for FORM BUILDER**
-You can easily Add the States/ Provinces list according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field.
-
+You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
+ 
+ **Easily Localization **
+You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
  
 **Easy Form Builder Features**
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
@@ -141,6 +144,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
 9. create a contact-us form
+10. localization Easy form builder to your language
 
 
 == Frequently Asked Questions ==
@@ -169,6 +173,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.2.0 =
+* option of Localize easy form builder
+* UI improvements
+
 = 2.1.1 =
 * UI improvements
 * Fixed an issue about validation form.

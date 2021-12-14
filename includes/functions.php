@@ -436,6 +436,7 @@ class efbFunction {
 			"fileDeleted" => $state ? $ac->text->fileDeleted : __('Files are Deleted','easy-form-builder'),
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel → Setting → localization','easy-form-builder'),
+			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
 			"thank" => $state ? $ac->text->thank : __('Thank','easy-form-builder')
 
 
