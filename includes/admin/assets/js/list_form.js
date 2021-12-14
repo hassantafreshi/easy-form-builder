@@ -1486,7 +1486,7 @@ function convert_to_dataset_emsFormBuilder() {
       for (let c in rows[col]) {
         if (rows[col][c] != 'null@EFB' && rows[col][c] !='notCount@EFB') {
           const indx = entry[c].findIndex(x => x == rows[col][c]);
-          console.log(`rows[col][c] [${rows[col][c]}] col[${col}] c[${c}]`);
+          //console.log(`rows[col][c] [${rows[col][c]}] col[${col}] c[${c}]`);
           if (indx != -1) {
             countEnrty[c][indx] += 1;
           } else {
@@ -1567,7 +1567,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     const rows = Array.from(Array(countCol), () => Array(2).fill(0));
     const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
     for (let r in colname[t]) {
-      console.log(`r[${r}] t[${t}] name[${colname[t][r]}] value[${colvalue[t][r]}]`);
+      //console.log(`r[${r}] t[${t}] name[${colname[t][r]}] value[${colvalue[t][r]}]`);
       rows[r][0] = colname[t][r];
       rows[r][1] = colvalue[t][r];
     }//end for 2

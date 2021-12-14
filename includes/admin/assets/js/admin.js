@@ -245,7 +245,7 @@ function add_dasboard_emsFormBuilder(){
           ${head_introduce_efb('create')}
             <section id="content-efb">
             <img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}">
-        <h4 class="title-holder efb">
+            <h4 class="title-holder efb">
             <img src="${efb_var.images.title}" class="title efb">
             <i class="efb bi-arrow-down-circle title-icon mx-1"></i>Forms
         </h4>

@@ -75,9 +75,6 @@ class Admin {
      
     }
 
-    /**
-     * Adding new capability in the plugin
-     */
     public function add_cap() {
         // Get administrator role
         $role = get_role('administrator');
@@ -119,10 +116,6 @@ class Admin {
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
-            //code_v1 start
-            /* wp_register_style('Emsfb-admin-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin.css', true);
-            wp_enqueue_style('Emsfb-admin-css'); */
-            //code_v1 end
 
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
             wp_enqueue_style('Emsfb-style-css');
@@ -141,9 +134,7 @@ class Admin {
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
             wp_enqueue_style('Font_Roboto');
             $lang = get_locale();
-            if (strlen($lang) > 0) {
-                $lang = explode('_', $lang)[0];
-            }
+            if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
 
 
@@ -199,16 +190,20 @@ class Admin {
     }
 
     public function delete_form_id_public() {
-
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-
+        
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -226,23 +221,28 @@ class Admin {
     }
 
     public function update_form_id_Emsfb() {
-
+        $efbFunction = new efbFunction();   
+        $text = ["error403","invalidRequire","nAllowedUseHtml","updated"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
 
         if (empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name'])) {
-            $response = ['success' => false, "m" => __("Invalid require, Please Check everything" ,'easy-form-builder')];
+            $m = $lang["invalidRequire"];
+            $response = ['success' => false, "m" => $m];
 
             wp_send_json_success($response, $_POST);
             die();
         }
 
-        if ($this->isScript(json_encode($_POST['value'])) || $this->isScript(json_encode($_POST['name']))) {
-            $response = ['success' => false, "m" => __("You are not allowed use HTML tag" ,'easy-form-builder')];
+        if ($this->isScript(json_encode($_POST['value'])) || $this->isScript(json_encode($_POST['name']))) {        
+            $m = $lang["nAllowedUseHtml"];
+            $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -252,19 +252,23 @@ class Admin {
         $table_name = $this->db->prefix . "Emsfb_form";
         //,`form_name` =>
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
-
-        $response = ['success' => true, 'r' => __("updated" ,'easy-form-builder'), 'value' => "[EMS_Form_Builder id=$id]"];
+        $m = $lang["updated"];
+        $response = ['success' => true, 'r' => $m, 'value' => "[EMS_Form_Builder id=$id]"];
         wp_send_json_success($response, $_POST);
     }
 
     public function update_message_state_Emsfb() {
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh","updated"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m =   $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']))) {
+        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']))) {            
+            $m =   $lang["somethingWentWrongPleaseRefresh"];
             $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
@@ -288,19 +292,25 @@ class Admin {
         $table_name = $this->db->prefix . "Emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_by' => get_current_user_id(), 'read_date' => current_time('mysql')], ['msg_id' => $id]);
 
-        $response = ['success' => true, 'r' => __("updated" ,'easy-form-builder')];
+        $m =   $lang["updated"];
+        $response = ['success' => true, 'r' =>$m];
         wp_send_json_success($response, $_POST);
     }
 
     public function get_form_id_Emsfb() {
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m =   $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -315,14 +325,19 @@ class Admin {
     }
 
     public function get_messages_id_Emsfb() {
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text);
+
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m =   $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+        if (empty($_POST['id'])) {        
+            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -336,14 +351,19 @@ class Admin {
     }
 
     public function get_all_response_id_Emsfb() {
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh" ,"guest"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            //error_log('not valid nonce');           
+            $m =   $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+        if (empty($_POST['id'])) {            
+            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -360,7 +380,8 @@ class Admin {
                 $val->rsp_by = $usr->display_name;
             }
             else {
-                $val->rsp_by = __("Guest");
+                $m =   $lang["guest"];
+                $val->rsp_by =$m;
             }
         }
 
@@ -372,25 +393,30 @@ class Admin {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
 
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
+        $lang= $efbFunction->text_efb($text);
+
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            //error_log('not valid nonce');            
+            $response = ['success' => false, 'm' => $lang["error403"]];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response, $_POST);
             die();
         }
         if (empty($_POST['message'])) {
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page.'easy-form-builder'")];
+            $response = ['success' => false, "m" => $lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response, $_POST);
             die();
         }
 
         if ($this->isHTML(json_encode($_POST['message']))) {
-            $response = ['success' => false, "m" => __("You are not allowed use HTML tag",'easy-form-builder')];
+            $response = ['success' => false, "m" => $lang["nAllowedUseHtml"]];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -412,12 +438,9 @@ class Admin {
 
             ]
         );
-
-        $m        = __('Message was sent', 'easy-form-builder');
+        $m        = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
 
-        $efbFunction = new efbFunction(); 
-        $ac= $efbFunction->get_setting_Emsfb();
         $pro = $ac->activeCode;
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
@@ -428,30 +451,33 @@ class Admin {
     public function set_setting_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
+        $lang= $efbFunction->text_efb($text);
+
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403','easy-form-builder')];
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
 
         if (empty($_POST['message'])) {
-            $response = ['success' => false, "m" => __("Please enter a message",'easy-form-builder')];
+            $m = $lang["PEnterMessage"];
+            $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
-        if ($this->isHTML(json_encode($_POST['message']))) {
-            $response = ['success' => false, "m" => __("You are not allowed use HTML tag"  ,'easy-form-builder')];
+        if ($this->isHTML(json_encode($_POST['message']))) {            
+            $m = $lang["nAllowedUseHtml"];
+            $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, $_POST);
             die();
         }
-        error_log(gettype($_POST['message']));
-        error_log($_POST['message']);
+        
         $m= str_replace('\\', '', $_POST['message']);
         $m = json_decode($m,true);
-
-        error_log(gettype($m));
-        error_log($m->emailSupporter);
         $setting    = sanitize_text_field($_POST['message']);
         $table_name = $this->db->prefix . "Emsfb_setting";
         $email;
@@ -463,7 +489,8 @@ class Admin {
 
                // error_log($rdd);
                 if (md5($_SERVER['SERVER_NAME']) != $value) {
-                    $response = ['success' => false, "m" => __("Your activation code is not Correct!", 'easy-form-builder'),];
+                    $m = $lang["activationNcorrect"];
+                    $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
                 }
@@ -486,7 +513,7 @@ class Admin {
             ]
         );
 
-        $m        = __('Message was sent', 'easy-form-builder');
+        $m = $lang["messageSent"];            
         $response = ['success' => true, "m" => $m];
         wp_send_json_success($response, $_POST);
 
@@ -494,9 +521,14 @@ class Admin {
 
     public function get_ajax_track_admin() {
         //اطلاعات ردیف ترک را بر می گرداند
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["cCodeNFound","error403"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403'  ,'easy-form-builder')];
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -512,7 +544,8 @@ class Admin {
             $response = ['success' => true, "ajax_value" => $value];
         }
         else {
-            $response = ['success' => false, "m" => __("Confirmation Code not found!"  ,'easy-form-builder')];
+            $m = $lang["cCodeNFound"];
+            $response = ['success' => false, "m" => $m];
         }
 
         wp_send_json_success($response, $_POST);
@@ -521,9 +554,14 @@ class Admin {
 
     public function clear_garbeg_admin() {
         //پاک کردن فایل های اضافی
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["fileDeleted","error403"];
+        $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403' ,'easy-form-builder')];
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
@@ -569,9 +607,9 @@ class Admin {
                 }
 
             }
-        }
-
-        $response = ['success' => true, "m" => __("Files are Deleted",'easy-form-builder')];
+        }        
+        $m = $lang["fileDeleted"];
+        $response = ['success' => true, "m" => $m];
 
         wp_send_json_success($response, $_POST);
 
@@ -580,15 +618,17 @@ class Admin {
 
     public function check_email_server_admin() {
         //پاک کردن فایل های اضافی
+        $efbFunction = new efbFunction();   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","emailServer"];
+        $lang= $efbFunction->text_efb($text);
+        $m = $lang["error403"];
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $response = ['success' => false, 'm' => __('Security Error 403','easy-form-builder')];
+            //error_log('not valid nonce');        
+            $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        
-        $efbFunction = new efbFunction();   
-        $ac= $efbFunction->get_setting_Emsfb();
         
         $pro = "not pro";
         if(strlen($ac->activeCode)!=0) $pro=$ac->activeCode;
@@ -601,7 +641,8 @@ class Admin {
             if(is_email($_POST['email'])){
                 $to = sanitize_email($_POST['email']);
             }
-            $sub ="📫 ".__('Email server','easy-form-builder')." [".__('Easy Form Builder','easy-form-builder') ."]";
+            $m = $lang["emailServer"];
+            $sub ="📫 ". $m ." [".__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
             if(strlen($to)<5) {
                 if(strlen($ac->emailSupporter)!=0) {$to = $ac->emailSupporter;}else{
