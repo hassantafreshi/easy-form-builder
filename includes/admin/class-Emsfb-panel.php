@@ -36,11 +36,11 @@ class Panel_edit  {
 			$smtp =false;
 			$captcha =false;
 			$maps=false;
-			if(gettype($ac)!="string"){
-				if (md5($_SERVER['SERVER_NAME'])==$ac->activeCode){$pro=true;}
-				if(strlen($ac->siteKey)>5){$captcha="true";}	
-				if($ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
-				if(strlen($ac->apiKeyMap)>5){				
+			if(gettype($ac)!="string" && isset($ac) ){
+				if (isset($ac->activeCode)){$pro= md5($_SERVER['SERVER_NAME'])==$ac->activeCode ? true : false;}
+				if(isset($ac->siteKey)){$captcha="true";}	
+				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
+				if(isset($ac->apiKeyMap)){				
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					
@@ -74,7 +74,7 @@ class Panel_edit  {
 				wp_enqueue_script('whitestudio-admin-pro-js');
 			}
 
-			if(gettype($ac)!="string" && $ac->apiKeyMap){
+			if(gettype($ac)!="string" && isset($ac->apiKeyMap)){
 				$k= $ac->apiKeyMap;
 				$lng = get_locale();
 					if ( strlen( $lng ) > 0 ) {
@@ -109,7 +109,7 @@ class Panel_edit  {
 
 			$lng = get_locale();
 			$k ="";
-			if(gettype($ac)!="string" && $ac->siteKey)$k= $ac->siteKey;	
+			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
 			if ( strlen( $lng ) > 0 ) {
 				$lng = explode( '_', $lng )[0];
 				}

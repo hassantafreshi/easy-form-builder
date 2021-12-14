@@ -905,6 +905,7 @@ function fun_show_setting__emsFormBuilder() {
   //console.log(ajax_object_efm.setting[0]);
 //JSON.parse(ajax_object_efm.setting[0].text.replace(/[\\]/g, ''))
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
+    console.log(ajax_object_efm.setting[0].setting);
     if (valueJson_ws_setting.length == 0) valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
     const f = (name) => { if (valueJson_ws_setting[name]) {return valueJson_ws_setting[name]} else {return 'null'} }
    if(valueJson_ws_setting.text)text= valueJson_ws_setting.text
@@ -921,7 +922,7 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key=="easyFormBuilder" ? "d-none" : "d-block";
-  if(key!=0)  textList+=`<input type="text"  id="${key}" class="sen ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
+    if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}" class="sen sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
   } );
 
   document.getElementById('content-efb').innerHTML = `
@@ -1073,9 +1074,34 @@ function fun_show_setting__emsFormBuilder() {
         </div>
 `
 
-  for (const el of document.querySelectorAll(`.sen`)) { el.addEventListener("change", (e) => {  text[el.id]=el.value; efb_var.text[el.id]=el.value; })}
+  for (const el of document.querySelectorAll(`.sen`)) { el.addEventListener("change", (e) => {
+    console.log(el.value ,el.value.match(/["'\\]/)!=null)
+    //forbiddenChr
+     if(el.value.match(/["'\\]/)!=null){
+       el.className= colorBorderChangerEfb(el.className, "border-danger")
+       fun_switch_saveSetting(true,el.id);
+      }else{
+        text[el.id]=el.value;
+        efb_var.text[el.id]=el.value; 
+        el.className= colorBorderChangerEfb(el.className, "border-d")
+        fun_switch_saveSetting(false,el.id);
+      }})}
 }
 
+let idOfListsEfb =[];
+function fun_switch_saveSetting(i , id){
+  ///console.log(i,document.getElementById("save-stng-efb").classList.contains("disabled"));
+  if(i==true){
+    idOfListsEfb.push(id);
+    document.getElementById("save-stng-efb").classList.contains("disabled")==false ? document.getElementById("save-stng-efb").classList.add("disabled") :"";
+    noti_message_efb(`You Should not add forbidden characters like: " \' \\ `,"",5000,"danger");
+  }else{
+    const indx =idOfListsEfb.findIndex(x=>x == id);
+    if (indx!=-1 )idOfListsEfb.splice(indx,1);
+    console.log(idOfListsEfb.length,idOfListsEfb);
+    idOfListsEfb.length==0 && document.getElementById("save-stng-efb").classList.contains("disabled")==true ? document.getElementById("save-stng-efb").classList.remove("disabled") :"";
+  }
+}
 
 function fun_set_setting_emsFormBuilder() {
   //console.l("fun_set_setting_emsFormBuilder");

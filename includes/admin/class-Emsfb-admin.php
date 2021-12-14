@@ -480,7 +480,8 @@ class Admin {
         $m = json_decode($m,true);
         $setting    = sanitize_text_field($_POST['message']);
         $table_name = $this->db->prefix . "Emsfb_setting";
-        $email;
+        $email="";
+        //error_log( $_POST['message']);
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
                 $email = $value;

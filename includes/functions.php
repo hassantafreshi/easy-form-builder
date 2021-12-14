@@ -34,6 +34,7 @@ class efbFunction {
 		$state= $ac!==null && isset($ac->text) ? true : false ;
 		
 		$lang = [
+			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
 			"define" => $state ? $ac->text->define : __('Define','easy-form-builder'),
 			"formName" => $state ? $ac->text->formName : __('Form Name','easy-form-builder'),
@@ -178,7 +179,7 @@ class efbFunction {
 			"help" => $state ? $ac->text->help : __('Help','easy-form-builder'),
 			"setting" => $state ? $ac->text->setting : __('Setting','easy-form-builder'),
 			"maps" => $state ? $ac->text->maps : __('Maps','easy-form-builder'),
-			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : __('You can find tutorial in beside box and if you need more tutorials click on "Document" button.','easy-form-builder'),
+			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : __('You can find tutorial in beside box and if you need more tutorials click on <Document> button.','easy-form-builder'),
 			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('You can get pro version and gain unlimited access to all plugin services.','easy-form-builder'),
 			"aPIKey" => $state ? $ac->text->aPIKey : __('API KEY','easy-form-builder'),
 			"youNeedAPIgMaps" => $state ? $ac->text->youNeedAPIgMaps : __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
@@ -378,10 +379,10 @@ class efbFunction {
 			"content" => $state ? $ac->text->content : __('Content','easy-form-builder'),
 			"red" => $state ? $ac->text->red : __('Red','easy-form-builder'),
 			"reCAPTCHASetError" => $state ? $ac->text->reCAPTCHASetError : __('Please go to Easy Form Builder Panel > Setting > Google Keys  and set Keys of Google reCAPTCHA','easy-form-builder'),
-			"ifShowTrackingCodeToUser" => $state ? $ac->text->ifShowTrackingCodeToUser : __("If you don't want to show Confirmation Code to users, don't mark below option.",'easy-form-builder'),
+			"ifShowTrackingCodeToUser" => $state ? $ac->text->ifShowTrackingCodeToUser : __("If you do not want to show Confirmation Code to users, do not mark below option.",'easy-form-builder'),
 			"videoOrAudio" => $state ? $ac->text->videoOrAudio : __('(Video or Audio)','easy-form-builder'),			
 			"localization" => $state ? $ac->text->localization : __('Localization','easy-form-builder'),
-			"translateLocal" => $state ? $ac->text->translateLocal : __('You can localize Easy Form Builder in Your language by translating below sentences.','easy-form-builder'),
+			"translateLocal" => $state ? $ac->text->translateLocal : __('You can localize Easy Form Builder in Your language by translating below sentences. WARNING: If your wordpress site is multi language so DO Not Change Below Values.','easy-form-builder'),
 			"enterValidURL" => $state ? $ac->text->enterValidURL : __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
 			"emailOrUsername" => $state ? $ac->text->emailOrUsername : __('Email or Username','easy-form-builder'),
 			"contactusForm" => $state ? $ac->text->contactusForm : __('Contact-us Form','easy-form-builder'),
@@ -441,6 +442,7 @@ class efbFunction {
 
 
 
+
 			
 		];
 	
@@ -460,7 +462,7 @@ class efbFunction {
 	public function send_email_state($to ,$sub ,$cont,$pro,$state){
 			
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-			   $mailResult = 'n';
+			   $mailResult = "n";
 			   //error_log($mailResult);
 			   $id = get_current_user_id();
 			   $usr =get_user_by('id',$id);

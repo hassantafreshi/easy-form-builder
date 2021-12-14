@@ -119,7 +119,7 @@ if(state!=0){
 }//END show_message_result_form_set_EFB
 
 console.info('Easy Form Builder > WhiteStudio.team');
-console.log(efb_var);
+///console.log(efb_var);
 
 function actionSendData_emsFormBuilder(){
   data ={};
