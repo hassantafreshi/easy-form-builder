@@ -147,7 +147,7 @@ function actionSendData_emsFormBuilder(){
     }
     
     $.post(ajaxurl,data,function(res){
-      console.log("res",res);
+     // console.log("res",res);
       if(res.data.r=="insert"){
         if(res.data.value && res.data.success==true){
           state_check_ws_p=0;

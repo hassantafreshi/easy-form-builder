@@ -32,7 +32,7 @@ class efbFunction {
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
 		$state= $ac!==null && isset($ac->text) ? true : false ;
-		
+		error_log($ac);
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),

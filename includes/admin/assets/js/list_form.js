@@ -902,11 +902,15 @@ function fun_show_setting__emsFormBuilder() {
   let smtp = 'null';
   let text= efb_var.text;
   let textList ="<!--list EFB -->";
+  let bootstrap = false ;
   //console.log(ajax_object_efm.setting[0]);
 //JSON.parse(ajax_object_efm.setting[0].text.replace(/[\\]/g, ''))
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
-    console.log(ajax_object_efm.setting[0].setting);
-    if (valueJson_ws_setting.length == 0) valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+   // console.log(ajax_object_efm.setting[0].setting);
+    if (valueJson_ws_setting.length == 0) {valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+    }else if (typeof valueJson_ws_setting=="string"){
+      valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
+    }
     const f = (name) => { if (valueJson_ws_setting[name]) {return valueJson_ws_setting[name]} else {return 'null'} }
    if(valueJson_ws_setting.text)text= valueJson_ws_setting.text
   // console.log(valueJson_ws_setting, valueJson_ws_setting.text);
@@ -917,7 +921,7 @@ function fun_show_setting__emsFormBuilder() {
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`)
     smtp = f('smtp');
-
+    bootstrap = f('bootstrap');
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -953,18 +957,18 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
-                                <!--
+                               
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-bootstrap m-3"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
                                 <h6 class="mx-5 text-warning">${efb_var.text.iUsebootTempW}</h6>
                                 <div class="card-body mx-4 py-1">
                            
-                                <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder">
+                                <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
                                 <label class="form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
                                
                                 </div>
-                                -->
+                              
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>
@@ -1115,6 +1119,7 @@ function fun_set_setting_emsFormBuilder() {
     if (el.type == "text" || el.type == "email" || el.type == "hidden") {
       return el.value;
     } else if (el.type == "checkbox") {
+      //console.log(id ,el.checked);
       return el.checked;
     }
     return "NotFoundEl"
@@ -1126,11 +1131,13 @@ function fun_set_setting_emsFormBuilder() {
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 
-      if (el.value.length > 0 && el.value.length < 20 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder") {
+      if (el.value.length > 0 && el.value.length < 20 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
         document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
         return false;
+      }else if(id == "bootstrap_emsFormBuilder"){
+
       } else if (id == "activeCode_emsFormBuilder") {
         //برای برسی صحیح بودن کد امنیتی وارد شده
         if (el.value.length < 5 && el.value.length != 0) {
@@ -1155,7 +1162,7 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['smtp_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder'];
+  const ids = ['smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder'];
   let state = true
   for (id of ids) {
     if (v(id) === false) {
@@ -1173,8 +1180,9 @@ function fun_set_setting_emsFormBuilder() {
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     const smtp = f('smtp_emsFormBuilder')
+    const bootstrap = f('bootstrap_emsFormBuilder');
     let text = efb_var.text;
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text});
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1204,8 +1212,8 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data) {
-  data= JSON.stringify(data);
   console.log(data);
+  data= JSON.stringify(data);
   //ارسال تنظیمات به ووردپرس
   jQuery(function ($) {
     data = {
@@ -1222,7 +1230,7 @@ function fun_send_setting_emsFormBuilder(data) {
       let lrt = "info"
       let time = 3.7
       if (res.success == true) {
-        //console.l(`resp`,res);
+        //console.l(`resp`,data.message);
         valueJson_ws_setting = data.message;
         //console.log(` first lengi of valueJson_ws_setting [${valueJson_ws_setting.length}]` ,valueJson_ws_setting);    
         fun_show_setting__emsFormBuilder();

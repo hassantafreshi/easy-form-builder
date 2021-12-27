@@ -258,7 +258,15 @@ class _Public {
 
 	}
 	function public_scripts_and_css_head(){
-	
+	$efbFunction = new efbFunction(); 
+	$r= $this->get_setting_Emsfb('setting');
+	$bootstrap =false;
+		if(gettype($r)=="object"){
+			$setting =str_replace('\\', '', $r->setting);
+			$setting =json_decode($setting);
+			error_log($setting->bootstrap);
+			$bootstrap = isset($setting->bootstrap) ? $setting->bootstrap : false;
+		}
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -270,20 +278,24 @@ class _Public {
 		}
 
 		/* v2 */
-		wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
-		wp_enqueue_script('efb-jquery-min-js'); 
-		
-		wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
-		wp_enqueue_script('efb-bootstrap-min-js'); 
-
-		wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
-		wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+	/* 	wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
+		wp_enqueue_script('efb-jquery-min-js');  */
+		if($bootstrap==false){
+			
+			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
+			wp_enqueue_script('efb-bootstrap-min-js'); 
+	
+			/* wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js');  */
+			
+			
+			wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+			wp_enqueue_style('Emsfb-bootstrap-css');
+		}
 		
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
-
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
-		wp_enqueue_style('Emsfb-bootstrap-css');
+		
 
 		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');

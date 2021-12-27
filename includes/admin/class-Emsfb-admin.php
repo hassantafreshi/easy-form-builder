@@ -145,8 +145,8 @@ class Admin {
                 
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
-                wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
-                wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+        /*         wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+                wp_enqueue_script('efb-bootstrap-bundle-min-js');  */
                 
   
 

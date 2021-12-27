@@ -2193,7 +2193,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
           const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
           for (const i of optns_obj) {
-            console.log(i.value);
+            //console.log(i.value);
             optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
           }//end for 
   
@@ -2846,7 +2846,7 @@ let editFormEfb = () => {
 }//editFormEfb end
 
 const saveFormEfb = () => {
-  console.log('saveFormEfb function',valj_efb)
+  //console.log('saveFormEfb function',valj_efb)
 
   let proState = true;
   let stepState = true;
