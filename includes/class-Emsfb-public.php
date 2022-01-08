@@ -264,7 +264,7 @@ class _Public {
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
 			$setting =json_decode($setting);
-			error_log($setting->bootstrap);
+			//error_log($setting->bootstrap);
 			$bootstrap = isset($setting->bootstrap) ? $setting->bootstrap : false;
 		}
 		$lang = get_locale();

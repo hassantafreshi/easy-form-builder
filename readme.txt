@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.2.2
+Stable tag: 			2.2.3
 Requires at least: 	4.7
 Tested up to: 			5.8.2
 Requires PHP:			5.4 or higher
@@ -114,9 +114,9 @@ You can Localize or translate every single words,  phrase or messages to your la
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
  
 
-**Notice** : If your template base on bootstrap library then go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  than go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
 
-**Notice** : in each page you would not add more than ONE form.
+**Notice** : In each page you would not add more than ONE form.
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
@@ -124,7 +124,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 
 == Installation ==
 
-**Notice** : If your template base on bootstrap library then go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  than go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.

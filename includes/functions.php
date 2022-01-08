@@ -32,7 +32,7 @@ class efbFunction {
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
 		$state= $ac!==null && isset($ac->text) ? true : false ;
-		error_log($ac);
+	//	error_log($ac);
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -429,8 +429,8 @@ class efbFunction {
 			"formNcreated" => $state ? $ac->text->formNcreated : __('The form is not Created!','easy-form-builder'),
 			"NAllowedscriptTag" => $state ? $ac->text->NAllowedscriptTag : __('You are not allowed use Scripts tag','easy-form-builder'),
 			"bootStrapTemp" => $state ? $ac->text->bootStrapTemp : __('BootStrap Template','easy-form-builder'),
-			"iUsebootTempW" => $state ? $ac->text->iUsebootTempW : __('Warning, if your template have used BootStrap framwork then Check below option','easy-form-builder'),
-			"iUsebootTemp" => $state ? $ac->text->iUsebootTemp : __('My template have used BootStrap framwork','easy-form-builder'),
+			"iUsebootTempW" => $state ? $ac->text->iUsebootTempW : __('Warning, if your template have used BootStrap then Check below option','easy-form-builder'),
+			"iUsebootTemp" => $state ? $ac->text->iUsebootTemp : __('My template have used BootStrap','easy-form-builder'),
 			"invalidRequire" => $state ? $ac->text->invalidRequire : __('Invalid require, Please Check everything','easy-form-builder'),
 			"updated" => $state ? $ac->text->updated : __('updated','easy-form-builder'),
 			"PEnterMessage" => $state ? $ac->text->PEnterMessage : __('Please enter a message','easy-form-builder'),
