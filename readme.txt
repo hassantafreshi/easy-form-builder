@@ -114,9 +114,9 @@ You can Localize or translate every single words,  phrase or messages to your la
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
  
 
-**Notice** : If your template base on bootstrap  than go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
 
-**Notice** : In each page you would not add more than ONE form.
+**Notice** : In each page you would not add more then ONE form.
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
@@ -124,7 +124,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 
 == Installation ==
 
-**Notice** : If your template base on bootstrap  than go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → select checkBox  “My template have used BootStrap framwork” → Save
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
@@ -179,6 +179,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 2.2.4 =
+* UI improvements
+* Fixed issues
 
 = 2.2.2 =
 * UI improvements

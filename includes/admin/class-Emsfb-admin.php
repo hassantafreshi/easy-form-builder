@@ -145,8 +145,8 @@ class Admin {
                 
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
-        /*         wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
-                wp_enqueue_script('efb-bootstrap-bundle-min-js');  */
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+                wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
   
 
@@ -441,7 +441,7 @@ class Admin {
         $m        = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
 
-        $pro = $ac->activeCode;
+        $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, $_POST);

@@ -961,7 +961,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb card-title mt-3">
                                     <i class="efb bi-bootstrap m-3"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
-                                <h6 class="mx-5 text-warning">${efb_var.text.iUsebootTempW}</h6>
+                                <h6 class="mx-5 text-danger">${efb_var.text.iUsebootTempW}</h6>
                                 <div class="card-body mx-4 py-1">
                            
                                 <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
@@ -1643,8 +1643,11 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
 function googleCloudOffer() {
 
-  return `<p>${efb_var.text.offerGoogleCloud} <a href="#" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
+  return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
 }
+
+
+
 
 
 /* function copyCodeEfb(id) {
