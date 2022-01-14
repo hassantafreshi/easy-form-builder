@@ -429,7 +429,7 @@ class efbFunction {
 			"formNcreated" => $state ? $ac->text->formNcreated : __('The form is not Created!','easy-form-builder'),
 			"NAllowedscriptTag" => $state ? $ac->text->NAllowedscriptTag : __('You are not allowed use Scripts tag','easy-form-builder'),
 			"bootStrapTemp" => $state ? $ac->text->bootStrapTemp : __('BootStrap Template','easy-form-builder'),
-			"iUsebootTempW" => $state ? $ac->text->iUsebootTempW : __('Warning, if your template have used BootStrap then Check below option','easy-form-builder'),
+			"iUsebootTempW" => $state ? $ac->text->iUsebootTempW : __('Warning, if your template have used BootStrap then Checked below option','easy-form-builder'),
 			"iUsebootTemp" => $state ? $ac->text->iUsebootTemp : __('My template have used BootStrap','easy-form-builder'),
 			"invalidRequire" => $state ? $ac->text->invalidRequire : __('Invalid require, Please Check everything','easy-form-builder'),
 			"updated" => $state ? $ac->text->updated : __('updated','easy-form-builder'),
@@ -438,7 +438,7 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel → Setting → localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to “Panel” → “Settings” → select checkBox “My template have used BootStrap framwork” → Save','easy-form-builder'),
+			"warningBootStrap" => $state ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to “Panel” → “Settings” → checked  “My template have used BootStrap framwork” → Save','easy-form-builder'),
 			"thank" => $state ? $ac->text->thank : __('Thank','easy-form-builder')
 
 

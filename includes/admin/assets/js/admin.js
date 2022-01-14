@@ -381,8 +381,11 @@ function head_introduce_efb(state){
                   <h1 class="efb pointer-efb" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
                   <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="clearfix"></div>
-                  <p class=" ${state=="create" ?'card-text ':'text-dark'}efb pb-3 fs-6">
+                  <p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">
                   ${state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` }                                                               
+                  </p>
+                  <p class="text-pinkEfb efb pb-3 fs-6">
+                 ${efb_var.text.warningBootStrap}                                                         
                   </p>
                   <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
                   <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>
