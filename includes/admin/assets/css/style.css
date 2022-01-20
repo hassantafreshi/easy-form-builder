@@ -6,7 +6,7 @@
 */
 .efb{
 
-    font-family: 'Roboto', sans-serif!important;
+    font-family: 'Roboto', sans-serif;
     font-weight: 400!important;
 }
 #alert_content_efb {
@@ -490,7 +490,7 @@ border-radius: 20px;
 animation: fadeIn 0.5s ease-in-out;
 }
 .hide-input.efb {
-position: absolute;
+position: fixed;
 left: -9999px;
 }
 @keyframes fadeIn {
