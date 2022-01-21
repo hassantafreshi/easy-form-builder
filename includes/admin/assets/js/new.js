@@ -72,7 +72,7 @@ function creator_form_builder_Efb() {
     });
   }
   //console.l(efb_var);
-  const objct = [{ name: 'Text', icon: 'bi-file-earmark-text', id: 'text', pro: false },
+  const objct = [{ name: efb_var.text.text, icon: 'bi-file-earmark-text', id: 'text', pro: false },
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false },

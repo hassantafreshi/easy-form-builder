@@ -661,7 +661,7 @@ class Admin {
          $newAc["emailSupporter"] = $to;
          $newAc["apiKeyMap"] = $ac->apiKeyMap;
          $newAc["smtp"] = "true";
-         $newAc["text"] ="text"; //change78 باید لیست جملات اینجا ذخیره شود
+         $newAc["text"] = $ac->text; //change78 باید لیست جملات اینجا ذخیره شود
             $table_name = $this->db->prefix . "Emsfb_setting";
             $this->db->insert(
                 $table_name,

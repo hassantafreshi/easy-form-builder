@@ -805,6 +805,7 @@ function fun_ws_show_response(value) {
 
 function fun_show_content_page_emsFormBuilder(state) {
   //console.l(state);
+ 
   if (state == "forms") {
     /*  if( state_seting_emsFormBuilder!=true){
        fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -816,6 +817,7 @@ function fun_show_content_page_emsFormBuilder(state) {
     //}
 
   } else if (state == "setting") {
+    console.log(efb_var.text);
     fun_show_setting__emsFormBuilder();
     fun_backButton(0);
     state = 2
