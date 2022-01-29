@@ -25,20 +25,8 @@ if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws
 jQuery (function() {
   state_check_ws_p =Number(efb_var.check)
   pro_ws = (efb_var.pro=='1' || efb_var.pro==true) ? true : false;
-  if(typeof pro_whitestudio !== 'undefined'){    
-    pro_ws = pro_whitestudio ;
-    //console.log(`pro is new ${pro_ws}`);
-  }else{
-    pro_ws= false;
-  }
- 
-  
-  if(state_check_ws_p){
-    add_dasboard_emsFormBuilder()
-    //add_form_builder_emsFormBuilder();
-    // run_code_ws_1();
-     //run_code_ws_2();    
-  }
+  if(typeof pro_whitestudio !== 'undefined'){ pro_ws = pro_whitestudio ; }else{  pro_ws= false; }  
+  if(state_check_ws_p){ add_dasboard_emsFormBuilder();}
 })
 
 
@@ -96,7 +84,7 @@ function show_message_result_form_set_EFB(state ,m){ //V2
   `;
   let content =``
 if(state!=0){
-  //console.log(`efb_var.text.shortcode[${efb_var.text.shortcode}]`);
+  
   content=` <h3 class="efb"><b>${efb_var.text.goodJob}</b> ${state==1 ? efb_var.text.formIsBuild :efb_var.text.formUpdatedDone}</h3>
   <h5 class="mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="hide-input efb" value="${m}" id="trackingCodeEfb">
@@ -119,15 +107,15 @@ if(state!=0){
 }//END show_message_result_form_set_EFB
 
 console.info('Easy Form Builder > WhiteStudio.team');
-///console.log(efb_var);
+
 
 function actionSendData_emsFormBuilder(){
   data ={};
   var name = formName_Efb
-  //console.log('actionSendData_emsFormBuilder' ,state_check_ws_p,localStorage.getItem("valj_efb"));
+  
   jQuery(function ($) {
-    //console.log('in');
-    //console.log(`formName_ws[${formName_ws}] [${document.getElementById('form_name').value}] [${form_type_emsFormBuilder}]`)
+    
+    
     if (state_check_ws_p==1){
       data={
         action:"add_form_Emsfb",
@@ -152,7 +140,7 @@ function actionSendData_emsFormBuilder(){
         if(res.data.value && res.data.success==true){
           state_check_ws_p=0;
           form_ID_emsFormBuilder=parseInt(res.data.id)
-          //console.log(res ,form_ID_emsFormBuilder)
+          
           show_message_result_form_set_EFB(1,res.data.value)
         }else{
            alert(res , "error")
@@ -162,7 +150,7 @@ function actionSendData_emsFormBuilder(){
         show_message_result_form_set_EFB(2,res.data.value)
       }else{
         if(res.data.m==null || res.data.m.length>1){
-          //console.log(res.data)
+          
           show_message_result_form_set_EFB(0,res.data.value ,`${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)         
         }else{
           show_message_result_form_set_EFB(0,res.data.value ,`${res.data.m}, Code:400-400`)        
@@ -177,7 +165,7 @@ function actionSendData_emsFormBuilder(){
 
 function fun_report_error(fun ,err){
   //v2
-  //console.log(fun,err)
+  
 }
 
 
@@ -188,8 +176,6 @@ function close_overpage_emsFormBuilder(i) {
  
 
 }
-
-
 
 function getOS_emsFormBuilder() {
   var userAgent = window.navigator.userAgent,
@@ -231,7 +217,7 @@ function add_dasboard_emsFormBuilder(){
               ]
         let value=`<!-- boxs -->`;
         for(let i of boxs){
-          //console.log(efb_var.rtl)
+          
           value += `
           <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
          
@@ -240,7 +226,7 @@ function add_dasboard_emsFormBuilder(){
           ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
           </div></div></div>`
         }
-        //console.log(efb_var.images.logo)
+        
        document.getElementById('tab_container').innerHTML = `
 
           ${head_introduce_efb('create')}
@@ -248,7 +234,7 @@ function add_dasboard_emsFormBuilder(){
             <img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}">
             <h4 class="title-holder efb">
             <img src="${efb_var.images.title}" class="title efb">
-            <i class="efb bi-arrow-down-circle title-icon mx-1"></i>Forms
+            <i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.form}
         </h4>
      <div class="container"><div class="row row-cols-1 row-cols-md-2 g-4">${value}<div class="row  my-5 col-2"></div></div></div>
      </section>`
@@ -256,11 +242,9 @@ function add_dasboard_emsFormBuilder(){
      
        const newform_=document.getElementsByClassName("efbCreateNewForm")
       for(const n of newform_){
-
           n.addEventListener("click", (e) => {
             form_type_emsFormBuilder=n.id;
-            create_form_by_type_emsfb(n.id);
-           
+            create_form_by_type_emsfb(n.id);           
         })
       }
 
@@ -275,7 +259,7 @@ function create_form_by_type_emsfb(id){
   document.getElementById('header-efb').innerHTML=``;
   document.getElementById('content-efb').innerHTML=``;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-  //console.log(efb_var.text.next)
+  
   if(id==="form"){ 
     form_type_emsFormBuilder="form"
     formName_Efb = form_type_emsFormBuilder
@@ -290,7 +274,7 @@ function create_form_by_type_emsfb(id){
     {"id_":"2jpzt59do","dataId":"2jpzt59do-id","type":"email","placeholder":efb_var.text.email,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.email,"required":true,"amount":6,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"dvgl7nfn0","dataId":"dvgl7nfn0-id","type":"textarea","placeholder":efb_var.text.enterYourMessage,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":7,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
     
-    //console.log(json)
+    
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb =json;
   }else if(id==="register" ){
@@ -392,16 +376,8 @@ function head_introduce_efb(state){
               </div>
               <div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>
     </div>    
-
-
-    
-
   </section> `
 }
-
-
-
-
 
 
 window.onload=(()=>{
