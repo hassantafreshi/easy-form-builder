@@ -82,7 +82,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  /*  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
+    { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -979,8 +979,7 @@ let change_el_edit_Efb = (el) => {
           let cornEl = document.getElementById(postId);          
           if (el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'||el.dataset.tag == 'select' || el.dataset.tag == 'multiselect') cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select'  ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
           //efb-square
-          (`data-tag[${el.dataset.tag}]`, `${postId}options`, el.dataset.tag == 'select' || el.dataset.tag == 'multiselect', cornEl);
-          (cornEl, cornEl.classList.contains('efb-square'));
+
           cornEl.classList.toggle('efb-square')
           if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
   
@@ -988,7 +987,7 @@ let change_el_edit_Efb = (el) => {
         } else {
           valj_efb[0].corner = co;
           postId = document.getElementById('btn_send_efb');
-          (postId)
+        
           postId.classList.toggle('efb-square')
           document.getElementById('next_efb').classList.toggle('efb-square')
           document.getElementById('prev_efb').classList.toggle('efb-square')
@@ -1572,7 +1571,7 @@ const sort_obj_el_efb = () => {
         el.dataset.step = step;
         amount = amount + 1;
         const indx = valj_efb.findIndex(x => x.dataId == el.dataset.id)
-        (indx)
+       
         if (indx != -1) {
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
@@ -2328,7 +2327,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     } else {
       valj_efb[0].steps = step_el_efb;
     }
-    (valj_efb[0]);
+   
     if (!document.getElementById('button_group')) {
        add_buttons_zone_efb(0, 'dropZoneEFB')
       fub_shwBtns_efb();
