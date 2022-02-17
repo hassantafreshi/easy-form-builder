@@ -487,9 +487,9 @@ class Admin {
                 $email = $value;
             }
             if ($key == "activeCode" && strlen($value) > 1) {
-
-               // error_log($rdd);
-                if (md5($_SERVER['SERVER_NAME']) != $value) {
+                $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+                error_log($server_name);
+                if (md5($server_name) != $value) {
                     $m = $lang["activationNcorrect"];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);

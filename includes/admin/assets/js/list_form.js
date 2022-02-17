@@ -777,6 +777,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb bi bi-gear mx-2"></i>${efb_var.text.general}</button>
                             <button class="efb nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
+                         <!--   <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> -->
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                         </div>
                         </nav>
@@ -891,6 +892,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <!--End Email-->
                             </div>
                         </div>
+              
                       
                         <div class="tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
                             <div class="mx-3 my-2">
@@ -903,6 +905,45 @@ function fun_show_setting__emsFormBuilder() {
                                 <!-- END Text Section -->
                             </div>
                         </div>
+
+
+                        <div class="tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <div class="my-2 mx-1">
+
+                          <nav class="navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
+                              <div class="container-fluid">
+                                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                                  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                                  <ul class="navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
+                                    <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="saveFormEfb()" "="">
+                                     <i class="bi-play-fill me-1 "></i>${efb_var.text.preview}</a>
+                                    </li>                                  
+                                    <li class="nav-item">
+                                        <a class="nav-link efb btn text-capitalize  " onclick="show_setting_window_efb('formSet')" "="">
+                                        <i class="bi-sliders mx-1 "></i>${efb_var.text.reset}</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link efb btn text-capitalize  " onclick="show_setting_window_efb('formSet')" "="">
+                                        <i class="bi-sliders mx-1 "></i>${efb_var.text.help}</a>
+                                    </li>
+                                    
+                              </div>      
+                          </nav>
+                        </div>
+                        <div class="mx-3 row col-12 mb-2">
+                            <!--EmailTemplate-->
+                            <div class="col-6 bg-back">
+                              <h2>Editor</h2>
+                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="50"></textarea>                        
+                            </div>
+                            <div class="col-6 bg-warning">
+                              <h2>View</h2>
+                              <div id="efbEmailTempShow" class="col-12"></div>
+                            </div>
+                         
+                            <!--End EmailTemplate-->
+                        </div>
+                    </div>
                       
                         <button type="button" id="save-stng-efb" class="btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
                             <i class="efb bi-save mx-1"></i>${efb_var.text.save}

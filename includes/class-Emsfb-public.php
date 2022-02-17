@@ -100,7 +100,8 @@ class _Public {
 			$setting =json_decode($setting);
 			//error_log(gettype( $setting));
 		//	error_log($setting->activeCode);
-			if(md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
+			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			if(md5($server_name) ==$setting->activeCode){
 				//error_log($setting->activeCode);
 				//error_log('pro == true');
 				$pro=true;
@@ -380,7 +381,8 @@ class _Public {
 			//	error_log($setting);
 				$secretKey=isset($setting->secretKey) ? $setting->secretKey : null;
 			//error_log($setting->activeCode);
-				if(!empty($setting->activeCode) && md5($_SERVER['SERVER_NAME']) ==$setting->activeCode){
+				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				if(!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 					//error_log('pro == true');
 					$pro=true;
 				}
