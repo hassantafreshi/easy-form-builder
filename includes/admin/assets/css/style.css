@@ -1928,4 +1928,19 @@ input[type=checkbox].efb.fs-2.form-check-input
       }
 
 
+      body.mobile.modal-open #wpwrap{
+        position: relative!important;
+      }
+      @media screen and (max-width: 782px) {
+        .top_circle-efb-1,
+        .top_circle-efb-2{
+            display: none!important;
+        }
+      }
 
+
+
+
+      .head-efb {
+        z-index: 100;
+    }

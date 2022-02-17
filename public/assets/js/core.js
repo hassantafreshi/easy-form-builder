@@ -24,7 +24,7 @@ let valueJson_ws = []
 jQuery(function () {
   //789 امنیت باید اضافه شود به این قسمت
 
- // console.log(ajax_object_efm);
+  console.log("Easy Form Builder");
   if (typeof ajax_object_efm == 'undefined') return;
   poster_emsFormBuilder = ajax_object_efm.poster;
   efb_var = ajax_object_efm

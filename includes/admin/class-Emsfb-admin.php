@@ -140,8 +140,7 @@ class Admin {
 
                 //code_v2 start
                 
-                wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
-                wp_enqueue_script('efb-jquery-min-js'); 
+            
                 
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
@@ -488,7 +487,6 @@ class Admin {
             }
             if ($key == "activeCode" && strlen($value) > 1) {
                 $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-                error_log($server_name);
                 if (md5($server_name) != $value) {
                     $m = $lang["activationNcorrect"];
                     $response = ['success' => false, "m" =>$m];

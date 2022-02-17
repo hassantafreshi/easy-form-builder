@@ -3744,7 +3744,7 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-if (localStorage.getItem('count_view')>=0 && localStorage.getItem('count_view') <3 && efb_var.maps!="1") {
+if (localStorage.getItem('count_view')>=0 && localStorage.getItem('count_view') <3 && efb_var && efb_var.maps!="1") {
   setTimeout(() => {  noti_message_efb(efb_var.text.warningBootStrap, "", 15 ,"danger") }, 100);
   setTimeout(() => {  noti_message_efb(efb_var.text.localizationM, "", 15 ,"info") }, 17000);
   setTimeout(() => {
@@ -4168,3 +4168,7 @@ function type_validate_efb(type){
  // console.log(type)
   return type == "select" || type=="text" || type=="password" || type=="email" || type=="conturyList" ||  type=="stateProvince"  || type=="file" || type=="url" || type=="color" || type=="date"  || type=="textarea" || type=="tel" ? true : false;
 }
+
+
+
+

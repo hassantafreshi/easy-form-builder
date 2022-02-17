@@ -34,8 +34,7 @@ class efbFunction {
 		$state= $ac!==null && isset($ac->text) ? true : false ;
 	//	error_log($ac);
 		$lang = [
-			"emailTemplate" => $state && isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
-			"reset" => $state && isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
+			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
 			"define" => $state ? $ac->text->define : __('Define','easy-form-builder'),
 			"formName" => $state ? $ac->text->formName : __('Form Name','easy-form-builder'),
@@ -439,15 +438,19 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel → Setting → localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel → Settings → checked  <My template have used BootStrap framwork> → Save','easy-form-builder'),
-			"or" => $state ? $ac->text->or : __('OR','easy-form-builder'),
-			"thank" => $state &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
-
-
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel → Settings → checked  <My template have used BootStrap framwork> → Save','easy-form-builder'),
+			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
+			/* bug! start */
+			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
+			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
+			/* bug! end */
+			
 
 
 			
 		];
+
 	
 		$rtrn =[];
 		$st="null";

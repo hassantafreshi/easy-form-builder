@@ -396,7 +396,7 @@ function fun_ws_show_list_messages(value) {
 
 
 
-  document.getElementById('content-efb').innerHTML = `${head}
+  document.getElementById('content-efb').innerHTML = `<div class="head-efb">${head}</div>
     <h4 class="title-holder efb"> <img src="${efb_var.images.title}" class="title efb">
     <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
@@ -777,7 +777,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb bi bi-gear mx-2"></i>${efb_var.text.general}</button>
                             <button class="efb nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
-                         <!--   <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> -->
+                            <button class="d-none efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                         </div>
                         </nav>

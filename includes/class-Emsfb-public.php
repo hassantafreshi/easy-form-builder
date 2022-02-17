@@ -279,8 +279,7 @@ class _Public {
 		}
 
 		/* v2 */
-	/* 	wp_enqueue_script('efb-jquery-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js');
-		wp_enqueue_script('efb-jquery-min-js');  */
+
 		if($bootstrap==false){
 			
 			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
