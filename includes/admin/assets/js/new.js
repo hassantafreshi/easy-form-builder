@@ -22,6 +22,7 @@ let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
 let devlop_efb=false;
+
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
     if(typeof (efb_var)== "object"){
@@ -115,7 +116,7 @@ function creator_form_builder_Efb() {
   }
   let navs = [
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
-    { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
+   // { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
     { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
     
@@ -123,7 +124,7 @@ function creator_form_builder_Efb() {
   if(devlop_efb==true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
   let nav = "<!--efb.app-->";
   for (let ob in navs) {
-    nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} me-1 "></i>${navs[ob].name}</a></li>`
+    nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`
   }
   document.getElementById(`content-efb`).innerHTML = `
   <div class="m-5">
@@ -148,7 +149,7 @@ function creator_form_builder_Efb() {
   <div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="modal-content efb " id="settingModalEfb-sections">
-                  <div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb">${efb_var.text.editField}</span></h5></div>
+                  <div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb">${efb_var.text.editField}</span></h5></div>
                   <div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
@@ -263,7 +264,7 @@ function show_setting_window_efb(idset) {
     ${desEls}
     ${requireEls}`
   const labelFontSizeEls = `
-    <label for="labelFontSizeEl" class="mt-3 bi-aspect-ratio me-2 efb">${efb_var.text.labelSize}</label>
+    <label for="labelFontSizeEl" class="mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
                       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">                                            
                           <option value="fs-6" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
                           <option value="fs-7" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
@@ -274,7 +275,7 @@ function show_setting_window_efb(idset) {
 
   const labelPostionEls = `    
   <div class="row efb">     
-  <label for="labelPostionEl" class="mt-3 col-12 bi-arrows-angle-contract me-2 efb">${efb_var.text.labelPostion}</label>
+  <label for="labelPostionEl" class="mt-3 col-12 bi-arrows-angle-contract mx-2 efb">${efb_var.text.labelPostion}</label>
     <div class="btn-group btn-group-toggle col-12 efb" data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">    
       <label class=" btn btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','up')">
         <input type="radio" name="options" class="opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
@@ -295,7 +296,7 @@ function show_setting_window_efb(idset) {
     }
     return `    
     <div class="efb row">     
-    <label for="labelPostionEl" class="efb mt-3 col-12 bi-align-center me-2">${side} ${efb_var.text.align}</label>
+    <label for="labelPostionEl" class="efb mt-3 col-12 bi-align-center mx-2">${side} ${efb_var.text.align}</label>
       <div class="efb btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
         <label class=" btn btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
           <input type="radio" name="options" class="efb opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
@@ -308,7 +309,7 @@ function show_setting_window_efb(idset) {
       </div></div>`;
   }
   const widthEls = `
-    <label for="widthEl" class="efb mt-3 bi-arrow-left-right me-2">${efb_var.text.width}</label>
+    <label for="widthEl" class="efb mt-3 bi-arrow-left-right mx-2">${efb_var.text.width}</label>
     <select  data-id="${idset}" class="efb efb-rounded elEdit form-select"  id="sizeEl" >                                            
         <option value="33" ${valj_efb[indx].size && valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
         <option value="50" ${valj_efb[indx].size && valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
@@ -317,15 +318,15 @@ function show_setting_window_efb(idset) {
     </select>
     `
   const classesEls = `
-    <label for="cssClasses" class="efb mt-3 bi-journal-code me-2">${efb_var.text.cSSClasses}</label>
+    <label for="cssClasses" class="efb mt-3 bi-journal-code mx-2">${efb_var.text.cSSClasses}</label>
     <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
     `
   const valueEls = `
-  <label for="valueEl" class="efb mt-3 bi-cursor-text me-2">${efb_var.text.defaultValue}</label>
+  <label for="valueEl" class="efb mt-3 bi-cursor-text mx-2">${efb_var.text.defaultValue}</label>
     <input type="text"  data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
     `
   const placeholderEls = `
-    <label for="placeholderEl" class="efb mt-3 bi-patch-exclamation me-2">${efb_var.text.placeholder}</label>
+    <label for="placeholderEl" class="efb mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
     <input type="text"  data-id="${idset}" class="elEdit text-muted form-control  border-d efb-rounded efb mb-3"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
     `
   const cornerEls = (side) => {
@@ -348,7 +349,7 @@ function show_setting_window_efb(idset) {
     else if (side == "Previous") { icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
     else { icon = valj_efb[indx].icon }
 
-    return `<label for="iconEl" class="efb form-label  bi-heptagon me-2 mt-2">${t} ${efb_var.text.icon}  <a class="fs-7 efb" target="_blank" href="https://icons.getbootstrap.com/#icons">${efb_var.text.iconList}</a></label>
+    return `<label for="iconEl" class="efb form-label  bi-heptagon mx-2 mt-2">${t} ${efb_var.text.icon}  <a class="fs-7 efb" target="_blank" href="https://icons.getbootstrap.com/#icons">${efb_var.text.iconList}</a></label>
       <input type="text" data-id="${idset}" class="efb elEdit text-muted border-d efb-rounded form-control h-d-efb mb-1" data-side="${side}"  placeholder="${efb_var.text.icon}" id="iconEl" required value="${icon}">`
   }
 
@@ -369,7 +370,7 @@ function show_setting_window_efb(idset) {
 
 
   const fileTypeEls = `
-        <label for="fileTypeEl" class="efb mt-3 bi-file-earmark-medical me-2 ">${efb_var.text.fileType}</label>
+        <label for="fileTypeEl" class="efb mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.fileType}</label>
         <select  data-id="${idset}" class="efb elEdit form-select border-d efb-rounded"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">                                            
         <option value="document" ${valj_efb[indx].type && valj_efb[indx].type == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
         <option value="image" ${valj_efb[indx].type && valj_efb[indx].type == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
@@ -378,7 +379,7 @@ function show_setting_window_efb(idset) {
     </select>
     `
   const btnColorEls = `
-        <label for="btnColorEl" class="efb mt-3 bi-paint-bucket me-2">${efb_var.text.buttonColor}</label>
+        <label for="btnColorEl" class="efb mt-3 bi-paint-bucket mx-2">${efb_var.text.buttonColor}</label>
         <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="btnColorEl" data-tag="${valj_efb[indx].type}">                                            
         <option value="btn-default" class="text-default efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-default' ? `selected` : ''} >${efb_var.text.default}</option>
         <option value="btn-primary" class="text-primary efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
@@ -398,7 +399,7 @@ function show_setting_window_efb(idset) {
     let color = valj_efb[indx].el_border_color;
 
     return `
-      <label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket me-2">${efb_var.text.borderColor}</label>
+      <label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2">${efb_var.text.borderColor}</label>
       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectBorderColorEl" data-tag="${valj_efb[indx].type}">                                            
       <option value="border-d" class="textdefault efb" ${color && color == 'border-d' ? `selected` : ''} >${efb_var.text.default}</option>
       <option value="border-primary" class="text-primary efb" ${color && color == 'border-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
@@ -434,7 +435,7 @@ function show_setting_window_efb(idset) {
       t = efb_var.text.field
     }
     return `
-      <label for="selectColorEl" class="mt-3 bi-paint-bucket me-2 efb">${t} ${efb_var.text.clr}</label>
+      <label for="selectColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectColorEl" data-tag="${valj_efb[indx].type}">                                            
       <option value="text-labelEfb" class="textdefault efb" ${color && color == '' ? `selected` : ''} >${efb_var.text.default}</option>
       <option value="text-primary" class="text-primary efb" ${color && color == 'text-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
@@ -454,7 +455,7 @@ function show_setting_window_efb(idset) {
   }
   const selectHeightEls = () => {
     return `
-      <label for="selectHeightEl" class="efb mt-3 bi-arrow-down-up me-2">${efb_var.text.height}</label>
+      <label for="selectHeightEl" class="efb mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
       <select  data-id="${idset}" class="efb efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            
       <option value="h-d-efb" ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
       <option value="h-l-efb"  ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>                      
@@ -689,7 +690,7 @@ function show_setting_window_efb(idset) {
       body = `
       <div class="efb mb-3">
       <!--  not   advanced-->
-      <label for="htmlCodeEl" class="efb form-label mt-2"><i class="efb bi-code-square me-2" ></i>${efb_var.text.code}</label>
+      <label for="htmlCodeEl" class="efb form-label mt-2"><i class="efb bi-code-square mx-2" ></i>${efb_var.text.code}</label>
       <small class="text-info text-danger bg-muted  efb">${efb_var.text.pleaseDoNotAddJsCode}</small>
       <textarea placeholder="${efb_var.text.htmlCode}" 
       class="elEdit form-control efb  h-d-efb   mb-1"
@@ -722,9 +723,9 @@ function show_setting_window_efb(idset) {
               ${widthEls}
               ${selectHeightEls()}
               ${cornerEls('yesNo')}
-              <label for="valueEl" class="efb mt-3 bi-cursor-text me-2">${efb_var.text.button1Value}</label>
+              <label for="valueEl" class="efb mt-3 bi-cursor-text mx-2">${efb_var.text.button1Value}</label>
               <input type="text"  data-id="${idset}" class="elEdit border-d efb-rounded text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="1" placeholder="${efb_var.text.exDot} ${efb_var.text.yes}" value="${valj_efb[indx].button_1_text}">
-              <label for="valueEl" class="efb mt-3 bi-cursor-text me-2">${efb_var.text.button2Value}</label>
+              <label for="valueEl" class="efb mt-3 bi-cursor-text mx-2">${efb_var.text.button2Value}</label>
               <input type="text"  data-id="${idset}" class="elEdit border-d efb-rounded text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
               ${classesEls}
               </div>
@@ -822,7 +823,7 @@ function show_setting_window_efb(idset) {
       break;
 
   }
-  show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks me-2', 'settingBox')
+  show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
   for (const el of document.querySelectorAll(`.elEdit`)) {
     el.addEventListener("change", (e) => {
       change_el_edit_Efb(el);
@@ -1323,7 +1324,7 @@ const show_modal_efb = (body, title, icon, type) => {
  
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   document.getElementById("settingModalEfb-title").innerHTML = title;
-  document.getElementById("settingModalEfb-icon").className = icon + ` me-2`;
+  document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
   document.getElementById("settingModalEfb-body").innerHTML = body
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
@@ -1368,7 +1369,7 @@ function show_delete_window_efb(idset) {
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb  mb-3"><div class="efb clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill me-2', 'deleteBox')
+  show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
   if (is_step == false) {
@@ -2463,7 +2464,7 @@ const loadingShow_efb = (title) => {
   return `<div class="modal-dialog modal-dialog-centered efb"  id="settingModalEfb_" >
  <div class="modal-content efb " id="settingModalEfb-sections">
      <div class="modal-header efb">
-         <h5 class="modal-title efb" ><i class="bi-ui-checks me-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
+         <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
      </div>
      <div class="modal-body efb" id="settingModalEfb-body">
          ${loading_messge_efb()}
@@ -2597,11 +2598,11 @@ let add_buttons_zone_efb = (state, id) => {
   const floatEnd = id == "dropZoneEFB" ? 'float-end' : ``;
   const btnPos = id != "dropZoneEFB" ? ' text-center' : ''
   const s = `
-  <div class="${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  me-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+  <div class="d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
+    <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  mx-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
-  <div class="${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
+  <div class="d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
   <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  fs-6" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Previous_text}</span></button>
   <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color}  mx-2">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
   </div>
@@ -2610,7 +2611,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (id != "dropZoneEFB") {
      c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = ` <div class="col-12 mb-2 mt-3 efb bottom-0 ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="bottom-0 d-flex justify-content-center" id="button_group_efb"> <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
+    c = ` <div class="col-12 mb-2 mt-3 efb bottom-0 ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="bottom-0 " id="button_group_efb"> <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
 
   if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -2807,7 +2808,7 @@ const saveFormEfb = () => {
     if (state == false) {
       
       btn = `<button type="button" class="btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="${btnFun}">
-      <i class="efb ${btnIcon} me-2"></i> ${btnText} </button>`
+      <i class="efb ${btnIcon} mx-2"></i> ${btnText} </button>`
       body = `
       <div class="pro-version-efb-modal efb"></div>
         <h5 class="efb txt-center text-darkb fs-6 text-capitalize">${message}</h5>
@@ -2829,7 +2830,7 @@ const saveFormEfb = () => {
     <h5 class="efb txt-center text-darkb fs-6 text-capitalize">${efb_var.text.pleaseReporProblem}</h5>
     <div class="efb text-center text-capitalize">
     <button type="button" class="btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
-      <i class="efb bi-megaphone me-2"></i> ${efb_var.text.reportProblem} </button>
+      <i class="efb bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
     </div>
     `
     show_modal_efb(body,efb_var.text.error, btnIcon, 'error')
@@ -3403,7 +3404,7 @@ function ui_dadfile_efb(indx, previewSate) {
   return `<div class="icon"><i class="efb fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
   <h6 id="${valj_efb[indx].id_}_txt" class="text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
   <button type="button" class="efb btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
-      <i class="efb bi-upload me-2"></i>${efb_var.text.browseFile}
+      <i class="efb bi-upload mx-2"></i>${efb_var.text.browseFile}
   </button>
  <input type="file" hidden="" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
 
@@ -3497,7 +3498,7 @@ function validExtensions_efb_fun(type, fileType) {
 function wating_sort_complate_efb(t) {
   if (t > 500) t = 500
   const body = loading_messge_efb()
-  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks me-2', 'settingBox')
+  show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
   const myModal = new bootstrap.Modal(el, {});
   myModal.backdrop = 'static';
@@ -3808,7 +3809,7 @@ function funTnxEfb(val,title,message){
                </button></div>`
   return `
                       <h4 class="efb my-1">
-                        <i class="efb bi-hand-thumbs-up title-icon me-2"></i>${t}
+                        <i class="efb bi-hand-thumbs-up title-icon mx-2"></i>${t}
                     </h4>
                     <h3 class="efb">${m}</h3>
                    ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
@@ -4137,7 +4138,7 @@ function timeOutCaptcha(){
 
 
 function fun_validation_efb(){
- // console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
+ console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
   let state =true;
   let idi ="null";
   for(let row in valj_efb){

@@ -124,7 +124,7 @@ function emsFormBuilder_get_edit_form(id) {
 function emsFormBuilder_delete(id) {
   //v2
   const body = `<div class="efb  mb-3"><div class="efb clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
-  show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill me-2', 'deleteBox')
+  show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
 
@@ -709,7 +709,7 @@ function fun_show_help__emsFormBuilder() {
   <div class="container row">
   <h4 class="title-holder efb">
       <img src="${efb_var.images.title}" class="title efb">
-      <i class="efb bi-info-circle title-icon me-2"></i>${efb_var.text.help}
+      <i class="efb bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
   </h4>
   <div class="crd efb col-md-7"><div class="card-body"> <div class="d-grid gap-2">${str}</div></div></div>
   <div class="col-md-4 mx-1 py-5 crd efb">
@@ -916,7 +916,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                                   <ul class="navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
                                     <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="saveFormEfb()" "="">
-                                     <i class="bi-play-fill me-1 "></i>${efb_var.text.preview}</a>
+                                     <i class="bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
                                     </li>                                  
                                     <li class="nav-item">
                                         <a class="nav-link efb btn text-capitalize  " onclick="show_setting_window_efb('formSet')" "="">

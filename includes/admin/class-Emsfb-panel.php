@@ -149,10 +149,10 @@ class Panel_edit  {
 							<div class="d-flex">
 								<form class="d-flex">
 									<i class="efb bi-search search-icon"></i>
-									<input class="form-control efb search-form-control efb-rounded efb me-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["entrTrkngNo"]  ?>">
-									<button class="btn efb btn-outline-pink me-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></button>
+									<input class="form-control efb search-form-control efb-rounded efb mx-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["entrTrkngNo"]  ?>">
+									<button class="btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></button>
 								</form>
-								<div class="nav-icon efb me-2">
+								<div class="nav-icon efb mx-2">
 									<a class="nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb bi-person"></i></a>
 								</div>
 								<div class="nav-icon efb">
@@ -167,7 +167,7 @@ class Panel_edit  {
 					<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="modal-content efb " id="settingModalEfb-sections">
-									<div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks me-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
 									<div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
 					</div></div></div>
 

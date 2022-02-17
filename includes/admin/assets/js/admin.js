@@ -79,7 +79,7 @@ function show_message_result_form_set_EFB(state ,m){ //V2
   const title =`
   <h4 class="title-holder efb">
      <img src="${efb_var.images.title}" class="title efb">
-     ${state!=0 ?`<i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.done}` :`<i class="efb bi-hand-thumbs-up title-icon me-2"></i>${efb_var.text.error}` }
+     ${state!=0 ?`<i class="efb bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` :`<i class="efb bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}` }
   </h4>
   `;
   let content =``
@@ -223,7 +223,7 @@ function add_dasboard_emsFormBuilder(){
          
           <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <p class="card-text efb float-start mt-3">${i.desc}</p>
-          ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock me-2"></i>${efb_var.text.availableSoon}</button>`}
+          ${i.status==true ? `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>` : `<button type="button" id="${i.id}" class="btn efb btn-primary btn-lg float-end disabled" disabled><i class="efb bi-lock mx-2"></i>${efb_var.text.availableSoon}</button>`}
           </div></div></div>`
         }
         

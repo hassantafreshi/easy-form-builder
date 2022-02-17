@@ -53,7 +53,8 @@ How *Easy Form Builder* makes your life easier:
 - Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
 - Get export of result of Surveys to CSV format file (Available in pro version)
 - Get export of response of forms to CSV format file (Available in pro version)
-- Easily Localization Easy Form Builder to your language for **free** 
+- Easily Localization Easy Form Builder to your language for **free**
+- Mobile-friendly admin panel of Easy Form Builder
 
 
  
