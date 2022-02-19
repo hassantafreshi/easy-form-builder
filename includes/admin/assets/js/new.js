@@ -22,6 +22,7 @@ let formName_Efb ;
 let current_s_efb =1
 let verifyCaptcha_efb =""
 let devlop_efb=false;
+let preview_efb=false;
 
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
@@ -116,7 +117,7 @@ function creator_form_builder_Efb() {
   }
   let navs = [
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
-   // { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
+    { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
     { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
     
@@ -3523,7 +3524,7 @@ function handle_navbtn_efb(steps, device) {
     jQuery("#next_efb").click(function () {
       var cp = current_s_efb + 1
       var state = true
-      if(fun_validation_efb()==false){state=false ; return false};
+      if(preview_efb==false && fun_validation_efb()==false){state=false ; return false};
   
       setTimeout(function(){ 
         if(state=true){
@@ -3641,7 +3642,7 @@ function handle_navbtn_efb(steps, device) {
 
     jQuery("#btn_send_efb").click(function () {
       var state = true
-      if(fun_validation_efb()==false){state=false ; return false};
+      if( preview_efb==false && fun_validation_efb()==false){state=false ; return false};
   
       setTimeout(function(){ 
         if(state=true){
@@ -3833,7 +3834,11 @@ function send_data_efb(){
 
 function previewFormEfb(state){
   //v2
-    if(state!="run") state_efb="view";
+    if(state!="run") {
+      state_efb="view";
+      preview_efb=true;
+    }
+  
   //state_efb
   let content = `<!--efb.app-->`
   let step_no = 0;

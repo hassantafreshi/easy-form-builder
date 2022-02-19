@@ -147,7 +147,8 @@ class Admin {
                  wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-  
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js');
+                wp_enqueue_script('efb-bootstrap-icon-js'); 
 
                 
 

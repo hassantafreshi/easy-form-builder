@@ -22,6 +22,7 @@ if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws
 
 
 
+
 jQuery (function() {
   state_check_ws_p =Number(efb_var.check)
   pro_ws = (efb_var.pro=='1' || efb_var.pro==true) ? true : false;
