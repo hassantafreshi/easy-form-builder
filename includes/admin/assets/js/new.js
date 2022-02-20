@@ -23,6 +23,8 @@ let current_s_efb =1
 let verifyCaptcha_efb =""
 let devlop_efb=false;
 let preview_efb=false;
+const mobile_view_efb =  document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 :0;
+
 
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
@@ -110,7 +112,7 @@ function creator_form_builder_Efb() {
   for (let ob of objct) {
     if (ob.id=="html" && formName_Efb=="login"){dragab=true; disable="disable"}
     els += `
-    <div class="col-3 draggable-efb" draggable="${dragab}" id="${ob.id}">
+    <div class="col-3 draggable-efb" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"`: '' }>
      ${ob.pro == true && pro_efb==false ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
       <button type="button" class="btn efb btn-select-form float-end ${disable!="disable" ? "btn-muted" :''}" id="${ob.id}_b" ${disable}><i class="efb ${ob.icon}"></i><span class="d-block text-capitalize">${ob.name}</span></button>
     </div>
@@ -129,7 +131,7 @@ function creator_form_builder_Efb() {
     nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`
   }
   document.getElementById(`content-efb`).innerHTML = `
-  <div class="m-5">
+  <div class="${mobile_view_efb ? 'my-2 mx-1': 'm-5' }" id="pCreatorEfb" >
   <div id="panel_efb">
       <nav class="navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
           <div class="container-fluid">
@@ -139,7 +141,7 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="row">
           <div class="col-md-4" id="listElEfb"><div class="row">${els}</div></div>
-         <div class="col-md-8"><div class="crd efb  drag-box"><div class="card-body dropZoneEFB row " id="dropZoneEFB">
+         <div class="col-md-8 body-dpz-efb"><div class="crd efb  drag-box"><div class="card-body dropZoneEFB row " id="dropZoneEFB">
                 
         <div id="efb-dd" class="text-center ">
         <h1 class="text-muted display-1  bi-plus-circle-dotted"> </h1>
@@ -1766,8 +1768,10 @@ function create_dargAndDrop_el() {
     if (e.dataTransfer.getData("text/plain") !== "step" && e.dataTransfer.getData("text/plain") != null && e.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
       const t = e.dataTransfer.getData("text/plain");
+      console.log(t);
 
-
+      fun_efb_add_el(t);
+/* 
       if(t=="steps" && valj_efb.length<2){return;}
       if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
       let el = addNewElement(t, rndm, false, false);
@@ -1809,7 +1813,7 @@ function create_dargAndDrop_el() {
           opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
         }, 15);
       }
-
+ */
 
       // el = document.getElementById(`${rndm}`);
 
@@ -2674,7 +2678,7 @@ const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\b
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
-const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+ |bXXX)/g, `${value}`); }
+const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
 const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|txt-right|txt-center)/, `${value}`); }
 const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, `${value}`); }
@@ -4221,4 +4225,54 @@ function type_validate_efb(type){
 
 
 
+/* add element to dropzone Mobile */
+add_element_dpz_efb=(id)=>{fun_efb_add_el(id);}
 
+fun_efb_add_el=(t)=>{
+
+const rndm = Math.random().toString(36).substr(2, 9);
+
+  console.log(t);
+
+  if(t=="steps" && valj_efb.length<2){return;}
+  if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
+  let el = addNewElement(t, rndm, false, false);
+  dropZoneEFB.innerHTML += el;
+  //show buttons del and setting
+  fub_shwBtns_efb();
+
+  if (t == 'maps') {
+
+    const id = `${rndm}-map`;
+  
+    if (typeof google !== "undefined") {
+      let map = new google.maps.Map(document.getElementById(`${id}`), {
+        center: { lat: 49.24803870604257, lng: -123.10512829684463 },
+        zoom: 10,
+      })
+    } else {
+      setTimeout(() => {
+        const mp = document.getElementById(`${rndm}-map`)
+        mp.innerHTML = `<div class="efb boxHtml-efb sign-efb" >
+        <div class="efb noCode-efb m-5 text-center">
+        <button type="button" class="efb btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
+         <i class="efb bi-question-lg text-pinkEfb"></i></button> 
+         ${efb_var.text.aPIkeyGoogleMapsError}  
+      </div></div>`
+      }, 1400);
+    }
+
+  } else if (t == "multiselect") {
+    const id = `#${rndm}_options`
+    jQuery(function () {
+   
+      jQuery(id).selectpicker();
+    });
+    setTimeout(() => {
+      const v = valj_efb.find(x => x.id_ == rndm);
+      const opd = document.querySelector(`[data-id='${rndm}_options']`)
+    
+      opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
+    }, 15);
+  }
+}

@@ -1962,7 +1962,31 @@ input[type=checkbox].efb.fs-2.form-check-input
         z-index: 100;
     }
 
+/* mobile form creator */
+.mobile div#listElEfb {
+    max-height: 208px;
+    overflow: auto;
+    margin-bottom: 3%;
+}
 
+.mobile .btn-select-form.efb {
+    font-size: 10px;
+    height: 100px;
+}
+
+.mobile .description-logo.efb {
+    height: 80px;
+    width: 80px;
+    float: left;
+    margin: 0px;
+    }
+.mobile .title-holder.efb {
+        margin: 0px 0 12px 0;
+        font-size: 32px!important;
+    }
+.mobile .title-icon.efb{
+    font-size: 32px!important;
+}
 
     /* select list */
     .listSelect.efb{
@@ -1971,7 +1995,7 @@ input[type=checkbox].efb.fs-2.form-check-input
     }
     .efb.listContent {
         overflow: auto;
-        max-height: 250px;
+        max-height: 208px;
         position: absolute;
         cursor:           pointer;
         z-index: 1000;
