@@ -29,6 +29,7 @@ efb_var_waitng=(time)=>{
     if(typeof (efb_var)== "object"){
       
       formName_Efb = efb_var.text.form
+      default_val_efb =efb_var.text.selectOption
       pro_efb = efb_var.pro=="1" || efb_var.pro==1 ? true :false;
       return;
     }else{
@@ -200,7 +201,7 @@ function active_element_efb(el) {
 
 //setting of  element
 function show_setting_window_efb(idset) {
-  console.group('show_setting_window_efb')
+  console.log('show_setting_window_efb',idset,valj_efb)
   // ویرایش پیشرفته هر المان را به مدال اضافه می کند که کاربر ویرایش را بتواند انجام دهد
   // نکته : باید بعدا وقتی اضافه می کنیم از طریق جیسون مقدارهای قبلی هم نمایش بدهم
   // const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -344,14 +345,54 @@ function show_setting_window_efb(idset) {
       </div></div>`
   }
   const iconEls = (side) => {
+
+    
+   
+
     let icon = "";
     let t = ""
-    if (side == "Next") { icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
-    else if (side == "Previous") { icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
-    else { icon = valj_efb[indx].icon }
-
-    return `<label for="iconEl" class="efb form-label  bi-heptagon mx-2 mt-2">${t} ${efb_var.text.icon}  <a class="fs-7 efb" target="_blank" href="https://icons.getbootstrap.com/#icons">${efb_var.text.iconList}</a></label>
-      <input type="text" data-id="${idset}" class="efb elEdit text-muted border-d efb-rounded form-control h-d-efb mb-1" data-side="${side}"  placeholder="${efb_var.text.icon}" id="iconEl" required value="${icon}">`
+    let iset ="";
+    console.log(`valj_efb`,valj_efb);
+    if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
+    else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
+    else {
+     idset != "button_group" ? iset=idset=valj_efb[indx].id_: iset=idset="button_group_"
+      if(isNumericEfb(iset))idset=iset="step-"+iset;
+     console.log(iset)
+      icon = valj_efb[indx].icon }
+    let list ="<!-- list of Bootstrap Icon --!>"
+    bootstrap_icons.forEach((e,key )=> {
+      const v= e.replace(`-`, ' ');      
+      list+=`<tr class="efblist text-white" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
+      <th scope="row" class="bi-${e}"></th>
+      <td>${v}</td>      
+    </tr>`      
+    });
+    let iNo =''
+    if (icon.length>1){
+       iNo =bootstrap_icons.findIndex(x=>x==icon.replace('bi-',''));
+    }
+    //check for Nex and previous
+  
+    return `<label for="iconEl" class="efb form-label  bi-heptagon mx-2 mt-2">${t} ${efb_var.text.icon} </label>
+    
+      
+      <div class=" efb listSelect my-2">     
+      <div class="efb efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded" id="iconEl" data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" data-select="">${icon=="" ? efb_var.text.selectOption :icon}</div>
+      <i class="efb efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="${iset}"></i>
+      <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
+      <table class="efb table ${iset}">
+              <thead class="efb efblist">
+                <tr><div class="efb searchSection efblist  p-2 bg-secondary">
+                    <i class="efb efblist  searchIcon  bi-search text-primary "></i>
+                    <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
+                  </div></tr>
+              </thead> <tbody >
+              ${list}
+              </tbody></table>
+      </div>
+  </div>
+      `
   }
 
 
@@ -826,10 +867,8 @@ function show_setting_window_efb(idset) {
   }
   show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
   for (const el of document.querySelectorAll(`.elEdit`)) {
-    el.addEventListener("change", (e) => {
-      change_el_edit_Efb(el);
-
-    })
+    if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
+    else{ console.log(el.tagName)}
   }
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   myModal.show()
@@ -837,6 +876,7 @@ function show_setting_window_efb(idset) {
 }
 
 let change_el_edit_Efb = (el) => {
+  console.log(el)
   const indx = el.dataset.id != "button_group" ? valj_efb.findIndex(x => x.dataId == el.dataset.id) : 0;
   const len_Valj =valj_efb.length;
   let clss = ''
@@ -1213,18 +1253,20 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'iconEl':
       
-        let di = '';
+/*         let di = '';
         if (el.dataset.side == "undefined" || el.dataset.side == "") {
           di = indx != 0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon`;
-          valj_efb[indx].icon = el.value;
+          valj_efb[indx].icon = returnValueSelectedOfListEfb(el.dataset.id);
         } else {
-  
+          const i = returnValueSelectedOfListEfb(el.dataset.id);
+          console.log(`i====================>${i}`);
           di = el.dataset.side == "Next" ? `button_group_Next_icon` : `button_group_Previous_icon`
-          el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = el.value : valj_efb[0].button_Previous_icon = el.value
-        }
+          el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = i : valj_efb[0].button_Previous_icon = i
+        } 
+        document.getElementById(`${di}`).className =`efb ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}`
+        */
      
       //  document.getElementById(`${di}`).className = `${el.value} mx-2`;
-        document.getElementById(`${di}`).className =`efb ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}`
         break;
       case 'marksEl':
         valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
@@ -2632,9 +2674,11 @@ const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\b
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
+const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+ |bXXX)/g, `${value}`); }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
 const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|txt-right|txt-center)/, `${value}`); }
 const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, `${value}`); }
+const isNumericEfb=(value)=>  {return /^\d+$/.test(value);}
 
 const open_whiteStudio_efb = (state) => {
   
