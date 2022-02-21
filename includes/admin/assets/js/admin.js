@@ -225,7 +225,7 @@ function add_dasboard_emsFormBuilder(){
           <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <div class="row" ><p class="card-text efb float-start my-3">${i.desc}</p></div>
           <button type="button" id="${i.id}" class="float-end btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>
-          <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger" onclick="fun_preview_before_efb('${i.id}')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
+         ${i.id=='form' || true ?'': `<a class="float-end btn mx-1 efb rounded-pill border-danger text-danger efbPreviewForm" onclick="fun_preview_before_efb('${i.id}')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>`}
           </div></div></div>`
         }
         
@@ -238,11 +238,18 @@ function add_dasboard_emsFormBuilder(){
             </section>`
      
      
-       const newform_=document.getElementsByClassName("efbCreateNewForm")
+       let newform_=document.getElementsByClassName("efbCreateNewForm")
       for(const n of newform_){
           n.addEventListener("click", (e) => {
             form_type_emsFormBuilder=n.id;
-            create_form_by_type_emsfb(n.id);           
+            create_form_by_type_emsfb(n.id,'npreview');           
+        })
+      }
+        newform_=document.getElementsByClassName("efbPreviewForm")
+      for(const n of newform_){
+          n.addEventListener("click", (e) => {
+            form_type_emsFormBuilder=n.id;
+            create_form_by_type_emsfb(n.id,'preview');           
         })
       }
 
@@ -250,9 +257,9 @@ function add_dasboard_emsFormBuilder(){
 
 
 
-function create_form_by_type_emsfb(id){
+function create_form_by_type_emsfb(id,s){
   //v2
-  const state =false;
+ 
   localStorage.removeItem('valj_efb');
   document.getElementById('header-efb').innerHTML=``;
   document.getElementById('content-efb').innerHTML=``;
@@ -341,12 +348,11 @@ function create_form_by_type_emsfb(id){
 
   }
   
+  if(s=="npreview"){
     creator_form_builder_Efb();
-
-  if(id!="form"){
-    setTimeout(() => {
-      editFormEfb()
-    }, 100)
+    if(id!="form"){setTimeout(() => {editFormEfb()}, 100)  }
+  }else{
+    previewFormEfb('pc')
   }
      // add_form_builder_emsFormBuilder();
     

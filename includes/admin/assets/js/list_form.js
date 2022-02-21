@@ -913,7 +913,7 @@ function fun_show_setting__emsFormBuilder() {
                           <nav class="navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
                               <div class="container-fluid">
                                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                                  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                                  <div class="collapse navbar-collapse py-1" id="navbarTogglerDemo01">
                                   <ul class="navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
                                     <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="saveFormEfb()" "="">
                                      <i class="bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>

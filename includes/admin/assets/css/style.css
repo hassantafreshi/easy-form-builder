@@ -392,11 +392,7 @@ opacity: 0.4;
     border-radius: 50%;
     opacity: 0.8;
 }
-.form-control.efb {
-
-color: #595b6e!important; 
-
-}
+.form-control.efb {color: #595b6e; }
 .field-selected-efb {
 border: 1px solid #f2effa;
 border-radius: 5px!important;
@@ -1964,7 +1960,7 @@ input[type=checkbox].efb.fs-2.form-check-input
 
 /* mobile form creator */
 .mobile div#listElEfb {
-    max-height: 208px;
+    max-height: 300px;
     overflow: auto;
     margin-bottom: 3%;
 }
@@ -1986,6 +1982,14 @@ input[type=checkbox].efb.fs-2.form-check-input
     }
 .mobile .title-icon.efb{
     font-size: 32px!important;
+}
+
+.mobile #efb-dd {
+    margin-top: 20%;
+    margin-bottom: 20%;
+}
+.mobile #settingModalEfb_ {
+    margin-left: 2%;
 }
 
     /* select list */

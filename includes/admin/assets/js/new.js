@@ -136,7 +136,7 @@ function creator_form_builder_Efb() {
       <nav class="navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
           <div class="container-fluid">
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-              <div class="collapse navbar-collapse" id="navbarTogglerDemo01"><ul class="navbar-nav me-auto mb-2 mb-lg-0">${nav}</ul></div>
+              <div class="collapse navbar-collapse py-1" id="navbarTogglerDemo01"><ul class="navbar-nav me-auto mb-2 mb-lg-0">${nav}</ul></div>
           </div>      
       </nav>
       <div class="row">
@@ -145,7 +145,7 @@ function creator_form_builder_Efb() {
                 
         <div id="efb-dd" class="text-center ">
         <h1 class="text-muted display-1  bi-plus-circle-dotted"> </h1>
-        <div class="text-muted fs-4 efb">${efb_var.text.dadFieldHere}</div>
+        <div class="text-muted fs-4 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere:''}</div>
         </div>
 
          </div></div></div></div>
@@ -441,7 +441,7 @@ function show_setting_window_efb(idset) {
   const selectBorderColorEls = (forEl) => {
     
     let color = valj_efb[indx].el_border_color;
-
+    console.log(forEl);
     return `
       <label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2">${efb_var.text.borderColor}</label>
       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectBorderColorEl" data-tag="${valj_efb[indx].type}">                                            
@@ -461,8 +461,8 @@ function show_setting_window_efb(idset) {
       </select>
       `
   }
-  const selectColorEls = (forEl) => {
-  
+  const selectColorEls = (forEl ,f) => {
+    //f ===> text , border,  bg 
     let t = ''
     let color = '';
     if (forEl == 'icon') {
@@ -478,7 +478,12 @@ function show_setting_window_efb(idset) {
       color = valj_efb[indx].el_text_color;
       t = efb_var.text.field
     }
-    return `
+    return `<label for="selectColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
+ <!--<select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}" data-type="${f}"  id="selectColorEl" data-tag="${valj_efb[indx].type}">-->
+    <input type="color" id="selectColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" name="selectColorEl" list="color_list" id="${idset}" >
+    `
+    
+      /* `
       <label for="selectColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectColorEl" data-tag="${valj_efb[indx].type}">                                            
       <option value="text-labelEfb" class="textdefault efb" ${color && color == '' ? `selected` : ''} >${efb_var.text.default}</option>
@@ -495,7 +500,7 @@ function show_setting_window_efb(idset) {
       <option value="text-white" class="class="text-white bg-dark efb" ${color && color == 'text-white' ? `selected` : ''} >${efb_var.text.white}</option>
       <option value="text-light" class="class="text-light bg-dark efb" ${color && color == 'text-light' ? `selected` : ''} >${efb_var.text.light}</option>
       </select>
-      `
+      ` */
   }
   const selectHeightEls = () => {
     return `
@@ -532,9 +537,9 @@ function show_setting_window_efb(idset) {
               <div class="efb  mb-3 mt-3 collapse" id="collapseAdvanced">
                       <div class="efb mb-3 px-3 row">                                            
                       ${labelFontSizeEls}
-                      ${selectColorEls('label')}
-                      ${selectColorEls('description')}
-                      ${selectColorEls('el')}
+                      ${selectColorEls('label','text')}
+                      ${selectColorEls('description','text')}
+                      ${selectColorEls('el','text')}
                       ${selectBorderColorEls('element')}
                       ${placeholderEls}
                       ${labelPostionEls}
@@ -604,11 +609,11 @@ function show_setting_window_efb(idset) {
               <div class="efb collapse mb-3 mt-3 " id="collapseAdvanced">
                       <div class="efb mb-3 px-3 row">                                        
                       ${labelFontSizeEls}
-                      ${selectColorEls('label')}
-                      ${selectColorEls('description')}
+                      ${selectColorEls('label','text')}
+                      ${selectColorEls('description','text')}
                       ${el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? cornerEls('') : ''} 
                       ${el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' ? selectBorderColorEls('element') : ''} 
-                      ${el.dataset.tag != 'multiselect' ? selectColorEls('el') : ''} 
+                      ${el.dataset.tag != 'multiselect' ? selectColorEls('el','text') : ''} 
                       ${labelPostionEls}
                       ${ElementAlignEls('label')}
                       ${ElementAlignEls('description')}
@@ -641,8 +646,8 @@ function show_setting_window_efb(idset) {
       <div class="efb  mb-3 mt-3 collapse" id="collapseAdvanced">
               <div class="efb mb-3 px-3 row">                                            
               ${labelFontSizeEls}
-              ${selectColorEls('label')}
-              ${selectColorEls('description')}
+              ${selectColorEls('label','text')}
+              ${selectColorEls('description','text')}
              
               ${el.dataset.tag == 'rating' || el.dataset.tag == 'range' ? "" : selectBorderColorEls('element')}
               ${labelPostionEls}
@@ -676,9 +681,9 @@ function show_setting_window_efb(idset) {
       <div class="efb mb-3 mt-3 collapse" id="collapseAdvanced">
               <div class="efb mb-3 px-3 row">                                                          
               ${labelFontSizeEls}
-              ${selectColorEls('label')}
-              ${selectColorEls('description')}
-              ${el.dataset.tag == 'dadfile' ? selectColorEls('icon') : ''}
+              ${selectColorEls('label','text')}
+              ${selectColorEls('description','text')}
+              ${el.dataset.tag == 'dadfile' ? selectColorEls('icon','text') : ''}
               ${el.dataset.tag == 'dadfile' ? btnColorEls : ''}
               ${selectBorderColorEls('element')}
               ${labelPostionEls}
@@ -721,8 +726,8 @@ function show_setting_window_efb(idset) {
               ${widthEls}
               ${selectHeightEls()}
               ${labelFontSizeEls}
-              ${selectColorEls('label')}
-              ${selectColorEls('description')}
+              ${selectColorEls('label','text')}
+              ${selectColorEls('description','text')}
               </div>
           </div>
       </div><div class="efb clearfix"></div>
@@ -756,9 +761,9 @@ function show_setting_window_efb(idset) {
       <div class="efb  mb-3 mt-3 collapse" id="collapseAdvanced">
               <div class="efb mb-3 px-3 row">                                            
               ${labelFontSizeEls}
-              ${selectColorEls('label')}
-              ${selectColorEls('description')}
-              ${selectColorEls('el')}
+              ${selectColorEls('label','text')}
+              ${selectColorEls('description','text')}
+              ${selectColorEls('el','text')}
               ${btnColorEls}
               ${labelPostionEls}
               ${ElementAlignEls('label')}
@@ -798,9 +803,9 @@ function show_setting_window_efb(idset) {
               <div class="efb mb-3 px-3 row">
               ${iconEls('')}
              
-              ${selectColorEls('label')}   
-              ${selectColorEls('description')}     
-              ${selectColorEls('icon')}                                          
+              ${selectColorEls('label','text')}   
+              ${selectColorEls('description','text')}     
+              ${selectColorEls('icon','text')}                                          
               ${classesEls}              
               </div>
           </div>
@@ -811,10 +816,10 @@ function show_setting_window_efb(idset) {
       let content = ` 
       ${SingleTextEls('')}
       ${iconEls('')}
-      ${selectColorEls('el')}
+      ${selectColorEls('el','text')}
       ${cornerEls('Next')}
       ${btnColorEls}
-      ${selectColorEls('icon')}
+      ${selectColorEls('icon','text')}
       ${selectHeightEls()}`
 
       if (valj_efb[0].button_state != "single") {
@@ -823,10 +828,10 @@ function show_setting_window_efb(idset) {
            ${iconEls("Previous")}
            ${SingleTextEls("Next")}
            ${iconEls("Next")}
-           ${selectColorEls('el')}
+           ${selectColorEls('el','text')}
            ${cornerEls('Next')}
            ${btnColorEls}
-           ${selectColorEls('icon')}
+           ${selectColorEls('icon','text')}
            ${selectHeightEls()}
            `
       }
@@ -1072,22 +1077,32 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "selectColorEl":  
-        let color = ''
+       // let color = ''
         //valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
+        console.log('Color Set!');
+       
+        const color = el.value;
+        let c =switch_color_efb(color);
+        
+        console.log(color, c ,el.dataset)
+        if(c.includes('colorDEfb')){
+          console.log(`======================================================================================>${c}`)
+          document.body.appendChild(Object.assign(document.createElement("style"), {textContent: `.text-${c}{color:${color}!important;}`}))
+        }
         postId = ''
         if (el.dataset.el == "label") {
-          valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
+          valj_efb[indx].label_text_color = "text-"+c;
           postId = valj_efb[indx].type != 'step' ? '_labG' : '_lab'
         }
         else if (el.dataset.el == "description") {
-          valj_efb[indx].message_text_color = el.options[el.selectedIndex].value;
+          valj_efb[indx].message_text_color ="text-"+c;
           postId = '-des'
         }
         else if (el.dataset.el == "icon") {
-          valj_efb[indx].icon_color = el.options[el.selectedIndex].value;
+          valj_efb[indx].icon_color ="text-"+c;
           postId = '_icon'
         } else if (el.dataset.el == "el") {
-          valj_efb[indx].el_text_color = el.options[el.selectedIndex].value;
+          valj_efb[indx].el_text_color ="text-"+c;
           postId = '_'
         }
         if (el.dataset.tag != "form" &&
@@ -1099,19 +1114,20 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
         ) {
-          
-          document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, el.options[el.selectedIndex].value)
+        // if( c=="colorDEf")   {console.log(`${valj_efb[indx].id_}${postId}`);document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color=`#${color}`}
+          document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-"+c)
         } else if (el.dataset.tag == "form") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
-            document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, "text-"+c)
+            c=="colorDEf" ?  document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color="#"+color:0
           } else if (el.dataset.el == "icon") {
-            document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
-            document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
-            document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, "text-"+c)
+            document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, "text-"+c)
+            document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, "text-"+c)
           } else if (el.dataset.el == "el") {
-            document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, el.options[el.selectedIndex].value)
-            document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, el.options[el.selectedIndex].value)
-            document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, el.options[el.selectedIndex].value)
+            document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, "text-"+c)
+            document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, "text-"+c)
+            document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, "text-"+c)
   
           }
           //button_group_button_single_text
@@ -1121,7 +1137,7 @@ let change_el_edit_Efb = (el) => {
           })
           for (let obj of objOptions) {
             let optin = document.getElementById(`${obj.id_}_lab`);
-            optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)
+            optin.className = colorTextChangerEfb(optin.className, "text-"+c)
           }
   
           //find list of options by id  from valueJson
@@ -1133,7 +1149,7 @@ let change_el_edit_Efb = (el) => {
           for (let obj of objOptions) {
             try {
               let optin = document.querySelector(`[data-op="${obj.id_op}"]`);
-              optin.className = colorTextChangerEfb(optin.className, el.options[el.selectedIndex].value)              
+              optin.className = colorTextChangerEfb(optin.className, "text-"+c)              
             } catch {
             }
           }
@@ -1141,9 +1157,15 @@ let change_el_edit_Efb = (el) => {
           //find list of options by id  from valueJson
           // change color of el by id finded of
         } else if (el.dataset.tag == "yesNo") {
-          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, c)
+          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, c)
   
+        } 
+
+        if(c.includes('colorDEfb')){
+          valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
+          console.log('costume color',valj_efb[indx])
+
         }
         break;
   
@@ -2661,14 +2683,14 @@ let add_buttons_zone_efb = (state, id) => {
     c = ` <div class="col-12 mb-2 mt-3 efb bottom-0 ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="bottom-0 " id="button_group_efb"> <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
 
-  if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
+  if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML +=c } else {
     return c;
   }
 }
 
 
 
-const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|text-colorDEfb|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
+const colorTextChangerEfb = (classes, color) => { console.log(classes, color);return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
 const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-\w+/gi, `${color}`); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-\w+/gi, `${color}`); }
 const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d-efb|h-l-efb|h-xl-efb|h-xxl-efb|h-xxxl-efb)/, `${value}`); }
@@ -4276,3 +4298,25 @@ const rndm = Math.random().toString(36).substr(2, 9);
     }, 15);
   }
 }
+
+
+switch_color_efb=(color)=>{
+  let c;
+    switch(color){
+      case'#0d6efd': c="primary";break;
+      case'#198754': c="success";break;
+      case'#6c757d': c="secondary";break;
+      case'#ff455f':c="danger";break;
+      case'#e9c31a':c="warning";break;
+      case'#31d2f2':c="info";break;
+      case'#fbfbfb':c="light";break;
+      case'#202a8d':c="darkb";break;
+      case'#898aa9':c="labelEfb";break;
+      case'#ff4b93':c="pinkEfb";break;
+      case'#ffff':c="white";break;
+      case'#212529':c="dark";break;
+      case'#777':c="muted ";break;
+      default: c="colorDEfb-"+color.slice(1);
+    }
+    return c;
+  }
