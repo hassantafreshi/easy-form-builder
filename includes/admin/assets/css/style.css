@@ -255,9 +255,9 @@ transition: 0.5s;
 color: white;
 }
 
-.btn-darkb{
-    background-color: #202a8d!important;
-}
+.btn-darkb{background-color: #202a8d!important;}
+.border-darkb{border-color: #202a8d!important;}
+.btn-pinkEfb {background-color:#ff4b93!important;}
 
 .btn-darkb.efb {
 
@@ -585,9 +585,12 @@ background-color: #657096;
 .bg-labelEfb {
 background-color: #657096;
 }
+.border-labelEfb {
+border-color: #657096;
+}
 
 
-.text-pinkEfb.efb{
+.text-pinkEfb.efb,.text-pinkEfb{
 color: #ff4b93 !important;
 }
 .text-colorDEfb{

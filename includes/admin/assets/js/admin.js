@@ -223,8 +223,8 @@ function add_dasboard_emsFormBuilder(){
           <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
          
           <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
-          <div class="row" ><p class="card-text efb float-start my-3">${i.desc}</p></div>
-          <button type="button" id="${i.id}" class="float-end btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</button>
+          <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
+          <button type="button" id="${i.id}" class="float-end btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
          ${i.id=='form' || true ?'': `<a class="float-end btn mx-1 efb rounded-pill border-danger text-danger efbPreviewForm" onclick="fun_preview_before_efb('${i.id}')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>`}
           </div></div></div>`
         }
@@ -398,3 +398,73 @@ window.onload=(()=>{
 
     document.body.scrollTop;
 })
+
+
+switch_color_efb=(color)=>{
+  let c;
+    switch(color){
+      case'#0d6efd': c="primary";break;
+      case'#198754': c="success";break;
+      case'#6c757d': c="secondary";break;
+      case'#ff455f':c="danger";break;
+      case'#e9c31a':c="warning";break;
+      case'#31d2f2':c="info";break;
+      case'#fbfbfb':c="light";break;
+      case'#202a8d':c="darkb";break;
+      case'#898aa9':c="labelEfb";break;
+      case'#ff4b93':c="pinkEfb";break;
+      case'#ffff':c="white";break;
+      case'#212529':c="dark";break;
+      case'#777':c="muted ";break;
+      default: c="colorDEfb-"+color.slice(1);
+    }
+    return c;
+  }
+  
+ColorNameToHexEfbOfElEfb=(v,i,n)=>{
+  let r
+  let id;
+  console.log(v,i,n)
+  switch(n){
+    case'label':id="style_label_color";break;
+    case'description':id="style_message_text_color";break;
+    case'el':id="style_el_text_color";break;
+    case'btn':id="style_btn_text_color";break;
+    case'icon':id="style_icon_color";break;
+    case 'border':id="style_border_color";break;
+  }
+switch(v){  
+  case"primary":r='#0d6efd';break;
+  case"success":r='#198754';break;
+  case"secondary":r='#6c757d';break;
+  case"danger":r='#ff455f';break;
+  case"warning":r='#e9c31a';break;
+  case"info":r='#31d2f2';break;
+  case"light":r='#fbfbfb';break;
+  case"darkb":r='#202a8d';break;
+  case"labelEfb":r='#898aa9';break;
+  case"pinkEfb":r='#ff4b93';break;
+  case"white":r='#ffff';break;
+  case"dark":r='#212529';break;
+  case"muted":r='#777';break;
+  case"muted":r='#777';break;
+  default: 
+  console.log(v,n);
+  const len =`colorDEfb-`.length;
+  console.log(v.slice(len),len);
+    if(v.includes(`colorDEfb`))r="#"+v.slice(len);
+    console.log(`code color of colorDEfb ====================> ${r}`);
+}
+console.log(r,valj_efb[i])
+  return r;
+}
+
+addColorTolistEfb=(color)=>{
+  const ObColors = document.getElementById('color_list_efb');
+  const child=ObColors.childNodes;
+  let is_color=false;
+  child.forEach((element,key) => {
+    if(key!=0 && element.value.includes(color))is_color=true;
+  });
+  if(!is_color){ObColors.innerHTML+=`<option name="addUser" value="${color}">`}
+}

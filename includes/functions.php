@@ -443,6 +443,7 @@ class efbFunction {
 			/* bug! start */
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
+			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : __('Free feature of sending notification email to admin or user.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			/* bug! end */
 			

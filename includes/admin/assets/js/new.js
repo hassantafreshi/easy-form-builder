@@ -347,10 +347,6 @@ function show_setting_window_efb(idset) {
       </div></div>`
   }
   const iconEls = (side) => {
-
-    
-   
-
     let icon = "";
     let t = ""
     let iset ="";
@@ -422,85 +418,58 @@ function show_setting_window_efb(idset) {
         <option value="zip" ${valj_efb[indx].type && valj_efb[indx].type == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
     </select>
     `
-  const btnColorEls = `
-        <label for="btnColorEl" class="efb mt-3 bi-paint-bucket mx-2">${efb_var.text.buttonColor}</label>
-        <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="btnColorEl" data-tag="${valj_efb[indx].type}">                                            
-        <option value="btn-default" class="text-default efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-default' ? `selected` : ''} >${efb_var.text.default}</option>
-        <option value="btn-primary" class="text-primary efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
-        <option value="btn-darkb" class="text-darkb efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-darkb' ? `selected` : ''}>${efb_var.text.darkBlue}</option>
-        <option value="btn-info" class="text-info efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-info' ? `selected` : ''} >${efb_var.text.lightBlue}</option>
-        <option value="btn-dark" class="text-dark efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-dark' ? `selected` : ''} >${efb_var.text.black}</option>
-        <option value="btn-secondary" class="text-secondary efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-secondary' ? `selected` : ''} >${efb_var.text.grayLight}</option>
-        <option value="btn-success"  class="text-success efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-success' ? `selected` : ''} >${efb_var.text.green}</option>
-        <option value="btn-danger"  class="text-danger efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-danger' ? `selected` : ''} >${efb_var.text.red}</option>
-        <option value="btn-pinkEfb" class="text-pinkEfb efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-pinkEfb' ? `selected` : ''} >${efb_var.text.pink}</option>
-        <option value="btn-warning" class="text-warning efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-warning' ? `selected` : ''} >${efb_var.text.yellow}</option>
-        <option value="btn-light" class="class="text-light bg-dark efb" ${valj_efb[indx].button_color && valj_efb[indx].button_color == 'btn-light' ? `selected` : ''} >${efb_var.text.light}</option>
-    </select>
+  const btnColorEls =() =>{
+    console.log(indx,valj_efb[indx]);
+    color = valj_efb[indx].button_color;
+    console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
+    const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') //slice text=5 bg=2 border=6 btn=3    
+    addColorTolistEfb(hex);
+    idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
+    return `<label for="btnColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.buttonColor}</label>
+    <input type="color" id="btnColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="button" data-type="button"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="btnColorEl" list="color_list_efb" id="${idset}" >
     `
-  const selectBorderColorEls = (forEl) => {
-    
+  } 
+
+  const selectBorderColorEls = (forEl) => {    
     let color = valj_efb[indx].el_border_color;
-    console.log(forEl);
-    return `
-      <label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2">${efb_var.text.borderColor}</label>
-      <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectBorderColorEl" data-tag="${valj_efb[indx].type}">                                            
-      <option value="border-d" class="textdefault efb" ${color && color == 'border-d' ? `selected` : ''} >${efb_var.text.default}</option>
-      <option value="border-primary" class="text-primary efb" ${color && color == 'border-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
-      <option value="border-darkBEfb" class="text-darkb efb" ${color && color == 'border-darkBEfb' ? `selected` : ''} >${efb_var.text.darkBlue}</option>
-      <option value="border-info" class="text-info efb" ${color && color == 'border-info' ? `selected` : ''} >${efb_var.text.lightBlue}</option>
-      <option value="border-danger"  class="text-danger efb" ${color && color == 'border-danger' ? `selected` : ''} >${efb_var.text.red}</option>
-      <option value="border-success"  class="text-success efb" ${color && color == 'border-success' ? `selected` : ''} >${efb_var.text.green}</option>
-      <option value="border-dark" class="text-dark efb" ${color && color == 'border-dark' ? `selected` : ''} >${efb_var.text.grayDark}</option>
-      <option value="border-muted" class="text-muted efb" ${color && color == 'border-muted' ? `selected` : ''} >${efb_var.text.grayLight}</option>
-      <option value="border-secondary" class="text-secondary efb" ${color && color == 'border-secondary' ? `selected` : ''} >${efb_var.text.grayLighter}</option>
-      <option value="border-pinkEfb" class="text-pinkEfb efb" ${color && color == 'border-pinkEfb' ? `selected` : ''} >${efb_var.text.pink}</option>
-      <option value="border-warning" class="text-warning efb" ${color && color == 'border-warning' ? `selected` : ''} >${efb_var.text.yellow}</option>
-      <option value="border-white" class="class="text-white bg-dark efb" ${color && color == 'border-white' ? `selected` : ''} >${efb_var.text.white}</option>
-      <option value="border-light" class="class="text-light bg-dark efb" ${color && color == 'border-light' ? `selected` : ''} >${efb_var.text.light}</option>
-      </select>
-      `
+    let t = ''
+    const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border') //slice text=5 bg=2 border=6 btn=3    
+    addColorTolistEfb(hex);
+    return `<label for="selectBorderColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
+    <input type="color" id="selectBorderColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
+    `
   }
   const selectColorEls = (forEl ,f) => {
     //f ===> text , border,  bg 
+    console.log(forEl,indx)
     let t = ''
     let color = '';
+    let hex=''
     if (forEl == 'icon') {
       color = valj_efb[indx].icon_color;
+      console.log(color.slice(5));
       t = efb_var.text.icon;
+      if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
     } else if (forEl == 'description') {
       color = valj_efb[indx].message_text_color;
+      console.log(color.slice(5));
       t = efb_var.text.description
+      if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
     } else if (forEl == 'label') {
       color = valj_efb[indx].label_text_color;
+      console.log(color.slice(5));
       t = efb_var.text.label
+      if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'label')
     } else if (forEl == "el") {
       color = valj_efb[indx].el_text_color;
+      console.log(color.slice(5));
       t = efb_var.text.field
+      if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
     }
+    addColorTolistEfb(hex);
     return `<label for="selectColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
- <!--<select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}" data-type="${f}"  id="selectColorEl" data-tag="${valj_efb[indx].type}">-->
-    <input type="color" id="selectColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" name="selectColorEl" list="color_list" id="${idset}" >
+    <input type="color" id="selectColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
     `
-    
-      /* `
-      <label for="selectColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
-      <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded" data-el="${forEl}"  id="selectColorEl" data-tag="${valj_efb[indx].type}">                                            
-      <option value="text-labelEfb" class="textdefault efb" ${color && color == '' ? `selected` : ''} >${efb_var.text.default}</option>
-      <option value="text-primary" class="text-primary efb" ${color && color == 'text-primary' ? `selected` : ''}>${efb_var.text.blue}</option>
-      <option value="text-darkb" class="text-darkb efb" ${color && color == 'text-darkb' ? `selected` : ''} >${efb_var.text.darkBlue}</option>
-      <option value="text-info" class="text-info efb" ${color && color == 'text-info' ? `selected` : ''} >${efb_var.text.lightBlue}</option>
-      <option value="text-danger"  class="text-danger efb" ${color && color == 'text-danger' ? `selected` : ''} >${efb_var.text.red}</option>
-      <option value="text-success"  class="text-success efb" ${color && color == 'text-success' ? `selected` : ''} >${efb_var.text.green}</option>
-      <option value="text-dark" class="text-dark efb" ${color && color == 'text-dark' ? `selected` : ''} >${efb_var.text.grayDark}</option>
-      <option value="text-muted" class="text-muted efb" ${color && color == 'text-muted' ? `selected` : ''} >${efb_var.text.grayLight}</option>
-      <option value="text-secondary" class="text-secondary efb" ${color && color == 'text-secondary' ? `selected` : ''} >${efb_var.text.grayLighter}</option>
-      <option value="text-pinkEfb" class="text-pinkEfb efb" ${color && color == 'text-pinkEfb' ? `selected` : ''} >${efb_var.text.pink}</option>
-      <option value="text-warning" class="text-warning efb" ${color && color == 'text-warning' ? `selected` : ''} >${efb_var.text.yellow}</option>
-      <option value="text-white" class="class="text-white bg-dark efb" ${color && color == 'text-white' ? `selected` : ''} >${efb_var.text.white}</option>
-      <option value="text-light" class="class="text-light bg-dark efb" ${color && color == 'text-light' ? `selected` : ''} >${efb_var.text.light}</option>
-      </select>
-      ` */
   }
   const selectHeightEls = () => {
     return `
@@ -658,7 +627,7 @@ function show_setting_window_efb(idset) {
               ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' ? '' : cornerEls('')}
               ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
               ${el.dataset.tag == 'esign' ? iconEls('') : ''}
-              ${el.dataset.tag == 'esign' ? btnColorEls : ''}
+              ${el.dataset.tag == 'esign' ? btnColorEls() : ''}
               ${el.dataset.tag == 'esign' ? SingleTextEls('') : ''}
               </div>
           </div>
@@ -684,7 +653,7 @@ function show_setting_window_efb(idset) {
               ${selectColorEls('label','text')}
               ${selectColorEls('description','text')}
               ${el.dataset.tag == 'dadfile' ? selectColorEls('icon','text') : ''}
-              ${el.dataset.tag == 'dadfile' ? btnColorEls : ''}
+              ${el.dataset.tag == 'dadfile' ? btnColorEls() : ''}
               ${selectBorderColorEls('element')}
               ${labelPostionEls}
               ${ElementAlignEls('label')}
@@ -764,7 +733,7 @@ function show_setting_window_efb(idset) {
               ${selectColorEls('label','text')}
               ${selectColorEls('description','text')}
               ${selectColorEls('el','text')}
-              ${btnColorEls}
+              ${btnColorEls()}
               ${labelPostionEls}
               ${ElementAlignEls('label')}
               ${ElementAlignEls('description')}
@@ -818,7 +787,7 @@ function show_setting_window_efb(idset) {
       ${iconEls('')}
       ${selectColorEls('el','text')}
       ${cornerEls('Next')}
-      ${btnColorEls}
+      ${btnColorEls()}
       ${selectColorEls('icon','text')}
       ${selectHeightEls()}`
 
@@ -830,7 +799,7 @@ function show_setting_window_efb(idset) {
            ${iconEls("Next")}
            ${selectColorEls('el','text')}
            ${cornerEls('Next')}
-           ${btnColorEls}
+           ${btnColorEls()}
            ${selectColorEls('icon','text')}
            ${selectHeightEls()}
            `
@@ -883,11 +852,17 @@ function show_setting_window_efb(idset) {
 }
 
 let change_el_edit_Efb = (el) => {
-  console.log(el)
-  const indx = el.dataset.id != "button_group" ? valj_efb.findIndex(x => x.dataId == el.dataset.id) : 0;
+  console.log(valj_efb,el);
+  let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
+  postId = el.dataset.id.includes('Next_') || el.dataset.id.includes('Previous_') ? 0 : postId;
+  console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
+  const indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId!=0 ? valj_efb.findIndex(x => x.dataId == postId) : 0;
   const len_Valj =valj_efb.length;
+  console.log(el.dataset,indx,postId);
+  postId=null
+
   let clss = ''
-  let postId;
+  let c,color;
   setTimeout(()=>{
     switch (el.id) {
       case "labelEl":
@@ -1057,22 +1032,33 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         break;
       case "btnColorEl":
-        valj_efb[indx].button_color = el.options[el.selectedIndex].value;
+        color = el.value;
+        //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
-        clss = el.options[el.selectedIndex].value;
+        clss = switch_color_efb(color);;
+        if(clss.includes('colorDEfb')){addStyleColorBodyEfb(clss,color,"btn");}
         if (indx != 0) {
           if (el.dataset.tag != "yesNo") {
-            document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className, clss)
+            if((indx==0 && valj_efb[indx].step==1) || indx>0){
+              document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className,"btn-"+clss)
+            }else{
+              document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
+              document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
+            }
           } else {
-            document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, clss)
-            document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, clss)
+            document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className,"btn-"+clss)
+            document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className,"btn-"+clss)
           }
+        }else {          
+          document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className,"btn-"+clss)
+          document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
+          document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
         }
-        else {
-          valj_efb[0].button_color = clss
-          document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className, clss)
-          document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className, clss)
-          document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className, clss)
+        console.log( valj_efb[indx]);
+        valj_efb[indx].button_color = "btn-"+clss;
+        if(clss.includes('colorDEfb')){
+          valj_efb[indx].style_btn_color ?  valj_efb[indx].style_btn_color=color : Object.assign(valj_efb[indx] , {style_btn_color:color}) ;
+          addColorTolistEfb(color)
         }
 
         break;
@@ -1081,13 +1067,12 @@ let change_el_edit_Efb = (el) => {
         //valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
         console.log('Color Set!');
        
-        const color = el.value;
-        let c =switch_color_efb(color);
+         color = el.value;
+         c =switch_color_efb(color);
         
-        console.log(color, c ,el.dataset)
-        if(c.includes('colorDEfb')){
-          console.log(`======================================================================================>${c}`)
-          document.body.appendChild(Object.assign(document.createElement("style"), {textContent: `.text-${c}{color:${color}!important;}`}))
+        console.log(color, c ,el.dataset,indx)
+        if(c.includes('colorDEfb')){      
+          addStyleColorBodyEfb(c,color,"text");
         }
         postId = ''
         if (el.dataset.el == "label") {
@@ -1099,6 +1084,7 @@ let change_el_edit_Efb = (el) => {
           postId = '-des'
         }
         else if (el.dataset.el == "icon") {
+          console.log(c,indx,valj_efb[indx])
           valj_efb[indx].icon_color ="text-"+c;
           postId = '_icon'
         } else if (el.dataset.el == "el") {
@@ -1157,36 +1143,62 @@ let change_el_edit_Efb = (el) => {
           //find list of options by id  from valueJson
           // change color of el by id finded of
         } else if (el.dataset.tag == "yesNo") {
-          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, c)
-          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, c)
+          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, "text-"+c)
+          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, "text-"+c)
   
         } 
 
         if(c.includes('colorDEfb')){
-          valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
-          console.log('costume color',valj_efb[indx])
-
+          switch (el.dataset.el) {
+            case 'label':
+              valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
+              console.log('costume color',valj_efb[indx])
+              break;
+            case 'description':
+              valj_efb[indx].style_label_color ?  valj_efb[indx].style_message_text_color=color : Object.assign(valj_efb[indx] , {style_message_text_color:color}) ;
+              console.log('costume color',valj_efb[indx])
+              break;
+            case 'el':
+              valj_efb[indx].el_text_color ?  valj_efb[indx].style_el_text_color=color : Object.assign(valj_efb[indx] , {style_el_text_color:color}) ;
+              console.log('costume color',valj_efb[indx])
+              break;          
+            case 'icon':
+              valj_efb[indx].style_icon_color ?  valj_efb[indx].style_icon_color=color : Object.assign(valj_efb[indx] , {style_icon_color:color}) ;
+              console.log('costume color',valj_efb[indx])
+              break;
+          
+            default:
+              break;
+          }
+          addColorTolistEfb(color)
         }
         break;
   
       case "selectBorderColorEl":
-  
-        valj_efb[indx].el_border_color = el.options[el.selectedIndex].value;
+        console.log(el.value);
+         color = el.value;
+        c =switch_color_efb(color);
+        
+       console.log(color, c ,el.dataset,indx)
+       if(c.includes('colorDEfb')){
+         addStyleColorBodyEfb(c,color,"border");
+       }
         postId = '_'
   
         if (el.dataset.tag == "dadfile") { postId = "_box" }
         else if (el.dataset.tag == "multiselect" || el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') { postId = "_options" }
   
         setTimeout(() => {
-          const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);
-  
-          //const l = document.getElementById(`${valj_efb[indx].id_}${postId}`);
-          const color = colorBorderChangerEfb(l.className, el.options[el.selectedIndex].value);
-          l.className = color;
-          
+          const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);      
+          l.className =colorBorderChangerEfb(l.className, `border-${c}`);
+          console.log(l.className);
         }, 100)
-        // document.getElementById('selectBorderColorEl').disabled =false
-        //setAtrOfElefb('selectBorderColorEl','Done','alert-info',7000)
+
+
+        if(c.includes('colorDEfb')){
+          valj_efb[indx].style_border_color ?  valj_efb[indx].style_border_color=color : Object.assign(valj_efb[indx] , {style_border_color:color}) ;
+          addColorTolistEfb(color)
+        }
         break
       case "selectHeightEl":
         el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
@@ -2691,8 +2703,9 @@ let add_buttons_zone_efb = (state, id) => {
 
 
 const colorTextChangerEfb = (classes, color) => { console.log(classes, color);return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
-const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-\w+/gi, `${color}`); }
-const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-\w+/gi, `${color}`); }
+const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-+[\w\-]+/gi, `${color}`); }
+const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
+const colorBGrChangerEfb = (classes, color) => { return classes.replace(/\bbg+-+[\w\-]+/gi, `${color}`); }
 const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d-efb|h-l-efb|h-xl-efb|h-xxl-efb|h-xxxl-efb)/, `${value}`); }
 const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
@@ -4300,23 +4313,14 @@ const rndm = Math.random().toString(36).substr(2, 9);
 }
 
 
-switch_color_efb=(color)=>{
-  let c;
-    switch(color){
-      case'#0d6efd': c="primary";break;
-      case'#198754': c="success";break;
-      case'#6c757d': c="secondary";break;
-      case'#ff455f':c="danger";break;
-      case'#e9c31a':c="warning";break;
-      case'#31d2f2':c="info";break;
-      case'#fbfbfb':c="light";break;
-      case'#202a8d':c="darkb";break;
-      case'#898aa9':c="labelEfb";break;
-      case'#ff4b93':c="pinkEfb";break;
-      case'#ffff':c="white";break;
-      case'#212529':c="dark";break;
-      case'#777':c="muted ";break;
-      default: c="colorDEfb-"+color.slice(1);
-    }
-    return c;
-  }
+addStyleColorBodyEfb=(t,c,type)=>{
+  console.log(type);
+  let v =`.${t}{color:${c}!important;}`
+  if(type=="text"){v =`.${type}-${t}{color:${c}!important;}`}
+  else if(type=="border"){console.log(type);v =`.${type}-${t}{border-color:${c}!important;}`}
+  else if(type=="bg"){v =`.${type}-${t}{background-color:${c}!important;}`}
+  else if(type=="btn"){v =`.${type}-${t}{background-color:${c}!important;}`}
+  console.log(v);
+  document.body.appendChild(Object.assign(document.createElement("style"), {textContent: `${v}`}))
+}
+
