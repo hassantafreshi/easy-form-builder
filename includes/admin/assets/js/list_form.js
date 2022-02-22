@@ -763,7 +763,8 @@ function fun_show_setting__emsFormBuilder() {
     state = key=="easyFormBuilder" ? "d-none" : "d-block";
     if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}"  class="sen sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
   } );
-
+  const mxCSize = !mobile_view_efb ? 'mx-5'  : 'mx-1';
+  const mxCSize4 = !mobile_view_efb ? 'mx-4'  : 'mx-1';
   document.getElementById('content-efb').innerHTML = `
   <div class="container">
             <h4 class="title-holder efb">
@@ -785,48 +786,48 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
                             <!--General-->
                             <div class="m-3">
-                                <h5 class="efb card-title mt-3">
+                                <h5 class="efb card-title mt-3 mobile-title">
                                     <i class="efb bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="mx-5 efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
-                                <div class="card-body mx-4 py-1">
+                                <a class="${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
+                                <div class="card-body mx- py-1 ${mxCSize4}">
                                     <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
                                 </div>
                                
-                                <h5 class="efb card-title mt-3">
-                                    <i class="efb bi-bootstrap m-3"></i>${efb_var.text.bootStrapTemp}
+                                <h5 class="efb card-title mt-3 mobile-title">
+                                    <i class="efb bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
-                                <h6 class="mx-5 text-danger">${efb_var.text.iUsebootTempW}</h6>
-                                <div class="card-body mx-4 py-1">
+                                <h6 class="efb ${mxCSize} text-danger mobile-text">${efb_var.text.iUsebootTempW}</h6>
+                                <div class="card-body mx- py-1 ${mxCSize4}">
                            
                                 <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
                                 <label class="form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
                                
                                 </div>
                               
-                                <h5 class="efb card-title mt-3">
+                                <h5 class="efb card-title mt-3 mobile-title">
                                     <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>
-                                <p class="mx-5">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
+                                <p class="efb ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
                                 <div class="card-body text-center py-1">
                                     <button type="button" class="btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
-                                        <i class="efb bi-x-lg mx-1"></i>${efb_var.text.clearUnnecessaryFiles}
+                                        <i class="efb bi-x-lg mx-1 efb mobile-text"></i>${efb_var.text.clearUnnecessaryFiles}
                                     </button>
                                 </div>
                            
                                 <div class="clearfix"></div>
-                                <h5 class="efb card-title mt-3">
+                                <h5 class="efb card-title mt-3 mobile-title">
                                     <i class="efb bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
                                 </h5>
-                                <p class="mx-5">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
-                                <div class="card-body mx-4 py-1">
+                                <p class="${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
+                                <div class="card-body mx- py-1 ${mxCSize4}">
                                         <div class="row col-12">
                                             <div class="col-md-8">
-                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
+                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
                                               <span id="shortCode_emsFormBuilder-message" class="text-danger"></span>
                                             </div> 
-                                              <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink " onclick="copyCodeEfb('shortCode_emsFormBuilder')">
+                                              <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder')">
                                                   <i class="efb bi-clipboard-check mx-1"></i> ${efb_var.text.copy}
                                               </button>
                                           </div>
@@ -841,11 +842,11 @@ function fun_show_setting__emsFormBuilder() {
                              <!--Google-->
                             
                              ${ apiKeyMap=='null' ? `<div class="m-3 p-3 efb alert-info" role=""><h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
-                             <h5 class="efb card-title mt-3">
+                             <h5 class="efb card-title mt-3 mobile-title">
                                 <i class="efb bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
-                            <p class="mx-5"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
-                            <div class="card-body mx-4 py-1">                                   
+                            <p class="${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
+                            <div class="card-body mx- py-1 ${mxCSize4}">                                   
                                 <label class="form-label mx-2">${efb_var.text.siteKey}</label>
                                 <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
                                 <span id="sitekey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
@@ -853,12 +854,12 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
                                 <span id="secretkey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
                             </div>
-                            <h5 class="efb card-title mt-3">
+                            <h5 class="efb card-title mt-3 mobile-title">
                                 <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
                             <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
-                            <p class="mx-5">${efb_var.text.youNeedAPIgMaps}</p>
-                            <div class="card-body mx-4 py-1">                                   
+                            <p class="${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
+                            <div class="card-body mx- py-1 ${mxCSize4}">                                   
                                 <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
                                 <span id="apikey_map_emsFormBuilder-message" class="text-danger col-12 efb"></span>
@@ -869,11 +870,11 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
                             <div class="mx-3">
                                 <!--Email-->
-                                <h5 class="efb card-title mt-3">
+                                <h5 class="efb card-title mt-3 mobile-title">
                                     <i class="efb bi-at m-3"></i>${efb_var.text.alertEmail}
                                 </h5>
-                                <p class="mx-5">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
-                                <div class="card-body mx-4 py-1">
+                                <p class="${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
+                                <div class="card-body mx- py-1 ${mxCSize4}">
                                     <label class="form-label mx-2">${efb_var.text.email}</label>
                                     <input type="email" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
                                     <span id="email_emsFormBuilder-message" class="text-danger col-12 efb"></span>
@@ -882,8 +883,8 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="card-title mt-3col-12 efb ">
                                     <i class="efb bi-envelope m-3"></i>${efb_var.text.emailServer}
                                 </h5>
-                                <p class="mx-5">${efb_var.text.beforeUsingYourEmailServers}</p>
-                                <div class="card-body mx-4 py-1">
+                                <p class="${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
+                                <div class="card-body mx- py-1 ${mxCSize4}">
                                     <button type="button" class="btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
                                         <i class="efb bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
@@ -897,11 +898,11 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
                             <div class="mx-3 my-2">
                             <!-- Text Section -->
-                               <h5 class="efb card-title mt-3">
+                               <h5 class="efb card-title mt-3 mobile-title">
                                  <i class="efb bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
-                               <p class="mx-5">${efb_var.text.translateLocal}</p>
-                                <div id="textList-efb"  class="mt-2 py-2 px-5">${textList} </div>                                
+                               <p class="${mxCSize}">${efb_var.text.translateLocal}</p>
+                                <div id="textList-efb"  class="mt-2 py-2 ${mobile_view_efb?'':'px-5'}">${textList} </div>                                
                                 <!-- END Text Section -->
                             </div>
                         </div>

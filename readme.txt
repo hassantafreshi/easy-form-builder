@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.2.9
+Stable tag: 			2.2.10
 Requires at least: 	4.7
 Tested up to: 			5.9.0
 Requires PHP:			5.4 or higher
@@ -180,6 +180,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.2.10 =
+* UI improvements
+* Fixed issues
+
 = 2.2.9 =
 * UI improvements
 
@@ -195,7 +199,6 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 2.2.5 =
 * UI improvements
-
 
 = 2.2.4 =
 * UI improvements

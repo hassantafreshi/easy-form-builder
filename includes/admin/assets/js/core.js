@@ -534,14 +534,14 @@ function alarm_emsFormBuilder(val) {
 
 
 
-function loading_emsFormBuilder() {
+/* function loading_emsFormBuilder() {
   return `<div  id="loading_emsFormBuilder"><div class="spinner-border text-warning" role="status">
     <span class="sr-only">${efb_var.text.loading}...</span>
   </div></div>`
 
-}
+} */
 
-function showloading_emsFormBuilder() {
+/* function showloading_emsFormBuilder() {
   const stepMax =currentTab_emsFormBuilder+1;
   const time = stepMax < 3 ? 700 : stepMax * 200;  
   //document.getElementById(`body`).innerHTML+=loading_emsFormBuilder();
@@ -553,7 +553,7 @@ function showloading_emsFormBuilder() {
     if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
     else body.style.pointerEvents = "none";    
   }, time);
-}
+} */
 
 
 function endMessage_emsFormBuilder_view() {

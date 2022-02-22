@@ -424,7 +424,6 @@ switch_color_efb=(color)=>{
 ColorNameToHexEfbOfElEfb=(v,i,n)=>{
   let r
   let id;
-  console.log(v,i,n)
   switch(n){
     case'label':id="style_label_color";break;
     case'description':id="style_message_text_color";break;
@@ -449,13 +448,10 @@ switch(v){
   case"muted":r='#777';break;
   case"muted":r='#777';break;
   default: 
-  console.log(v,n);
-  const len =`colorDEfb-`.length;
-  console.log(v.slice(len),len);
+    const len =`colorDEfb-`.length;
     if(v.includes(`colorDEfb`))r="#"+v.slice(len);
-    console.log(`code color of colorDEfb ====================> ${r}`);
 }
-console.log(r,valj_efb[i])
+
   return r;
 }
 

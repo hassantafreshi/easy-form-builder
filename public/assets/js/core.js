@@ -727,7 +727,7 @@ function alarm_emsFormBuilder(val) {
 
 
 
-function showloading_emsFormBuilder() {
+/* function showloading_emsFormBuilder() {
   const stepMax = currentTab_emsFormBuilder + 1;
   const time = stepMax < 3 ? 700 : stepMax * 200;
   document.getElementById("body").classList.add = "wait";
@@ -738,7 +738,7 @@ function showloading_emsFormBuilder() {
     if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
     else body.style.pointerEvents = "none";
   }, time);
-}
+} */
 
 
 function endMessage_emsFormBuilder_view() {

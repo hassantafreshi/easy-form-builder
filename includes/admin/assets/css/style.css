@@ -73,6 +73,13 @@ font-size: 25px!important;
 color: #a2b0d5;
 /*display: inline-block;*/
 }
+
+div#optionListefb {
+    max-height: 280px;
+    overflow: auto;
+    padding: 0px 10px;
+    background: #efefef85;
+}
 .bg-response.efb {
 border-radius: 15px;
 background-color: white;
@@ -1282,6 +1289,15 @@ input[type="textarea"].efb-rounded{
 padding: 0px 10px!important;
 }
 
+.colorDEf,
+.text-colorDEf,
+.border-colorDEf,
+.bg-colorDEf,
+.btn-colorDEf{}
+
+input[type=range].efb {
+    border: transparent!important;
+}
 .h-l-efb.efb-rounded{
     border-radius: 30px!important;
     
@@ -1934,9 +1950,7 @@ input[type=checkbox].efb.fs-2.form-check-input
     }
 
 
-    #textList-efb {
-       
-        
+    #textList-efb {        
         height: 380px;
         overflow: auto;
       }
@@ -1995,6 +2009,13 @@ input[type=checkbox].efb.fs-2.form-check-input
     margin-left: 2%;
 }
 
+.mobile .mobile-title.efb {
+    font-size: 20px!important;
+}
+
+.mobile .mobile-text.efb{
+    font-size: 14px!important;
+}
     /* select list */
     .listSelect.efb{
         width: 100%;
@@ -2081,4 +2102,19 @@ input[type=checkbox].efb.fs-2.form-check-input
     .efb.searchBox:-ms-input-placeholder{ font-size: 15px!important;}
     .efb.searchBox::-moz-placeholder{ font-size: 15px!important;}
     .efb.searchBox:-moz-placeholder{ font-size: 15px!important;}
+
+
+    #overlay_efb {
+        position: fixed; /* Sit on top of the page content */
+        display: none; /* Hidden by default */
+        width: 100%; /* Full width (cover the whole page) */
+        height: 100%; /* Full height (cover the whole page) */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+        z-index: 50; /* Specify a stack order in case you're using a different order for other elements */
+        cursor: pointer; /* Add a pointer on hover */
+      }
 

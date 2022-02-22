@@ -140,9 +140,12 @@ function creator_form_builder_Efb() {
           </div>      
       </nav>
       <div class="row">
+      <!-- over page -->
+      <div id="overlay_efb" class="d-none"><div class="card-body text-center efb"><div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
+      <!--end  over page -->
           <div class="col-md-4" id="listElEfb"><div class="row">${els}</div></div>
          <div class="col-md-8 body-dpz-efb"><div class="crd efb  drag-box"><div class="card-body dropZoneEFB row " id="dropZoneEFB">
-                
+       
         <div id="efb-dd" class="text-center ">
         <h1 class="text-muted display-1  bi-plus-circle-dotted"> </h1>
         <div class="text-muted fs-4 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere:''}</div>
@@ -203,7 +206,7 @@ function active_element_efb(el) {
 
 //setting of  element
 function show_setting_window_efb(idset) {
-  console.log('show_setting_window_efb',idset,valj_efb)
+  //console.log('show_setting_window_efb',idset,valj_efb)
   // ویرایش پیشرفته هر المان را به مدال اضافه می کند که کاربر ویرایش را بتواند انجام دهد
   // نکته : باید بعدا وقتی اضافه می کنیم از طریق جیسون مقدارهای قبلی هم نمایش بدهم
   // const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -350,13 +353,13 @@ function show_setting_window_efb(idset) {
     let icon = "";
     let t = ""
     let iset ="";
-    console.log(`valj_efb`,valj_efb);
+    //console.log(`valj_efb`,valj_efb);
     if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
     else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
     else {
      idset != "button_group" ? iset=idset=valj_efb[indx].id_: iset=idset="button_group_"
       if(isNumericEfb(iset))idset=iset="step-"+iset;
-     console.log(iset)
+     //console.log(iset)
       icon = valj_efb[indx].icon }
     let list ="<!-- list of Bootstrap Icon --!>"
     bootstrap_icons.forEach((e,key )=> {
@@ -419,9 +422,9 @@ function show_setting_window_efb(idset) {
     </select>
     `
   const btnColorEls =() =>{
-    console.log(indx,valj_efb[indx]);
+    //console.log(indx,valj_efb[indx]);
     color = valj_efb[indx].button_color;
-    console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
+    //console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
     const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') //slice text=5 bg=2 border=6 btn=3    
     addColorTolistEfb(hex);
     idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
@@ -441,28 +444,28 @@ function show_setting_window_efb(idset) {
   }
   const selectColorEls = (forEl ,f) => {
     //f ===> text , border,  bg 
-    console.log(forEl,indx)
+    //console.log(forEl,indx)
     let t = ''
     let color = '';
     let hex=''
     if (forEl == 'icon') {
       color = valj_efb[indx].icon_color;
-      console.log(color.slice(5));
+      //console.log(color.slice(5));
       t = efb_var.text.icon;
       if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
     } else if (forEl == 'description') {
       color = valj_efb[indx].message_text_color;
-      console.log(color.slice(5));
+      //console.log(color.slice(5));
       t = efb_var.text.description
       if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
     } else if (forEl == 'label') {
       color = valj_efb[indx].label_text_color;
-      console.log(color.slice(5));
+      //console.log(color.slice(5));
       t = efb_var.text.label
       if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'label')
     } else if (forEl == "el") {
       color = valj_efb[indx].el_text_color;
-      console.log(color.slice(5));
+      //console.log(color.slice(5));
       t = efb_var.text.field
       if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
     }
@@ -618,7 +621,7 @@ function show_setting_window_efb(idset) {
               ${selectColorEls('label','text')}
               ${selectColorEls('description','text')}
              
-              ${el.dataset.tag == 'rating' || el.dataset.tag == 'range' ? "" : selectBorderColorEls('element')}
+              ${el.dataset.tag == 'rating' || el.dataset.tag == 'range'  || el.dataset.tag == 'switch' ? "" : selectBorderColorEls('element')}
               ${labelPostionEls}
               ${ElementAlignEls('label')}
               ${ElementAlignEls('description')}
@@ -852,13 +855,22 @@ function show_setting_window_efb(idset) {
 }
 
 let change_el_edit_Efb = (el) => {
-  console.log(valj_efb,el);
+  //console.log(valj_efb,el);
+  const lenV = valj_efb.length
+  
+  if(lenV>20){
+    document.getElementById("overlay_efb").className="d-block"
+    setTimeout(() => {
+      document.getElementById("overlay_efb").className="d-none"
+    }, (lenV * (Math.log(lenV)) * 2));
+  }
+
   let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
   postId = el.dataset.id.includes('Next_') || el.dataset.id.includes('Previous_') ? 0 : postId;
-  console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
+  //console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
   const indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId!=0 ? valj_efb.findIndex(x => x.dataId == postId) : 0;
   const len_Valj =valj_efb.length;
-  console.log(el.dataset,indx,postId);
+  //console.log(el.dataset,indx,postId);
   postId=null
 
   let clss = ''
@@ -1036,7 +1048,7 @@ let change_el_edit_Efb = (el) => {
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
         clss = switch_color_efb(color);;
-        if(clss.includes('colorDEfb')){addStyleColorBodyEfb(clss,color,"btn");}
+        if(clss.includes('colorDEfb')){addStyleColorBodyEfb(clss,color,"btn",indx);}
         if (indx != 0) {
           if (el.dataset.tag != "yesNo") {
             if((indx==0 && valj_efb[indx].step==1) || indx>0){
@@ -1054,8 +1066,8 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
           document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
         }
-        console.log( valj_efb[indx]);
         valj_efb[indx].button_color = "btn-"+clss;
+        //console.log( valj_efb[indx]);
         if(clss.includes('colorDEfb')){
           valj_efb[indx].style_btn_color ?  valj_efb[indx].style_btn_color=color : Object.assign(valj_efb[indx] , {style_btn_color:color}) ;
           addColorTolistEfb(color)
@@ -1065,14 +1077,14 @@ let change_el_edit_Efb = (el) => {
       case "selectColorEl":  
        // let color = ''
         //valj_efb[indx].label_text_color = el.options[el.selectedIndex].value;
-        console.log('Color Set!');
+        //console.log('Color Set!');
        
          color = el.value;
          c =switch_color_efb(color);
         
-        console.log(color, c ,el.dataset,indx)
+        //console.log(color, c ,el.dataset,indx)
         if(c.includes('colorDEfb')){      
-          addStyleColorBodyEfb(c,color,"text");
+          addStyleColorBodyEfb(c,color,"text",indx);
         }
         postId = ''
         if (el.dataset.el == "label") {
@@ -1084,7 +1096,7 @@ let change_el_edit_Efb = (el) => {
           postId = '-des'
         }
         else if (el.dataset.el == "icon") {
-          console.log(c,indx,valj_efb[indx])
+          //console.log(c,indx,valj_efb[indx])
           valj_efb[indx].icon_color ="text-"+c;
           postId = '_icon'
         } else if (el.dataset.el == "el") {
@@ -1098,9 +1110,12 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
-            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "radio" && el.dataset.tag != "select"))
+            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" 
+            && el.dataset.tag != "radio" && el.dataset.tag != "select"  &&el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' ))
         ) {
         // if( c=="colorDEf")   {console.log(`${valj_efb[indx].id_}${postId}`);document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color=`#${color}`}
+        //console.log(`id_ =[${valj_efb[indx].id_}] postId=[${postId}] index=[${indx}] id=[${valj_efb[indx].id_}${postId}]`,valj_efb[indx] )
+        //console.log(document.getElementById(`${valj_efb[indx].id_}${postId}`).className)
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-"+c)
         } else if (el.dataset.tag == "form") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
@@ -1110,10 +1125,12 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, "text-"+c)
             document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, "text-"+c)
             document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, "text-"+c)
+            
           } else if (el.dataset.el == "el") {
             document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, "text-"+c)
             document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, "text-"+c)
             document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, "text-"+c)
+            
   
           }
           //button_group_button_single_text
@@ -1152,19 +1169,19 @@ let change_el_edit_Efb = (el) => {
           switch (el.dataset.el) {
             case 'label':
               valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
-              console.log('costume color',valj_efb[indx])
+              //console.log('costume color',valj_efb[indx])
               break;
             case 'description':
               valj_efb[indx].style_label_color ?  valj_efb[indx].style_message_text_color=color : Object.assign(valj_efb[indx] , {style_message_text_color:color}) ;
-              console.log('costume color',valj_efb[indx])
+              //console.log('costume color',valj_efb[indx])
               break;
             case 'el':
               valj_efb[indx].el_text_color ?  valj_efb[indx].style_el_text_color=color : Object.assign(valj_efb[indx] , {style_el_text_color:color}) ;
-              console.log('costume color',valj_efb[indx])
+              //console.log('costume color',valj_efb[indx])
               break;          
             case 'icon':
               valj_efb[indx].style_icon_color ?  valj_efb[indx].style_icon_color=color : Object.assign(valj_efb[indx] , {style_icon_color:color}) ;
-              console.log('costume color',valj_efb[indx])
+              //console.log('costume color',valj_efb[indx])
               break;
           
             default:
@@ -1175,13 +1192,13 @@ let change_el_edit_Efb = (el) => {
         break;
   
       case "selectBorderColorEl":
-        console.log(el.value);
+        //console.log(el.value);
          color = el.value;
         c =switch_color_efb(color);
         
-       console.log(color, c ,el.dataset,indx)
+       //console.log(color, c ,el.dataset,indx)
        if(c.includes('colorDEfb')){
-         addStyleColorBodyEfb(c,color,"border");
+         addStyleColorBodyEfb(c,color,"border",indx);
        }
         postId = '_'
   
@@ -1191,9 +1208,9 @@ let change_el_edit_Efb = (el) => {
         setTimeout(() => {
           const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);      
           l.className =colorBorderChangerEfb(l.className, `border-${c}`);
-          console.log(l.className);
+          //console.log(l.className);
         }, 100)
-
+        valj_efb[indx].el_border_color =`border-${c}`
 
         if(c.includes('colorDEfb')){
           valj_efb[indx].style_border_color ?  valj_efb[indx].style_border_color=color : Object.assign(valj_efb[indx] , {style_border_color:color}) ;
@@ -1802,7 +1819,7 @@ function create_dargAndDrop_el() {
     if (e.dataTransfer.getData("text/plain") !== "step" && e.dataTransfer.getData("text/plain") != null && e.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
       const t = e.dataTransfer.getData("text/plain");
-      console.log(t);
+      //console.log(t);
 
       fun_efb_add_el(t);
 /* 
@@ -1870,7 +1887,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   //editState == true when form is edit method
   // ایجاد المان
   
-  
+  //console.log('addNewElement');
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
@@ -1885,7 +1902,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     add_buttons_zone_efb(t, 'dropZoneEFB')
   }
   newElement = ``;
-
+ // console.log(valj_efb[indexVJ]);
+  //for(let q in  valj_efb[indexVJ]){
+   if(previewSate==false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,indexVJ);})
   if (step_el_efb == 1) {
     let state = false;
 
@@ -1932,7 +1951,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
         id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
         label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
-        el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
+        el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
       });
      // add_buttons_zone_efb(0, 'dropZoneEFB');
 
@@ -2594,7 +2613,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
       id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
       label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
-      el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
+      el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
 
   } else {
@@ -2602,7 +2621,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
       corner: 'efb-square', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'document',
-      label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-colorDEfb', message_text_color: 'text-muted', el_height: 'h-d-efb',
+      label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro
     })
@@ -2702,7 +2721,7 @@ let add_buttons_zone_efb = (state, id) => {
 
 
 
-const colorTextChangerEfb = (classes, color) => { console.log(classes, color);return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
+const colorTextChangerEfb = (classes, color) => {return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, `${color}`); }
 const colorBtnChangerEfb = (classes, color) => { return classes.replace(/\bbtn+-+[\w\-]+/gi, `${color}`); }
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
 const colorBGrChangerEfb = (classes, color) => { return classes.replace(/\bbg+-+[\w\-]+/gi, `${color}`); }
@@ -2985,6 +3004,7 @@ function create_form_efb() {
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }
+        
       }
       if (value.type == 'step') {
         steps_index_efb.push(index)
@@ -3484,7 +3504,7 @@ function removeFileEfb(id, indx) {
 function ui_dadfile_efb(indx, previewSate) {
   let n = valj_efb[indx].file;
   n = efb_var.text[n];
-  console.log(n,efb_var.text[n] )
+  //console.log(n,efb_var.text[n] )
   return `<div class="icon"><i class="efb fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
   <h6 id="${valj_efb[indx].id_}_txt" class="text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
   <button type="button" class="efb btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
@@ -3953,6 +3973,7 @@ function previewFormEfb(state){
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
+        Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;
           head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7  ${value.label_text_color} ">${value.name}</strong></li>`
@@ -4226,7 +4247,7 @@ function timeOutCaptcha(){
 
 
 function fun_validation_efb(){
- console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
+ //console.log(valj_efb,current_s_efb,sendBack_emsFormBuilder_pub);
   let state =true;
   let idi ="null";
   for(let row in valj_efb){
@@ -4267,7 +4288,7 @@ fun_efb_add_el=(t)=>{
 
 const rndm = Math.random().toString(36).substr(2, 9);
 
-  console.log(t);
+  //console.log(t);
 
   if(t=="steps" && valj_efb.length<2){return;}
   if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
@@ -4313,14 +4334,68 @@ const rndm = Math.random().toString(36).substr(2, 9);
 }
 
 
-addStyleColorBodyEfb=(t,c,type)=>{
-  console.log(type);
+addStyleColorBodyEfb=(t,c,type,id)=>{
+  const ttype = valj_efb[id].type;
+  //console.log(`t=>[${t}]`,`c=>[${c}]`,type , ttype);
   let v =`.${t}{color:${c}!important;}`
+  let tag="";
+  switch (ttype) {
+    case 'textarea':
+      tag="textarea"
+      break;
+    case 'text':
+    case 'password':
+    case 'email':
+    case 'number':
+    case 'image':
+    case 'date':
+    case 'tel':
+    case 'url':
+    case 'range':
+    case 'color':
+    case 'checkbox':
+    case 'radiobutton':
+      tag ="input"
+      break;
+  
+    default:
+      tag=""
+      break;
+  }
+/*   if(ttype =='textarea'){
+    tag="textarea"
+  }  if(type =='btn' || ttype=="form"){
+    tag=""
+  }  else if(ttype =='text' || ttype =='password' || ttype =='email' 
+    || ttype =='number' ||'image' || ttype =='date' || ttype =='tel'
+    || ttype =='url' ||'range' || ttype =='color' || ttype =='checkbox'  || ttype =='radiobutton' ){
+    tag ="input"
+    }  */
+
   if(type=="text"){v =`.${type}-${t}{color:${c}!important;}`}
-  else if(type=="border"){console.log(type);v =`.${type}-${t}{border-color:${c}!important;}`}
+  else if(type=="icon"){v =`.text-${t}{color:${c}!important;}`}
+  else if(type=="border"){v =`${tag}.${type}-${t}{border-color:${c}!important;}`}
   else if(type=="bg"){v =`.${type}-${t}{background-color:${c}!important;}`}
   else if(type=="btn"){v =`.${type}-${t}{background-color:${c}!important;}`}
-  console.log(v);
+  //console.log(tag, valj_efb[id].type,v);
   document.body.appendChild(Object.assign(document.createElement("style"), {textContent: `${v}`}))
+}
+
+fun_addStyle_costumize_efb=(val,key,indexVJ)=>{
+  if(val.toString().includes('colorDEfb')){
+    let type=""
+    let color =""
+    switch(key.toString()){
+      case 'button_color': type="btn";color=valj_efb[indexVJ].style_btn_color;break;
+      case 'icon_color': type="icon";color=valj_efb[indexVJ].style_icon_color;break;
+      case 'el_text_color': type="text";color=valj_efb[indexVJ].style_el_text_color;break;
+      case 'label_text_color': type="text"; color=valj_efb[indexVJ].style_label_color;break;
+      case 'message_text_color': type="text";color=valj_efb[indexVJ].style_message_text_color;break;
+      case 'el_border_color': type="border";color=valj_efb[indexVJ].style_border_color;break;
+    }
+    //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
+    addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`),color,type,indexVJ);
+    //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
+  }
 }
 
