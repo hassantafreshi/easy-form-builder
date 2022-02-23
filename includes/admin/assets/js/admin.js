@@ -464,3 +464,18 @@ addColorTolistEfb=(color)=>{
   });
   if(!is_color){ObColors.innerHTML+=`<option name="addUser" value="${color}">`}
 }
+
+function sideMenuEfb(s){
+  let el= document.getElementById('sideBoxEfb');
+  if(s==0){
+      el.classList.remove('show');
+      document.getElementById('sideMenuConEfb').innerHTML=`<div class="my-5" id=""><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div>`
+      document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
+      document.getElementById('sideBoxEfb').classList.add('efbDW-0');    
+  }else{
+    document.getElementById('sideBoxEfb').classList.remove('efbDW-0');
+    document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');
+    el.classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}

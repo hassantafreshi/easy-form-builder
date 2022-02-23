@@ -810,6 +810,9 @@ width: 85%;
 div#dropZoneEFB {
     padding-bottom: 15%;
 }
+.mobile div#dropZoneEFB {
+    padding-bottom: 22%;
+}
 
 #dropZoneEFB.pb{
     padding-bottom: 40%;
@@ -1783,6 +1786,16 @@ input.efb, textarea.efb, select.efb, .seldiv.efb, .select2-choice.efb, .select2-
     background-color: #fafafa!important;
 
 }
+.sideMenu input.efb,
+.sideMenu textarea.efb, 
+.sideMenu select.efb, 
+.sideMenu .seldiv.efb,
+.sideMenu .select2-choice.efb,
+.sideMenu .select2-selection--single.efb {
+
+    background-color: #ffffffc9!important;
+
+}
 
 button.btn-close {
     background-color: #f0f8ff00!important;
@@ -2118,3 +2131,74 @@ input[type=checkbox].efb.fs-2.form-check-input
         cursor: pointer; /* Add a pointer on hover */
       }
 
+
+      /* Side menu */
+.sideMenuConEfb {
+    transition: transform 0.3s ease;
+    background-color: #ECF0F1;
+    width: 100%;
+    height: 100%;
+}
+  .side-menu-efb {
+    transform: translate(0px, 0px);
+    transition: transform 0.3s ease;
+    float: left;
+    height: 100%;
+    width: 32%;
+    color: #fff;
+    padding: 0em;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 49;
+    overflow: auto;
+    margin: 0px -1rem!important;
+}
+.rtl .side-menu-efb {
+    float: right;
+}
+  .contentEfb{
+    box-sizing:border-box;
+    overflow: hidden;
+    padding:1em;
+    border-color: #2980B9;
+    border-width: 0.1em;
+    border-style: dashed;
+    height:100%;
+  }/* chear this one ! */
+  .menu-hidden{
+    transform: translate(-100%, 0px);
+    
+  }
+
+  .efb.sidemenu.head {
+    position: sticky;
+    top: 0;
+    z-index: 51;
+    width: 100%;
+    padding: 0px 1rem;
+    margin-bottom: 1%;
+}   
+    .efb.close.sidemenu{
+        padding: 8px 8px 8px 32px;
+        text-decoration: none !important;
+        font-size: 25px;
+        color: rgb(0 0 0 / 15%);
+        display: block;
+        transition: .3s;
+        cursor: pointer;
+        float:right;
+    }
+
+    .rtl .efb.close.sidemenu{
+        float: left;
+    }
+
+
+   .efbDW-0{
+       width: 0px!important;
+   }
+
+
+   .mobile #sideBoxEfb {
+    width: 80%;
+    }

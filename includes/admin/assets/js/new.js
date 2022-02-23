@@ -128,8 +128,9 @@ function creator_form_builder_Efb() {
   if(devlop_efb==true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
   let nav = "<!--efb.app-->";
   for (let ob in navs) {
-    nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`
+    nav += `<li class="nav-item"><a class="nav-link efb btn text-capitalize ${ob==2 ? 'BtnSideEfb':''} ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`
   }
+  
   document.getElementById(`content-efb`).innerHTML = `
   <div class="${mobile_view_efb ? 'my-2 mx-1': 'm-5' }" id="pCreatorEfb" >
   <div id="panel_efb">
@@ -187,16 +188,22 @@ function active_element_efb(el) {
   if (el.id != activeEl_efb) {
     if (activeEl_efb == 0) {
       activeEl_efb = document.getElementById(el.id).dataset.id;
+      
+    }else{
+      
+      document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none')
     }
-    document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none')
-  
+    
     if (document.querySelector(`[data-id="${activeEl_efb}"]`)) {
       // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
       if (document.querySelector(`[data-id="${activeEl_efb}"]`).classList.contains('field-selected-efb')) document.querySelector(`[data-id="${activeEl_efb}"]`).classList.remove('field-selected-efb')
     }
 
     activeEl_efb = el.dataset.id
-    if (document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none')) document.getElementById(`btnSetting-${activeEl_efb}`).classList.remove('d-none')
+    if (document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none')){ 
+      document.getElementById(`btnSetting-${activeEl_efb}`).classList.remove('d-none');
+     
+    }
     // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-block')
     document.querySelector(`[data-id="${activeEl_efb}"]`).classList.add('field-selected-efb')
 
@@ -206,11 +213,12 @@ function active_element_efb(el) {
 
 //setting of  element
 function show_setting_window_efb(idset) {
+
+  if(document.getElementById('sideBoxEfb').classList.contains('show')){return};
   //console.log('show_setting_window_efb',idset,valj_efb)
   // ویرایش پیشرفته هر المان را به مدال اضافه می کند که کاربر ویرایش را بتواند انجام دهد
   // نکته : باید بعدا وقتی اضافه می کنیم از طریق جیسون مقدارهای قبلی هم نمایش بدهم
-  // const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  console.log('show_setting_window_efb',idset);
   let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
   let body = ``;
   //const bodySetting = document.getElementById("settingModalEfb-body");
@@ -844,13 +852,24 @@ function show_setting_window_efb(idset) {
       break;
 
   }
-  show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
+
+  
+  //console.log("show_setting_window_efb",body)
+  //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
+  sideMenuEfb(1)
+ // document.getElementById('sideBoxEfb').classList.add('show');
+  document.getElementById('sideMenuConEfb').innerHTML=body;
+  console.log("el",body)
   for (const el of document.querySelectorAll(`.elEdit`)) {
     if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
     else{ console.log(el.tagName)}
   }
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show()
+
+
+  //  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  // myModal.show()
+
+
 
 }
 
@@ -1417,11 +1436,13 @@ function pro_show_efb(state) {
 
 
 const show_modal_efb = (body, title, icon, type) => {
- 
-  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+ console.log('show_modal_efb in ',type ,title,body.slice(1,50))
+// const myModal =  new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+ //console.log(myModal);
   document.getElementById("settingModalEfb-title").innerHTML = title;
   document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
   document.getElementById("settingModalEfb-body").innerHTML = body
+  console.log(`show_modal_efb  body================>`,document.getElementById("settingModalEfb-body").innerHTML.slice(1,50))
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.contains('modal-new-efb') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new-efb')
@@ -1930,8 +1951,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                     id="${step_el_efb}_icon"></i> <span id="${step_el_efb}_lab" class="efb  text-darkb  ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'} ">${valj_efb[indexVJ].name}</span></span></h2>
             <small id="${step_el_efb}-des" class="efb form-text ${valj_efb[indexVJ].message_text_color} border-bottom px-4   ">${valj_efb[indexVJ].message}</small>
             <div class="efb col-sm-10">
-                <div class="efb btn-edit-holder d-none" id="btnSetting-${step_el_efb}">
-                    <button type="button" class="efb btn  btn-edit  btn-sm" id="settingElEFb"
+                <div class="efb btn-edit-holder d-none " id="btnSetting-${step_el_efb}">
+                    <button type="button" class="efb btn  btn-edit  btn-sm BtnSideEfb" id="settingElEFb"
                         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
                         onclick="show_setting_window_efb('${step_el_efb}')">
                         <i class="efb bi-gear-fill text-success"></i>
@@ -2161,10 +2182,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        
         <div class="efb col-md-10 col-sm-12">
         <div class="efb btn-edit-holder d-none" id="btnSetting-${valj_efb[iVJ].id_}">
-        <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"
+        <button type="button" class="efb btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"
         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
         onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')">
-        <i class="efb bi-gear-fill text-success"></i>
+        <i class="efb bi-gear-fill text-success BtnSideEfb"></i>
         </button>
           ${del}
         </div>
@@ -2357,7 +2378,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div class="col-sm-12 efb"  id='${rndm}-f' data-id="${rndm}-el" data-tag="htmlCode">            
             <div class="boxHtml-efb sign-efb efb" id="${rndm}_html">
             <div class="noCode-efb m-5 text-center efb" id="${rndm}_noCode">
-              ${efb_var.text.noCodeAddedYet} <button type="button" class="btn efb btn-edit efb btn-sm" id="settingElEFb"
+              ${efb_var.text.noCodeAddedYet} <button type="button" class="BtnSideEfb btn efb btn-edit efb btn-sm" id="settingElEFb"
               data-id="${rndm}-id" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
               onclick="show_setting_window_efb('${rndm}-id')">
               <i class="efb bi-gear-fill text-success"></i></button>${efb_var.text.andAddingHtmlCode}
@@ -2392,8 +2413,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
     const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
-    <i class="efb bi-gear-fill text-success"></i>
+    <button type="button" class="efb btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
+    <i class="efb bi-gear-fill text-success BtnSideEfb"></i>
     </button>
     <!--<button type="button" class="efb btn btn-edit btn-sm" id="dupElEFb" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}-id')">
     <i class="efb bi-files text-warning"></i> -->
@@ -2687,7 +2708,7 @@ let add_buttons_zone_efb = (state, id) => {
 
 
   const stng = `  <div class="col-sm-10 efb">
-  <div class="btn-edit-holder d-none efb" id="btnSetting-button_group">
+  <div class=" BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="btn efb btn-edit efb btn-sm" id="settingElEFb"
           data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
           onclick="show_setting_window_efb('button_group')">
@@ -3958,19 +3979,22 @@ function previewFormEfb(state){
   //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`
   //content =`<span class='efb row efb'>`
   if (state != "show" && state !="run") {
-    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
       show_modal_efb(`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.formNotFound}</p></div>`, efb_var.text.previewForm, '', 'saveBox');
+      const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
       myModal.show();
       return;
     }
     if(state =="pc"){
       show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
+      
+      const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
       myModal.show();
     }
   }
-  
+  console.log('befor time out');
   setTimeout(() => {
+    console.log('in time out');
     try {
       valj_efb.forEach((value, index) => {
         Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
@@ -4028,8 +4052,11 @@ function previewFormEfb(state){
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     if (state == 'pc') {
       document.getElementById('dropZoneEFB').innerHTML = '';
+      console.log(`content========================>`,content.slice(1,50))
+      content = `<!-- find xxxx -->`+content;
       show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
       add_buttons_zone_efb(t, 'settingModalEfb-body')
+  
     } else if (state == "mobile") {
       const frame = `
         <div class="smartphone-efb">

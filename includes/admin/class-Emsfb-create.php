@@ -67,6 +67,14 @@ class Create {
 
 	public function render_settings() {
 	?>
+	<!--sideMenu--> <div class="sideMenuConEfb efbDW-0" id="sideMenuFEfb">
+				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0" id="sideBoxEfb">
+				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
+				<span> </span>
+					<a class="BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="bi-x-lg" ></i></a>
+				</div>
+				<div class="efb mx-3 sideMenu" id="sideMenuConEfb"></div>
+				</div></div>
 			<script>		
 				let bdy =document.getElementsByTagName('body');
 				bdy[0].classList.add("bg-color");
