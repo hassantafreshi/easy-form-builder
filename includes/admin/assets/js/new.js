@@ -3992,9 +3992,7 @@ function previewFormEfb(state){
       myModal.show();
     }
   }
-  console.log('befor time out');
   setTimeout(() => {
-    console.log('in time out');
     try {
       valj_efb.forEach((value, index) => {
         Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
@@ -4052,7 +4050,6 @@ function previewFormEfb(state){
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     if (state == 'pc') {
       document.getElementById('dropZoneEFB').innerHTML = '';
-      console.log(`content========================>`,content.slice(1,50))
       content = `<!-- find xxxx -->`+content;
       show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
       add_buttons_zone_efb(t, 'settingModalEfb-body')

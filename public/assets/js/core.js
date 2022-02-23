@@ -422,7 +422,6 @@ function emsFormBuilder_nevButton_view(n) {
 
 function validateForm_emsFormBuilder_view() {
   let x, y, i, valid = true, NotValidCount = 0;
-  console.log('validateForm_emsFormBuilder_view');
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
   let value
@@ -452,7 +451,6 @@ function validateForm_emsFormBuilder_view() {
             break;
           case 'url':
             const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-            console.log(el.value,input,check)
             if (check === null && input.classList.contains('require') == true) {              
               valid = false;
               input.className += ' invalid';
@@ -1479,7 +1477,6 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
-  console.log(res ,message);
   if (res.success == true && res.data.success==true) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;

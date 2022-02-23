@@ -1488,8 +1488,7 @@ function clickToCheckEmailServer() {
   const nnrhtml = document.getElementById('clickToCheckEmailServer').innerHTML;
   document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`;
   const email =document.getElementById('email_emsFormBuilder').value;
-  // call and waitning response
-  console.log(`email len: ${email.length}`);
+  // call and waitning response  
   if(email.length>5){
     jQuery(function ($) { 
       data = {
