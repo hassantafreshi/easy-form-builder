@@ -202,9 +202,7 @@ border-radius: 20px!important;
 max-width: 70%;
 } 
 
-#settingModalEfb_{
-    margin-left: 8%;
-}
+
 /* .modal-content2 {
 left: -79%!important;
 
@@ -2018,9 +2016,6 @@ input[type=checkbox].efb.fs-2.form-check-input
     margin-top: 20%;
     margin-bottom: 20%;
 }
-.mobile #settingModalEfb_ {
-    margin-left: 2%;
-}
 
 .mobile .mobile-title.efb {
     font-size: 20px!important;
@@ -2155,6 +2150,13 @@ input[type=checkbox].efb.fs-2.form-check-input
 }
 .rtl .side-menu-efb {
     float: right;
+}
+
+div#sideBoxEfb {
+    height: 100vh;
+}
+.mobile div#sideBoxEfb {
+    height: 100%;
 }
   .contentEfb{
     box-sizing:border-box;

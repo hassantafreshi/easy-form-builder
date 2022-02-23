@@ -216,9 +216,7 @@ function show_setting_window_efb(idset) {
 
   if(document.getElementById('sideBoxEfb').classList.contains('show')){return};
   //console.log('show_setting_window_efb',idset,valj_efb)
-  // ویرایش پیشرفته هر المان را به مدال اضافه می کند که کاربر ویرایش را بتواند انجام دهد
-  // نکته : باید بعدا وقتی اضافه می کنیم از طریق جیسون مقدارهای قبلی هم نمایش بدهم
-  console.log('show_setting_window_efb',idset);
+
   let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
   let body = ``;
   //const bodySetting = document.getElementById("settingModalEfb-body");
@@ -859,7 +857,6 @@ function show_setting_window_efb(idset) {
   sideMenuEfb(1)
  // document.getElementById('sideBoxEfb').classList.add('show');
   document.getElementById('sideMenuConEfb').innerHTML=body;
-  console.log("el",body)
   for (const el of document.querySelectorAll(`.elEdit`)) {
     if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
     else{ console.log(el.tagName)}
@@ -1442,7 +1439,6 @@ const show_modal_efb = (body, title, icon, type) => {
   document.getElementById("settingModalEfb-title").innerHTML = title;
   document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
   document.getElementById("settingModalEfb-body").innerHTML = body
-  console.log(`show_modal_efb  body================>`,document.getElementById("settingModalEfb-body").innerHTML.slice(1,50))
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.contains('modal-new-efb') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new-efb')

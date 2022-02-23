@@ -558,7 +558,6 @@ function createStepsOfPublic() {
               const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id_);
               if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
             } else {
-              console.log(el);
               el.className = colorBorderChangerEfb(el.className,"border-success");
               document.getElementById(`${el.id}-message`).innerHTML = ""
             }
@@ -923,7 +922,6 @@ function valid_file_emsFormBuilder(id) {
   // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
   // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
   // روی تست ولیدت را تست کن ببین مشکل از کجاست
-  console.log(`[file]`, id)
    document.getElementById(`${id}_-message`).innerHTML="";
   let file = ''
   if (true) {
