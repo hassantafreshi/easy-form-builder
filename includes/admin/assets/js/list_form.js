@@ -739,6 +739,7 @@ function fun_show_setting__emsFormBuilder() {
   let text= efb_var.text;
   let textList ="<!--list EFB -->";
   let bootstrap = false ;
+  let emailTemp="null"
 //JSON.parse(ajax_object_efm.setting[0].text.replace(/[\\]/g, ''))
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
    // console.log(ajax_object_efm.setting[0].setting);
@@ -757,6 +758,7 @@ function fun_show_setting__emsFormBuilder() {
     apiKeyMap = f(`apiKeyMap`)
     smtp = f('smtp');
     bootstrap = f('bootstrap');
+    emailTemp = f('emailTemp');
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -778,7 +780,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb bi bi-gear mx-2"></i>${efb_var.text.general}</button>
                             <button class="efb nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
-                            <button class="d-none efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
+                            <button class="efb nav-link d-none" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                         </div>
                         </nav>
@@ -916,30 +918,39 @@ function fun_show_setting__emsFormBuilder() {
                                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                                   <div class="collapse navbar-collapse py-1" id="navbarTogglerDemo01">
                                   <ul class="navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
-                                    <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="saveFormEfb()" "="">
+                                    <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="email_template_efb('p')" >
                                      <i class="bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
                                     </li>                                  
                                     <li class="nav-item">
-                                        <a class="nav-link efb btn text-capitalize  " onclick="show_setting_window_efb('formSet')" "="">
-                                        <i class="bi-sliders mx-1 "></i>${efb_var.text.reset}</a>
+                                        <a class="nav-link efb btn text-capitalize  " onclick="email_template_efb('r')" >
+                                        <i class="bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link efb btn text-capitalize  " onclick="show_setting_window_efb('formSet')" "="">
-                                        <i class="bi-sliders mx-1 "></i>${efb_var.text.help}</a>
+                                        <a class="nav-link efb btn text-capitalize  " onclick="email_template_efb('h')" >
+                                        <i class="bi-question mx-1 "></i>${efb_var.text.help}</a>
                                     </li>
+
+                                    <li class="dropdown d-none">
+                                    <a class="nav-link efb btn text-capitalize dropdown-toggle" data-toggle="dropdown" href="#">Ready Template
+                                    <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                      <li class="nav-item"><a href="#" class="nav-link efb btn">default Template</a></li>
+                                      <li class="nav-item"><a href="#" class="nav-link efb btn">Template 1</a></li>
+                                      <li class="nav-item"><a href="#" class="nav-link efb btn">Template 2</a></li>
+                                    </ul>
+                                  </li>
                                     
                               </div>      
                           </nav>
                         </div>
                         <div class="mx-3 row col-12 mb-2">
                             <!--EmailTemplate-->
-                            <div class="col-6 bg-back">
-                              <h2>Editor</h2>
-                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="50"></textarea>                        
+                            <div class="col-md-8 bg-back">
+                              <h3 class="efb card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
+                              <textarea class="form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp:''}</textarea>                        
                             </div>
-                            <div class="col-6 bg-warning">
-                              <h2>View</h2>
-                              <div id="efbEmailTempShow" class="col-12"></div>
+                            <div class="col-md-4 bg-warning"> 
+
                             </div>
                          
                             <!--End EmailTemplate-->
@@ -988,7 +999,7 @@ function fun_set_setting_emsFormBuilder() {
   const f = (id) => {
     const el = document.getElementById(id)
     let r = "NotFoundEl"
-    if (el.type == "text" || el.type == "email" || el.type == "hidden") {
+    if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       return el.value;
     } else if (el.type == "checkbox") {      
       return el.checked;
@@ -1007,7 +1018,28 @@ function fun_set_setting_emsFormBuilder() {
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
         return false;
       }else if(id == "bootstrap_emsFormBuilder"){
+      } else if (id == "email_template_efb") {
+        let st=1;
+        let c=''
+        let ti ='';
+        if(el.value.length<5){
+          st =0;
+          c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.notFound}</p></div>`
+        }else if(el.value.length>20000){
+          st =0;
+          c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
+        }else if(!c.includes('shortcode_message') && !c.includes('shortcode_email')){
+          c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
+          st =0;
+        }
 
+        if(st==0){
+          ti =efb_var.text.error
+          show_modal_efb(c,ti , '', 'saveBox');
+          const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+          myModal.show();
+          return false;
+        }
       } else if (id == "activeCode_emsFormBuilder") {
         //برای برسی صحیح بودن کد امنیتی وارد شده
         if (el.value.length < 5 && el.value.length != 0) {
@@ -1031,7 +1063,7 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder'];
+  const ids = ['smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder','emailTemp_emsFirmBuilder'];
   let state = true
   for (id of ids) {
     if (v(id) === false) {
@@ -1050,8 +1082,9 @@ function fun_set_setting_emsFormBuilder() {
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     const smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
+    const emailTemp = f('emailTemp_emsFirmBuilder');
     let text = efb_var.text;
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap});
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap,emailTemp:emailTemp});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1531,3 +1564,51 @@ window.onload = (() => {
     //folded
   }, 50)
 })
+
+
+function email_template_efb(s){
+  if(s=='p'){
+    //preview
+    let c = document.getElementById('emailTemp_emsFirmBuilder').value;
+    let ti =efb_var.text.error
+    if(c.match(/(<script+)/gi)){
+      console.log('Javascript tag');
+      //show error message you can't use script code
+      c= `<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
+      //return 0;
+    }else if(c.length>2 && c.length<2000 ){
+      ti = efb_var.text.preview;
+      if(!c.includes('shortcode_message') && !c.includes('shortcode_email')){ 
+        c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
+       ti =efb_var.text.error
+      }
+      else if(!efb_var.pro) {
+        
+        c+=`<table role='presentation' bgcolor='#F5F8FA' width='100%'>
+        <a type="button" onclick="pro_show_efb(1)" class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb bi-gem text-light"></i></a>
+        <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
+       <br> <image src="https://whitestudio.team/img/favicon.png"> <a class='subtle-link' target='_blank' href='https://whitestudio.team/'>White Studio Team</a></td></tr>`
+      }
+      // موارد زیر در سمت سرور هم قبل از ذخیره سازی اضافه شود برای  کاربر رایگان
+    }else if(c.length>=20000){
+      c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
+      //ti =efb_var.text.error
+      console.log(`>=5`)
+    }else if(c.length<2){
+      c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.notFound}</p></div>`
+      //show_modal_efb(``, ti, '', 'saveBox');
+    }
+    show_modal_efb(c,ti , '', 'saveBox');
+    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    myModal.show();
+    console.log(c);
+  }else if(s=="h"){
+    //show help
+    //open link to document how create a email template
+    console.log('help button');
+  }else if (s=='r'){
+    console.log('reset button');
+    //reset
+    document.getElementById('emailTemp_emsFirmBuilder').value='';
+  }
+}

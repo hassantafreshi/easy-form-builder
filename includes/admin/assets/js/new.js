@@ -4402,19 +4402,19 @@ addStyleColorBodyEfb=(t,c,type,id)=>{
 }
 
 fun_addStyle_costumize_efb=(val,key,indexVJ)=>{
-  if(val.toString().includes('colorDEfb')){
+  if(val.toString().includes('colorDEfb')) {  
     let type=""
     let color =""
     switch(key.toString()){
-      case 'button_color': type="btn";color=valj_efb[indexVJ].style_btn_color;break;
-      case 'icon_color': type="icon";color=valj_efb[indexVJ].style_icon_color;break;
-      case 'el_text_color': type="text";color=valj_efb[indexVJ].style_el_text_color;break;
-      case 'label_text_color': type="text"; color=valj_efb[indexVJ].style_label_color;break;
-      case 'message_text_color': type="text";color=valj_efb[indexVJ].style_message_text_color;break;
-      case 'el_border_color': type="border";color=valj_efb[indexVJ].style_border_color;break;
+      case 'button_color': type="btn";color= valj_efb[indexVJ].style_btn_color ? valj_efb[indexVJ].style_btn_color :'';break;
+      case 'icon_color': type="icon";color=valj_efb[indexVJ].style_icon_color ? valj_efb[indexVJ].style_icon_color:'';break;
+      case 'el_text_color': type="text";color=valj_efb[indexVJ].style_el_text_color ? valj_efb[indexVJ].style_el_text_color:'';break;
+      case 'label_text_color': type="text"; color=valj_efb[indexVJ].style_label_color ? valj_efb[indexVJ].style_label_color:'';break;
+      case 'message_text_color': type="text";color=valj_efb[indexVJ].style_message_text_color? valj_efb[indexVJ].style_message_text_color:'';break;
+      case 'el_border_color': type="border";color=valj_efb[indexVJ].style_border_color?valj_efb[indexVJ].style_border_color:'';break;
     }
     //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
-    addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`),color,type,indexVJ);
+    if(color!="")addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`),color,type,indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
 }

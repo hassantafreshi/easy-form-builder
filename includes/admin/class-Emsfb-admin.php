@@ -450,10 +450,9 @@ class Admin {
 
     public function set_setting_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
-        // با این مضنون که پاسخ شما داده شده است
         $efbFunction = new efbFunction();   
         $ac= $efbFunction->get_setting_Emsfb();
-        $text = ["messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
+        $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -485,8 +484,7 @@ class Admin {
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
                 $email = $value;
-            }
-            if ($key == "activeCode" && strlen($value) > 1) {
+            }else if ($key == "activeCode" && strlen($value) > 1) {
                 $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
                 if (md5($server_name) != $value) {
                     $m = $lang["activationNcorrect"];
@@ -498,6 +496,30 @@ class Admin {
                     // یک رکوست سمت سرور ارسال شود که بررسی کند کد وجود دارد یا نه
                 }
 
+            }else if($key = "emailTemp"){
+               /*  error_log($key);
+                error_log(strlen($value));
+                if(!strpos($value ,'shortcode_message') && !strpos($value ,'shortcode_shortcode_email')){
+                    $m = $lang["addSCEmailM"];
+                    $response = ['success' => false, "m" =>$m];
+                    die();
+                }else if(strlen($value)<5 && strlen($value)>2 ){
+                    //notFound
+                    $m = $lang["emailTemplate"];
+                    $response = ['success' => false, "m" =>$m];
+                    die();
+                }else if(strlen($value)>20001){
+                    //notFound
+                    $m = $lang["addSCEmailM"];
+                    $response = ['success' => false, "m" =>$m];
+                    die();
+                }else if(strpos($value ,'<script')){
+                    $m = $lang["pleaseDoNotAddJsCode"];
+                    $response = ['success' => false, "m" =>$m];
+                    die();
+                }else{
+
+                } */
             }
  
         }
@@ -659,6 +681,7 @@ class Admin {
          $newAc["secretKey"] = $ac->secretKey;
          $newAc["emailSupporter"] = $to;
          $newAc["apiKeyMap"] = $ac->apiKeyMap;
+
          $newAc["smtp"] = "true";
          $newAc["text"] = $ac->text; //change78 باید لیست جملات اینجا ذخیره شود
             $table_name = $this->db->prefix . "Emsfb_setting";
@@ -668,7 +691,7 @@ class Admin {
                     'setting' => json_encode($newAc),
                     'edit_by' => get_current_user_id(),
                     'date'    => current_time('mysql'),
-                    'email'   => $to
+                    'email'   => $to,
                 ]
             );
         }
