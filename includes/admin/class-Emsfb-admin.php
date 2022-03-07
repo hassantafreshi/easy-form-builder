@@ -477,7 +477,8 @@ class Admin {
         
         $m= str_replace('\\', '', $_POST['message']);
         $m = json_decode($m,true);
-        $setting    = sanitize_text_field($_POST['message']);
+     //   $setting    = sanitize_text_field($_POST['message']);
+        $setting    = $_POST['message'];
         $table_name = $this->db->prefix . "Emsfb_setting";
         $email="";
         //error_log( $_POST['message']);
@@ -496,30 +497,31 @@ class Admin {
                     // یک رکوست سمت سرور ارسال شود که بررسی کند کد وجود دارد یا نه
                 }
 
-            }else if($key = "emailTemp"){
-               /*  error_log($key);
-                error_log(strlen($value));
-                if(!strpos($value ,'shortcode_message') && !strpos($value ,'shortcode_shortcode_email')){
+            }else if($key == "emailTemp"){
+               // error_log($key);
+                //error_log(strlen($value));
+                if( strlen($value)>5  && (!strpos($value ,'shortcode_message') && !strpos($value ,'shortcode_shortcode_email'))){
                     $m = $lang["addSCEmailM"];
+                    $m = "lang[addSCEmailM]";
                     $response = ['success' => false, "m" =>$m];
                     die();
-                }else if(strlen($value)<5 && strlen($value)>2 ){
+                }else if(strlen($value)<6 && strlen($value)>0 ){
                     //notFound
-                    $m = $lang["emailTemplate"];
+
+                    $m = $lang["emailTemplate"];               
                     $response = ['success' => false, "m" =>$m];
                     die();
                 }else if(strlen($value)>20001){
                     //notFound
-                    $m = $lang["addSCEmailM"];
+                    $m = $lang["addSCEmailM"];                    
                     $response = ['success' => false, "m" =>$m];
                     die();
                 }else if(strpos($value ,'<script')){
                     $m = $lang["pleaseDoNotAddJsCode"];
                     $response = ['success' => false, "m" =>$m];
                     die();
-                }else{
-
-                } */
+                }
+                //error_log('end if');
             }
  
         }

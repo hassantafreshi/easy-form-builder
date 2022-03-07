@@ -948,6 +948,7 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="col-md-8 bg-back">
                               <h3 class="efb card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
                               <textarea class="form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp:''}</textarea>                        
+                              <span id="emailTemp_emsFirmBuilder-message" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 bg-warning"> 
 
@@ -993,6 +994,8 @@ function fun_switch_saveSetting(i , id){
 
 function fun_set_setting_emsFormBuilder() {
   // fun_state_loading_message_emsFormBuilder(1);
+  document.getElementById('save-stng-efb').classList.add('disabled');
+  
   const nnrhtml = document.getElementById('save-stng-efb').innerHTML;
   document.getElementById('save-stng-efb').innerHTML = `<i class="bi bi-hourglass-split"></i>`
   fun_State_btn_set_setting_emsFormBuilder();
@@ -1000,6 +1003,7 @@ function fun_set_setting_emsFormBuilder() {
     const el = document.getElementById(id)
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
+      if (id=="emailTemp_emsFirmBuilder")el.value= el.value.replace(/([//])+/g, '@efb@')
       return el.value;
     } else if (el.type == "checkbox") {      
       return el.checked;
@@ -1007,28 +1011,26 @@ function fun_set_setting_emsFormBuilder() {
     return "NotFoundEl"
   }
   const v = (id) => {
-    
-    const el = document.getElementById(id);    
+    const el = document.getElementById(id);   
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
-
-      if (el.value.length > 0 && el.value.length < 20 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
+      if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
         document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
         return false;
       }else if(id == "bootstrap_emsFormBuilder"){
-      } else if (id == "email_template_efb") {
+      } else if (id == "emailTemp_emsFirmBuilder") {
         let st=1;
         let c=''
         let ti ='';
-        if(el.value.length<5){
+        if(el.value.length<5 && el.value.length>1){
           st =0;
-          c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.notFound}</p></div>`
+          c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.pleaseEnterVaildEtemp}</p></div>`
         }else if(el.value.length>20000){
           st =0;
           c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
-        }else if(!c.includes('shortcode_message') && !c.includes('shortcode_email')){
+        }else if(el.value.length>1 && el.value.indexOf('shortcode_message')==-1 && el.value.indexOf('shortcode_title')==-1){
           c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
           st =0;
         }
@@ -1065,7 +1067,9 @@ function fun_set_setting_emsFormBuilder() {
   }
   const ids = ['smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder','emailTemp_emsFirmBuilder'];
   let state = true
+ 
   for (id of ids) {
+   
     if (v(id) === false) {
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
@@ -1082,12 +1086,14 @@ function fun_set_setting_emsFormBuilder() {
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     const smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
-    const emailTemp = f('emailTemp_emsFirmBuilder');
+    let emailTemp = f('emailTemp_emsFirmBuilder');
+    emailTemp= emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = efb_var.text;
     fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap,emailTemp:emailTemp});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
+  document.getElementById('save-stng-efb').classList.remove('disabled');
 }
 
 function fun_State_btn_set_setting_emsFormBuilder() {
@@ -1179,7 +1185,6 @@ function fun_find_track_emsFormBuilder() {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
         if (res.data.success == true) {
           valueJson_ws_messages = res.data.ajax_value;
-          // console.l(`res.data`,res.data);
           localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
           document.getElementById("more_emsFormBuilder").style.display = "none";
           fun_ws_show_list_messages(valueJson_ws_messages)
@@ -1380,9 +1385,6 @@ function convert_to_dataset_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
   
   let rows = exp;
-  
-   
- // console.log(rows); 
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
@@ -1571,14 +1573,14 @@ function email_template_efb(s){
     //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
     let ti =efb_var.text.error
+    c= c.replace(/(@efb@)+/g, '/')
     if(c.match(/(<script+)/gi)){
-      console.log('Javascript tag');
       //show error message you can't use script code
       c= `<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
       //return 0;
     }else if(c.length>2 && c.length<2000 ){
       ti = efb_var.text.preview;
-      if(!c.includes('shortcode_message') && !c.includes('shortcode_email')){ 
+      if(!c.includes('shortcode_message') && !c.includes('shortcode_title')){ 
         c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
        ti =efb_var.text.error
       }
@@ -1593,7 +1595,6 @@ function email_template_efb(s){
     }else if(c.length>=20000){
       c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
       //ti =efb_var.text.error
-      console.log(`>=5`)
     }else if(c.length<2){
       c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.notFound}</p></div>`
       //show_modal_efb(``, ti, '', 'saveBox');
@@ -1601,13 +1602,10 @@ function email_template_efb(s){
     show_modal_efb(c,ti , '', 'saveBox');
     const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     myModal.show();
-    console.log(c);
   }else if(s=="h"){
     //show help
     //open link to document how create a email template
-    console.log('help button');
   }else if (s=='r'){
-    console.log('reset button');
     //reset
     document.getElementById('emailTemp_emsFirmBuilder').value='';
   }

@@ -446,8 +446,9 @@ class efbFunction {
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : __('Free feature of sending notification email to admin or user.','easy-form-builder'),
 			"notFound" => $state  &&  isset($ac->text->notFound) ? $ac->text->notFound : __('Not Found','easy-form-builder'),
 			"editor" => $state  &&  isset($ac->text->editor) ? $ac->text->editor : __('Editor','easy-form-builder'),
-			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : __('Please have add these shortcodes: shortcode_message and shortcode_email','easy-form-builder'),
+			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : __('Please have add these shortcodes: shortcode_message and shortcode_title','easy-form-builder'),
 			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : __('Email Template have a limit of 20,000 characters','easy-form-builder'),
+			"pleaseEnterVaildEtemp" => $state  &&  isset($ac->text->pleaseEnterVaildEtemp) ? $ac->text->pleaseEnterVaildEtemp : __('Please enter html tags for email template','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			/* bug! end */
 			
@@ -510,17 +511,25 @@ class efbFunction {
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);		
 		
-		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'>".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
-		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'>". $lang["createdBy"]. " White Studio Team</a>";
-		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'>". __('Easy Form Builder' , 'easy-form-builder')."</a>";
+		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
+		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://whitestudio.team/img/favicon.png' style='width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
+		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
 		if(strlen($pro)>1){
 			$footer= "<a class='subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
 			$header = " <a class='subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
 		}   
 		
+		$st = $this->get_setting_Emsfb();
+		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		$title=$lang["newMessage"];
-		
 		$message ="<h2>".$m."</h2>";
+		$blogName =get_bloginfo('name');
+		$user= get_user_by('id', 1);
+		$adminEmail = $user->user_email;
+		$blogURL= home_url();
+
+		//error_log('temo');
+		//error_log($temp);
 		if($state=="testMailServer"){
 			$title=$lang["goodJob"];
 			$message ="<h2>"
@@ -536,7 +545,9 @@ class efbFunction {
 
 			$title =$lang["hiUser"];
 			$message=$m;
-		}		
+		}	
+		
+		
 		$val ="
 		<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional //EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns='http://www.w3.org/1999/xhtml' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml' lang='en'><head> <link rel='stylesheet' type='text/css' hs-webfonts='true' href='https://fonts.googleapis.com/css?family=Lato|Lato:i,b,bi'> <title>Email template</title> <meta property='og:title' content='Email template'> <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <style type='text/css'> a {  color: inherit; font-weight: bold; color: #253342; text-decoration : none } h1 { font-size: 56px; } h2 { font-size: 28px; font-weight: 900; } p { font-weight: 100; } td { vertical-align: top; } #email { margin: auto; width: 600px; background-color: white; } button { font: inherit; background-color: #ff4b93; border: none; padding: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; color: white; border-radius: 5px;  } .subtle-link { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #CBD6E2; } </style></head>
 		<body bgcolor='#F5F8FA' style='width: 100%; margin: auto 0; padding:0; font-family:Lato, sans-serif; font-size:18px; color:#33475B; word-break:break-word'>
@@ -569,7 +580,21 @@ class efbFunction {
 			</body>
 			</html>
 			";
-			
+			if($temp!="0"){
+				$temp=str_replace('shortcode_message' ,$message,$temp);
+				$temp=str_replace('shortcode_title' ,$title,$temp);
+				$temp=str_replace('shortcode_website_name' ,$blogName,$temp);
+				$temp=str_replace('shortcode_website_url' ,$blogURL,$temp);
+				$temp=str_replace('shortcode_admin_email' ,$adminEmail,$temp);
+				$temp= preg_replace('/(@efb@)+/','/',$temp);
+				$p = strripos($temp, '</body>');
+				
+				//error_log($p);
+				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
+				if(strlen($pro)<5){	$temp = substr_replace($temp,$footer,($p),0);}
+				//error_log($temp);
+				$val = $temp;
+			}
 			return $val;
 	}
 

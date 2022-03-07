@@ -1032,8 +1032,7 @@ class _Public {
 		   $r =json_decode($v);
 		   $i=0;
    
-		   foreach($r as $k=>$v){	
-   
+		   foreach($r as $k=>$v){	   
 			   if($k=="siteKey" && $state=="pub"){				
 				   $siteKey=$v;
 			   }elseif ($k=="trackingCode" && $state=="pub"){
