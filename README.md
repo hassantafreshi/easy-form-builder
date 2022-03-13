@@ -2,7 +2,7 @@
 
 
 #  Easy Form Builder
-###  Easy Form Builder is friendly, multi-step and Drag & drop form creator
+###  Easy Form Builder is friendly, multi-step and Drag & drop form creator Plugin for Wordpress
 <div align="center">
     <a href="https://whitestudio.team">
         <img src="https://ps.w.org/easy-form-builder/assets/icon.svg" alt="✨  Easy Form Builder  ✨" width="100px" />
@@ -25,11 +25,11 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
     <caption>Easy Form Builder available in these languages and <a href="https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/">you can translate the plugin in your mother tongue language.</a> </caption>
     <tbody>
               <tr>
-            <td><a href="https://wordpress.org/plugins/easy-form-builder/">English</a></td>
-            <td><a href="https://da.wordpress.org/plugins/easy-form-builder/">Danish</a></td>
-            <td><a href="https://hi.wordpress.org/plugins/easy-form-builder/"> हिन्दी</a></td>
-            <td><a href="https://fa.wordpress.org/plugins/easy-form-builder/">فارسی</a></td>
-            <td><a href="https://ar.wordpress.org/plugins/easy-form-builder/">العربی</a></td>
+            <td>English , <a href="https://wordpress.org/plugins/easy-form-builder/">Easy Form Builder</a></td>
+            <td>Danish , <a href="https://da.wordpress.org/plugins/easy-form-builder/">Nem formularbygger</a></td>
+            <td>हिन्दी , <a href="https://hi.wordpress.org/plugins/easy-form-builder/">आसान फॉर्म बिल्डर</a></td>
+            <td>فارسی ,<a href="https://fa.wordpress.org/plugins/easy-form-builder/"> فرم ساز آسان</a></td>
+            <td>العربی,<a href="https://ar.wordpress.org/plugins/easy-form-builder/">منشئ النموذج السهل</a></td>
             </tr>
     </tbody>
 </table>
@@ -47,7 +47,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 
 *  Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
 * [Easy Form Builder 1.34.0 – 1.34.5](https://github.com/hassantafreshi/easy-form-builder/tree/Dev) is maintained but no longer extended. (stable)
-* [Easy Form Builder 2.2.X](https://wordpress.org/plugins/easy-form-builder) is under active development. (recommended)
+* [Easy Form Builder 2.3.X](https://wordpress.org/plugins/easy-form-builder) is under active development. (recommended)
 
 
 ## Features 💡
@@ -86,6 +86,9 @@ Features:
 - Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
 - Get export of result of Surveys to CSV format file (Available in pro version)
 - Get export of response of forms to CSV format file (Available in pro version)
+- Easily Localization Easy Form Builder to your language for free
+- Mobile-friendly admin panel of Easy Form Builder
+- Add custom email template for form notification emails for free
 
 
 ## Documentation

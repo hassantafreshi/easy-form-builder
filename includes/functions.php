@@ -301,7 +301,7 @@ class efbFunction {
 			"reportProblem" => $state ? $ac->text->reportProblem : __('Report problem','easy-form-builder'),
 			"ddate" => $state ? $ac->text->ddate : __('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : __('Your e-mail server able to send Emails','easy-form-builder'),
-			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),
+			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('Your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : __('The file is not the right file type','easy-form-builder'),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : __('The Field is not available in this type forms','easy-form-builder'),
@@ -393,7 +393,6 @@ class efbFunction {
 			"conturyList" => $state ? $ac->text->conturyList : __('Countries list','easy-form-builder'),
 			"stateProvince" => $state ? $ac->text->stateProvince : __('States/ Provinces','easy-form-builder'),
 			"thankYouMessage" => $state ? $ac->text->thankYouMessage : __('Thank you message','easy-form-builder'),
-			/* new */
 			"newMessage" => $state ? $ac->text->newMessage : __('New message!', 'easy-form-builder'),
 			"newMessageReceived" => $state ? $ac->text->newMessageReceived : __('A New Message has been Received.', 'easy-form-builder'),
 			"createdBy" => $state ? $ac->text->createdBy : __('Created by','easy-form-builder'),
@@ -447,8 +446,16 @@ class efbFunction {
 			"notFound" => $state  &&  isset($ac->text->notFound) ? $ac->text->notFound : __('Not Found','easy-form-builder'),
 			"editor" => $state  &&  isset($ac->text->editor) ? $ac->text->editor : __('Editor','easy-form-builder'),
 			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : __('Please have add these shortcodes: shortcode_message and shortcode_title','easy-form-builder'),
-			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : __('Email Template have a limit of 20,000 characters','easy-form-builder'),
+			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : __('Email Template have a limit of 10,000 characters','easy-form-builder'),
 			"pleaseEnterVaildEtemp" => $state  &&  isset($ac->text->pleaseEnterVaildEtemp) ? $ac->text->pleaseEnterVaildEtemp : __('Please enter html tags for email template','easy-form-builder'),
+			"infoEmailTemplates" => $state  &&  isset($ac->text->infoEmailTemplates) ? $ac->text->infoEmailTemplates : __('Use HTML 2 to create a email template and you can use the following short codes, Note that short codes starred must be in the form of an email template','easy-form-builder'),
+			"shortcodeTitleInfo" => $state  &&  isset($ac->text->shortcodeTitleInfo) ? $ac->text->shortcodeTitleInfo : __('Add this short code on a tag for show title of email.','easy-form-builder'),
+			"shortcodeMessageInfo" => $state  &&  isset($ac->text->shortcodeMessageInfo) ? $ac->text->shortcodeMessageInfo : __('Add this short code on a tag for show message content of email.','easy-form-builder'),
+			"shortcodeWebsiteNameInfo" => $state  &&  isset($ac->text->shortcodeWebsiteNameInfo) ? $ac->text->shortcodeWebsiteNameInfo : __('Add this short code on a tag for show the Website name.','easy-form-builder'),
+			"shortcodeWebsiteUrlInfo" => $state  &&  isset($ac->text->shortcodeWebsiteUrlInfo) ? $ac->text->shortcodeWebsiteUrlInfo : __('Add this short code on a tag for show the Website URL on a tag.','easy-form-builder'),
+			"shortcodeAdminEmailInfo" => $state  &&  isset($ac->text->shortcodeAdminEmailInfo) ? $ac->text->shortcodeAdminEmailInfo : __('Add this short code on a tag for show the Admin Email address of WordPress on a tag.','easy-form-builder'),
+			"noticeEmailContent" => $state  &&  isset($ac->text->noticeEmailContent) ? $ac->text->noticeEmailContent : __('Notice if the Editor be blank the default Email Template is used.','easy-form-builder'),
+			"templates" => $state  &&  isset($ac->text->templates) ? $ac->text->templates : __('Templates','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			/* bug! end */
 			
@@ -463,7 +470,7 @@ class efbFunction {
 		
 		foreach ($inp as $key => $value) {
 			
-			$rtrn +=["".$value.""=>"".$lang[$value].""];
+			$rtrn +=["".$value.""=>"".str_replace('"' ,"'",$lang[$value]).""];
 		}
 		array_push($rtrn);
 		
@@ -511,16 +518,17 @@ class efbFunction {
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);		
 		
-		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
-		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://whitestudio.team/img/favicon.png' style='width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
+		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='margin:5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
+		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://whitestudio.team/img/favicon.png' style='margin: 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
 		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
-		if(strlen($pro)>1){
+		if($pro!="not pro"){
 			$footer= "<a class='subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
 			$header = " <a class='subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
 		}   
 		
 		$st = $this->get_setting_Emsfb();
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
+		
 		$title=$lang["newMessage"];
 		$message ="<h2>".$m."</h2>";
 		$blogName =get_bloginfo('name');
@@ -535,7 +543,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			<button><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #3a22ff;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
@@ -586,13 +594,14 @@ class efbFunction {
 				$temp=str_replace('shortcode_website_name' ,$blogName,$temp);
 				$temp=str_replace('shortcode_website_url' ,$blogURL,$temp);
 				$temp=str_replace('shortcode_admin_email' ,$adminEmail,$temp);
+				$temp= preg_replace('/(http:@efb@|https:@efb@)+/','//',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
 				
-				//error_log($p);
+			//	error_log($pro);
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
-				if(strlen($pro)<5){	$temp = substr_replace($temp,$footer,($p),0);}
-				//error_log($temp);
+				if($pro=="not pro"){	$temp = substr_replace($temp,$footer,($p),0);}
+			//	error_log($temp);
 				$val = $temp;
 			}
 			return $val;

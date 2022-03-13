@@ -87,7 +87,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-    //{ name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+  //{ name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -2355,10 +2355,46 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = ` 
       ${label}
       <!-- multiselect  -->
-      <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb"   id='${rndm}-f' data-id="${rndm}-el">
-      <select class="selectpicker  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} efb" id='${rndm}_options' multiple="" data-live-search="false" tabindex="-98" ${previewSate != true ? 'disabled' : ''}>
-      ${optn}
-      </select>
+      
+      <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect efb"   id='${rndm}-f' data-id="${rndm}-el">
+
+
+        <div class="efb efblist mx-1  p-2 inplist  h-d-efb rounded-top border  border-primary" data-id="menu-2" data-no="1" data-parent="1" data-icon="1" data-select=""> Select an Option</div>
+        <i class="efb efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="menu-2"></i>
+<div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-2" data-list="menu-2">
+ <table class="efb table menu-2">
+
+         <thead class="efb efblist">
+           <tr>
+             <div class="efb searchSection efblist  p-2 bg-light">
+               <i class="efb efblist  searchIcon  bi-search text-primary "></i>
+               <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="menu-2" data-tag="search" placeholder="Search" onkeyup="FunSearchTableEfb('menu-2')">
+                                       
+             </div>
+
+
+           </tr>
+         </thead>
+         <tbody >
+           <tr class="efblist" data-id="menu-2" data-name="Kobab" data-row="1" data-state="0" data-visible="1">
+             <th scope="row" class="bi-square"></th>
+             <td>Kobab</td>
+             
+           </tr>
+           <tr class="efblist" data-id="menu-2" data-name="Passta" data-row="2" data-state="0" data-visible="1">
+             <th scope="row" class="bi-square"></th>
+             <td>Passta</td>                  
+           </tr>
+           <tr class="efblist" data-id="menu-2" data-name="Pizaa" data-row="3" data-state="0" data-visible="1">
+             <th scope="row" class="bi-square"></th>
+             <td>Pizaa</td>
+        
+           </tr>                    
+          
+         </tbody>
+       </table>
+      </div>
+
       </div>
         
       ${desc}

@@ -477,8 +477,8 @@ class Admin {
         
         $m= str_replace('\\', '', $_POST['message']);
         $m = json_decode($m,true);
-     //   $setting    = sanitize_text_field($_POST['message']);
-        $setting    = $_POST['message'];
+       $setting    = sanitize_text_field($_POST['message']);
+      //  $setting    = $_POST['message'];
         $table_name = $this->db->prefix . "Emsfb_setting";
         $email="";
         //error_log( $_POST['message']);
@@ -728,5 +728,4 @@ class Admin {
 }
 
 new Admin();
-
 

@@ -2206,4 +2206,10 @@ div#sideBoxEfb {
     }
 
 
-    
+    .efb.guide {
+        border-radius: 20px;
+        background: #e9f1ff;
+    }
+    .efb.guide .btn-outline-pink {
+        min-width: 100%;
+    }

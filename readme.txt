@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.2.13
+Stable tag: 			2.2.14
 Requires at least: 	4.7
-Tested up to: 			5.9.1
+Tested up to: 			5.9.2
 Requires PHP:			5.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -56,6 +56,7 @@ How *Easy Form Builder* makes your life easier:
 - Easily Localization Easy Form Builder to your language for **free**
 - Mobile-friendly admin panel of Easy Form Builder
 
+- Add custom email template for form notification emails for **free**
 
  
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
@@ -79,6 +80,9 @@ You can easily Add the country form according to the language of your website (L
 
  **States / Provinces list field for FORM BUILDER**
 You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
+
+** Email Notification Template **
+Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
  
  **Easily Localization**
 You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
@@ -113,8 +117,9 @@ You can Localize or translate every single words,  phrase or messages to your la
 - *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
 
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
- 
 
+- "Create Custom email template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
+ 
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 
 **Notice** : In each page you would not add more then ONE form.
@@ -180,6 +185,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 2.2.14 =
+* Fixed issues
+
 
 = 2.2.13 =
 * UI improvements
