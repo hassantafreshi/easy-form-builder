@@ -476,15 +476,19 @@ class Admin {
         }
         
         $m= str_replace('\\', '', $_POST['message']);
+        //$m= $_POST['message'];
         $m = json_decode($m,true);
-       $setting    = sanitize_text_field($_POST['message']);
-      //  $setting    = $_POST['message'];
+     //  $setting    = sanitize_text_field($_POST['message']);
+        $setting    = $_POST['message'];
         $table_name = $this->db->prefix . "Emsfb_setting";
         $email="";
+        $em_st=false;
         //error_log( $_POST['message']);
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
-                $email = $value;
+                $m[$key] = sanitize_text_field($value);
+                $email =  $m[$key];
+                
             }else if ($key == "activeCode" && strlen($value) > 1) {
                 $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
                 if (md5($server_name) != $value) {
@@ -496,37 +500,56 @@ class Admin {
                 else {
                     // یک رکوست سمت سرور ارسال شود که بررسی کند کد وجود دارد یا نه
                 }
-
-            }else if($key == "emailTemp"){
+              
+            }
+             else if($key == "emailTemp"){
                // error_log($key);
                 //error_log(strlen($value));
-                if( strlen($value)>5  && (!strpos($value ,'shortcode_message') && !strpos($value ,'shortcode_shortcode_email'))){
+                if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_shortcode_email')==false)){
                     $m = $lang["addSCEmailM"];
-                    $m = "lang[addSCEmailM]";
                     $response = ['success' => false, "m" =>$m];
+                    wp_send_json_success($response, $_POST);
                     die();
                 }else if(strlen($value)<6 && strlen($value)>0 ){
                     //notFound
 
                     $m = $lang["emailTemplate"];               
                     $response = ['success' => false, "m" =>$m];
+                    wp_send_json_success($response, $_POST);
                     die();
                 }else if(strlen($value)>20001){
                     //notFound
                     $m = $lang["addSCEmailM"];                    
                     $response = ['success' => false, "m" =>$m];
+                    wp_send_json_success($response, $_POST);
                     die();
                 }else if(strpos($value ,'<script')){
                     $m = $lang["pleaseDoNotAddJsCode"];
                     $response = ['success' => false, "m" =>$m];
+                    wp_send_json_success($response, $_POST);
                     die();
                 }
                 //error_log('end if');
-            }
+            } 
+         /*    else{
+                $m[$key] = sanitize_text_field($value);
+            } */
  
         }
         //echo $table_name;
-
+      //  error_log(strval(strpos($setting ,'emailTemp')));
+       
+/*             if(strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_shortcode_email')==false ){
+                $m = $lang["addSCEmailM"];
+            //    $m = "lang[addSCEmailM]";
+            error_log($m);
+                $response = ['success' => false, "m" =>$m];
+                wp_send_json_success($response, $_POST);
+                die();
+            }
+     */
+        
+       // error_log($setting);
         $this->db->insert(
             $table_name,
             [

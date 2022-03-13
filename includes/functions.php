@@ -445,7 +445,7 @@ class efbFunction {
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : __('Free feature of sending notification email to admin or user.','easy-form-builder'),
 			"notFound" => $state  &&  isset($ac->text->notFound) ? $ac->text->notFound : __('Not Found','easy-form-builder'),
 			"editor" => $state  &&  isset($ac->text->editor) ? $ac->text->editor : __('Editor','easy-form-builder'),
-			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : __('Please have add these shortcodes: shortcode_message and shortcode_title','easy-form-builder'),
+			"addSCEmailM" => $state  &&  isset($ac->text->addSCEmailM) ? $ac->text->addSCEmailM : __('Please have add these shortcodes; shortcode_message and shortcode_title in email template.','easy-form-builder'),
 			"ChrlimitEmail" => $state  &&  isset($ac->text->ChrlimitEmail) ? $ac->text->ChrlimitEmail : __('Email Template have a limit of 10,000 characters','easy-form-builder'),
 			"pleaseEnterVaildEtemp" => $state  &&  isset($ac->text->pleaseEnterVaildEtemp) ? $ac->text->pleaseEnterVaildEtemp : __('Please enter html tags for email template','easy-form-builder'),
 			"infoEmailTemplates" => $state  &&  isset($ac->text->infoEmailTemplates) ? $ac->text->infoEmailTemplates : __('Use HTML 2 to create a email template and you can use the following short codes, Note that short codes starred must be in the form of an email template','easy-form-builder'),
@@ -469,8 +469,8 @@ class efbFunction {
 		$st="null";
 		
 		foreach ($inp as $key => $value) {
-			
-			$rtrn +=["".$value.""=>"".str_replace('"' ,"'",$lang[$value]).""];
+			//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
+			$rtrn +=["".$value.""=>"".$lang[$value].""];
 		}
 		array_push($rtrn);
 		

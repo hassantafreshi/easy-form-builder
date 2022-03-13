@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.2.14
+Stable tag: 			2.3.0
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.4 or higher
@@ -118,7 +118,7 @@ You can Localize or translate every single words,  phrase or messages to your la
 
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
 
-- "Create Custom email template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
+- *Create Custom email template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 
