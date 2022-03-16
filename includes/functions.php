@@ -518,9 +518,9 @@ class efbFunction {
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);		
 		
-		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='margin:5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> 
-		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://whitestudio.team/img/favicon.png' style='margin: 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
-		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
+		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> <br>
+		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://plugins.svn.wordpress.org/easy-form-builder/assets/ws.png' style='margin:0px 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
+		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px; width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
 		if($pro!="not pro"){
 			$footer= "<a class='subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
 			$header = " <a class='subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
@@ -594,7 +594,8 @@ class efbFunction {
 				$temp=str_replace('shortcode_website_name' ,$blogName,$temp);
 				$temp=str_replace('shortcode_website_url' ,$blogURL,$temp);
 				$temp=str_replace('shortcode_admin_email' ,$adminEmail,$temp);
-				$temp= preg_replace('/(http:@efb@|https:@efb@)+/','//',$temp);
+				$temp= preg_replace('/(http:@efb@)+/','http://',$temp);
+				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
 				
@@ -604,6 +605,7 @@ class efbFunction {
 			//	error_log($temp);
 				$val = $temp;
 			}
+			//($val);
 			return $val;
 	}
 

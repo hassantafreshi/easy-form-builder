@@ -24,7 +24,7 @@ class Panel_edit  {
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/recaptcha.png',
-			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.svg'
+			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 

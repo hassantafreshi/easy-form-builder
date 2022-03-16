@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.0
+Stable tag: 			2.3.1
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.4 or higher
@@ -81,7 +81,7 @@ You can easily Add the country form according to the language of your website (L
  **States / Provinces list field for FORM BUILDER**
 You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
 
-** Email Notification Template **
+** Email Notification Template**
 Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
  
  **Easily Localization**
@@ -118,7 +118,9 @@ You can Localize or translate every single words,  phrase or messages to your la
 
 - *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
 
-- *Create Custom email template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
+- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
+
+- *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 
@@ -157,7 +159,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 8. Form submitted and Confirmation Code (tracking pixels)
 9. create a contact-us form
 10. localization Easy form builder to your language
-
+11. Email template Editor of Easy form builder 
 
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
@@ -186,9 +188,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
-= 2.2.14 =
+= 2.3.1 =
 * Fixed issues
 
+= 2.3.0 =
+* Fixed issues
+* Email Template
 
 = 2.2.13 =
 * UI improvements

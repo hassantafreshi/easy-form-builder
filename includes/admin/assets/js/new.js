@@ -1433,7 +1433,7 @@ function pro_show_efb(state) {
 
 
 const show_modal_efb = (body, title, icon, type) => {
- console.log('show_modal_efb in ',type ,title,body.slice(1,50))
+ //console.log('show_modal_efb in ',type ,title,body.slice(1,50))
 // const myModal =  new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
  //console.log(myModal);
   document.getElementById("settingModalEfb-title").innerHTML = title;
@@ -1661,7 +1661,7 @@ const sort_obj_el_efb = () => {
   let amount = 1;
   let step = 0;
   let state = false;
-  console.error('------', valj_efb.length)
+  //console.error('------', valj_efb.length)
 
   for (const el of document.querySelectorAll(".efbField")) {
    
@@ -2339,58 +2339,57 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" data-vid='${rndm}' class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
+   /*        optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" data-vid='${rndm}' 
+          class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
+ */
+          optn +=`<tr class="efblist efb ${valj_efb[indx_parent].el_text_color}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
+          <th scope="row" class="bi-square"></th><td>${i.value}</td>
+        </tr>  `
 
         }//end for 
-        optn += `</ul></div>`
+        //optn += `</ul></div>`
       } else {
         optn = `
-        <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-id="${op_3}" data-op="${op_3}" class="${valj_efb[iVJ].el_text_color} efb">${efb_var.text.newOption} 1</option>
-        <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-id="${op_4}" data-op="${op_4}" class="${valj_efb[iVJ].el_text_color} efb">${efb_var.text.newOption} 2</option>
+        <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
+        <th scope="row" class="bi-square"></th><td>${efb_var.text.blue}</td>
+        </tr>
+      <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
+        <th scope="row" class="bi-square"></th><td>${efb_var.text.Red}</td>                  
+      </tr>
+      <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
+        <th scope="row" class="bi-square"></th><td>${efb_var.text.yellow}</td>
+      </tr>  
        `
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+       const id = `menu-${rndm}`;
+        optionElpush_efb(id, `${efb_var.text.blue}`, `${op_3}`, id);
+        optionElpush_efb(id, `${efb_var.text.Red}`, `${op_4}`, id);
+        optionElpush_efb(id, `${efb_var.text.yellow}`,`${op_5}`, id);
 
       }
+
+      /* 
+       <div class="${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'  data-id="${rndm}-el" >
+        <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+      */
       ui = ` 
       ${label}
       <!-- multiselect  -->
       
-      <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect efb"   id='${rndm}-f' data-id="${rndm}-el">
+      <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect efb "   id='${rndm}-f' data-id="${rndm}-el">
 
 
-        <div class="efb efblist mx-1  p-2 inplist  h-d-efb rounded-top border  border-primary" data-id="menu-2" data-no="1" data-parent="1" data-icon="1" data-select=""> Select an Option</div>
-        <i class="efb efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="menu-2"></i>
-<div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-2" data-list="menu-2">
- <table class="efb table menu-2">
+        <div class="efb efblist mx-1  p-2 inplist ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"  data-no="2" data-parent="1" data-icon="1" data-select="" >${efb_var.text.nothingSelected}</div>
+        <i class="efb efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="menu-${rndm}"></i>
+        <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
+        <table class="efb table menu-${rndm}">
 
          <thead class="efb efblist">
-           <tr>
-             <div class="efb searchSection efblist  p-2 bg-light">
-               <i class="efb efblist  searchIcon  bi-search text-primary "></i>
-               <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="menu-2" data-tag="search" placeholder="Search" onkeyup="FunSearchTableEfb('menu-2')">
-                                       
-             </div>
-
-
-           </tr>
-         </thead>
+           <tr> <div class="efb searchSection efblist  p-2 bg-light"> <i class="efb efblist  searchIcon  bi-search text-primary "></i>
+               <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="menu-${rndm}" data-tag="search" placeholder="${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
+         </tr> </thead>
          <tbody >
-           <tr class="efblist" data-id="menu-2" data-name="Kobab" data-row="1" data-state="0" data-visible="1">
-             <th scope="row" class="bi-square"></th>
-             <td>Kobab</td>
-             
-           </tr>
-           <tr class="efblist" data-id="menu-2" data-name="Passta" data-row="2" data-state="0" data-visible="1">
-             <th scope="row" class="bi-square"></th>
-             <td>Passta</td>                  
-           </tr>
-           <tr class="efblist" data-id="menu-2" data-name="Pizaa" data-row="3" data-state="0" data-visible="1">
-             <th scope="row" class="bi-square"></th>
-             <td>Pizaa</td>
-        
-           </tr>                    
-          
+                  
+          ${optn}
          </tbody>
        </table>
       </div>
@@ -4375,7 +4374,7 @@ const rndm = Math.random().toString(36).substr(2, 9);
     }
 
   } else if (t == "multiselect") {
-    const id = `#${rndm}_options`
+  /*   const id = `#${rndm}_options`
     jQuery(function () {
    
       jQuery(id).selectpicker();
@@ -4385,7 +4384,7 @@ const rndm = Math.random().toString(36).substr(2, 9);
       const opd = document.querySelector(`[data-id='${rndm}_options']`)
     
       opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
-    }, 15);
+    }, 15); */
   }
 }
 

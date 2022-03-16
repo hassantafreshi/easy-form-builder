@@ -1174,7 +1174,7 @@ function fun_send_setting_emsFormBuilder(data) {
         lrt = "danger";
         time = 7;
       }
-      console.log(res)
+      //console.log(res)
       noti_message_efb(t, m, time, lrt)
     })
   });
@@ -1590,7 +1590,7 @@ window.onload = (() => {
 
 
 function email_template_efb(s){
-  console.log(`email temp ${s}`);
+  //console.log(`email temp ${s}`);
   if(s=='p'){
     //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
@@ -1610,7 +1610,7 @@ function email_template_efb(s){
       else if(!efb_var.pro) {
         
         c+=funNproEmailTemp();
-        console.log("Not Pro");
+        //console.log("Not Pro");
       }
       // موارد زیر در سمت سرور هم قبل از ذخیره سازی اضافه شود برای  کاربر رایگان
     }else if(c.length>=10000){

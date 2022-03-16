@@ -504,21 +504,18 @@ class Admin {
             }
              else if($key == "emailTemp"){
                // error_log($key);
-                //error_log(strlen($value));
-                if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_shortcode_email')==false)){
+                error_log(strlen($value));
+                if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
                     $m = $lang["addSCEmailM"];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
                 }else if(strlen($value)<6 && strlen($value)>0 ){
-                    //notFound
-
                     $m = $lang["emailTemplate"];               
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
-                }else if(strlen($value)>20001){
-                    //notFound
+                }else if(strlen($value)>20001){                 
                     $m = $lang["addSCEmailM"];                    
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
