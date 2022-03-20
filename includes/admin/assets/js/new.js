@@ -28,6 +28,7 @@ const mobile_view_efb =  document.getElementsByTagName('body')[0].classList.cont
 
 efb_var_waitng=(time)=>{
   setTimeout(()=>{
+   
     if(typeof (efb_var)== "object"){
       
       formName_Efb = efb_var.text.form
@@ -36,7 +37,7 @@ efb_var_waitng=(time)=>{
       return;
     }else{
       time +=50;
-      if(time!=5000)  efb_var_waitng(time)
+      time!=30000 ?   efb_var_waitng(time) : noti_message_efb(efb_var.text.error,"Please Hard Refresh",60)
     }
   },time)
 }
@@ -87,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  //{ name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+ /*  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -2104,7 +2105,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       //
       break;
     case 'switch':
-//onClick="switchGetStateEfb("${rndm}") 
+    //onClick="switchGetStateEfb("${rndm}") 
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12" id ="${rndm}-f">
@@ -2343,7 +2344,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
  */
           optn +=`<tr class="efblist efb ${valj_efb[indx_parent].el_text_color}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
-          <th scope="row" class="bi-square"></th><td>${i.value}</td>
+          <th scope="row" class="bi-square efb"></th><td class="efb ms">${i.value}</td>
         </tr>  `
 
         }//end for 
@@ -2351,19 +2352,20 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       } else {
         optn = `
         <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
-        <th scope="row" class="bi-square"></th><td>${efb_var.text.blue}</td>
+        <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.blue}</td>
         </tr>
       <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
-        <th scope="row" class="bi-square"></th><td>${efb_var.text.Red}</td>                  
+        <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.Red}</td>                  
       </tr>
       <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
-        <th scope="row" class="bi-square"></th><td>${efb_var.text.yellow}</td>
+        <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.yellow}</td>
       </tr>  
        `
        const id = `menu-${rndm}`;
-        optionElpush_efb(id, `${efb_var.text.blue}`, `${op_3}`, id);
-        optionElpush_efb(id, `${efb_var.text.Red}`, `${op_4}`, id);
-        optionElpush_efb(id, `${efb_var.text.yellow}`,`${op_5}`, id);
+       console.log(rndm);
+        optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, rndm);
+        optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, rndm);
+        optionElpush_efb(rndm, `${efb_var.text.yellow}`,`${op_5}`, rndm);
 
       }
 
@@ -2378,7 +2380,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect efb "   id='${rndm}-f' data-id="${rndm}-el">
 
 
-        <div class="efb efblist mx-1  p-2 inplist ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"  data-no="2" data-parent="1" data-icon="1" data-select="" >${efb_var.text.nothingSelected}</div>
+        <div class="efb efblist mx-1  p-2 inplist ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"  data-no="2" data-parent="1" data-icon="1" data-select="" >${efb_var.text.multiselect}</div>
         <i class="efb efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="menu-${rndm}"></i>
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
@@ -2668,6 +2670,10 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
 
+  }else if(elementId == "multiselect"){
+    Object.assign(valj_efb[(valj_efb.length) - 1], {
+      countSelect: 2
+    })
   } else {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
@@ -2686,8 +2692,8 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
 }
 let optionElpush_efb = (parent, value, rndm, op) => {
-
   valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
+  console.log(valj_efb)
 }
 
 
@@ -4003,9 +4009,9 @@ function previewFormEfb(state){
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
-  let timeout =  (len/4)*(Math.log(len)) * p;
-  
-  timeout<510 ? timeout=510 : 0;
+  let timeout =  (len/2)*(Math.log(len)) * p;
+  timeout<1700 ? timeout=1700 : 0;
+ 
 
   //  content = `<div data-step="${step_no}" class="m-2 content-efb 25 row">`
   //content =`<span class='efb row efb'>`

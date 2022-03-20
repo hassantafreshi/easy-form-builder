@@ -2040,8 +2040,17 @@ input[type=checkbox].efb.fs-2.form-check-input
       
     }
 
+    small.efb {
+        margin-top: 0px;
+        font-size: medium!important;
+    }
+
     tr.efblist > th {  width: 4%;}
 
+    tr.efblist > th ,
+    .efb.ms {
+        border: 0px;    
+    }
     .efb.efblist.searchIcon {
         position: absolute;
         margin: 7px 10px;
