@@ -415,7 +415,7 @@ switch_color_efb=(color)=>{
       case'#ff4b93':c="pinkEfb";break;
       case'#ffff':c="white";break;
       case'#212529':c="dark";break;
-      case'#777':c="muted ";break;
+      case'#777777':c="muted ";break;
       default: c="colorDEfb-"+color.slice(1);
     }
     return c;
@@ -445,8 +445,8 @@ switch(v){
   case"pinkEfb":r='#ff4b93';break;
   case"white":r='#ffff';break;
   case"dark":r='#212529';break;
-  case"muted":r='#777';break;
-  case"muted":r='#777';break;
+  case"muted":r='#777777';break;
+  case"muted":r='#777777';break;
   default: 
     const len =`colorDEfb-`.length;
     if(v.includes(`colorDEfb`))r="#"+v.slice(len);
@@ -477,5 +477,6 @@ function sideMenuEfb(s){
     document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');
     el.classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+ 
   }
 }

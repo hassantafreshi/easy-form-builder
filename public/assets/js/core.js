@@ -24,7 +24,7 @@ let valueJson_ws = []
 jQuery(function () {
   //789 امنیت باید اضافه شود به این قسمت
 
-  console.log("Easy Form Builder 3.2.2");
+  console.log("Easy Form Builder 3.2.3");
   if (typeof ajax_object_efm == 'undefined') return;
   poster_emsFormBuilder = ajax_object_efm.poster;
   efb_var = ajax_object_efm
@@ -421,6 +421,7 @@ function emsFormBuilder_nevButton_view(n) {
 }
 
 function validateForm_emsFormBuilder_view() {
+  console.log("valudation");
   let x, y, i, valid = true, NotValidCount = 0;
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
@@ -542,7 +543,8 @@ function createStepsOfPublic() {
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);        
         let value = ""
         const id_ = el.dataset.vid
-        let state        
+        let state  
+     
         switch (el.type) {
           case "text":
           case "color":

@@ -456,6 +456,8 @@ class efbFunction {
 			"shortcodeAdminEmailInfo" => $state  &&  isset($ac->text->shortcodeAdminEmailInfo) ? $ac->text->shortcodeAdminEmailInfo : __('Add this short code on a tag for show the Admin Email address of WordPress on a tag.','easy-form-builder'),
 			"noticeEmailContent" => $state  &&  isset($ac->text->noticeEmailContent) ? $ac->text->noticeEmailContent : __('Notice if the Editor be blank the default Email Template is used.','easy-form-builder'),
 			"templates" => $state  &&  isset($ac->text->templates) ? $ac->text->templates : __('Templates','easy-form-builder'),
+			"maxSelect" => $state  &&  isset($ac->text->maxSelect) ? $ac->text->maxSelect : __('Max selection','easy-form-builder'),
+			"minSelect" => $state  &&  isset($ac->text->minSelect) ? $ac->text->minSelect : __('Min selection','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			/* bug! end */
 			

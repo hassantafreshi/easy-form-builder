@@ -2026,8 +2026,8 @@ input[type=checkbox].efb.fs-2.form-check-input
 }
     /* select list */
     .listSelect.efb{
-        width: 100%;
-        cursor:           pointer;
+      /*   width: 100%; */
+        cursor:pointer;
     }
     .efb.listContent {
         overflow: auto;
@@ -2035,8 +2035,7 @@ input[type=checkbox].efb.fs-2.form-check-input
         position: absolute;
         cursor:           pointer;
         z-index: 1000;
-        width:-webkit-fill-available;
-        width: -moz-available;
+        width: initial;
       
     }
 
@@ -2113,6 +2112,11 @@ input[type=checkbox].efb.fs-2.form-check-input
         position: sticky;
         top: 0;
         z-index: 1001;
+    }
+
+    .efb.efblist.inplist   {
+        border-style: solid;
+        border-width: 1px
     }
 
     .efb.searchBox::-webkit-input-placeholder{ font-size: 15px!important;}
