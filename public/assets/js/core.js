@@ -827,7 +827,7 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
- // console.log(JSON.stringify(sendBack_emsFormBuilder_pub))  
+  console.log((sendBack_emsFormBuilder_pub))  
   jQuery(function ($) {
 
     data = {

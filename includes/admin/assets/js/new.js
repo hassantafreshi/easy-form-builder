@@ -88,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  /* { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -4266,6 +4266,7 @@ function previewFormEfb(state){
 
 function fun_prev_send(){
   jQuery(function () {
+    console.log('fun_prev_send');
     var stp=(valj_efb[0].steps)+1;
     var wtn= loading_messge_efb();
     jQuery('#efb-final-step').html(wtn);
@@ -4306,6 +4307,7 @@ function fun_prev_send(){
     });
     current_s_efb -= 1;
     setProgressBar_efb(current_s_efb,stp);
+   //preview problem
   });
 }
 
@@ -4335,25 +4337,25 @@ function fun_validation_efb(){
   for(let row in valj_efb){
     if(row>1 && valj_efb[row].required==true && current_s_efb ==valj_efb[row].step ){
       const s = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==valj_efb[row].id_)
-      console.log(sendBack_emsFormBuilder_pub,s ,valj_efb[row].id_ )
+      //console.log(sendBack_emsFormBuilder_pub,s ,valj_efb[row].id_ )
      // console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
       if(s==-1 ){
         if(state==true){ state=false; idi =valj_efb[row].id_ }
         
          const id =valj_efb[row].type!="multiselect" && valj_efb[row].type!="select" &&  valj_efb[row].type!="conturyList"  &&  valj_efb[row].type!="stateProvince"? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
-         console.log(`id [${id}]`);
+        // console.log(`id [${id}]`);
          document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.enterTheValueThisField;
         // console.log(id, document.getElementById(id));
         if(type_validate_efb(valj_efb[row].type)==true)document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
       }else{
        // console.log('success')
         const id =valj_efb[row].type!="multiselect" && valj_efb[row].type!="select" && valj_efb[row].type!="conturyList"  && valj_efb[row].type!="stateProvince" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
-        console.log(`id [${id}]`);
+        //console.log(`id [${id}]`);
         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
         if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
 
         const v= sendBack_emsFormBuilder_pub[s].value.split(",");
-        console.log(valj_efb[row].minSelect ,v.length);
+        //console.log(valj_efb[row].minSelect ,v.length);
         if(valj_efb[row].type=="multiselect" && (v.length-1)<valj_efb[row].minSelect  ){
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
           document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="Min select: " + valj_efb[row].minSelect
@@ -4364,6 +4366,7 @@ function fun_validation_efb(){
     
   }
   if(idi!="null"){document.getElementById(idi).scrollIntoView(true);}
+  console.log(state,idi);
   return state
 }
 

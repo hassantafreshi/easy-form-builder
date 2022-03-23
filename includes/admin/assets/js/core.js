@@ -284,6 +284,7 @@ function validateForm_emsFormBuilder_view() {
     for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
       //require
       const req =input.classList.contains('require');
+      
       if (input.tagName == "INPUT") {
         if (input.value == "" && input.classList.contains('require')) {
           input.className += " invalid"; valid = false;
@@ -347,6 +348,8 @@ function validateForm_emsFormBuilder_view() {
         } else {        
           value = input.value;          
         }        
+      }else if(input.tagName == "DIV"){
+
       }
       if (valid== false){
         NotValidCount +=1;        
@@ -557,6 +560,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function endMessage_emsFormBuilder_view() {
+  console.log('fun endMessage_emsFormBuilder_view')
   const stepMax =currentTab_emsFormBuilder+1;
   let notfilled = []  
   for (i = 1; i <= stepMax; i++) {
