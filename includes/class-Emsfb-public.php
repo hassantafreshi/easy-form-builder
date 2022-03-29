@@ -168,7 +168,10 @@ class _Public {
 		// $pro=false;		
 		 if(gettype($stng)!=="integer" && $stng!=$this->lanText["settingsNfound"]){
 			 $valstng= json_decode($stng);
-			 if($valstng->siteKey && $formObj[0]["captcha"]==true){$k =$valstng->siteKey;}
+			 error_log(gettype($stng));
+			 if($valstng->siteKey && $formObj[0]["captcha"]==true && $valstng->siteKey !=null){
+				 error_log($valstng->siteKey);
+				 $k =$valstng->siteKey;}
 			 if(strlen($valstng->apiKeyMap)>5){
 				 //error_log("maps");
 				 $key= $valstng->apiKeyMap;
@@ -285,7 +288,7 @@ class _Public {
 			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
 			wp_enqueue_script('efb-bootstrap-min-js'); 
 	
-			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true);
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
 			
@@ -328,7 +331,7 @@ class _Public {
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
 	//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&onload=onloadRecaptchakEFB&render=explicit#asyncload', null , null, true);
+		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 		wp_enqueue_script('recaptcha');
 		
 

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.3
+Stable tag: 			2.3.7
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.4 or higher
@@ -80,6 +80,9 @@ You can easily Add the country form according to the language of your website (L
 
  **States / Provinces list field for FORM BUILDER**
 You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
+
+**confirmation code**
+Confirmation code or tracking code is usable for create feedback form or support form when you want be touch easily to your user or customers for free.
 
 ** Email Notification Template**
 Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
@@ -188,6 +191,14 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+= 2.3.7 =
+* UI improvements
+
+= 2.3.6 =
+* Fixed issue of loading form
+
+= 2.3.5 =
+= 2.3.4 =
 = 2.3.3 =
 = 2.3.2 =
 = 2.3.1 =

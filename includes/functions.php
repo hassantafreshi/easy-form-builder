@@ -435,9 +435,9 @@ class efbFunction {
 			"PEnterMessage" => $state ? $ac->text->PEnterMessage : __('Please enter a message','easy-form-builder'),
 			"fileDeleted" => $state ? $ac->text->fileDeleted : __('Files are Deleted','easy-form-builder'),
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
-			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel → Setting → localization','easy-form-builder'),
+			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel → Settings → checked  <My template have used BootStrap framwork> → Save','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel >> Settings >> selected option:  My template have used BootStrap framwork >> Save','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			/* bug! start */
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),

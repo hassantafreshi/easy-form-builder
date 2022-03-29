@@ -88,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+  /* { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -214,15 +214,15 @@ function active_element_efb(el) {
 
 //setting of  element
 function show_setting_window_efb(idset) {
-  console.log(idset);
+  //console.log(idset);
   if(document.getElementById('sideBoxEfb').classList.contains('show')){return};
-  console.log('show_setting_window_efb',idset,valj_efb)
+  //console.log('show_setting_window_efb',idset,valj_efb)
 
   let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
   let body = ``;
   //const bodySetting = document.getElementById("settingModalEfb-body");
   const indx = idset != "button_group" && idset != "formSet" ? valj_efb.findIndex(x => x.dataId == idset) : 0;
-  console.log(indx);
+  //console.log(indx);
   if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
  
   const labelEls = `<label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.label}<span class=" mx-1 efb text-danger">*</span></label>
@@ -500,7 +500,7 @@ function show_setting_window_efb(idset) {
   <label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
   <input type="number"  data-id="${idset}" class="elEdit form-control text-muted efb  border-d efb-rounded h-d-efb  mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
 
-console.log(el.dataset);
+//console.log(el.dataset);
   switch (el.dataset.tag) {
     case 'email':
     case 'text':
@@ -868,7 +868,7 @@ console.log(el.dataset);
  // document.getElementById('sideBoxEfb').classList.add('show');
   //console.log('body',body);
   document.getElementById('sideMenuConEfb').innerHTML=body;
-  console.log(document.getElementById('sideMenuConEfb').innerHTML)
+  //console.log(document.getElementById('sideMenuConEfb').innerHTML)
   for (const el of document.querySelectorAll(`.elEdit`)) {
     if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
     else{ console.log(el.tagName)}
@@ -1227,8 +1227,8 @@ let change_el_edit_Efb = (el) => {
         setTimeout(() => {
         //  const l = el.dataset.tag == "multiselect" ? document.querySelector(`[data-id="${valj_efb[indx].id_}${postId}"]`) : document.getElementById(`${valj_efb[indx].id_}${postId}`);      
            const l =  document.getElementById(`${valj_efb[indx].id_}${postId}`);      
-           console.log(`${valj_efb[indx].id_}${postId}`);
-           console.log(l.className);
+           /* console.log(`${valj_efb[indx].id_}${postId}`);
+           console.log(l.className); */
           l.className =colorBorderChangerEfb(l.className, `border-${c}`);
         }, 100)
         valj_efb[indx].el_border_color =`border-${c}`
@@ -1923,11 +1923,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   //editState == true when form is edit method
   // ایجاد المان
   
-  //console.log('addNewElement');
+  
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
-  if (previewSate == true && elementId!="html") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)
+  if (previewSate == true && elementId!="html" && elementId!="register" && elementId!="login" && elementId!="subscribe" && elementId!="survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)
   amount_el_efb = editState == false ? amount_el_efb + 1 : valj_efb[indexVJ].amount;
   element_name = editState == false ? elementId : valj_efb[indexVJ].name;
   let optn = '<!-- options -->';
@@ -2380,7 +2380,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       </tr>  
        `
        const id = `menu-${rndm}`;
-       console.log(rndm);
+       //console.log(rndm);
         optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, rndm);
         optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, rndm);
         optionElpush_efb(rndm, `${efb_var.text.yellow}`,`${op_5}`, rndm);
@@ -2553,7 +2553,7 @@ const funSetCornerElEfb = (dataId, co) => {
     if (el.dataset.tag == 'select' || el.dataset.tag == 'multiselect' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') cornEl=document.getElementById(`${postId}options`) 
     if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)
     else if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
-    console.log(cornEl);
+    //console.log(cornEl);
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
   } else if (el.dataset.side == "yesNo") {
@@ -2617,6 +2617,7 @@ let get_position_col_el = (dataId, state) => {
   } else {
     parent_row = 'row';
     if (state == true) {
+      //console.log(el_input);
       el_parent && el_parent.classList.contains('row') ? 0 : el_parent.classList.add('row')
       if (el_input.classList.contains('mx-2')) el_input.classList.remove('mx-2');
       if (el_label.classList.contains('mx-2')) el_label.classList.remove('mx-2');
@@ -2643,7 +2644,7 @@ const loadingShow_efb = (title) => {
 </div>`
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  console.log(elementId);
+  //console.log(elementId);
   const testb =valj_efb.length;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
@@ -2674,7 +2675,7 @@ let sampleElpush_efb = (rndm, elementId) => {
        if(document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       },valj_efb.length*5);
     }else if(elementId == "multiselect"){
-      console.log(valj_efb.length)
+      //console.log(valj_efb.length)
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         maxSelect:2,
         minSelect:0
@@ -2714,7 +2715,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 }
 let optionElpush_efb = (parent, value, rndm, op) => {
   valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
-  console.log(valj_efb)
+  //console.log(valj_efb)
 }
 
 
@@ -2873,7 +2874,7 @@ let editFormEfb = () => {
           let el = addNewElement(type, valj_efb[v].id_, true, false);        
           dropZoneEFB.innerHTML += el;
 
-          if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
+          if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login"  && valj_efb[v].type != "subscribe"  && valj_efb[v].type != "survey") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
 
           if (type == 'maps') {
             setTimeout(() => {
@@ -3763,7 +3764,7 @@ function handle_navbtn_efb(steps, device) {
         }
 
       }},200)
-
+      document.getElementById('body_efb').scrollIntoView(true);
     });
 
     jQuery("#prev_efb").click(function () {
@@ -3813,7 +3814,7 @@ function handle_navbtn_efb(steps, device) {
     }
      // if(verifyCaptcha_efb.length>1  ) jQuery("#next_efb").removeClass("disabled");
 
-    
+     document.getElementById('body_efb').scrollIntoView(true);
     });
 
 
@@ -3853,6 +3854,7 @@ function handle_navbtn_efb(steps, device) {
           //send to server after validation
        
       }
+      document.getElementById('body_efb').scrollIntoView(true);
       }, 200);
     })
   }
@@ -3928,7 +3930,7 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-if (localStorage.getItem('count_view')>=0 && localStorage.getItem('count_view') <3 && efb_var && efb_var.maps!="1") {
+if (localStorage.getItem('count_view')>=0 && localStorage.getItem('count_view') <3 && typeof efb_var =="object" && efb_var.maps!="1") {
   setTimeout(() => {  noti_message_efb(efb_var.text.warningBootStrap, "", 15 ,"danger") }, 100);
   setTimeout(() => {  noti_message_efb(efb_var.text.localizationM, "", 15 ,"info") }, 17000);
   setTimeout(() => {
@@ -4031,6 +4033,7 @@ function previewFormEfb(state){
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   let timeout =  (len/2)*(Math.log(len)) * p;
+  console.log(len , p ,timeout)
   timeout<1700 ? timeout=1700 : 0;
  
 

@@ -560,7 +560,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function endMessage_emsFormBuilder_view() {
-  console.log('fun endMessage_emsFormBuilder_view')
+  //console.log('fun endMessage_emsFormBuilder_view')
   const stepMax =currentTab_emsFormBuilder+1;
   let notfilled = []  
   for (i = 1; i <= stepMax; i++) {

@@ -20,303 +20,313 @@ const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
+//(len/2)*(Math.log(len)) * p
+let g_timeout_efb= typeof ajax_object_efm =="object" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
+//console.log(g_timeout_efb);
+//console.log(ajax_object_efm.ajax_value.length)
+g_timeout_efb =
+console.log(g_timeout_efb);
+setTimeout(() => {
 
-jQuery(function () {
-  //789 امنیت باید اضافه شود به این قسمت
 
-  console.log("Easy Form Builder 3.2.3");
-  if (typeof ajax_object_efm == 'undefined') return;
-  poster_emsFormBuilder = ajax_object_efm.poster;
-  efb_var = ajax_object_efm
-  if (ajax_object_efm.state != 'tracker') {
-    const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
-    if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
-      form_type_emsFormBuilder = ajax_object_efm.type;
-      if (ajax_object_efm.type != "userIsLogin") {
-        const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
-
-        if (ajax_value[0].captcha == true){ sitekye_emsFormBuilder = vs.siteKey;
-        }else{ sitekye_emsFormBuilder="";}
-        trackingCode_state_emsFormBuilder = vs.trackingCode;
-      } else {
-        //   console.log(ajax_object_efm)
+  jQuery(function () {
+    //789 امنیت باید اضافه شود به این قسمت
+  
+    console.log("Easy Form Builder 3.2.7");
+    if (typeof ajax_object_efm == 'undefined') return;
+    poster_emsFormBuilder = ajax_object_efm.poster;
+    
+    efb_var = ajax_object_efm;
+    if (ajax_object_efm.state != 'tracker') {
+      const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
+      if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
         form_type_emsFormBuilder = ajax_object_efm.type;
+        if (ajax_object_efm.type != "userIsLogin") {
+          const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+  
+          if (ajax_value[0].captcha == true){ sitekye_emsFormBuilder = vs.siteKey;
+          }else{ sitekye_emsFormBuilder="";}
+          trackingCode_state_emsFormBuilder = vs.trackingCode;
+        } else {
+          //   console.log(ajax_object_efm)
+          form_type_emsFormBuilder = ajax_object_efm.type;
+        }
       }
     }
-  }
-
-
-  //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
-  if (ajax_object_efm.state !== 'settingError') {
-
-    if (ajax_object_efm.state == 'form') {
-      
-      
-      fun_render_view(ajax_object_efm.ajax_value, 1);
-    } else if (ajax_object_efm.state == 'tracker') {
-      
-      fun_tracking_show_emsFormBuilder()
-    } else if (ajax_object_efm.state == 'settingError') {
-      
+  
+  
+    //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
+    if (ajax_object_efm.state !== 'settingError') {
+  
+      if (ajax_object_efm.state == 'form') {
+        
+        
+        fun_render_view(ajax_object_efm.ajax_value, 1);
+      } else if (ajax_object_efm.state == 'tracker') {
+        
+        fun_tracking_show_emsFormBuilder()
+      } else if (ajax_object_efm.state == 'settingError') {
+        
+        fun_show_alert_setting_emsFormBuilder()
+      } else if (ajax_object_efm.state == 'userIsLogin') {
+        document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
+      }
+    } else {
       fun_show_alert_setting_emsFormBuilder()
-    } else if (ajax_object_efm.state == 'userIsLogin') {
-      document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
     }
-  } else {
-    fun_show_alert_setting_emsFormBuilder()
-  }
-
-
-});
-/* new code multiSelect start */
-var Motus = {};
-(function () {
-  var createMultiselect = function (element, data, selectCb, options) {
-  var labels = {};  
-    labels.emptyText = options.selectOption;
-    labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
-    labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
-    labels.title = (options && options.title) ? options.field : 'Field';
-
-    //define the elements
-    var container = document.createElement("div");
-    var multiselectLabel = document.createElement("div");
-    var dataContainer = document.createElement("div");
-    // var button = document.createElement("button");
-    var span = document.createElement("span");
-    var searchField = document.createElement("input");
-    var clearSelection = document.createElement('span');
-    /* var carret = document.createElement("b"); */
-    var list = document.createElement("ul");
-
-    //set the ids
-    var timestamp = Math.round(new Date().getTime() * Math.random());
-    container.setAttribute('id', 'multiselect_container_' + timestamp);
-    dataContainer.setAttribute('id', 'multiselect_datacontainer_' + timestamp);
-    multiselectLabel.setAttribute('id', 'multiselect_label_' + timestamp);
-    span.setAttribute('id', 'multiselect_button_' + timestamp);
-    list.setAttribute('id', 'multiselect_list_' + timestamp);
-
-    var _fnIsChild = function (element, parent) {
-      var node = element.parentNode;
-      while (node) {
-        if (node === parent) {
-          return true;
+  
+  
+  });
+  /* new code multiSelect start */
+  var Motus = {};
+  (function () {
+    var createMultiselect = function (element, data, selectCb, options) {
+    var labels = {};  
+      labels.emptyText = options.selectOption;
+      labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
+      labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
+      labels.title = (options && options.title) ? options.field : 'Field';
+  
+      //define the elements
+      var container = document.createElement("div");
+      var multiselectLabel = document.createElement("div");
+      var dataContainer = document.createElement("div");
+      // var button = document.createElement("button");
+      var span = document.createElement("span");
+      var searchField = document.createElement("input");
+      var clearSelection = document.createElement('span');
+      /* var carret = document.createElement("b"); */
+      var list = document.createElement("ul");
+  
+      //set the ids
+      var timestamp = Math.round(new Date().getTime() * Math.random());
+      container.setAttribute('id', 'multiselect_container_' + timestamp);
+      dataContainer.setAttribute('id', 'multiselect_datacontainer_' + timestamp);
+      multiselectLabel.setAttribute('id', 'multiselect_label_' + timestamp);
+      span.setAttribute('id', 'multiselect_button_' + timestamp);
+      list.setAttribute('id', 'multiselect_list_' + timestamp);
+  
+      var _fnIsChild = function (element, parent) {
+        var node = element.parentNode;
+        while (node) {
+          if (node === parent) {
+            return true;
+          }
+          node = node.parentNode;
         }
-        node = node.parentNode;
+        return false;
       }
-      return false;
-    }
-
-    var _selectionText = function (element) {
-      var text = "";
-      var selection = element.querySelectorAll("input:checked");
-      if (selection.length === 0) {
-        text = labels.emptyText;
-      } else if (selection.length > 3) {
-        text = selection.length + " " + labels.selectedText;
-      } else {
-        var arr = [];
-        for (var i = 0; i < selection.length; i++) {
-          arr.push(selection[i].parentNode.textContent);
+  
+      var _selectionText = function (element) {
+        var text = "";
+        var selection = element.querySelectorAll("input:checked");
+        if (selection.length === 0) {
+          text = labels.emptyText;
+        } else if (selection.length > 3) {
+          text = selection.length + " " + labels.selectedText;
+        } else {
+          var arr = [];
+          for (var i = 0; i < selection.length; i++) {
+            arr.push(selection[i].parentNode.textContent);
+          }
+          text = arr.join(",");
         }
-        text = arr.join(",");
-      }
-      return text;
-    };
-
-    var _openList = function (e) {
-      list.style.display = "block";
-      e.srcElement.children[0].focus();
-    };
-
-    var _selectItem = function (e) {
-      var text = _selectionText(container);
-      container
-        .getElementsByTagName("span")[0]
-        .children[0].setAttribute("placeholder", text);
-
-      if (selectCb) {
-        var selectionElements = container.querySelectorAll("input:checked");
-        var selection = [];
-        for (var i = 0; i < selectionElements.length; i++) {
-          selection.push(selectionElements[i].value);
+        return text;
+      };
+  
+      var _openList = function (e) {
+        list.style.display = "block";
+        e.srcElement.children[0].focus();
+      };
+  
+      var _selectItem = function (e) {
+        var text = _selectionText(container);
+        container
+          .getElementsByTagName("span")[0]
+          .children[0].setAttribute("placeholder", text);
+  
+        if (selectCb) {
+          var selectionElements = container.querySelectorAll("input:checked");
+          var selection = [];
+          for (var i = 0; i < selectionElements.length; i++) {
+            selection.push(selectionElements[i].value);
+          }
+          selectCb(selection);
         }
-        selectCb(selection);
-      }
-
-    };
-
-    var _clearSearch = function () {
-      var elements = container.getElementsByTagName("li");
-      for (var i = 0; i < elements.length; i++) {
-        elements[i].style.display = "";
-      }
-    };
-
-    var _performSearch = function (e) {
-      if (e.which != 13 && e.which != 38 && e.which != 40) {
-        var active = list.getElementsByClassName("multiselect-label--active");
-        if (active.length > 0) {
-          active[0].classList.remove("multiselect-label--active");
-        }
-        var first = true;
-        var filter = e.srcElement.value.toUpperCase();
+  
+      };
+  
+      var _clearSearch = function () {
         var elements = container.getElementsByTagName("li");
         for (var i = 0; i < elements.length; i++) {
-          var cb = elements[i].getElementsByTagName("label")[0].textContent;
-          if (cb.toUpperCase().indexOf(filter) !== -1) {
-            if (first) {
-              first = false;
-              elements[i].children[0].children[0].classList.add("multiselect-label--active");
+          elements[i].style.display = "";
+        }
+      };
+  
+      var _performSearch = function (e) {
+        if (e.which != 13 && e.which != 38 && e.which != 40) {
+          var active = list.getElementsByClassName("multiselect-label--active");
+          if (active.length > 0) {
+            active[0].classList.remove("multiselect-label--active");
+          }
+          var first = true;
+          var filter = e.srcElement.value.toUpperCase();
+          var elements = container.getElementsByTagName("li");
+          for (var i = 0; i < elements.length; i++) {
+            var cb = elements[i].getElementsByTagName("label")[0].textContent;
+            if (cb.toUpperCase().indexOf(filter) !== -1) {
+              if (first) {
+                first = false;
+                elements[i].children[0].children[0].classList.add("multiselect-label--active");
+              }
+              elements[i].style.display = "";
+            } else {
+              elements[i].style.display = "none";
             }
-            elements[i].style.display = "";
-          } else {
-            elements[i].style.display = "none";
           }
         }
-      }
-    };
-
-    var _fnClearSelection = function (e) {
-      var inputs = list.getElementsByTagName('input');
-      for (var i = 0; i < inputs.length; i++) {
-        if (inputs[i].checked) {
-          inputs[i].parentNode.click();
-        }
-      }
-      e.stopPropagation();
-    };
-
-    var _fnSelectAll = function (e) {
-      var inputs = list.getElementsByTagName('input');
-      for (var i = 0; i < inputs.length; i++) {
-        if (!inputs[i].checked) {
-          inputs[i].parentNode.click();
-        }
-      }
-      e.stopPropagation();
-    };
-
-    container.classList.add("multiselect-container-emsFormBuilder");
-    multiselectLabel.classList.add("multiselect-label");
-    //multiselectLabel.innerHTML = labels.title;
-    dataContainer.classList.add("multiselect-data-container-emsFormBuilder");
-    span.classList.add("multiselect-button");
-
-    searchField.setAttribute("type", "text");
-    searchField.setAttribute("placeholder", labels.emptyText);
-    searchField.classList.add("multiselect-text-emsFormBuilder");
-    searchField.addEventListener("keyup", _performSearch);
-
-    clearSelection.addEventListener("click", _fnClearSelection);
-    span.appendChild(searchField);
-    span.addEventListener("click", _openList);
-    list.classList.add("multiselect-list-emsFormBuilder");
-
-    for (var i = -1; i < data.length; i++) {
-      var item = document.createElement("li");
-      var a = document.createElement("a");
-      var label = document.createElement("label");
-      var input = document.createElement("input");
-
-      a.setAttribute("tabindex", "0");
-
-      label.classList.add("multiselect-item-label-emsFormBuilder");
-
-      if (i == -1) {
-        a.addEventListener("click", _fnSelectAll);
-        label.appendChild(document.createTextNode(options.selectedAllOption));
-        label.classList.add('multiselect-item-label-emsFormBuilder--select-all');
-      }
-      else {
-        if (i == 0) {
-          label.classList.add("multiselect-item-label-emsFormBuilder--active");
-        }
-        input.setAttribute("type", "checkbox");
-        input.setAttribute("class", "multiselect-checkbox-efb");
-        label.appendChild(input);
-        input.setAttribute("value", data[i].value);
-        input.addEventListener("change", _selectItem);
-        label.appendChild(document.createTextNode(data[i].label));
-      }
-      a.appendChild(label);
-      item.appendChild(a);
-      list.appendChild(item);
-    }
-
-    dataContainer.appendChild(span);
-    dataContainer.appendChild(list);
-    container.appendChild(multiselectLabel);
-    container.appendChild(dataContainer);
-    element.appendChild(container);
-
-    //Change to the specific window
-    document.addEventListener("click", function (e) {
-      if (!_fnIsChild(e.target, container)) {
-        list.style.display = "none";
-        searchField.value = "";
-        _clearSearch();
-      }
-    });
-
-    document.addEventListener("keyup", function (e) {
-      if (list.style.display == 'block') {
-        //mouse down
-        if (e.which === 40) {
-          var active = list.getElementsByClassName(
-            "multiselect-label--active"
-          )[0];
-          var next = active.parentNode.parentNode.nextSibling;
-          //Find the next visible element
-          while (next && next.style && next.style.display == 'none') {
-            next = next.nextSibling;
+      };
+  
+      var _fnClearSelection = function (e) {
+        var inputs = list.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+          if (inputs[i].checked) {
+            inputs[i].parentNode.click();
           }
-          if (next) {
-            active.classList.remove("multiselect-label--active");
-            next
-              .getElementsByClassName("multiselect-label")[0]
-              .classList.add("multiselect-label--active");
-            next.children[0].focus();
-            searchField.focus();
+        }
+        e.stopPropagation();
+      };
+  
+      var _fnSelectAll = function (e) {
+        var inputs = list.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+          if (!inputs[i].checked) {
+            inputs[i].parentNode.click();
+          }
+        }
+        e.stopPropagation();
+      };
+  
+      container.classList.add("multiselect-container-emsFormBuilder");
+      multiselectLabel.classList.add("multiselect-label");
+      //multiselectLabel.innerHTML = labels.title;
+      dataContainer.classList.add("multiselect-data-container-emsFormBuilder");
+      span.classList.add("multiselect-button");
+  
+      searchField.setAttribute("type", "text");
+      searchField.setAttribute("placeholder", labels.emptyText);
+      searchField.classList.add("multiselect-text-emsFormBuilder");
+      searchField.addEventListener("keyup", _performSearch);
+  
+      clearSelection.addEventListener("click", _fnClearSelection);
+      span.appendChild(searchField);
+      span.addEventListener("click", _openList);
+      list.classList.add("multiselect-list-emsFormBuilder");
+  
+      for (var i = -1; i < data.length; i++) {
+        var item = document.createElement("li");
+        var a = document.createElement("a");
+        var label = document.createElement("label");
+        var input = document.createElement("input");
+  
+        a.setAttribute("tabindex", "0");
+  
+        label.classList.add("multiselect-item-label-emsFormBuilder");
+  
+        if (i == -1) {
+          a.addEventListener("click", _fnSelectAll);
+          label.appendChild(document.createTextNode(options.selectedAllOption));
+          label.classList.add('multiselect-item-label-emsFormBuilder--select-all');
+        }
+        else {
+          if (i == 0) {
+            label.classList.add("multiselect-item-label-emsFormBuilder--active");
+          }
+          input.setAttribute("type", "checkbox");
+          input.setAttribute("class", "multiselect-checkbox-efb");
+          label.appendChild(input);
+          input.setAttribute("value", data[i].value);
+          input.addEventListener("change", _selectItem);
+          label.appendChild(document.createTextNode(data[i].label));
+        }
+        a.appendChild(label);
+        item.appendChild(a);
+        list.appendChild(item);
+      }
+  
+      dataContainer.appendChild(span);
+      dataContainer.appendChild(list);
+      container.appendChild(multiselectLabel);
+      container.appendChild(dataContainer);
+      element.appendChild(container);
+  
+      //Change to the specific window
+      document.addEventListener("click", function (e) {
+        if (!_fnIsChild(e.target, container)) {
+          list.style.display = "none";
+          searchField.value = "";
+          _clearSearch();
+        }
+      });
+  
+      document.addEventListener("keyup", function (e) {
+        if (list.style.display == 'block') {
+          //mouse down
+          if (e.which === 40) {
+            var active = list.getElementsByClassName(
+              "multiselect-label--active"
+            )[0];
+            var next = active.parentNode.parentNode.nextSibling;
+            //Find the next visible element
+            while (next && next.style && next.style.display == 'none') {
+              next = next.nextSibling;
+            }
+            if (next) {
+              active.classList.remove("multiselect-label--active");
+              next
+                .getElementsByClassName("multiselect-label")[0]
+                .classList.add("multiselect-label--active");
+              next.children[0].focus();
+              searchField.focus();
+              e.preventDefault();
+            }
+          } else if (e.which === 38) {
+            //mouse up
+            var active = list.getElementsByClassName(
+              "multiselect-label--active"
+            )[0];
+            var prev = active.parentNode.parentNode.previousSibling;
+            //Find the previous visible element
+            while (prev && prev.style && prev.style.display === 'none') {
+              prev = prev.previousSibling;
+            }
+            if (prev) {
+              active.classList.remove("multiselect-label--active");
+              prev
+                .getElementsByClassName("multiselect-label")[0]
+                .classList.add("multiselect-label--active");
+              prev.children[0].focus();
+              searchField.focus();
+              e.preventDefault();
+            }
+          } else if (e.which === 13) {
+            // enter
+            list.getElementsByClassName("multiselect-label--active")[0].click();
             e.preventDefault();
           }
-        } else if (e.which === 38) {
-          //mouse up
-          var active = list.getElementsByClassName(
-            "multiselect-label--active"
-          )[0];
-          var prev = active.parentNode.parentNode.previousSibling;
-          //Find the previous visible element
-          while (prev && prev.style && prev.style.display === 'none') {
-            prev = prev.previousSibling;
-          }
-          if (prev) {
-            active.classList.remove("multiselect-label--active");
-            prev
-              .getElementsByClassName("multiselect-label")[0]
-              .classList.add("multiselect-label--active");
-            prev.children[0].focus();
-            searchField.focus();
-            e.preventDefault();
-          }
-        } else if (e.which === 13) {
-          // enter
-          list.getElementsByClassName("multiselect-label--active")[0].click();
-          e.preventDefault();
         }
+      });
+    };
+    var exportObj = {
+      init: function (element, data, selectCb, options) {
+        createMultiselect(element, data, selectCb, options);
       }
-    });
-  };
-  var exportObj = {
-    init: function (element, data, selectCb, options) {
-      createMultiselect(element, data, selectCb, options);
-    }
-  };
-
-  Motus.ElementMultiselect = exportObj;
-
-})();
+    };
+  
+    Motus.ElementMultiselect = exportObj;
+  
+  })();
+},g_timeout_efb)
 
 
 var opetionSelect_emsFormBuilder = function (data) {
@@ -827,7 +837,7 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
-  console.log((sendBack_emsFormBuilder_pub))  
+ // console.log((sendBack_emsFormBuilder_pub))  
   jQuery(function ($) {
 
     data = {
@@ -1440,11 +1450,12 @@ function response_fill_form_efb(res) {
           document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
            </br>
            <a href="#" id="btn_Show_recovery_efb" class="  emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
-           <div class"p-5 fade" id="recoverySectionemsFormBuilder" style="display: none;">     
+           <div class="p-5 " id="recoverySectionemsFormBuilder" style="display: none;">     
               <input type="email" id="username_recovery_pass_efb" class="m-1" placeholder="Email" >
-              <a href="#" id="btn_recovery_pass_efb" class="btn btn-lg btn-block my-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
+              <a href="#" id="btn_recovery_pass_efb" class="btn btn-lg btn-block mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
-           <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;" ><i class="${ajax_object_efm.rtl == 1 ? 'fa fa-angle-double-right' : 'fa fa-angle-double-left'}"></i></button></div>`;
+              <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
+              `;
 
         }
         break;
