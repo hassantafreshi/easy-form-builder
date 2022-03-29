@@ -623,11 +623,8 @@ class efbFunction {
 		$rtrn='null';
 		
 		if(count($value)>0){		
-			//error_log(gettype($value[0]));
 			foreach($value[0] as $key=>$val){
-				$v =str_replace('\\', '', $val);
-			//	error_log(gettype($v ));
-			//	error_log($v);
+			$v =str_replace('\\', '', $val);
 			$rtrn =json_decode($v);
 			break;
 			} 

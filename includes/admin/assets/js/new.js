@@ -88,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  /* { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true },  */
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -237,9 +237,9 @@ function show_setting_window_efb(idset) {
 
   const emailEls = `<div class="mx-1 my-3 efb">
   <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
-  <label class="form-check-label efb" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive}</label>                                            
+  <label class="form-check-label efb" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
   </div>`;
-  const adminFormEmailEls = `<label for="adminFormEmailEl" class="form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}</label>
+  const adminFormEmailEls = `<label for="adminFormEmailEl" class="form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
   <input type="text" data-id="${idset}" class="elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.enterAdminEmailReceiveNoti}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
   const trackingCodeEls = `<div class="mx-1 my-3 efb">
   <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].trackingCode && valj_efb[0].trackingCode == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
@@ -2395,7 +2395,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
         <div class="efb efblist mx-1  p-2 inplist  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
-        <i class="efb efblist iconDD bi-caret-down-fill text-primary ${valj_efb[iVJ].el_height}" id="iconDD-${rndm}" data-id="menu-${rndm}"></i>
+        <i class="efb efblist iconDD bi-caret-down-fill text-primary ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].el_height}" id="iconDD-${rndm}" data-id="menu-${rndm}"></i>
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
 
@@ -2410,7 +2410,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        </table>
       </div>
 
-      </div>
+     
         
       ${desc}
        `;
@@ -4033,7 +4033,7 @@ function previewFormEfb(state){
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   let timeout =  (len/2)*(Math.log(len)) * p;
-  console.log(len , p ,timeout)
+  //console.log(len , p ,timeout)
   timeout<1700 ? timeout=1700 : 0;
  
 
@@ -4353,15 +4353,17 @@ function fun_validation_efb(){
       }else{
        // console.log('success')
         const id =valj_efb[row].type!="multiselect" && valj_efb[row].type!="select" && valj_efb[row].type!="conturyList"  && valj_efb[row].type!="stateProvince" ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options` ;
+        idi = valj_efb[row].id_;
         //console.log(`id [${id}]`);
         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
         if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
 
         const v= sendBack_emsFormBuilder_pub[s].value.split(",");
-        //console.log(valj_efb[row].minSelect ,v.length);
+        //console.log(valj_efb[row].type,valj_efb[row].minSelect ,v.length);
         if(valj_efb[row].type=="multiselect" && (v.length-1)<valj_efb[row].minSelect  ){
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
-          document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="Min select: " + valj_efb[row].minSelect
+          console.log(efb_var.text);
+          document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.minSelect +" " + valj_efb[row].minSelect
           if(state==true){ state=false; idi =valj_efb[row].id_ }
         }
       }
@@ -4369,7 +4371,7 @@ function fun_validation_efb(){
     
   }
   if(idi!="null"){document.getElementById(idi).scrollIntoView(true);}
-  console.log(state,idi);
+  //console.log(state,idi);
   return state
 }
 

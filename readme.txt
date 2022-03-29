@@ -193,6 +193,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 2.3.7 =
 * UI improvements
+* Fixed issues
 
 = 2.3.6 =
 * Fixed issue of loading form

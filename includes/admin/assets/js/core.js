@@ -284,7 +284,7 @@ function validateForm_emsFormBuilder_view() {
     for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
       //require
       const req =input.classList.contains('require');
-      
+      //console.log(input);
       if (input.tagName == "INPUT") {
         if (input.value == "" && input.classList.contains('require')) {
           input.className += " invalid"; valid = false;

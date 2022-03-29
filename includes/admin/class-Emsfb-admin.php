@@ -667,21 +667,19 @@ class Admin {
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
         $m = $lang["error403"];
-        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');        
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {     
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         
         $pro = "not pro";
-        if(strlen($ac->activeCode)!=0) $pro=$ac->activeCode;
-        if(gettype($ac)){}
+       
+        if(gettype($ac)=="object" && strlen($ac->activeCode)!=0) $pro=$ac->activeCode;  
         $con ='';
         $sub='';
         $to ='';
         if('testMailServer'==$_POST['value']){
-
             if(is_email($_POST['email'])){
                 $to = sanitize_email($_POST['email']);
             }
@@ -696,26 +694,26 @@ class Admin {
         }
         
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
-        if($check==true){
-           
-         $newAc["activeCode"] = $ac->activeCode;
-         $newAc["siteKey"] = $ac->siteKey;
-         $newAc["secretKey"] = $ac->secretKey;
-         $newAc["emailSupporter"] = $to;
-         $newAc["apiKeyMap"] = $ac->apiKeyMap;
-
-         $newAc["smtp"] = "true";
-         $newAc["text"] = $ac->text; //change78 باید لیست جملات اینجا ذخیره شود
-            $table_name = $this->db->prefix . "Emsfb_setting";
-            $this->db->insert(
-                $table_name,
-                [
-                    'setting' => json_encode($newAc),
-                    'edit_by' => get_current_user_id(),
-                    'date'    => current_time('mysql'),
-                    'email'   => $to,
-                ]
-            );
+        if($check==true && gettype($ac)=="object"){           
+               $newAc["activeCode"] =  $ac->activeCode;
+               $newAc["siteKey"] = $ac->siteKey;
+               $newAc["secretKey"] = $ac->secretKey;
+               $newAc["emailSupporter"] = $to;
+               $newAc["apiKeyMap"] = $ac->apiKeyMap;
+               $newAc["emailTemp"] = $ac->emailTemp;
+               $newAc["smtp"] = "true";
+               $newAc["text"] = $ac->text; //change78 باید لیست جملات اینجا ذخیره شود
+               $table_name = $this->db->prefix . "Emsfb_setting";
+               $this->db->insert(
+                   $table_name,
+                   [
+                       'setting' => json_encode($newAc),
+                       'edit_by' => get_current_user_id(),
+                       'date'    => current_time('mysql'),
+                       'email'   => $to,
+                   ]
+               );
+           //}
         }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);

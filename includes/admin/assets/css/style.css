@@ -2071,17 +2071,17 @@ input[type=checkbox].efb.fs-2.form-check-input
         font-size: 20px!important;
         padding-left: 38px!important;
         padding-right: 38px!important;
-        height: 42px;
+        min-height: 42px;
     }
     .efblist.inplist.h-l-efb{
         font-size: 25px!important;
         padding-left: 38px!important;
         padding-right: 38px!important;
-        height: 50px;
+        min-height: 50px;
     }
     .efblist.inplist.h-xl-efb{
         font-size: 30px!important;
-        height: 60px;
+        min-height: 60px;
         padding-left: 40px!important;
         padding-right: 40px!important;
     }
@@ -2089,18 +2089,17 @@ input[type=checkbox].efb.fs-2.form-check-input
         font-size: 35px!important;
         padding-left: 45px!important;
         padding-right: 45px!important;
-        height: 80px;
+        min-height: 80px;
     }
     .efblist.inplist.h-xxxl-efb{
         font-size: 40px!important;
         padding-left: 52px!important;
         padding-right: 52px!important;
-        height: 90px;
+        min-height: 90px;
     }
 
-     .efb.efblist.iconDD.h-d-efb{margin: -34px 13px;}
-     .efb.efblist.iconDD.h-l-efb{margin: -42px 13px!important;}
-     .efb.efblist.iconDD.h-xl-efb{margin: -45px 13px!important;}
+     .efb.efblist.iconDD.h-d-efb{margin: -40px 13px;}
+     .efb.efblist.iconDD.h-l-efb{margin: -47px 13px!important;}
      .efb.efblist.iconDD.h-xl-efb{margin: -58px 13px!important;}
      .efb.efblist.iconDD.h-xxl-efb{margin: -67px 13px!important;}
      .efb.efblist.iconDD.h-xxxl-efb{margin: -80px 13px!important;}
@@ -2116,7 +2115,8 @@ input[type=checkbox].efb.fs-2.form-check-input
 
     .efb.efblist.inplist   {
         border-style: solid;
-        border-width: 1px
+        border-width: 1px;
+        color: #545b6e!important;
     }
 
     .efb.searchBox::-webkit-input-placeholder{ font-size: 15px!important;}

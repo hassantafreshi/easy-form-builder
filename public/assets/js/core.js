@@ -25,7 +25,7 @@ let g_timeout_efb= typeof ajax_object_efm =="object" ? ajax_object_efm.ajax_valu
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
 g_timeout_efb =
-console.log(g_timeout_efb);
+//console.log(g_timeout_efb);
 setTimeout(() => {
 
 
@@ -1315,6 +1315,7 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
+    //console.log(row);
     count[0] += 1;
     if (row.value == "@file@") {
       
@@ -1329,8 +1330,9 @@ function validation_before_send_emsFormBuilder() {
     } else if (row.type != "@file@") {      
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {    
-        const exists = valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
+        const exists = valueJson_ws[indx].type == "multiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
         fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
+       // console.log(valueJson_ws[indx].id_ ,exists ,fill)
       } else {
         fill += valueJson_ws[indx].required == true ? 1 : 0;
       }
