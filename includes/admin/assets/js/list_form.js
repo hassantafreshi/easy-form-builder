@@ -1258,9 +1258,9 @@ function clear_garbeg_emsFormBuilder() {
   let count = -1;
   let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
   
-  rows[0][0] = value.length;
+  rows[0][0] = 'id';
   let i_count = -1;
-  add_multi=(c,content,value_col_index)=>{
+  add_multi=(c,content,value_col_index,v)=>{
    
     if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
       rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
@@ -1269,7 +1269,7 @@ function clear_garbeg_emsFormBuilder() {
       const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
       rows = rows.concat(row);
       rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
-      rows[parseInt(r)][0] = rows.length - 1;
+      rows[parseInt(r)][0] = v;
       
     }
   }
@@ -1289,7 +1289,7 @@ function clear_garbeg_emsFormBuilder() {
       //console.log(c,content[c]);
       if (content[c].type != "checkbox" && content[c].type != "multiselect") {
 
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
+        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
 
         value_col_index = rows[0].findIndex(x => x == content[c].name);
 
@@ -1302,25 +1302,27 @@ function clear_garbeg_emsFormBuilder() {
         rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value ;
 
       }else if(content[c].type == "multiselect"){
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
+        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
         value_col_index = rows[0].findIndex(x => x == content[c].name);
         if (value_col_index == -1) {
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = content[c].name;
         } 
         if(content[c].value.search(/@efb!+/g)>1){
-            const nOb = content[c].value.split("@efb!")
+       
+           const nOb = content[c].value.split("@efb!")
             nOb.forEach(n => {
-              //console.log(n);
-              if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
-                rows[parseInt(i_count)][parseInt(value_col_index)] =n;
-              } else {
-                const r = rows.length
-                const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
-                rows = rows.concat(row);
-                rows[parseInt(r)][parseInt(value_col_index)] = n;
-                rows[parseInt(r)][0] = rows.length - 1;
-                
+              if(n!=""){
+                console.log(`[${n}]`,nOb.length);
+                if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+                  rows[parseInt(i_count)][parseInt(value_col_index)] =n;
+                } else {
+                  const r = rows.length
+                  const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+                  rows = rows.concat(row);
+                  rows[parseInt(r)][parseInt(value_col_index)] = n;
+                  rows[parseInt(r)][0] = v.msg_id;                  
+                }
               }
             });
         }else{
@@ -1330,18 +1332,18 @@ function clear_garbeg_emsFormBuilder() {
       } else {
         //console.log('checkbox',c)
         // if checkbox
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
+        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
         //new code test
         const name = content[c].name;
         value_col_index = rows[0].findIndex(x => x == name);
         if (value_col_index != -1) {
           //if checkbox title is exists
-          add_multi(c,content,value_col_index)
+          add_multi(c,content,value_col_index,v.msg_id)
         } else {
           //if checkbox title is Nexists
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = name;
-          add_multi(c,content,value_col_index)
+          add_multi(c,content,value_col_index,v.msg_id)
           
         }
         
