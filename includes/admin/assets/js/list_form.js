@@ -143,9 +143,7 @@ function emsFormBuilder_show_content_message(id) {
   const formType = form_type_emsFormBuilder;
   // پنجره نمایش فرم ثبت شده کاربر  
   const indx = valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
-  const objOptions = valueJson_ws_messages.filter(obj => {
-    return obj.msg_id === id.toString()
-  })
+  const objOptions = valueJson_ws_messages.filter(obj => { return obj.msg_id === id.toString()})
   const msg_id = valueJson_ws_messages[indx].msg_id;
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
@@ -250,7 +248,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <h6 class="efb ">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
-    let value = `<b>${c.value}</b>`;    
+    let value = `<b>${c.value.replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@") {
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
@@ -1262,7 +1260,21 @@ function clear_garbeg_emsFormBuilder() {
   
   rows[0][0] = value.length;
   let i_count = -1;
+  add_multi=(c,content,value_col_index)=>{
+   
+    if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+      rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+    } else {
+      const r = rows.length
+      const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+      rows = rows.concat(row);
+      rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
+      rows[parseInt(r)][0] = rows.length - 1;
+      
+    }
+  }
   for (v of value) {
+//    console.log(v.msg_id);
     const content = JSON.parse(v.content.replace(/[\\]/g, '')) 
     count += 1;
     i_count += i_count == -1 ? +2 : 1;
@@ -1274,7 +1286,8 @@ function clear_garbeg_emsFormBuilder() {
     for (c in content) {    
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      if (content[c].type != "checkbox") {
+      //console.log(c,content[c]);
+      if (content[c].type != "checkbox" && content[c].type != "multiselect") {
 
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
 
@@ -1286,9 +1299,36 @@ function clear_garbeg_emsFormBuilder() {
           rows[0][parseInt(value_col_index)] = content[c].name;
         } 
 
-        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+        rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value ;
 
+      }else if(content[c].type == "multiselect"){
+        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
+        value_col_index = rows[0].findIndex(x => x == content[c].name);
+        if (value_col_index == -1) {
+          value_col_index = rows[0].findIndex(x => x == 'null@EFB');
+          rows[0][parseInt(value_col_index)] = content[c].name;
+        } 
+        if(content[c].value.search(/@efb!+/g)>1){
+            const nOb = content[c].value.split("@efb!")
+            nOb.forEach(n => {
+              //console.log(n);
+              if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+                rows[parseInt(i_count)][parseInt(value_col_index)] =n;
+              } else {
+                const r = rows.length
+                const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+                rows = rows.concat(row);
+                rows[parseInt(r)][parseInt(value_col_index)] = n;
+                rows[parseInt(r)][0] = rows.length - 1;
+                
+              }
+            });
+        }else{
+          rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value.replaceAll('@efb!' , "") ; ;
+        }
+        //content[c].value.replaceAll('@efb!' , " || ") ;
       } else {
+        //console.log('checkbox',c)
         // if checkbox
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = i_count;
         //new code test
@@ -1296,23 +1336,15 @@ function clear_garbeg_emsFormBuilder() {
         value_col_index = rows[0].findIndex(x => x == name);
         if (value_col_index != -1) {
           //if checkbox title is exists
-
-          if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
-            rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-          } else {
-            const r = rows.length
-            const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
-            rows = rows.concat(row);
-            rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
-            rows[parseInt(r)][0] = rows.length - 1;
-            
-          }
+          add_multi(c,content,value_col_index)
         } else {
           //if checkbox title is Nexists
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = name;
-
+          add_multi(c,content,value_col_index)
+          
         }
+        
 
         //new code test
   

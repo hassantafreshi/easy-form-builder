@@ -88,7 +88,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: true }, 
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
@@ -4358,11 +4358,11 @@ function fun_validation_efb(){
         document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML="";
         if(type_validate_efb(valj_efb[row].type)==true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-success");
 
-        const v= sendBack_emsFormBuilder_pub[s].value.split(",");
+        const v= sendBack_emsFormBuilder_pub[s].value.split("@efb!");
         //console.log(valj_efb[row].type,valj_efb[row].minSelect ,v.length);
         if(valj_efb[row].type=="multiselect" && (v.length-1)<valj_efb[row].minSelect  ){
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className,"border-danger");
-          console.log(efb_var.text);
+          //console.log(efb_var.text);
           document.getElementById(`${valj_efb[row].id_}_-message`).innerHTML=efb_var.text.minSelect +" " + valj_efb[row].minSelect
           if(state==true){ state=false; idi =valj_efb[row].id_ }
         }

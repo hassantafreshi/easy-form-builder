@@ -2035,7 +2035,8 @@ input[type=checkbox].efb.fs-2.form-check-input
         position: absolute;
         cursor:           pointer;
         z-index: 1000;
-        width: initial;
+        width: inherit;
+        margin-bottom: 5%;
       
     }
 

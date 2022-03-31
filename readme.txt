@@ -58,6 +58,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Add custom email template for form notification emails for **free**
 
+- Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a field for **free**
+
  
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
 Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
@@ -84,11 +86,14 @@ You can easily Add the States/ Provinces list (state form) according to the lang
 **confirmation code**
 Confirmation code or tracking code is usable for create feedback form or support form when you want be touch easily to your user or customers for free.
 
-** Email Notification Template**
+**Email Notification Template**
 Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
  
  **Easily Localization**
 You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
+
+**Multi Select Dropdown field for WordPress FORM BUILDER**
+Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without you using any checkboxes inputs also the customer can search in dropdown list for free
  
 **Easy Form Builder Features**
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
@@ -124,6 +129,8 @@ You can Localize or translate every single words,  phrase or messages to your la
 - *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
 
 - *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
+
+- *Multiple Select*: Multi Select (Multi Select Dropdown) is a field for multiple selection and searchable dropdown list so you can easily add to your WordPress form for **free**.
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 

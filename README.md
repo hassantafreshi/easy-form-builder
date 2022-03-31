@@ -89,6 +89,7 @@ Features:
 - Easily Localization Easy Form Builder to your language for free
 - Mobile-friendly admin panel of Easy Form Builder
 - Add custom email template for form notification emails for free
+- MultiSelect (Multi Selection) field for free
 
 
 ## Documentation
