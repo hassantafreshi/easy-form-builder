@@ -1313,7 +1313,7 @@ function clear_garbeg_emsFormBuilder() {
            const nOb = content[c].value.split("@efb!")
             nOb.forEach(n => {
               if(n!=""){
-                console.log(`[${n}]`,nOb.length);
+                //console.log(`[${n}]`,nOb.length);
                 if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
                   rows[parseInt(i_count)][parseInt(value_col_index)] =n;
                 } else {

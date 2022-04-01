@@ -2687,10 +2687,11 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: rndm, dataId: `${rndm}-id`, type: elementId, value: '',amount: amount_el_efb, step: step_el_efb, pro: pro
     })
   } else if (elementId == "steps") {
-    step_el_efb = step_el_efb == 0 ? 1 : step_el_efb;
+    step_el_efb = step_el_efb == 0 ? 1 : step_el_efb;  
+    const stepName = efb_var.text[formName_Efb]!=undefined ?efb_var.text[formName_Efb].toUpperCase() :efb_var.text.step;
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
-      id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
       label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
@@ -2872,8 +2873,7 @@ let editFormEfb = () => {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
           let el = addNewElement(type, valj_efb[v].id_, true, false);        
-          dropZoneEFB.innerHTML += el;
-
+          dropZoneEFB.innerHTML += el;         
           if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login"  && valj_efb[v].type != "subscribe"  && valj_efb[v].type != "survey") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
 
           if (type == 'maps') {
@@ -2886,14 +2886,16 @@ let editFormEfb = () => {
               })
             }, (len * 10) + 10);
           } else if (type == "multiselect") {
-            jQuery(function () {
+           // console.log(type);
+  /*           jQuery(function () {
               jQuery('.selectpicker').selectpicker();
-            });
-            setTimeout(() => {
+            }); */
+/*             setTimeout(() => {
               // const v = valj_efb.find(x=>x.id_==rndm);
               const opd = document.querySelector(`[data-id='${valj_efb[v].id_}_options']`)
+              console.log(opd);
               opd.className += ` efb ${valj_efb[v].corner} ${valj_efb[v].el_border_color} ${valj_efb[v].el_height} ${valj_efb[v].el_text_size}`
-            }, 15);
+            }, 15); */
           }
         }
       } catch (error) {

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.7
+Stable tag: 			2.3.8
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.4 or higher
@@ -58,7 +58,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Add custom email template for form notification emails for **free**
 
-- Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a field for **free**
+- Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form for **free**
 
  
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
@@ -93,7 +93,7 @@ Easy Form Builder has a default email template notification as well as Admin can
 You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
 
 **Multi Select Dropdown field for WordPress FORM BUILDER**
-Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without you using any checkboxes inputs also the customer can search in dropdown list for free
+Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without using any checkboxes inputs also the customer can search in dropdown list for free
  
 **Easy Form Builder Features**
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
@@ -197,10 +197,13 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
-
+= 2.3.8 =
+* Fixed issues
 = 2.3.7 =
+* Add multiple Selection inputs to WP easy form builder
 * UI improvements
 * Fixed issues
+
 
 = 2.3.6 =
 * Fixed issue of loading form
