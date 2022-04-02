@@ -32,7 +32,7 @@ setTimeout(() => {
   jQuery(function () {
     //789 امنیت باید اضافه شود به این قسمت
   
-    console.log("Easy Form Builder 2.3.8");
+    console.log("Easy Form Builder 2.3.9");
     if (typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder = ajax_object_efm.poster;
     

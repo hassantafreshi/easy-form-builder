@@ -240,7 +240,7 @@ class Admin {
             die();
         }
 
-        if ($this->isScript(json_encode($_POST['value'])) || $this->isScript(json_encode($_POST['name']))) {        
+        if ($this->isScript(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {        
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
@@ -267,7 +267,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']))) {            
+        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {            
             $m =   $lang["somethingWentWrongPleaseRefresh"];
             $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
@@ -694,28 +694,29 @@ class Admin {
         }
         
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
-        /*         if($check==true && gettype($ac)=="object"){           
-                    $newAc["activeCode"] =  $ac->activeCode;
-                    $newAc["siteKey"] = $ac->siteKey;
-                    $newAc["secretKey"] = $ac->secretKey;
+                if($check==true){           
+                    $newAc["activeCode"] = isset($ac->activeCode) ? $ac->activeCode :'';
+                    $newAc["siteKey"] = isset($ac->siteKey)? $ac->siteKey :"";
+                    $newAc["secretKey"] =isset($ac->secretKey)?  $ac->secretKey :"";
                     $newAc["emailSupporter"] = $to;
-                    $newAc["apiKeyMap"] = $ac->apiKeyMap;
-                    $newAc["emailTemp"] = $ac->emailTemp;
+                    $newAc["apiKeyMap"] = isset($ac->apiKeyMap) ? $ac->apiKeyMap:"";
+                    $newAc["emailTemp"] = isset($ac->emailTemp) ? $ac->emailTemp:"";
                     $newAc["smtp"] = "true";
-                    $newAc["text"] = $ac->text; //change78 باید لیست جملات اینجا ذخیره شود
+                    $newAc["text"] = isset($ac->text) ? $ac->text  : $efbFunction->text_efb(0); //change78 باید لیست جملات اینجا ذخیره شود
                     $table_name = $this->db->prefix . "Emsfb_setting";
-                    //$newAc= json_encode( $newAc)
+                    $newAc= json_encode( $newAc ,JSON_UNESCAPED_UNICODE );
+                    $newAc= str_replace('"', '\"', $newAc);                   
                     $this->db->insert(
                         $table_name,
                         [
-                            'setting' => json_encode($newAc),
+                            'setting' => $newAc,
                             'edit_by' => get_current_user_id(),
                             'date'    => current_time('mysql'),
                             'email'   => $to,
                         ]
                     );
                 //}
-                } */
+                }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
     }

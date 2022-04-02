@@ -99,7 +99,7 @@ The most recent documentation can be found at [https://whitestudio.team/document
 
 ## Requirements
 * [WordPress](https://wordpress.org/) >= `4.7`
-* [PHP](https://secure.php.net/manual/en/install.php) >= `7.1`
+* [PHP](https://secure.php.net/manual/en/install.php) >= `6`
 
 
 

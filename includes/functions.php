@@ -33,6 +33,7 @@ class efbFunction {
 		$ac= $this->get_setting_Emsfb();		 
 		$state= $ac!==null && isset($ac->text) ? true : false ;
 	//	error_log($ac);
+		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -466,13 +467,22 @@ class efbFunction {
 			
 		];
 
-	
+		//error_log(gettype($inp));
 		$rtrn =[];
 		$st="null";
-		
-		foreach ($inp as $key => $value) {
-			//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
-			$rtrn +=["".$value.""=>"".$lang[$value].""];
+		if(gettype($inp) =="array"){
+			foreach ($inp as $key => $value) {
+				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
+				$rtrn +=["".$value.""=>"".$lang[$value].""];
+			}
+
+		}else{
+			foreach ($lang as $key => $value) {
+				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
+				/* errorlog($value);
+				errorlog($key); */
+				$rtrn +=["".$key.""=>"".$value.""];
+			}
 		}
 		array_push($rtrn);
 		

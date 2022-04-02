@@ -488,7 +488,7 @@ class _Public {
 							}
 						
 							
-							$this->value=json_encode($registerValues);
+							$this->value=json_encode($registerValues,JSON_UNESCAPED_UNICODE);
 							$creds = array();
 							$creds['user_login'] =esc_sql($username);
 							$creds['user_pass'] = esc_sql($password);
@@ -1050,7 +1050,7 @@ class _Public {
 	   if($state=="pub"){
 			
 		   $rtr =	array('trackingCode' => ''.$trackingCode.'' , 'siteKey' => ''.$siteKey.'','apiKeyMap' => ''.$mapKey.'');
-		   $rtrn =json_encode($rtr);
+		   $rtrn =json_encode($rtr,JSON_UNESCAPED_UNICODE);
 	   }else{
 		   $rtrn=$value[0];
 	   }
