@@ -80,8 +80,9 @@ setTimeout(() => {
   /* new code multiSelect start */
   var Motus = {};
   (function () {
-    var createMultiselect = function (element, data, selectCb, options) {
-    var labels = {};  
+     /* var createMultiselect = function (element, data, selectCb, options) 
+   {
+      var labels = {};  
       labels.emptyText = options.selectOption;
       labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
       labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
@@ -95,7 +96,7 @@ setTimeout(() => {
       var span = document.createElement("span");
       var searchField = document.createElement("input");
       var clearSelection = document.createElement('span');
-      /* var carret = document.createElement("b"); */
+      
       var list = document.createElement("ul");
   
       //set the ids
@@ -316,7 +317,7 @@ setTimeout(() => {
           }
         }
       });
-    };
+    }; */
     var exportObj = {
       init: function (element, data, selectCb, options) {
         createMultiselect(element, data, selectCb, options);

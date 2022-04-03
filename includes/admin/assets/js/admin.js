@@ -229,8 +229,8 @@ function add_dasboard_emsFormBuilder(){
          
           <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
-          <button type="button" id="${i.id}" class="float-end btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
-           <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
+          <button type="button" id="${i.id}" class="float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
+          <!-- <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a> -->
           </div></div></div>`
         }
         
@@ -239,7 +239,7 @@ function add_dasboard_emsFormBuilder(){
           ${head_introduce_efb('create')}
             <section id="content-efb">
             ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.form}</h4>` :''}
-            <div class="container"><div class="row row-cols-1 row-cols-md-2 g-4">${value}<div class="row  my-5 col-2"></div></div></div>
+            <div class="row"><div class="row row-cols-1 row-cols-md-3 g-4">${value}<div class="row  my-5 col-2"></div></div></div>
             </section>`
      
      

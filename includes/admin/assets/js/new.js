@@ -292,10 +292,10 @@ function show_setting_window_efb(idset) {
   <div class="row efb">     
   <label for="labelPostionEl" class="mt-3 col-12 bi-arrows-angle-contract mx-2 efb">${efb_var.text.labelPostion}</label>
     <div class="btn-group btn-group-toggle col-12 efb" data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">    
-      <label class=" btn btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','up')">
+      <label class=" efb ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','up')">
         <input type="radio" name="options" class="opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
       <span class="efb border-right border border-light "></span>
-      <label class=" btn btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','besie')">
+      <label class=" efb ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'beside' ? `active` : ''}" onClick="funSetPosElEfb('${idset}','besie')">
         <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
       </label>
     </div></div>`;
@@ -313,13 +313,13 @@ function show_setting_window_efb(idset) {
     <div class="efb row">     
     <label for="labelPostionEl" class="efb mt-3 col-12 bi-align-center mx-2">${side} ${efb_var.text.align}</label>
       <div class="efb btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
-        <label class=" btn btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
+        <label class=" efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
           <input type="radio" name="options" class="efb opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
         <span class="efb border-right border border-light "></span>
-        <label class=" btn btn-primary bi-align-center ${value == center ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${center}','${side}')">
+        <label class=" efb ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${center}','${side}')">
           <input type="radio" name="options" class="opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="center">${efb_var.text.center}</label>
         <span class="efb border-right border border-light "></span>
-        <label class=" btn btn-primary bi-align-end ${value == right ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${right}','${side}')">
+        <label class=" efb ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${right}','${side}')">
           <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="right">${efb_var.text.right}</label>
       </div></div>`;
   }
@@ -350,10 +350,10 @@ function show_setting_window_efb(idset) {
       <div class="efb row">
       <label for="cornerEl" class="efb mt-3 col-12 bi-bounding-box-circles">${efb_var.text.corners}</label>
       <div class="efb btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">    
-        <label class=" btn  btn-primary bi-app ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
+        <label class=" efb ntb  btn-primary bi-app ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
           <input type="radio" name="options" class="efb opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="efb-rounded" >${efb_var.text.rounded}</label>
         <span class="efb border-right border border-light "></span>
-        <label class=" btn btn-primary bi-diamond ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
+        <label class=" efb ntb btn-primary bi-diamond ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
           <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>
       </div></div>`
   }
@@ -2439,12 +2439,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       ui = `
       ${label}
-      <div class="col-md-10 col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'>
+      <div class="col-md-9 col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'>
       <div class="efb btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
-      <label for="${rndm}_1" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
+      <label for="${rndm}_1" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class=" btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
         <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
       <span class="border-right border border-light efb"></span>
-      <label for="${rndm}_2" onClick="yesNoGetEFB('${valj_efb[iVJ].button_2_text}' ,'${rndm}')" class="btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
+      <label for="${rndm}_2" onClick="yesNoGetEFB('${valj_efb[iVJ].button_2_text}' ,'${rndm}')" class=" btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
         <input type="radio" name="${rndm}" data-type="switch" class="opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_2" value="${valj_efb[iVJ].button_2_text}"> <span id="${rndm}_2_lab">${valj_efb[iVJ].button_2_text}</span></label>
       </div>
         ${desc}`
