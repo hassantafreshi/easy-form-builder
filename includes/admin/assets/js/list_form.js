@@ -1676,7 +1676,7 @@ function EmailTemp1Efb(){
   <meta name='viewport' content='width=device-width, initial-scale=1.0;'>
    <meta name='format-detection' content='telephone=no'/>
   <style>
-  body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important;}
+  body { margin: 0; padding: 0; min-width: 100%; width: 100% !important; height: 100% !important; ${efb_var.rtl==1 ?`direction:rtl;` :''}}
   body, table, td, div, p, a { -webkit-font-smoothing: antialiased; text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; line-height: 100%; }
   table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse !important; border-spacing: 0; }
   img { border: 0; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
@@ -1711,7 +1711,7 @@ function EmailTemp1Efb(){
 }
 
 function EmailTemp2Efb(){
-  return`<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;}</style><center>
+  return`<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;${efb_var.rtl==1 ?`direction:rtl;` :''}}</style><center>
 <table class='body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
           <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>

@@ -230,7 +230,7 @@ function add_dasboard_emsFormBuilder(){
           <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
           <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
           <button type="button" id="${i.id}" class="float-end btn efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
-         ${i.id=='form' || true ?'': `<a class="float-end btn mx-1 efb rounded-pill border-danger text-danger efbPreviewForm" onclick="fun_preview_before_efb('${i.id}')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>`}
+           <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
           </div></div></div>`
         }
         
@@ -356,6 +356,9 @@ function create_form_by_type_emsfb(id,s){
   if(s=="npreview"){
     creator_form_builder_Efb();
     if(id!="form"){setTimeout(() => {editFormEfb()}, 100)  }
+  }else if ("pre"){
+    console.log(s)
+    previewFormEfb('pre')
   }else{
     previewFormEfb('pc')
   }
@@ -391,7 +394,12 @@ function head_introduce_efb(state){
 }
 
 
-fun_preview_before_efb=(i)=>{ console.log(i)}
+fun_preview_before_efb=(i,s)=>{
+   console.log(i,s)
+   if(s=="local"){
+     create_form_by_type_emsfb(i,'pre')
+   }
+  }
 
 window.onload=(()=>{
 
