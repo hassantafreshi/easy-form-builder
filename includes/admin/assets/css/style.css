@@ -606,7 +606,7 @@ font-size: 18px!important;
 }
 .efb.btn-edit-holder {
 float: right;
-margin-top: -40px;
+margin-top: -36px;
 margin-right: 8px;
 position: relative;
 }
@@ -1704,16 +1704,16 @@ img.left_circle-efb {
     background-color:#d630727a;
     border-radius: 49%;
     position: absolute;
-    top: 40%;
     right: 67%;
+    margin:12% 0%
 }
 img.right_circle-efb {
     width: 58%;
     background-color:#d630727a;
     border-radius: 49%;
     position: absolute;
-    top: 40%;
     left: 67%;
+    margin:12% 0%
 }
 
 #header-efb.bg-color{
@@ -2167,7 +2167,7 @@ input[type=checkbox].efb.fs-2.form-check-input
 }
 
 div#sideBoxEfb {
-    height: 100%;
+    height: 100vh;
 }
 .mobile div#sideBoxEfb {
     height: 100%;
@@ -2261,3 +2261,5 @@ div#sideBoxEfb {
         position: relative;
         flex: 1 1 auto;
     }
+
+ 

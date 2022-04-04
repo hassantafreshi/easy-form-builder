@@ -194,10 +194,10 @@ function active_element_efb(el) {
       
       document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none')
     }
-    
-    if (document.querySelector(`[data-id="${activeEl_efb}"]`)) {
+    const ac = document.querySelector(`[data-id="${activeEl_efb}"]`)
+    if (ac) {
       // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
-      if (document.querySelector(`[data-id="${activeEl_efb}"]`).classList.contains('field-selected-efb')) document.querySelector(`[data-id="${activeEl_efb}"]`).classList.remove('field-selected-efb')
+      if (ac.classList.contains('field-selected-efb')) ac.classList.remove('field-selected-efb')
     }
 
     activeEl_efb = el.dataset.id
@@ -1508,7 +1508,7 @@ function show_delete_window_efb(idset) {
     myModal.show();
     confirmBtn.dataset.id = document.querySelector(`[data-id="${idset}"]`).id;
     confirmBtn.addEventListener("click", (e) => {
-   
+      console.log(idset ,confirmBtn.dataset.id )
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
       activeEl_efb = 0;
@@ -1782,9 +1782,10 @@ const sort_obj_el_efb_ = () => {
 
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
-
+console.log(tag);
   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v">
   <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb border-d efb-rounded col-5 form-control h-d mb-1 elEdit">
@@ -1797,7 +1798,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
     </button> 
   </div>
   </div>`;
- 
+  if(tag =="multiselect") return;
   document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
   //<option value="Three" id="5zfd61k45" data-id="5zfd61k45-id" data-op="emc3db820">dd Three</option>
 
@@ -1827,6 +1828,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 const delete_option_efb = (id) => {
   //حذف آپشن ها مولتی سلکت و درایو
   document.getElementById(`${id}-v`).remove();
+  if(document.getElementById(`${id}-v`))document.getElementById(`${id}-v`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
   if (indx != -1) { valj_efb.splice(indx, 1); }
 }
@@ -1914,16 +1916,8 @@ function create_dargAndDrop_el() {
 }
 
 
-/* 
-dropZoneEFB.addEventListener("click", (e) => {
-
-}); */
-
 function addNewElement(elementId, rndm, editState, previewSate) {
   //editState == true when form is edit method
-  // ایجاد المان
-  
-  
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
@@ -1933,6 +1927,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let optn = '<!-- options -->';
   step_el_efb >= 1 && editState == false && elementId == "steps" ? step_el_efb = step_el_efb + 1 : 0;
   if (editState != false && previewSate!=true) {
+    
     step_el_efb = valj_efb[0].steps;
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZoneEFB')
@@ -1978,7 +1973,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         `;
       }
       const t = valj_efb[0].steps == 1 ? 0 : 1;
-      editState == false   ? add_buttons_zone_efb(0, 'dropZoneEFB') : add_buttons_zone_efb(t, 'dropZoneEFB')
+      if(previewSate!=true) editState == false   ? add_buttons_zone_efb(0, 'dropZoneEFB') : add_buttons_zone_efb(t, 'dropZoneEFB')
       
       
     } else if (elementId == "steps" && step_el_efb == 1 && state == false && editState == false) {
@@ -2381,9 +2376,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        `
        const id = `menu-${rndm}`;
        //console.log(rndm);
-        optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, rndm);
-        optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, rndm);
-        optionElpush_efb(rndm, `${efb_var.text.yellow}`,`${op_5}`, rndm);
+        optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, op_3);
+        optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, op_4);
+        optionElpush_efb(rndm, `${efb_var.text.yellow}`,`${op_5}`, op_5);
 
       }
 
@@ -2794,7 +2789,6 @@ let add_buttons_zone_efb = (state, id) => {
   } else {
     c = ` <div class="col-12 mb-2 mt-3 efb bottom-0 ${valj_efb[0].captcha!=true ? 'd-none' :''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="bottom-0 " id="button_group_efb"> <div class=" row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
-
   if (id != 'preview'  && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML +=c } else {
     return c;
   }
@@ -3273,9 +3267,11 @@ jQuery(function(jQuery){
     if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
       //document.getElementById('dropZoneEFB').innerHTML = editFormEfb()
       jQuery('#dropZoneEFB').empty().append(editFormEfb());
-      jQuery('#settingModalEfb_').removeClass('pre-efb')
+      jQuery('#settingModalEfb_').removeClass('pre-efb');
 
       //fub_shwBtns_efb()
+    }else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')){
+      jQuery('#settingModalEfb_').removeClass('pre-form-efb');
     }
     if (jQuery('#modal-footer-efb')) {
       jQuery('#modal-footer-efb').remove()
@@ -4020,6 +4016,7 @@ function send_data_efb(){
 
 function previewFormEfb(state){
   //v2
+  //console.log('previewFormEfb')
     if(state!="run") {
       state_efb="view";
       preview_efb=true;
@@ -4055,9 +4052,11 @@ function previewFormEfb(state){
       myModal.show();
     }
   }
+  console.log('setTimeout')
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
+        //console.log(value.type);
         Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;
@@ -4099,8 +4098,8 @@ function previewFormEfb(state){
     head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="mb-2 px-2">${head}</ul>` : ''}
     ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="progress mx-5"><div class="efb progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}
     `
-
-    document.getElementById(id).classList.add('pre-efb')
+    const idn = state=="pre"? "pre-form-efb": "pre-efb";
+    document.getElementById(id).classList.add(idn)
     content = `  
     <div class="px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
 
@@ -4117,6 +4116,10 @@ function previewFormEfb(state){
       show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
       add_buttons_zone_efb(t, 'settingModalEfb-body')
   
+    }else if(state == 'pre'){
+      //console.log('pre');
+      show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
+      add_buttons_zone_efb(t, 'settingModalEfb-body')
     } else if (state == "mobile") {
       const frame = `
         <div class="smartphone-efb">
@@ -4136,6 +4139,7 @@ function previewFormEfb(state){
       //778899
       //state=="show"
       //content is hold element and should added to a innerHTML
+      console.log(t,id);
       document.getElementById(id).innerHTML=content;
       document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id)
     }
