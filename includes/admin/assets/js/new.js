@@ -143,7 +143,7 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="row">
       <!-- over page -->
-      <div id="overlay_efb" class="d-none"><div class="card-body text-center efb"><div class="lds-hourglass efb"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
+      <div id="overlay_efb" class="d-none"><div class="card-body text-center efb mt-5 pt-2"><div class="lds-hourglass efb text-white"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div></div>
       <!--end  over page -->
           <div class="col-md-4" id="listElEfb"><div class="row">${els}</div></div>
          <div class="col-md-8 body-dpz-efb"><div class="crd efb  drag-box"><div class="card-body dropZoneEFB row " id="dropZoneEFB">
@@ -226,7 +226,7 @@ function show_setting_window_efb(idset) {
   if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
  
   const labelEls = `<label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.label}<span class=" mx-1 efb text-danger">*</span></label>
-  <input type="text"  data-id="${idset}" class="elEdit form-control text-muted efb  border-d efb-rounded h-d-efb  mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}">`
+  <input type="text"  data-id="${idset}" class="efb elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}">`
 
   const desEls = `<label for="desEl" class="form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
   <input type="text" data-id="${idset}" class="elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
@@ -342,7 +342,7 @@ function show_setting_window_efb(idset) {
     `
   const placeholderEls = `
     <label for="placeholderEl" class="efb mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
-    <input type="text"  data-id="${idset}" class="elEdit text-muted form-control  border-d efb-rounded efb mb-3"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
+    <input type="text"  data-id="${idset}" class="efb elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
     `
   const cornerEls = (side) => {
 
@@ -441,10 +441,10 @@ function show_setting_window_efb(idset) {
     `
   } 
 
-  const selectBorderColorEls = (forEl) => {    
+  const selectBorderColorEls = (forEl) => {       
     let color = valj_efb[indx].el_border_color;
     let t = ''
-    const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border') //slice text=5 bg=2 border=6 btn=3    
+    const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border') //slice text=5 bg=2 border=6 btn=3       
     addColorTolistEfb(hex);
     return `<label for="selectBorderColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
     <input type="color" id="selectBorderColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
@@ -496,9 +496,9 @@ function show_setting_window_efb(idset) {
   }
 
   const selectMultiSelectEls = `<label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.maxSelect}</label>
-  <input type="number"  data-id="${idset}" class="elEdit form-control text-muted efb  border-d efb-rounded h-d-efb  mb-1"  placeholder="${efb_var.text.maxSelect}" id="selectMultiSelectMaxEl"  value="${valj_efb[indx].maxSelect ? valj_efb[indx].maxSelect : '2'}" >
+  <input type="number"  data-id="${idset}" class="efb elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.maxSelect}" id="selectMultiSelectMaxEl"  value="${valj_efb[indx].maxSelect ? valj_efb[indx].maxSelect : '2'}" >
   <label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
-  <input type="number"  data-id="${idset}" class="elEdit form-control text-muted efb  border-d efb-rounded h-d-efb  mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
+  <input type="number"  data-id="${idset}" class="efb elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
 
 //console.log(el.dataset);
   switch (el.dataset.tag) {
@@ -513,6 +513,7 @@ function show_setting_window_efb(idset) {
               <div class="efb mb-3">
               <!--  not   advanced-->
               ${Nadvanced}
+              ${placeholderEls}
               ${el.dataset.tag == "email" ? emailEls : ''}
               <!--  not   advanced-->
               <div class="efb d-grid gap-2">              
@@ -527,7 +528,7 @@ function show_setting_window_efb(idset) {
                       ${selectColorEls('description','text')}
                       ${selectColorEls('el','text')}
                       ${selectBorderColorEls('element')}
-                      ${placeholderEls}
+                      
                       ${labelPostionEls}
                       ${ElementAlignEls('label')}
                       ${ElementAlignEls('description')}
@@ -553,16 +554,16 @@ function show_setting_window_efb(idset) {
       })
       const newRndm = Math.random().toString(36).substr(2, 9);
       let opetions = `<!-- options --!>`;
-
+      
       if (objOptions.length > 0) {
-        for (let ob of objOptions) {
+        for (let ob of objOptions) {         
           opetions += `<div id="${ob.id_op}-v">
-        <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb col-5 form-control text-muted efb mb-1 fs-7 border-d efb-rounded elEdit">
-        <div class="efb btn-edit-holder" id="deleteOption">
+        <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb col-5 form-control text-muted mb-1 fs-7 border-d efb-rounded elEdit">
+        <div class="efb btn-edit-holder" id="deleteOption" data-parent_id="${ob.parent}">
           <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
               <i class="efb efb bi-x-lg text-danger"></i>
           </button>
-          <button type="button" id="addOption" onClick="add_option_edit_pro_efb()" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}" class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+          <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}" class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
               <i class="efb bi-plus-circle  text-success"></i>
           </button> 
           
@@ -578,7 +579,7 @@ function show_setting_window_efb(idset) {
               ${Nadvanced}
               ${ el.dataset.tag == 'multiselect'? selectMultiSelectEls :''}
               <label for="optionListefb" class="efb ">Options 
-              <button type="button" id="addOption" onClick="add_option_edit_pro_efb()" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+              <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
               <i class="efb bi-plus-circle  text-success"></i>
              </button> 
               </label>
@@ -800,7 +801,7 @@ function show_setting_window_efb(idset) {
       `
       break;
     case "buttonNav":
-      console.log("buttonNav");
+      //console.log("buttonNav");
       let content = ` 
       ${SingleTextEls('')}
       ${iconEls('')}
@@ -871,7 +872,7 @@ function show_setting_window_efb(idset) {
   //console.log(document.getElementById('sideMenuConEfb').innerHTML)
   for (const el of document.querySelectorAll(`.elEdit`)) {
     if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
-    else{ console.log(el.tagName)}
+    else{ }
   }
 
 
@@ -883,14 +884,21 @@ function show_setting_window_efb(idset) {
 }
 
 let change_el_edit_Efb = (el) => {
-  //console.log(valj_efb,el);
-  const lenV = valj_efb.length
+  let lenV = valj_efb.length
   
   if(lenV>20){
-    document.getElementById("overlay_efb").className="d-block"
+    timeout=5;
+    const p = calPLenEfb(lenV)/2
+    if(el.dataset.tag=="multiselect")timeout=100;
+    lenV = (lenV * (Math.log(lenV)) * p);
     setTimeout(() => {
-      document.getElementById("overlay_efb").className="d-none"
-    }, (lenV * (Math.log(lenV)) * 2));
+      document.getElementById("overlay_efb").classList.remove("d-none")
+      document.getElementById("overlay_efb").classList.add("d-block")
+      setTimeout(() => {document.getElementById("overlay_efb").classList.remove("d-block")
+      }, lenV);
+      clearTimeout(lenV);      
+    }, timeout);
+    clearTimeout(timeout);
   }
 
   let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
@@ -1268,6 +1276,9 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`btn_send_efb`).className = inputHeightChangerEfb(document.getElementById(`btn_send_efb`).className, el.options[el.selectedIndex].value)
           document.getElementById(`next_efb`).className = inputHeightChangerEfb(document.getElementById(`next_efb`).className, el.options[el.selectedIndex].value)
           document.getElementById(`prev_efb`).className = inputHeightChangerEfb(document.getElementById(`prev_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_Previous_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_Next_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
           break;
         } else if (el.dataset.tag == "maps") {
           postId = `${valj_efb[indx].id_}-map`;
@@ -1369,18 +1380,21 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].lng = lonLoc;
     
         break;
-      case 'EditOption':
+      case 'EditOption':        
         el.dataset.id;
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
      
-  
+        
         if (iindx != -1) {
           valj_efb[iindx].value = el.value;
-          if (el.dataset.tag == "select" || el.dataset.tag == "multiselect" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          
             //Select
             document.querySelector(`[data-op="${el.dataset.id}"]`).innerHTML = el.value;
             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-          } else {
+          } else if (el.dataset.tag == "multiselect"){
+            
+          }else {
             //radio || checkbox
        
             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
@@ -1489,13 +1503,17 @@ const show_modal_efb = (body, title, icon, type) => {
 }
 
 
-function add_option_edit_pro_efb() {
-  const el = document.getElementById(`addOption`);
+function add_option_edit_pro_efb(parent,tag,len) {
+  const p = calPLenEfb(len)
+  len = len<50 ? 200 :(len+Math.log(len))*p
   const id_ob = Math.random().toString(36).substr(2, 9);
-  optionElpush_efb(el.dataset.parent, efb_var.text.newOption, id_ob, id_ob);
+  optionElpush_efb(parent, efb_var.text.newOption, id_ob, id_ob);    
+  setTimeout(() => {
+    add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
+  }, len);
  
-  add_new_option_efb(el.dataset.parent, id_ob, efb_var.text.newOption, id_ob, el.dataset.tag);
 }
+
 //delete element
 function show_delete_window_efb(idset) {
   // این تابع المان را از صفحه پاک می کند
@@ -1782,36 +1800,33 @@ const sort_obj_el_efb_ = () => {
 
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
-console.log(tag);
   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb border-d efb-rounded col-5 form-control h-d mb-1 elEdit">
-  <div class="efb btn-edit-holder" id="deleteOption">
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb col-5 form-control text-muted mb-1 fs-7 border-d efb-rounded elEdit">
+  <div class="efb btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
         <i class="efb bi-x-lg text-danger"></i>
     </button>
-    <button type="button" id="addOption" onClick="add_option_edit_pro_efb()" data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
+   <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})" data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
         <i class="efb bi-plus-circle  text-success"></i>
-    </button> 
+    </button>
   </div>
   </div>`;
-  if(tag =="multiselect") return;
-  document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
+  //if(tag =="multiselect") return;
+ if(tag!=="multiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
   //<option value="Three" id="5zfd61k45" data-id="5zfd61k45-id" data-op="emc3db820">dd Three</option>
 
-  for (let el of document.querySelectorAll(`.elEdit`)) {
-    el.addEventListener("change", (e) => {
-      change_el_edit_Efb(el);
-
-    })
+  for (let el of  document.getElementById(`${id_ob}-v`).querySelectorAll(`.elEdit`)) {
+    //console.log(el);
+    el.addEventListener("change", (e) => { change_el_edit_Efb(el); })
   }
+
+  
 }
 const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
-
   let op = `<!-- option --!> 2`
   if (tag == "select" || tag == "multiselect" || tag == 'stateProvince' || tag == 'conturyList') {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="${valj_efb[indxP].el_text_color} efb">${value}</option>`
@@ -2087,7 +2102,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         for (const i of optns_obj) {
           optn += `<div class="efb form-check " id="${i.id_}-v">
           <input class="efb form-check-input emsFormBuilder_v ${valj_efb[iVJ].el_text_size} " data-type="${elementId}" data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
-          <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
+          <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
           </div>`
         }//end for 
 
@@ -2097,11 +2112,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optn = `
        <div class="efb form-check" id="${op_1}-v">
        <input class="efb emsFormBuilder_v form-check-input ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
-       <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
+       <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
        </div>
        <div class="efb form-check" id="${op_2}-v">
            <input class="efb emsFormBuilder_v form-check-input  ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
-           <label class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
+           <label class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
        </div>`
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
         optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2);
@@ -2453,7 +2468,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "multiselect" || dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
+    const pro_el = ( dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb bi-gear-fill text-success BtnSideEfb"></i>
@@ -2643,7 +2658,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   const testb =valj_efb.length;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
-  if (elementId == "multiselect" || elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" ) { pro = true }
+  if ( elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" ) { pro = true }
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps") {  
     valj_efb.push({
@@ -2775,12 +2790,12 @@ let add_buttons_zone_efb = (state, id) => {
   const btnPos = id != "dropZoneEFB" ? ' text-center' : ''
   const s = `
   <div class="d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  mx-2 ${valj_efb[0].icon_color}  " id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <button id="btn_send_efb" type="button" class="btn efb p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  mx-2 ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
   <div class="d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color}  fs-6" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color}  mx-2">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  " id="button_group_Next_icon"></i>` :``}</button>
+  <button id="prev_efb" type="button" class="btn efb  p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb   p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color}  mx-2">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
   let c = `<div class="footer-test mt-1 efb">`
@@ -2949,6 +2964,7 @@ const saveFormEfb = () => {
       icon =""
       
     } else {
+      
       if (pro_efb == false) { proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true }
       for (let s = 1; s <= valj_efb[0].steps; s++) {
         const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");       
@@ -2965,6 +2981,7 @@ const saveFormEfb = () => {
       state = true;
       localStorage.setItem('valj_efb', JSON.stringify(valj_efb));      
       localStorage.setItem("valueJson_ws_p",JSON.stringify(valj_efb))
+      formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName :formName_Efb
       returnState =actionSendData_emsFormBuilder()
     } else if (proState == false) {
       btnText = efb_var.text.activateProVersion
@@ -4136,10 +4153,7 @@ function previewFormEfb(state){
 
 
     } else {
-      //778899
-      //state=="show"
       //content is hold element and should added to a innerHTML
-      console.log(t,id);
       document.getElementById(id).innerHTML=content;
       document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id)
     }

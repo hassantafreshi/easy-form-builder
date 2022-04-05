@@ -118,7 +118,6 @@ console.info('Easy Form Builder > WhiteStudio.team');
 function actionSendData_emsFormBuilder(){
   data ={};
   var name = formName_Efb
-  
   jQuery(function ($) {
     
     
@@ -293,7 +292,6 @@ function FunfindCardFormEFB(){
 
 function create_form_by_type_emsfb(id,s){
   //v2
- console.log('create_form_by_type_emsfb');
   localStorage.removeItem('valj_efb');
   if(s!="pre"){
     document.getElementById('header-efb').innerHTML=``;
@@ -364,7 +362,8 @@ function create_form_by_type_emsfb(id,s){
     console.log("survey !!!!!!!!!!!!!!");
     form_type_emsFormBuilder="survey";
     const json =[{"type":"survey","steps":1,"formName":efb_var.text.survey,"email":"","trackingCode":"","EfbVersion":2,"button_single_text":"Submit","button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":false,"stateForm":false},
-    {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Survey form","icon":"bi-clipboard-data","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},{"id_":"6af03cgwb","dataId":"6af03cgwb-id","type":"select","placeholder":"Select","value":"","size":100,"message":"","id":"","classes":"","name":"what is your favorite food ?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
+    {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Survey form","icon":"bi-clipboard-data","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
+    {"id_":"6af03cgwb","dataId":"6af03cgwb-id","type":"select","placeholder":"Select","value":"","size":100,"message":"","id":"","classes":"","name":"what is your favorite food ?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pasta","id_op":"n9r68xhl1","step":"1","amount":3},
     {"id_":"wxgt1tvri","dataId":"wxgt1tvri-id","parent":"6af03cgwb","type":"option","value":"Pizza","id_op":"khp0a798x","step":"1","amount":4},
     {"id_":"6x1lv1ufx","dataId":"6x1lv1ufx-id","parent":"6af03cgwb","type":"option","value":"Fish and seafood","id_op":"6x1lv1ufx","step":"1","amount":5},
@@ -484,6 +483,7 @@ switch(v){
   case"light":r='#fbfbfb';break;
   case"darkb":r='#202a8d';break;
   case"labelEfb":r='#898aa9';break;
+  case"d":r='#83859f';break;
   case"pinkEfb":r='#ff4b93';break;
   case"white":r='#ffff';break;
   case"dark":r='#212529';break;
