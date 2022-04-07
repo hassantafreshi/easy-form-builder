@@ -245,7 +245,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   ${track != 0 ? `<p class="small mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
   <p class="small mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
   <hr>
-  <h6 class="efb ">${efb_var.text.response} </h6>`;
+  <h6 class="efb text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
     let value = `<b>${c.value.replaceAll('@efb!' ,',')}</b>`;    
@@ -1262,19 +1262,24 @@ function clear_garbeg_emsFormBuilder() {
   let i_count = -1;
   add_multi=(c,content,value_col_index,v)=>{
    
-    if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
-      rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-    } else {
-      const r = rows.length
-      const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
-      rows = rows.concat(row);
-      rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
-      rows[parseInt(r)][0] = v;
-      
+    if(form_type_emsFormBuilder=="survey"){
+      if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+      } else {
+        const r = rows.length
+        const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+        rows = rows.concat(row);
+        rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
+        rows[parseInt(r)][0] = v;
+        
+      }
+    }else{
+      rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ?  rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| "+ content[c].value
     }
   }
+  let county =0
   for (v of value) {
-//    console.log(v.msg_id);
+  
     const content = JSON.parse(v.content.replace(/[\\]/g, '')) 
     count += 1;
     i_count += i_count == -1 ? +2 : 1;
@@ -1284,6 +1289,7 @@ function clear_garbeg_emsFormBuilder() {
 
     
     for (c in content) {    
+     
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       //console.log(c,content[c]);
@@ -1308,23 +1314,26 @@ function clear_garbeg_emsFormBuilder() {
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = content[c].name;
         } 
-        if(content[c].value.search(/@efb!+/g)>1){
-       
-           const nOb = content[c].value.split("@efb!")
-            nOb.forEach(n => {
-              if(n!=""){
-                //console.log(`[${n}]`,nOb.length);
-                if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
-                  rows[parseInt(i_count)][parseInt(value_col_index)] =n;
-                } else {
-                  const r = rows.length
-                  const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
-                  rows = rows.concat(row);
-                  rows[parseInt(r)][parseInt(value_col_index)] = n;
-                  rows[parseInt(r)][0] = v.msg_id;                  
-                }
-              }
-            });
+        if(content[c].value.search(/@efb!+/g)!=-1){
+          if(form_type_emsFormBuilder=="survey"){
+            const nOb = content[c].value.split("@efb!")
+             nOb.forEach(n => {
+               if(n!=""){
+                 //console.log(`[${n}]`,nOb.length);
+                 if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+                   rows[parseInt(i_count)][parseInt(value_col_index)] =n;
+                 } else {
+                   const r = rows.length
+                   const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+                   rows = rows.concat(row);
+                   rows[parseInt(r)][parseInt(value_col_index)] = n;
+                   rows[parseInt(r)][0] = v.msg_id;                  
+                 }
+               }
+             });
+          }else{
+            rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value.replaceAll('@efb!' , " || ") 
+          }
         }else{
           rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value.replaceAll('@efb!' , "") ; ;
         }
@@ -1376,7 +1385,10 @@ function clear_garbeg_emsFormBuilder() {
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
-
+ items.forEach(item => {
+   for(let i in item ){ if (item[i]=="notCount@EFB")  item[i]="";console.log(item[i]);}
+   console.log(item);
+  });
   var jsonObject = JSON.stringify(items);
 
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
@@ -1502,10 +1514,10 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     for (let t in titles) {
       chartId.push(Math.random().toString(36).substring(8));
       if (t != 0) {
-        chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `invisible` : ``}">
+        chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `hidden` : ``}">
           <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
           <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3> </div>`
-      } else {chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `invisible` : ``}"></div>`}
+      } else {chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `hidden` : ``}"></div>`}
     }
  
   /*End Add div of charts */

@@ -222,7 +222,7 @@ function show_setting_window_efb(idset) {
   let body = ``;
   //const bodySetting = document.getElementById("settingModalEfb-body");
   const indx = idset != "button_group" && idset != "formSet" ? valj_efb.findIndex(x => x.dataId == idset) : 0;
-  //console.log(indx);
+  console.log(indx);
   if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
  
   const labelEls = `<label for="labelEl" class="form-label mt-2 mb-1 efb">${efb_var.text.label}<span class=" mx-1 efb text-danger">*</span></label>
@@ -233,6 +233,10 @@ function show_setting_window_efb(idset) {
   const requireEls = `<div class="mx-1 my-3 efb">
   <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="requiredEl" ${valj_efb[indx].required == 1 ? 'checked' : ''}>
   <label class="form-check-label efb" for="requiredEl">${efb_var.text.required}</label>                                            
+  </div>`;
+  const cardEls = `<div class="mx-1 my-3 efb">
+  <input  data-id="${idset}" class="elEdit form-check-input efb" type="checkbox"  id="cardEl" ${valj_efb[0].dShowBg && valj_efb[0].dShowBg == 1 ? 'checked' : ''}>
+  <label class="form-check-label efb" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
   </div>`;
 
   const emailEls = `<div class="mx-1 my-3 efb">
@@ -840,6 +844,7 @@ function show_setting_window_efb(idset) {
         ${showSIconsEls}
         ${showSprosiEls}
         ${showformLoggedEls}
+        ${cardEls}
         ${adminFormEmailEls}
         <div class="efb d-grid gap-2">
         <button class="btn efb btn-outline-light mt-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
@@ -885,6 +890,11 @@ function show_setting_window_efb(idset) {
 
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
+  console.log(el.value , el.value.search(/(")+/g))
+  if (el.value.length>0 && el.value.search(/(")+/g)!=-1){
+    el.value = el.value.replaceAll(`"`,'');
+    noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
+  }
   
   if(lenV>20){
     timeout=5;
@@ -917,13 +927,13 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].name = el.value;
         document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
         break;
-      case "desEl":
-        valj_efb[indx].message = el.value;
-        document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
-        break;
-      case "adminFormEmailEl":
+        case "desEl":
+          valj_efb[indx].message = el.value;
+          document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+          break;
+          case "adminFormEmailEl":
        
-        if(efb_var.smtp=="true"){
+            if(efb_var.smtp=="true"){
           if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
           {
             valj_efb[0].email = el.value;
@@ -934,15 +944,21 @@ let change_el_edit_Efb = (el) => {
             noti_message_efb(efb_var.text.error,efb_var.text.invalidEmail,10,"danger");
           }
         }else{
-         // trackingCodeEl.checked=false;
+          // trackingCodeEl.checked=false;
           document.getElementById("adminFormEmailEl").value = "";
           noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
         }
-      
-  
+        
+        
         break;
-      case "requiredEl":
-        valj_efb[indx].required = el.checked
+        case "cardEl":
+          valj_efb[0].dShowBg? valj_efb[0].dShowBg = el.checked : Object.assign(valj_efb[0] , {dShowBg:el.checked})
+          console.log(valj_efb[0] )
+          
+          //console.log('test',valj_efb[indx].showbg);
+          break;
+        case "requiredEl":
+          valj_efb[indx].required = el.checked
        
         document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
         const aId = {
@@ -4002,7 +4018,7 @@ function funTnxEfb(val,title,message){
   const m = message ? message : thankYou;
   const trckCd = `
   <div class="efb"><h5 class="mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
-               <input type="text" class="hide-input efb" value="${val}" id="trackingCodeEfb">
+               <input type="text" class="hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="btn efb btn-primary efb-btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb bi-clipboard-check mx-1"></i>${efb_var.text.copy}
@@ -4069,7 +4085,7 @@ function previewFormEfb(state){
       myModal.show();
     }
   }
-  console.log('setTimeout')
+
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
@@ -4081,6 +4097,7 @@ function previewFormEfb(state){
           content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="my-2  steps-efb efb row ">` : `<!-- fieldset!!! --> </fieldset><fieldset data-step="step-${step_no}-efb"  class="my-2 steps-efb efb row d-none">`
 
           if (valj_efb[0].show_icon == false) { }
+          if(valj_efb[0].dShowBg && valj_efb[0].dShowBg==true && state=="run" ){ document.getElementById('body_efb').classList.remove('card')}
         }
 
         if (value.type == 'step' && value.type != 'html') {
@@ -4289,7 +4306,6 @@ function previewFormEfb(state){
 
 function fun_prev_send(){
   jQuery(function () {
-    console.log('fun_prev_send');
     var stp=(valj_efb[0].steps)+1;
     var wtn= loading_messge_efb();
     jQuery('#efb-final-step').html(wtn);

@@ -52,7 +52,7 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		
 		$efbFunction = new efbFunction();  
-		$text= ["minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
+		$text= ["remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
 		$this->lanText= $efbFunction->text_efb($text);
 	}
 
@@ -168,9 +168,7 @@ class _Public {
 		// $pro=false;		
 		 if(gettype($stng)!=="integer" && $stng!=$this->lanText["settingsNfound"]){
 			 $valstng= json_decode($stng);
-			 error_log(gettype($stng));
-			 if($valstng->siteKey && $formObj[0]["captcha"]==true && $valstng->siteKey !=null){
-				 error_log($valstng->siteKey);
+			 if( strlen($valstng->siteKey)>5 && $formObj[0]["captcha"]==true && $valstng->siteKey !=null){				
 				 $k =$valstng->siteKey;}
 			 if(strlen($valstng->apiKeyMap)>5){
 				 //error_log("maps");
@@ -264,12 +262,14 @@ class _Public {
 	function public_scripts_and_css_head(){
 	$efbFunction = new efbFunction(); 
 	$r= $this->get_setting_Emsfb('setting');
+	$googleCaptcha=false;
 	$bootstrap =false;
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
 			$setting =json_decode($setting);
 			//error_log($setting->bootstrap);
 			$bootstrap = isset($setting->bootstrap) ? $setting->bootstrap : false;
+			$googleCaptcha = isset($setting->siteKey) &&  isset($setting->secretKey) && strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
 		}
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
@@ -331,8 +331,10 @@ class _Public {
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
 	//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+	if($googleCaptcha==true){
 		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 		wp_enqueue_script('recaptcha');
+	}
 		
 
 				
@@ -371,18 +373,17 @@ class _Public {
 		$send_email_to_user_state =$formObj[0]["sendEmail"];
 		$email_user="null";
 		$check;
-		
+		$not_captcha=$formObj[0]["captcha"];
 	
 
 		
 		if(true){
-			$not_captcha=true;
-			$captcha_success;
+			
+			$captcha_success="null";
 			if(gettype($r)=="object"){
-				$setting =json_decode($r->setting);
-			//	error_log($setting);
-				$secretKey=isset($setting->secretKey) ? $setting->secretKey : null;
-			//error_log($setting->activeCode);
+				$setting =str_replace('\\', '', $r->setting);
+				$setting =json_decode($setting);
+				$secretKey=strlen($setting->secretKey)>5 ? $setting->secretKey : null;
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if(!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 					//error_log('pro == true');
@@ -390,29 +391,36 @@ class _Public {
 				}
 				//error_log($_POST['valid']);
 				$response=$_POST['valid'];
-				
+				//error_log($response);
 				$args = array(
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				if($formObj[0]['captcha']==true){
-					if(strlen($secretKey)>5){
+				if($formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
+					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
 						$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
 							//error_log(json_encode($verify));
-						$captcha_success =json_decode($verify['body']);
-						$not_captcha=false;	 
+							//error_log($verify['body']);
+							$captcha_success =json_decode($verify['body']);
+							
+						//$not_captcha=false;	 
 					}else{
-						//secretkey is not valid						
+						//secretkey is not valid		
 						$response = array( 'success' => false  , 'm'=>$this->lanText["errorSiteKeyM"]); 
+						wp_send_json_success($response,$_POST);
+						return;
 					}
 				}
 			}
-			if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
-		if ($not_captcha==false && $captcha_success->success==false  ) {
+		if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
+		
+		//error_log(( $captcha_success=="null" || $captcha_success->success!=true ));
+		if ($not_captcha==true && ( $captcha_success=="null" || $captcha_success->success!=true )  ) {
+			
 		  $response = array( 'success' => false  , 'm'=>$this->lanText["errorCaptcha"]); 
 		  wp_send_json_success($response,$_POST);
 		  die();
-		}else if ( $not_captcha==true || $captcha_success->success==true) {
+		}else if ($not_captcha==false || ($not_captcha==true &&  $captcha_success->success==true)) {
 			if(empty($_POST['value']) || empty($_POST['name']) || empty($_POST['id']) ){
 				$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]); 
 				wp_send_json_success($response,$_POST);
@@ -671,7 +679,7 @@ class _Public {
 							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
-								if (strlen($setting->emailSupporter)>2){
+								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 								//error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
@@ -729,9 +737,9 @@ class _Public {
 		
 		if(gettype($r)=="object"){
 		 $setting =json_decode($r->setting);
-		 $secretKey=$setting->secretKey;
+		 $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
 	
-		 if(strlen($secretKey)>3){
+		 if($secretKey!="null"){
 			 $verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
 			 $captcha_success =json_decode($verify['body']);
 			 $not_captcha=false;	 
@@ -809,7 +817,7 @@ class _Public {
 
 
 	public function insert_message_db(){
-		error_log($this->value);
+		//error_log($this->value);
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$this->db->insert($table_name, array(
@@ -899,9 +907,9 @@ class _Public {
 		$r= $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="object"){
 			$setting =json_decode($r->setting);
-			$secretKey=$setting->secretKey;
-			$email =$setting->emailSupporter ;
-			$pro = $setting->activeCode;
+			$secretKey=strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
+			$email =strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
+			$pro = strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
 			//error_log($email);
 			$response=$_POST['valid'];
 			$id;
@@ -941,7 +949,7 @@ class _Public {
 				$usr;
 				$email_fa = $valn[0]["email"];
 
-				if (strlen($setting->emailSupporter)>0){
+				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 				//error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}

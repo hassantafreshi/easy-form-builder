@@ -504,7 +504,7 @@ class Admin {
             }
              else if($key == "emailTemp"){
                // error_log($key);
-                error_log(strlen($value));
+                //error_log(strlen($value));
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
                     $m = $lang["addSCEmailM"];
                     $response = ['success' => false, "m" =>$m];

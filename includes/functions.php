@@ -459,6 +459,7 @@ class efbFunction {
 			"templates" => $state  &&  isset($ac->text->templates) ? $ac->text->templates : __('Templates','easy-form-builder'),
 			"maxSelect" => $state  &&  isset($ac->text->maxSelect) ? $ac->text->maxSelect : __('Max selection','easy-form-builder'),
 			"minSelect" => $state  &&  isset($ac->text->minSelect) ? $ac->text->minSelect : __('Min selection','easy-form-builder'),
+			"dNotShowBg" => $state  &&  isset($ac->text->dNotShowBg) ? $ac->text->dNotShowBg : __('Do not Show BackGround','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			/* bug! end */
 			

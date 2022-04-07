@@ -21,7 +21,7 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.3.12")
+console.log("Easy Form Builder v2.3.13")
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
@@ -33,7 +33,7 @@ setTimeout(() => {
   jQuery(function () {
     //789 امنیت باید اضافه شود به این قسمت
   
-    console.log("Easy Form Builder 2.3.10");
+    
     if (typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder = ajax_object_efm.poster;
     
@@ -572,6 +572,11 @@ function createStepsOfPublic() {
               const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id_);
               if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
             } else {
+              console.log(value.search(`"`));
+              if (value.search(`"`)!=-1){
+                el.value = value.replaceAll(`"`,'');
+                noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
+              }
               el.className = colorBorderChangerEfb(el.className,"border-success");
               document.getElementById(`${el.id}-message`).innerHTML = ""
             }
@@ -839,7 +844,7 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
- // console.log((sendBack_emsFormBuilder_pub))  
+ recaptcha_emsFormBuilder = efb_var.captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
   jQuery(function ($) {
 
     data = {
@@ -1042,7 +1047,7 @@ function fun_tracking_show_emsFormBuilder() {
                         <label for="trackingCodeEfb" class="form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="text-danger mx-1">*</span></label>
                         <div class="col-12 text-center mx-2 row efb">
-                        <input type="text" class="efb input-efb form-control border-d efb-rounded mb-4 text-labelEfb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
+                        <input type="text" class="efb input-efb form-control border-d efb-rounded mb-4 text-labelEfb h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
                          <button type="submit" class="btn efb  btn-pinkEfb col-12 text-white"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb bi-search"></i> ${ajax_object_efm.text.search}  </button>
                         </div>
@@ -1169,7 +1174,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  ${track != 0 ? `<p class="small mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
  <p class="small mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
  <hr>
- <h6 class="efb ">${ajax_object_efm.text.response} </h6>`;;
+ <h6 class="efb text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
  for (const c of content) {
   let value = `<b>${c.value}</b>`;

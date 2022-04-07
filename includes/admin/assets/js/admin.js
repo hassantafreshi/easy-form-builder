@@ -218,14 +218,20 @@ createCardFormEfb=(i)=>{
 }
 
 const boxs_efb=[
-            {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square' },
-            {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope' },
-            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus'},
-            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right'},
-            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell'},
-            {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check'},
-            {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line'},
-           /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
+            {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square', tag:'blank' },
+            {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
+            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register'},
+            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login'},
+            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription'},
+            {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
+            {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line', tag:'survey'},
+            {id:'contactTemplate', title:'Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
+            {id:'curvedContactTemplate', title:'Curved Contact us template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
+            {id:'multipleStepContactTemplate', title:'Multiple step Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
+            {id:'privateContactTemplate', title:'Private Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
+            {id:'customerFeedback', title:"Customer Feedback", desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
+            {id:'supportTicketForm', title:"Support Ticket Form", desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
+            /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
             ]
 
 function add_dasboard_emsFormBuilder(){
@@ -302,16 +308,40 @@ function create_form_by_type_emsfb(id,s){
   if(id==="form"){ 
     form_type_emsFormBuilder="form";
     valj_efb=[];
-    console.log(valj_efb);
+   
   }else if(id==="contact"){ 
     //contactUs v2
     form_type_emsFormBuilder="form";
-    const json =[{"type":"form","steps":1,"formName":efb_var.text.contactUs ,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"2jpzt59do","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false},
+    const json =[{"type":"form","steps":1,"formName":efb_var.text.contactUs ,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"2jpzt59do","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.contactusForm,"icon":"bi-chat-right-fill","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-muted","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"uoghulv7f","dataId":"uoghulv7f-id","type":"text","placeholder":efb_var.text.firstName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.firstName,"required":true,"amount":3,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"xzdeosw2q","dataId":"xzdeosw2q-id","type":"text","placeholder":efb_var.text.lastName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.lastName,"required":true,"amount":5,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"2jpzt59do","dataId":"2jpzt59do-id","type":"email","placeholder":efb_var.text.email,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.email,"required":true,"amount":6,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"dvgl7nfn0","dataId":"dvgl7nfn0-id","type":"textarea","placeholder":efb_var.text.enterYourMessage,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":7,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
+    localStorage.setItem('valj_efb', JSON.stringify(json))
+    valj_efb =json;
+  }else if(id==="contactTemplate"){ 
+    //contactUs v2
+    form_type_emsFormBuilder="form";
+    const json = contact_us_template_efb()
+    localStorage.setItem('valj_efb', JSON.stringify(json))
+    valj_efb =json;
+  }else if(id==="multipleStepContactTemplate"){ 
+    //contactUs v2
+    form_type_emsFormBuilder="form";
+    const json = multiple_step_ontact_us_template_efb()
+    localStorage.setItem('valj_efb', JSON.stringify(json))
+    valj_efb =json;
+  } else if(id==="privateContactTemplate"){ 
+    //contactUs v2
+    form_type_emsFormBuilder="form";
+    const json = private_contact_us_template_efb()
+    localStorage.setItem('valj_efb', JSON.stringify(json))
+    valj_efb =json;
+  } else if(id==="curvedContactTemplate"){ 
+    //contactUs v2
+    form_type_emsFormBuilder="form";
+    const json = curved_contact_us_template_efb()
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb =json;
   }else if(id==="register" ){
@@ -337,7 +367,7 @@ function create_form_by_type_emsfb(id,s){
   }else if(id==="support"){
     // support v2
     form_type_emsFormBuilder="form";
-    const  json =[{"type":"form","steps":1,"formName":efb_var.text.support,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"qas87uoct","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false},
+    const  json =[{"type":"form","steps":1,"formName":efb_var.text.support,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"qas87uoct","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Support","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-dark","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"rhglopgi8","dataId":"rhglopgi8-id","type":"select","placeholder":"Select","value":"","size":"100","message":"","id":"","classes":"","name":"How can we help you?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"b2xssuo2w","dataId":"b2xssuo2w-id","parent":"rhglopgi8","type":"option","value":"Accounting & Sell question","id_op":"n470h48lg","step":"1","amount":3},
@@ -348,11 +378,23 @@ function create_form_by_type_emsfb(id,s){
     {"id_":"cqwh8eobv","dataId":"cqwh8eobv-id","type":"textarea","placeholder":efb_var.text.message,"value":"","size":"100","message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":8,"step":2,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":pro_efb}]
    localStorage.setItem('valj_efb', JSON.stringify(json))
    valj_efb =json;
+  }else if(id==="supportTicketForm"){
+    // support v2
+    form_type_emsFormBuilder="form";
+    const  json =support_ticket_form_efb()
+   localStorage.setItem('valj_efb', JSON.stringify(json))
+   valj_efb =json;
+  }else if(id==="customerFeedback"){
+    // support v2
+    form_type_emsFormBuilder="form";
+    const  json =customer_feedback_efb()
+   localStorage.setItem('valj_efb', JSON.stringify(json))
+   valj_efb =json;
   }else if(id==="subscription"){
     // if subscription has clicked add Json of contact and go to step 3
       form_type_emsFormBuilder="subscribe";
      const json =
-     [{"type":"subscribe","steps":1,"formName":efb_var.text.subscribe,"email":"","trackingCode":"","EfbVersion":2,"button_single_text":efb_var.text.subscribe,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"82i3wedt1","show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":false,"stateForm":false},
+     [{"type":"subscribe","steps":1,"formName":efb_var.text.subscribe,"email":"","trackingCode":"","EfbVersion":2,"button_single_text":efb_var.text.subscribe,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":"82i3wedt1","show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":false,"stateForm":false,"dShowBg":true},
      {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"","icon":"bi-check2-square","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
      {"id_":"janf5eutd","dataId":"janf5eutd-id","type":"text","placeholder":efb_var.text.name,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.name,"required":true,"amount":3,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-center","message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
      {"id_":"82i3wedt1","dataId":"82i3wedt1-id","type":"email","placeholder":efb_var.text.email,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.email,"required":true,"amount":5,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"beside","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":"txt-center","message_align":"justify-content-start","el_align":"justify-content-start","pro":false}]
