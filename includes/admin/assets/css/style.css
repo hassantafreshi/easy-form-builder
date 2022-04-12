@@ -2169,7 +2169,22 @@ div#sideBoxEfb {
     height: 100vh;
 }
 .mobile div#sideBoxEfb {
-    height: 100%;
+    height: 100vh;
+    width: 70%
+}
+
+.mobile #content-efb{
+    margin-top: 10px;
+}
+
+
+.mobile .pro-version-efb {
+    position: inherit;
+    height: 30px;
+    width: 95%;
+    border-radius: 6px;
+    margin: 10px 2px 0px 2px;
+
 }
   .contentEfb{
     box-sizing:border-box;

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.13
+Stable tag: 			2.3.14
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.5 or higher
@@ -19,6 +19,8 @@ Easy Form Builder is a user-friendly plugin to help you create powerful forms. W
 
 
 You don't need any coding skills to use *Easy Form Builder*. Simply drag and drop your layouts in order to easily create unlimited custom multi step forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
+
+Find out all you need to know by checking out our documentation Click here(https://github.com/hassantafreshi/easy-form-builder/wiki)
 
 How *Easy Form Builder* makes your life easier:
 - Simple drag and drop functionality
@@ -200,6 +202,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 2.3.14 =
+* UI improvements
+
 = 2.3.13 =
 * Add new templates for contact us form
 * UI improvements
