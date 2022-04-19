@@ -77,7 +77,7 @@ color: #a2b0d5;
 div#optionListefb {
     max-height: 280px;
     overflow: auto;
-    padding: 0px 10px;
+    padding: 4px 10px;
     background: #efefef85;
 }
 .bg-response.efb {
@@ -951,7 +951,7 @@ color: #a2b0d5
 }
 .icon.efb i {
 
- font-size: 50px !important;
+ font-size: 50px;
 }
 
 .dadFile-efb h6 {
@@ -2276,4 +2276,23 @@ div#sideBoxEfb {
         flex: 1 1 auto;
     }
 
+
+    .efb.pay .btn-edit-holder{
+        margin-top:0px!important;
+    }
+
+
+    .efb.pro-card {
+        position: absolute;
+        margin: 0% 70%;
+    }
+
+    .efb.icon{
+        line-height: normal;
+        margin: 10px 0px;
+    }
+
+    .efb.underline{
+        text-decoration: underline;
+    }
  

@@ -63,33 +63,42 @@ function creator_form_builder_Efb() {
   remove_other_noti()
   if(valj_efb.length<2){
     step_el_efb = 1;
+    console.log(form_type_emsFormBuilder);
     valj_efb.push({
-      type: 'form', steps: 1, formName: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
+      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
       button_single_text: efb_var.text.send, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
-      thank_you_message:{thankYou:efb_var.text.thanksFillingOutform, done:efb_var.text.done, trackingCode:efb_var.text.trackingCode, error:efb_var.text.error,pleaseFillInRequiredFields:efb_var.text.pleaseFillInRequiredFields }, email_temp:'',font:true,
-      
+      thank_you_message:{thankYou:efb_var.text.thanksFillingOutform, done:efb_var.text.done, trackingCode:efb_var.text.trackingCode, error:efb_var.text.error,pleaseFillInRequiredFields:efb_var.text.pleaseFillInRequiredFields }, email_temp:'',font:true,      
     });
+
+    if(form_type_emsFormBuilder=="payment"){
+      Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'subscription' })
+    }
+   
   }
  
   const objct = [{ name: efb_var.text.text, icon: 'bi-file-earmark-text', id: 'text', pro: false },
+  { name: efb_var.text.name, icon: 'bi-person-circle', id: 'name', pro: false },
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false },
+  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false }, */
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false },
-  { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false },
+  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true },
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false },
   { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false },
-  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false },
+  { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
+  { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
-  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
-  { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
+  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
+  { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false },
+  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
@@ -98,7 +107,11 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true },
-  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true }]
+  { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
+  { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
+  { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
+  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true }
+]
 
 
   let els = "<!--efb.app-->";
@@ -214,7 +227,7 @@ function active_element_efb(el) {
 
 //setting of  element
 function show_setting_window_efb(idset) {
-  //console.log(idset);
+  console.log(idset);
   if(document.getElementById('sideBoxEfb').classList.contains('show')){return};
   //console.log('show_setting_window_efb',idset,valj_efb)
 
@@ -287,10 +300,39 @@ function show_setting_window_efb(idset) {
                       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">                                            
                           <option value="fs-6" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
                           <option value="fs-7" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-                          <option value="fs-5"  ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
-                          <option value="fs-4"  ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
-                          <option value="fs-3"  ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+                          <option value="fs-5" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
+                          <option value="fs-4" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+                          <option value="fs-3" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
                       </select>`;
+  const paymentGetWayEls =()=>{
+    return`<label for="paymentGetWayEl" class="mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
+    <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">                                            
+        <option value="stripe" selected>${efb_var.text.strip}</option>                                                            
+    </select>`;
+  } 
+  const paymentMethodEls =()=>{
+    console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+    return`<label for="paymentMethodEl" class="mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
+    <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
+        <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option>                                                            
+        <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option>                                                            
+    </select>`;
+  } 
+   
+  const currencyTypeEls=()=>{
+    const c =["USD","AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BIF","BMD","BND","BOB","BRL","BSD","BWP","BYN","BZD","CAD","CDF","CHF","CLP","CNY","COP","CRC","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ETB","EUR","FJD","FKP ","GBP","GEL","GIP","GMD","GNF ","GTQ ","ALL","HKD","HNL ","HRK","HTG","HUF","IDR","ILS","INR","ISK","JMD","JPY","KES","KGS","KHR","KMF","KRW","KYD","KZT","LAK","LBP","LKR","LRD","LSL","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRO","MUR","MVR","MWK","MXN","MYR","MZN","NAD","NGN","NIO","ENOUGH","NPR","NZD","PAB ","PEN","PGK","PHP","PKR","PLN","PYG ","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SEK","SGD","SHP","SLL","SOS","SRD","STD","SZL","THB","TJS","TOP","TRY","TTD","TWD","TZS","UAH","UGX","THIS ","UZS","VND","VUV","WST","XAF","XCD","XOF ","XPF ","YER","ZAR","ZMW"];
+    let op = `<-- options -->`;
+    for(let i of c){
+      op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i ? 'selected' :''}>${i}</option>`
+    }
+    return `
+    <label for="currencyTypeEl" class="mt-3 bi-cash mx-2 efb"> ${efb_var.text.currency}</label>
+                      <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="currencyTypeEl"  data-tag="${valj_efb[0].currency}">                                            
+                         ${op}                     
+                      </select>
+    `
+
+  }
 
   const labelPostionEls = `    
   <div class="row efb">     
@@ -341,7 +383,7 @@ function show_setting_window_efb(idset) {
     <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3 mb-1" id="classesEl" placeholder="${efb_var.text.cSSClasses}"  ${valj_efb[indx].classes && valj_efb[indx].classes.length > 1 ? `value="${valj_efb[indx].classes}"` : ''}>
     `
   const valueEls = `
-  <label for="valueEl" class="efb mt-3 bi-cursor-text mx-2">${efb_var.text.defaultValue}</label>
+  <label for="valueEl" class="efb mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
     <input type="text"  data-id="${idset}" class="elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
     `
   const placeholderEls = `
@@ -427,10 +469,10 @@ function show_setting_window_efb(idset) {
   const fileTypeEls = `
         <label for="fileTypeEl" class="efb mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.fileType}</label>
         <select  data-id="${idset}" class="efb elEdit form-select border-d efb-rounded"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">                                            
-        <option value="document" ${valj_efb[indx].type && valj_efb[indx].type == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
-        <option value="image" ${valj_efb[indx].type && valj_efb[indx].type == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
-        <option value="media" ${valj_efb[indx].type && valj_efb[indx].type == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
-        <option value="zip" ${valj_efb[indx].type && valj_efb[indx].type == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
+        <option value="document" ${valj_efb[indx].file && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
+        <option value="image" ${valj_efb[indx].file && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
+        <option value="media" ${valj_efb[indx].file && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
+        <option value="zip" ${valj_efb[indx].file && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
     </select>
     `
   const btnColorEls =() =>{
@@ -452,6 +494,11 @@ function show_setting_window_efb(idset) {
     addColorTolistEfb(hex);
     return `<label for="selectBorderColorEl" class="mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
     <input type="color" id="selectBorderColorEl" class="elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
+    `
+  }
+  const hrefEls = () => {       
+    return `<label for="hrefEl" class="mt-3 bi-box-arrow-up-right mx-2 efb">${efb_var.text.link}</label>
+    <input type="url" id="hrefEl" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3 mb-1" data-id="${idset}" data-el="link" data-type="border" placeholder="https://"  data-tag="${valj_efb[indx].type}" value="${valj_efb[indx].href}" name="hrefEls"  id="${idset}" >
     `
   }
   const selectColorEls = (forEl ,f) => {
@@ -490,11 +537,22 @@ function show_setting_window_efb(idset) {
     return `
       <label for="selectHeightEl" class="efb mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
       <select  data-id="${idset}" class="efb efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            
-      <option value="h-d-efb" ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
-      <option value="h-l-efb"  ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>                      
-      <option value="h-xl-efb"  ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-xl-efb' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
-      <option value="h-xxl-efb"  ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-xxl-efb' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
-      <option value="h-xxxl-efb"  ${valj_efb[indx].el_height && valj_efb[indx].el_height == 'h-xxxl-efb' ? `selected` : ''} >${efb_var.text.xxxlarge}</option>                      
+      <option value="h-d-efb" ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
+      <option value="h-l-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>                      
+      <option value="h-xl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xl-efb' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+      <option value="h-xxl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xxl-efb' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+      <option value="h-xxxl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xxxl-efb' ? `selected` : ''} >${efb_var.text.xxxlarge}</option>   
+      </select>
+      `
+  }
+  const fontSizeEls = () => {
+    return `
+      <label for="fontSizeEl" class="efb mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
+      <select  data-id="${idset}" class="efb efb-rounded elEdit form-select"  id="fontSizeEl" data-tag="${valj_efb[indx].type}">                                                  
+      <option value="display-1" ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size ==  'display-1' ? `selected` : ''}>${efb_var.text.xxxlarge}</option>
+      <option value="display-2"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+      <option value="display-3"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-3' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+      <option value="display-4"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-4' ? `selected` : ''} >${efb_var.text.large}</option>                            
       </select>
       `
   }
@@ -546,6 +604,29 @@ function show_setting_window_efb(idset) {
               </div><div class="efb clearfix"></div>
               `
       break;
+    case "heading":
+      body = `
+              <div class="efb mb-3">
+              <!--  not   advanced-->
+              ${valueEls}
+              ${selectColorEls('el','heading')}
+              ${fontSizeEls()}                                  
+              ${classesEls}
+              <div class="efb clearfix"></div>
+              `
+      break;
+    case "link":
+      body = `
+              <div class="efb mb-3">
+              <!--  not   advanced-->
+              ${valueEls}
+              ${hrefEls()}                                  
+              ${selectColorEls('el','link')}
+              ${selectHeightEls()}                                  
+              ${classesEls}
+              <div class="efb clearfix"></div>
+              `
+      break;
     //  case "multiselect":
     case "radio":
     case "checkbox":
@@ -558,11 +639,12 @@ function show_setting_window_efb(idset) {
       })
       const newRndm = Math.random().toString(36).substr(2, 9);
       let opetions = `<!-- options --!>`;
-      
+      const col = form_type_emsFormBuilder=="payment" ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
       if (objOptions.length > 0) {
         for (let ob of objOptions) {         
-          opetions += `<div id="${ob.id_op}-v">
-        <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb col-5 form-control text-muted mb-1 fs-7 border-d efb-rounded elEdit">
+          opetions += `<div id="${ob.id_op}-v" class="col-md-12">
+        <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb ${col}  text-muted mb-1 fs-7 border-d efb-rounded elEdit">
+        ${form_type_emsFormBuilder=="payment" ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb col-md-3 text-muted mb-1 fs-7 border-d efb-rounded elEdit">` :''}
         <div class="efb btn-edit-holder" id="deleteOption" data-parent_id="${ob.parent}">
           <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
               <i class="efb efb bi-x-lg text-danger"></i>
@@ -663,7 +745,7 @@ function show_setting_window_efb(idset) {
       <div class="efb mb-3">
       <!--  not   advanced-->
       ${Nadvanced}
-      ${fileTypeEls}
+      ${el.dataset.tag == 'dadfile' ?fileTypeEls:''}
       <!--  not   advanced-->
       <div class="efb d-grid gap-2">              
       <button class="efb btn btn-outline-light mt-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
@@ -846,6 +928,9 @@ function show_setting_window_efb(idset) {
         ${showformLoggedEls}
         ${cardEls}
         ${adminFormEmailEls}
+        ${valj_efb[0].type=="payment" ? paymentGetWayEls() :''}
+        ${valj_efb[0].type=="payment" ? currencyTypeEls() :''}
+        ${valj_efb[0].type=="payment" ? paymentMethodEls() :''}
         <div class="efb d-grid gap-2">
         <button class="btn efb btn-outline-light mt-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
           <i class="efb bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
@@ -890,7 +975,7 @@ function show_setting_window_efb(idset) {
 
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
-  console.log(el.value , el.value.search(/(")+/g))
+  console.log(el.id , el.value)
   if (el.value.length>0 && el.value.search(/(")+/g)!=-1){
     el.value = el.value.replaceAll(`"`,'');
     noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
@@ -1032,10 +1117,16 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].placeholder = el.value;
         break;
       case "valueEl":
-        if (el.dataset.tag != 'yesNo') {
+        console.log(el.dataset.tag);
+        if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading') {
+          
           document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
           valj_efb[indx].value = el.value;
-        } else {
+        }else if(el.dataset.tag == 'heading'){
+          console.log(document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).innerHTML );
+          document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).innerHTML = el.value;
+          valj_efb[indx].value = el.value;
+        }else {
           //yesNo
           id = `${valj_efb[indx].id_}_${el.dataset.no}`
           document.getElementById(id).value = el.value;
@@ -1044,8 +1135,11 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "classesEl":
+        id= valj_efb[indx].id_;
         const v = el.value.replace(` `, `,`);
         //document.querySelector(`[data-id="${idset}"]`).classes=el.value;
+     //   clss=document.getElementById(id).className;
+        document.getElementById(id).className+=el.value.replace(`,`, ` `);
         valj_efb[indx].classes = v;
         break;
       case "sizeEl":
@@ -1084,12 +1178,30 @@ let change_el_edit_Efb = (el) => {
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
         break;
+      case "paymentGetWayEl":
+        console.log('paymentGetWayEl')
+        valj_efb[0].payment = el.options[el.selectedIndex].value;
+        console.log(el.options[el.selectedIndex].value);
+        break;
+      case "paymentMethodEl":
+        console.log('paymentMethodEl')
+        valj_efb[0].paymentmethod = el.options[el.selectedIndex].value;
+        console.log(el.options[el.selectedIndex].value,valj_efb[0].paymentmethod);
+        break;
+        //paymentMethodEl
+      case "currencyTypeEl":
+        console.log('currencyTypeEl')
+        valj_efb[0].currency = el.options[el.selectedIndex].value;
+        console.log(el.options[el.selectedIndex].value);
+        break;
       case "fileTypeEl":
         valj_efb[indx].file = el.options[el.selectedIndex].value;
+        
+        console.log(valj_efb[indx].file)
         valj_efb[indx].value = el.options[el.selectedIndex].value;
         let nfile = el.options[el.selectedIndex].value.toLowerCase();
         nfile = efb_var.text[nfile];
-        document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
+        if( document.getElementById(`${valj_efb[indx].id_}_txt`))document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         break;
       case "btnColorEl":
         color = el.value;
@@ -1261,7 +1373,14 @@ let change_el_edit_Efb = (el) => {
           valj_efb[indx].style_border_color ?  valj_efb[indx].style_border_color=color : Object.assign(valj_efb[indx] , {style_border_color:color}) ;
           addColorTolistEfb(color)
         }
-        break
+        break;
+      case "fontSizeEl":
+        console.log(el.options[el.selectedIndex].value);
+        valj_efb[indx].el_text_size = el.options[el.selectedIndex].value;
+        id=`${valj_efb[indx].id_}_`;
+        console.log(id)
+        document.getElementById(id).className =headSizeEfb(document.getElementById(id).className,el.options[el.selectedIndex].value)
+        break;
       case "selectHeightEl":
         el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
         let fsize = 'fs-6';
@@ -1331,11 +1450,18 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
           }, 10);
           break;
+        } else if (el.dataset.tag == "link"){
+          
+          postId = `${valj_efb[indx].id_}_`
+          
+          document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
+          console.log(fsize,postId , document.getElementById(postId));
         } else {
         
           postId = `${valj_efb[indx].id_}_`
         }
         setTimeout(() => {
+          
           document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
         }, 10)
   
@@ -1397,7 +1523,7 @@ let change_el_edit_Efb = (el) => {
     
         break;
       case 'EditOption':        
-        el.dataset.id;
+       
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
      
         
@@ -1418,6 +1544,30 @@ let change_el_edit_Efb = (el) => {
           }
           el.setAttribute('value', valj_efb[iindx].value);
           el.setAttribute('defaultValue', valj_efb[iindx].value);
+        }
+        break;
+      case 'paymentOption': 
+      console.log('paymentOption');     
+        el.dataset.id;
+        const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+     
+        
+        if (ipndx != -1) {
+          valj_efb[ipndx].price = el.value;
+          console.log( valj_efb[ipndx])
+      /*     if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          
+            //Select         
+          } else if (el.dataset.tag == "multiselect"){
+            
+          }else {
+            //radio || checkbox
+       
+            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+          }
+          el.setAttribute('value', valj_efb[iindx].value);
+          el.setAttribute('defaultValue', valj_efb[iindx].value); */
         }
         break;
       case "htmlCodeEl":
@@ -1818,10 +1968,14 @@ const sort_obj_el_efb_ = () => {
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
+  const ftyp=form_type_emsFormBuilder;
+  const col = ftyp=="payment" ||  ftyp=="smart"  ?'col-md-7':'col-md-12'
+  console.log(`form_type_emsFormBuilder:${form_type_emsFormBuilder}`);
   document.getElementById('optionListefb').innerHTML += `
-  <div id="${id_ob}-v">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb col-5 form-control text-muted mb-1 fs-7 border-d efb-rounded elEdit">
-  <div class="efb btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
+  <div id="${id_ob}-v" class="col-md-12">
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb ${col} text-muted mb-1 fs-7 border-d efb-rounded elEdit">
+  ${ftyp=="payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb col-md-3 text-muted mb-1 fs-7 border-d efb-rounded elEdit">` :''}
+  <div class="efb ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'' } btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
         <i class="efb bi-x-lg text-danger"></i>
     </button>
@@ -1977,7 +2131,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
     if (elementId != 'steps') {
       if (editState == false && valj_efb.length<2) {
-
+        console.log(formName_Efb,efb_var.text[formName_Efb])
         valj_efb.push({
           id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
           id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
@@ -2023,7 +2177,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     amount_el_efb += 1;
 
   }
-  
+  console.log(valj_efb);
   if (editState == false && ((elementId != "steps" && step_el_efb >= 0) || (elementId == "steps" && step_el_efb >= 0)) && ((pro_efb == false && step_el_efb < 3) || pro_efb == true)) { sampleElpush_efb(rndm, elementId); }
   
   //const idd = editState==false && elementId=="steps" ? `${rndm}` : rndm
@@ -2047,16 +2201,20 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'color':
     case 'range':
     case 'number':
+    case 'firstName':
+    case 'lastName':
       
-      const classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range'
+      const type = elementId =="firstName" || elementId =="lastName" ? 'text' : elementId;
+      const classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12"  id='${rndm}-f'>
-        <input type="${elementId}" class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length>0 ? value="${valj_efb[iVJ].value}" :''} ${previewSate != true ? 'disabled' : ''}>
+        <input type="${type}" class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length>0 ? value=`"${valj_efb[iVJ].value}"` :''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       //  if(editState==false) sampleElpush_efb(rndm, elementId);
- 
+
+      console.log(ui);
       break;
     case 'maps':
      
@@ -2475,6 +2633,22 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       </div>
         ${desc}`
       break;
+    case 'link':
+      dataTag = elementId;
+      ui = `
+      <div class="efb col-md-12 col-sm-12"  id='${rndm}-f'>
+      <a  id="${rndm}_"  class="efb px-2 btn underline emsFormBuilder_v ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size} efbField" data-vid='${rndm}' data-id="${rndm}-el" href="${valj_efb[iVJ].href}">${valj_efb[iVJ].value}</a>
+      </div>
+      `
+      break;
+    case 'heading':
+      dataTag = elementId;
+      ui = `
+      <div class="efb col-md-12 col-sm-12"  id='${rndm}-f'>
+      <p  id="${rndm}_"  class="efb px-2  emsFormBuilder_v  ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size}   efbField" data-vid='${rndm}' data-id="${rndm}-el" >${valj_efb[iVJ].value}</p>
+      </div>
+      `
+      break;
     case 'booking':
       dataTag = elementId;
       break;
@@ -2484,7 +2658,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb=="login" && ( valj_efb[iVJ].id_=="emaillogin" || valj_efb[iVJ].id_=="passwordlogin")) || (formName_Efb=="register" && (valj_efb[iVJ].id_=="usernameRegisterEFB" || valj_efb[iVJ].id_=="passwordRegisterEFB" || valj_efb[iVJ].id_=="emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = ( dataTag == "dadfile" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
+    const pro_el = ( dataTag == "dadfile" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps"  || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList") ? true : false;
     const contorl = ` <div class="btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb bi-gear-fill text-success BtnSideEfb"></i>
@@ -2497,13 +2671,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `⭐ 
     <div class="btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="btn efb btn-pro-efb btn-sm px-2 mx-3" id="pro"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
+    <button type="button" class="btn efb btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
     <i class="efb bi-gem text-dark"> ${efb_var.text.availableProVersion}</i>`;
 
     ps = elementId=="html" ? 'col-md-12': 'col-md-12'
     endTags = previewSate==false ? `</button> </button> </div></div>` : `</div></div>`
+    const tagId =elementId== "firstName" || elementId=="lastName" ? 'text' : elementId;
     newElement += `
-    <div class="efb my-1  ${previewSate == true &&( pos[1]=="col-md-12" || pos[1]=="col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${elementId}"  >
+    <div class="efb my-1  ${previewSate == true &&( pos[1]=="col-md-12" || pos[1]=="col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     
     ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
@@ -2513,6 +2688,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${ previewSate == true && elementId=="html" || true ?   "<!--endhtml -->" : ''}
 
     `
+    console.log(previewSate != true && pro_efb == false && pro_el ? proActiv : 'Not pro');
 
   } else if (dataTag == 'step' && previewSate != true) {
     if (elementId == "steps" && pro_efb == false && step_el_efb == 3) {
@@ -2544,7 +2720,7 @@ const funSetPosElEfb = (dataId, position) => {
     valj_efb[indx].label_position = position
   }
 
-  get_position_col_el(dataId, true)
+ if(valj_efb[indx].type!="heading"  && valj_efb[indx].type!="link" && valj_efb[indx].type!="html") get_position_col_el(dataId, true)
 
 }
 const funSetAlignElEfb = (dataId, align, element) => {
@@ -2598,6 +2774,7 @@ const funSetCornerElEfb = (dataId, co) => {
 }
 
 let get_position_col_el = (dataId, state) => {
+  console.log(dataId, state);
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el_parent = document.getElementById(valj_efb[indx].id_);
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`)
@@ -2674,15 +2851,29 @@ let sampleElpush_efb = (rndm, elementId) => {
   const testb =valj_efb.length;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
-  if ( elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" ) { pro = true }
+  let size =100;
+  let type=elementId;
+  switch (elementId) {
+    case "firstName":
+    case "lastName":
+      size=100;
+      type="text";
+      break;
+  
+    default:
+      size=100;
+      break;
+  }
+  if ( elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "heading" || elementId == "link") { pro = true }
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
-  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps") {  
+  if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId !="heading" && elementId !="link") {  
+   
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: efb_var.text[elementId], value: '', size: 100, message: efb_var.text.sampleDescription,
+      id_: rndm, dataId: `${rndm}-id`, type:type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
       label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
-      el_align: 'justify-content-start', pro: pro ,icon_input:'',
+      el_align: 'justify-content-start', pro: pro ,icon_input:''
     })
 
     if (elementId == "esign") {
@@ -2712,7 +2903,17 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, value: '',amount: amount_el_efb, step: step_el_efb, pro: pro
     })
-  } else if (elementId == "steps") {
+  } else if (elementId == "heading") {
+    valj_efb.push({
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes:'', value: efb_var.text[elementId],amount: amount_el_efb, step: step_el_efb, el_text_size: 'display-4',
+      el_text_color: 'text-dark', el_align: 'justify-content-start', pro: pro
+    })
+  }else if (elementId == "link") {
+    valj_efb.push({
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes:'', value: efb_var.text[elementId],amount: amount_el_efb, step: step_el_efb, el_text_size: 'fs-3',
+      el_text_color: 'text-primary', el_align: 'justify-content-start',href:"https://whitestudio.team" , pro: pro
+    })
+  }else if (elementId == "steps") {
     step_el_efb = step_el_efb == 0 ? 1 : step_el_efb;  
     const stepName = efb_var.text[formName_Efb]!=undefined ?efb_var.text[formName_Efb].toUpperCase() :efb_var.text.step;
     valj_efb.push({
@@ -2741,7 +2942,11 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
 }
 let optionElpush_efb = (parent, value, rndm, op) => {
-  valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
+  if(form_type_emsFormBuilder!="payment"){
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
+  }else{
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb,price:'0', amount: amount_el_efb });
+  }
   //console.log(valj_efb)
 }
 
@@ -2837,6 +3042,7 @@ const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-squa
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
+const headSizeEfb = (classes,value) => { return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
@@ -2898,8 +3104,9 @@ let editFormEfb = () => {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
           let el = addNewElement(type, valj_efb[v].id_, true, false);        
-          dropZoneEFB.innerHTML += el;         
-          if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login"  && valj_efb[v].type != "subscribe"  && valj_efb[v].type != "survey") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
+          dropZoneEFB.innerHTML += el;      
+          console.log(valj_efb[v].type,'!!!!!!')   ;
+          if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login"  && valj_efb[v].type != "subscribe"  && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
 
           if (type == 'maps') {
             setTimeout(() => {
@@ -3616,7 +3823,7 @@ function ui_dadfile_efb(indx, previewSate) {
   let n = valj_efb[indx].file;
   n = efb_var.text[n];
   //console.log(n,efb_var.text[n] )
-  return `<div class="icon"><i class="efb fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
+  return `<div class="icon efb"><i class="efb fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
   <h6 id="${valj_efb[indx].id_}_txt" class="text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
   <button type="button" class="efb btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
       <i class="efb bi-upload mx-2"></i>${efb_var.text.browseFile}
@@ -4090,7 +4297,7 @@ function previewFormEfb(state){
     try {
       valj_efb.forEach((value, index) => {
         //console.log(value.type);
-        Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
+        if(valj_efb[index].type!="html" && valj_efb[index].type!="link" && valj_efb[index].type!="heading") Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;
           head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb fs-7  ${value.label_text_color} ">${value.name}</strong></li>`
@@ -4101,7 +4308,7 @@ function previewFormEfb(state){
         }
 
         if (value.type == 'step' && value.type != 'html') {
-          
+          console.log(value.type);
           steps_index_efb.push(index)
           //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="m-2 content-efb row">` 
         } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
@@ -4423,15 +4630,27 @@ add_element_dpz_efb=(id)=>{fun_efb_add_el(id);}
 
 fun_efb_add_el=(t)=>{
 
-const rndm = Math.random().toString(36).substr(2, 9);
+  const rndm = Math.random().toString(36).substr(2, 9);
 
-  //console.log(t);
+  console.log(t);
 
   if(t=="steps" && valj_efb.length<2){return;}
   if(valj_efb.length<2){dropZoneEFB.innerHTML="" , dropZoneEFB.classList.add('pb')}
-  let el = addNewElement(t, rndm, false, false);
-  dropZoneEFB.innerHTML += el;
-  //show buttons del and setting
+
+  if(t=="address" || t=="name"){
+    const olist = [{n:'name' ,t:"firstName"},{n:'name' ,t:"lastName"}]
+    for(const ob of olist){
+      if(ob.n==t){
+        let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
+        dropZoneEFB.innerHTML += el;
+      }
+    }
+
+  }else{
+    let el = addNewElement(t, rndm, false, false);
+    dropZoneEFB.innerHTML += el;
+  }
+  
   fub_shwBtns_efb();
 
   if (t == 'maps') {
