@@ -26,9 +26,14 @@ class _Public {
 
 		global $wpdb;
 		$this->db = $wpdb;
-
+		// stripe
+		// اگر پرو بود و مقدار پیمنت  ترو بود اضافه شود
+		//
+		
 		
 		//add_action('init',  array($this,'modify_jquery'));
+
+
 		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
@@ -44,6 +49,8 @@ class _Public {
 		add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		
+		add_action('wp_ajax_nopriv_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
+		add_action('wp_ajax_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
 		
 
 		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
@@ -108,21 +115,26 @@ class _Public {
 			}
 		}
 		
+		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
+		$send=array();				
+		//translate v2
+		$showform =["transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
+		$text= $efbFunction->text_efb($showform);
+				
+				
 				$typeOfForm =$this->value[0]->form_type;
 				//error_log($this->value[0]);
 				
 				$value = $this->value[0]->form_structer;
-
+				
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
-
+				
 				$formObj= json_decode($fs,true);
-				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
-				$send=array();
 				
-				//translate v2
-				$showform =["minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];
-				
-				$text= $efbFunction->text_efb($showform);
+			/* 	if( $formObj[0]["type"]=="payment"){
+					wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+					wp_enqueue_script('stripe-js');
+				} */
 				
 				if(($formObj[0]["stateForm"]==true || $formObj[0]["stateForm"]==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
@@ -283,6 +295,9 @@ class _Public {
 
 		/* v2 */
 
+		//اگر پرو بود اگر پلاگین نصب بود 
+		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+		wp_enqueue_script('stripe-js');
 		if($bootstrap==false){
 			
 			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
@@ -338,8 +353,8 @@ class _Public {
 		
 
 				
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
-		wp_enqueue_script('jquery');
+		/* wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
+		wp_enqueue_script('jquery'); */
 
 		
 	  }
@@ -1069,6 +1084,50 @@ class _Public {
 	 //return $value[0];
 	 return $rtrn;
 	}
+
+	public function pay_stripe_sub_Emsfb() {
+		
+        error_log('pay_stripe_sub_Emsfb');
+        /* $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text); */
+        if(file_exists(WP_PLUGIN_DIR ."/easy-form-builder-pay/vendor/autoload.php")==false){
+			$m =	__('Easy Form Builder payment(Stripe) Plugin not found, Please contact website Administrator', 'easy-form-builder');
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_success($response, $_POST);
+            die("secure!");
+        }
+        if (check_ajax_referer('public-nonce', 'nonce') != 1) {
+            //error_log('not valid nonce');
+            $m =   $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_success($response, $_POST);
+            die("secure!");
+        }
+
+       /*  $id = number_format($_POST['id']);
+
+        $table_name = $this->db->prefix . "Emsfb_form";
+        $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+
+        $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
+
+        include(WP_PLUGIN_DIR."/easy-form-builder-pay/vendor/autoload.php");
+        error_log('payment');
+
+        $stripe = new \Stripe\StripeClient("sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd");
+        $paymentIntent = $stripe->paymentIntents->create([
+            'amount' => 3000,
+            'currency' => 'gbp',
+            'payment_method_types' =>['card'],
+            'description' =>get_bloginfo('name'),
+            'receipt_email'=>'hasan@gmail.com'
+        ]);
+        error_log($paymentIntent->client_secret);
+		$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret);		
+        wp_send_json_success($response, $_POST);
+
+    }
 
 
 	

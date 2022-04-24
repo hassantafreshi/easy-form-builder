@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.14
+Stable tag: 			2.4
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.5 or higher
@@ -62,9 +62,9 @@ How *Easy Form Builder* makes your life easier:
 
 - Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form for **free**
 
-- New Contact us templates & Exmple for Without No code skills create a contact-us form in less than 1 minute.  
+- New Contact us templates & Example  for Without No code skills create a contact-us form in less than 1 minute.  
 
-- New Support and Feedback template & Exmple for creata support form in 1 minute
+- New Support and Feedback template & Example  for creata support form in 1 minute
  
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
 Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.

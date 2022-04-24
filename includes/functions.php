@@ -440,7 +440,6 @@ class efbFunction {
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
 			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel >> Settings >> selected option:  My template have used BootStrap framwork >> Save','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
-			/* bug! start */
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : __('Free feature of sending notification email to admin or user.','easy-form-builder'),
@@ -481,8 +480,16 @@ class efbFunction {
 			"product" => $state  &&  isset($ac->text->product) ? $ac->text->product : __('product','easy-form-builder'),
 			"value" => $state  &&  isset($ac->text->value) ? $ac->text->value : __('value','easy-form-builder'),
 			"terms" => $state  &&  isset($ac->text->terms) ? $ac->text->terms : __('terms','easy-form-builder'),
+			"pricingTable" => $state  &&  isset($ac->text->pricingTable) ? $ac->text->pricingTable : __('Pricing Table','easy-form-builder'),
+			"cardNumber" => $state  &&  isset($ac->text->cardNumber) ? $ac->text->cardNumber : __('Card Number','easy-form-builder'),
+			"cardExpiry" => $state  &&  isset($ac->text->cardExpiry) ? $ac->text->cardExpiry : __('Card Expiry','easy-form-builder'),
+			"cardCVC" => $state  &&  isset($ac->text->cardCVC) ? $ac->text->cardCVC : __('Card CVC','easy-form-builder'),
+			"payNow" => $state  &&  isset($ac->text->payNow) ? $ac->text->payNow : __('Pay Now','easy-form-builder'),			
+			"payAmount" => $state  &&  isset($ac->text->payAmount) ? $ac->text->payAmount : __('Pay amount','easy-form-builder'),
+			"successPayment" => $state  &&  isset($ac->text->successPayment) ? $ac->text->successPayment : __('Success payment','easy-form-builder'),
+			"transctionId" => $state  &&  isset($ac->text->transctionId) ? $ac->text->transctionId : __('Transction Id','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-			/* bug! end */
+			
 			
 
 

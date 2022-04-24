@@ -21,7 +21,7 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.3.14")
+console.log("Easy Form Builder v2.4")
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)

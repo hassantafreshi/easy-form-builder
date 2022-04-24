@@ -76,7 +76,15 @@ class Panel_edit  {
 				//پایان کد نسخه پرو
 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
+
+
 			}
+			
+			//اگر پلاگین مربوط نصب بود این بخش فعال شود
+			//stipe
+			//اگر نسه پرو بود
+			wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+			wp_enqueue_script('stripe-js');
 
 			if(gettype($ac)!="string" && isset($ac->apiKeyMap)){
 				$k= $ac->apiKeyMap;

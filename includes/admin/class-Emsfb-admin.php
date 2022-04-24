@@ -2,6 +2,8 @@
 
 namespace Emsfb;
 
+
+
 /**
  * Class Admin
  *
@@ -33,7 +35,7 @@ class Admin {
            
         }
         
-        include(EMSFB_PLUGIN_DIRECTORY."includes/functions.php");
+        
         
 
         // Add plugin caps to admin role
@@ -57,6 +59,7 @@ class Admin {
             $plugin_data          = get_plugin_data(EMSFB_PLUGIN_FILE);
             $this->plugin_version = $plugin_data['Version'];
 
+           
             //$this->get_not_read_message();
             add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //یک فرم بر اساس ي دی حذف می کند
             add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   // اطلاعات یک فرم را بر اساسا آی دی بر می گرداند
@@ -69,7 +72,7 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل
-
+            
         }
 
      
@@ -90,6 +93,7 @@ class Admin {
 
         /** Only enqueue scripts and styles on the actual plugin admin pages */
         if (is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")) {
+            //$this->pay_stripe_sub_Emsfb();
             //notifcation new version
           /*   wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js' . $this->plugin_version, null, null, true);
             wp_enqueue_script('whiteStudioMessage'); */
@@ -323,6 +327,8 @@ class Admin {
         wp_send_json_success($response, $_POST);
 
     }
+    //stripe
+   
 
     public function get_messages_id_Emsfb() {
         $efbFunction = new efbFunction();   

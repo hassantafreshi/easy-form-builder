@@ -2295,4 +2295,31 @@ div#sideBoxEfb {
     .efb.underline{
         text-decoration: underline;
     }
- 
+    .efb.w-100{
+        max-width: 100%!important;
+    }
+
+  /*   .efb.stripe-bg{
+        background-color: #25262617!important;
+    }
+ */
+    span#totalpayEfb {
+        background: #ded7ec9c;
+        padding: 5px 12px;
+        color: #5f31bc;
+        border-radius: 20px!important;
+    
+    }
+    #btnStripeEfb{
+        background-color: #535ad5;   
+        color: #fff;
+    }
+    #btnStripeEfb:hover{
+        background-color: #3a43ff;   
+        color: #fff;
+    }
+
+    #btnStripeEfb:disabled {
+        color: rgb(218, 218, 218);
+        background-color: #748bad;
+    }

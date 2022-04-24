@@ -125,6 +125,11 @@ class Create {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+			// اگر نسخه ویژه بود و پلاگین نصب بود این بخش فعال شود
+		//stripe77
+		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+		wp_enqueue_script('stripe-js');
+		
 		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
 
@@ -170,6 +175,7 @@ class Create {
 
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
+
 	}
 
 	public function fun_Emsfb_creator()
@@ -178,6 +184,9 @@ class Create {
 	}
 
 	public function add_form_structure(){
+
+	
+		
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);

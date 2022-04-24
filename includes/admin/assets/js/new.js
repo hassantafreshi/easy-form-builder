@@ -109,8 +109,10 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
+  { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true },
+  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
-  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true }
+  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true },
 ]
 
 
@@ -314,8 +316,8 @@ function show_setting_window_efb(idset) {
     console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
     return`<label for="paymentMethodEl" class="mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
     <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
-        <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option>                                                            
-        <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option>                                                            
+    <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option>                                                            
+   <!-- <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option> -->
     </select>`;
   } 
    
@@ -928,7 +930,7 @@ function show_setting_window_efb(idset) {
         ${showformLoggedEls}
         ${cardEls}
         ${adminFormEmailEls}
-        ${valj_efb[0].type=="payment" ? paymentGetWayEls() :''}
+       
         ${valj_efb[0].type=="payment" ? currencyTypeEls() :''}
         ${valj_efb[0].type=="payment" ? paymentMethodEls() :''}
         <div class="efb d-grid gap-2">
@@ -1118,13 +1120,14 @@ let change_el_edit_Efb = (el) => {
         break;
       case "valueEl":
         console.log(el.dataset.tag);
-        if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading') {
+        if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea') {
           
-          document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
+          //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
+          document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
           valj_efb[indx].value = el.value;
-        }else if(el.dataset.tag == 'heading'){
-          console.log(document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).innerHTML );
-          document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).innerHTML = el.value;
+        }else if(el.dataset.tag == 'heading' || el.dataset.tag == 'textarea'){
+          console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
+          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
           valj_efb[indx].value = el.value;
         }else {
           //yesNo
@@ -1737,6 +1740,9 @@ const obj_delete_row = (dataid, is_step) => {
     if (valj_efb[foundIndex].type == "maps") {
       document.getElementById('maps').draggable = true;
       document.getElementById('maps_b').classList.remove('disabled')
+    }else if(valj_efb[foundIndex].type == "stripe"){
+      valj_efb[0].type="form";
+      console.log(valj_efb[0]);
     } else if (valj_efb[foundIndex].type == 'multiselect' || valj_efb[foundIndex].type == 'select'
       ||valj_efb[foundIndex].type == 'conturyList'  || valj_efb[foundIndex].type == 'stateProvince' 
       || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox' ) {
@@ -2640,6 +2646,36 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <a  id="${rndm}_"  class="efb px-2 btn underline emsFormBuilder_v ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size} efbField" data-vid='${rndm}' data-id="${rndm}-el" href="${valj_efb[iVJ].href}">${valj_efb[iVJ].value}</a>
       </div>
       `
+      break;
+    case 'stripe':
+      dataTag = elementId;
+      ui = `
+      <div class="efb col-md-12 col-sm-12 stripe"  id='${rndm}-f'>
+      <div class="stripe-bg mx-2 p-3 card efb w-100">
+      <div class="headpay efb border-b  row col-md-12">
+        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end "> <span id="totalpayEfb" class="d-flex justify-content-evenly">500 USD</span></div>
+      </div>
+      <div class="col-md-12 my-2">
+      <label for="cardnoEfb" class="efb fs-8">${efb_var.text.cardNumber}: </label>
+      <div id="cardnoEfb" class="efb"></div>
+      </div>
+      <div class="col-md-12 row my-2">
+        <div class="col-md-6 my-2">     
+        <label for="cardexpEfb" class="efb fs-8">${efb_var.text.cardExpiry}: </label>
+        <div id="cardexpEfb" class="efb"></div>
+        </div>
+        <div class="col-md-6 my-2">
+        <label for="cardcvcEfb" class="efb fs-8">${efb_var.text.cardCVC}: </label>
+        <div id="cardcvcEfb" class="efb"></div>
+        </div>
+      </div>
+      <button class="btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end" disabled id="btnStripeEfb">${efb_var.text.payNow}</button>
+      <div class="efb bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" ></div>
+      </div>
+      </div>
+      </div>
+      `
+      valj_efb[0].type="payment";
       break;
     case 'heading':
       dataTag = elementId;
@@ -4268,6 +4304,8 @@ function previewFormEfb(state){
   let head = ``
   let icons = ``
   let pro_bar = ``
+  //public key stripe
+  const stripe = Stripe('pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV')
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
@@ -4296,7 +4334,7 @@ function previewFormEfb(state){
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
-        //console.log(value.type);
+        console.log(valj_efb[index].type);
         if(valj_efb[index].type!="html" && valj_efb[index].type!="link" && valj_efb[index].type!="heading") Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;
@@ -4377,9 +4415,14 @@ function previewFormEfb(state){
 
 
     } else {
+      console.log('public');
       //content is hold element and should added to a innerHTML
       document.getElementById(id).innerHTML=content;
-      document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id)
+      document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id);
+      if(valj_efb[0].type=="payment"){
+        console.log('payment');
+        fun_add_stripe_efb();
+      }
     }
 
 
@@ -4753,5 +4796,160 @@ fun_addStyle_costumize_efb=(val,key,indexVJ)=>{
     if(color!="")addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`),color,type,indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
+}
+
+
+fun_add_stripe_efb=()=>{
+  if(typeof document.getElementById('cardnoEfb')!="object") return;
+  console.log('fun_add_stripe_efb');
+  const stripe = Stripe('pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV')
+
+  const elsStripeStyleEfb={
+    base:{iconColor:'#6c757d',
+    color:'#6c757d',
+    fontFamily:'sans-serif',
+    fontSize: '30px',
+    '::placeholder': { color:'#757593'}
+    },
+    complete:{ color:'green'}
+}
+const btntripeStyleEfb ={
+    fontFamily:'sans-serif',
+    fontSize: '20px',
+    fontWeight:'400',
+    complete:{ color:'green'}
+}
+
+
+const cardnoEfb = document.getElementById('cardnoEfb')
+const cardexpEfb = document.getElementById('cardexpEfb')
+const cardcvcEfb = document.getElementById('cardcvcEfb')
+const btnStripeEfb = document.getElementById('btnStripeEfb')
+const stsStripeEfb = document.getElementById('statusStripEfb')
+
+const elements = stripe.elements()
+
+const numElm = elements.create('cardNumber',{showIcon:true,iconStyle:'solid', style:elsStripeStyleEfb})
+numElm.mount(cardnoEfb)
+    
+const expElm = elements.create('cardExpiry', {disabled:true, style:elsStripeStyleEfb})
+expElm.mount(cardexpEfb)
+
+const cvcElm = elements.create('cardCvc', {disabled:true, style:elsStripeStyleEfb})
+cvcElm.mount(cardcvcEfb)
+
+numElm.on('change', (e) =>{
+    if(e.complete){
+        expElm.update({disabled:false})
+        expElm.focus()
+    }
+})
+
+expElm.on('change', (e) =>{
+    if(e.complete){
+        cvcElm.update({disabled:false})
+        cvcElm.focus()
+    }
+})
+
+cvcElm.on('change', (e) =>{
+    if(e.complete){
+       btnStripeEfb.disabled = false 
+    }
+})
+
+btnStripeEfb.addEventListener('click', ()=>{
+    btnStripeEfb.disabled = true 
+    btnStripeEfb.innerHTML="Please Waiting"
+    console.log(ajax_object_efm.ajax_url);
+    jQuery(function ($) {
+      data = {
+        action: "pay_stripe_sub_efb",
+        value: {},
+        name: formName,
+        nonce: ajax_object_efm.nonce,
+      };
+
+      $.ajax({
+        type: "POST",
+        async: false,
+        url: ajax_object_efm.ajax_url,
+        data: data,
+        success: function (res) {         
+          console.log(res.data) ;    
+          /* document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+          document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+          response_Valid_tracker_efb(res) */
+          if(res.data.success==true){
+            stripe.confirmCardPayment(res.data.client_secret, {
+              payment_method:{card:numElm}
+              }).then(transStat => {
+                  if(transStat.error){
+                      stsStripeEfb.innerHTML = `
+                      <strong>Error:  </string> ${transStat.error.message}
+                      `
+                      btnStripeEfb.disabled = false 
+                      btnStripeEfb.innerHTML="Pay Now"
+                  }
+                  else{
+                      stsStripeEfb.innerHTML = `
+                      <h3 class="efb text-darkb p-0 m-0 mt-1 text-center"><i class="bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
+                      <p class="efb text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>
+                      <p class="efb text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${transStat.paymentIntent.id}</p>
+                      <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
+                      `
+                      btnStripeEfb.innerHTML="Done"
+                      btnStripeEfb.style.display="none";
+                      //active next or send button !!
+                      //disable button
+                  }
+                  stsStripeEfb.style.display='block'
+              })
+          }else{
+            noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
+          }
+          
+        },
+        error: function (res) {
+          console.error(res) ;   
+          noti_message_efb(efb_var.text.error, res, 15, 'danger')
+          btnStripeEfb.innerHTML="Pay" 
+          /* document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+          document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+          response_Valid_tracker_efb({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact to admin (E:JQ Co)' } }) */
+        }
+      })
+    });
+   /*  fetch('/paymentIntent.php', {
+        method:'POST', 
+        headers:{'Content-Type': 'application/json'},
+        body:{}
+    })
+    .then(res=>res.json())
+    .then(payload => {
+        stripe.confirmCardPayment(payload.client_secret, {
+            payment_method:{card:numElm}
+        }).then(transStat => {
+            if(transStat.error){
+                stsStripeEfb.innerHTML = `
+                <strong>Error:  </string> ${transStat.error.message}
+                `
+                btnStripeEfb.disabled = false 
+                btnStripeEfb.innerHTML="Pay Now"
+            }
+            else{
+                stsStripeEfb.innerHTML = `
+               <h3>${transStat.paymentIntent.description}</h3>
+               <strong>Transction Id: </strong>${transStat.paymentIntent.id}<br>
+               <strong>Amount deducted: </strong> ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency}
+                `
+                btnStripeEfb.innerHTML="Done"
+                //active next or send button !!
+                //disable button
+            }
+            stsStripeEfb.style.display='block'
+        })
+    }) */
+})
 }
 
