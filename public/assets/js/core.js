@@ -1,5 +1,6 @@
 
 
+
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sendBack_emsFormBuilder_pub = []; 
@@ -55,7 +56,7 @@ setTimeout(() => {
       }
     }
   
-  
+    console.log(ajax_object_efm);
     //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
     if (ajax_object_efm.state !== 'settingError') {
   
@@ -539,7 +540,7 @@ function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClas
 function createStepsOfPublic() {  
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
-    
+    let price = '';
     if (el.type != "submit") {
      switch(el.type){
        case "file":         
@@ -552,6 +553,7 @@ function createStepsOfPublic() {
      }
       el.addEventListener("change", (e) => {
         // e.preventDefault();
+        console.log(el);
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);        
         let value = ""
         const id_ = el.dataset.vid
@@ -609,8 +611,15 @@ function createStepsOfPublic() {
           case "select-one":
           case "select":
             value = el.value;
+            console.log(el.options[el.selectedIndex].id);
             document.getElementById(`${ob.id_}_-message`).innerHTML ="";
             el.className = colorBorderChangerEfb(el.className,"border-success");            
+            if(valj_efb[0].type=="payment" && el.classList.contains('payefb')){
+              let v = el.options[el.selectedIndex].id;
+              v=  valueJson_ws.find(x => x.id_ ==v && x.value==el.value); 
+              console.log(v);
+              if(typeof v.price=="string") price=v.price;
+            }
             break;
           case "range":
             value = el.value;
@@ -632,6 +641,7 @@ function createStepsOfPublic() {
           case "select-multiple":
             const parents = el.name;
             if (el.classList.contains('multiple-emsFormBuilder') == true) {
+            //  console.log(el.children);
               for (let i = 0; i < el.children.length; i++) {                
                 value += el.children[i].value + ",";
               }
@@ -668,33 +678,70 @@ function createStepsOfPublic() {
 
         if (value != "" || value.length > 1) {
           const type = ob.type
-          const o = [{ id_: id_, name: ob.name,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
-          fun_sendBack_emsFormBuilder(o[0]);
+          let o = [{ id_: id_, name:ob.name,id_ob:el.id,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
+            let q = valueJson_ws.find(x => x.id_ === el.id);  
+            console.log(el , valueJson_ws);
+            const p = price.length>0 ?{price:price} : {price:q.price}
+            Object.assign(o[0],p)
+            console.log(q ,p,o[0]);
+            fun_sendBack_emsFormBuilder(o[0]);
+            fun_total_pay_efb()
+          }else{
+
+            fun_sendBack_emsFormBuilder(o[0]);
+          }
         }
+  
       });
+      
     } else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
+        console.log(el);
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
-        const o = [{ id_: id_, name: ob.name, amount:ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
-        fun_sendBack_emsFormBuilder(o[0]);
+        let o = [{ id_: id_, name: ob.name,id_ob:el.id, amount:ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
+        if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
+          let q = valueJson_ws.find(x => x.id_ === el.id);  
+          console.log(el , valueJson_ws);
+          const p = price.length>0 ?{price:price} : {price:q.price}
+          Object.assign(o[0],p)
+          console.log(q ,p,o[0]);
+          fun_sendBack_emsFormBuilder(o[0]);
+          fun_total_pay_efb()
+        }else{
+
+          fun_sendBack_emsFormBuilder(o[0]);
+        }
+      
       });
     }
+    
   }//end for
 }//end function createStepsOfPublic
 
 
 function fun_sendBack_emsFormBuilder(ob) {
+  console.log(ob);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
-    } else { indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx].value = ob.value; }
+    } else { if(indx == -1){sendBack_emsFormBuilder_pub.push(ob) }else{
+      console.log(typeof ob.price);
+     if(typeof ob.price !="string") {
+       sendBack_emsFormBuilder_pub[indx].value = ob.value;
+      }else{
+        sendBack_emsFormBuilder_pub[indx].value = ob.value;
+        sendBack_emsFormBuilder_pub[indx].price = ob.price;
+      }
+    } }
 
   } else {
     sendBack_emsFormBuilder_pub.push(ob);
   }
+  console.log(sendBack_emsFormBuilder_pub);
 }
 function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
   let r = 0
@@ -1544,3 +1591,23 @@ function loadCaptcha_efb() {
     });   
   }
 };
+
+
+function fun_total_pay_efb(){
+  console.log('fun_total_pay_efb');
+  let total=0;
+  updateTotal=(i)=>{
+    //totalpayEfb
+    for (const l of document.querySelectorAll(".totalpayEfb")) {
+      l.innerHTML=i;
+    }
+  }
+
+  for(let r of sendBack_emsFormBuilder_pub){
+    console.log(r.price, typeof r.price);
+      if(typeof r.price=="string" || typeof r.price=="number") total +=parseFloat(r.price)
+    }
+    setTimeout(() => { updateTotal(total);}, 800);
+   
+    
+}

@@ -226,7 +226,7 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$this->db->insert($table_name, array(
 			'form_name' => $this->name, 
 			'form_structer' => $this->value, 

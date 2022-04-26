@@ -2123,6 +2123,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZoneEFB')
   }
+  const pay = previewSate==true && valj_efb[0].type=="payment" ? 'payefb' : '';
   newElement = ``;
  // console.log(valj_efb[indexVJ]);
   //for(let q in  valj_efb[indexVJ]){
@@ -2280,8 +2281,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         
         for (const i of optns_obj) {
-          optn += `<div class="efb form-check " id="${i.id_}-v">
-          <input class="efb form-check-input emsFormBuilder_v ${valj_efb[iVJ].el_text_size} " data-type="${elementId}" data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
+          optn += `<div class="efb form-check " data-id="${i.id_}" id="${i.id_}-v">
+          <input class="efb form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-type="${elementId}" data-vid='${rndm}' type="${elementId}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
           <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
           </div>`
         }//end for 
@@ -2290,12 +2291,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const op_1 = Math.random().toString(36).substr(2, 9);
         const op_2 = Math.random().toString(36).substr(2, 9);
         optn = `
-       <div class="efb form-check" id="${op_1}-v">
-       <input class="efb emsFormBuilder_v form-check-input ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
+       <div class="efb form-check" data-id="${op_1}" id="${op_1}-v">
+       <input class="efb emsFormBuilder_v form-check-input ${pay} ${valj_efb[iVJ].el_text_size} " type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
        <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
        </div>
-       <div class="efb form-check" id="${op_2}-v">
-           <input class="efb emsFormBuilder_v form-check-input  ${valj_efb[iVJ].el_text_size}" type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
+       <div class="efb form-check" data-id="${op_2}" id="${op_2}-v">
+           <input class="efb emsFormBuilder_v form-check-input ${pay}  ${valj_efb[iVJ].el_text_size} " type="${elementId}" name="${valj_efb[iVJ].parent}" value="${elementId}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
            <label class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
        </div>`
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
@@ -2413,13 +2414,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
+          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="${valj_efb[indx_parent].el_text_color}  emsFormBuilder_v efb">${i.value}</option>`
         }//end for 
 
       } else {
         optn = `
-        <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb" >${efb_var.text.newOption} 1</option>
-        <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb" >${efb_var.text.newOption} 2</option>
+        <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb  " >${efb_var.text.newOption} 1</option>
+        <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb " >${efb_var.text.newOption} 2</option>
        `
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
         optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
@@ -2428,12 +2429,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       ${label}
       <div class="${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'  data-id="${rndm}-el" >
-      <select class="form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+      <select class="form-select efb emsFormBuilder_v ${pay}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
       <option selected disabled>${efb_var.text.nothingSelected}</option>
       ${optn}
       </select>
       ${desc}
       `
+      
       dataTag = elementId;
 
 
@@ -2551,7 +2553,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
    /*        optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" data-vid='${rndm}' 
           class="${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb">${i.value}</option>`
  */
-          optn +=`<tr class="efblist efb ${valj_efb[indx_parent].el_text_color}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
+          optn +=`<tr class="efblist efb ${valj_efb[indx_parent].el_text_color}  ${pay}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
           <th scope="row" class="bi-square efb"></th><td class="efb ms">${i.value}</td>
         </tr>  `
 
@@ -2559,13 +2561,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         //optn += `</ul></div>`
       } else {
         optn = `
-        <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
+        <tr class="efblist  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
         <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.blue}</td>
         </tr>
-      <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
+      <tr class="efblist  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
         <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.Red}</td>                  
       </tr>
-      <tr class="efblist" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
+      <tr class="efblist  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
         <th scope="row" class="bi-square efb"></th><td class="efb ms">${efb_var.text.yellow}</td>
       </tr>  
        `
@@ -2584,7 +2586,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb ${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect"   id='${rndm}-f' data-id="${rndm}-el" >
 
 
-        <div class="efb efblist mx-1  p-2 inplist  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
+        <div class="efb efblist  mx-1  p-2 inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
         <i class="efb efblist iconDD bi-caret-down-fill text-primary ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].el_height}" id="iconDD-${rndm}" data-id="menu-${rndm}"></i>
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
@@ -2653,7 +2655,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb col-md-12 col-sm-12 stripe"  id='${rndm}-f'>
       <div class="stripe-bg mx-2 p-3 card efb w-100">
       <div class="headpay efb border-b  row col-md-12">
-        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end "> <span id="totalpayEfb" class="d-flex justify-content-evenly">500 USD</span></div>
+        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end" id="payPriceEfb"> <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> <span class="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span></div>
       </div>
       <div class="col-md-12 my-2">
       <label for="cardnoEfb" class="efb fs-8">${efb_var.text.cardNumber}: </label>
@@ -2669,7 +2671,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div id="cardcvcEfb" class="efb"></div>
         </div>
       </div>
-      <button class="btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end" disabled id="btnStripeEfb">${efb_var.text.payNow}</button>
+      <a class="btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end disabled" id="btnStripeEfb">${efb_var.text.payNow}</a>
       <div class="efb bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" ></div>
       </div>
       </div>
@@ -3193,7 +3195,7 @@ const saveFormEfb = () => {
   let box = `error`
   let btnIcon = `bi-question-lg`
   let returnState= false;
-  
+  const gateway = valj_efb.findIndex(x=>x.type=="stripe");
   setTimeout(()=>{
     
     
@@ -3201,7 +3203,7 @@ const saveFormEfb = () => {
     //settingModalEfb-body
     const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
-
+    console.log(valj_efb[0].type=="payment" &&  gateway==-1)
     let timeout =1000;
     check_show_box=()=>{
      
@@ -3233,7 +3235,8 @@ const saveFormEfb = () => {
         }
       }
     }
-    if (valj_efb.length > 2 && proState == true && stepState == true) {
+    console.log("befor run");
+    if (valj_efb.length > 2 && proState == true && stepState == true &&( (valj_efb[0].type=="payment" &&  gateway!=-1) || valj_efb[0].type!="payment")) {
       title = efb_var.text.save
       box = `saveBox`
       icon = `bi-check2-circle`
@@ -3259,6 +3262,13 @@ const saveFormEfb = () => {
      
       returnState=true;
      
+    } else if (valj_efb[0].type=="payment" &&  gateway==-1 ){
+      console.log('payment not add');
+      btnText = efb_var.text.help
+      btnFun = `open_whiteStudio_efb('paymentform')`
+      message = efb_var.text.addPaymentGetway;
+      icon = 'bi-bug'
+      returnState=true;
     }
     if (state == false) {
       
@@ -3291,7 +3301,7 @@ const saveFormEfb = () => {
     show_modal_efb(body,efb_var.text.error, btnIcon, 'error')
     myModal.show();
   }
-},100)
+  },100)
 }//end function
 
 
@@ -4305,7 +4315,6 @@ function previewFormEfb(state){
   let icons = ``
   let pro_bar = ``
   //public key stripe
-  const stripe = Stripe('pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV')
   const id = state == "run" ? 'body_efb' : 'settingModalEfb_';
   const len = valj_efb.length;
   const p = calPLenEfb(len)
@@ -4421,7 +4430,7 @@ function previewFormEfb(state){
       document.getElementById(id).innerHTML+=add_buttons_zone_efb(t, id);
       if(valj_efb[0].type=="payment"){
         console.log('payment');
-        fun_add_stripe_efb();
+       if(ajax_object_efm.paymentGateway=="stripe") fun_add_stripe_efb();
       }
     }
 
@@ -4802,154 +4811,165 @@ fun_addStyle_costumize_efb=(val,key,indexVJ)=>{
 fun_add_stripe_efb=()=>{
   if(typeof document.getElementById('cardnoEfb')!="object") return;
   console.log('fun_add_stripe_efb');
-  const stripe = Stripe('pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV')
-
-  const elsStripeStyleEfb={
-    base:{iconColor:'#6c757d',
-    color:'#6c757d',
-    fontFamily:'sans-serif',
-    fontSize: '30px',
-    '::placeholder': { color:'#757593'}
-    },
-    complete:{ color:'green'}
-}
-const btntripeStyleEfb ={
-    fontFamily:'sans-serif',
-    fontSize: '20px',
-    fontWeight:'400',
-    complete:{ color:'green'}
-}
-
-
-const cardnoEfb = document.getElementById('cardnoEfb')
-const cardexpEfb = document.getElementById('cardexpEfb')
-const cardcvcEfb = document.getElementById('cardcvcEfb')
-const btnStripeEfb = document.getElementById('btnStripeEfb')
-const stsStripeEfb = document.getElementById('statusStripEfb')
-
-const elements = stripe.elements()
-
-const numElm = elements.create('cardNumber',{showIcon:true,iconStyle:'solid', style:elsStripeStyleEfb})
-numElm.mount(cardnoEfb)
-    
-const expElm = elements.create('cardExpiry', {disabled:true, style:elsStripeStyleEfb})
-expElm.mount(cardexpEfb)
-
-const cvcElm = elements.create('cardCvc', {disabled:true, style:elsStripeStyleEfb})
-cvcElm.mount(cardcvcEfb)
-
-numElm.on('change', (e) =>{
-    if(e.complete){
-        expElm.update({disabled:false})
-        expElm.focus()
-    }
-})
-
-expElm.on('change', (e) =>{
-    if(e.complete){
-        cvcElm.update({disabled:false})
-        cvcElm.focus()
-    }
-})
-
-cvcElm.on('change', (e) =>{
-    if(e.complete){
-       btnStripeEfb.disabled = false 
-    }
-})
-
-btnStripeEfb.addEventListener('click', ()=>{
-    btnStripeEfb.disabled = true 
-    btnStripeEfb.innerHTML="Please Waiting"
-    console.log(ajax_object_efm.ajax_url);
-    jQuery(function ($) {
-      data = {
-        action: "pay_stripe_sub_efb",
-        value: {},
-        name: formName,
-        nonce: ajax_object_efm.nonce,
-      };
-
-      $.ajax({
-        type: "POST",
-        async: false,
-        url: ajax_object_efm.ajax_url,
-        data: data,
-        success: function (res) {         
-          console.log(res.data) ;    
-          /* document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
-          document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-          response_Valid_tracker_efb(res) */
-          if(res.data.success==true){
-            stripe.confirmCardPayment(res.data.client_secret, {
-              payment_method:{card:numElm}
-              }).then(transStat => {
-                  if(transStat.error){
-                      stsStripeEfb.innerHTML = `
-                      <strong>Error:  </string> ${transStat.error.message}
-                      `
-                      btnStripeEfb.disabled = false 
-                      btnStripeEfb.innerHTML="Pay Now"
-                  }
-                  else{
-                      stsStripeEfb.innerHTML = `
-                      <h3 class="efb text-darkb p-0 m-0 mt-1 text-center"><i class="bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
-                      <p class="efb text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>
-                      <p class="efb text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${transStat.paymentIntent.id}</p>
-                      <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
-                      `
-                      btnStripeEfb.innerHTML="Done"
-                      btnStripeEfb.style.display="none";
-                      //active next or send button !!
-                      //disable button
-                  }
-                  stsStripeEfb.style.display='block'
-              })
-          }else{
-            noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
-          }
+  if(ajax_object_efm.hasOwnProperty('paymentKey')){
+        const stripe = Stripe(ajax_object_efm.paymentKey)
+      
+        const elsStripeStyleEfb={
+          base:{iconColor:'#6c757d',
+          color:'#6c757d',
+          fontFamily:'sans-serif',
+          fontSize: '30px',
+          '::placeholder': { color:'#757593'}
+          },
+          complete:{ color:'green'}
+      }
+      const btntripeStyleEfb ={
+          fontFamily:'sans-serif',
+          fontSize: '20px',
+          fontWeight:'400',
+          complete:{ color:'green'}
+      }
+      
+      
+      const cardnoEfb = document.getElementById('cardnoEfb')
+      const cardexpEfb = document.getElementById('cardexpEfb')
+      const cardcvcEfb = document.getElementById('cardcvcEfb')
+      const btnStripeEfb = document.getElementById('btnStripeEfb')
+      const stsStripeEfb = document.getElementById('statusStripEfb')
+      /* console.log(valj_efb[0].currency ,document.getElementById('currencyPayEfb'));
+      document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency; */
+      const elements = stripe.elements()
+      
+      const numElm = elements.create('cardNumber',{showIcon:true,iconStyle:'solid', style:elsStripeStyleEfb})
+      numElm.mount(cardnoEfb)
           
-        },
-        error: function (res) {
-          console.error(res) ;   
-          noti_message_efb(efb_var.text.error, res, 15, 'danger')
-          btnStripeEfb.innerHTML="Pay" 
-          /* document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
-          document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-          response_Valid_tracker_efb({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact to admin (E:JQ Co)' } }) */
-        }
+      const expElm = elements.create('cardExpiry', {disabled:true, style:elsStripeStyleEfb})
+      expElm.mount(cardexpEfb)
+      
+      const cvcElm = elements.create('cardCvc', {disabled:true, style:elsStripeStyleEfb})
+      cvcElm.mount(cardcvcEfb)
+      
+      numElm.on('change', (e) =>{
+          if(e.complete){
+              expElm.update({disabled:false})
+              expElm.focus()
+          }
       })
-    });
-   /*  fetch('/paymentIntent.php', {
-        method:'POST', 
-        headers:{'Content-Type': 'application/json'},
-        body:{}
-    })
-    .then(res=>res.json())
-    .then(payload => {
-        stripe.confirmCardPayment(payload.client_secret, {
-            payment_method:{card:numElm}
-        }).then(transStat => {
-            if(transStat.error){
-                stsStripeEfb.innerHTML = `
-                <strong>Error:  </string> ${transStat.error.message}
-                `
-                btnStripeEfb.disabled = false 
-                btnStripeEfb.innerHTML="Pay Now"
-            }
-            else{
-                stsStripeEfb.innerHTML = `
-               <h3>${transStat.paymentIntent.description}</h3>
-               <strong>Transction Id: </strong>${transStat.paymentIntent.id}<br>
-               <strong>Amount deducted: </strong> ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency}
-                `
-                btnStripeEfb.innerHTML="Done"
-                //active next or send button !!
-                //disable button
-            }
-            stsStripeEfb.style.display='block'
-        })
-    }) */
-})
+      
+      expElm.on('change', (e) =>{
+          if(e.complete){
+              cvcElm.update({disabled:false})
+              cvcElm.focus()
+          }
+      })
+      
+      cvcElm.on('change', (e) =>{
+      
+          if(e.complete ){
+            //btnStripeEfb.disabled = false 
+            console.log(btnStripeEfb.classList);
+              btnStripeEfb.classList.remove('disabled');
+          
+          }
+      })
+      
+      btnStripeEfb.addEventListener('click', ()=>{
+          btnStripeEfb.innerHTML=efb_var.text.pleaseWaiting;
+          //console.log(ajax_object_efm.ajax_url);
+          const v = fun_pay_valid_price();
+          console.log(v)
+          if(v==false){
+            noti_message_efb(efb_var.text.error,efb_var.text.emptyCartM,10,'warning')      
+            btnStripeEfb.innerHTML=efb_var.text.payNow
+            return false;
+          }else{
+            btnStripeEfb.classList.add('disabled');
+            jQuery(function ($) {
+              data = {
+                action: "pay_stripe_sub_efb",
+                value: JSON.stringify(sendBack_emsFormBuilder_pub),
+                name: formName,
+                id : efb_var.id.id,
+                nonce: ajax_object_efm.nonce,
+              };
+              console.log(data);
+              $.ajax({
+                type: "POST",
+                async: false,
+                url: ajax_object_efm.ajax_url,
+                data: data,
+                success: function (res) {         
+                  console.log(res.data) ;    
+      
+                  if(res.data.success==true){
+                    stripe.confirmCardPayment(res.data.client_secret, {
+                      payment_method:{card:numElm}
+                      }).then(transStat => {
+                          if(transStat.error){
+                              stsStripeEfb.innerHTML = `
+                              <strong>${efb_var.text.error}  </string> ${transStat.error.message}
+                              `
+                              noti_message_efb(efb_var.text.error,transStat.error.message,10,'warning')  
+                              btnStripeEfb.classList.remove('disabled');
+                              btnStripeEfb.innerHTML=efb_var.text.payNow
+                          }
+                          else{
+                              stsStripeEfb.innerHTML = `
+                              <h3 class="efb text-darkb p-0 m-0 mt-1 text-center"><i class="bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
+                              <p class="efb text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>
+                              <p class="efb text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${transStat.paymentIntent.id}</p>
+                              <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
+                              `
+
+                              sendBack_emsFormBuilder_pub.push({id_:transStat.paymentIntent.id , amount:efb_var.text.payAmount ,type:'paymentGateway' , gateway:'strip'})
+                              btnStripeEfb.innerHTML="Done"
+                              btnStripeEfb.style.display="none";
+                              //active next or send button !!
+                              //disable button
+                          }
+                          stsStripeEfb.style.display='block'
+                      })
+                  }else{
+                    btnStripeEfb.classList.remove('disabled');
+                    noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
+                  }
+                  
+                },
+                error: function (res) {
+                  console.error(res) ;  
+                  btnStripeEfb.classList.remove('disabled'); 
+                  const m = `<p class="h4">${efb_var.text.error}${res.status}</p> ${res.statusText} </br> ${res.responseText}`
+      
+                  noti_message_efb('Stripe', m, 120, 'danger')
+                  btnStripeEfb.innerHTML="Pay" 
+                
+                }
+              })
+            }); //end jquery
+            
+          }
+        
+      })//end  btnStripeEfb
+
+
+  }// end if paymentKey
+
+
+}//end fun_add_stripe_efb
+
+fun_pay_valid_price=()=>{
+  //console.log('fun_pay_valid_price')
+let s=false ;
+let price=0
+for(let o of sendBack_emsFormBuilder_pub){
+  console.log(o.hasOwnProperty('price'))
+  if(o.hasOwnProperty('price')) price += parseFloat(o.price)
 }
+s = price>0 ? true : false;
+console.log(s,price);
+
+return s;
+}
+
+
 

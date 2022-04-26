@@ -488,6 +488,8 @@ class efbFunction {
 			"payAmount" => $state  &&  isset($ac->text->payAmount) ? $ac->text->payAmount : __('Pay amount','easy-form-builder'),
 			"successPayment" => $state  &&  isset($ac->text->successPayment) ? $ac->text->successPayment : __('Success payment','easy-form-builder'),
 			"transctionId" => $state  &&  isset($ac->text->transctionId) ? $ac->text->transctionId : __('Transction Id','easy-form-builder'),
+			"addPaymentGetway" => $state  &&  isset($ac->text->addPaymentGetway) ? $ac->text->addPaymentGetway : __('Error,You need to add payment gateway to the form','easy-form-builder'),
+			"emptyCartM" => $state  &&  isset($ac->text->emptyCartM) ? $ac->text->emptyCartM : __('Your cart is empty , Please add a few items','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
@@ -663,7 +665,7 @@ class efbFunction {
 
 	public function get_setting_Emsfb()
 	{			
-		$table_name = $this->db->prefix . "Emsfb_setting"; 
+		$table_name = $this->db->prefix . "emsfb_setting"; 
 		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 		$rtrn='null';
 		
@@ -683,7 +685,7 @@ class efbFunction {
         $lang= $this->text_efb($text);		
 	 
 		$email="null";
-		$table_name = $this->db->prefix . "Emsfb_msg_"; 
+		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
 		//error_log("json_encode(user_data)");
 		$form_id = $data[0]->form_id;
@@ -691,7 +693,7 @@ class efbFunction {
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
 		$user_res = json_decode($user_res,true);
-		$table_name = $this->db->prefix . "Emsfb_form"; 
+		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);

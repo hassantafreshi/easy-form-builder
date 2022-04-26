@@ -80,7 +80,7 @@ class _Public {
 		//error_log('form Genrate');
 		$efbFunction = new efbFunction();  
 		
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$pro=false;
 		foreach ($id as $row_id){
 			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
@@ -89,6 +89,9 @@ class _Public {
 		if($this->value==null){
 			return "<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
 		}
+		$typeOfForm =$this->value[0]->form_type;
+		$value = $this->value[0]->form_structer;
+
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -101,40 +104,46 @@ class _Public {
 			$state="form";
 			
 		}
+		$paymentType="";
+		$paymentKey ='';
+		if($typeOfForm=="payment"){
+			//,\"type\":\"stripe\",
+			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
+		
+		}
+		error_log($paymentType);
 		$r= $this->get_setting_Emsfb('setting');
+		
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
 			$setting =json_decode($setting);
 			//error_log(gettype( $setting));
 		//	error_log($setting->activeCode);
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if(md5($server_name) ==$setting->activeCode){
-				//error_log($setting->activeCode);
-				//error_log('pro == true');
-				$pro=true;
+			if(md5($server_name) ==$setting->activeCode){$pro=true;}
+			if($typeOfForm=="payment" &&  $paymentType=="stripe" && $pro== true){ 
+				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+				wp_enqueue_script('stripe-js');
+				$paymentKey='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
 			}
 		}
+
+
+
 		
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 		$send=array();				
 		//translate v2
-		$showform =["transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
+		$showform =["emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
 		$text= $efbFunction->text_efb($showform);
 				
 				
-				$typeOfForm =$this->value[0]->form_type;
-				//error_log($this->value[0]);
 				
-				$value = $this->value[0]->form_structer;
 				
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
 				
 				$formObj= json_decode($fs,true);
-				
-			/* 	if( $formObj[0]["type"]=="payment"){
-					wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-					wp_enqueue_script('stripe-js');
-				} */
+	
 				
 				if(($formObj[0]["stateForm"]==true || $formObj[0]["stateForm"]==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
@@ -162,20 +171,30 @@ class _Public {
 					$send['user_image']=get_avatar_url(get_current_user_id());
 					$value=$send;
 				}
-		wp_localize_script( 'core_js', 'ajax_object_efm',
-		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
-			   'ajax_value' =>$value,
-			    'type' => $typeOfForm,
-			//   'type' =>'login',
-			   'state' => $state,
-			   'language' => $lang,
-			   'id' => $this->id,			  
-			   'form_setting' => $stng,
-			   'nonce'=> wp_create_nonce("public-nonce"),
-			   'poster'=> $poster,
-			   'rtl' => is_rtl(),
-			   'text' =>$text 
-		 ));  
+
+		$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
+		'ajax_value' =>$value,
+		 'type' => $typeOfForm,
+		'state' => $state,
+		'language' => $lang,
+		'id' => $this->id,			  
+		'form_setting' => $stng,
+		'nonce'=> wp_create_nonce("public-nonce"),
+		'poster'=> $poster,
+		'rtl' => is_rtl(),
+		'text' =>$text 
+			);
+		if($typeOfForm=="payment"){
+			$ar_core = array_merge($ar_core , array(
+				'paymentGateway' =>$paymentType,
+				'paymentKey' => $paymentKey
+			));
+			/* 
+			$paymentType="";
+		    $paymentKey ='';
+			*/
+		}
+		wp_localize_script( 'core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
 		// $pro=false;		
 		 if(gettype($stng)!=="integer" && $stng!=$this->lanText["settingsNfound"]){
@@ -296,8 +315,7 @@ class _Public {
 		/* v2 */
 
 		//اگر پرو بود اگر پلاگین نصب بود 
-		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-		wp_enqueue_script('stripe-js');
+	
 		if($bootstrap==false){
 			
 			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
@@ -378,7 +396,7 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
 		//error_log($fs);
@@ -782,11 +800,11 @@ class _Public {
 		
 			$this->get_ip_address();
 			
-			$table_name = $this->db->prefix . "Emsfb_msg_";
+			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track FROM `$table_name` WHERE track = '$id'" );	
 			if($value!=null){
 				$id=$value[0]->msg_id;
-				$table_name = $this->db->prefix . "Emsfb_rsp_";
+				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
 				///get_current_user_id
 				foreach($content as $key=>$val){
@@ -834,7 +852,7 @@ class _Public {
 	public function insert_message_db(){
 		//error_log($this->value);
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
-		$table_name = $this->db->prefix . "Emsfb_msg_";
+		$table_name = $this->db->prefix . "emsfb_msg_";
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -932,7 +950,7 @@ class _Public {
 				$m=sanitize_text_field($_POST['message']);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
-				$table_name = $this->db->prefix . "Emsfb_rsp_";				
+				$table_name = $this->db->prefix . "emsfb_rsp_";				
 				$ip =$this->get_ip_address();
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
@@ -954,10 +972,10 @@ class _Public {
 					$by = $usr->user_nicename;
 					//error_log($by);
 				}
-				$table_name = $this->db->prefix . "Emsfb_msg_";
+				$table_name = $this->db->prefix . "emsfb_msg_";
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
 				$form_id  = $value[0]->form_id;
-				$table_name = $this->db->prefix . "Emsfb_form";
+				$table_name = $this->db->prefix . "emsfb_form";
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 				$valn =str_replace('\\', '', $vald[0]->form_structer);
 				$valn= json_decode($valn,true);
@@ -1039,7 +1057,7 @@ class _Public {
 	 
 	
 	 
-	 $table_name = $this->db->prefix . "Emsfb_setting";
+	 $table_name = $this->db->prefix . "emsfb_setting";
  
  
 	 $value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
@@ -1107,13 +1125,23 @@ class _Public {
 
        /*  $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "Emsfb_form";
+        $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
 
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
 
         include(WP_PLUGIN_DIR."/easy-form-builder-pay/vendor/autoload.php");
         error_log('payment');
+		$this->id = sanitize_text_field($_POST['id']);
+		$val_ = sanitize_text_field($_POST['value']);
+		error_log($this->id);
+		error_log($val_);
+		$table_name = $this->db->prefix . "emsfb_form";
+		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+		error_log($this->value[0]->form_structer);
+		$fs =str_replace('\\', '', $this->value[0]->form_structer);
+		//error_log($fs);
+		$formObj= json_decode($fs,true);
 
         $stripe = new \Stripe\StripeClient("sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd");
         $paymentIntent = $stripe->paymentIntents->create([
