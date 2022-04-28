@@ -1293,7 +1293,8 @@ function clear_garbeg_emsFormBuilder() {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       //console.log(c,content[c]);
-      if (content[c].type != "checkbox" && content[c].type != "multiselect") {
+      if (content[c].type != "checkbox" && content[c].type != 'multiselect' 
+      && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect') {
 
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
 
@@ -1307,7 +1308,7 @@ function clear_garbeg_emsFormBuilder() {
 
         rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value ;
 
-      }else if(content[c].type == "multiselect"){
+      }else if(content[c].type == 'multiselect' || content[c].type == 'payMultiselect'){
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
         value_col_index = rows[0].findIndex(x => x == content[c].name);
         if (value_col_index == -1) {

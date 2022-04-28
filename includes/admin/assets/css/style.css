@@ -135,7 +135,7 @@ width: 100%;
 }
 
 .SelectItem.efb .btn-light.efb:hover {
-background-image: linear-gradient(65deg,#4636f1 0,#6030b8 100%);
+background-image: linear-gradient(65deg,#030308 0,#6030b8 100%);
 color: white;
 transition: 0.5s;
 }
@@ -607,11 +607,21 @@ font-size: 18px!important;
 .efb.btn-edit-holder {
 float: right;
 margin-top: -40px;
-margin-right: 8px;
+margin-left: 73%;
 position: relative;
+z-index: 10;
+}
+
+.mobile .efb.btn-edit-holder{
+    margin-left: 0;
+    margin-right: 0;
+    
 }
 #btnSetting-button_group.btn-edit-holder {
-margin-right: -26%!important;
+    margin-left: 50%;
+    margin-right: 50%;
+    margin-top: -40px;
+    z-index: 10;
 }
 .efb.btn-edit-holder-new {
 float: right;
@@ -2066,12 +2076,20 @@ input[type=checkbox].efb.fs-2.form-check-input
 
     .efb.efblist.inplist { overflow: hidden;}
 
+    tr.efblist {
+        display: block;
+        margin: 0px 7px!important;
+    }
 
     .efblist.inplist.h-d-efb{
         font-size: 20px!important;
         padding-left: 38px!important;
         padding-right: 38px!important;
         min-height: 42px;
+    }
+
+    .mobile .efblist.inplist.h-d-efb{
+        font-size: 17px!important;
     }
     .efblist.inplist.h-l-efb{
         font-size: 25px!important;

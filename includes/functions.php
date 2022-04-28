@@ -490,6 +490,11 @@ class efbFunction {
 			"transctionId" => $state  &&  isset($ac->text->transctionId) ? $ac->text->transctionId : __('Transction Id','easy-form-builder'),
 			"addPaymentGetway" => $state  &&  isset($ac->text->addPaymentGetway) ? $ac->text->addPaymentGetway : __('Error,You need to add payment gateway to the form','easy-form-builder'),
 			"emptyCartM" => $state  &&  isset($ac->text->emptyCartM) ? $ac->text->emptyCartM : __('Your cart is empty , Please add a few items','easy-form-builder'),
+			"payCheckbox" => $state  &&  isset($ac->text->payCheckbox) ? $ac->text->payCheckbox : __('Payment Multi choose','easy-form-builder'),
+			"payRadio" => $state  &&  isset($ac->text->payRadio) ? $ac->text->payRadio : __('Payment Single choose','easy-form-builder'),
+			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : __('Payment Select choose','easy-form-builder'),
+			"payMultiselect" => $state  &&  isset($ac->text->payMultiselect) ? $ac->text->payMultiselect : __('Payment dropdown list','easy-form-builder'),
+			"errorCode" => $state  &&  isset($ac->text->errorCode) ? $ac->text->errorCode : __('Error Code','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

@@ -678,7 +678,8 @@ function createStepsOfPublic() {
 
         if (value != "" || value.length > 1) {
           const type = ob.type
-          let o = [{ id_: id_, name:ob.name,id_ob:el.id,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          const id_ob = ob.type!="select" ? el.id :id_;
+          let o = [{ id_: id_, name:ob.name,id_ob:id_ob,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);  
             console.log(el , valueJson_ws);
@@ -725,7 +726,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   console.log(ob);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect")) {
+    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     } else { if(indx == -1){sendBack_emsFormBuilder_pub.push(ob) }else{
@@ -1383,8 +1384,10 @@ function validation_before_send_emsFormBuilder() {
       }
     } else if (row.type != "@file@") {      
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-      if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select") {    
-        const exists = valueJson_ws[indx].type == "multiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
+      console.log(valueJson_ws ,row)
+      if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
+       || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect" ) {    
+        const exists = valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "payMultiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
         fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
        // console.log(valueJson_ws[indx].id_ ,exists ,fill)
       } else {
@@ -1403,7 +1406,7 @@ function validation_before_send_emsFormBuilder() {
     document.getElementById('body_efb').scrollIntoView(true);
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws) {
-      if (v.type != 'file' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select') {
+      if (v.type != 'file'  && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect'  && v.type != 'payRadio' && v.type != 'payCheckbox') {
         // console.log(v);
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
@@ -1485,6 +1488,7 @@ function response_fill_form_efb(res) {
     switch (form_type_emsFormBuilder) {
       case 'form':
       case 'survey':
+      case 'payment':
         document.getElementById('efb-final-step').innerHTML = funTnxEfb(res.data.track)
         break;
       case 'subscribe':
