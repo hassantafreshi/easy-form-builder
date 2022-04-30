@@ -302,7 +302,7 @@ class efbFunction {
 			"reportProblem" => $state ? $ac->text->reportProblem : __('Report problem','easy-form-builder'),
 			"ddate" => $state ? $ac->text->ddate : __('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : __('Your e-mail server able to send Emails','easy-form-builder'),
-			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('Your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),
+			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('SMTP Error, the host is not able send email . Please contact host support','easy-form-builder'),
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : __('The file is not the right file type','easy-form-builder'),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : __('The Field is not available in this type forms','easy-form-builder'),
@@ -437,7 +437,7 @@ class efbFunction {
 			"fileDeleted" => $state ? $ac->text->fileDeleted : __('Files are Deleted','easy-form-builder'),
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
-			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
+			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please contact Admin, Settings Error','easy-form-builder'),
 			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel >> Settings >> selected option:  My template have used BootStrap framwork >> Save','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
@@ -681,7 +681,7 @@ class efbFunction {
 			break;
 			} 
 		}
-	
+		//error_log(json_encode($rtrn));
 		return $rtrn;
 	}
 

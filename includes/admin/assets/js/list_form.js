@@ -248,12 +248,13 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <h6 class="efb text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
-    let value = `<b>${c.value.replaceAll('@efb!' ,',')}</b>`;    
+    console.log(c);
+    let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@") {
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
-        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank">${efb_var.text.download}</a>`
+        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank" download=>${efb_var.text.download}</a>`
       } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -264,7 +265,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         })
         if (media == "video") {
           const len = c.url.length;
-          const type = c.url.slice((len - 3), len);          
+          const type = c.url.slice((len - c.url.lastIndexOf(x=>x==".")), len);          
           value = type !== 'avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;

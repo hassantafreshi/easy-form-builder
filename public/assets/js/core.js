@@ -730,7 +730,7 @@ function fun_sendBack_emsFormBuilder(ob) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     } else { if(indx == -1){sendBack_emsFormBuilder_pub.push(ob) }else{
-      console.log(typeof ob.price);
+      //console.log(typeof ob.price);
      if(typeof ob.price !="string") {
        sendBack_emsFormBuilder_pub[indx].value = ob.value;
       }else{
@@ -1003,6 +1003,8 @@ function valid_file_emsFormBuilder(id) {
   const el = document.getElementById(i);
 
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
+    const filetype = el.files[0].type.length>1 ?el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".")-1)*-1))
+    console.log(file,el.files[0].name,filetype);
     const r= validExtensions_efb_fun(file, el.files[0].type)
     if (r == true) {
       check = +1;
@@ -1049,6 +1051,7 @@ function fun_upload_file_emsFormBuilder(id, type) {
     var idn = '#' + id + '_'
     var file = jQuery(document).find(idn);    
     var caption = jQuery(this).find(idn);
+    console.log(file);
     var individual_file = file[0].files[0];
     fd.append("file", individual_file);
     var individual_capt = caption.val();
@@ -1155,7 +1158,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
             error: function () {
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-              response_Valid_tracker_efb({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact to admin (E:JQ Co)' } })
+              response_Valid_tracker_efb({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact Admin (E:JQ Co)' } })
             }
           })
         });
@@ -1322,7 +1325,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) { response_rMessage_id(res, message) },
-      error: function () { response_rMessage_id({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact to admin (E:JQ Co)' } }) }
+      error: function () { response_rMessage_id({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact Admin (E:JQ Co)' } }) }
 
     })
 

@@ -35,9 +35,7 @@ class Admin {
            
         }
         
-        
-        
-
+    
         // Add plugin caps to admin role
         if (is_admin() and is_super_admin()) {
             $this->add_cap();
@@ -168,6 +166,9 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
 
+        
+
+        
 
       //  add_menu_page(__('Panel', 'Emsfb'),__('Panel', 'Emsfb'), 'Emsfb', '', '');
         add_menu_page(
@@ -180,8 +181,6 @@ class Admin {
             '' . $icon . ''
         ); 
         add_submenu_page('Emsfb', __('Panel', 'easy-form-builder'), __('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
-        //
-
     }
 
     /**
@@ -745,6 +744,9 @@ class Admin {
         $rtrn       = 'null';
         return $value;
     }
+
+
+
 
    
 

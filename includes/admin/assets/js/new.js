@@ -3909,7 +3909,7 @@ function viewfileEfb(id, indx) {
 
 function validExtensions_efb_fun(type, fileType) {
 
-
+  console.log(type , fileType);
   let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
   if (type == "document") {
     validExtensions = ["application/pdf", "text", 'text/plain', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword',

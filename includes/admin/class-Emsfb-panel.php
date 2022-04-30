@@ -232,6 +232,8 @@ class Panel_edit  {
 					'pro'=>$pro
 					
 				));
+
+				//$this->check_temp_is_bootstrap();
 					
 		}else{
 			echo "Easy Form Builder: You dont access this section";
@@ -258,6 +260,29 @@ class Panel_edit  {
 		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
 		return $value;
 	}
+
+
+	public function check_temp_is_bootstrap (){
+        $it = list_files(get_theme_root());
+        $it = list_files(WP_PLUGIN_DIR);
+        $s = false;
+        foreach($it as $path) {
+            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){
+                    $s= true;
+                     /* error_log("Bootstrap template!");
+                    error_log($path);  */
+                    break;
+                    //\bcol-md-12
+                }
+            }
+        }
+
+        return true;
+      
+    }//end fun
 
 
 
