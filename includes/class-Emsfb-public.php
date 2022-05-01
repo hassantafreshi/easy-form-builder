@@ -111,14 +111,14 @@ class _Public {
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
 		
 		}
-		error_log($paymentType);
+		//error_log($paymentType);
 		$r= $this->get_setting_Emsfb('setting');
 		
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
 			$setting =json_decode($setting);
 			//error_log(gettype( $setting));
-		//	error_log($setting->activeCode);
+			//error_log($setting->activeCode);
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			if(md5($server_name) ==$setting->activeCode){$pro=true;}
 			if($typeOfForm=="payment" &&  $paymentType=="stripe" && $pro== true){ 
@@ -393,7 +393,7 @@ class _Public {
 		$r= $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
-		error_log($type);
+		//error_log($type);
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
@@ -462,7 +462,7 @@ class _Public {
 			}
 			$this->value = sanitize_text_field($_POST['value']);
 			$this->name = sanitize_text_field($_POST['name']);
-			error_log($this->value);
+			//error_log($this->value);
 			$this->id = sanitize_text_field($_POST['id']);		
 			$fs =str_replace('\\', '', $this->value);
 			$valobj = json_decode($fs , true);
@@ -517,26 +517,22 @@ class _Public {
 							$ip = $this->ip;
 							if(!session_id()) {session_start();}
 							$vv =($_SESSION['val_efb']);
-							error_log('vv');
-							error_log($vv);
+							//error_log('vv');
+							//error_log($vv);
 							$vv_ =str_replace('\\', '', $vv);
-							error_log($vv_);
+							//error_log($vv_);
 							$vv = json_decode($vv_,true);
-							error_log(gettype($vv));
+							//error_log(gettype($vv));
 							
 							$filtered = array_filter($valobj, function($item) use ($vv) { 
 										if(isset($item['price'])==false)	return $item; 								
 							});
-							error_log('filted');
-							error_log(json_encode($filtered));
-							$valobj=array_merge($filtered , $vv);
-							error_log("json_encode(valobj)");
-							error_log(json_encode($valobj));
+							//error_log('filted');
+							//error_log(json_encode($filtered));
+							$valobj=array_merge($filtered , $vv);							
 							$vv=json_encode($valobj);
 							$vv=str_replace('"', '\\"', $vv);
 							$this->value = sanitize_text_field($vv);
-							error_log("this->value");
-							error_log($this->value);
 							$check=	$this->insert_message_db();
 							if(!empty($r)){
 								
@@ -910,7 +906,7 @@ class _Public {
 
 
 	public function insert_message_db(){
-		error_log($this->value);
+		//error_log($this->value);
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		$this->db->insert($table_name, array(
@@ -1191,10 +1187,10 @@ class _Public {
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
 
         include(WP_PLUGIN_DIR."/easy-form-builder-pay/vendor/autoload.php");
-        error_log('payment');
+        //error_log('payment');
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
-		error_log($this->id);
+		//error_log($this->id);
 		/* error_log($val_); */
 		$table_name = $this->db->prefix . "emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
@@ -1209,21 +1205,17 @@ class _Public {
 		$price_f=0;
 		$email ='';
 		for ($i=0; $i <count($val_) ; $i++) { 
-			error_log('for (i=0; i <count($val_) ; i++)');
+			//error_log('for (i=0; i <count($val_) ; i++)');
 			# code...
 			//$val_[$i]['id_']
 			$a=-1;
-			if(isset($val_[$i]['price'])){
-				error_log($val_[$i]['type']);
-				error_log('price');
-				error_log($val_[$i]['price']);
+			if(isset($val_[$i]['price'])){				
 				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 		/* 		error_log($val_[$i]["type"]);
 				error_log("id_ob of val from client");
 				error_log($val_[$i]["id_ob"]); */
 				$iv = $val_[$i];
-				error_log($iv["type"]);
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
 						switch ($iv["type"]) {
@@ -1240,7 +1232,6 @@ class _Public {
 					});
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
-					 error_log(json_encode($iv));
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
 					$rows = explode( ',', $iv["ids"] );					
 					foreach ($rows as $key => $value) {
@@ -1266,22 +1257,16 @@ class _Public {
 				} */
 				if($a !=-1){
 					/* error_log($fs_[$a]["id_"]);					
-					error_log($fs_[$a]["id_op"]); */	
-					error_log($fs_[$a]["type"]);				
-					error_log($fs_[$a]["price"]);					
-					if($fs_[$a]["type"]!="payMultiselect"){
-						error_log($fs_[$a]["price"]);
+					error_log($fs_[$a]["id_op"]); */						
+					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
 					}
-				}else{
-					error_log("a == -1");
 				}
 			}
 
 			
 		}
-		error_log($price_c);
-		error_log($price_f);
+
 		if($price_c != $price_f) {
 			$this->get_ip_address();
 			$t=time();
@@ -1310,15 +1295,14 @@ class _Public {
 			if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}        
 			$paymentIntent = $stripe->paymentIntents->create($newPay);
 			
-			error_log(json_encode($paymentIntent));
+			
 
 			if(!session_id()) {session_start();}
 			//$val_
 			$filtered = array_filter($val_, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
-			error_log("json_encode(filtered)");
-			error_log(json_encode($filtered));
+
 			$amount = $paymentIntent->amount/100;
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
 			$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
@@ -1329,7 +1313,7 @@ class _Public {
 			array_push($filtered,$ar);
 			$val_ = json_encode($filtered);
 			$_SESSION['val_efb'] = sanitize_text_field($val_);
-			error_log($_SESSION['val_efb']);
+			//error_log($_SESSION['val_efb']);
 			$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret);		
 			wp_send_json_success($response, $_POST);
 

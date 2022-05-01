@@ -77,7 +77,7 @@ for (let v of valueJson_ws) {
 
       const vtype =(v.type=="payCheckbox" || v.type=="payRadio" || v.type=="paySelect"  || v.type=="payMultiselect") ? v.type.slice(2).toLowerCase() : v.type ;
       el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${vtype}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
-      console.log(vtype);
+      
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
     case 'file':

@@ -76,7 +76,7 @@ function Link_emsFormBuilder(state) {
     link = github+"How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
     break;
   }
-  console.log(link);
+  //console.log(link);
   window.open(link, "_blank")
 }
 
@@ -208,7 +208,7 @@ function getOS_emsFormBuilder() {
 }
 
 createCardFormEfb=(i)=>{
-  console.log(i,efb_var);
+  //console.log(i,efb_var);
   return`
   <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
   ${i.pro == true && efb_var.pro!=true ? `<div class="efb pro-card"><a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a></div>` : ''}
@@ -277,7 +277,7 @@ function add_dasboard_emsFormBuilder(){
 
 
 function FunfindCardFormEFB(){
-  console.log('FunfindCardFormEFB')
+  //console.log('FunfindCardFormEFB')
   let cards=[];
   const v = document.getElementById('findCardFormEFB').value.toLowerCase();
   document.getElementById('listFormCardsEFB').innerHTML =''
@@ -287,7 +287,7 @@ function FunfindCardFormEFB(){
   let result ='<!--Search-->'
   for(let c of cards){  result += createCardFormEfb(c);}
   if (result=="'<!--Search-->'") result="NotingFound";
-  console.log(document.getElementById("listFormCardsEFB"))
+  //console.log(document.getElementById("listFormCardsEFB"))
   document.getElementById("listFormCardsEFB").innerHTML=result;
 
   let newform_=document.getElementsByClassName("efbCreateNewForm")
@@ -301,7 +301,7 @@ function FunfindCardFormEFB(){
 
 function create_form_by_type_emsfb(id,s){
   //v2
-  console.log(id);
+  //console.log(id);
   localStorage.removeItem('valj_efb');
   if(s!="pre"){
     document.getElementById('header-efb').innerHTML=``;
@@ -422,7 +422,7 @@ function create_form_by_type_emsfb(id,s){
   }else if(id=="reservation"){
 
   }else if(id=="payment"){
-    console.log('payment');
+    //console.log('payment');
     form_type_emsFormBuilder="payment";
     valj_efb=[];
 
@@ -430,10 +430,10 @@ function create_form_by_type_emsfb(id,s){
   formName_Efb = form_type_emsFormBuilder
   if(s=="npreview"){
     creator_form_builder_Efb();
-    console.log(`id:${id}`,id!="payment");
+    //console.log(`id:${id}`,id!="payment");
     if(id!="form" && id!="payment"  && id!="smart"){setTimeout(() => {editFormEfb()}, 100)  }
   }else if ("pre"){
-    console.log("pre")
+    //console.log("pre")
     previewFormEfb('pre');
   }else{
     previewFormEfb('pc')
@@ -446,7 +446,7 @@ function create_form_by_type_emsfb(id,s){
 
 function head_introduce_efb(state){
   //v2
-  console.log(efb_var)
+  
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text=state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` 
   let wboot =`<p class="text-pinkEfb efb pb-3 ${mobile_view_efb ? 'my-1 fs-8':'fs-6'}">${efb_var.text.warningBootStrap}</p>`
@@ -471,7 +471,7 @@ function head_introduce_efb(state){
 
 
 fun_preview_before_efb=(i,s,pro)=>{
-   console.log(i,s,pro)
+   
    valj_efb=[];
    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")

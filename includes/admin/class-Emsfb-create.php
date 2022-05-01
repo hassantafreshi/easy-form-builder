@@ -241,16 +241,14 @@ class Create {
         $it = list_files(get_template_directory()); 
         $s = false;
         foreach($it as $path) {
-			error_log($path);
-          /*   if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
-            {
-				error_log($path);
+            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {				
                 $f = file_get_contents($path);
                 if(preg_match("/col-md-12/i", $f)){
                     $s= true;
                     break;
                 }
-            } */
+            }
         }
         return  $s;
     }//end fun

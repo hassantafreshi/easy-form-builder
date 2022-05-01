@@ -16,10 +16,10 @@ jQuery(function () {
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb=ajax_object_efm.response_state;
   pro_ws = ajax_object_efm.pro =='1' ? true :false;
-  console.log(ajax_object_efm.bootstrap==1,ajax_object_efm.bootstrap,ajax_object_efm.setting.length)
+ 
   if(ajax_object_efm.setting,ajax_object_efm.setting.length>0){
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-    console.log(valueJson_ws_setting.bootstrap,ajax_object_efm.bootstrap)
+    
     if(valueJson_ws_setting.bootstrap==0 &&  ajax_object_efm.bootstrap==1){
       if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
       if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <4) {
@@ -259,7 +259,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <h6 class="efb text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   for (const c of content) {
-    console.log(c);
+    
     let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@") {
       if (c.type == "Image" ||c.type == "image") {
@@ -1398,10 +1398,7 @@ function clear_garbeg_emsFormBuilder() {
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
- items.forEach(item => {
-   for(let i in item ){ if (item[i]=="notCount@EFB")  item[i]="";console.log(item[i]);}
-   console.log(item);
-  });
+ items.forEach(item => {for(let i in item ){ if (item[i]=="notCount@EFB")  item[i]="";}});
   var jsonObject = JSON.stringify(items);
 
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);

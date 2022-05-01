@@ -278,7 +278,7 @@ class Panel_edit  {
                 }
             } 
         }
-		error_log($s);
+		//error_log($s);
         return  $s;
     }//end fun
 

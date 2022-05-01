@@ -56,7 +56,7 @@ setTimeout(() => {
       }
     }
   
-    console.log(ajax_object_efm);
+    //console.log(ajax_object_efm);
     //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
     if (ajax_object_efm.state !== 'settingError') {
   
@@ -434,7 +434,7 @@ function emsFormBuilder_nevButton_view(n) {
 }
 
 function validateForm_emsFormBuilder_view() {
-  console.log("valudation");
+  //console.log("valudation");
   let x, y, i, valid = true, NotValidCount = 0;
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
@@ -553,7 +553,7 @@ function createStepsOfPublic() {
      }
       el.addEventListener("change", (e) => {
         // e.preventDefault();
-        console.log(el);
+        //console.log(el);
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);        
         let value = ""
         const id_ = el.dataset.vid
@@ -574,7 +574,7 @@ function createStepsOfPublic() {
               const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id_);
               if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
             } else {
-              console.log(value.search(`"`));
+              //console.log(value.search(`"`));
               if (value.search(`"`)!=-1){
                 el.value = value.replaceAll(`"`,'');
                 noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
@@ -611,13 +611,13 @@ function createStepsOfPublic() {
           case "select-one":
           case "select":
             value = el.value;
-            console.log(el.options[el.selectedIndex].id);
+            //console.log(el.options[el.selectedIndex].id);
             document.getElementById(`${ob.id_}_-message`).innerHTML ="";
             el.className = colorBorderChangerEfb(el.className,"border-success");            
             if(valj_efb[0].type=="payment" && el.classList.contains('payefb')){
               let v = el.options[el.selectedIndex].id;
               v=  valueJson_ws.find(x => x.id_ ==v && x.value==el.value); 
-              console.log(v);
+              //console.log(v);
               if(typeof v.price=="string") price=v.price;
             }
             break;
@@ -679,14 +679,14 @@ function createStepsOfPublic() {
         if (value != "" || value.length > 1) {
           const type = ob.type
           const id_ob = ob.type!="paySelect" ? el.id :el.options[el.selectedIndex].id;
-          console.log(ob,id_ob);
+          //console.log(ob,id_ob);
           let o = [{ id_: id_, name:ob.name,id_ob:id_ob,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);  
-            console.log(el , valueJson_ws);
+            //console.log(el , valueJson_ws);
             const p = price.length>0 ?{price:price} : {price:q.price}
             Object.assign(o[0],p)
-            console.log(q ,p,o[0]);
+            //console.log(q ,p,o[0]);
             fun_sendBack_emsFormBuilder(o[0]);
             fun_total_pay_efb()
           }else{
@@ -699,16 +699,16 @@ function createStepsOfPublic() {
       
     } else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
-        console.log(el);
+        //console.log(el);
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name,id_ob:el.id, amount:ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
         if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
           let q = valueJson_ws.find(x => x.id_ === el.id);  
-          console.log(el , valueJson_ws);
+          //console.log(el , valueJson_ws);
           const p = price.length>0 ?{price:price} : {price:q.price}
           Object.assign(o[0],p)
-          console.log(q ,p,o[0]);
+          //console.log(q ,p,o[0]);
           fun_sendBack_emsFormBuilder(o[0]);
           fun_total_pay_efb()
         }else{
@@ -724,7 +724,7 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
-  console.log(ob);
+  //console.log(ob);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
@@ -743,7 +743,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   } else {
     sendBack_emsFormBuilder_pub.push(ob);
   }
-  console.log(sendBack_emsFormBuilder_pub);
+  //console.log(sendBack_emsFormBuilder_pub);
 }
 function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
   let r = 0
@@ -1005,7 +1005,7 @@ function valid_file_emsFormBuilder(id) {
 
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
     const filetype = el.files[0].type.length>1 ?el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".")-1)*-1))
-    console.log(file,el.files[0].name,filetype);
+    //console.log(file,el.files[0].name,filetype);
     const r= validExtensions_efb_fun(file, el.files[0].type)
     if (r == true) {
       check = +1;
@@ -1052,7 +1052,7 @@ function fun_upload_file_emsFormBuilder(id, type) {
     var idn = '#' + id + '_'
     var file = jQuery(document).find(idn);    
     var caption = jQuery(this).find(idn);
-    console.log(file);
+    //console.log(file);
     var individual_file = file[0].files[0];
     fd.append("file", individual_file);
     var individual_capt = caption.val();
@@ -1388,7 +1388,7 @@ function validation_before_send_emsFormBuilder() {
       }
     } else if (row.type != "@file@") {      
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-      console.log(valueJson_ws ,row)
+      //console.log(valueJson_ws ,row)
       if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
        || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect" ) {    
         const exists = valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "payMultiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
@@ -1602,7 +1602,7 @@ function loadCaptcha_efb() {
 
 
 function fun_total_pay_efb(){
-  console.log('fun_total_pay_efb');
+  //console.log('fun_total_pay_efb');
   let total=0;
   updateTotal=(i)=>{
     //totalpayEfb
@@ -1612,7 +1612,7 @@ function fun_total_pay_efb(){
   }
 
   for(let r of sendBack_emsFormBuilder_pub){
-    console.log(r.price, typeof r.price);
+    //console.log(r.price, typeof r.price);
       if(typeof r.price=="string" || typeof r.price=="number") total +=parseFloat(r.price)
     }
     setTimeout(() => { updateTotal(total);}, 800);
