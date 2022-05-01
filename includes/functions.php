@@ -438,7 +438,7 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please contact Admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel >> Settings >> selected option:  My template have used BootStrap framwork >> Save','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template have used BootStrap framework >> Save','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),

@@ -1813,9 +1813,11 @@ let handleDrag = (item) => {
   let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y);
  
   if(status_drag_start==false){
+    console.log(valj_efb);
     for(i of valj_efb){
       
-      if(i.type!="option"  && i.type!="form" && selectedItem.id!=i.id_ && selectedItem.previousElementSibling.id !=i.id_ ) {
+      if(i.type!="option"  && i.type!="form" && i.type!="payment" && selectedItem.id!=i.id_ && selectedItem.previousElementSibling.id !=i.id_ ) {
+        console.log(i,i.id_,document.getElementById(i.id_));
         document.getElementById(i.id_).classList.add("drophere")
       }
     }
@@ -2381,10 +2383,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       } else {
         optn = `
         <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="text-dark efb  " >${efb_var.text.newOption} 1</option>
-        <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb " >${efb_var.text.newOption} 2</option>
+        <option value="${efb_var.text.newOption} 2" id="${rndm_2}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="text-dark efb " >${efb_var.text.newOption} 2</option>
        `
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_2, op_4);
         // optionElpush_efb(rndm, 'Option Three', rndm_1, op_5);
       }
       ui = `
@@ -3013,11 +3015,11 @@ console.log(`state==>{${state}}`)
   const floatEnd = id == "dropZoneEFB" ? 'float-end' : ``;
   const btnPos = id != "dropZoneEFB" ? ' text-center' : ''
 console.log(valj_efb[0])
-  let dis
-  if(preview_efb==true) {
+  let dis =''
+  if(true) {
     let t=valj_efb.findIndex(x=>x.type=="stripe");
-    t= t!=-1 ? valj_efb[i].step : 0 ;
-    valj_efb[0].type=="payment" &&  (valj_efb[0].steps==1  && t==1  )? 'disabled' :'';
+    t= t!=-1 ? valj_efb[t].step : 0 ;
+    dis =valj_efb[0].type=="payment" &&  (valj_efb[0].steps==1  && t==1  )? 'disabled' :'';
   }
   const s = `
   <div class="d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
@@ -4008,6 +4010,9 @@ function handle_navbtn_efb(steps, device) {
           jQuery("#next_efb").html(val);
          // `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         }
+        //next_efb
+        //disabled
+        if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
       document.getElementById('body_efb').scrollIntoView(true);
@@ -4015,6 +4020,7 @@ function handle_navbtn_efb(steps, device) {
 
     jQuery("#prev_efb").click(function () {
       var cs = current_s_efb;
+      
       if (cs == 2) {
         var val= `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
@@ -4026,6 +4032,7 @@ function handle_navbtn_efb(steps, device) {
         if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
+      if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
       prev_s_efb = current_s.prev();
       jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
       jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
@@ -4178,17 +4185,14 @@ function ReadyElForViewEfb(content) {
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 if (localStorage.getItem('count_view')>=0 && localStorage.getItem('count_view') <3 && typeof efb_var =="object" && efb_var.maps!="1") {
-  setTimeout(() => {  noti_message_efb(efb_var.text.warningBootStrap, "", 15 ,"danger") }, 100);
+ 
   setTimeout(() => {  noti_message_efb(efb_var.text.localizationM, "", 15 ,"info") }, 17000);
-  setTimeout(() => {
+/*   setTimeout(() => {
     noti_message_efb(`🎉 ${efb_var.text.SpecialOffer}`, googleCloudOffer(), 15 ,"warning")
-  }, 27000);
+  }, 27000); */
 }
 
-function googleCloudOffer() {
 
-  return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
-}
 
 
 function alert_message_efb(title, message) {

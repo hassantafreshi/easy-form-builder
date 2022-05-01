@@ -678,7 +678,8 @@ function createStepsOfPublic() {
 
         if (value != "" || value.length > 1) {
           const type = ob.type
-          const id_ob = ob.type!="select" ? el.id :id_;
+          const id_ob = ob.type!="paySelect" ? el.id :el.options[el.selectedIndex].id;
+          console.log(ob,id_ob);
           let o = [{ id_: id_, name:ob.name,id_ob:id_ob,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);  

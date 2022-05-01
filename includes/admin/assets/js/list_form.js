@@ -16,7 +16,18 @@ jQuery(function () {
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb=ajax_object_efm.response_state;
   pro_ws = ajax_object_efm.pro =='1' ? true :false;
-
+  console.log(ajax_object_efm.bootstrap==1,ajax_object_efm.bootstrap,ajax_object_efm.setting.length)
+  if(ajax_object_efm.setting,ajax_object_efm.setting.length>0){
+    valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
+    console.log(valueJson_ws_setting.bootstrap,ajax_object_efm.bootstrap)
+    if(valueJson_ws_setting.bootstrap==0 &&  ajax_object_efm.bootstrap==1){
+      if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
+      if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <4) {
+        localStorage.setItem('bootstrap_w',(parseInt(localStorage.getItem('bootstrap_w'))+1))
+        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, "", 30 ,"danger")}, 500);
+      }
+    }
+  }
   fun_emsFormBuilder_render_view(25); //778899
 });
 

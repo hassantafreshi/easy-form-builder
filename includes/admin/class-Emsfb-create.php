@@ -160,6 +160,7 @@ class Create {
 			'smtp'=>$smtp,
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
+			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale()
 			
 		));
@@ -236,6 +237,23 @@ class Create {
 		));    $this->id_  = $this->db->insert_id; 
 		
 	}
+	public function check_temp_is_bootstrap (){
+        $it = list_files(get_template_directory()); 
+        $s = false;
+        foreach($it as $path) {
+			error_log($path);
+          /*   if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {
+				error_log($path);
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){
+                    $s= true;
+                    break;
+                }
+            } */
+        }
+        return  $s;
+    }//end fun
 
 }
 

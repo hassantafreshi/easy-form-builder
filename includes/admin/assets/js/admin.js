@@ -446,9 +446,11 @@ function create_form_by_type_emsfb(id,s){
 
 function head_introduce_efb(state){
   //v2
+  console.log(efb_var)
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text=state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` 
-
+  let wboot =`<p class="text-pinkEfb efb pb-3 ${mobile_view_efb ? 'my-1 fs-8':'fs-6'}">${efb_var.text.warningBootStrap}</p>`
+ 
   return `     <section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
   <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
               <div class="col-lg-7 mt-5 pd-5 col-md-12">
@@ -458,9 +460,7 @@ function head_introduce_efb(state){
                   <div class="clearfix"></div>                 
                   ${(state!="create" && mobile_view_efb) || (state=="create" && mobile_view_efb==false)  ?`<p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">${text}</p>`  :''}
                   
-                  <p class="text-pinkEfb efb pb-3 ${mobile_view_efb ? 'my-1 fs-8':'fs-6'}">
-                 ${efb_var.text.warningBootStrap}                                                         
-                  </p>
+                  
                   <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
                   <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>
               </div>

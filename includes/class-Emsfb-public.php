@@ -1195,40 +1195,45 @@ class _Public {
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		error_log($this->id);
-		error_log($val_);
+		/* error_log($val_); */
 		$table_name = $this->db->prefix . "emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		error_log($this->value[0]->form_structer);
+		/* error_log($this->value[0]->form_structer); */
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
-		error_log(gettype($val_));
+		//error_log(gettype($val_));
 		
 		$price_c =0;
 		$price_f=0;
 		$email ='';
 		for ($i=0; $i <count($val_) ; $i++) { 
+			error_log('for (i=0; i <count($val_) ; i++)');
 			# code...
 			//$val_[$i]['id_']
 			$a=-1;
 			if(isset($val_[$i]['price'])){
+				error_log($val_[$i]['type']);
+				error_log('price');
+				error_log($val_[$i]['price']);
 				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 		/* 		error_log($val_[$i]["type"]);
 				error_log("id_ob of val from client");
 				error_log($val_[$i]["id_ob"]); */
 				$iv = $val_[$i];
-				if($iv["type"]=="select" || $iv["type"]=="radio" || $iv["type"]=="checkbox"){
+				error_log($iv["type"]);
+				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
 						switch ($iv["type"]) {
-							case 'select':
-								if(isset($item['parent']))	return $item['parent'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+							case 'paySelect':
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
 							break;
-							case 'radio':
+							case 'payRadio':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
 							break;
-							case 'checkbox':
+							case 'payCheckbox':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_']; 								
 							break;
 						}
@@ -1236,7 +1241,7 @@ class _Public {
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
 					 error_log(json_encode($iv));
-				}else if ($iv["type"]=="multiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
 					$rows = explode( ',', $iv["ids"] );					
 					foreach ($rows as $key => $value) {
 						$filtered = array_filter($fs_, function($item) use ($value) { 							
@@ -1260,10 +1265,12 @@ class _Public {
 					 $a = $iv[0];
 				} */
 				if($a !=-1){
-					error_log($fs_[$a]["id_"]);					
-					error_log($fs_[$a]["id_op"]);					
+					/* error_log($fs_[$a]["id_"]);					
+					error_log($fs_[$a]["id_op"]); */	
+					error_log($fs_[$a]["type"]);				
 					error_log($fs_[$a]["price"]);					
-					if($fs_[$a]["type"]!="multiselect"){
+					if($fs_[$a]["type"]!="payMultiselect"){
+						error_log($fs_[$a]["price"]);
 						$price_f+=$fs_[$a]["price"];					
 					}
 				}else{
@@ -1273,6 +1280,8 @@ class _Public {
 
 			
 		}
+		error_log($price_c);
+		error_log($price_f);
 		if($price_c != $price_f) {
 			$this->get_ip_address();
 			$t=time();
@@ -1287,10 +1296,9 @@ class _Public {
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f*100;
+		
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
-			error_log($email);
-			error_log($currency);
 			$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 			$stripe = new \Stripe\StripeClient("sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd");
 			$newPay = [
