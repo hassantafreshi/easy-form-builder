@@ -18,10 +18,10 @@ class Install {
 	static function install() {
 		global $wpdb;
 
-		$table_name_stng = $wpdb->prefix . "emsfb_setting";
-		$table_name = $wpdb->prefix . "emsfb_form";
-		$table_name_msg = $wpdb->prefix . "emsfb_msg_";
-		$table_name_rsp = $wpdb->prefix . "emsfb_rsp_";
+		$table_name_stng = $wpdb->prefix . "Emsfb_setting";
+		$table_name = $wpdb->prefix . "Emsfb_form";
+		$table_name_msg = $wpdb->prefix . "Emsfb_msg_";
+		$table_name_rsp = $wpdb->prefix . "Emsfb_rsp_";
 
 		$charset_collate = $wpdb->get_charset_collate();
 

@@ -113,7 +113,7 @@ class Create {
 					wp_enqueue_script('whitestudio-admin-pro-js'); */
 			}
 
-			if(strlen($ac->apiKeyMap)>5){
+			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
@@ -143,7 +143,7 @@ class Create {
 		$captcha =false;
 		$smtp_m = "";
 		if(gettype($ac)!="string"){
-			if(strlen($ac->siteKey)>5){$captcha="true";}
+			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
@@ -227,7 +227,7 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		$table_name = $this->db->prefix . "emsfb_form";
+		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->db->insert($table_name, array(
 			'form_name' => $this->name, 
 			'form_structer' => $this->value, 

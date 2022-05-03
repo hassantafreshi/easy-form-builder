@@ -80,7 +80,7 @@ class _Public {
 		//error_log('form Genrate');
 		$efbFunction = new efbFunction();  
 		
-		$table_name = $this->db->prefix . "emsfb_form";
+		$table_name = $this->db->prefix . "Emsfb_form";
 		$pro=false;
 		foreach ($id as $row_id){
 			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
@@ -120,10 +120,11 @@ class _Public {
 			//error_log(gettype( $setting));
 			//error_log($setting->activeCode);
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if(md5($server_name) ==$setting->activeCode){$pro=true;}
+			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 			if($typeOfForm=="payment" &&  $paymentType=="stripe" && $pro== true){ 
 				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 				wp_enqueue_script('stripe-js');
+				//pub key stripe
 				$paymentKey='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
 			}
 		}
@@ -199,9 +200,9 @@ class _Public {
 		// $pro=false;		
 		 if(gettype($stng)!=="integer" && $stng!=$this->lanText["settingsNfound"]){
 			 $valstng= json_decode($stng);
-			 if( strlen($valstng->siteKey)>5 && $formObj[0]["captcha"]==true && $valstng->siteKey !=null){				
+			 if( $formObj[0]["captcha"]==true && (($valstng->siteKey) !=null) && strlen($valstng->siteKey)>1){				
 				 $k =$valstng->siteKey;}
-			 if(strlen($valstng->apiKeyMap)>5){
+			 if( isset($valstng->apiKeyMap) && strlen($valstng->apiKeyMap)>5){
 				 //error_log("maps");
 				 $key= $valstng->apiKeyMap;
 				 $lng = strval(get_locale());
@@ -397,7 +398,7 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
-		$table_name = $this->db->prefix . "emsfb_form";
+		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
 		//error_log($fs);
@@ -417,9 +418,9 @@ class _Public {
 			if(gettype($r)=="object"){
 				$setting =str_replace('\\', '', $r->setting);
 				$setting =json_decode($setting);
-				$secretKey=strlen($setting->secretKey)>5 ? $setting->secretKey : null;
+				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				if(!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
+				if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
 					//error_log('pro == true');
 					$pro=true;
 				}
@@ -744,7 +745,7 @@ class _Public {
 							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
-								if (strlen($setting->emailSupporter)>2){
+								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>2){
 								//	error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}													
@@ -856,11 +857,11 @@ class _Public {
 		
 			$this->get_ip_address();
 			
-			$table_name = $this->db->prefix . "emsfb_msg_";
+			$table_name = $this->db->prefix . "Emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track FROM `$table_name` WHERE track = '$id'" );	
 			if($value!=null){
 				$id=$value[0]->msg_id;
-				$table_name = $this->db->prefix . "emsfb_rsp_";
+				$table_name = $this->db->prefix . "Emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
 				///get_current_user_id
 				foreach($content as $key=>$val){
@@ -908,7 +909,7 @@ class _Public {
 	public function insert_message_db(){
 		//error_log($this->value);
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
-		$table_name = $this->db->prefix . "emsfb_msg_";
+		$table_name = $this->db->prefix . "Emsfb_msg_";
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -996,9 +997,9 @@ class _Public {
 		$r= $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="object"){
 			$setting =json_decode($r->setting);
-			$secretKey=strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
-			$email =strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
-			$pro = strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
+			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
+			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
+			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
 			//error_log($email);
 			$response=$_POST['valid'];
 			$id;
@@ -1006,7 +1007,7 @@ class _Public {
 				$m=sanitize_text_field($_POST['message']);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
-				$table_name = $this->db->prefix . "emsfb_rsp_";				
+				$table_name = $this->db->prefix . "Emsfb_rsp_";				
 				$ip =$this->get_ip_address();
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
@@ -1028,10 +1029,10 @@ class _Public {
 					$by = $usr->user_nicename;
 					//error_log($by);
 				}
-				$table_name = $this->db->prefix . "emsfb_msg_";
+				$table_name = $this->db->prefix . "Emsfb_msg_";
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
 				$form_id  = $value[0]->form_id;
-				$table_name = $this->db->prefix . "emsfb_form";
+				$table_name = $this->db->prefix . "Emsfb_form";
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 				$valn =str_replace('\\', '', $vald[0]->form_structer);
 				$valn= json_decode($valn,true);
@@ -1113,7 +1114,7 @@ class _Public {
 	 
 	
 	 
-	 $table_name = $this->db->prefix . "emsfb_setting";
+	 $table_name = $this->db->prefix . "Emsfb_setting";
  
  
 	 $value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
@@ -1181,7 +1182,7 @@ class _Public {
 
        /*  $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "emsfb_form";
+        $table_name = $this->db->prefix . "Emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
 
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
@@ -1192,7 +1193,7 @@ class _Public {
 		$val_ = sanitize_text_field($_POST['value']);
 		//error_log($this->id);
 		/* error_log($val_); */
-		$table_name = $this->db->prefix . "emsfb_form";
+		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		/* error_log($this->value[0]->form_structer); */
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
@@ -1285,6 +1286,7 @@ class _Public {
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
 			$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+			//private key
 			$stripe = new \Stripe\StripeClient("sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd");
 			$newPay = [
 				'amount' => $price_f,

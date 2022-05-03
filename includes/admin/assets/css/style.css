@@ -1578,7 +1578,7 @@ pointer-events:   none;
 
 }
 .efb.form-check {
-display: table;
+display: flex;
 }
 
 

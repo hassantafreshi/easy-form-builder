@@ -95,9 +95,9 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
-  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
-  { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
+  //{ name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
+  //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
+  //{ name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
@@ -2150,6 +2150,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const desc = `<small id="${rndm}-des" class="efb form-text d-flex  fs-7 col-sm-12 efb ${previewSate == true && pos[1] == 'col-md-4' || valj_efb[iVJ].message_align != "justify-content-start" ? `` : `mx-4`}  ${valj_efb[iVJ].message_align}  ${valj_efb[iVJ].message_text_color} ${valj_efb[iVJ].message_text_size != "default" ? valj_efb[iVJ].message_text_size : ''} ">${valj_efb[iVJ].message} </small> <small id="${rndm}_-message" class="text-danger efb fs-7"></small>`;
   const label = ` <label for="${rndm}_" class="efb ${previewSate == true ? pos[2] : `col-md-3`} col-sm-12 efb col-form-label ${valj_efb[iVJ].label_text_color} ${valj_efb[iVJ].label_align} ${valj_efb[iVJ].label_text_size != "default" ? valj_efb[iVJ].label_text_size : ''} " id="${rndm}_labG""><span id="${rndm}_lab" class="efb ${valj_efb[iVJ].label_text_size}">${valj_efb[iVJ].name}</span><span class=" mx-1 text-danger" id="${rndm}_req">${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? '*' : ''}</span></label>`
   const rndm_1 = Math.random().toString(36).substr(2, 9);
+  const rndm_2 = Math.random().toString(36).substr(2, 9);
   const op_3 = Math.random().toString(36).substr(2, 9);
   const op_4 = Math.random().toString(36).substr(2, 9);
   const op_5 = Math.random().toString(36).substr(2, 9);
@@ -3230,7 +3231,7 @@ const saveFormEfb = () => {
       btnText = efb_var.text.help
       btnFun = `open_whiteStudio_efb('paymentform')`
       message = efb_var.text.addPaymentGetway;
-      icon = 'bi-bug'
+      icon = 'bi-exclamation-triangle'
       returnState=true;
     }
     if (state == false) {
@@ -3910,11 +3911,9 @@ function viewfileEfb(id, indx) {
 
 
 function validExtensions_efb_fun(type, fileType) {
-
-  //console.log(type , fileType);
   let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
   if (type == "document") {
-    validExtensions = ["application/pdf", "text", 'text/plain', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword',
+    validExtensions = ["doc","docx" ,"docm","dot","pdf","xls","xlss","pptm","pptx","ppt","application/pdf", "text", 'text/plain', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel',
       'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       'application/vnd.ms-powerpoint.presentation.macroEnabled.12', 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
@@ -4015,7 +4014,7 @@ function handle_navbtn_efb(steps, device) {
         if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
-      document.getElementById('body_efb').scrollIntoView(true);
+      if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
     });
 
     jQuery("#prev_efb").click(function () {
@@ -4067,7 +4066,7 @@ function handle_navbtn_efb(steps, device) {
     }
      // if(verifyCaptcha_efb.length>1  ) jQuery("#next_efb").removeClass("disabled");
 
-     document.getElementById('body_efb').scrollIntoView(true);
+     if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
     });
 
 

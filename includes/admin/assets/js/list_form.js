@@ -1,4 +1,5 @@
 
+
 let valueJson_ws_form = [];
 let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
@@ -19,8 +20,8 @@ jQuery(function () {
  
   if(ajax_object_efm.setting,ajax_object_efm.setting.length>0){
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-    
-    if(valueJson_ws_setting.bootstrap==0 &&  ajax_object_efm.bootstrap==1){
+      //console.log(valueJson_ws_setting ,ajax_object_efm ,valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1)
+    if(valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1){
       if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
       if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <4) {
         localStorage.setItem('bootstrap_w',(parseInt(localStorage.getItem('bootstrap_w'))+1))
@@ -262,10 +263,12 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     
     let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@") {
+      $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
+      console.log($name,c.type)
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
-        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank" download=>${efb_var.text.download}</a>`
+        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${efb_var.text.download}</a>`
       } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -282,7 +285,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {        
-        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank">${c.name}</a>`
+        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>`
       }
     }else if (c.type == "esign") {
       value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`

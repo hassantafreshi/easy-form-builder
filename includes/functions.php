@@ -670,7 +670,7 @@ class efbFunction {
 
 	public function get_setting_Emsfb()
 	{			
-		$table_name = $this->db->prefix . "emsfb_setting"; 
+		$table_name = $this->db->prefix . "Emsfb_setting"; 
 		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 		$rtrn='null';
 		
@@ -690,7 +690,7 @@ class efbFunction {
         $lang= $this->text_efb($text);		
 	 
 		$email="null";
-		$table_name = $this->db->prefix . "emsfb_msg_"; 
+		$table_name = $this->db->prefix . "Emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
 		//error_log("json_encode(user_data)");
 		$form_id = $data[0]->form_id;
@@ -698,7 +698,7 @@ class efbFunction {
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
 		$user_res = json_decode($user_res,true);
-		$table_name = $this->db->prefix . "emsfb_form"; 
+		$table_name = $this->db->prefix . "Emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);

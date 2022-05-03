@@ -22,7 +22,7 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.4")
+console.log("Easy Form Builder v2.3.17")
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
@@ -526,7 +526,7 @@ function validateForm_emsFormBuilder_view() {
         NotValidCount += 1;        
         document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
         // window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.getElementById('body_efb').scrollIntoView(true);
+        if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
       }
       if (valid == true && NotValidCount == 0) {
         document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
@@ -822,7 +822,7 @@ function endMessage_emsFormBuilder_view() {
       if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired += 1;
     }
   }
-  document.getElementById('body_efb').scrollIntoView(true);
+  if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
   //window.scrollTo({ top: 0, behavior: 'smooth' });
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
     let str = ""
@@ -1006,7 +1006,7 @@ function valid_file_emsFormBuilder(id) {
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
     const filetype = el.files[0].type.length>1 ?el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".")-1)*-1))
     //console.log(file,el.files[0].name,filetype);
-    const r= validExtensions_efb_fun(file, el.files[0].type)
+    const r= validExtensions_efb_fun(file,filetype)
     if (r == true) {
       check = +1;
       message=`${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
@@ -1407,7 +1407,7 @@ function validation_before_send_emsFormBuilder() {
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {  
     document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-center text-danger fs-2 efb"></i></h1><h3 class="fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="mb-2 fs-5 efb text-muted">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="m-1"> <button id="prev_efb_send" type="button" class="btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
-    document.getElementById('body_efb').scrollIntoView(true);
+     if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws) {
       if (v.type != 'file'  && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect'  && v.type != 'payRadio' && v.type != 'payCheckbox') {
@@ -1528,7 +1528,7 @@ function response_fill_form_efb(res) {
       break;
 
     }
-    document.getElementById('body_efb').scrollIntoView(true);
+    if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
     //  window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder'><i class="jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="mb-2 efb fs-5"> ${res.data.m}</span>

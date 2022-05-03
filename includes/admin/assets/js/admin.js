@@ -448,8 +448,8 @@ function head_introduce_efb(state){
   //v2
   
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
-  let text=state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` 
-  let wboot =`<p class="text-pinkEfb efb pb-3 ${mobile_view_efb ? 'my-1 fs-8':'fs-6'}">${efb_var.text.warningBootStrap}</p>`
+  let text=`${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
+  
  
   return `     <section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
   <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
@@ -458,7 +458,7 @@ function head_introduce_efb(state){
                   <h1 class="efb pointer-efb" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
                   <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="clearfix"></div>                 
-                  ${(state!="create" && mobile_view_efb) || (state=="create" && mobile_view_efb==false)  ?`<p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">${text}</p>`  :''}
+                  <p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">${text}</p>
                   
                   
                   <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
