@@ -1,11 +1,9 @@
 
-//stepNavEfb add class to divider of steps
 //Copyright 2021
 //Easy Form Builder
 //WhiteStudio.team
-
-
 //EFB.APP
+
 let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
@@ -95,8 +93,8 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
-  //{ name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
+  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
+  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
   //{ name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
@@ -319,7 +317,7 @@ function show_setting_window_efb(idset) {
   const paymentGetWayEls =()=>{
     return`<label for="paymentGetWayEl" class="mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
     <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">                                            
-        <option value="stripe" selected>${efb_var.text.strip}</option>                                                            
+        <option value="stripe" selected>${efb_var.text.stripe}</option>                                                            
     </select>`;
   } 
   const paymentMethodEls =()=>{
@@ -427,7 +425,10 @@ function show_setting_window_efb(idset) {
       if(isNumericEfb(iset))idset=iset="step-"+iset;
      //console.log(iset)
       icon = valj_efb[indx].icon }
-    let list ="<!-- list of Bootstrap Icon --!>"
+    let list =`<tr class="efblist text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
+    <th scope="row" class="bi-XXXXX"></th>
+    <td>None</td>      
+  </tr>`
     bootstrap_icons.forEach((e,key )=> {
       const v= e.replace(`-`, ' ');      
       list+=`<tr class="efblist text-white" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
@@ -949,8 +950,7 @@ function show_setting_window_efb(idset) {
         ${cardEls}
         ${adminFormEmailEls}
        
-        ${valj_efb[0].type=="payment" ? currencyTypeEls() :''}
-        ${valj_efb[0].type=="payment" ? paymentMethodEls() :''}
+       
         <div class="efb d-grid gap-2">
         <button class="btn efb btn-outline-light mt-3 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="false" aria-controls="collapseAdvanced">
           <i class="efb bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
@@ -968,6 +968,17 @@ function show_setting_window_efb(idset) {
     <div class="efb clearfix"></div>
       
         `
+      break;
+      case 'stripe':
+
+
+      body = `<div class="efb mb-3">
+      <!--  not   advanced-->
+            ${valj_efb[0].type=="payment" ? currencyTypeEls() :''}
+        ${valj_efb[0].type=="payment" ? paymentMethodEls() :''}
+      <div class="efb clearfix"></div>
+      </div>`
+  
       break;
 
   }
@@ -1214,6 +1225,7 @@ let change_el_edit_Efb = (el) => {
       case "currencyTypeEl":
         //console.log('currencyTypeEl')
         valj_efb[0].currency = el.options[el.selectedIndex].value;
+        document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency.toUpperCase()
         //console.log(el.options[el.selectedIndex].value);
         break;
       case "fileTypeEl":
@@ -2620,7 +2632,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb col-md-12 col-sm-12 stripe"  id='${rndm}-f'>
       <div class="stripe-bg mx-2 p-3 card efb w-100">
       <div class="headpay efb border-b  row col-md-12">
-        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end" id="payPriceEfb"> <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> <span class="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span></div>
+        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end" id="payPriceEfb"> <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> <span class="currencyPayEfb" id="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span></div>
       </div>
       <div id="stripeCardSectionEfb" class="efb">
         <div class="col-md-12 my-2">
@@ -2725,7 +2737,7 @@ const funSetPosElEfb = (dataId, position) => {
     valj_efb[indx].label_position = position
   }
 
- if(valj_efb[indx].type!="heading"  && valj_efb[indx].type!="link" && valj_efb[indx].type!="html") get_position_col_el(dataId, true)
+ if(valj_efb[indx].type!="stripe"  && valj_efb[indx].type!="heading"  && valj_efb[indx].type!="link" && valj_efb[indx].type!="html") get_position_col_el(dataId, true)
 
 }
 const funSetAlignElEfb = (dataId, align, element) => {
@@ -3024,12 +3036,12 @@ let add_buttons_zone_efb = (state, id) => {
   }
   const s = `
   <div class="d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="btn efb p-2 ${dis} ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon}  mx-2 ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <button id="btn_send_efb" type="button" class="btn efb p-2 ${dis} ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb ${valj_efb[0].icon!='bi-undefined' ? `${valj_efb[0].icon} mx-2` :''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class=" ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
   </div>`
   const d = `
   <div class="d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="btn efb p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color}  mx-2">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` :``}</button>
+  <button id="prev_efb" type="button" class="btn efb p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class=" ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon!='bi-undefined' ? 'mx-2':'' }">${valj_efb[0].button_Previous_text}</span></button>
+  <button id="next_efb" type="button" class="btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text!='bi-undefined' ? ' mx-2':'' }">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` :``}</button>
   </div>
   `
   let c = `<div class="footer-test mt-1 efb">`
@@ -4766,7 +4778,10 @@ fun_add_stripe_efb=()=>{
   //console.log('fun_add_stripe_efb');
   if(ajax_object_efm.hasOwnProperty('paymentKey')){
         if(efb_var.pro)noti_message_efb(efb_var.text.error,`${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`,100,'danger');
-        
+        if(ajax_object_efm.paymentKey=="null"){
+          noti_message_efb(efb_var.text.error,`${efb_var.text.errorCode}: Payment->Stripe`,100,'danger');
+          return;
+        }
         const stripe = Stripe(ajax_object_efm.paymentKey,{locale: 'auto'})
       //console.log(stripe);
         const elsStripeStyleEfb={
@@ -4880,7 +4895,7 @@ fun_add_stripe_efb=()=>{
                               <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
                               `
 
-                              //sendBack_emsFormBuilder_pub.push({id_:transStat.paymentIntent.id , amount:efb_var.text.payAmount ,type:'paymentGateway' , gateway:'strip'})
+                              //sendBack_emsFormBuilder_pub.push({id_:transStat.paymentIntent.id , amount:efb_var.text.payAmount ,type:'paymentGateway' , gateway:'stripe'})
                               btnStripeEfb.innerHTML="Done"
                               btnStripeEfb.style.display="none";
                               jQuery( "#statusStripEfb" ).show( "slow" )
@@ -4890,7 +4905,8 @@ fun_add_stripe_efb=()=>{
                           stsStripeEfb.style.display='block'
                       })
                   }else{
-                    btnStripeEfb.classList.remove('disabled');
+                    
+                    btnStripeEfb.innerHTML=efb_var.text.error; 
                     noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
                   }
                   
@@ -4970,6 +4986,10 @@ fun_disabled_all_pay_efb=()=>{
   }
 }
 
+
+fun_currency_no_convert_efb=(currency , number)=>{
+ return new Intl.NumberFormat('us', { style: 'currency', currency: currency }).format(number)
+}
 
 
 

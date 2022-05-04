@@ -1442,10 +1442,8 @@ height: fit-content;
 
 /* YesNo */
 
-.yesno-efb.disabled{
-opacity: 1!important;
-
-}
+.yesno-efb.disabled{opacity: 1!important;}
+.yesno-efb.active{box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);}
 
 .yesno-efb.efb-rounded.left-efb {
     border-top-right-radius: 0!important;

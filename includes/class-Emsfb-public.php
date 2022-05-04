@@ -105,7 +105,7 @@ class _Public {
 			
 		}
 		$paymentType="";
-		$paymentKey ='';
+		//$paymentKey ='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
 		if($typeOfForm=="payment"){
 			//,\"type\":\"stripe\",
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
@@ -125,7 +125,7 @@ class _Public {
 				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 				wp_enqueue_script('stripe-js');
 				//pub key stripe
-				$paymentKey='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
+				$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
 			}
 		}
 
@@ -1166,20 +1166,36 @@ class _Public {
         /* $efbFunction = new efbFunction();   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text); */
-        if(file_exists(WP_PLUGIN_DIR ."/easy-form-builder-pay/vendor/autoload.php")==false){
-			$m =	__('Easy Form Builder payment(Stripe) Plugin not found, Please contact website Administrator', 'easy-form-builder');
-            $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
-            die("secure!");
-        }
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
-            $m =   $lang["error403"];
+			//error_log('not valid nonce');
+            $m = __('error', 'easy-form-builder') . ' 403';
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
+	/* 	if(file_exists(EMSFB_PLUGIN_DIRECTORY ."/vendor/autoload.php")==false){
+			$m =	__('Easy Form Builder payment(Stripe) Plugin not found, Please contact website Administrator', 'easy-form-builder');
+			$response = ['success' => false, 'm' => $m];
+			wp_send_json_success($response, $_POST);
+			die("secure!");
+		}
+ */
 
+		$r= $this->get_setting_Emsfb('setting');
+		$Sk ='null';
+		if(gettype($r)=="object"){
+			$setting =str_replace('\\', '', $r->setting);
+			$setting =json_decode($setting);
+			$Sk = isset($setting->stripeSKey) && strlen($setting->stripeSKey)>5  ? $setting->stripeSKey :'null';
+		}
+
+		if ($Sk=="null"){
+			
+				$m = __('Stripe', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$response = ['success' => false, 'm' => $m];
+				wp_send_json_success($response, $_POST);
+				die("secure!");
+		}
        /*  $id = number_format($_POST['id']);
 
         $table_name = $this->db->prefix . "Emsfb_form";
@@ -1187,7 +1203,7 @@ class _Public {
 
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
 
-        include(WP_PLUGIN_DIR."/easy-form-builder-pay/vendor/autoload.php");
+        include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
         //error_log('payment');
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
@@ -1213,9 +1229,6 @@ class _Public {
 			if(isset($val_[$i]['price'])){				
 				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
-		/* 		error_log($val_[$i]["type"]);
-				error_log("id_ob of val from client");
-				error_log($val_[$i]["id_ob"]); */
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
@@ -1287,7 +1300,7 @@ class _Public {
 			$currency= $fs_[0]['currency'] ;
 			$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 			//private key
-			$stripe = new \Stripe\StripeClient("sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd");
+			$stripe = new \Stripe\StripeClient($Sk);
 			$newPay = [
 				'amount' => $price_f,
 				'currency' => $currency,
@@ -1309,7 +1322,7 @@ class _Public {
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
 			$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
 			$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
-				   'value'=> $val, 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'strip' ,
+				   'value'=> $val, 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
 			       'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency];
 			//$filtered=array_merge($filtered , array($ar)); 
 			array_push($filtered,$ar);

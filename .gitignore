@@ -2,3 +2,16 @@
 .vscode
 .vscode/
 includes/vendor.zip
+vendor/stripe/stripe-php/VERSION
+vendor/stripe/stripe-php/README.md
+vendor/stripe/stripe-php/phpstan.neon.dist
+vendor/stripe/stripe-php/phpstan-baseline.neon
+vendor/stripe/stripe-php/phpdoc.dist.xml
+vendor/stripe/stripe-php/Makefile
+vendor/stripe/stripe-php/LICENSE
+vendor/stripe/stripe-php/CODE_OF_CONDUCT.md
+vendor/stripe/stripe-php/CHANGELOG.md
+vendor/stripe/stripe-php/.php-cs-fixer.php
+vendor/stripe/stripe-php/.gitignore
+vendor/stripe/stripe-php/.editorconfig
+vendor/stripe/stripe-php/.coveralls.github-actions.yml

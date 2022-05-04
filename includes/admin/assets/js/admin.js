@@ -63,6 +63,10 @@ function Link_emsFormBuilder(state) {
     case  'tutorial':
       link = github+"How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder";
       break;
+    case  'stripe':
+      //stripe
+      link = github+"";
+      break;
     case  'ws':
       link = link + '#proBox';
       break;

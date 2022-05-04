@@ -23,7 +23,7 @@ jQuery(function () {
       //console.log(valueJson_ws_setting ,ajax_object_efm ,valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1)
     if(valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1){
       if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
-      if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <4) {
+      if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <3) {
         localStorage.setItem('bootstrap_w',(parseInt(localStorage.getItem('bootstrap_w'))+1))
         setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, "", 30 ,"danger")}, 500);
       }
@@ -259,12 +259,17 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   <hr>
   <h6 class="efb text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
+  let list = []
+  let s= false;
   for (const c of content) {
-    
+    console.log(c,list);
+    s= false;
     let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
-    if (c.value == "@file@") {
+    if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
+      s=true;
+      list.push(c.url);
       $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
-      console.log($name,c.type)
+      console.log($name,c.type ,"URL", c.url);
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
@@ -285,13 +290,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {        
-        value = `</br><a class="btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>`
+        value = c.url.length>1 ? `</br><a class="btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb fs-5">💤</span>`
       }
     }else if (c.type == "esign") {
+      s=true;
       value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
     }else if(c.type=="maps"){
      
       if(typeof(c.value)=="object"){
+        s=true;
         value = `<div id="${c.id_}-map" data-type="maps" class="efb maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
         marker_maps_efb= c.value;
@@ -299,6 +306,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 
       }
     }else if(c.type=="rating"){
+      s=true;
       value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
       for(let i=0 ; i<parseInt(c.value) ; i++){
         value += `<i class="bi bi-star-fill"></i>`
@@ -306,7 +314,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       value+="</div>";
     }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
-    m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if(s==true) m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
   }
   m += '</div>';  
   return m;
@@ -360,7 +368,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 function fun_ws_show_list_messages(value) {
   //v2
   // show list of filled out of the form;
-//  console.log(value)
+  console.log(form_type_emsFormBuilder);
   let rows = '';
   let no = 1;
   let head = `<!-- rows -->`;
@@ -383,7 +391,7 @@ function fun_ws_show_list_messages(value) {
     </div>`;
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
-  }else if (form_type_emsFormBuilder == 'form'){
+  }else if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment'){
     const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
     head = `<div > <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
   }  
@@ -745,6 +753,8 @@ function fun_show_setting__emsFormBuilder() {
   let activeCode = 'null';
   let sitekey = 'null';
   let secretkey = 'null';
+  let stripeSKey ='null';
+  let stripePKey ='null';
   let email = 'null';
   let trackingcode = 'null';
   let apiKeyMap = 'null';
@@ -768,7 +778,9 @@ function fun_show_setting__emsFormBuilder() {
     secretkey = f(`secretKey`);
     email = f(`emailSupporter`);
     trackingcode = f(`trackingCode`);
-    apiKeyMap = f(`apiKeyMap`)
+    apiKeyMap = f(`apiKeyMap`);
+    stripeSKey = f(`stripeSKey`);
+    stripePKey = f(`stripePKey`);
     smtp = f('smtp');
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
@@ -795,6 +807,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
                             <button class="efb nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
+                            <button class="efb nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
                         </div>
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
@@ -860,7 +873,7 @@ function fun_show_setting__emsFormBuilder() {
                              <h5 class="efb card-title mt-3 mobile-title">
                                 <i class="efb bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
-                            <p class="${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a> ${efb_var.text.protectsYourWebsiteFromFraud} <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
+                            <p class="${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="card-body mx- py-1 ${mxCSize4}">                                   
                                 <label class="form-label mx-2">${efb_var.text.siteKey}</label>
                                 <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
@@ -918,6 +931,25 @@ function fun_show_setting__emsFormBuilder() {
                                </h5>
                                <p class="${mxCSize}">${efb_var.text.translateLocal}</p>
                                 <div id="textList-efb"  class="mt-2 py-2 ${mobile_view_efb?'':'px-5'}">${textList} </div>                                
+                                <!-- END Text Section -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
+                            <div class="mx-3 my-2">
+                            <!-- Text Section -->
+                               <h5 class="efb card-title mt-3 mobile-title">
+                                 <i class="efb bi-credit-card m-3"></i>${efb_var.text.stripe}
+                               </h5>
+                               <p class="${mxCSize}">${efb_var.text.stripeMP} <a class="efb pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
+                                <div class="card-body mx- py-1 ${mxCSize4}">                                   
+                                  <label class="form-label mx-2">${efb_var.text.publicKey}</label>
+                                  <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
+                                  <span id="stripePKey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                                  <label class="form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                  <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
+                                  <span id="stripeSKey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                              </div>
+                                                           
                                 <!-- END Text Section -->
                             </div>
                         </div>
@@ -1098,7 +1130,7 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder','emailTemp_emsFirmBuilder'];
+  const ids = ['stripeSKey_emsFormBuilder','stripePKey_emsFormBuilder','smtp_emsFormBuilder','bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder','emailTemp_emsFirmBuilder'];
   let state = true
  
   for (id of ids) {
@@ -1114,6 +1146,8 @@ function fun_set_setting_emsFormBuilder() {
     const activeCode = f('activeCode_emsFormBuilder');
     const sitekey = f(`sitekey_emsFormBuilder`);
     const secretkey = f(`secretkey_emsFormBuilder`);
+    const stripeSKey = f(`stripeSKey_emsFormBuilder`);
+    const stripePKey = f(`stripePKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
@@ -1122,7 +1156,7 @@ function fun_set_setting_emsFormBuilder() {
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp= emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = efb_var.text;
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap,emailTemp:emailTemp});
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp,text:text,bootstrap,emailTemp:emailTemp , stripePKey:stripePKey,stripeSKey:stripeSKey});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml

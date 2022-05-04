@@ -44,7 +44,8 @@ class Panel_edit  {
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
-				if(isset($ac->apiKeyMap)){				
+				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+					error_log($ac->apiKeyMap);		
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					
@@ -87,7 +88,7 @@ class Panel_edit  {
 			wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 			wp_enqueue_script('stripe-js');
 
-			if(gettype($ac)!="string" && isset($ac->apiKeyMap)){
+			if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$lng = get_locale();
 					if ( strlen( $lng ) > 0 ) {

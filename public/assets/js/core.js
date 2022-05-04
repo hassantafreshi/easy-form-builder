@@ -22,7 +22,7 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.3.17")
+console.log("Easy Form Builder v2.3.19");
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
@@ -1229,11 +1229,12 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  <h6 class="efb text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
  for (const c of content) {
-  let value = `<b>${c.value}</b>`;
-  if (c.value == "@file@") {
-    if (c.type == "Image" ||c.type == "image") {
-      value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
-    }else if (c.type == "Document" ||c.type == "document") {
+   let value = `<b>${c.value}</b>`;
+   if (c.value == "@file@") {
+     
+     if (c.type == "Image" ||c.type == "image") {
+       value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
+      }else if (c.type == "Document" ||c.type == "document") {
       value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank">${efb_var.text.download}</a>`
     } else if (c.type == "Media" ||c.type == "media") {
       const audios = ['mp3', 'wav', 'ogg'];

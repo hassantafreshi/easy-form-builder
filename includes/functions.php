@@ -468,8 +468,7 @@ class efbFunction {
 			"stripe" => $state  &&  isset($ac->text->stripe) ? $ac->text->stripe : __('Stripe','easy-form-builder'),
 			"payment" => $state  &&  isset($ac->text->payment ) ? $ac->text->payment  : __('Payment','easy-form-builder'),
 			"address" => $state  &&  isset($ac->text->address ) ? $ac->text->address  : __('Address','easy-form-builder'),
-			"paymentGateway" => $state  &&  isset($ac->text->paymentGateway) ? $ac->text->paymentGateway : __('Payment Gateway','easy-form-builder'),
-			"strip" => $state  &&  isset($ac->text->strip) ? $ac->text->strip : __('Strip','easy-form-builder'),
+			"paymentGateway" => $state  &&  isset($ac->text->paymentGateway) ? $ac->text->paymentGateway : __('Payment Gateway','easy-form-builder'),			
 			"currency" => $state  &&  isset($ac->text->currency) ? $ac->text->currency : __('Currency','easy-form-builder'),
 			"recurringPayment" => $state  &&  isset($ac->text->recurringPayment) ? $ac->text->recurringPayment : __('Recurring payment','easy-form-builder'),
 			"subscriptionBilling" => $state  &&  isset($ac->text->subscriptionBilling) ? $ac->text->subscriptionBilling : __('Subscription billing','easy-form-builder'),
@@ -495,6 +494,9 @@ class efbFunction {
 			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : __('Payment Select choose','easy-form-builder'),
 			"payMultiselect" => $state  &&  isset($ac->text->payMultiselect) ? $ac->text->payMultiselect : __('Payment dropdown list','easy-form-builder'),
 			"errorCode" => $state  &&  isset($ac->text->errorCode) ? $ac->text->errorCode : __('Error Code','easy-form-builder'),
+			"stripeKeys" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('Stripe Keys','easy-form-builder'),
+			"stripeMP" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('You need stripe keys if you want to use payment in forms.','easy-form-builder'),
+			"publicKey" => $state  &&  isset($ac->text->publicKey) ? $ac->text->publicKey : __('Public Key','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
