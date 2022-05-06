@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.19
+Stable tag: 			2.4.0
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.5 or higher
@@ -207,6 +207,75 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+= 2.4.0 =
+* Added custom Payment WP Forms with drag and drop Easy Form Builder plugin
+* Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
+* Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder
+* Added Payment Single choose feild for create a form payment on WP Easy Form Builder plugin
+* Added Payment Select choose field usable for build custom pay form in Easy form builder
+* Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
+* Added Link field on WordPress Easy Form builder
+* Added title field on Easy form builder
+* payment form support this currency for pay:
+      USD (United State dollar)
+      AED (United Arab Emirates dirham, درهم إماراتي)
+      AFN*(Afghan afghani)
+      ALL (Albania Lek)
+      AMD (Armenian dram, Հայկական Դրամ)
+      ANG (Netherlands Antillean guilder, Antilliaanse gulden)
+      AOA*(Angolan kwanza)
+      ARS*(Argentine peso,Peso argentino)
+      AUD (Australian dollar)
+      AWG (Aruban florin, Arubaanse florin)
+      AZN (Azerbaijani manat, Azərbaycan manatı)
+      BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)
+      BBD (Barbadian dollar)
+      BDT (Bangladeshi taka, টাকা)
+      BGN (Bulgarian lev, Български лев)
+      BIF (franc burundais)
+      BMD (Bermudian dollar)
+      BND (Brunei dollar, ringgit Brunei)
+      BOB* (Bolivian boliviano, boliviano)
+      BRL* (Brazilian real, Real brasileiro)
+      BSD (Bahamian dollar)
+      BWP (Botswana pula)
+      BYN (Belarusian ruble, беларускі рубель)
+      BZD (Belize dollar)
+      CAD (Canadian dollar, dollar canadien)
+      CDF (Congolese franc, franc congolais)
+      CHF (Swiss franc)
+      CLP* (Chilean peso, Peso chileno)
+      CNY (Renminbi, 人民币)
+      COP* (Colombian peso, peso colombiano)
+      CRC* (Costa Rican colón, colón costarricense)
+      CVE* (Cape Verdean escudo, escudo cabo-verdiano)
+      CZK (Czech koruna, koruna česká)
+      DJF* (Djiboutian franc, الفرنك الجيبوتي)
+      DKK (Danish krone, dansk krone)
+      DOP (Dominican peso, peso dominicano)
+      DZD (Algerian dinar, دينار جزائري)
+      EGP (Egyptian pound, جنيه مصرى)
+      ETB (Ethiopian birr)
+      EUR (Euro)
+      FJD (Fijian dollar)
+      FKP* (Falkland Islands pound)
+      GBP (Pound sterling)
+      GEL (Georgian lari,  ქართული ლარი)
+      GIP (Gibraltar pound)
+      GMD (Gambian dalasi)
+      GNF* (Guinean franc, franc guinéen)
+      GTQ* (Guatemalan quetzal,  quetzal guatemalteco)
+      GYD (Guyanese dollar)
+      HKD (Hong Kong dollar, 港元)
+      HNL* (Honduran lempira, lempira hondureño)
+      HRK (Croatian kuna, hrvatska kuna)
+      HTG (Haitian gourde, gourde haïtienne)
+      HUF (Hungarian forint, Magyar forint)
+= 2.3.22 =
+* Fixed issues
+
+= 2.3.21 =
+= 2.3.20 =
 = 2.3.19 =
 = 2.3.18 =
 = 2.3.17 =

@@ -22,7 +22,7 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.3.19");
+console.log("Easy Form Builder v3");
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
@@ -893,7 +893,7 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
- recaptcha_emsFormBuilder = efb_var.captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+ recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
   jQuery(function ($) {
 
     data = {

@@ -113,7 +113,7 @@ class _Public {
 		}
 		//error_log($paymentType);
 		$r= $this->get_setting_Emsfb('setting');
-		
+		$paymentKey="null";
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
 			$setting =json_decode($setting);
@@ -431,7 +431,9 @@ class _Public {
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
+				//error_log(json_encode($args));
 				if($formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
+					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
 						$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
 							//error_log(json_encode($verify));
@@ -450,6 +452,8 @@ class _Public {
 		if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
 		
 		//error_log(( $captcha_success=="null" || $captcha_success->success!=true ));
+		
+		//error_log( $not_captcha );
 		if ($not_captcha==true && ( $captcha_success=="null" || $captcha_success->success!=true )  ) {
 			
 		  $response = array( 'success' => false  , 'm'=>$this->lanText["errorCaptcha"]); 

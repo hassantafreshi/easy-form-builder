@@ -139,12 +139,13 @@ class Create {
 		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png'
 		];
 		
-		$smtp =false;
+		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
+		
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}			
+			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 		

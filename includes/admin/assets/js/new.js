@@ -74,7 +74,7 @@ function creator_form_builder_Efb() {
     });
 
     if(form_type_emsFormBuilder=="payment"){
-      Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'subscription' })
+      Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'charge' })
     }
    
   }
@@ -91,10 +91,10 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
-  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
+ /*  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
   { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
+  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true },  */
   //{ name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
@@ -114,8 +114,8 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true }, */
-  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
- /*  { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true }, */
+  //{ name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
+  //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true },
 ]
 
@@ -133,7 +133,7 @@ function creator_form_builder_Efb() {
   
   for (let ob of objct) {
     if (formType=="login") {if( ob.id=="html" || ob.id=="link" || ob.id=="heading") {dragab=true; disable="disable"}else{ dragab=false;disable=ond}}
-    else if (formType!="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
+   // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     els += `
     <div class="col-3 draggable-efb" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"`: '' }>
      ${ob.pro == true && pro_efb==false ? ` <a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a>` : ''}
@@ -223,10 +223,9 @@ function active_element_efb(el) {
     }
 
     activeEl_efb = el.dataset.id
-    if (document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none')){ 
-      document.getElementById(`btnSetting-${activeEl_efb}`).classList.remove('d-none');
-     
-    }
+    const eld = document.getElementById(`btnSetting-${activeEl_efb}`);
+    if (eld.classList.contains('d-none')) eld.classList.remove('d-none');
+  
     // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-block')
     document.querySelector(`[data-id="${activeEl_efb}"]`).classList.add('field-selected-efb')
 
@@ -324,7 +323,8 @@ function show_setting_window_efb(idset) {
    // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
     return`<label for="paymentMethodEl" class="mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
     <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
-    <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option>                                                            
+    <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.chargeBilling}</option>                                                            
+   <!-- <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option> -->                                                           
    <!-- <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option> -->
     </select>`;
   } 
@@ -1004,631 +1004,7 @@ function show_setting_window_efb(idset) {
 
 }
 
-let change_el_edit_Efb = (el) => {
-  let lenV = valj_efb.length
-  //console.log(el.id , el.value)
-  if (el.value.length>0 && el.value.search(/(")+/g)!=-1){
-    el.value = el.value.replaceAll(`"`,'');
-    noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
-  }
-  
-  if(lenV>20){
-    timeout=5;
-    const p = calPLenEfb(lenV)/2
-    if(el.dataset.tag=="multiselect" || el.dataset.tag=="payMultiselect")timeout=100;
-    lenV = (lenV * (Math.log(lenV)) * p);
-    setTimeout(() => {
-      document.getElementById("overlay_efb").classList.remove("d-none")
-      document.getElementById("overlay_efb").classList.add("d-block")
-      setTimeout(() => {document.getElementById("overlay_efb").classList.remove("d-block")
-      }, lenV);
-      clearTimeout(lenV);      
-    }, timeout);
-    clearTimeout(timeout);
-  }
 
-  let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
-  postId = el.dataset.id.includes('Next_') || el.dataset.id.includes('Previous_') ? 0 : postId;
-  //console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
-  const indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId!=0 ? valj_efb.findIndex(x => x.dataId == postId) : 0;
-  const len_Valj =valj_efb.length;
-  //console.log(el.dataset,indx,postId);
-  postId=null
-
-  let clss = ''
-  let c,color;
-  setTimeout(()=>{
-    switch (el.id) {
-      case "labelEl":
-        valj_efb[indx].name = el.value;
-        document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
-        break;
-        case "desEl":
-          valj_efb[indx].message = el.value;
-          document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
-          break;
-          case "adminFormEmailEl":
-       
-            if(efb_var.smtp=="true"){
-          if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
-          {
-            valj_efb[0].email = el.value;
-            return true;
-          }
-          else {
-            document.getElementById("adminFormEmailEl").value = "";
-            noti_message_efb(efb_var.text.error,efb_var.text.invalidEmail,10,"danger");
-          }
-        }else{
-          // trackingCodeEl.checked=false;
-          document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
-        }
-        
-        
-        break;
-        case "cardEl":
-          valj_efb[0].dShowBg? valj_efb[0].dShowBg = el.checked : Object.assign(valj_efb[0] , {dShowBg:el.checked})
-          //console.log(valj_efb[0] )
-          
-          //console.log('test',valj_efb[indx].showbg);
-          break;
-        case "requiredEl":
-          valj_efb[indx].required = el.checked
-       
-        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
-        const aId = {
-          email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
-          textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
-        }
-        postId = aId[valj_efb[indx].type]
-        id = valj_efb[indx].id_     
-        document.getElementById(`${id}${postId}`).classList.toggle('required')
-        //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-        break;
-      case "SendemailEl":
-        if(efb_var.smtp=="true"){
-          valj_efb[0].sendEmail = el.checked
-          valj_efb[0].email_to = el.dataset.id.replace('-id', '');
-        }else{
-         // trackingCodeEl.checked=false;
-          document.getElementById("SendemailEl").checked = false;
-          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
-        }
-      
-        break;
-      case "formNameEl":
-        valj_efb[0].formName = el.value
-        break;
-      case "trackingCodeEl":
-        valj_efb[0].trackingCode = el.checked;
-
-        break;
-      case "thankYouMessageDoneEl":
-        valj_efb[0].thank_you_message.done = el.value;
-        break;
-      case "thankYouMessageEl":
-        valj_efb[0].thank_you_message.thankYou = el.value;
-        break;
-      case "thankYouMessageConfirmationCodeEl":
-        valj_efb[0].thank_you_message.trackingCode = el.value;
-        break;
-      case "thankYouMessageErrorEl":
-        valj_efb[0].thank_you_message.error = el.value;
-        break;
-      case "thankYouMessagepleaseFillInRequiredFieldsEl":
-        valj_efb[0].thank_you_message.pleaseFillInRequiredFields = el.value;
-        break;
-      case "captchaEl":
-       
-        if(efb_var.captcha=="true"){
-          valj_efb[0].captcha = el.checked
-          el.checked==true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
-
-        }else{
-         // trackingCodeEl.checked=false;
-          document.getElementById("captchaEl").checked = false;
-          noti_message_efb(efb_var.text.reCAPTCHA,efb_var.text.reCAPTCHASetError,20,"danger")
-          
-        }
-        break;
-      case "showSIconsEl":
-        valj_efb[0].show_icon = el.checked
-        break;
-      case "showSprosiEl":
-        valj_efb[0].show_pro_bar = el.checked
-        break;
-      case "showformLoggedEl":
-        valj_efb[0].stateForm =el.checked==true ? 1 :0
-        break;
-      case "placeholderEl":
-        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
-  
-        valj_efb[indx].placeholder = el.value;
-        break;
-      case "valueEl":
-       // console.log(el.dataset.tag);
-        if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea') {
-          
-          //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
-          document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
-          valj_efb[indx].value = el.value;
-        }else if(el.dataset.tag == 'heading' || el.dataset.tag == 'textarea'){
-          //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
-          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
-          valj_efb[indx].value = el.value;
-        }else {
-          //yesNo
-          id = `${valj_efb[indx].id_}_${el.dataset.no}`
-          document.getElementById(id).value = el.value;
-          document.getElementById(`${id}_lab`).innerHTML = el.value;
-          el.dataset.no == 1 ? valj_efb[indx].button_1_text = el.value : valj_efb[indx].button_2_text = el.value
-        }
-        break;
-      case "classesEl":
-        id= valj_efb[indx].id_;
-        const v = el.value.replace(` `, `,`);
-        //document.querySelector(`[data-id="${idset}"]`).classes=el.value;
-     //   clss=document.getElementById(id).className;
-        document.getElementById(id).className+=el.value.replace(`,`, ` `);
-        valj_efb[indx].classes = v;
-        break;
-      case "sizeEl":
-        postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
-        const op = el.options[el.selectedIndex].value;
-        valj_efb[indx].size = op;
-        get_position_col_el(valj_efb[indx].dataId, true);
-        break;
-      case "cornerEl":
-
-        const co = el.options[el.selectedIndex].value;
-        if (el.dataset.side == "undefined" || el.dataset.side == "") {
-          valj_efb[indx].corner = co;
-          postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-          let cornEl = document.getElementById(postId);          
-          // /
-          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select'  ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
-          //efb-square
-
-          cornEl.classList.toggle('efb-square')
-          if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
-  
-  
-        } else {
-          valj_efb[0].corner = co;
-          postId = document.getElementById('btn_send_efb');
-        
-          postId.classList.toggle('efb-square')
-          document.getElementById('next_efb').classList.toggle('efb-square')
-          document.getElementById('prev_efb').classList.toggle('efb-square')
-        }
-        break;
-      case "labelFontSizeEl":
-        valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
-        let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
-        const sizef = el.options[el.selectedIndex].value
-        fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
-        if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
-        break;
-      case "paymentGetWayEl":
-        //console.log('paymentGetWayEl')
-        valj_efb[0].payment = el.options[el.selectedIndex].value;
-        //console.log(el.options[el.selectedIndex].value);
-        break;
-      case "paymentMethodEl":
-        //console.log('paymentMethodEl')
-        valj_efb[0].paymentmethod = el.options[el.selectedIndex].value;
-        //console.log(el.options[el.selectedIndex].value,valj_efb[0].paymentmethod);
-        break;
-        //paymentMethodEl
-      case "currencyTypeEl":
-        //console.log('currencyTypeEl')
-        valj_efb[0].currency = el.options[el.selectedIndex].value;
-        document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency.toUpperCase()
-        //console.log(el.options[el.selectedIndex].value);
-        break;
-      case "fileTypeEl":
-        valj_efb[indx].file = el.options[el.selectedIndex].value;
-        
-        //console.log(valj_efb[indx].file)
-        valj_efb[indx].value = el.options[el.selectedIndex].value;
-        let nfile = el.options[el.selectedIndex].value.toLowerCase();
-        nfile = efb_var.text[nfile];
-        if( document.getElementById(`${valj_efb[indx].id_}_txt`))document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
-        break;
-      case "btnColorEl":
-        color = el.value;
-        //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
-
-        clss = switch_color_efb(color);;
-        if(clss.includes('colorDEfb')){addStyleColorBodyEfb(clss,color,"btn",indx);}
-        if (indx != 0) {
-          if (el.dataset.tag != "yesNo") {
-            if((indx==0 && valj_efb[indx].step==1) || indx>0){
-              document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className,"btn-"+clss)
-            }else{
-              document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
-              document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
-            }
-          } else {
-            document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className,"btn-"+clss)
-            document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className,"btn-"+clss)
-          }
-        }else {          
-          document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className,"btn-"+clss)
-          document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
-          document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
-        }
-        valj_efb[indx].button_color = "btn-"+clss;
-        //console.log( valj_efb[indx]);
-        if(clss.includes('colorDEfb')){
-          valj_efb[indx].style_btn_color ?  valj_efb[indx].style_btn_color=color : Object.assign(valj_efb[indx] , {style_btn_color:color}) ;
-          addColorTolistEfb(color)
-        }
-
-        break;
-      case "selectColorEl":  
-         color = el.value;
-         c =switch_color_efb(color);
-        
-        //console.log(color, c ,el.dataset,indx)
-        if(c.includes('colorDEfb')){      
-          addStyleColorBodyEfb(c,color,"text",indx);
-        }
-        postId = ''
-        if (el.dataset.el == "label") {
-          valj_efb[indx].label_text_color = "text-"+c;
-          postId = valj_efb[indx].type != 'step' ? '_labG' : '_lab'
-        }
-        else if (el.dataset.el == "description") {
-          valj_efb[indx].message_text_color ="text-"+c;
-          postId = '-des'
-        }
-        else if (el.dataset.el == "icon") {
-          //console.log(c,indx,valj_efb[indx])
-          valj_efb[indx].icon_color ="text-"+c;
-          postId = '_icon'
-        } else if (el.dataset.el == "el") {
-          valj_efb[indx].el_text_color ="text-"+c;
-          postId = '_'
-        }
-        if (el.dataset.tag != "form" &&
-          ((el.dataset.tag == "select" && el.dataset.el != "el")
-            || (el.dataset.tag == "radio" && el.dataset.el != "el")
-            || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
-            || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
-            || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
-            || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
-            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" 
-            && el.dataset.tag != "radio" && el.dataset.tag != "select"  &&el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' ))
-        ) {
-        // if( c=="colorDEf")   {console.log(`${valj_efb[indx].id_}${postId}`);document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color=`#${color}`}
-        //console.log(`id_ =[${valj_efb[indx].id_}] postId=[${postId}] index=[${indx}] id=[${valj_efb[indx].id_}${postId}]`,valj_efb[indx] )
-        //console.log(document.getElementById(`${valj_efb[indx].id_}${postId}`).className)
-          document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-"+c)
-        } else if (el.dataset.tag == "form") {
-          if (el.dataset.el != "icon" && el.dataset.el != "el") {
-            document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, "text-"+c)
-            c=="colorDEf" ?  document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color="#"+color:0
-          } else if (el.dataset.el == "icon") {
-            document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, "text-"+c)
-            document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, "text-"+c)
-            document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, "text-"+c)
-            
-          } else if (el.dataset.el == "el") {
-            document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, "text-"+c)
-            document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, "text-"+c)
-            document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, "text-"+c)
-            
-  
-          }
-          //button_group_button_single_text
-        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
-          const objOptions = valj_efb.filter(obj => {
-            return obj.parent === valj_efb[indx].id_
-          })
-          for (let obj of objOptions) {
-            let optin = document.getElementById(`${obj.id_}_lab`);
-            optin.className = colorTextChangerEfb(optin.className, "text-"+c)
-          }
-  
-          //find list of options by id  from valueJson
-          // change color of el by id finded of
-        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ) {
-          const objOptions = valj_efb.filter(obj => {
-            return obj.parent === valj_efb[indx].id_
-          })
-          for (let obj of objOptions) {
-            try {
-              let optin = document.querySelector(`[data-op="${obj.id_op}"]`);
-              optin.className = colorTextChangerEfb(optin.className, "text-"+c)              
-            } catch {
-            }
-          }
-  
-          //find list of options by id  from valueJson
-          // change color of el by id finded of
-        } else if (el.dataset.tag == "yesNo") {
-          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, "text-"+c)
-          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, "text-"+c)
-  
-        } 
-
-        if(c.includes('colorDEfb')){
-          switch (el.dataset.el) {
-            case 'label':
-              valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
-              //console.log('costume color',valj_efb[indx])
-              break;
-            case 'description':
-              valj_efb[indx].style_label_color ?  valj_efb[indx].style_message_text_color=color : Object.assign(valj_efb[indx] , {style_message_text_color:color}) ;
-              //console.log('costume color',valj_efb[indx])
-              break;
-            case 'el':
-              valj_efb[indx].el_text_color ?  valj_efb[indx].style_el_text_color=color : Object.assign(valj_efb[indx] , {style_el_text_color:color}) ;
-              //console.log('costume color',valj_efb[indx])
-              break;          
-            case 'icon':
-              valj_efb[indx].style_icon_color ?  valj_efb[indx].style_icon_color=color : Object.assign(valj_efb[indx] , {style_icon_color:color}) ;
-              //console.log('costume color',valj_efb[indx])
-              break;
-          
-            default:
-              break;
-          }
-          addColorTolistEfb(color)
-        }
-        break;
-      case "selectBorderColorEl":
-        //console.log(el.value);
-         color = el.value;
-        c =switch_color_efb(color);
-        
-       //console.log(color, c ,el.dataset,indx)
-       if(c.includes('colorDEfb')){
-         addStyleColorBodyEfb(c,color,"border",indx);
-       }
-        postId = '_'
-  
-        if (el.dataset.tag == "dadfile") { postId = "_box" }
-        else if (fun_el_select_in_efb(el.dataset.tag)) { postId = "_options" }
-  
-        setTimeout(() => {       
-           const l =  document.getElementById(`${valj_efb[indx].id_}${postId}`);      
-          l.className =colorBorderChangerEfb(l.className, `border-${c}`);
-        }, 100)
-        valj_efb[indx].el_border_color =`border-${c}`
-
-        if(c.includes('colorDEfb')){
-          valj_efb[indx].style_border_color ?  valj_efb[indx].style_border_color=color : Object.assign(valj_efb[indx] , {style_border_color:color}) ;
-          addColorTolistEfb(color)
-        }
-        break;
-      case "fontSizeEl":
-        //console.log(el.options[el.selectedIndex].value);
-        valj_efb[indx].el_text_size = el.options[el.selectedIndex].value;
-        id=`${valj_efb[indx].id_}_`;
-        //console.log(id)
-        document.getElementById(id).className =headSizeEfb(document.getElementById(id).className,el.options[el.selectedIndex].value)
-        break;
-      case "selectHeightEl":
-        el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
-        let fsize = 'fs-6';
-        if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
-        else if (valj_efb[indx].el_height == 'h-xl-efb') { fsize = 'fs-4'; }
-        else if (valj_efb[indx].el_height == 'h-xxl-efb') { fsize = 'fs-3'; }
-        else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
-        else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
-        if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
-          postId = `${valj_efb[indx].id_}_options`
-        } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
-          valj_efb[indx].label_text_size = fsize;
-          const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
-          setTimeout(() => {
-            for (let obj of objOptions) {             
-              valj_efb[indx].el_text_size = fsize;
-              let clslabel = document.getElementById(`${obj.id_}_lab`).className 
-              clslabel = inputHeightChangerEfb(clslabel, el.options[el.selectedIndex].value)
-              clslabel = inputHeightChangerEfb(clslabel, fsize)
-              document.getElementById(obj.id_).className = inputHeightChangerEfb(document.getElementById(obj.id_).className, fsize)            
-              //document.querySelector(`[data-id="${obj.dataId}"]`).className = fontSizeChangerEfb(document.querySelector(`[data-id='${obj.dataId}']`).className, )
-            }
-          }, objOptions.length * len_Valj);
-          break;
-  
-        } else if (el.dataset.tag == "form") {
-          postId = `btn_send_efb`;
-          document.getElementById(`btn_send_efb`).className = inputHeightChangerEfb(document.getElementById(`btn_send_efb`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`next_efb`).className = inputHeightChangerEfb(document.getElementById(`next_efb`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`prev_efb`).className = inputHeightChangerEfb(document.getElementById(`prev_efb`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Previous_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
-          document.getElementById(`button_group_Next_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
-          break;
-        } else if (el.dataset.tag == "maps") {
-          postId = `${valj_efb[indx].id_}-map`;
-        } else if (el.dataset.tag == "dadfile") {
-          postId = `${valj_efb[indx].id_}_box`;
-        } else if (el.dataset.tag == "multiselect" ||el.dataset.tag == "payMultiselect" ) {
-          //h-xxl-efb
-          postId = `${valj_efb[indx].id_}_options`;
-          let msel = document.getElementById(postId);
-          const iconDD = document.getElementById(`iconDD-${valj_efb[indx].id_}`)
-          msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
-          iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
-          msel.className = fontSizeChangerEfb(msel.className, fsize)
-          valj_efb[indx].el_text_size = fsize
-        } else if (el.dataset.tag == "rating") {
-          postId = valj_efb[indx].id_;
-          setTimeout(() => {
-            const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
-          
-            document.getElementById(`${postId}_star1`).className = newClass;
-            document.getElementById(`${postId}_star2`).className = newClass;
-            document.getElementById(`${postId}_star3`).className = newClass;
-            document.getElementById(`${postId}_star4`).className = newClass;
-            document.getElementById(`${postId}_star5`).className = newClass;
-          }, 10);
-          break;
-        } else if (el.dataset.tag == "switch") {
-          postId = `${valj_efb[indx].id_}-switch`;
-        } else if (el.dataset.tag == "yesNo") {
-          setTimeout(() => {
-            postId = `${valj_efb[indx].id_}_b_1`;
-            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-            postId = `${valj_efb[indx].id_}_b_2`;
-            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-          }, 10);
-          break;
-        } else if (el.dataset.tag == "link"){
-          
-          postId = `${valj_efb[indx].id_}_`
-          
-          document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
-          //console.log(fsize,postId , document.getElementById(postId));
-        } else {
-        
-          postId = `${valj_efb[indx].id_}_`
-        }
-        setTimeout(() => {
-          
-          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
-        }, 10)
-  
-    
-        break;
-      case 'SingleTextEl':
-        let iidd = ""
-        if (el.dataset.side == "undefined" || el.dataset.side == "") {
-          // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
-          iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
-          valj_efb[indx].button_single_text = el.value ;
-        } else {
-          iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
-          el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
-        }        
-        document.getElementById(iddd).innerHTML = el.value;
-     
-        break;
-      case 'iconEl':
-      
-/*         let di = '';
-        if (el.dataset.side == "undefined" || el.dataset.side == "") {
-          di = indx != 0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon`;
-          valj_efb[indx].icon = returnValueSelectedOfListEfb(el.dataset.id);
-        } else {
-          const i = returnValueSelectedOfListEfb(el.dataset.id);
-          console.log(`i====================>${i}`);
-          di = el.dataset.side == "Next" ? `button_group_Next_icon` : `button_group_Previous_icon`
-          el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = i : valj_efb[0].button_Previous_icon = i
-        } 
-        document.getElementById(`${di}`).className =`efb ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}`
-        */
-     
-      //  document.getElementById(`${di}`).className = `${el.value} mx-2`;
-        break;
-      case 'marksEl':
-        valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
-    
-        break;
-      case 'letEl':
-        const lat = parseFloat(el.value);
-        const lon = parseFloat(document.getElementById('lonEl').value)
-     
-        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-          center: { lat: lat, lng: lon },
-          zoom: 8,
-        })
-        valj_efb[indx].lat = lat;
-     
-        break;
-      case 'lonEl':
-        const lonLoc = parseFloat(el.value);
-        const letLoc = parseFloat(document.getElementById('letEl').value)
-        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-          center: { lat: letLoc, lng: lonLoc },
-          zoom: 8,
-        })
-        valj_efb[indx].lng = lonLoc;
-    
-        break;
-      case 'EditOption':        
-       
-        const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-     
-        if (iindx != -1) {
-          //console.log(1545,el.dataset.id ,iindx ,el.dataset.tag);
-          valj_efb[iindx].value = el.value;
-          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
-          
-            //Select
-            document.querySelector(`[data-op="${el.dataset.id}"]`).innerHTML = el.value;
-            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-          }else if( el.dataset.tag != "multiselect" &&  el.dataset.tag != 'payMultiselect') {
-            //radio || checkbox  
-            /* console.log('radio || checkbox');
-            console.log(document.querySelector(`[data-op="${el.dataset.id}"]`).value);
-            console.log(document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML); */
-            
-            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
-          }
-          el.setAttribute('value', valj_efb[iindx].value);
-          el.setAttribute('defaultValue', valj_efb[iindx].value);
-        }
-        break;
-      case 'paymentOption': 
-      //console.log('paymentOption');     
-        el.dataset.id;
-        const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-     
-        
-        if (ipndx != -1) {
-          valj_efb[ipndx].price = el.value;
-          //console.log( valj_efb[ipndx])
-        }
-        break;
-      case "htmlCodeEl":
-        
-        const idhtml=`${el.dataset.id}_html`;
-        postId = valj_efb.findIndex(x => x.id_ == el.dataset.id);
-        if (el.value.length > 2) {
-      
-          document.getElementById(idhtml).innerHTML = el.value;
-          document.getElementById(idhtml).classList.remove('sign-efb')
-          valj_efb[postId].value = el.value.replace(/\r?\n|\r/g, " ");
-          valj_efb[postId].value = valj_efb[postId].value.replace(/"/g,`@!`);
-        
-        } else {
-  
-          document.getElementById(idhtml).classList.add('sign-efb')
-          document.getElementById(idhtml).innerHTML = `
-            <div class="efb noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
-            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
-            <i class="efb bi-gear-fill text-success" id="efbSetting"></i></button> ${efb_var.text.andAddingHtmlCode}
-            </div>`
-          valj_efb[postId].value = '';
-  
-        }
-  
-        break;
-        case "selectMultiSelectMaxEl":
-          const vms= el.value=="" ? 2 :el.value
-          valj_efb[indx].maxSelect = vms;
-          document.getElementById(`${valj_efb[indx].id_}_options`).dataset.no = vms
-          
-          break;
-        case "selectMultiSelectMinEl":
-          const vmsn= el.value=="" ? 2 :el.value
-          valj_efb[indx].minSelect = vmsn;
-          document.getElementById(`${valj_efb[indx].id_}_options`).dataset.min = vmsn
-         
-          break;
-    }
-
-  },len_Valj*10)
-}
 
 
 
@@ -1758,7 +1134,7 @@ const obj_delete_row = (dataid, is_step) => {
       document.getElementById('maps_b').classList.remove('disabled')
     }else if(valj_efb[foundIndex].type == "stripe"){
       valj_efb[0].type="form";
-      //console.log(valj_efb[0]);
+      console.log(valj_efb[0]);
     } else if (fun_el_select_in_efb(valj_efb[foundIndex].type) || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox'  ) {
       obj_delete_options(valj_efb[foundIndex].id_)
       //  foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
@@ -1852,7 +1228,7 @@ let handleDrop = (item) => {
   if(status_drag_start==true){
     for(i of valj_efb){
       if(i.type!="option" && i.type!="form") 
-      document.getElementById(i.id_).classList.remove("drophere")
+      if(document.getElementById(i.id_))document.getElementById(i.id_).classList.remove("drophere")
     }
     status_drag_start=false;
   }
@@ -2008,8 +1384,8 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   </div>`;
  if(tag!=="multiselect" && tag!=="payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
 
-  for (let el of  document.getElementById(`${id_ob}-v`).querySelectorAll(`.elEdit`)) {
-    //console.log(el);
+  for (let el of  document.querySelectorAll(`.elEdit`)) {
+    console.log(el.dataset.id);
     el.addEventListener("change", (e) => { change_el_edit_Efb(el); })
   }
 
@@ -2863,7 +2239,7 @@ const loadingShow_efb = (title) => {
 </div>`
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  //console.log(elementId);
+  console.log(elementId);
   const testb =valj_efb.length;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
@@ -2882,10 +2258,10 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
   if ( elementId == "dadfile"  || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps" 
   || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" 
-  || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox"|| elementId == "heading" || elementId == "link") { pro = true }
+  || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox"|| elementId == "heading" || elementId == "link" || elementId == "stripe") { pro = true }
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId !="heading" && elementId !="link") {  
-    //console.log(elementId , efb_var.text);
+    console.log(elementId);
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type:type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
@@ -2893,7 +2269,10 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro ,icon_input:''
     })
-
+    if(elementId=="stripe") {
+      Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'charge' });
+      valj_efb[0].type='payment';
+    }
     if (elementId == "esign") {
 
       Object.assign(valj_efb[(valj_efb.length) - 1], {
@@ -2956,8 +2335,8 @@ let sampleElpush_efb = (rndm, elementId) => {
       //icon_color: 'default'
     } 
 
-
   }
+  console.log(valj_efb);
 }
 let optionElpush_efb = (parent, value, rndm, op,tag) => {
   if(tag!=undefined && tag.includes("pay")){
@@ -4023,7 +3402,7 @@ function handle_navbtn_efb(steps, device) {
         }
         //next_efb
         //disabled
-        if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
+        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
       if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
@@ -4043,7 +3422,7 @@ function handle_navbtn_efb(steps, device) {
         if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
+      if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
       prev_s_efb = current_s.prev();
       jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
       jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
@@ -4990,6 +4369,639 @@ fun_disabled_all_pay_efb=()=>{
 fun_currency_no_convert_efb=(currency , number)=>{
  return new Intl.NumberFormat('us', { style: 'currency', currency: currency }).format(number)
 }
+
+let change_el_edit_Efb = (el) => {
+  let lenV = valj_efb.length
+  console.log(el.id , el.value)
+  if (el.value.length>0 && el.value.search(/(")+/g)!=-1){
+    el.value = el.value.replaceAll(`"`,'');
+    noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
+  }
+  
+  if(lenV>20){
+    timeout=5;
+    const p = calPLenEfb(lenV)/2
+    if(el.dataset.tag=="multiselect" || el.dataset.tag=="payMultiselect")timeout=100;
+    lenV = (lenV * (Math.log(lenV)) * p);
+    setTimeout(() => {
+      document.getElementById("overlay_efb").classList.remove("d-none")
+      document.getElementById("overlay_efb").classList.add("d-block")
+      setTimeout(() => {document.getElementById("overlay_efb").classList.remove("d-block")
+      }, lenV);
+      clearTimeout(lenV);      
+    }, timeout);
+    clearTimeout(timeout);
+  }
+
+  let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
+  postId = el.dataset.id.includes('Next_') || el.dataset.id.includes('Previous_') ? 0 : postId;
+  //console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
+  const indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId!=0 ? valj_efb.findIndex(x => x.dataId == postId) : 0;
+  const len_Valj =valj_efb.length;
+  //console.log(el.dataset,indx,postId);
+  postId=null
+
+  let clss = ''
+  let c,color;
+  setTimeout(()=>{
+    switch (el.id) {
+      case "labelEl":
+        valj_efb[indx].name = el.value;
+        document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
+        break;
+        case "desEl":
+          valj_efb[indx].message = el.value;
+          document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+          break;
+          case "adminFormEmailEl":
+        console.log(efb_var.smtp);
+         if(efb_var.smtp=="1"){
+          if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
+          {
+            valj_efb[0].email = el.value;
+            return true;
+          }
+          else {
+            document.getElementById("adminFormEmailEl").value = "";
+            noti_message_efb(efb_var.text.error,efb_var.text.invalidEmail,10,"danger");
+          }
+        }else if(efb_var.smtp=='-1'){
+          document.getElementById("adminFormEmailEl").value = "";
+          noti_message_efb(efb_var.text.error,efb_var.text.goToEFBAddEmailM,30,"danger");
+        }else{
+          // trackingCodeEl.checked=false;
+          document.getElementById("adminFormEmailEl").value = "";
+          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
+        }
+        
+        
+        break;
+        case "cardEl":
+          valj_efb[0].dShowBg? valj_efb[0].dShowBg = el.checked : Object.assign(valj_efb[0] , {dShowBg:el.checked})
+          //console.log(valj_efb[0] )
+          
+          //console.log('test',valj_efb[indx].showbg);
+          break;
+        case "requiredEl":
+          valj_efb[indx].required = el.checked
+       
+        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
+        const aId = {
+          email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
+          textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn"
+        }
+        postId = aId[valj_efb[indx].type]
+        id = valj_efb[indx].id_     
+        document.getElementById(`${id}${postId}`).classList.toggle('required')
+        //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
+        break;
+      case "SendemailEl":
+        if(efb_var.smtp=="true"){
+          valj_efb[0].sendEmail = el.checked
+          valj_efb[0].email_to = el.dataset.id.replace('-id', '');
+        }else{
+         // trackingCodeEl.checked=false;
+          document.getElementById("SendemailEl").checked = false;
+          noti_message_efb(efb_var.text.error,efb_var.text.sMTPNotWork,20,"danger")
+        }
+      
+        break;
+      case "formNameEl":
+        valj_efb[0].formName = el.value
+        break;
+      case "trackingCodeEl":
+        valj_efb[0].trackingCode = el.checked;
+
+        break;
+      case "thankYouMessageDoneEl":
+        valj_efb[0].thank_you_message.done = el.value;
+        break;
+      case "thankYouMessageEl":
+        valj_efb[0].thank_you_message.thankYou = el.value;
+        break;
+      case "thankYouMessageConfirmationCodeEl":
+        valj_efb[0].thank_you_message.trackingCode = el.value;
+        break;
+      case "thankYouMessageErrorEl":
+        valj_efb[0].thank_you_message.error = el.value;
+        break;
+      case "thankYouMessagepleaseFillInRequiredFieldsEl":
+        valj_efb[0].thank_you_message.pleaseFillInRequiredFields = el.value;
+        break;
+      case "captchaEl":
+       
+        if(efb_var.captcha=="true"){
+          valj_efb[0].captcha = el.checked
+          el.checked==true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
+
+        }else{
+         // trackingCodeEl.checked=false;
+          document.getElementById("captchaEl").checked = false;
+          noti_message_efb(efb_var.text.reCAPTCHA,efb_var.text.reCAPTCHASetError,20,"danger")
+          
+        }
+        break;
+      case "showSIconsEl":
+        valj_efb[0].show_icon = el.checked
+        break;
+      case "showSprosiEl":
+        valj_efb[0].show_pro_bar = el.checked
+        break;
+      case "showformLoggedEl":
+        valj_efb[0].stateForm =el.checked==true ? 1 :0
+        break;
+      case "placeholderEl":
+        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
+  
+        valj_efb[indx].placeholder = el.value;
+        break;
+      case "valueEl":
+       // console.log(el.dataset.tag);
+        if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea') {
+          
+          //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
+          document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
+          valj_efb[indx].value = el.value;
+        }else if(el.dataset.tag == 'heading' || el.dataset.tag == 'textarea'){
+          //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
+          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
+          valj_efb[indx].value = el.value;
+        }else {
+          //yesNo
+          id = `${valj_efb[indx].id_}_${el.dataset.no}`
+          document.getElementById(id).value = el.value;
+          document.getElementById(`${id}_lab`).innerHTML = el.value;
+          el.dataset.no == 1 ? valj_efb[indx].button_1_text = el.value : valj_efb[indx].button_2_text = el.value
+        }
+        break;
+      case "classesEl":
+        id= valj_efb[indx].id_;
+        const v = el.value.replace(` `, `,`);
+        //document.querySelector(`[data-id="${idset}"]`).classes=el.value;
+     //   clss=document.getElementById(id).className;
+        document.getElementById(id).className+=el.value.replace(`,`, ` `);
+        valj_efb[indx].classes = v;
+        break;
+      case "sizeEl":
+        postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
+        const op = el.options[el.selectedIndex].value;
+        valj_efb[indx].size = op;
+        get_position_col_el(valj_efb[indx].dataId, true);
+        break;
+      case "cornerEl":
+
+        const co = el.options[el.selectedIndex].value;
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          valj_efb[indx].corner = co;
+          postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
+          let cornEl = document.getElementById(postId);          
+          // /
+          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince'|| el.dataset.tag == 'select'  ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
+          //efb-square
+
+          cornEl.classList.toggle('efb-square')
+          if (el.dataset.tag == 'dadfile' || el.dataset.tag == 'esign') document.getElementById(`${valj_efb[indx].id_}_b`).classList.toggle('efb-square')
+  
+  
+        } else {
+          valj_efb[0].corner = co;
+          postId = document.getElementById('btn_send_efb');
+        
+          postId.classList.toggle('efb-square')
+          document.getElementById('next_efb').classList.toggle('efb-square')
+          document.getElementById('prev_efb').classList.toggle('efb-square')
+        }
+        break;
+      case "labelFontSizeEl":
+        valj_efb[indx].label_text_size = el.options[el.selectedIndex].value;
+        let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
+        const sizef = el.options[el.selectedIndex].value
+        fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
+        if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
+        break;
+      case "paymentGetWayEl":
+        //console.log('paymentGetWayEl')
+        valj_efb[0].payment = el.options[el.selectedIndex].value;
+        //console.log(el.options[el.selectedIndex].value);
+        break;
+      case "paymentMethodEl":
+        //console.log('paymentMethodEl')
+        valj_efb[0].paymentmethod = el.options[el.selectedIndex].value;
+        //console.log(el.options[el.selectedIndex].value,valj_efb[0].paymentmethod);
+        break;
+        //paymentMethodEl
+      case "currencyTypeEl":
+        //console.log('currencyTypeEl')
+        valj_efb[0].currency = el.options[el.selectedIndex].value;
+        document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency.toUpperCase()
+        //console.log(el.options[el.selectedIndex].value);
+        break;
+      case "fileTypeEl":
+        valj_efb[indx].file = el.options[el.selectedIndex].value;
+        
+        //console.log(valj_efb[indx].file)
+        valj_efb[indx].value = el.options[el.selectedIndex].value;
+        let nfile = el.options[el.selectedIndex].value.toLowerCase();
+        nfile = efb_var.text[nfile];
+        if( document.getElementById(`${valj_efb[indx].id_}_txt`))document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
+        break;
+      case "btnColorEl":
+        color = el.value;
+        //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
+
+        clss = switch_color_efb(color);;
+        if(clss.includes('colorDEfb')){addStyleColorBodyEfb(clss,color,"btn",indx);}
+        if (indx != 0) {
+          if (el.dataset.tag != "yesNo") {
+            if((indx==0 && valj_efb[indx].step==1) || indx>0){
+              document.getElementById(`${valj_efb[indx].id_}_b`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b`).className,"btn-"+clss)
+            }else{
+              document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
+              document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
+            }
+          } else {
+            document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className,"btn-"+clss)
+            document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorBtnChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className,"btn-"+clss)
+          }
+        }else {          
+          document.getElementById(`btn_send_efb`).className = colorBtnChangerEfb(document.getElementById(`btn_send_efb`).className,"btn-"+clss)
+          document.getElementById(`next_efb`).className = colorBtnChangerEfb(document.getElementById(`next_efb`).className,"btn-"+clss)
+          document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className,"btn-"+clss)
+        }
+        valj_efb[indx].button_color = "btn-"+clss;
+        //console.log( valj_efb[indx]);
+        if(clss.includes('colorDEfb')){
+          valj_efb[indx].style_btn_color ?  valj_efb[indx].style_btn_color=color : Object.assign(valj_efb[indx] , {style_btn_color:color}) ;
+          addColorTolistEfb(color)
+        }
+
+        break;
+      case "selectColorEl":  
+         color = el.value;
+         c =switch_color_efb(color);
+        
+        //console.log(color, c ,el.dataset,indx)
+        if(c.includes('colorDEfb')){      
+          addStyleColorBodyEfb(c,color,"text",indx);
+        }
+        postId = ''
+        if (el.dataset.el == "label") {
+          valj_efb[indx].label_text_color = "text-"+c;
+          postId = valj_efb[indx].type != 'step' ? '_labG' : '_lab'
+        }
+        else if (el.dataset.el == "description") {
+          valj_efb[indx].message_text_color ="text-"+c;
+          postId = '-des'
+        }
+        else if (el.dataset.el == "icon") {
+          //console.log(c,indx,valj_efb[indx])
+          valj_efb[indx].icon_color ="text-"+c;
+          postId = '_icon'
+        } else if (el.dataset.el == "el") {
+          valj_efb[indx].el_text_color ="text-"+c;
+          postId = '_'
+        }
+        if (el.dataset.tag != "form" &&
+          ((el.dataset.tag == "select" && el.dataset.el != "el")
+            || (el.dataset.tag == "radio" && el.dataset.el != "el")
+            || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
+            || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
+            || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
+            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" 
+            && el.dataset.tag != "radio" && el.dataset.tag != "select"  &&el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' ))
+        ) {
+        // if( c=="colorDEf")   {console.log(`${valj_efb[indx].id_}${postId}`);document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color=`#${color}`}
+        //console.log(`id_ =[${valj_efb[indx].id_}] postId=[${postId}] index=[${indx}] id=[${valj_efb[indx].id_}${postId}]`,valj_efb[indx] )
+        //console.log(document.getElementById(`${valj_efb[indx].id_}${postId}`).className)
+          document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-"+c)
+        } else if (el.dataset.tag == "form") {
+          if (el.dataset.el != "icon" && el.dataset.el != "el") {
+            document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, "text-"+c)
+            c=="colorDEf" ?  document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color="#"+color:0
+          } else if (el.dataset.el == "icon") {
+            document.getElementById(`button_group_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_icon`).className, "text-"+c)
+            document.getElementById(`button_group_Next_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_icon`).className, "text-"+c)
+            document.getElementById(`button_group_Previous_icon`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_icon`).className, "text-"+c)
+            
+          } else if (el.dataset.el == "el") {
+            document.getElementById(`button_group_button_single_text`).className = colorTextChangerEfb(document.getElementById(`button_group_button_single_text`).className, "text-"+c)
+            document.getElementById(`button_group_Next_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Next_button_text`).className, "text-"+c)
+            document.getElementById(`button_group_Previous_button_text`).className = colorTextChangerEfb(document.getElementById(`button_group_Previous_button_text`).className, "text-"+c)
+            
+  
+          }
+          //button_group_button_single_text
+        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
+          const objOptions = valj_efb.filter(obj => {
+            return obj.parent === valj_efb[indx].id_
+          })
+          for (let obj of objOptions) {
+            let optin = document.getElementById(`${obj.id_}_lab`);
+            optin.className = colorTextChangerEfb(optin.className, "text-"+c)
+          }
+  
+          //find list of options by id  from valueJson
+          // change color of el by id finded of
+        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ) {
+          const objOptions = valj_efb.filter(obj => {
+            return obj.parent === valj_efb[indx].id_
+          })
+          for (let obj of objOptions) {
+            try {
+              let optin = document.querySelector(`[data-op="${obj.id_op}"]`);
+              optin.className = colorTextChangerEfb(optin.className, "text-"+c)              
+            } catch {
+            }
+          }
+  
+          //find list of options by id  from valueJson
+          // change color of el by id finded of
+        } else if (el.dataset.tag == "yesNo") {
+          document.getElementById(`${valj_efb[indx].id_}_b_1`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_1`).className, "text-"+c)
+          document.getElementById(`${valj_efb[indx].id_}_b_2`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}_b_2`).className, "text-"+c)
+  
+        } 
+
+        if(c.includes('colorDEfb')){
+          switch (el.dataset.el) {
+            case 'label':
+              valj_efb[indx].style_label_color ?  valj_efb[indx].style_label_color=color : Object.assign(valj_efb[indx] , {style_label_color:color}) ;
+              //console.log('costume color',valj_efb[indx])
+              break;
+            case 'description':
+              valj_efb[indx].style_label_color ?  valj_efb[indx].style_message_text_color=color : Object.assign(valj_efb[indx] , {style_message_text_color:color}) ;
+              //console.log('costume color',valj_efb[indx])
+              break;
+            case 'el':
+              valj_efb[indx].el_text_color ?  valj_efb[indx].style_el_text_color=color : Object.assign(valj_efb[indx] , {style_el_text_color:color}) ;
+              //console.log('costume color',valj_efb[indx])
+              break;          
+            case 'icon':
+              valj_efb[indx].style_icon_color ?  valj_efb[indx].style_icon_color=color : Object.assign(valj_efb[indx] , {style_icon_color:color}) ;
+              //console.log('costume color',valj_efb[indx])
+              break;
+          
+            default:
+              break;
+          }
+          addColorTolistEfb(color)
+        }
+        break;
+      case "selectBorderColorEl":
+        //console.log(el.value);
+         color = el.value;
+        c =switch_color_efb(color);
+        
+       //console.log(color, c ,el.dataset,indx)
+       if(c.includes('colorDEfb')){
+         addStyleColorBodyEfb(c,color,"border",indx);
+       }
+        postId = '_'
+  
+        if (el.dataset.tag == "dadfile") { postId = "_box" }
+        else if (fun_el_select_in_efb(el.dataset.tag)) { postId = "_options" }
+  
+        setTimeout(() => {       
+           const l =  document.getElementById(`${valj_efb[indx].id_}${postId}`);      
+          l.className =colorBorderChangerEfb(l.className, `border-${c}`);
+        }, 100)
+        valj_efb[indx].el_border_color =`border-${c}`
+
+        if(c.includes('colorDEfb')){
+          valj_efb[indx].style_border_color ?  valj_efb[indx].style_border_color=color : Object.assign(valj_efb[indx] , {style_border_color:color}) ;
+          addColorTolistEfb(color)
+        }
+        break;
+      case "fontSizeEl":
+        //console.log(el.options[el.selectedIndex].value);
+        valj_efb[indx].el_text_size = el.options[el.selectedIndex].value;
+        id=`${valj_efb[indx].id_}_`;
+        //console.log(id)
+        document.getElementById(id).className =headSizeEfb(document.getElementById(id).className,el.options[el.selectedIndex].value)
+        break;
+      case "selectHeightEl":
+        el.dataset.tag == 'form' ? valj_efb[0].el_height = el.options[el.selectedIndex].value : valj_efb[indx].el_height = el.options[el.selectedIndex].value;
+        let fsize = 'fs-6';
+        if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
+        else if (valj_efb[indx].el_height == 'h-xl-efb') { fsize = 'fs-4'; }
+        else if (valj_efb[indx].el_height == 'h-xxl-efb') { fsize = 'fs-3'; }
+        else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
+        else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
+        if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          postId = `${valj_efb[indx].id_}_options`
+        } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
+          valj_efb[indx].label_text_size = fsize;
+          const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
+          setTimeout(() => {
+            for (let obj of objOptions) {             
+              valj_efb[indx].el_text_size = fsize;
+              let clslabel = document.getElementById(`${obj.id_}_lab`).className 
+              clslabel = inputHeightChangerEfb(clslabel, el.options[el.selectedIndex].value)
+              clslabel = inputHeightChangerEfb(clslabel, fsize)
+              document.getElementById(obj.id_).className = inputHeightChangerEfb(document.getElementById(obj.id_).className, fsize)            
+              //document.querySelector(`[data-id="${obj.dataId}"]`).className = fontSizeChangerEfb(document.querySelector(`[data-id='${obj.dataId}']`).className, )
+            }
+          }, objOptions.length * len_Valj);
+          break;
+  
+        } else if (el.dataset.tag == "form") {
+          postId = `btn_send_efb`;
+          document.getElementById(`btn_send_efb`).className = inputHeightChangerEfb(document.getElementById(`btn_send_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`next_efb`).className = inputHeightChangerEfb(document.getElementById(`next_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`prev_efb`).className = inputHeightChangerEfb(document.getElementById(`prev_efb`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_icon`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_Previous_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
+          document.getElementById(`button_group_Next_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
+          break;
+        } else if (el.dataset.tag == "maps") {
+          postId = `${valj_efb[indx].id_}-map`;
+        } else if (el.dataset.tag == "dadfile") {
+          postId = `${valj_efb[indx].id_}_box`;
+        } else if (el.dataset.tag == "multiselect" ||el.dataset.tag == "payMultiselect" ) {
+          //h-xxl-efb
+          postId = `${valj_efb[indx].id_}_options`;
+          let msel = document.getElementById(postId);
+          const iconDD = document.getElementById(`iconDD-${valj_efb[indx].id_}`)
+          msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
+          iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
+          msel.className = fontSizeChangerEfb(msel.className, fsize)
+          valj_efb[indx].el_text_size = fsize
+        } else if (el.dataset.tag == "rating") {
+          postId = valj_efb[indx].id_;
+          setTimeout(() => {
+            const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
+          
+            document.getElementById(`${postId}_star1`).className = newClass;
+            document.getElementById(`${postId}_star2`).className = newClass;
+            document.getElementById(`${postId}_star3`).className = newClass;
+            document.getElementById(`${postId}_star4`).className = newClass;
+            document.getElementById(`${postId}_star5`).className = newClass;
+          }, 10);
+          break;
+        } else if (el.dataset.tag == "switch") {
+          postId = `${valj_efb[indx].id_}-switch`;
+        } else if (el.dataset.tag == "yesNo") {
+          setTimeout(() => {
+            postId = `${valj_efb[indx].id_}_b_1`;
+            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+            postId = `${valj_efb[indx].id_}_b_2`;
+            document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+          }, 10);
+          break;
+        } else if (el.dataset.tag == "link"){
+          
+          postId = `${valj_efb[indx].id_}_`
+          
+          document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
+          //console.log(fsize,postId , document.getElementById(postId));
+        } else {
+        
+          postId = `${valj_efb[indx].id_}_`
+        }
+        setTimeout(() => {
+          
+          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+        }, 10)
+  
+    
+        break;
+      case 'SingleTextEl':
+        let iidd = ""
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
+          iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
+          valj_efb[indx].button_single_text = el.value ;
+        } else {
+          iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
+          el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
+        }        
+        document.getElementById(iddd).innerHTML = el.value;
+     
+        break;
+      case 'iconEl':
+      
+/*         let di = '';
+        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+          di = indx != 0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon`;
+          valj_efb[indx].icon = returnValueSelectedOfListEfb(el.dataset.id);
+        } else {
+          const i = returnValueSelectedOfListEfb(el.dataset.id);
+          console.log(`i====================>${i}`);
+          di = el.dataset.side == "Next" ? `button_group_Next_icon` : `button_group_Previous_icon`
+          el.dataset.side == "Next" ? valj_efb[0].button_Next_icon = i : valj_efb[0].button_Previous_icon = i
+        } 
+        document.getElementById(`${di}`).className =`efb ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}`
+        */
+     
+      //  document.getElementById(`${di}`).className = `${el.value} mx-2`;
+        break;
+      case 'marksEl':
+        valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
+    
+        break;
+      case 'letEl':
+        const lat = parseFloat(el.value);
+        const lon = parseFloat(document.getElementById('lonEl').value)
+     
+        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+          center: { lat: lat, lng: lon },
+          zoom: 8,
+        })
+        valj_efb[indx].lat = lat;
+     
+        break;
+      case 'lonEl':
+        const lonLoc = parseFloat(el.value);
+        const letLoc = parseFloat(document.getElementById('letEl').value)
+        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+          center: { lat: letLoc, lng: lonLoc },
+          zoom: 8,
+        })
+        valj_efb[indx].lng = lonLoc;
+    
+        break;
+      case 'EditOption':        
+       
+        const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        console.log(iindx, )
+        if (iindx != -1) {
+          //console.log(1545,el.dataset.id ,iindx ,el.dataset.tag);
+          valj_efb[iindx].value = el.value;
+          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          
+            //Select
+            let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
+            if(vl)vl.innerHTML = el.value;
+            if(vl)vl.value = el.value;
+          }else if( el.dataset.tag != "multiselect" &&  el.dataset.tag != 'payMultiselect') {
+            //radio || checkbox  
+             console.log('radio || checkbox');
+            console.log(document.querySelector(`[data-op="${el.dataset.id}"]`).value);
+            console.log(document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML); 
+            console.log(document.querySelector(`[data-op="${el.dataset.id}"]`).value , document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML)
+            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+          }
+          el.setAttribute('value', valj_efb[iindx].value);
+          el.setAttribute('defaultValue', valj_efb[iindx].value);
+        }
+        break;
+      case 'paymentOption': 
+      //console.log('paymentOption');     
+        el.dataset.id;
+        const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+     
+        
+        if (ipndx != -1) {
+          valj_efb[ipndx].price = el.value;
+          //console.log( valj_efb[ipndx])
+        }
+        break;
+      case "htmlCodeEl":
+        
+        const idhtml=`${el.dataset.id}_html`;
+        postId = valj_efb.findIndex(x => x.id_ == el.dataset.id);
+        if (el.value.length > 2) {
+      
+          document.getElementById(idhtml).innerHTML = el.value;
+          document.getElementById(idhtml).classList.remove('sign-efb')
+          valj_efb[postId].value = el.value.replace(/\r?\n|\r/g, " ");
+          valj_efb[postId].value = valj_efb[postId].value.replace(/"/g,`@!`);
+        
+        } else {
+  
+          document.getElementById(idhtml).classList.add('sign-efb')
+          document.getElementById(idhtml).innerHTML = `
+            <div class="efb noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
+            ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
+            <i class="efb bi-gear-fill text-success" id="efbSetting"></i></button> ${efb_var.text.andAddingHtmlCode}
+            </div>`
+          valj_efb[postId].value = '';
+  
+        }
+  
+        break;
+        case "selectMultiSelectMaxEl":
+          const vms= el.value=="" ? 2 :el.value
+          valj_efb[indx].maxSelect = vms;
+          document.getElementById(`${valj_efb[indx].id_}_options`).dataset.no = vms
+          
+          break;
+        case "selectMultiSelectMinEl":
+          const vmsn= el.value=="" ? 2 :el.value
+          valj_efb[indx].minSelect = vmsn;
+          document.getElementById(`${valj_efb[indx].id_}_options`).dataset.min = vmsn
+         
+          break;
+    }
+
+  },len_Valj*10)
+}
+
+
+
 
 
 
