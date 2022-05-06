@@ -77,7 +77,7 @@ color: #a2b0d5;
 div#optionListefb {
     max-height: 280px;
     overflow: auto;
-    padding: 0px 10px;
+    padding: 4px 10px;
     background: #efefef85;
 }
 .bg-response.efb {
@@ -135,7 +135,7 @@ width: 100%;
 }
 
 .SelectItem.efb .btn-light.efb:hover {
-background-image: linear-gradient(65deg,#4636f1 0,#6030b8 100%);
+background-image: linear-gradient(65deg,#030308 0,#6030b8 100%);
 color: white;
 transition: 0.5s;
 }
@@ -607,11 +607,21 @@ font-size: 18px!important;
 .efb.btn-edit-holder {
 float: right;
 margin-top: -40px;
-margin-right: 8px;
+margin-left: 73%;
 position: relative;
+z-index: 10;
+}
+
+.mobile .efb.btn-edit-holder{
+    margin-left: 0;
+    margin-right: 0;
+    
 }
 #btnSetting-button_group.btn-edit-holder {
-margin-right: -26%!important;
+    margin-left: 50%;
+    margin-right: 50%;
+    margin-top: -40px;
+    z-index: 10;
 }
 .efb.btn-edit-holder-new {
 float: right;
@@ -951,7 +961,7 @@ color: #a2b0d5
 }
 .icon.efb i {
 
- font-size: 50px !important;
+ font-size: 50px;
 }
 
 .dadFile-efb h6 {
@@ -1432,10 +1442,8 @@ height: fit-content;
 
 /* YesNo */
 
-.yesno-efb.disabled{
-opacity: 1!important;
-
-}
+.yesno-efb.disabled{opacity: 1!important;}
+.yesno-efb.active{box-shadow: inset 0 0 0 1000px rgba(0,0,0,.2);}
 
 .yesno-efb.efb-rounded.left-efb {
     border-top-right-radius: 0!important;
@@ -1568,7 +1576,7 @@ pointer-events:   none;
 
 }
 .efb.form-check {
-display: table;
+display: flex;
 }
 
 
@@ -2066,12 +2074,20 @@ input[type=checkbox].efb.fs-2.form-check-input
 
     .efb.efblist.inplist { overflow: hidden;}
 
+    tr.efblist {
+        display: block;
+        margin: 0px 7px!important;
+    }
 
     .efblist.inplist.h-d-efb{
         font-size: 20px!important;
         padding-left: 38px!important;
         padding-right: 38px!important;
         min-height: 42px;
+    }
+
+    .mobile .efblist.inplist.h-d-efb{
+        font-size: 17px!important;
     }
     .efblist.inplist.h-l-efb{
         font-size: 25px!important;
@@ -2276,4 +2292,51 @@ div#sideBoxEfb {
         flex: 1 1 auto;
     }
 
- 
+
+    .efb.pay .btn-edit-holder{
+        margin-top:0px!important;
+    }
+
+
+    .efb.pro-card {
+        position: absolute;
+        margin: 0% 70%;
+    }
+
+    .efb.icon{
+        line-height: normal;
+        margin: 10px 0px;
+    }
+
+    .efb.underline{
+        text-decoration: underline;
+    }
+    .efb.w-100{
+        max-width: 100%!important;
+    }
+
+  /*   .efb.stripe-bg{
+        background-color: #25262617!important;
+    }
+ */
+    #payPriceEfb {
+        background: #ded7ec9c;
+        padding: 5px 12px;
+        color: #5f31bc;
+        border-radius: 20px!important;
+        width: auto;
+    
+    }
+    #btnStripeEfb{
+        background-color: #535ad5;   
+        color: #fff;
+    }
+    #btnStripeEfb:hover{
+        background-color: #3a43ff;   
+        color: #fff;
+    }
+
+    #btnStripeEfb:disabled {
+        color: rgb(218, 218, 218);
+        background-color: #748bad;
+    }

@@ -302,7 +302,7 @@ class efbFunction {
 			"reportProblem" => $state ? $ac->text->reportProblem : __('Report problem','easy-form-builder'),
 			"ddate" => $state ? $ac->text->ddate : __('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : __('Your e-mail server able to send Emails','easy-form-builder'),
-			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('Your host can not send emails because Easy form Builder can not connect to the Email server. contact to your Host support','easy-form-builder'),
+			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('SMTP Error, the host is not able send email . Please contact host support','easy-form-builder'),
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : __('The file is not the right file type','easy-form-builder'),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : __('The Field is not available in this type forms','easy-form-builder'),
@@ -437,10 +437,9 @@ class efbFunction {
 			"fileDeleted" => $state ? $ac->text->fileDeleted : __('Files are Deleted','easy-form-builder'),
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localization the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
-			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please Contact to admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('If your template base on Bootstrap then go to Panel >> Settings >> selected option:  My template have used BootStrap framwork >> Save','easy-form-builder'),
+			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('Message was not sent! Please contact Admin, Settings Error','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template have used BootStrap framework >> Save','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
-			/* bug! start */
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
 			"freefeatureNotiEmail" => $state  &&  isset($ac->text->freefeatureNotiEmail) ? $ac->text->freefeatureNotiEmail : __('Free feature of sending notification email to admin or user.','easy-form-builder'),
@@ -460,8 +459,47 @@ class efbFunction {
 			"maxSelect" => $state  &&  isset($ac->text->maxSelect) ? $ac->text->maxSelect : __('Max selection','easy-form-builder'),
 			"minSelect" => $state  &&  isset($ac->text->minSelect) ? $ac->text->minSelect : __('Min selection','easy-form-builder'),
 			"dNotShowBg" => $state  &&  isset($ac->text->dNotShowBg) ? $ac->text->dNotShowBg : __('Do not Show BackGround','easy-form-builder'),
+			"contactusTemplate" => $state  &&  isset($ac->text->contactusTemplate) ? $ac->text->contactusTemplate : __('Contact us Template','easy-form-builder'),
+			"curved" => $state  &&  isset($ac->text->curved) ? $ac->text->curved : __('Curved','easy-form-builder'),
+			"multiStep" => $state  &&  isset($ac->text->multiStep) ? $ac->text->multiStep : __('Multi-Step','easy-form-builder'),
+			"customerFeedback" => $state  &&  isset($ac->text->customerFeedback) ? $ac->text->customerFeedback : __('Customer Feedback','easy-form-builder'),
+			"supportTicketF" => $state  &&  isset($ac->text->supportTicketF) ? $ac->text->supportTicketF : __('Support Ticket Form','easy-form-builder'),
+			"paymentform" => $state  &&  isset($ac->text->paymentform) ? $ac->text->paymentform : __('Payment Form','easy-form-builder'),
+			"stripe" => $state  &&  isset($ac->text->stripe) ? $ac->text->stripe : __('Stripe','easy-form-builder'),
+			"payment" => $state  &&  isset($ac->text->payment ) ? $ac->text->payment  : __('Payment','easy-form-builder'),
+			"address" => $state  &&  isset($ac->text->address ) ? $ac->text->address  : __('Address','easy-form-builder'),
+			"paymentGateway" => $state  &&  isset($ac->text->paymentGateway) ? $ac->text->paymentGateway : __('Payment Gateway','easy-form-builder'),			
+			"currency" => $state  &&  isset($ac->text->currency) ? $ac->text->currency : __('Currency','easy-form-builder'),
+			"recurringPayment" => $state  &&  isset($ac->text->recurringPayment) ? $ac->text->recurringPayment : __('Recurring payment','easy-form-builder'),
+			"subscriptionBilling" => $state  &&  isset($ac->text->subscriptionBilling) ? $ac->text->subscriptionBilling : __('Subscription billing','easy-form-builder'),
+			"chargeBilling" => $state  &&  isset($ac->text->chargeBilling) ? $ac->text->chargeBilling : __('Charge billing','easy-form-builder'),
+			"methodPayment" => $state  &&  isset($ac->text->methodPayment) ? $ac->text->methodPayment : __('Method payment','easy-form-builder'),
+			"heading" => $state  &&  isset($ac->text->heading) ? $ac->text->heading : __('Heading','easy-form-builder'),
+			"link" => $state  &&  isset($ac->text->link) ? $ac->text->link : __('Link','easy-form-builder'),
+			"mobile" => $state  &&  isset($ac->text->mobile) ? $ac->text->mobile : __('Mobile','easy-form-builder'),
+			"product" => $state  &&  isset($ac->text->product) ? $ac->text->product : __('product','easy-form-builder'),
+			"value" => $state  &&  isset($ac->text->value) ? $ac->text->value : __('value','easy-form-builder'),
+			"terms" => $state  &&  isset($ac->text->terms) ? $ac->text->terms : __('terms','easy-form-builder'),
+			"pricingTable" => $state  &&  isset($ac->text->pricingTable) ? $ac->text->pricingTable : __('Pricing Table','easy-form-builder'),
+			"cardNumber" => $state  &&  isset($ac->text->cardNumber) ? $ac->text->cardNumber : __('Card Number','easy-form-builder'),
+			"cardExpiry" => $state  &&  isset($ac->text->cardExpiry) ? $ac->text->cardExpiry : __('Card Expiry','easy-form-builder'),
+			"cardCVC" => $state  &&  isset($ac->text->cardCVC) ? $ac->text->cardCVC : __('Card CVC','easy-form-builder'),
+			"payNow" => $state  &&  isset($ac->text->payNow) ? $ac->text->payNow : __('Pay Now','easy-form-builder'),			
+			"payAmount" => $state  &&  isset($ac->text->payAmount) ? $ac->text->payAmount : __('Pay amount','easy-form-builder'),
+			"successPayment" => $state  &&  isset($ac->text->successPayment) ? $ac->text->successPayment : __('Success payment','easy-form-builder'),
+			"transctionId" => $state  &&  isset($ac->text->transctionId) ? $ac->text->transctionId : __('Transction Id','easy-form-builder'),
+			"addPaymentGetway" => $state  &&  isset($ac->text->addPaymentGetway) ? $ac->text->addPaymentGetway : __('Error,You need to add payment gateway to the form','easy-form-builder'),
+			"emptyCartM" => $state  &&  isset($ac->text->emptyCartM) ? $ac->text->emptyCartM : __('Your cart is empty , Please add a few items','easy-form-builder'),
+			"payCheckbox" => $state  &&  isset($ac->text->payCheckbox) ? $ac->text->payCheckbox : __('Payment Multi choose','easy-form-builder'),
+			"payRadio" => $state  &&  isset($ac->text->payRadio) ? $ac->text->payRadio : __('Payment Single choose','easy-form-builder'),
+			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : __('Payment Select choose','easy-form-builder'),
+			"payMultiselect" => $state  &&  isset($ac->text->payMultiselect) ? $ac->text->payMultiselect : __('Payment dropdown list','easy-form-builder'),
+			"errorCode" => $state  &&  isset($ac->text->errorCode) ? $ac->text->errorCode : __('Error Code','easy-form-builder'),
+			"stripeKeys" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('Stripe Keys','easy-form-builder'),
+			"stripeMP" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('You need stripe keys if you want to use payment in forms.','easy-form-builder'),
+			"publicKey" => $state  &&  isset($ac->text->publicKey) ? $ac->text->publicKey : __('Public Key','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-			/* bug! end */
+			
 			
 
 
@@ -646,7 +684,7 @@ class efbFunction {
 			break;
 			} 
 		}
-	
+		//error_log(json_encode($rtrn));
 		return $rtrn;
 	}
 

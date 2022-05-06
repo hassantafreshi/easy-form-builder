@@ -74,8 +74,10 @@ for (let v of valueJson_ws) {
         }; */
       }
       else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
-      el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
 
+      const vtype =(v.type=="payCheckbox" || v.type=="payRadio" || v.type=="paySelect"  || v.type=="payMultiselect") ? v.type.slice(2).toLowerCase() : v.type ;
+      el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${vtype}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
+      
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
     case 'file':
@@ -122,6 +124,7 @@ for (let v of valueJson_ws) {
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
       break
     case 'multiselect':
+    case 'payMultiselect':
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
       if(v.allowMultiSelect==true && test_view__emsFormBuilder==true){

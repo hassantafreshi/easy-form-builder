@@ -37,7 +37,6 @@ class Install {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 
-
 		$sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
 			`form_id` int(11) NOT NULL AUTO_INCREMENT,
 			`form_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -85,6 +84,29 @@ class Install {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 
+		$it = list_files(get_template_directory());       
+        $s = false;
+        foreach($it as $path) {
+            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){$s= true; break;}
+            }
+        }
+		if($s==true){										
+			$v = $wpdb->get_results("SELECT setting FROM  `$table_name_stng` ORDER BY id DESC LIMIT 1");
+			if(count($v) == 0){
+				$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
+				$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
+				, 'date'=>current_time('mysql') , 'email'=>'' ));
+				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+				dbDelta( $s );			
+			}								
+		}
+
 		add_option( 'Emsfb_db_version', 1.0 );
 	}
+
+
+	
 }

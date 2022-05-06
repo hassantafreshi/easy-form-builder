@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.3.14
+Stable tag: 			2.3.21
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.5 or higher
@@ -62,10 +62,10 @@ How *Easy Form Builder* makes your life easier:
 
 - Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form for **free**
 
-- New Contact us templates & Exmple for Without No code skills create a contact-us form in less than 1 minute.  
+- New Contact us templates & Example  for Without No code skills create a contact-us form in less than 1 minute.  
 
-- New Support and Feedback template & Exmple for creata support form in 1 minute
- 
+- New Support and Feedback template & Example  for creata support form in 1 minute
+
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
 Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
 
@@ -136,6 +136,10 @@ Adding a multiple selection dropdown (Multiple Select field) to your WP forms al
 - *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
 
 - *Multiple Select*: Multi Select (Multi Select Dropdown) is a field for multiple selection and searchable dropdown list so you can easily add to your WordPress form for **free**.
+
+- *Heading* : Heading fields on Easy Form Builder new fields like H tags can add contact-us form or any kind of forms.
+
+- *Link* : You can easily can add link on  WP forms.
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 
@@ -202,7 +206,16 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 2.3.21 =
+= 2.3.20 =
+= 2.3.19 =
+= 2.3.18 =
+= 2.3.17 =
+* UI improvements
+* Fixed issues
 
+
+= 2.3.16 =
 = 2.3.14 =
 * UI improvements
 

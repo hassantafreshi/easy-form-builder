@@ -63,6 +63,10 @@ function Link_emsFormBuilder(state) {
     case  'tutorial':
       link = github+"How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder";
       break;
+    case  'stripe':
+      //stripe
+      link = github+"";
+      break;
     case  'ws':
       link = link + '#proBox';
       break;
@@ -76,7 +80,7 @@ function Link_emsFormBuilder(state) {
     link = github+"How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
     break;
   }
-  console.log(link);
+  //console.log(link);
   window.open(link, "_blank")
 }
 
@@ -208,31 +212,34 @@ function getOS_emsFormBuilder() {
 }
 
 createCardFormEfb=(i)=>{
+  //console.log(i,efb_var);
   return`
   <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
+  ${i.pro == true && efb_var.pro!=true ? `<div class="efb pro-card"><a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a></div>` : ''}
   <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   <button type="button" id="${i.id}" class="float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
-  <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local')"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
+  <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
   </div></div></div>`
 }
 
 const boxs_efb=[
-            {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square', tag:'blank' },
-            {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
-            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register'},
-            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login'},
-            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription'},
-            {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
-            {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line', tag:'survey'},
-            {id:'contactTemplate', title:'Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
-            {id:'curvedContactTemplate', title:'Curved Contact us template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
-            {id:'multipleStepContactTemplate', title:'Multiple step Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
-            {id:'privateContactTemplate', title:'Private Contact us Template', desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs'},
-            {id:'customerFeedback', title:"Customer Feedback", desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
-            {id:'supportTicketForm', title:"Support Ticket Form", desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback'},
+            {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square', tag:'blank',pro:false },
+            {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false },
+            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register',pro:false},
+            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login',pro:false},
+            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription',pro:false},
+            {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
+            {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line', tag:'survey',pro:false},
+            {id:'contactTemplate', title:efb_var.text.contactusTemplate, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
+            {id:'curvedContactTemplate', title:`${efb_var.text.curved} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
+            {id:'multipleStepContactTemplate', title:`${efb_var.text.multiStep} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
+            {id:'privateContactTemplate', title:`${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
+            {id:'customerFeedback', title:efb_var.text.customerFeedback, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
+            {id:'supportTicketForm', title:efb_var.text.supportTicketF, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
+            {id:'payment', title:efb_var.text.paymentform, desc:efb_var.text.createSupportForm, status:true, icon:'bi-wallet-fill', tag:'payment pay',pro:true},
             /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
-            ]
+            ]//supportTicketF
 
 function add_dasboard_emsFormBuilder(){
   //v2
@@ -274,7 +281,7 @@ function add_dasboard_emsFormBuilder(){
 
 
 function FunfindCardFormEFB(){
-  console.log('FunfindCardFormEFB')
+  //console.log('FunfindCardFormEFB')
   let cards=[];
   const v = document.getElementById('findCardFormEFB').value.toLowerCase();
   document.getElementById('listFormCardsEFB').innerHTML =''
@@ -284,7 +291,7 @@ function FunfindCardFormEFB(){
   let result ='<!--Search-->'
   for(let c of cards){  result += createCardFormEfb(c);}
   if (result=="'<!--Search-->'") result="NotingFound";
-  console.log(document.getElementById("listFormCardsEFB"))
+  //console.log(document.getElementById("listFormCardsEFB"))
   document.getElementById("listFormCardsEFB").innerHTML=result;
 
   let newform_=document.getElementsByClassName("efbCreateNewForm")
@@ -298,6 +305,7 @@ function FunfindCardFormEFB(){
 
 function create_form_by_type_emsfb(id,s){
   //v2
+  //console.log(id);
   localStorage.removeItem('valj_efb');
   if(s!="pre"){
     document.getElementById('header-efb').innerHTML=``;
@@ -417,13 +425,19 @@ function create_form_by_type_emsfb(id,s){
     localStorage.setItem('valj_efb', JSON.stringify(json))
   }else if(id=="reservation"){
 
+  }else if(id=="payment"){
+    //console.log('payment');
+    form_type_emsFormBuilder="payment";
+    valj_efb=[];
+
   }
   formName_Efb = form_type_emsFormBuilder
   if(s=="npreview"){
     creator_form_builder_Efb();
-    if(id!="form"){setTimeout(() => {editFormEfb()}, 100)  }
+    //console.log(`id:${id}`,id!="payment");
+    if(id!="form" && id!="payment"  && id!="smart"){setTimeout(() => {editFormEfb()}, 100)  }
   }else if ("pre"){
-    console.log("pre")
+    //console.log("pre")
     previewFormEfb('pre');
   }else{
     previewFormEfb('pc')
@@ -436,9 +450,11 @@ function create_form_by_type_emsfb(id,s){
 
 function head_introduce_efb(state){
   //v2
+  
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
-  let text=state=="create" ? `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}` :`${efb_var.text.tobeginSentence}` 
-
+  let text=`${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
+  
+ 
   return `     <section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
   <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
               <div class="col-lg-7 mt-5 pd-5 col-md-12">
@@ -446,11 +462,9 @@ function head_introduce_efb(state){
                   <h1 class="efb pointer-efb" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
                   <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="clearfix"></div>                 
-                  ${(state!="create" && mobile_view_efb) || (state=="create" && mobile_view_efb==false)  ?`<p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">${text}</p>`  :''}
+                  <p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 fs-6">${text}</p>
                   
-                  <p class="text-pinkEfb efb pb-3 ${mobile_view_efb ? 'my-1 fs-8':'fs-6'}">
-                 ${efb_var.text.warningBootStrap}                                                         
-                  </p>
+                  
                   <a class="btn efb btn-primary btn-lg" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
                   <a class="btn mt-1 efb btn-outline-pink btn-lg" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>
               </div>
@@ -460,8 +474,8 @@ function head_introduce_efb(state){
 }
 
 
-fun_preview_before_efb=(i,s)=>{
-   console.log(i,s)
+fun_preview_before_efb=(i,s,pro)=>{
+   
    valj_efb=[];
    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")

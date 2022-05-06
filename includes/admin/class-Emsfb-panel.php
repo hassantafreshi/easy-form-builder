@@ -28,10 +28,9 @@ class Panel_edit  {
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
-			//$lng =new lng();
-			$panel=["dNotShowBg","maxSelect","minSelect","freefeatureNotiEmail","templates","noticeEmailContent","shortcodeTitleInfo","shortcodeMessageInfo","shortcodeWebsiteNameInfo","shortcodeWebsiteUrlInfo","shortcodeAdminEmailInfo","infoEmailTemplates","pleaseEnterVaildEtemp","addSCEmailM","editor","notFound","selectOption","emailTemplate","reset","or","document","warningBootStrap","MMessageNSendEr","form","create","numberSteps","newForm","loginForm","subscriptionForm","supportForm","createBlankMultistepsForm","createContactusForm","createRegistrationForm","createLoginForm","createnewsletterForm","createSupportForm","availableSoon","reservation","createsurveyForm","createReservationyForm","phone","register","username","allStep","fileSizeIsTooLarge","document","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","enterThePassword","PleaseFillForm","selectOption","selected","selectedAllOption","sentSuccessfully","sync","enterTheValueThisField","thankYou","YouSubscribed","passwordRecovery","info","waitingLoadingRecaptcha","on","off","settingsNfound","content","red","reCAPTCHASetError","ifShowTrackingCodeToUser","videoOrAudio","localization","translateLocal","enterValidURL","emailOrUsername","contactusForm","clear","entrTrkngNo","search","enterThePhones","conturyList","stateProvince","thankYouMessage","newMessage","newMessageReceived","createdBy","hiUser","sentBy","youRecivedNewMessage","formNExist","error403","formPrivateM","errorSiteKeyM","errorCaptcha","createAcountDoneM","incorrectUP","newPassM","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","WeRecivedUrM","thankFillForm","thankRegistering","welcome","thankSubscribing","thankDonePoll","goToEFBAddEmailM","errorCheckInputs","formNcreated","NAllowedscriptTag","bootStrapTemp","iUsebootTempW","iUsebootTemp","invalidRequire","updated","PEnterMessage","fileDeleted","activationNcorrect","localizationM","thank","iUsebootTemp","bootStrapTemp", "iUsebootTempW","localization","translateLocal","message","thankYouMessage","stateProvince","conturyList","shortcode","create", "define","dadFieldHere","subject", "formName","beside", "createDate", "edit", "points","content", "trackNo", "formDate", "by", "ip", "guest", "info", "response", "date", "videoDownloadLink", "download" ,"downloadViedo", "youCantUseHTMLTagOrBlank", "error", "reply", "messages", "close", "pleaseWaiting", "loading", "remove", "areYouSureYouWantDeleteItem", "no", "yes", "numberOfSteps", "easyFormBuilder", "titleOfStep", "proVersion", "getProVersion", "clickHereGetActivateCode", "enterActivateCode", "reCAPTCHAv2", "reCAPTCHA", "reCAPTCHASetError", "protectsYourWebsiteFromFraud", "clickHereWatchVideoTutorial", "siteKey", "enterSITEKEY", "SecreTKey", "EnterSECRETKEY", "alertEmail", "whenEasyFormBuilderRecivesNewMessage", "email", "enterAdminEmail", "clearFiles", "youCanRemoveUnnecessaryFileUploaded","clear", "clearUnnecessaryFiles", "trackingCode", "ifShowTrackingCodeToUser", "showTrackingCode", "trackingCodeFinder", "copyAndPasteBelowShortCodeTrackingCodeFinder", "save", "waiting", "saved", "error", "stepName", "IconOfStep", "stepTitles", "elements", "delete", "newOption", "documents", "image", "media", "videoOrAudio", "zip", "required", "button", "text", "password", "email", "number", "file", "date", "tel", "textarea", "checkbox", "radiobutton", "radio", "multiselect", "url", "range", "color", "fileType", "label", "class", "id", "tooltip", "formUpdated", "goodJob", "formUpdatedDone", "formIsBuild", "formCode", "close", "done", "demo", "alert", "pleaseFillInRequiredFields", "availableInProversion", "formNotBuilded", "someStepsNotDefinedCheck", "ifYouNeedCreateMoreThan2Steps", "youCouldCreateMinOneAndMaxtwo", "youCouldCreateMinOneAndMaxtwenty", "preview", "somethingWentWrongPleaseRefresh", "formNotCreated", "atFirstCreateForm", "formNotBuilded", "allowMultiselect", "DragAndDropUI", "clickHereForActiveProVesrsion", "someStepsNotDefinedCheck", "ifYouNeedCreateMoreThan2Steps", "youCouldCreateMinOneAndMaxtwo", "youCouldCreateMinOneAndMaxtwenty", "selectOpetionDisabled", "pleaseEnterTheTracking", "somethingWentWrongTryAgain", "enterThePhone", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "youNotPermissionUploadFile", "pleaseUploadA", "please", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "howConfigureEFB", "howGetGooglereCAPTCHA", "howActivateAlertEmail", "howCreateAddForm", "howActivateTracking", "howWorkWithPanels", "howAddTrackingForm", "howFindResponse", "pleaseEnterVaildValue", "step", "advancedCustomization", "orClickHere", "downloadCSVFile", "downloadCSVFileSub", "login", "thisInputLocked", "thisElemantAvailableRemoveable", "thisElemantWouldNotRemoveableLoginform", "send", "contactUs", "support", "subscribe", "login", "logout", "survey", "chart", "noComment", "easyFormBuilder", "byWhiteStudioTeam", "createForms", "tutorial", "forms", "tobeginSentence", "efbIsTheUserSentence", "efbYouDontNeedAnySentence", "please", "newResponse", "read", "copy", "general", "help", "setting", "maps", "youCanFindTutorial", "proUnlockMsg", "aPIKey", "youNeedAPIgMaps", "copiedClipboard", "noResponse", "offerGoogleCloud", "getOfferTextlink", "clickHere", "SpecialOffer", "googleKeys", "youNeedAPIgMaps", "emailServer", "beforeUsingYourEmailServers", "emailSetting", "clickToCheckEmailServer", "dadfile", "field", "advanced", "switch", "locationPicker", "rating", "esign", "yesNo", "htmlCode", "pcPreview", "youDoNotAddAnyInput", "copyShortcode", "copyTrackingcode", "previewForm", "activateProVersion", "itAppearedStepsEmpty", "youUseProElements", "sampleDescription", "fieldAvailableInProversion", "editField", "description", "thisEmailNotificationReceive", "activeTrackingCode", "addGooglereCAPTCHAtoForm", "dontShowIconsStepsName", "dontShowProgressBar", "showTheFormTologgedUsers", "labelSize", "default", "small", "large", "xlarge", "xxlarge", "xxxlarge", "labelPostion", "align", "left", "center", "right", "width", "cSSClasses", "defaultValue", "placeholder", "enterAdminEmailReceiveNoti", "corners", "rounded", "square", "icon", "buttonColor", "blue", "darkBlue", "lightBlue", "grayLight", "grayLighter", "green", "pink", "yellow", "light", "Red", "grayDark", "white", "clr", "borderColor", "height", "name", "latitude", "longitude", "exDot", "pleaseDoNotAddJsCode", "button1Value", "button2Value", "iconList", "previous", "next", "invalidEmail", "noCodeAddedYet", "andAddingHtmlCode", "proMoreStep", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "duplicate", "availableProVersion", "mobilePreview", "thanksFillingOutform", "finish", "dragAndDropA", "browseFile", "removeTheFile", "enterAPIKey", "formSetting", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "fileIsNotRight", "thisElemantNotAvailable","lastName","firstName","registerForm","contactusForm" ];
+			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
-			$lang = $efbFunction->text_efb($panel);
+			$lang = $efbFunction->text_efb(1);
 			
 			/* error_log(gettype($ac));
 			error_log($ac->activeCode); */
@@ -45,7 +44,8 @@ class Panel_edit  {
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
-				if(isset($ac->apiKeyMap)){				
+				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+					error_log($ac->apiKeyMap);		
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					
@@ -69,6 +69,7 @@ class Panel_edit  {
 				'captcha'=>$captcha,
 				'smtp'=>$smtp,
 				'maps'=> $maps,
+				'bootstrap' =>$this->check_temp_is_bootstrap(),
 				"language"=> get_locale()		));
 
 		
@@ -77,9 +78,17 @@ class Panel_edit  {
 				//پایان کد نسخه پرو
 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 				wp_enqueue_script('whitestudio-admin-pro-js');
-			}
 
-			if(gettype($ac)!="string" && isset($ac->apiKeyMap)){
+
+			}
+			
+			//اگر پلاگین مربوط نصب بود این بخش فعال شود
+			//stipe
+			//اگر نسه پرو بود
+			wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+			wp_enqueue_script('stripe-js');
+
+			if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$lng = get_locale();
 					if ( strlen( $lng ) > 0 ) {
@@ -222,9 +231,12 @@ class Panel_edit  {
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
+					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro
 					
 				));
+
+				;
 					
 		}else{
 			echo "Easy Form Builder: You dont access this section";
@@ -251,6 +263,25 @@ class Panel_edit  {
 		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
 		return $value;
 	}
+
+
+	public function check_temp_is_bootstrap (){
+		
+        $it = list_files(get_template_directory()); 
+        $s = false;
+        foreach($it as $path) {
+			if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {			
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){
+                    $s= true;
+                    break;
+                }
+            } 
+        }
+		//error_log($s);
+        return  $s;
+    }//end fun
 
 
 

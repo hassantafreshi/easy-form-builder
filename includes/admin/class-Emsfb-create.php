@@ -101,8 +101,8 @@ class Create {
 		$efbFunction = new efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
 		//v2 translate
-		$creat=["dNotShowBg","maxSelect","minSelect","freefeatureNotiEmail","search","selectOption","copy","or","document","warningBootStrap","localizationM","goToEFBAddEmailM","sMTPNotWork","thankYouMessage","stateProvince","conturyList","shortcode","create", "define", "formName","enterYourMessage", "numberSteps", "createDate", "edit", "content", "trackNo", "formDate", "by", "ip", "guest", "info", "response", "date","download" , "videoDownloadLink", "downloadViedo", "youCantUseHTMLTagOrBlank", "error", "reply", "messages", "close", "pleaseWaiting", "loading", "remove", "areYouSureYouWantDeleteItem", "no", "yes", "numberOfSteps", "titleOfStep", "proVersion", "youUseProElements", "getProVersion", "clickHereGetActivateCode", "email", "trackingCode", "save", "pcPreview", "help", "waiting", "saved", "error", "itAppearedStepsEmpty", "previewForm", "activateProVersion", "copyTrackingcode", "copyShortcode", "youDoNotAddAnyInput", "stepName", "IconOfStep", "define", "stepTitles", "elements", "delete", "newOption", "documents", "image", "media", "videoOrAudio", "zip", "required", "button", "text", "password", "emailOrUsername", "number", "file", "dadfile", "date", "tel", "maps", "textarea", "checkbox", "radiobutton", "radio", "select", "multiselect", "switch", "url", "range", "locationPicker", "color", "fileType", "label", "rating", "esign", "htmlCode", "yesNo", "class", "id", "tooltip", "formUpdated", "goodJob", "formUpdatedDone", "formIsBuild", "formCode", "close", "done", "demo", "alert", "pleaseFillInRequiredFields", "availableInProversion", "preview", "somethingWentWrongPleaseRefresh", "formNotCreated", "atFirstCreateForm", "formNotBuilded", "allowMultiselect", "DragAndDropUI", "clickHereForActiveProVesrsion", "someStepsNotDefinedCheck", "ifYouNeedCreateMoreThan2Steps", "youCouldCreateMinOneAndMaxtwo", "youCouldCreateMinOneAndMaxtwenty", "selectOpetionDisabled", "orClickHere", "pleaseEnterTheTracking", "somethingWentWrongTryAgain", "enterThePhone", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "step", "contactusForm", "newForm", "registerForm", "loginForm", "login", "thisInputLocked", "subscriptionForm", "supportForm", "createBlankMultistepsForm", "createContactusForm", "createRegistrationForm", "createLoginForm", "createnewsletterForm", "createSupportForm", "availableSoon", "advancedCustomization", "contactUs", "support", "subscribe", "survey", "reservation", "createsurveyForm", "createReservationyForm", "send", "thisElemantAvailableRemoveable", "thisElemantNotAvailable", "thisElemantWouldNotRemoveableLoginform", "firstName", "lastName", "message", "subject", "phone", "register", "username", "proUnlockMsg", "easyFormBuilder", "byWhiteStudioTeam", "allStep", "createForms", "tutorial", "efbIsTheUserSentence", "efbYouDontNeedAnySentence", "please", "fieldAvailableInProversion", "sampleDescription", "editField", "description", "thisEmailNotificationReceive", "activeTrackingCode", "addGooglereCAPTCHAtoForm", "dontShowIconsStepsName", "dontShowProgressBar", "showTheFormTologgedUsers", "labelSize", "default", "small", "large", "xlarge", "xxlarge", "xxxlarge", "labelPostion", "beside", "align", "left", "center", "right", "width", "cSSClasses", "defaultValue", "placeholder", "enterAdminEmailReceiveNoti", "corners", "rounded", "square", "icon", "buttonColor", "blue", "darkBlue", "lightBlue", "grayLight", "grayLighter", "green", "pink", "yellow", "light", "Red", "grayDark", "white", "clr", "borderColor", "height", "latitude", "longitude", "exDot", "pleaseDoNotAddJsCode", "button1Value", "button2Value", "iconList", "previous", "next", "invalidEmail", "noCodeAddedYet", "andAddingHtmlCode", "proMoreStep", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "clear", "star", "stars", "nothingSelected", "duplicate", "availableProVersion", "mobilePreview", "thanksFillingOutform", "finish", "copiedClipboard", "dragAndDropA", "browseFile", "removeTheFile", "offerGoogleCloud", "getOfferTextlink", "SpecialOffer", "trackingCodeFinder", "copyAndPasteBelowShortCodeTrackingCodeFinder", "clearUnnecessaryFiles", "youCanRemoveUnnecessaryFileUploaded", "alertEmail", "whenEasyFormBuilderRecivesNewMessage", "reCAPTCHAv2", "reCAPTCHA", "reCAPTCHASetError", "protectsYourWebsiteFromFraud", "clickHereWatchVideoTutorial", "siteKey", "enterSITEKEY", "SecreTKey", "EnterSECRETKEY", "youNeedAPIgMaps", "aPIKey", "clearFiles", "enterAdminEmail", "emailServer", "beforeUsingYourEmailServers", "clickToCheckEmailServer", "emailSetting","points", "setting","dadFieldHere", "general", "googleKeys", "enterActivateCode", "formSetting", "up", "red", "Red", "field", "advanced", "form", "clickHere", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "sMTPNotWork", "aPIkeyGoogleMapsFeild", "fileIsNotRight", "lastName", "firstName" ];
-		$lang = $efbFunction->text_efb($creat);
+		
+		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			if (md5($server_name)==$ac->activeCode){
@@ -113,7 +113,7 @@ class Create {
 					wp_enqueue_script('whitestudio-admin-pro-js'); */
 			}
 
-			if(strlen($ac->apiKeyMap)>5){
+			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
@@ -125,6 +125,11 @@ class Create {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+			// اگر نسخه ویژه بود و پلاگین نصب بود این بخش فعال شود
+		//stripe77
+		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+		wp_enqueue_script('stripe-js');
+		
 		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
 
@@ -138,7 +143,7 @@ class Create {
 		$captcha =false;
 		$smtp_m = "";
 		if(gettype($ac)!="string"){
-			if(strlen($ac->siteKey)>5){$captcha="true";}
+			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
@@ -155,6 +160,7 @@ class Create {
 			'smtp'=>$smtp,
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
+			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale()
 			
 		));
@@ -170,6 +176,7 @@ class Create {
 
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
+
 	}
 
 	public function fun_Emsfb_creator()
@@ -178,6 +185,9 @@ class Create {
 	}
 
 	public function add_form_structure(){
+
+	
+		
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -227,6 +237,21 @@ class Create {
 		));    $this->id_  = $this->db->insert_id; 
 		
 	}
+	public function check_temp_is_bootstrap (){
+        $it = list_files(get_template_directory()); 
+        $s = false;
+        foreach($it as $path) {
+            if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {				
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){
+                    $s= true;
+                    break;
+                }
+            }
+        }
+        return  $s;
+    }//end fun
 
 }
 
