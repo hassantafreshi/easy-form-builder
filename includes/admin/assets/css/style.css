@@ -80,6 +80,12 @@ div#optionListefb {
     padding: 4px 10px;
     background: #efefef85;
 }
+
+div#optionListeHeadfb {
+    z-index: 1040;
+    background: #efefef85;
+    margin: 0px 0px;
+}
 .bg-response.efb {
 border-radius: 15px;
 background-color: white;

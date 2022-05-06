@@ -91,10 +91,10 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
- /*  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
+  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
   { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true },  */
+  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
   //{ name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
@@ -114,7 +114,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true }, */
-  //{ name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
+  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true },
 ]
@@ -690,6 +690,10 @@ function show_setting_window_efb(idset) {
               <i class="efb bi-plus-circle  text-success"></i>
              </button> 
               </label>
+              <div id="optionListeHeadfb" class="mx-1 col-md-12 row ">
+                  <div class="col-md-7">${efb_var.text.title}</div>
+                  ${el.dataset.tag.includes('pay')?`<div class="col-md-3">${efb_var.text.price}</div>`:''}
+              </div>
               <div class="efb mb-3" id="optionListefb">
                ${opetions}
               </div>
@@ -1134,6 +1138,7 @@ const obj_delete_row = (dataid, is_step) => {
       document.getElementById('maps_b').classList.remove('disabled')
     }else if(valj_efb[foundIndex].type == "stripe"){
       valj_efb[0].type="form";
+      form_type_emsFormBuilder="form";
       console.log(valj_efb[0]);
     } else if (fun_el_select_in_efb(valj_efb[foundIndex].type) || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox'  ) {
       obj_delete_options(valj_efb[foundIndex].id_)
@@ -1394,6 +1399,10 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
   let op = `<!-- option --!> 2`
+  console.log(tag);
+  if(tag.includes("pay")) tag=tag.slice(3);
+  console.log(tag);
+
   if (fun_el_select_in_efb(tag)) {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="${valj_efb[indxP].el_text_color} efb">${value}</option>`
   } else {
@@ -2272,6 +2281,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     if(elementId=="stripe") {
       Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'charge' });
       valj_efb[0].type='payment';
+      form_type_emsFormBuilder="payment";
     }
     if (elementId == "esign") {
 
@@ -4375,7 +4385,7 @@ let change_el_edit_Efb = (el) => {
   console.log(el.id , el.value)
   if (el.value.length>0 && el.value.search(/(")+/g)!=-1){
     el.value = el.value.replaceAll(`"`,'');
-    noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
+    noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: ["]`,10,"danger");
   }
   
   if(lenV>20){
@@ -4957,6 +4967,8 @@ let change_el_edit_Efb = (el) => {
         if (ipndx != -1) {
           valj_efb[ipndx].price = el.value;
           //console.log( valj_efb[ipndx])
+          el.setAttribute('value', valj_efb[ipndx].price);
+          el.setAttribute('defaultValue', valj_efb[ipndx].price);
         }
         break;
       case "htmlCodeEl":

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			2.4.0
+Stable tag: 			3.0.0
 Requires at least: 	4.7
 Tested up to: 			5.9.2
 Requires PHP:			5.5 or higher
@@ -207,7 +207,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
-= 2.4.0 =
+= 3.0.0 =
 * Added custom Payment WP Forms with drag and drop Easy Form Builder plugin
 * Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
 * Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder
@@ -216,7 +216,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
 * Added Link field on WordPress Easy Form builder
 * Added title field on Easy form builder
-* payment form support this currency for pay:
+* Payment form supports these currencies:
       USD (United State dollar)
       AED (United Arab Emirates dirham, درهم إماراتي)
       AFN*(Afghan afghani)

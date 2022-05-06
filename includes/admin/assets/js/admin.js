@@ -237,7 +237,7 @@ const boxs_efb=[
             {id:'privateContactTemplate', title:`${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
             {id:'customerFeedback', title:efb_var.text.customerFeedback, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
             {id:'supportTicketForm', title:efb_var.text.supportTicketF, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
-           // {id:'payment', title:efb_var.text.paymentform, desc:efb_var.text.createSupportForm, status:true, icon:'bi-wallet-fill', tag:'payment pay',pro:true},
+            {id:'payment', title:efb_var.text.paymentform, desc:efb_var.text.createSupportForm, status:true, icon:'bi-wallet-fill', tag:'payment pay',pro:true},
             /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
             ]//supportTicketF
 

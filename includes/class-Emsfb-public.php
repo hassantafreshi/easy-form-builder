@@ -105,13 +105,14 @@ class _Public {
 			
 		}
 		$paymentType="";
+		error_log($typeOfForm);
 		//$paymentKey ='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
 		if($typeOfForm=="payment"){
 			//,\"type\":\"stripe\",
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
 		
 		}
-		//error_log($paymentType);
+		error_log($paymentType);
 		$r= $this->get_setting_Emsfb('setting');
 		$paymentKey="null";
 		if(gettype($r)=="object"){
