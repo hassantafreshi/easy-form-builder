@@ -893,7 +893,7 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
- recaptcha_emsFormBuilder = efb_var.captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+ recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
   jQuery(function ($) {
 
     data = {

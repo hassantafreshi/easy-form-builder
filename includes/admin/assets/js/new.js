@@ -3700,7 +3700,7 @@ function previewFormEfb(state){
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
-        console.log(valj_efb[index].type , valj_efb[index]);
+        //console.log(valj_efb[index].type , valj_efb[index]);
         if(valj_efb[index].type!="html" && valj_efb[index].type!="link" && valj_efb[index].type!="heading") Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;
@@ -4414,8 +4414,8 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
           break;
           case "adminFormEmailEl":
-       
-            if(efb_var.smtp=="true"){
+        console.log(efb_var.smtp);
+         if(efb_var.smtp=="1"){
           if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
           {
             valj_efb[0].email = el.value;
@@ -4425,6 +4425,9 @@ let change_el_edit_Efb = (el) => {
             document.getElementById("adminFormEmailEl").value = "";
             noti_message_efb(efb_var.text.error,efb_var.text.invalidEmail,10,"danger");
           }
+        }else if(efb_var.smtp=='-1'){
+          document.getElementById("adminFormEmailEl").value = "";
+          noti_message_efb(efb_var.text.error,'check email server!',10,"danger");
         }else{
           // trackingCodeEl.checked=false;
           document.getElementById("adminFormEmailEl").value = "";
