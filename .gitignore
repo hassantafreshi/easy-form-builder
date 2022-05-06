@@ -1,3 +1,6 @@
 .DS_Store
 .vscode
 .vscode/
+/vendor/*
+/vendor.rar
+vendor.rar
