@@ -91,10 +91,10 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
-  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
+ /*  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
   { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
+  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true },  */
   //{ name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
@@ -114,7 +114,7 @@ function creator_form_builder_Efb() {
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true }, */
-  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
+  //{ name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true },
 ]
@@ -3402,7 +3402,7 @@ function handle_navbtn_efb(steps, device) {
         }
         //next_efb
         //disabled
-        if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
+        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
       if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
@@ -3422,7 +3422,7 @@ function handle_navbtn_efb(steps, device) {
         if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      if(valj_efb[0].type="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
+      if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
       prev_s_efb = current_s.prev();
       jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
       jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
@@ -3700,7 +3700,7 @@ function previewFormEfb(state){
   setTimeout(() => {
     try {
       valj_efb.forEach((value, index) => {
-        //console.log(valj_efb[index].type , valj_efb[index]);
+        console.log(valj_efb[index].type , valj_efb[index]);
         if(valj_efb[index].type!="html" && valj_efb[index].type!="link" && valj_efb[index].type!="heading") Object.entries(valj_efb[index]).forEach(([key, val]) =>{fun_addStyle_costumize_efb(val.toString(),key,index)});
         if (step_no < value.step && value.type == "step") {
           step_no += 1;

@@ -807,7 +807,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
                             <button class="efb nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
-                            <button class="efb nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
+                           <!-- <button class="efb nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button> -->
                         </div>
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
