@@ -840,7 +840,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
                                 <div class="card-body text-center py-1">
                                     <button type="button" class="btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
-                                        <i class="efb bi-x-lg mx-1 efb mobile-text"></i>${efb_var.text.clearUnnecessaryFiles}
+                                        <i class="efb bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
                                     </button>
                                 </div>
                            
@@ -1058,7 +1058,8 @@ function fun_set_setting_emsFormBuilder() {
   document.getElementById('save-stng-efb').classList.add('disabled');
   
   const nnrhtml = document.getElementById('save-stng-efb').innerHTML;
-  document.getElementById('save-stng-efb').innerHTML = `<i class="bi bi-hourglass-split"></i>`
+  document.getElementById('save-stng-efb').innerHTML = `<i class="efb bi-hourglass-split"></i>`
+  
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
@@ -1275,9 +1276,9 @@ function fun_find_track_emsFormBuilder() {
 function clear_garbeg_emsFormBuilder() {
   //  emsFormBuilder_popUp_loading()
   
-  const innrhtm = document.getElementById('clrUnfileEfb').innerHTML;
-  document.getElementById('clrUnfileEfb').innerHTML = `<i class="bi bi-hourglass-split"></i>`
   document.getElementById('clrUnfileEfb').classList.add('disabled')
+  document.getElementById('clrUnfileEfbText').innerHTML=efb_var.text.pleaseWaiting;
+
   jQuery(function ($) {
     data = {
       action: "clear_garbeg_Emsfb",
@@ -1287,7 +1288,8 @@ function clear_garbeg_emsFormBuilder() {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
 
       if (res.data.success == true) {
-        noti_message_efb(efb_var.text.done, res.data.m, 4.7);
+        noti_message_efb(efb_var.text.done, res.data.m, 4.7,'info' );
+        document.getElementById('clrUnfileEfbText').innerHTML=efb_var.text.clearUnnecessaryFiles;
       } else {
         noti_message_efb(efb_var.text.error, res.data.m, 4.7, 'danger');
 
@@ -1295,7 +1297,6 @@ function clear_garbeg_emsFormBuilder() {
     })
   });
   document.getElementById('clrUnfileEfb').classList.remove('disabled')
-  document.getElementById('clrUnfileEfb').innerHTML = innrhtm;
 }
 
 
@@ -1319,8 +1320,7 @@ function clear_garbeg_emsFormBuilder() {
         const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
         rows = rows.concat(row);
         rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
-        rows[parseInt(r)][0] = v;
-        
+        rows[parseInt(r)][0] = v;        
       }
     }else{
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ?  rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| "+ content[c].value

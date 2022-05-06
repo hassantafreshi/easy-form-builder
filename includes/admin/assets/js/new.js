@@ -4427,7 +4427,7 @@ let change_el_edit_Efb = (el) => {
           }
         }else if(efb_var.smtp=='-1'){
           document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error,'check email server!',10,"danger");
+          noti_message_efb(efb_var.text.error,efb_var.text.goToEFBAddEmailM,30,"danger");
         }else{
           // trackingCodeEl.checked=false;
           document.getElementById("adminFormEmailEl").value = "";

@@ -424,7 +424,7 @@ class efbFunction {
 			"welcome" => $state ? $ac->text->welcome : __('Welcome','easy-form-builder'),
 			"thankSubscribing" => $state ? $ac->text->thankSubscribing : __('Thank You For Subscribing!','easy-form-builder'),
 			"thankDonePoll" => $state ? $ac->text->thankDonePoll : __('Thank You for taking the time to complete this survey.','easy-form-builder'),
-			"goToEFBAddEmailM" => $state ? $ac->text->goToEFBAddEmailM : __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on <<Click To Check Email Server>>','easy-form-builder'),
+			"goToEFBAddEmailM" => $state ? $ac->text->goToEFBAddEmailM : __('Please go to Easy Form Builder panel > setting > Email Settings  and Click on [Click To Check Email Server] and Save','easy-form-builder'),
 			"errorCheckInputs" => $state ? $ac->text->errorCheckInputs : __('Something went wrong,Please check all input','easy-form-builder'),
 			"formNcreated" => $state ? $ac->text->formNcreated : __('The form is not Created!','easy-form-builder'),
 			"NAllowedscriptTag" => $state ? $ac->text->NAllowedscriptTag : __('You are not allowed use Scripts tag','easy-form-builder'),

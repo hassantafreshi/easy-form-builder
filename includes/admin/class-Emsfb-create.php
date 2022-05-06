@@ -142,7 +142,7 @@ class Create {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-		error_log(strval($ac->smtp));
+		
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
