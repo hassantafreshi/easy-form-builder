@@ -568,6 +568,10 @@ function show_setting_window_efb(idset) {
       <option value="display-2"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
       <option value="display-3"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-3' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
       <option value="display-4"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-4' ? `selected` : ''} >${efb_var.text.large}</option>                            
+      <option value="display-5"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-5' ? `selected` : ''} >${efb_var.text.medium }</option>                            
+      <option value="display-6"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-6' ? `selected` : ''} >${efb_var.text.small }</option>                            
+      <option value="display-7"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-7' ? `selected` : ''} >${efb_var.text.xsmall}</option>                            
+      <option value="display-8"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-8' ? `selected` : ''} >${efb_var.text.xxsmall}</option>                            
       </select>
       `
   }
@@ -2458,7 +2462,7 @@ const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-squa
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
-const headSizeEfb = (classes,value) => { return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
+const headSizeEfb = (classes,value) => {console.log(classes); return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }

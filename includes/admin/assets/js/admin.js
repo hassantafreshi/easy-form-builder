@@ -226,9 +226,7 @@ createCardFormEfb=(i)=>{
 const boxs_efb=[
             {id:'form', title:efb_var.text.newForm, desc:efb_var.text.createBlankMultistepsForm, status:true, icon:'bi-check2-square', tag:'blank',pro:false },
             {id:'contact', title:efb_var.text.contactusForm, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false },
-            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register',pro:false},
-            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login',pro:false},
-            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription',pro:false},
+            {id:'payment', title:efb_var.text.paymentform, desc:efb_var.text.createPaymentForm, status:true, icon:'bi-wallet-fill', tag:'payment pay',pro:true},
             {id:'support', title:efb_var.text.supportForm, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
             {id:'survey', title:efb_var.text.survey, desc:efb_var.text.createsurveyForm, status:true, icon:'bi-bar-chart-line', tag:'survey',pro:false},
             {id:'contactTemplate', title:efb_var.text.contactusTemplate, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
@@ -237,7 +235,9 @@ const boxs_efb=[
             {id:'privateContactTemplate', title:`${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
             {id:'customerFeedback', title:efb_var.text.customerFeedback, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
             {id:'supportTicketForm', title:efb_var.text.supportTicketF, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
-            {id:'payment', title:efb_var.text.paymentform, desc:efb_var.text.createSupportForm, status:true, icon:'bi-wallet-fill', tag:'payment pay',pro:true},
+            {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register',pro:false},
+            {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login',pro:false},
+            {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription',pro:false},
             /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
             ]//supportTicketF
 
@@ -253,7 +253,7 @@ function add_dasboard_emsFormBuilder(){
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.form}</h4>` :''}
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb create"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.form}</h4>` :''}
           <div class="d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class=" efb search-form-control efb-rounded efb mx-2"> <a class="btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
           </div
@@ -455,21 +455,28 @@ function head_introduce_efb(state){
   let text=`${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ?  '' : 'btn-lg';
  
-  return `     <section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
-  <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
-              <div class="col-lg-7 mt-5 pd-5 col-md-12">
-                  <img src="${efb_var.images.logo}" class="description-logo efb">
-                  <h1 class="efb pointer-efb" onClick="Link_emsFormBuilder('efb') ${mobile_view_efb? 'fs-6' :''}" >${efb_var.text.easyFormBuilder}</h1>
-                  <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'} ${mobile_view_efb? 'fs-8' :'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+  let cont = '';
+  if ( state!="create"){
+    cont =`
+    
                   <div class="clearfix"></div>                 
-                  <p class=" ${state=="create" ?'card-text ':'text-dark'} efb pb-3 ${mobile_view_efb? 'fs-8' :'fs-6'}">${text}</p>
+                  <p class="card-text  ${state=="create" ?'card-text':'text-dark'} efb pb-3 ${mobile_view_efb? 'fs-8' :'fs-6'}">${text}</p>
                   
-                  
-                  <a class="btn efb btn-primary ${btnSize}" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-                  <a class="btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>
+    <a class="btn efb btn-primary ${btnSize}" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
+    <a class="btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
+  }
+  return `<section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
+  <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
+              <div class="col-lg-7 mt-2 pd-5 col-md-12">
+                  <img src="${efb_var.images.logo}" class="description-logo  ${mobile_view_efb? 'm-1' :''} efb">
+                  <h1 class="efb pointer-efb  ${mobile_view_efb? 'fs-6' :''}" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
+                  <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'} ${mobile_view_efb? 'fs-8' :'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+                  ${cont}
+                 
               </div>
-              ${(state!="create" && mobile_view_efb )|| (state=="create" && mobile_view_efb==false) ? `<div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>` :''}
-    </div>    
+              ${(state!="create" && mobile_view_efb ) ? `<div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>` :''}
+              ${(state!="create" && mobile_view_efb==false ) ? `<div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>` :''}  
+    </div>  
   </section> `
 }
 

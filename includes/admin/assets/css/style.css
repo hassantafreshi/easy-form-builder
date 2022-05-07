@@ -844,6 +844,16 @@ height: auto;
 
 }
 
+.efb.display-7 {
+    font-size: calc(1rem + 1vw);
+    font-weight: 200;
+    line-height: 1.0;
+}
+.efb.display-8 {
+    font-size: calc(0.5rem + 0.7vw);
+    font-weight: 200;
+    line-height: 0.8;
+}
 .star-efb.h-d-efb{
 font-size: 50px!important;
 }
@@ -1731,7 +1741,7 @@ img.right_circle-efb {
 }
 
 #header-efb.bg-color{
-    background-color: #ffe7b3!important;
+    background-color: #c8ddff40!important;
 }
 
 .efb input[type=radio]:checked:before,
@@ -2354,4 +2364,11 @@ div#sideBoxEfb {
 
     .mobile h3.efb.fs-8 {
         font-size: 17px!important;
+    }
+
+
+    .title.efb.create {
+        text-align: center;
+        height: 250px!important;
+        margin: -119px 29% -77px!important;
     }
