@@ -2090,6 +2090,7 @@ input[type=checkbox].efb.fs-2.form-check-input
         padding-left: 38px!important;
         padding-right: 38px!important;
         min-height: 42px;
+        max-height: 42px;
     }
 
     .mobile .efblist.inplist.h-d-efb{
@@ -2100,10 +2101,12 @@ input[type=checkbox].efb.fs-2.form-check-input
         padding-left: 38px!important;
         padding-right: 38px!important;
         min-height: 50px;
+        max-height: 50px;
     }
     .efblist.inplist.h-xl-efb{
         font-size: 30px!important;
         min-height: 60px;
+        max-height: 60px;
         padding-left: 40px!important;
         padding-right: 40px!important;
     }
@@ -2112,12 +2115,14 @@ input[type=checkbox].efb.fs-2.form-check-input
         padding-left: 45px!important;
         padding-right: 45px!important;
         min-height: 80px;
+        max-height: 80px;
     }
     .efblist.inplist.h-xxxl-efb{
         font-size: 40px!important;
         padding-left: 52px!important;
         padding-right: 52px!important;
         min-height: 90px;
+        max-height: 90px;
     }
 
      .efb.efblist.iconDD.h-d-efb{margin: -40px 13px;}
@@ -2345,4 +2350,8 @@ div#sideBoxEfb {
     #btnStripeEfb:disabled {
         color: rgb(218, 218, 218);
         background-color: #748bad;
+    }
+
+    .mobile h3.efb.fs-8 {
+        font-size: 17px!important;
     }

@@ -20,7 +20,7 @@ jQuery(function () {
  
   if(ajax_object_efm.setting,ajax_object_efm.setting.length>0){
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-      //console.log(valueJson_ws_setting ,ajax_object_efm ,valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1)
+      console.log(ajax_object_efm ,valueJson_ws_setting.bootstrap , ajax_object_efm.bootstrap)
     if(valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1){
       if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
       if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <3) {
@@ -315,6 +315,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
     if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+
+    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="mb-1"> ${c.paymentIntent}</span></p>`
   }
   m += '</div>';  
   return m;
@@ -1309,6 +1311,7 @@ function clear_garbeg_emsFormBuilder() {
   let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
   
   rows[0][0] = 'id';
+  
   let i_count = -1;
   add_multi=(c,content,value_col_index,v)=>{
    
@@ -1323,6 +1326,7 @@ function clear_garbeg_emsFormBuilder() {
         rows[parseInt(r)][0] = v;        
       }
     }else{
+      //tc rows[0][1] = efb_var.text.trackNo ;
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ?  rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| "+ content[c].value
     }
   }
@@ -1331,38 +1335,45 @@ function clear_garbeg_emsFormBuilder() {
   
     const content = JSON.parse(v.content.replace(/[\\]/g, '')) 
     count += 1;
-    i_count += i_count == -1 ? +2 : 1;
-
+    i_count += i_count == -1 ? 2 : 1;
+    console.log(`i_count F[${i_count}]`);
     let countMultiNo = [];
     let NoMulti = [];
-
     
+    console.log(v);
     for (c in content) {    
-     
+      console.log(content[c]);
+      console.log(`i_count Fb[${i_count}]` ,rows[i_count][1] ,rows[i_count][1] == "null@EFB" ,  rows[0][1] == efb_var.text.trackNo);
+      //tc if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count X[${i_count}]`);  rows[i_count][1] = v.track;}
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       //console.log(c,content[c]);
       if (content[c].type != "checkbox" && content[c].type != 'multiselect' 
       && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect') {
-
+        
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-
+        //if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count ![${i_count}]`);  rows[i_count][1] = v.track;}
+        
         value_col_index = rows[0].findIndex(x => x == content[c].name);
-
+        
         if (value_col_index == -1) {
-
+          
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
           rows[0][parseInt(value_col_index)] = content[c].name;
+          if(content[c].type=='payment')  rows[0][parseInt(value_col_index)+1] ="TID";
         } 
-
+        
         rows[parseInt(i_count)][parseInt(value_col_index)] =   content[c].value ;
-
-      }else if(content[c].type == 'multiselect' || content[c].type == 'payMultiselect'){
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+        if(content[c].type=='payment'){ 
+          const vx = rows[0].findIndex(x => x == "TID");
+          rows[parseInt(i_count)][parseInt(vx)] =   content[c].paymentIntent ;}
+        }else if(content[c].type == 'multiselect' || content[c].type == 'payMultiselect'){
+          if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+          //if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count[${i_count}]`);  rows[i_count][1] = v.track;}
         value_col_index = rows[0].findIndex(x => x == content[c].name);
         if (value_col_index == -1) {
           value_col_index = rows[0].findIndex(x => x == 'null@EFB');
-          rows[0][parseInt(value_col_index)] = content[c].name;
+          rows[0][parseInt(value_col_index)] = content[c].name;          
         } 
         if(content[c].value.search(/@efb!+/g)!=-1){
           if(form_type_emsFormBuilder=="survey"){
@@ -1392,6 +1403,7 @@ function clear_garbeg_emsFormBuilder() {
         //console.log('checkbox',c)
         // if checkbox
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+       
         //new code test
         const name = content[c].name;
         value_col_index = rows[0].findIndex(x => x == name);
@@ -1497,7 +1509,7 @@ function convert_to_dataset_emsFormBuilder() {
 
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  
+  console.log(head,exp);
   let rows = exp;
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));

@@ -443,6 +443,7 @@ function createStepsOfPublic() {
           const id_ob = ob.type!="paySelect" ? el.id :el.options[el.selectedIndex].id;
           //console.log(ob,id_ob);
           let o = [{ id_: id_, name:ob.name,id_ob:id_ob,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          
           if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);  
             //console.log(el , valueJson_ws);
@@ -455,6 +456,7 @@ function createStepsOfPublic() {
 
             fun_sendBack_emsFormBuilder(o[0]);
           }
+          
         }
   
       });
@@ -471,6 +473,8 @@ function createStepsOfPublic() {
           const p = price.length>0 ?{price:price} : {price:q.price}
           Object.assign(o[0],p)
           //console.log(q ,p,o[0]);
+
+          console.log(ob,id_ob)
           fun_sendBack_emsFormBuilder(o[0]);
           fun_total_pay_efb()
         }else{
@@ -656,6 +660,8 @@ function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
  recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+
+ console.log(sendBack_emsFormBuilder_pub)
   jQuery(function ($) {
 
     data = {
@@ -1149,7 +1155,7 @@ function validation_before_send_emsFormBuilder() {
          count[1] += 1;
         }
       }
-    } else if (row.type != "@file@") {      
+    } else if (row.type != "@file@" && row.type != "payment") {      
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       //console.log(valueJson_ws ,row)
       if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"

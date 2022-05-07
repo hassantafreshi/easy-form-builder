@@ -208,11 +208,13 @@ function fub_shwBtns_efb() {
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
+  console.log(el.id , activeEl_efb);
   if (el.id != activeEl_efb) {
     if (activeEl_efb == 0) {
       activeEl_efb = document.getElementById(el.id).dataset.id;
       
     }else{
+      console.log(activeEl_efb,activeEl_efb.slice(0,-3),document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none'))
       
       document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none')
     }
@@ -221,7 +223,7 @@ function active_element_efb(el) {
       // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
       if (ac.classList.contains('field-selected-efb')) ac.classList.remove('field-selected-efb')
     }
-
+    
     activeEl_efb = el.dataset.id
     const eld = document.getElementById(`btnSetting-${activeEl_efb}`);
     if (eld.classList.contains('d-none')) eld.classList.remove('d-none');
@@ -1506,7 +1508,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                     id="${step_el_efb}_icon"></i> <span id="${step_el_efb}_lab" class="efb  text-darkb  ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'} ">${valj_efb[indexVJ].name}</span></span></h2>
             <small id="${step_el_efb}-des" class="efb form-text ${valj_efb[indexVJ].message_text_color} border-bottom px-4   ">${valj_efb[indexVJ].message}</small>
             <div class="efb col-sm-10">
-                <div class="efb btn-edit-holder d-none " id="btnSetting-${step_el_efb}">
+                <div class="efb btn-edit-holder btnSetting d-none " id="btnSetting-${step_el_efb}">
                     <button type="button" class="efb btn  btn-edit  btn-sm BtnSideEfb" id="settingElEFb"
                         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
                         onclick="show_setting_window_efb('${step_el_efb}')">
@@ -3673,6 +3675,7 @@ function previewFormEfb(state){
     if(state!="run") {
       state_efb="view";
       preview_efb=true;
+      activeEl_efb=0;
     }
   
   //state_efb
@@ -4283,8 +4286,36 @@ fun_add_stripe_efb=()=>{
                               <p class="efb text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${transStat.paymentIntent.id}</p>
                               <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
                               `
-
-                              //sendBack_emsFormBuilder_pub.push({id_:transStat.paymentIntent.id , amount:efb_var.text.payAmount ,type:'paymentGateway' , gateway:'stripe'})
+                              /* 
+                                amount: 0,
+                                id_: "payment",
+                                name: "Payment",
+                                paymentAmount: transStat.paymentIntent.amount,
+                                paymentCreated: transStat.paymentIntent.created,
+                                paymentGateway: "stripe",
+                                paymentIntent: transStat.paymentIntent.id,
+                                paymentcurrency: transStat.paymentIntent.currency,
+                                payment_method: transStat.paymentIntent.payment_method,
+                                type: "payment",
+                                value: `${transStat.paymentIntent.amount} ${transStat.paymentIntent.currency}`
+                                                              
+                              */
+                             console.log(transStat.paymentIntent)
+                              let o = [{ amount: 0,
+                                  id_: "payment",
+                                  name: "Payment",
+                                  paymentAmount: transStat.paymentIntent.amount/100,
+                                  paymentCreated: transStat.paymentIntent.created,
+                                  paymentGateway: "stripe",
+                                  paymentIntent: transStat.paymentIntent.id,
+                                  paymentcurrency: transStat.paymentIntent.currency,
+                                  payment_method: transStat.paymentIntent.payment_method,
+                                  type: "payment",
+                                  value: `${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency}`
+                                }]; 
+                                console.log(o)
+                              sendBack_emsFormBuilder_pub.push(o[0])
+                              console.log(sendBack_emsFormBuilder_pub);
                               btnStripeEfb.innerHTML="Done"
                               btnStripeEfb.style.display="none";
                               jQuery( "#statusStripEfb" ).show( "slow" )

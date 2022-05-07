@@ -481,7 +481,8 @@ class _Public {
 			}
 
 		  
-		
+					error_log($type);
+					
 					switch($type){
 						case "form":						
 							$this->get_ip_address();
@@ -538,7 +539,7 @@ class _Public {
 							$valobj=array_merge($filtered , $vv);							
 							$vv=json_encode($valobj);
 							$vv=str_replace('"', '\\"', $vv);
-							$this->value = sanitize_text_field($vv);
+							$this->value = sanitize_text_field($_POST['value']);
 							$check=	$this->insert_message_db();
 							if(!empty($r)){
 								
