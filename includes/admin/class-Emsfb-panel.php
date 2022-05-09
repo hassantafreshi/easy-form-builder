@@ -70,7 +70,10 @@ class Panel_edit  {
 				'smtp'=>$smtp,
 				'maps'=> $maps,
 				'bootstrap' =>$this->check_temp_is_bootstrap(),
-				"language"=> get_locale()		));
+				"language"=> get_locale()));
+
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
+			wp_enqueue_script('efb-val-js'); 
 
 		
 			if($pro==true){
@@ -98,12 +101,12 @@ class Panel_edit  {
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
 			}
+
 			
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
-					'check' => 0
-						));
+					'check' => 0));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
@@ -112,6 +115,8 @@ class Panel_edit  {
 
 			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
+
+
 
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
@@ -232,8 +237,7 @@ class Panel_edit  {
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
-					'pro'=>$pro
-					
+					'pro'=>$pro									
 				));
 
 				;

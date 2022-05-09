@@ -34,7 +34,8 @@ class _Public {
 		//add_action('init',  array($this,'modify_jquery'));
 
 
-		add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
+
+
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EMS_Form_Builder' ) ); 
@@ -61,6 +62,10 @@ class _Public {
 		$efbFunction = new efbFunction();  
 		$text= ["errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
 		$this->lanText= $efbFunction->text_efb($text);
+
+
+		
+		
 	}
 
 
@@ -72,11 +77,14 @@ class _Public {
 					//hide admin bar in public pages
 					show_admin_bar( false );
 			}
-		}
+		}	
+		wp_register_script('efb_js', plugins_url('../public/assets/js/efb.js',__FILE__), null, null, true);
+		wp_enqueue_script('efb_js');
 	}
 
 	public function EMS_Form_Builder($id){
-
+		$this->public_scripts_and_css_head();
+		//add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		//error_log('form Genrate');
 		$efbFunction = new efbFunction();  
 		
@@ -245,6 +253,7 @@ class _Public {
 
 
 	public function EMS_Form_Builder_track(){
+		$this->public_scripts_and_css_head();
 		//Confirmation Code show
 		$lang = get_locale();
 
@@ -292,6 +301,8 @@ class _Public {
 		return $content; 
 
 	}
+
+
 	function public_scripts_and_css_head(){
 	$efbFunction = new efbFunction(); 
 	$r= $this->get_setting_Emsfb('setting');
@@ -350,11 +361,7 @@ class _Public {
 		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-select-css');
 
-
-
-
 		/* end v2 */
-
 		
 		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('core_js');
@@ -366,16 +373,10 @@ class _Public {
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
 	//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-	if($googleCaptcha==true){
-		wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-		wp_enqueue_script('recaptcha');
-	}
-		
-
-				
-		/* wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
-		wp_enqueue_script('jquery'); */
-
+		if($googleCaptcha==true){
+			wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+			wp_enqueue_script('recaptcha');
+		}
 		
 	  }
 
@@ -907,6 +908,8 @@ class _Public {
 		
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
+
+		return "<script>console.log('Easy Form Builder v3.0.0')</script>";
 	
 	  }//end function
 

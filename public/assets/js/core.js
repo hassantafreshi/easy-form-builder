@@ -22,11 +22,10 @@ let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 //(len/2)*(Math.log(len)) * p
-console.log("Easy Form Builder v2.4");
+console.log("Easy Form Builder");
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
 //console.log(g_timeout_efb);
 //console.log(ajax_object_efm.ajax_value.length)
-g_timeout_efb =
 //console.log(g_timeout_efb);
 setTimeout(() => {
 
@@ -555,22 +554,6 @@ function alarm_emsFormBuilder(val) {
       <strong>${ajax_object_efm.text.alert} </strong>${val}
     </div>`
 }
-
-
-
-/* function showloading_emsFormBuilder() {
-  const stepMax = currentTab_emsFormBuilder + 1;
-  const time = stepMax < 3 ? 700 : stepMax * 200;
-  document.getElementById("body").classList.add = "wait";
-  if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-  else body.style.pointerEvents = "none";
-  setTimeout(() => {
-    document.getElementById("body").classList.remove = "wait";
-    if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-    else body.style.pointerEvents = "none";
-  }, time);
-} */
-
 
 function endMessage_emsFormBuilder_view() {
   let counter = 0;

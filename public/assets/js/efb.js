@@ -1,0 +1,1 @@
+console.log('Easy Form Builder v3.0.0')

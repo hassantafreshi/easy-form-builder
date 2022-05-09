@@ -125,6 +125,8 @@ class Create {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+
+
 			// اگر نسخه ویژه بود و پلاگین نصب بود این بخش فعال شود
 		//stripe77
 		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
@@ -165,6 +167,10 @@ class Create {
 			"language"=> get_locale()
 			
 		));
+
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
+		wp_enqueue_script('efb-val-js'); 
+		
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js');
 		wp_enqueue_script('efb-forms-js');
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
@@ -177,6 +183,9 @@ class Create {
 
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
+
+
+		
 
 	}
 

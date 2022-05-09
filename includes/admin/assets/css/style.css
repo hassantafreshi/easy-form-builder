@@ -613,7 +613,7 @@ font-size: 18px!important;
 .efb.btn-edit-holder {
 float: right;
 margin-top: -40px;
-margin-left: 73%;
+margin-left: 62%;
 position: relative;
 z-index: 10;
 }
@@ -1878,51 +1878,6 @@ fieldset.efb {
     width: 93%!important;
 }
 
-
-/* multi seclect section */
-/* 
-.efb.mselect-list {
-    position: absolute;
-    width: 100%;
-    background: white;
-    margin: 0;
-    padding: 0;
-}
-
-.efb.efbSelect{
-    cursor: pointer;
-}
-
-.efb.mselect{
-    padding: 2px;
-}
-
-label.efbSelect {
-    width: 95%;
-}
-
-.efb.mselect.selected{
-    float: left;
-    width: auto;
-    margin-right: 2px;
-}
-
-.efb.MultiSelect.row {
-    margin: 0;
-}
-
-.efb.mselect-list {
-    position: absolute;
-width: inherit;
-background: white;
-margin: 0;
-padding: 0;
-
-margin: 0.1rem 1rem;
-}
- */
-
-/*end  multi seclect section */
 
 
 #img_recaptcha_perview_efb{
