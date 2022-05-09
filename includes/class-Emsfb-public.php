@@ -114,7 +114,7 @@ class _Public {
 		}
 		$paymentType="";
 		error_log($typeOfForm);
-		//$paymentKey ='pk_test_51I8kkNH3QbE1T7b49j8kWPZsjCFtXc8a2ksX2W5f8SGhXr6M0cgrkcT4ObRGiEL2MpW32Ilrb3DSRHdWAVP3z0lA007xLIkprV';
+		
 		if($typeOfForm=="payment"){
 			//,\"type\":\"stripe\",
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
@@ -1182,13 +1182,6 @@ class _Public {
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-	/* 	if(file_exists(EMSFB_PLUGIN_DIRECTORY ."/vendor/autoload.php")==false){
-			$m =	__('Easy Form Builder payment(Stripe) Plugin not found, Please contact website Administrator', 'easy-form-builder');
-			$response = ['success' => false, 'm' => $m];
-			wp_send_json_success($response, $_POST);
-			die("secure!");
-		}
- */
 
 		$r= $this->get_setting_Emsfb('setting');
 		$Sk ='null';
@@ -1205,12 +1198,6 @@ class _Public {
 				wp_send_json_success($response, $_POST);
 				die("secure!");
 		}
-       /*  $id = number_format($_POST['id']);
-
-        $table_name = $this->db->prefix . "Emsfb_form";
-        $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-
-        $response = ['success' => true, 'ajax_value' => $value, 'id' => $id]; */
 
         include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
         //error_log('payment');
@@ -1231,9 +1218,6 @@ class _Public {
 		$price_f=0;
 		$email ='';
 		for ($i=0; $i <count($val_) ; $i++) { 
-			//error_log('for (i=0; i <count($val_) ; i++)');
-			# code...
-			//$val_[$i]['id_']
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
 				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
