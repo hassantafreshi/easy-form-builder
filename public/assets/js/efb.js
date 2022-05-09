@@ -1,1 +1,1 @@
-console.log('Easy Form Builder v3.0.0')
+console.log('EFB v3.0.0')
