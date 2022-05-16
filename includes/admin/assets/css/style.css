@@ -2151,7 +2151,7 @@ input[type=checkbox].efb.fs-2.form-check-input
     position: absolute;
     z-index: 49;
     overflow: auto;
-    margin: 0px -1rem!important;
+    margin: 0px -1.2rem!important;
 }
 .rtl .side-menu-efb {
     float: right;
@@ -2326,4 +2326,8 @@ div#sideBoxEfb {
         text-align: center;
         height: 250px!important;
         margin: -119px 29% -77px!important;
+    }
+
+    .pre-efb {
+        flex-direction: unset!important;
     }

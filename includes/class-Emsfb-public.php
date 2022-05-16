@@ -95,7 +95,7 @@ class _Public {
 		}
 		$this->id = $id;
 		if($this->value==null){
-			return "<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
+			return "<div id='body_efb' class='card-public row pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
 		}
 		$typeOfForm =$this->value[0]->form_type;
 		$value = $this->value[0]->form_structer;
@@ -229,13 +229,13 @@ class _Public {
 		 if($formObj[0]["stateForm"]==true){
 
 			
-			$content ="<div id='body_efb' class='card card-public pb-3 efb'> <div class='text-center my-5'>
+			$content ="<div id='body_efb' class='card card-public row pb-3 efb'> <div class='text-center my-5'>
 			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>". $this->lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
 			</div> </div>";
 		 }else{
 
-			 $content="<div id='body_efb' class='card card-public pb-3 efb'>
+			 $content="<div id='body_efb' class='card card-public row pb-3 efb'>
 			 <div class='text-center my-5'>
 			 <div class='lds-hourglass efb text-center my-2'></div><h3 class='efb text-center text-darkb fs-5'>".$this->lanText["pleaseWaiting"]."</h2>
 			 ".$efb_m."

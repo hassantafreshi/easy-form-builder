@@ -192,7 +192,7 @@ class Panel_edit  {
 						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="modal-content efb " id="settingModalEfb-sections">
 									<div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="modal-body" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
+									<div class="modal-body row" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
 					</div></div></div>
 
 					<div class="row mb-2">					
