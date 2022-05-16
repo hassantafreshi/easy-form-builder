@@ -507,6 +507,7 @@ class efbFunction {
 			"createPaymentForm" => $state  &&  isset($ac->text->createPaymentForm) ? $ac->text->createPaymentForm : __('Create a payment form.','easy-form-builder'),
 			"pro" => $state  &&  isset($ac->text->pro) ? $ac->text->pro : __('Pro','easy-form-builder'),
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
+			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

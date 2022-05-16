@@ -8,11 +8,9 @@ var currentTab_ws = 0;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
 let tabActive_ws = -1;
-const proUrl_ws = `https://whitestudio.team/`
 let pro_ws = false;
 let stepMax_ws = 1 
 let edit_emsFormBuilder = false;
-
 let formName_ws = `EasyFormBuilder-${Math.random().toString(36).substr(2, 3)}`;
 let form_ID_emsFormBuilder =0;
 let highestAmount_emsFormBuilder;
@@ -237,6 +235,7 @@ const boxs_efb=[
             {id:'privateContactTemplate', title:`${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc:efb_var.text.createContactusForm, status:true, icon:'bi-envelope', tag:'contactUs',pro:false},
             {id:'customerFeedback', title:efb_var.text.customerFeedback, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
             {id:'supportTicketForm', title:efb_var.text.supportTicketF, desc:efb_var.text.createSupportForm, status:true, icon:'bi-shield-check', tag:'support feedback',pro:false},
+            {id:'orderForm', title:`${efb_var.text.purchaseOrder} ${efb_var.text.payment}`, desc:efb_var.text.purchaseOrder, status:true, icon:'bi-bag', tag:'payment pay order',pro:true},
             {id:'register', title:efb_var.text.registerForm, desc:efb_var.text.createRegistrationForm, status:true, icon:'bi-person-plus', tag:'register',pro:false},
             {id:'login', title:efb_var.text.loginForm, desc:efb_var.text.createLoginForm, status:true, icon:'bi-box-arrow-in-right', tag:'login',pro:false},
             {id:'subscription', title:efb_var.text.subscriptionForm, desc:efb_var.text.createnewsletterForm, status:true, icon:'bi-bell', tag:'subscription',pro:false},
@@ -392,6 +391,12 @@ function create_form_by_type_emsfb(id,s){
     // support v2
     form_type_emsFormBuilder="form";
     const  json =support_ticket_form_efb()
+   localStorage.setItem('valj_efb', JSON.stringify(json))
+   valj_efb =json;
+  }else if(id==="orderForm"){
+    // support v2
+    form_type_emsFormBuilder="payment";
+    const  json =order_payment_form_efb()
    localStorage.setItem('valj_efb', JSON.stringify(json))
    valj_efb =json;
   }else if(id==="customerFeedback"){

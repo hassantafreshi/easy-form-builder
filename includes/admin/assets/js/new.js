@@ -2548,7 +2548,7 @@ function handle_navbtn_efb(steps, device) {
         }
         //next_efb
         //disabled
-        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb ){jQuery("#next_efb").addClass('disabled');}
+        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb && preview_efb!=true ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
       if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
@@ -3401,7 +3401,7 @@ fun_add_stripe_efb=()=>{
                                 value: `${transStat.paymentIntent.amount} ${transStat.paymentIntent.currency}`
                                                               
                               */
-                             console.log(transStat.paymentIntent)
+                             //console.log(transStat.paymentIntent)
                               let o = [{ amount: 0,
                                   id_: "payment",
                                   name: "Payment",
@@ -3414,9 +3414,8 @@ fun_add_stripe_efb=()=>{
                                   type: "payment",
                                   value: `${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency}`
                                 }]; 
-                                console.log(o)
-                              sendBack_emsFormBuilder_pub.push(o[0])
-                              console.log(sendBack_emsFormBuilder_pub);
+                                //console.log(o)
+                              sendBack_emsFormBuilder_pub.push(o[0])                              
                               btnStripeEfb.innerHTML="Done"
                               btnStripeEfb.style.display="none";
                               jQuery( "#statusStripEfb" ).show( "slow" )

@@ -3,37 +3,27 @@
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
 
-
-
-
 let exportView_emsFormBuilder = [];
 let stepsCount;
-let sendBack_emsFormBuilder = []; // این مقدار برگشت داده می شود به سرور
+let sendBack_emsFormBuilder = []; 
 let sessionPub_emsFormBuilder = "reciveFromServer"
 let stepNames_emsFormBuilder = [`t`, `Sync`, `Sync`];
 let currentTab_emsFormBuilder = 0;
 let language_emsFormBuilder ="ar"
 let multiSelectElemnets_emsFormBuilder =[] ;
-let check_call_emsFormBuilder = 1//  و در حالت پابلیک 1 شود این مقدار توسط سرور داده شود در حالت فراخونی در سمت ادمین صفر شود
+let check_call_emsFormBuilder = 1
 let valueJson_ws = [];
 let demo_emsFormBuilder=false;
-let validate_edit_mode_emsFormBuilder=false; // اگر حالت ادیت بود این تابع فعال شود کاربرد آن زمانی است که بفهمیم که پیش فرض است یا از سرور آمده و اینکه مد نمایش برای مولتی سلکت چیکار کنیم 
-let test_view__emsFormBuilder =true // این مقدار در موقع ادیت به طریقی باید به غلط تغییر کند تا نمایش درست انجام شود
+let validate_edit_mode_emsFormBuilder=false; 
+let test_view__emsFormBuilder =true
 
 jQuery (function() {
-    //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object_efm.ajax_value مقدار جی سون
-    //ajax_object_efm.language زبان بر می گرداند
-    
-   
     if(typeof ajax_object_efm_core!=undefined){
       if( Number(ajax_object_efm_core.check)==1) { 
         fun_render_view_core_emsFormBuilder(ajax_object_efm_core.check);
         validate_edit_mode_emsFormBuilder=true;
       }
-    }
- 
-
+    } 
 });
 function fun_render_view_core_emsFormBuilder(check){
   //v2
