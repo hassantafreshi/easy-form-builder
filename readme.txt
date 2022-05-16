@@ -23,84 +23,163 @@ You don't need any coding skills to use *Easy Form Builder*. Simply drag and dro
 Find out all you need to know by checking out our documentation [click here](https://github.com/hassantafreshi/easy-form-builder/wiki)
 
 How *Easy Form Builder* makes your life easier:
+
+**General features of Easy Form Builder**
+
 - Simple drag and drop functionality
-- Create unlimited forms for **free**
-- Create multistep (limited steps) form for **free**
-- Create sample file upload form for **free**
-- Create Support forms for **free**
-- Create subscription or newsletters signup forms for **free**
-- Create Login (sign-in) forms for **free**
-- Create Registration (sign-up) forms for **free**
-- Create Surveys (poll) and analyse for **free**.
-- Create Private forms (lock forms) or Public forms for **free**.
-- Get export of subscribers list to CSV format file for **free**
-- Get notified by email when a form has been submitted for **free**
-- Showing the confirmation code filled in forms for **free**
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized for **free**
-- Instant reply functionality for **free**
-- Send notification email when the user have a new message for **free**
-- Email notification for **free**
-- Form notification for **free**
-- Entry Management for **free**
-- Confirmation Code for **free**
-- Mobile-friendly responsive forms
-- Unique Confirmation code ( tracking ID) finder for **free**
-- User-friendly and feature-rich panel to manage your forms and their responses for **free**
-- Form validation  
-- Support RTL language
-- Easy to embed forms
-- Present survey (poll) results in Pie Chart for **free**
-- Create drag and drop file upload forms (Available in pro version)
-- Create multi-step (unlimited steps) form (Available in pro version)
-- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ... (available in pro version)
-- Get export of result of Surveys to CSV format file (Available in pro version)
-- Get export of response of forms to CSV format file (Available in pro version)
-- Easily Localization Easy Form Builder to your language for **free**
-- Mobile-friendly admin panel of Easy Form Builder
 
-- Add custom email template for form notification emails for **free**
+- Build Multi step forms
 
-- Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form for **free**
+- Email notification
 
-- New Contact us templates & Example  for Without No code skills create a contact-us form in less than 1 minute.  
+- Confirmation code 
 
-- New Support and Feedback template & Example  for creata support form in 1 minute
+- Entry mangement
 
-**Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
-Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
+- Form validation
 
-**SURVEYS (Polls)**
-Besides using contact form, you can use Easy Form Builder to create surveys for **free** and you are able to download or export the result of the survey in a CSV file .
+- Easily Localization
 
-**Subscribe forms (NewsLetter)**
-Create custom subscription forms and easily add them into your posts, pages for **free** and you are able to download or export a list of subscriptions in a CSV file.
- 
-**ALL THE FIELDS & FEATURES THAT YOU NEED TO SUCCEED**
-From star ratings & file uploads & multi-step contact forms with progressbar, we have all the fields you need and advanced fields like Location Picker & e-sign(signature) & Switch Button.
-The most outstanding feature is that you can do all of it without asking Technical guys and Build Easy Form Builder based on No-code development.
+- Build Form with ReCAPTCHA.
 
-**DRAG & DROP and Multi-step CONTACT FORM BUILDER**
-Easy Form Builder allows you to create custom contact forms in the easiest way. By using our easy to use drag and drop online form builder, you can easily add custom form fields, edit them, and create a support form or contact form  in a minute.
- 
- **Countries list field for FORM BUILDER**
-You can easily Add the country form according to the language of your website (Language of Wordpress site) by adding the Country form (Countries list) field in Easy Form builder to your forms, you can Create contact us form, support form or any kind of forms included country form (Countries list field) .
+- Instant reply functionality 
 
- **States / Provinces list field for FORM BUILDER**
-You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
+- Support LTR and RTL languages
 
-**confirmation code**
-Confirmation code or tracking code is usable for create feedback form or support form when you want be touch easily to your user or customers for free.
+- Mobile-friendly form builder plugin
 
-**Email Notification Template**
-Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
- 
- **Easily Localization**
-You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
+- Build Email Template for Email notification
 
-**Multi Select Dropdown field for WordPress FORM BUILDER**
-Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without using any checkboxes inputs also the customer can search in dropdown list for free
- 
-**Easy Form Builder Features**
+- Easy to embed forms to wordpress page and post
+
+- Easy to use and no coding skills required for build forms
+
+- New Contact us templates & Example for create a contact-us form in less than 1 minute
+
+- New Support and Feedback template & Example  for build support form in 1 minute
+
+- Easily build any kind of forms like contact-us form , survey form , payment form , private form 
+
+
+
+**Free features of Easy Form Builder:**
+
+- Create unlimited forms 
+
+- Receive unlimited messages or responses from forms
+
+- Build multistep (limited steps) form 
+
+- Build sample file upload form 
+
+- Create Support forms 
+
+- Create subscription or newsletters signup forms 
+
+- Create Login (sign-in) forms 
+
+- Create Registration (sign-up) forms 
+
+- Create Surveys (poll) and analyse 
+
+- Build Private forms (lock forms) or Public forms 
+
+- Get export of subscribers list to CSV format file 
+
+- Get notified by email when a form has been submitted 
+
+- Showing the Confirmation code filled in forms 
+
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized 
+
+- Send notification email when the user have a new message 
+
+- Email notification for forms and responses 
+
+- Show Form notification on entry mangement when have new response or message
+
+- Entry Management for forms and response 
+
+- Unique Confirmation code ( tracking ID) finder 
+
+- User-friendly and feature-rich panel to manage your forms and their responses 
+
+- Present survey (poll) results in Pie Chart 
+
+- Add custom email template for form notification emails 
+
+- Easily Localization Easy Form Builder to your language 
+
+- Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form
+
+- Change or Build Email Template for Email notification of forms
+
+
+
+**Advanced and Pro features of Easy Form Builder:**
+
+- Build Stripe payment forms 
+
+- Build drag and drop file upload forms
+
+- Build multi-step (unlimited steps) Forms
+
+- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
+
+- Get export of result of Surveys to CSV format file 
+
+- Get export of responses or messages of forms to CSV format file 
+
+- Payment Fields (inputs) like Payment Multi choose, Payment Single choose ,Payment Selection Choose,Payment dropdown list
+
+- Build payment order form
+
+
+
+**New Forms Field of Easy Form Builder**
+
+- *File Uploads* : with File Uploads you are able to Collect files and media through your contact forms or other forms for **free**.
+
+- *Drag and Drop file upload* : you can upload images, media(video, audio), zip(compress file)  and documents(Doc, MS Word,MS Powerpoint, MS excel and ... ) by drag & drop to your forms like support form.
+
+- *Signature Forms* : Create signature forms or add the signature field to your contact form and so on.
+
+- *Location picker (Geolocation)* :  Pick a Location or multiple location by your user or showing your location on forms .
+
+- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
+
+- *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
+
+- *Multiple Select*: Multi Select (Multi Select Dropdown) is a field for multiple selection and searchable dropdown list so you can easily add to your WordPress form for **free**.
+
+- *Heading* : Heading fields on Easy Form Builder new fields like H tags can add contact-us form or any kind of forms.
+
+- *Link* : You can easily can add link on WP forms.
+
+
+**Payment Forms Field of Easy Form Builder**
+
+- *Stripe payment* : Build easily payment forms for accept payments online like order form, booking form, donation form, with add Stripe Fields to the forms.
+
+- *Payment dropdown list* : by add payment drop-down list to a form  you shown list price on  payment form.
+
+- *Payment Selection Choose* : Payment Selection Choose is the payment field for price list and user just can select multiple row of the list on payment form.
+
+- *Payment Single choose* : Payment Single Choose is the payment field Show list of order or service or product and user can select one of them on payment form.
+
+- *Payment Multi choose* : Payment Multi choose is the payment field and show list of service or product or order so user can select multiple row of the list on payment or order forms. 
+
+
+*Free advanced features of Form builder* 
+
+- *User Registration Forms* : Create premade login form and premade user registration form in WordPress for **free**.
+
+- *Surveys* :  create survey or poll forms and analyze the data with reports and view result in chart for **free**.
+
+- *Private Form (Form Locker)* : Manage form permissions and add access control rules including members of site only having access to forms.
+
+- *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
+
 - *Online Form Builder* :  Easy Form Builder drag & drop and multi step form builder allows you to create WordPress contact forms and other online forms without no-coding.
 
 - *Multi Step Form Builder*: Easy Form Builder able you to create multiple step form for **free** and unlimited step form.
@@ -109,37 +188,57 @@ Adding a multiple selection dropdown (Multiple Select field) to your WP forms al
 
 - *Email Notification* : Quickly respond to incoming inquiries with our instant contact form notification system for **free**.
 
-- *Confirmation Code* : Showing the confirmation code in filled out contact forms or other type of forms for **free**.
-
-- *File Uploads* : with File Uploads you are able to Collect files and media through your contact forms or other forms for **free**.
-
-- *Drag and Drop file upload* : you can upload images, media(video, audio), zip(compress file)  and documents(Doc, MS Word,MS Powerpoint, MS excel and ... ) by drag & drop to your forms like support form.
-
-- *Signature Forms* : Create signature forms or add the signature field to your contact form and so on.
-
-- *User Registration Forms* : Create premade login form and premade user registration form in WordPress for **free**.
-
-- *Surveys* :  create survey or poll forms and analyze the data with reports and view result in chart for **free**.
-
-- *Private Form (Form Locker)* : Manage form permissions and add access control rules including members of site only having access to forms.
-
-- *Location picker (Geolocation)* :  Pick a Location or multiple location by your user or showing your location on forms .
-
-- *Spam Protection* : add Google recaptcha validation for your forms for **free**.
-
-- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
-
-- *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
+- *Confirmation Code* : Showing the Confirmation code in filled out contact forms or other type of forms for **free**.
 
 - *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
 
-- *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
+- *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
-- *Multiple Select*: Multi Select (Multi Select Dropdown) is a field for multiple selection and searchable dropdown list so you can easily add to your WordPress form for **free**.
 
-- *Heading* : Heading fields on Easy Form Builder new fields like H tags can add contact-us form or any kind of forms.
 
-- *Link* : You can easily can add link on  WP forms.
+
+**Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
+Easy Form Builder forms are mobile-friendly. We also optimized every query on the front-end and the back-end to ensure maximum speed, Easy Form Builder is the best user-friendly and user-experience WordPress contact form plugins.
+
+
+**SURVEYS (Polls)**
+Besides using contact form, you can use Easy Form Builder to create surveys for **free** and you are able to download or export the result of the survey in a CSV file .
+
+**ALL THE FIELDS & FEATURES THAT YOU NEED TO SUCCEED**
+From star ratings & file uploads & multi-step contact forms with progressbar, we have all the fields you need and advanced fields like Location Picker & e-sign(signature) & Switch Button.
+The most outstanding feature is that you can do all of it without asking Technical guys and Build Easy Form Builder based on No-code development.
+
+**DRAG & DROP and Multi-step CONTACT FORM BUILDER**
+Easy Form Builder allows you to create custom contact forms in the easiest way. By using our easy to use drag and drop online form builder, you can easily add custom form fields, edit them, and create a support form or contact form  in a minute.
+ 
+**Subscribe forms (NewsLetter)**
+Create custom subscription forms and easily add them into your posts, pages for **free** and you are able to download or export a list of subscriptions in a CSV file.
+ 
+ **Countries list field for FORM BUILDER**
+You can easily Add the country form according to the language of your website (Language of Wordpress site) by adding the Country form (Countries list) field in Easy Form builder to your forms, you can Create contact us form, support form or any kind of forms included country form (Countries list field) .
+
+ **States / Provinces list field for FORM BUILDER**
+You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
+
+**Confirmation code**
+Confirmation code or tracking code is usable for create feedback form or support form when you want be touch easily to your user or customers for free.
+
+**Email Notification Template**
+Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
+ 
+ **Easily Localization**
+You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
+
+
+**Multi Select Dropdown field for WordPress FORM BUILDER**
+Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without using any checkboxes inputs also the customer can search in dropdown list for free
+ 
+**Accept payment with Stripe**
+Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder.
+
+
+
+
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
 
@@ -212,7 +311,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
 * Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder
 * Added Payment Single choose feild for create a form payment on WP Easy Form Builder plugin
-* Added Payment Select choose field usable for build custom pay form in Easy form builder
+* Added Payment Selection Choose field usable for build custom pay form in Easy form builder
 * Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
 * Added Link field on WordPress Easy Form builder
 * Added title field on Easy form builder

@@ -68,7 +68,7 @@ Features:
 - Create Private forms (lock forms) or Public forms for free.
 - Get export of subscribers list to CSV format file for free
 - Get notified by email when a form has been submitted for free
-- Showing the confirmation code filled in forms for free
+- Showing the Confirmation code filled in forms for free
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized for free
 - Instant reply functionality for free
 - Send notification email when the user have a new message for free
@@ -95,7 +95,7 @@ Features:
 - Build own costum payment form (Available in pro version)
 - Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder (Available in pro version)
 - Added Payment Single choose feild for create a form payment on WP Easy Form Builder plugin (Available in pro version)
-- Added Payment Select choose field usable for build custom pay form in Easy form builder (Available in pro version)
+- Added Payment Selection Choose field usable for build custom pay form in Easy form builder (Available in pro version)
 - Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Link field on WordPress Easy Form builder (Available in pro version)
 - Added title field on Easy form builder (Available in pro version)

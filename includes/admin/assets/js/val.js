@@ -128,7 +128,7 @@ function show_setting_window_efb(idset) {
      // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
       return`<label for="paymentMethodEl" class="mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
       <select  data-id="${idset}" class="elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
-      <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.chargeBilling}</option>                                                            
+      <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
      <!-- <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option> -->                                                           
      <!-- <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option> -->
       </select>`;

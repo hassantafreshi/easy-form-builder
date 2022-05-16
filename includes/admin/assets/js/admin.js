@@ -61,7 +61,7 @@ function Link_emsFormBuilder(state) {
     break;
     case  'createSampleForm':
     case  'tutorial':
-      link = github+"How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder";
+      link = valj_efb.length<1 ||  valj_efb[0].type !="payment" ?  github+"How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder" : github+"How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
       break;
     case  'stripe':
       //stripe
@@ -213,13 +213,15 @@ function getOS_emsFormBuilder() {
 
 createCardFormEfb=(i)=>{
   //console.log(i,efb_var);
+  let prw = `<a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
+  if (i.id=="form" || i.id=="payment") prw="<!--not preview-->"
   return`
   <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
   ${i.pro == true && efb_var.pro!=true ? `<div class="efb pro-card"><a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a></div>` : ''}
   <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   <button type="button" id="${i.id}" class="float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
-  <a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>
+  ${prw}
   </div></div></div>`
 }
 
@@ -253,7 +255,7 @@ function add_dasboard_emsFormBuilder(){
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb create"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.form}</h4>` :''}
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb create"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` :''}
           <div class="d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class=" efb search-form-control efb-rounded efb mx-2"> <a class="btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
           </div
@@ -320,7 +322,7 @@ function create_form_by_type_emsfb(id,s){
   }else if(id==="contact"){ 
     //contactUs v2
     form_type_emsFormBuilder="form";
-    const json =[{"type":"form","steps":1,"formName":efb_var.text.contactUs ,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"2jpzt59do","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
+    const json =[{"type":"form","steps":1,"formName":efb_var.text.contactUs ,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"2jpzt59do","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.contactusForm,"icon":"bi-chat-right-fill","step":1,"amount":2,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-muted","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"uoghulv7f","dataId":"uoghulv7f-id","type":"text","placeholder":efb_var.text.firstName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.firstName,"required":true,"amount":3,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"xzdeosw2q","dataId":"xzdeosw2q-id","type":"text","placeholder":efb_var.text.lastName,"value":"","size":"50","message":"","id":"","classes":"","name":efb_var.text.lastName,"required":true,"amount":5,"step":1,"corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
@@ -375,7 +377,7 @@ function create_form_by_type_emsfb(id,s){
   }else if(id==="support"){
     // support v2
     form_type_emsFormBuilder="form";
-    const  json =[{"type":"form","steps":1,"formName":efb_var.text.support,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.send,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"qas87uoct","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
+    const  json =[{"type":"form","steps":1,"formName":efb_var.text.support,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bXXX","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","corner":"efb-square","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-l-efb","email_to":"qas87uoct","show_icon":true,"show_pro_bar":true,"captcha":false,"thank_you_message":{"thankYou":efb_var.text.thanksFillingOutform, "done":efb_var.text.done, "trackingCode":efb_var.text.trackingCode, "error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields },"email_temp":"","sendEmail":true,"stateForm":false,"dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Support","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","message_text_size":"default","el_text_size":"fs-5","file":"document","label_text_color":"text-dark","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
     {"id_":"rhglopgi8","dataId":"rhglopgi8-id","type":"select","placeholder":"Select","value":"","size":"100","message":"","id":"","classes":"","name":"How can we help you?","required":true,"amount":2,"step":"1","corner":"efb-square","label_text_size":"fs-6","label_position":"up","message_text_size":"default","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-l-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false},
     {"id_":"b2xssuo2w","dataId":"b2xssuo2w-id","parent":"rhglopgi8","type":"option","value":"Accounting & Sell question","id_op":"n470h48lg","step":"1","amount":3},

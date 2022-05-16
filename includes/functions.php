@@ -472,7 +472,7 @@ class efbFunction {
 			"currency" => $state  &&  isset($ac->text->currency) ? $ac->text->currency : __('Currency','easy-form-builder'),
 			"recurringPayment" => $state  &&  isset($ac->text->recurringPayment) ? $ac->text->recurringPayment : __('Recurring payment','easy-form-builder'),
 			"subscriptionBilling" => $state  &&  isset($ac->text->subscriptionBilling) ? $ac->text->subscriptionBilling : __('Subscription billing','easy-form-builder'),
-			"chargeBilling" => $state  &&  isset($ac->text->chargeBilling) ? $ac->text->chargeBilling : __('Charge billing','easy-form-builder'),
+			"onetime" => $state  &&  isset($ac->text->onetime) ? $ac->text->onetime : __('one-time','easy-form-builder'),
 			"methodPayment" => $state  &&  isset($ac->text->methodPayment) ? $ac->text->methodPayment : __('Method payment','easy-form-builder'),
 			"heading" => $state  &&  isset($ac->text->heading) ? $ac->text->heading : __('Heading','easy-form-builder'),
 			"link" => $state  &&  isset($ac->text->link) ? $ac->text->link : __('Link','easy-form-builder'),
@@ -492,7 +492,7 @@ class efbFunction {
 			"emptyCartM" => $state  &&  isset($ac->text->emptyCartM) ? $ac->text->emptyCartM : __('Your cart is empty , Please add a few items','easy-form-builder'),
 			"payCheckbox" => $state  &&  isset($ac->text->payCheckbox) ? $ac->text->payCheckbox : __('Payment Multi choose','easy-form-builder'),
 			"payRadio" => $state  &&  isset($ac->text->payRadio) ? $ac->text->payRadio : __('Payment Single choose','easy-form-builder'),
-			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : __('Payment Select choose','easy-form-builder'),
+			"paySelect" => $state  &&  isset($ac->text->paySelect) ? $ac->text->paySelect : __('Payment Selection Choose','easy-form-builder'),
 			"payMultiselect" => $state  &&  isset($ac->text->payMultiselect) ? $ac->text->payMultiselect : __('Payment dropdown list','easy-form-builder'),
 			"errorCode" => $state  &&  isset($ac->text->errorCode) ? $ac->text->errorCode : __('Error Code','easy-form-builder'),
 			"stripeKeys" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('Stripe Keys','easy-form-builder'),
@@ -506,6 +506,7 @@ class efbFunction {
 			"xxsmall" => $state  &&  isset($ac->text->xxsmall) ? $ac->text->xxsmall : __('XXSmall','easy-form-builder'),
 			"createPaymentForm" => $state  &&  isset($ac->text->createPaymentForm) ? $ac->text->createPaymentForm : __('Create a payment form.','easy-form-builder'),
 			"pro" => $state  &&  isset($ac->text->pro) ? $ac->text->pro : __('Pro','easy-form-builder'),
+			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

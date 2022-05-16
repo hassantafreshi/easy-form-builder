@@ -56,7 +56,7 @@ function creator_form_builder_Efb() {
     
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
-      button_single_text: efb_var.text.send, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
+      button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
@@ -91,6 +91,7 @@ function creator_form_builder_Efb() {
     </div>
     `
   }
+  
   let navs = [
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
     { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
@@ -1631,9 +1632,10 @@ const isNumericEfb=(value)=>  {return /^\d+$/.test(value);}
 const open_whiteStudio_efb = (state) => {
   
   let link = `https://whitestudio.team/`
+  const gits = `https://github.com/hassantafreshi/easy-form-builder/wiki`;
   switch (state) {
     case 'mapErorr':
-      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
+      link = `${gits}/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
@@ -1641,23 +1643,20 @@ const open_whiteStudio_efb = (state) => {
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
-      // چگونه فرم را  منتشر کنیم
-      // how create and publish form
       break;
     case 'emptyStep':
-      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Create-a-form-on-Easy-Form-Builder#empty-step-alert`
-      // پیام استپ خالی چیست و چگونه برطرف شود
+      link = `${gits}/How-to-Create-a-form-on-Easy-Form-Builder#empty-step-alert`
       break;
     case 'notInput':
       link += `?notInputExists`
-      // پیام ورودی وجود ندارد چیست و چگونه برطرف شود
       break;
     case 'pickupByUser':
-      link = `https://github.com/hassantafreshi/easy-form-builder/wiki/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
-      // pickup location by user
-      // چگونگی تنظیم انتخاب لوکیشن توسط کاربر و تعدادش
-      // در پنجره تنظیمات نقشه
+      link = `${gits}/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
       break;
+    case 'paymentform':
+      link = `${gits}/How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
+      break;
+
 
   }
   window.open(link, "_blank")
