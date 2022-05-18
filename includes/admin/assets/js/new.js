@@ -54,7 +54,7 @@ function creator_form_builder_Efb() {
     step_el_efb = 1;
     
     valj_efb.push({
-      type: form_type_emsFormBuilder, steps: 1, formNameEfb: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
+      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
@@ -1831,6 +1831,7 @@ const saveFormEfb = () => {
    
     myModal.show();
   } catch(error) {
+    console.log(error);
     btnIcon ='bi-bug'
     body =`
     <div class="pro-version-efb-modal efb"></div>
@@ -3355,7 +3356,7 @@ fun_add_stripe_efb=()=>{
       btnStripeEfb.addEventListener('click', ()=>{
         btnStripeEfb.classList.add('disabled');
           btnStripeEfb.innerHTML=efb_var.text.pleaseWaiting;
-          console.log('click');
+          //console.log('click');
           //console.log(ajax_object_efm.ajax_url);
           const v = fun_pay_valid_price();
           //console.log(v)
