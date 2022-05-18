@@ -3349,16 +3349,19 @@ fun_add_stripe_efb=()=>{
       })
       
       btnStripeEfb.addEventListener('click', ()=>{
+        btnStripeEfb.classList.add('disabled');
           btnStripeEfb.innerHTML=efb_var.text.pleaseWaiting;
+          console.log('click');
           //console.log(ajax_object_efm.ajax_url);
           const v = fun_pay_valid_price();
           //console.log(v)
           if(v==false){
             noti_message_efb(efb_var.text.error,efb_var.text.emptyCartM,10,'warning')      
-            btnStripeEfb.innerHTML=efb_var.text.payNow
+            btnStripeEfb.innerHTML=efb_var.text.
+            btnStripeEfb.classList.remove('disabled');
             return false;
           }else{
-            btnStripeEfb.classList.add('disabled');
+           // btnStripeEfb.classList.add('disabled');
             jQuery(function ($) {
               data = {
                 action: "pay_stripe_sub_efb",
@@ -3395,7 +3398,7 @@ fun_add_stripe_efb=()=>{
                                  grecaptcha.getResponse().length>2) || valueJson_ws[0].captcha==false)) document.getElementById(id).classList.remove('disabled')
                               fun_disabled_all_pay_efb()
                               efb_var.id.id = res.data.uid
-                              console.log(res.data ,efb_var.id.id);
+                              //console.log(res.data ,efb_var.id.id);
                               stsStripeEfb.innerHTML = `
                               <h3 class="efb text-darkb p-0 m-0 mt-1 text-center"><i class="bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
                               <p class="efb text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>

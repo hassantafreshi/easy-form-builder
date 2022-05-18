@@ -500,7 +500,7 @@ class _Public {
 						case "form":						
 							$this->get_ip_address();
 							$ip = $this->ip;
-							$check=	$this->insert_message_db();
+							$check=	$this->insert_message_db(0);
 							if(!empty($r)){
 								
 								//$setting =json_decode($r->setting);	
@@ -665,7 +665,7 @@ class _Public {
 								
 									$this->get_ip_address();
 									//$ip = $this->ip;
-									$check=	$this->insert_message_db();
+									$check=	$this->insert_message_db(0);
 									$state= get_user_by( 'email', $email);
 									if(gettype($state)=="object"){
 										$to = $email;								
@@ -796,7 +796,7 @@ class _Public {
 							//error_log('subscribe2');
 							$this->get_ip_address();
 							//$ip = $this->ip;
-							$check=	$this->insert_message_db();
+							$check=	$this->insert_message_db(0);
 			
 							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
@@ -820,7 +820,7 @@ class _Public {
 						case "survey":
 							$this->get_ip_address();
 							//$ip = $this->ip;
-							$check=	$this->insert_message_db();
+							$check=	$this->insert_message_db(0);
 			
 							//$r= $this->get_setting_Emsfb('setting');
 							if(!empty($r)){
