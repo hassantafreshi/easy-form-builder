@@ -1016,7 +1016,10 @@ opacity: 1;
 border-radius: 0!important;
 }
 
-
+.efb.fs-9 {
+    font-size: 12px;
+    
+}
 /* font size of label */
 .efb.fs-8 {
 font-size: 17px;

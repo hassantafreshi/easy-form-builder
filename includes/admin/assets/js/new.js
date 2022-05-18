@@ -1180,8 +1180,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
       <div class="efb col-md-12 col-sm-12 stripe"  id='${rndm}-f'>
       <div class="stripe-bg mx-2 p-3 card efb w-100">
-      <div class="headpay efb border-b  row col-md-12">
-        <div class="h3 col-md-7">${efb_var.text.payAmount}: </div> 
+      <div class="headpay efb border-b row col-md-12 mb-3">
+        <div class="h3 col-md-7">
+          <div class="col-12 text-dark"> ${efb_var.text.payAmount}:</div>
+          <div class="efb text-labelEfb mx-2 my-1 fs-9"> <i class="mx-1 bi-shield-check"></i><span>Powered by Stripe</span></div>
+        </div> 
         <div class="h3  col-md-5 d-flex justify-content-end" id="payPriceEfb"> 
           <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> 
           <span class="currencyPayEfb" id="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span>
@@ -1190,22 +1193,23 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       </div>
       <div id="stripeCardSectionEfb" class="efb">
         <div class="col-md-12 my-2">
-        <label for="cardnoEfb" class="efb fs-8">${efb_var.text.cardNumber}: </label>
-        <div id="cardnoEfb" class="efb"></div>
+        <label for="cardnoEfb" class="efb fs-8 text-dark">${efb_var.text.cardNumber}: </label>
+        <div id="cardnoEfb" class="efb text-labelEfb"></div>
         </div>
         <div class="col-md-12 row my-2">
           <div class="col-md-6 my-2">     
-          <label for="cardexpEfb" class="efb fs-8">${efb_var.text.cardExpiry}: </label>
-          <div id="cardexpEfb" class="efb"></div>
+          <label for="cardexpEfb" class="efb fs-8 text-dark">${efb_var.text.cardExpiry}: </label>
+          <div id="cardexpEfb" class="efb text-labelEfb"></div>
           </div>
           <div class="col-md-6 my-2">
-          <label for="cardcvcEfb" class="efb fs-8">${efb_var.text.cardCVC}: </label>
-          <div id="cardcvcEfb" class="efb"></div>
+          <label for="cardcvcEfb" class="efb fs-8 text-dark">${efb_var.text.cardCVC}: </label>
+          <div id="cardcvcEfb" class="efb text-labelEfb"></div>
           </div>
         </div>
       </div>
       <a class="btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end disabled" id="btnStripeEfb">${efb_var.text.payNow}</a>
       <div class="efb bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
+     
       </div>
       </div>
       </div>
@@ -3357,7 +3361,7 @@ fun_add_stripe_efb=()=>{
           //console.log(v)
           if(v==false){
             noti_message_efb(efb_var.text.error,efb_var.text.emptyCartM,10,'warning')      
-            btnStripeEfb.innerHTML=efb_var.text.
+            btnStripeEfb.innerHTML=efb_var.text.payNow;
             btnStripeEfb.classList.remove('disabled');
             return false;
           }else{
