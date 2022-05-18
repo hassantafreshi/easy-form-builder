@@ -5,15 +5,13 @@ let sendBack_emsFormBuilder_pub = [];
 let sessionPub_emsFormBuilder = "reciveFromClient"
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
-let language_emsFormBuilder = "ar"
 let multiSelectElemnets_emsFormBuilder = [];
-let check_call_emsFormBuilder = 1
-let formName = ""
+let formNameEfb = ""
 let files_emsFormBuilder = [];
-let trackingCode_state_emsFormBuilder = ""
+//let trackingCode_state_emsFormBuilder = ""
 let recaptcha_emsFormBuilder = '';
 let poster_emsFormBuilder = '';
-let pro_w_emsFormBuilder = false;
+//let pro_w_emsFormBuilder = false;
 const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
@@ -40,7 +38,7 @@ setTimeout(() => {
   
           if (ajax_value[0].captcha == true){ sitekye_emsFormBuilder = vs.siteKey;
           }else{ sitekye_emsFormBuilder="";}
-          trackingCode_state_emsFormBuilder = vs.trackingCode;
+          //trackingCode_state_emsFormBuilder = vs.trackingCode;
         } else {
           //   console.log(ajax_object_efm)
           form_type_emsFormBuilder = ajax_object_efm.type;
@@ -97,7 +95,7 @@ function fun_render_view(val, check) {
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valj_efb = valueJson_ws
-  formName = valj_efb[0].formName;
+  formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');
 
@@ -636,18 +634,20 @@ function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
  recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
-
+ //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
   jQuery(function ($) {
 
     data = {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
-      name: formName,
+      name: formNameEfb,
       id: efb_var.id.id,
       valid: recaptcha_emsFormBuilder,
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce
-    };    
+    };  
+    
+    ///if(form_type_emsFormBuilder=="payment") data.concat(uid:)
     $.ajax({
       type: "POST",
       async: false,
@@ -884,7 +884,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           data = {
             action: "get_track_Emsfb",
             value: el,
-            name: formName,
+            name: formNameEfb,
             valid: recaptcha_emsFormBuilder,
             nonce: ajax_object_efm.nonce,
           };
@@ -1180,7 +1180,7 @@ function emsFormBuilder_logout() {
   document.getElementById('body_efb').innerHTML = loading_messge_efb();
 
   form_type_emsFormBuilder = "logout";
-  formName = "logout";
+  formNameEfb = "logout";
   ajax_object_efm.type = "logout";
   sendBack_emsFormBuilder_pub = { logout: true };
   recaptcha_emsFormBuilder = '';
@@ -1211,7 +1211,7 @@ function Show_recovery_pass_efb() {
     const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;  
     el.addEventListener("click", (e) => {
       form_type_emsFormBuilder = "recovery";
-      formName = form_type_emsFormBuilder;
+      formNameEfb = form_type_emsFormBuilder;
       sendBack_emsFormBuilder_pub = { email: us.value };    
       document.getElementById('efb-final-step').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
       actionSendData_emsFormBuilder()
@@ -1254,7 +1254,7 @@ function response_fill_form_efb(res) {
 
           location.reload();
         } else {
-          pro_w_emsFormBuilder = res.data.m.pro;
+          //pro_w_emsFormBuilder = res.data.m.pro;
           document.getElementById('efb-final-step').innerHTML = `<h3 class='emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="jump bi-exclamation-triangle-fill  text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
            </br>
            <a href="#" id="btn_Show_recovery_efb" class="  emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
@@ -1337,6 +1337,7 @@ function loadCaptcha_efb() {
       this.loadCaptcha_efb();
     }, 500);
   } else {
+    //
     if (valj_efb[0].steps == 1) { document.getElementById('btn_send_efb').classList.toggle('disabled'); }
     grecaptcha.render('gRecaptcha', {
       'sitekey': sitekye_emsFormBuilder

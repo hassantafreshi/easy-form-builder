@@ -19,6 +19,7 @@ class _Public {
 	public $ip;
 	public $name;
 	protected $db;
+	
 	//private $wpdb;
 	
 	public function __construct() {
@@ -26,6 +27,7 @@ class _Public {
 
 		global $wpdb;
 		$this->db = $wpdb;
+		//global $wp_session;
 		// stripe
 		// اگر پرو بود و مقدار پیمنت  ترو بود اضافه شود
 		//
@@ -60,7 +62,7 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		
 		$efbFunction = new efbFunction();  
-		$text= ["errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
+		$text= ["error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
 		$this->lanText= $efbFunction->text_efb($text);
 
 
@@ -113,14 +115,14 @@ class _Public {
 			
 		}
 		$paymentType="";
-		error_log($typeOfForm);
+		//error_log($typeOfForm);
 		
 		if($typeOfForm=="payment"){
 			//,\"type\":\"stripe\",
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
 		
 		}
-		error_log($paymentType);
+		//error_log($paymentType);
 		$r= $this->get_setting_Emsfb('setting');
 		$paymentKey="null";
 		if(gettype($r)=="object"){
@@ -144,7 +146,7 @@ class _Public {
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 		$send=array();				
 		//translate v2
-		$showform =["proVersion","errorCode","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
+		$showform =["onetime","proVersion","errorCode","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
 		$text= $efbFunction->text_efb($showform);
 				
 				
@@ -396,28 +398,38 @@ class _Public {
 		$r= $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
-		//error_log($type);
+		error_log('type');
+		error_log($type);
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		$fs =str_replace('\\', '', $this->value[0]->form_structer);
+		$fs = isset($this->value[0]) ? str_replace('\\', '', $this->value[0]->form_structer) :'';
 		//error_log($fs);
-		$formObj= json_decode($fs,true);
-		$email_fa = $formObj[0]["email"];
-		$trackingCode = $formObj[0]["trackingCode"];
-		$send_email_to_user_state =$formObj[0]["sendEmail"];
-		$email_user="null";
-		$check;
-		$not_captcha=$formObj[0]["captcha"];
+
+		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
+		
+		if($fs!='' && $type!="payment"){
+			$formObj=  json_decode($fs,true);
+			$email_fa = $formObj[0]["email"];
+			$trackingCode = $formObj[0]["trackingCode"];
+			$send_email_to_user_state =$formObj[0]["sendEmail"];
+			$email_user="null";
+			$not_captcha=$formObj[0]["captcha"];
+		}else if ($fs=='' && $type!="payment"){
+			$m = "Error 404 ";
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response,$_POST);
+		}
+	
 	
 
 		
 		if(true){
 			
 			$captcha_success="null";
-			if(gettype($r)=="object"){
+			if(gettype($r)=="object" && $fs!=''){
 				$setting =str_replace('\\', '', $r->setting);
 				$setting =json_decode($setting);
 				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
@@ -433,7 +445,7 @@ class _Public {
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				//error_log(json_encode($args));
+				error_log(json_encode($formObj));
 				if($formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
 					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
@@ -520,48 +532,84 @@ class _Public {
 							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
 							wp_send_json_success($response,$_POST);
 						break;
-						case "payment":						
+						case "payment":	
+						
 							$this->get_ip_address();
 							$ip = $this->ip;
-							if(!session_id()) {session_start();}
-							$vv =($_SESSION['val_efb']);
-							//error_log('vv');
-							//error_log($vv);
-							$vv_ =str_replace('\\', '', $vv);
-							//error_log($vv_);
-							$vv = json_decode($vv_,true);
-							//error_log(gettype($vv));
+							$id = $this->id;
+							$table_name = $this->db->prefix . "Emsfb_msg_";
+							$currentDateTime = date('Y-m-d H');
+							$vv;
+							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name` WHERE track = '$id' AND read_=2 " );	
+							if($value!=null){
+								$vv=$value[0]->content;
+								$vv_ =str_replace('\\', '', $vv);
+								$vv = json_decode($vv_,true);
+								$fs =str_replace('\\', '', $this->value);
+								$valobj = json_decode($fs , true);
+								$filtered = array_filter($valobj, function($item) use ($vv) { 
+									if(strpos($item['type'], 'pay')===false){return $item;}					
+								});
+								$form_id = $value[0]->form_id;
+								$table_name = $this->db->prefix . "Emsfb_form";
+								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 							
-							$filtered = array_filter($valobj, function($item) use ($vv) { 
-										if(isset($item['price'])==false)	return $item; 								
-							});
-							//error_log('filted');
-							//error_log(json_encode($filtered));
-							$valobj=array_merge($filtered , $vv);							
-							$vv=json_encode($valobj);
-							$vv=str_replace('"', '\\"', $vv);
-							$this->value = sanitize_text_field($_POST['value']);
-							$check=	$this->insert_message_db();
-							if(!empty($r)){
 								
-								//$setting =json_decode($r->setting);	
-													
-								if (isset($setting) && strlen($setting->emailSupporter)>2){
-								//error_log($setting->emailSupporter);
-									$email = $setting->emailSupporter;
+								$fs = isset($fs[0]->form_structer) ? str_replace('\\', '', $fs[0]->form_structer) :'';
+								if($fs==''){
+									$response = array( 'success' => false  ,'m'=>'Error 406'); 
+									wp_send_json_success($response,$_POST);
+									die();
 								}
-								
-								$this->send_email_Emsfb($email,$check,$pro,"newMessage");
-								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
-									if($trackingCode=="true"||$trackingCode=="true")
-									{
+								/* error_log("table");
+								error_log($fs) */;
+								$fs = json_decode ($fs,true);
+								$valobj =[] ;
+								foreach ($fs as $f){
+								$it= array_filter($filtered, function($item) use ($f) { 							
+									if(isset($f['id_']) && isset($item['id_']) && $f['id_']==$item['id_'] && $f['name']==$item['name']   ) {         
+										return $item;
+									}
+								});
+								$valobj =   empty($valobj) ? $it : array_merge((array)$valobj,$it);
+								}
 
-									$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
-									}else{
-									 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
+
+								
+									$fs=json_encode($valobj);
+									$filtered = array_unique(array_merge($valobj,$vv), SORT_REGULAR);
+									$fs=json_encode($filtered);					
+								$fs=str_replace('"', '\\"', $fs);
+								$this->value = sanitize_text_field($fs);
+								$this->get_ip_address();					
+								$check=$this->update_message_db();								
+								//$check=	$this->insert_message_db();
+								if(!empty($r)){
+									
+									//$setting =json_decode($r->setting);	
+														
+									if (isset($setting) && strlen($setting->emailSupporter)>2){
+									//error_log($setting->emailSupporter);
+										$email = $setting->emailSupporter;
+									}
+									
+									$this->send_email_Emsfb($email,$check,$pro,"newMessage");
+									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
+										if($trackingCode=="true"||$trackingCode=="true")
+										{
+	
+										$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
+										}else{
+										 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
+										}
 									}
 								}
+							}else{
+								$response = array( 'success' => false  ,'m'=>'Error 405'); 
+								wp_send_json_success($response,$_POST);
+								die();
 							}
+							
 		
 					
 							if(strlen($email_fa)>4){
@@ -569,10 +617,11 @@ class _Public {
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 					 
-			
-							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
+							$m = "Error 500 ";
+							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$this->id  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
 							wp_send_json_success($response,$_POST);
-							unset($_SESSION["val_efb"]);
+							
+							//unset($_SESSION["val_efb"]);
 						break;
 						case "register":
 							//error_log("register");
@@ -915,21 +964,34 @@ class _Public {
 
 
 
-	public function insert_message_db(){
+	public function insert_message_db($read){
 		//error_log($this->value);
+		if(isset($read)==false) $read=0;
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
+		error_log($this->name);
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
 			'form_id' => $this->id, 
 			'track' => $uniqid, 
 			'ip' => $this->ip, 
-			'read_' => 0, 
+			'read_' => $read, 
 			
 		));    return $uniqid; 
 	  		
 	}//end function
+
+
+	public function update_message_db(){
+		//error_log($this->id);
+		$table_name = $this->db->prefix . "Emsfb_msg_";
+		//error_log($this->ip);
+
+		return $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0 ,  'ip'=>$this->ip ), array( 'track' => $this->id ) );
+		//, '%d' ,'%s'
+		//,'read_' =>0  , 'ip'=>$this->ip
+	}
 
 	public function get_ip_address(){
 			if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
@@ -1301,28 +1363,27 @@ class _Public {
 				'description' =>$description,
 			];
 			if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}        
-			$paymentIntent = $stripe->paymentIntents->create($newPay);
-			
-			
-
-			if(!session_id()) {session_start();}
-			//$val_
+			$paymentIntent = $stripe->paymentIntents->create($newPay);		
 			$filtered = array_filter($val_, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
-
 			$amount = $paymentIntent->amount/100;
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
 			$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+		
 			$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
 				   'value'=> $val, 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
-			       'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency];
-			//$filtered=array_merge($filtered , array($ar)); 
-			array_push($filtered,$ar);
-			$val_ = json_encode($filtered);
-			$_SESSION['val_efb'] = sanitize_text_field($val_);
-			//error_log($_SESSION['val_efb']);
-			$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret);		
+			       'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'];
+			$filtered=array_merge($filtered , array($ar)); 		
+			//array_push($filtered,$ar);
+			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+			$this->get_ip_address();
+			$this->value = str_replace('"', '\\"', $val_);
+			//error_log($this->value );
+			$this->name = sanitize_text_field($_POST['name']);
+			$check=	$this->insert_message_db(2);
+			//error_log(	$this->name);
+			$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret , 'uid'=>$check);		
 			wp_send_json_success($response, $_POST);
 
 		}else{

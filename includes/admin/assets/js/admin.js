@@ -4,18 +4,11 @@
 // WhiteStudio.team
 
 let  state_check_ws_p = 1;
-var currentTab_ws = 0;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
-let tabActive_ws = -1;
 let pro_ws = false;
-let stepMax_ws = 1 
-let edit_emsFormBuilder = false;
-let formName_ws = `EasyFormBuilder-${Math.random().toString(36).substr(2, 3)}`;
 let form_ID_emsFormBuilder =0;
-let highestAmount_emsFormBuilder;
 let form_type_emsFormBuilder='form';
-let stepNames_ws = [efb_var.text.define, efb_var.text.stepTitles, "null"];
 if (localStorage.getItem("valueJson_ws_p"))localStorage.removeItem('valueJson_ws_p');
 
 

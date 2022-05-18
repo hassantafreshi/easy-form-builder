@@ -9,7 +9,6 @@ let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
 let steps_index_efb = [] // hold index of steps
 let valj_efb = []; 
-//let pro_efb = false
 let maps_efb = [];
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
@@ -20,7 +19,7 @@ let canvas_id_efb = "";
 let fileEfb;
 let formName_Efb ;
 let current_s_efb =1
-let verifyCaptcha_efb =""
+//let verifyCaptcha_efb =""
 let devlop_efb=false;
 let preview_efb=false;
 const mobile_view_efb =  document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 :0;
@@ -55,7 +54,7 @@ function creator_form_builder_Efb() {
     step_el_efb = 1;
     
     valj_efb.push({
-      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
+      type: form_type_emsFormBuilder, steps: 1, formNameEfb: efb_var.text.form, email: '', trackingCode:true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text:  efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
@@ -1182,7 +1181,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb col-md-12 col-sm-12 stripe"  id='${rndm}-f'>
       <div class="stripe-bg mx-2 p-3 card efb w-100">
       <div class="headpay efb border-b  row col-md-12">
-        <div class="h3 col-md-8">${efb_var.text.payAmount}: </div> <div class="h3  col-md-4 d-flex justify-content-end" id="payPriceEfb"> <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> <span class="currencyPayEfb" id="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span></div>
+        <div class="h3 col-md-7">${efb_var.text.payAmount}: </div> 
+        <div class="h3  col-md-5 d-flex justify-content-end" id="payPriceEfb"> 
+          <span  class="totalpayEfb d-flex justify-content-evenly mx-1">0</span> 
+          <span class="currencyPayEfb" id="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span>
+          <span class="text-labelEfb" id="chargeEfb">${efb_var.text.onetime}</span>
+        </div>
       </div>
       <div id="stripeCardSectionEfb" class="efb">
         <div class="col-md-12 my-2">
@@ -1795,6 +1799,12 @@ const saveFormEfb = () => {
       btnText = efb_var.text.help
       btnFun = `open_whiteStudio_efb('paymentform')`
       message = efb_var.text.addPaymentGetway;
+      icon = 'bi-exclamation-triangle'
+      returnState=true;
+    }else if( valj_efb[0].type=="payment" &&  valj_efb[0].captcha==true){
+      btnText = efb_var.text.help
+      btnFun = `open_whiteStudio_efb('paymentform')`
+      message = efb_var.text.paymentNcaptcha;
       icon = 'bi-exclamation-triangle'
       returnState=true;
     }
@@ -2547,8 +2557,9 @@ function handle_navbtn_efb(steps, device) {
           jQuery("#next_efb").html(val);        
         }
         //next_efb
-        //disabled
-        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb && preview_efb!=true ){jQuery("#next_efb").addClass('disabled');}
+        //disabled      
+      
+        if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step ==current_s_efb && preview_efb!=true  ){jQuery("#next_efb").addClass('disabled');}
 
       }},200)
       if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
@@ -2568,7 +2579,8 @@ function handle_navbtn_efb(steps, device) {
         if(sitekye_emsFormBuilder.length>1 && valj_efb[0]==true )   jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s ){jQuery("#next_efb").removeClass('disabled');}
+      console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
+      if(valj_efb[0].type=="payment" && valj_efb[valj_efb.findIndex(x=>x.type=="stripe")].step !=current_s  ){jQuery("#next_efb").removeClass('disabled');}
       prev_s_efb = current_s.prev();
       jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
       jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
@@ -3080,7 +3092,7 @@ function fun_prev_send(){
 
 function verifyCaptcha(token){
   if(token.length>1){
-    verifyCaptcha_efb=token;
+    //verifyCaptcha_efb=token;
     const id = valj_efb[0].steps >1 ? 'next_efb' :'btn_send_efb'
     document.getElementById(id).classList.remove('disabled');
     setTimeout(()=>{timeOutCaptcha()},61000)   
@@ -3351,7 +3363,7 @@ fun_add_stripe_efb=()=>{
               data = {
                 action: "pay_stripe_sub_efb",
                 value: JSON.stringify(sendBack_emsFormBuilder_pub),
-                name: formName,
+                name: formNameEfb,
                 id : efb_var.id.id,
                 nonce: ajax_object_efm.nonce,
               };
@@ -3379,29 +3391,18 @@ fun_add_stripe_efb=()=>{
                           else{
                               const id =valj_efb[0].steps==1 ? 'btn_send_efb' :'next_efb';
                               //console.log(id);
-                              document.getElementById(id).classList.remove('disabled')
+                              if(( (valueJson_ws[0].captcha==true && sitekye_emsFormBuilder.length>1 &&
+                                 grecaptcha.getResponse().length>2) || valueJson_ws[0].captcha==false)) document.getElementById(id).classList.remove('disabled')
                               fun_disabled_all_pay_efb()
+                              efb_var.id.id = res.data.uid
+                              console.log(res.data ,efb_var.id.id);
                               stsStripeEfb.innerHTML = `
                               <h3 class="efb text-darkb p-0 m-0 mt-1 text-center"><i class="bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
                               <p class="efb text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>
                               <p class="efb text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${transStat.paymentIntent.id}</p>
                               <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.payAmount}</b> : ${transStat.paymentIntent.amount/100} ${transStat.paymentIntent.currency.toUpperCase()}</p><br>
                               `
-                              /* 
-                                amount: 0,
-                                id_: "payment",
-                                name: "Payment",
-                                paymentAmount: transStat.paymentIntent.amount,
-                                paymentCreated: transStat.paymentIntent.created,
-                                paymentGateway: "stripe",
-                                paymentIntent: transStat.paymentIntent.id,
-                                paymentcurrency: transStat.paymentIntent.currency,
-                                payment_method: transStat.paymentIntent.payment_method,
-                                type: "payment",
-                                value: `${transStat.paymentIntent.amount} ${transStat.paymentIntent.currency}`
-                                                              
-                              */
-                             //console.log(transStat.paymentIntent)
+             
                               let o = [{ amount: 0,
                                   id_: "payment",
                                   name: "Payment",
@@ -3623,10 +3624,13 @@ let change_el_edit_Efb = (el) => {
         break;
       case "captchaEl":
        
-        if(efb_var.captcha=="true"){
+        if(efb_var.captcha=="true" &&  valj_efb[0].type!="payment" ){
           valj_efb[0].captcha = el.checked
           el.checked==true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
+        }else if(valj_efb[0].type=="payment"){
+          document.getElementById("captchaEl").checked = false;
+          noti_message_efb(efb_var.text.reCAPTCHA,efb_var.text.paymentNcaptcha,20,"danger")
         }else{
          // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;

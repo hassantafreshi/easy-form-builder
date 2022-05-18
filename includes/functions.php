@@ -402,6 +402,7 @@ class efbFunction {
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : __('You have received New Message', 'easy-form-builder'),
 			"formNExist" => $state ? $ac->text->formNExist : __('Form does not exist !!','easy-form-builder'),
 			"error403" => $state ? $ac->text->error403 : __('Security Error 403','easy-form-builder'),
+			"error400" => $state ? $ac->text->error403 : __('Security Error 400','easy-form-builder'),
 			"formPrivateM" => $state ? $ac->text->formPrivateM : __('Form is Private, Please Login.','easy-form-builder'),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : __('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys','easy-form-builder'),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : __('Error, Captcha problem!','easy-form-builder'),
@@ -472,7 +473,7 @@ class efbFunction {
 			"currency" => $state  &&  isset($ac->text->currency) ? $ac->text->currency : __('Currency','easy-form-builder'),
 			"recurringPayment" => $state  &&  isset($ac->text->recurringPayment) ? $ac->text->recurringPayment : __('Recurring payment','easy-form-builder'),
 			"subscriptionBilling" => $state  &&  isset($ac->text->subscriptionBilling) ? $ac->text->subscriptionBilling : __('Subscription billing','easy-form-builder'),
-			"onetime" => $state  &&  isset($ac->text->onetime) ? $ac->text->onetime : __('one-time','easy-form-builder'),
+			"onetime" => $state  &&  isset($ac->text->onetime) ? $ac->text->onetime : __('one time','easy-form-builder'),
 			"methodPayment" => $state  &&  isset($ac->text->methodPayment) ? $ac->text->methodPayment : __('Method payment','easy-form-builder'),
 			"heading" => $state  &&  isset($ac->text->heading) ? $ac->text->heading : __('Heading','easy-form-builder'),
 			"link" => $state  &&  isset($ac->text->link) ? $ac->text->link : __('Link','easy-form-builder'),
@@ -508,6 +509,7 @@ class efbFunction {
 			"pro" => $state  &&  isset($ac->text->pro) ? $ac->text->pro : __('Pro','easy-form-builder'),
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
+			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('You can not add reCAPTCHA on Payment form','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

@@ -4,14 +4,12 @@
 // WhiteStudio.team
 
 let exportView_emsFormBuilder = [];
-let stepsCount;
+let stepsCountEfb;
 let sendBack_emsFormBuilder = []; 
 let sessionPub_emsFormBuilder = "reciveFromServer"
 let stepNames_emsFormBuilder = [`t`, `Sync`, `Sync`];
 let currentTab_emsFormBuilder = 0;
-let language_emsFormBuilder ="ar"
 let multiSelectElemnets_emsFormBuilder =[] ;
-let check_call_emsFormBuilder = 1
 let valueJson_ws = [];
 let demo_emsFormBuilder=false;
 let validate_edit_mode_emsFormBuilder=false; 
@@ -370,7 +368,7 @@ function createStepsOfPublic() {
     return false;
   }
  
-  stepsCount = Number(valueJson_ws[0].steps);
+  stepsCountEfb = Number(valueJson_ws[0].steps);
   const addStep = document.getElementById("emsFormBuilder-addStep-view");
   const tabList = document.getElementById("emsFormBuilder-tabList-view");
   const tabInfo = document.getElementById("emsFormBuilder-tabInfo-view");
@@ -397,7 +395,7 @@ function createStepsOfPublic() {
     return a.amount- b.amount;
     })
   //add icons
-  for (let i = 1; i <= stepsCount; i++) {
+  for (let i = 1; i <= stepsCountEfb; i++) {
     tags = "";
     icon = 'icon-' + i;
     icon = valueJson_ws[0][icon] ? valueJson_ws[0]['icon-' + i] : 'fa fa-tachometer';

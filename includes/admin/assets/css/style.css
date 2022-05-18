@@ -2297,9 +2297,9 @@ div#sideBoxEfb {
  */
     #payPriceEfb {
         background: #ded7ec9c;
-        padding: 5px 12px;
+        padding: 6px 6px;
         color: #5f31bc;
-        border-radius: 20px!important;
+        border-radius: 10px!important;
         width: auto;
     
     }
@@ -2330,4 +2330,10 @@ div#sideBoxEfb {
 
     .pre-efb {
         flex-direction: unset!important;
+    }
+
+    span#chargeEfb {
+        width: 30%;
+        font-size: 12px;
+        margin: 0px 5px;
     }
