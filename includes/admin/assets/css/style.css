@@ -170,8 +170,8 @@ background: bottom;
 .btn-outline-light.efb {
 border: 2px solid #d2e0ff!important;
 border-radius: 20px!important;
-color: #7a96c0;
-transition: 0.5s;
+color: #7a96c0!important;
+transition: 0.5s!important;
 }
 .btn-outline-light.efb:hover {
 border: 2px solid #d2e0ff!important;
@@ -205,7 +205,7 @@ border-radius: 20px!important;
 }
 
 .modal-dialog.save-efb{
-max-width: 70%;
+max-width: 70%!important;
 } 
 
 
@@ -227,33 +227,37 @@ border-radius: 100px!important;
 transition: 0.5s;
 }
 .btn-primary.efb {
-background-color: #4636f1;
-background-image: linear-gradient(65deg,#4636f1 0,#6030b8 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
+    background-color: #4636f1!important;
+    background-image: linear-gradient(65deg,#4636f1 0,#6030b8 100%);
+    border: none!important;
+
+    transition: 0.5s!important;
+}
+
+.btn-r.efb {
+    border-radius: 100px!important;
 }
 .btn-primary.efb:hover {
-background-color: #6030b8;
-background-image: linear-gradient(65deg,#6030b8 0,#4636f1 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
+background-color: #6030b8!important;
+background-image: linear-gradient(65deg,#6030b8 0,#4636f1 100%)!important;
+border: none!important;
+
+transition: 0.5s!important;
 }
 .btn-danger.efb {
-background-color: #e91a26;
-background-image: linear-gradient(65deg,#e91a26 0,#ec5560 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
+background-color: #e91a26!important;
+background-image: linear-gradient(65deg,#e91a26 0,#ec5560 100%)!important;
+border: none!important;
+
+transition: 0.5s!important;
 }
 .btn-danger.efb:hover {
-background-color: #ec5560;
-background-image: linear-gradient(65deg,#ec5560 0,#e91a26 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
-color: white;
+background-color: #ec5560!important;
+background-image: linear-gradient(65deg,#ec5560 0,#e91a26 100%)!important;
+border: none!important;
+
+transition: 0.5s!important;
+color: white!important;
 }
 
 .btn-darkb.efb:hover {
@@ -261,7 +265,7 @@ color: white;
 background-color: #4757e7;
 background-image: linear-gradient(65deg,#4757e7 0,#202a8d 100%);
 border: none;
-border-radius: 100px;
+
 transition: 0.5s;
 color: white;
 }
@@ -275,7 +279,7 @@ color: white;
 background-color: #202a8d;
 background-image: linear-gradient(65deg,#202a8d 0,#4757e7 100%);
 border: none;
-border-radius: 100px;
+
 transition: 0.5s;
 }
 .btn-pinkEfb{
@@ -285,7 +289,7 @@ transition: 0.5s;
     background-color: #ce0051;
     background-image: linear-gradient(65deg,#ce0051 0,#ff4b93 100%);
     border: none;
-    border-radius: 100px;
+
     transition: 0.5s;
     color: white;
 }
@@ -298,19 +302,19 @@ transition: 0.5s;
     transition: 0.5s;
 }
 .btn-info.efb {
-background-color: #31d2f2;
-background-image: linear-gradient(65deg,#31d2f2 0,#a5fbff 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
+background-color: #31d2f2!important;
+background-image: linear-gradient(65deg,#31d2f2 0,#a5fbff 100%)!important;
+border: none!important;
+
+transition: 0.5s!important;
 }
 .btn-info.efb:hover {
-background-color: #a5fbff;
-background-image: linear-gradient(65deg,#a5fbff 0,#31d2f2 100%);
-border: none;
-border-radius: 100px;
-transition: 0.5s;
-color: black;
+background-color: #a5fbff!important;
+background-image: linear-gradient(65deg,#a5fbff 0,#31d2f2 100%)!important;
+border: none!important;
+
+transition: 0.5s!important;
+color: black!important;
 }
 .btn-warning.efb {
 background-color: #e9c31a;
@@ -420,19 +424,18 @@ border: 1px solid #bbc2d5;
 .form-control.efb textarea {
 
 }
-.search-form-control.efb {
+#track_code_emsFormBuilder {
 padding-left: 40px;
 }
 .search-icon.efb {
 position: relative;
-left: 30px;
-top: 5px;
+left: 45px;
+top: 10px;
 color: #a5a3d1;
 }
-.input-efb {
 
-color: #a5a3d1;
-}
+.efb.nav-icon {padding: 0.4rem;}
+.input-efb {color: #a5a3d1;}
 .input-efb:focus {
 box-shadow: 0px 2px 10px rgba(84, 131, 207, 0.25) !important;
 color: #a5a3d1 
@@ -611,11 +614,11 @@ color: #ff4b93 !important;
 font-size: 18px!important;
 }
 .efb.btn-edit-holder {
-float: right;
-margin-top: -40px;
-margin-left: 62%;
-position: relative;
-z-index: 10;
+    float: right;
+    margin-top: -40px!important;
+    margin-left: 62%!important;
+    position: relative;
+    z-index: 10;
 }
 
 .mobile .efb.btn-edit-holder{
@@ -637,12 +640,11 @@ position: relative;
 position: relative;
 }
 .efb.btn-edit {
-height: 30px;
-width: 30px;
-background-color: #f3f7ff;
-border-radius: 50%;
-font-size: 20px;
-padding: 0;
+    height: 30px;
+    width: 30px;
+    background-color: #f3f7ff!important;
+    border-radius: 50%!important;
+    padding: 0!important;
 }
 .efb.btn-edit:hover {
 background-color: #dfeaff;
@@ -694,11 +696,11 @@ color: #3fd18b!important;
 .efb.text-danger {
 color: #ff455f!important;
 }
-.efb.table-striped > tbody > tr:nth-of-type(2n+1) {
+.efb.table-striped > tbody > tr.efb:nth-of-type(2n+1) {
 --bs-table-accent-bg: #f7f8fc;
 color: #898aa9;
 }
-.efb.table-striped > tbody > tr:nth-of-type(2n) {
+.efb.table-striped > tbody > tr.efb:nth-of-type(2n) {
 --bs-table-accent-bg: white;
 color: #898aa9;
 }
@@ -822,7 +824,7 @@ width: 85%;
 
 
 div#dropZoneEFB {
-    padding-bottom: 15%;
+    padding-bottom: 25%;
 }
 .mobile div#dropZoneEFB {
     padding-bottom: 22%;
@@ -1027,7 +1029,7 @@ font-size: 17px;
 }
 .efb.fs-7 {
 /*  font-size: smaller; */
-font-size: 20px;
+font-size: 14px;
 }
 .efb.fs-6{
 font-size: 22px!important
@@ -2026,18 +2028,19 @@ input[type=checkbox].efb.fs-2.form-check-input
         font-size: medium!important;
     }
 
-    tr.efblist > th {  width: 4%;}
-
-    tr.efblist > th ,
+    tr.efblist > th.efb {  width: 4%!important;}
+    th.efb.bi-square { width: 4%;}
+    tr.efblist> th.efb ,
     .efb.ms {
         border: 0px;    
     }
+    tr.efb.list{ border-bottom-width: 1px; }
     .efb.efblist.searchIcon {
         position: absolute;
-        margin: 7px 10px;
+        margin: 1% 2%;
     }
     .efb.efblist.searchBox {
-        padding: 0px 40px;
+        padding: 4px 10px;
     }
 
     .efb.efblist.iconDD {
@@ -2162,6 +2165,7 @@ input[type=checkbox].efb.fs-2.form-check-input
 
 div#sideBoxEfb {
     height: 100vh;
+    position: fixed;
 }
 .mobile div#sideBoxEfb {
     height: 100vh;
@@ -2304,6 +2308,7 @@ div#sideBoxEfb {
         color: #5f31bc;
         border-radius: 10px!important;
         width: auto;
+        max-height: 2.7rem;
     
     }
     #btnStripeEfb{
@@ -2336,7 +2341,11 @@ div#sideBoxEfb {
     }
 
     span#chargeEfb {
-        width: 30%;
+        width: 25%;
         font-size: 12px;
         margin: 0px 5px;
+    }
+
+    #deleteOption.newop {
+        margin: 0px 10px;
     }

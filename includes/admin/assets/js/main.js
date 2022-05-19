@@ -105,9 +105,9 @@ function myFunction() {
     document.execCommand("copy");
 
     /* Alert the copied text */
-    document.getElementById('alert').innerHTML = '<div class="alert alert-info alert-dismissible mt-5" role="alert">\n' +
+    document.getElementById('alert').innerHTML = '<div class="efb alert alert-info alert-dismissible mt-5" role="alert">\n' +
         '<strong>Copied to Clipboard</strong>' +
-        '<button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>' +
+        '<button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>' +
         '</div>';
     setTimeout(function () {
         $('.alert').hide();

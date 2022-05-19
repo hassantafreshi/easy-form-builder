@@ -135,75 +135,75 @@ class Panel_edit  {
 
 		
 			?>
-			<!--sideMenu--> <div class="sideMenuFEfb efbDW-0" id="sideMenuFEfb">
-			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0"  id="sideBoxEfb">
-				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
+			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
+			<div class="efb  side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0"  id="sideBoxEfb">
+				<div class="efb  head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
-					<a class="BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="bi-x-lg" ></i></a>
+					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
 				</div>
-				<div class="efb mx-3 sideMenu" id="sideMenuConEfb"></div>
+				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
-			<div id="body_emsFormBuilder" class="m-2"> 
-				<div id="msg_emsFormBuilder" class="mx-2">
+			<div id="body_emsFormBuilder" class="efb m-2"> 
+				<div id="msg_emsFormBuilder" class="efb mx-2">
 			</div>
-			<div class="top_circle-efb-2"></div>
-			<div class="top_circle-efb-1"></div>
+
+			<div class="efb top_circle-efb-1"></div>
 			<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>" </script>
-				<nav class="navbar navbar-expand-lg navbar-light efb" id="navbar">
-					<div class="container">
-						<a class="navbar-brand efb" href="admin.php?page=Emsfb_create" >
-							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="logo efb">
+				<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
+					<div class="efb container">
+						<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
+							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
 							<?= __('Easy Form Builder','easy-form-builder') ?></a>
-						<button class="navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-							<span class="navbar-toggler-icon efb"></span>
+						<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="efb navbar-toggler-icon efb"></span>
 						</button>
-						<div class="collapse navbar-collapse" id="navbarSupportedContent">
-							<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="nav-item"><a class="nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
-								<li class="nav-item">
-									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
+						<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
+							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
+								<li class="efb nav-item"><a class="efb nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
 								</li>
-								<li class="nav-item">
-									<a class="nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
 								</li>
 							</ul>
-							<div class="d-flex">
-								<form class="d-flex">
-									<i class="efb bi-search search-icon"></i>
-									<input class="form-control efb search-form-control efb-rounded efb mx-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["entrTrkngNo"]  ?>">
-									<button class="btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></button>
+							<div class="efb d-flex">
+								<form class="efb d-flex">
+									<i class="efb  bi-search search-icon"></i>
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["trackNo"]  ?>">
+									<button class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></button>
 								</form>
-								<div class="nav-icon efb mx-2">
-									<a class="nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb bi-person"></i></a>
+								<div class="efb nav-icon efb mx-2">
+									<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
 								</div>
-								<div class="nav-icon efb">
-									<a class="nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb bi-gear"></i></a>
+								<div class="efb nav-icon efb">
+									<a class="efb nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb  bi-gear"></i></a>
 								</div>
 							</div>
 						</div>
 					</div>
 				</nav>
-				<div id="alert_efb" class="mx-5"></div>
+				<div id="alert_efb" class="efb mx-5"></div>
 				<!-- end  new nav  -->
-					<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
-						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
-							<div class="modal-content efb " id="settingModalEfb-sections">
-									<div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="modal-body row" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
+					<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="efb modal-content efb " id="settingModalEfb-sections">
+									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
 					</div></div></div>
 
-					<div class="row mb-2">					
-					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
+					<div class="efb row mb-2">					
+					<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
 					</div>
-					<div class="row" id ="content-efb">
-				 	<div class="card-body text-center my-5"><div class="lds-hourglass"></div> <h3 class="efb"><?=  $lang["loading"] ?></h3></div>
-					<!--  <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?=  $lang["loading"] ?></h2> -->
+					<div class="efb row" id ="content-efb">
+				 	<div class="efb card-body text-center my-5"><div class="efb lds-hourglass"></div> <h3 class="efb "><?=  $lang["loading"] ?></h3></div>
+					<!--  <h2 id="loading_message_emsFormBuilder" class="efb -color text-center m-5 center"><i class="efb fas fa-spinner fa-pulse"></i><?=  $lang["loading"] ?></h2> -->
 					</div>
-					<div class="mt-3 d-flex justify-content-center align-items-center ">
-					<button type="button" id="more_emsFormBuilder" class="efb btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="bi-chevron-double-down"></i></button>
+					<div class="efb mt-3 d-flex justify-content-center align-items-center ">
+					<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="efb bi-chevron-double-down"></i></button>
 					</div></div>
 					<datalist id="color_list_efb">
 						<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">

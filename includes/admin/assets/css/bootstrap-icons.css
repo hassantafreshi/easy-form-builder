@@ -17,7 +17,8 @@ url("./fonts/bootstrap-icons.woff?856008caa5eb66df68595e734e59580d") format("wof
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.bi-undefined   {content:"";}
+.bi-undefined::before   {content:"";}
 .bi-alarm-fill::before { content: "\f101"; }
 .bi-alarm::before { content: "\f102"; }
 .bi-align-bottom::before { content: "\f103"; }

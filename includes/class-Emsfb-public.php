@@ -97,7 +97,7 @@ class _Public {
 		}
 		$this->id = $id;
 		if($this->value==null){
-			return "<div id='body_efb' class='card-public row pb-3 efb'> <div class='text-center my-5'><div class='text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
 		}
 		$typeOfForm =$this->value[0]->form_type;
 		$value = $this->value[0]->form_structer;
@@ -225,25 +225,25 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }
-		 $efb_m ="<h6 class='text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
+		 $efb_m ="<h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
 	
 		 if($pro==true) $efb_m="";
 		 if($formObj[0]["stateForm"]==true){
 
 			
-			$content ="<div id='body_efb' class='card card-public row pb-3 efb'> <div class='text-center my-5'>
-			<div class='bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb text-center text-darkb fs-5'>". $this->lanText["formPrivateM"]."</h3>
+			$content ="<div id='body_efb' class='efb card card-public row pb-3 efb'> <div class='efb text-center my-5'>
+			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-5'>". $this->lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
 			</div> </div>";
 		 }else{
 
-			 $content="<div id='body_efb' class='card card-public row pb-3 efb'>
-			 <div class='text-center my-5'>
-			 <div class='lds-hourglass efb text-center my-2'></div><h3 class='efb text-center text-darkb fs-5'>".$this->lanText["pleaseWaiting"]."</h2>
+			 $content="<div id='body_efb' class='efb card card-public row pb-3 efb'>
+			 <div class='efb text-center my-5'>
+			 <div class='efb lds-hourglass efb text-center my-2'></div><h3 class='efb  text-center text-darkb fs-5'>".$this->lanText["pleaseWaiting"]."</h2>
 			 ".$efb_m."
 			 </div>
 			 
-			 </div><div id='alert_efb' class='mx-5'></div>
+			 </div><div id='alert_efb' class='efb mx-5'></div>
 			 <script>let sitekye_emsFormBuilder='".$k."'</script>";
 		 }
 
@@ -299,7 +299,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='mx-5'></div>";
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";
 		return $content; 
 
 	}

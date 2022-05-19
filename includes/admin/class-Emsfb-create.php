@@ -67,25 +67,25 @@ class Create {
 
 	public function render_settings() {
 	?>
-	<!--sideMenu--> <div class="sideMenuConEfb efbDW-0" id="sideMenuFEfb">
-				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0" id="sideBoxEfb">
-				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
+	<!--sideMenu--> <div class="efb sideMenuConEfb efbDW-0" id="sideMenuFEfb">
+				<div class="efb  side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0" id="sideBoxEfb">
+				<div class="efb  head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
-					<a class="BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="bi-x-lg" ></i></a>
+					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
 				</div>
-				<div class="efb mx-3 sideMenu" id="sideMenuConEfb"></div>
+				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
 			<script>		
 				let bdy =document.getElementsByTagName('body');
 				bdy[0].classList.add("bg-color");
 				const sitekye_emsFormBuilder= ""
 			</script>
-			<div id="alert_efb" class="mx-5"></div>
-			<div class="modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
-						<div class="modal-dialog modal-dialog-centered " id="settingModalEfb_" >
-							<div class="modal-content efb " id="settingModalEfb-sections">
-									<div class="modal-header efb"> <h5 class="modal-title efb" ><i class="bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="modal-body row" id="settingModalEfb-body"><div class="card-body text-center"><div class="lds-hourglass"></div><h3 class="efb"></h3></div></div>
+			<div id="alert_efb" class="efb mx-5"></div>
+			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="efb modal-content efb " id="settingModalEfb-sections">
+									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
 					</div></div></div>
             <div id="tab_container">
            

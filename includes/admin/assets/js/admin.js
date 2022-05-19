@@ -35,8 +35,8 @@ function saveLocalStorage_emsFormBuilder() {
 
 
 function alarm_emsFormBuilder(val) {
-  return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-    <div class="emsFormBuilder"><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
+  return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
+    <div class="efb emsFormBuilder"><i class="efb fas fa-exclamation-triangle faa-flash animated"></i></div>
     <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
@@ -78,33 +78,33 @@ function Link_emsFormBuilder(state) {
 
 function show_message_result_form_set_EFB(state ,m){ //V2
   const title =`
-  <h4 class="title-holder efb">
-     <img src="${efb_var.images.title}" class="title efb">
-     ${state!=0 ?`<i class="efb bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` :`<i class="efb bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}` }
+  <h4 class="efb title-holder efb">
+     <img src="${efb_var.images.title}" class="efb title efb">
+     ${state!=0 ?`<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` :`<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}` }
   </h4>
   `;
   let content =``
 if(state!=0){
   
-  content=` <h3 class="efb"><b>${efb_var.text.goodJob}</b> ${state==1 ? efb_var.text.formIsBuild :efb_var.text.formUpdatedDone}</h3>
-  <h5 class="mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
-  <input type="text" class="hide-input efb" value="${m}" id="trackingCodeEfb">
+  content=` <h3 class="efb "><b>${efb_var.text.goodJob}</b> ${state==1 ? efb_var.text.formIsBuild :efb_var.text.formUpdatedDone}</h3>
+  <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
+  <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   <div id="alert"></div>
-  <button type="button" class="btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
-      <i class="efb bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
+  <button type="button" class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
+      <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
   </button>
-  <button type="button" class="btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
-      <i class="efb bi-question mx-1"></i>${efb_var.text.help}
+  <button type="button" class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
+      <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
   </button>
-  <button type="button" class="btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
-      <i class="efb bi-x mx-1"></i>${efb_var.text.close}
+  <button type="button" class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
+      <i class="efb  bi-x mx-1"></i>${efb_var.text.close}
   </button>
   `
 }else {
-  content =`<h3 class="efb">${m}</h3>`
+  content =`<h3 class="efb ">${m}</h3>`
 }
   
-  document.getElementById('settingModalEfb-body').innerHTML=`<div class="card-body text-center efb">${title}${content}</div>`
+  document.getElementById('settingModalEfb-body').innerHTML=`<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
 console.info('Easy Form Builder > WhiteStudio.team');
@@ -204,14 +204,14 @@ function getOS_emsFormBuilder() {
 
 createCardFormEfb=(i)=>{
   //console.log(i,efb_var);
-  let prw = `<a class="float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
+  let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   if (i.id=="form" || i.id=="payment") prw="<!--not preview-->"
   return`
-  <div class="col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="card efb"><div class="card-body">
-  ${i.pro == true && efb_var.pro!=true ? `<div class="efb pro-card"><a type="button" onClick='pro_show_efb(1)' class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb bi-gem text-light"></i></a></div>` : ''}
-  <h5 class="card-title efb"><i class="efb ${i.icon} mx-1"></i>${i.title} </h5>
-  <div class="row" ><p class="card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
-  <button type="button" id="${i.id}" class="float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder efbCreateNewForm"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
+  <div class="efb  col ${efb_var.rtl==1 ? 'rtl-text' :''}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  ${i.pro == true && efb_var.pro!=true ? `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>` : ''}
+  <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
+  <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb? '' : 'fs-8'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
+  <button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
   ${prw}
   </div></div></div>`
 }
@@ -247,11 +247,11 @@ function add_dasboard_emsFormBuilder(){
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="title-holder efb"><img src="${efb_var.images.title}" class="title efb create"><i class="efb bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` :''}
-          <div class="d-flex justify-content-center ">
-            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class=" efb search-form-control efb-rounded efb mx-2"> <a class="btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl==1 ? "right_circle-efb" :"left_circle-efb"}"><h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` :''}
+          <div class="efb d-flex justify-content-center ">
+            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb  search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
           </div
-            <div class="row"><div class="row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb row"><div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
             </section>`
      
      
@@ -460,23 +460,23 @@ function head_introduce_efb(state){
   if ( state!="create"){
     cont =`
     
-                  <div class="clearfix"></div>                 
-                  <p class="card-text  ${state=="create" ?'card-text':'text-dark'} efb pb-3 ${mobile_view_efb? 'fs-8' :'fs-6'}">${text}</p>
+                  <div class="efb clearfix"></div>                 
+                  <p class="efb card-text  ${state=="create" ?'card-text':'text-dark'} efb pb-3 ${mobile_view_efb? 'fs-8' :'fs-6'}">${text}</p>
                   
-    <a class="btn efb btn-primary ${btnSize}" href="${link}"><i class="efb bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
-    <a class="btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
+    <a class="efb btn efb btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
+    <a class="efb btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
   }
-  return `<section id="header-efb" class="efb  ${state=="create" ?'':'card col-12 bg-color'}">
-  <div class="row ${mobile_view_efb? 'mx-2' :'mx-5'}">
-              <div class="col-lg-7 mt-2 pd-5 col-md-12">
-                  <img src="${efb_var.images.logo}" class="description-logo  ${mobile_view_efb? 'm-1' :''} efb">
-                  <h1 class="efb pointer-efb  ${mobile_view_efb? 'fs-6' :''}" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
-                  <h3 class="efb pointer-efb  ${state=="create" ?'card-text ':'text-darkb'} ${mobile_view_efb? 'fs-8' :'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
+  return `<section id="header-efb" class="efb   ${state=="create" ?'':'card col-12 bg-color'}">
+  <div class="efb row ${mobile_view_efb? 'mx-2' :'mx-5'}">
+              <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
+                  <img src="${efb_var.images.logo}" class="efb description-logo  ${mobile_view_efb? 'm-1' :''} efb">
+                  <h1 class="efb  pointer-efb mb-0 ${mobile_view_efb? 'fs-6' :''}" onClick="Link_emsFormBuilder('efb')" >${efb_var.text.easyFormBuilder}</h1>
+                  <h3 class="efb  pointer-efb  ${state=="create" ?'card-text ':'text-darkb'} ${mobile_view_efb? 'fs-8' :'fs-6'}" onClick="Link_emsFormBuilder('ws')" >${efb_var.text.byWhiteStudioTeam}</h3>
                   ${cont}
                  
               </div>
-              ${(state!="create" && mobile_view_efb ) ? `<div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>` :''}
-              ${(state!="create" && mobile_view_efb==false ) ? `<div class="col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="img-fluid"></div>` :''}  
+              ${(state!="create" && mobile_view_efb ) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` :''}
+              ${(state!="create" && mobile_view_efb==false ) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` :''}  
     </div>  
   </section> `
 }
@@ -575,9 +575,10 @@ function sideMenuEfb(s){
   let el= document.getElementById('sideBoxEfb');
   if(s==0){
       el.classList.remove('show');
-      document.getElementById('sideMenuConEfb').innerHTML=`<div class="my-5" id=""><div class="efb lds-hourglass"></div><h3 class="efb">${efb_var.text.pleaseWaiting}</h3></div>`
+      document.getElementById('sideMenuConEfb').innerHTML=`<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div>`
       document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
-      document.getElementById('sideBoxEfb').classList.add('efbDW-0');    
+      el.classList.add('efbDW-0');    
+     // jQuery("#sideBoxEfb").fadeIn('slow');
   }else{
     document.getElementById('sideBoxEfb').classList.remove('efbDW-0');
     document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');

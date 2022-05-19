@@ -12,10 +12,7 @@ body {
     padding-right: 40px!important;
 	padding-left:0px!important;
 }
-.bi-search.search-icon.efb {
-	right: 40px!important;
-	left: 0px!important;;
-}
+
 
 input[type=file] {
     padding: 3px 14px;

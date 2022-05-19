@@ -122,10 +122,8 @@ class Admin {
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
             wp_enqueue_style('Emsfb-style-css');
 
-
-
-            wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
-            wp_enqueue_style('Emsfb-bootstrap-css');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+            wp_enqueue_style('Emsfb-bootstrap');
 
             wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
@@ -173,7 +171,7 @@ class Admin {
       //  add_menu_page(__('Panel', 'Emsfb'),__('Panel', 'Emsfb'), 'Emsfb', '', '');
         add_menu_page(
             __('Panel', 'Emsfb'),
-            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
+            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
             
             'Emsfb',
             'Emsfb',

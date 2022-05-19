@@ -581,12 +581,12 @@ class efbFunction {
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);		
 		
-		$footer= "<a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> <br>
-		<a class='subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://plugins.svn.wordpress.org/easy-form-builder/assets/ws.png' style='margin:0px 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
-		$header = " <a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px; width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
+		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> <br>
+		<a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://plugins.svn.wordpress.org/easy-form-builder/assets/ws.png' style='margin:0px 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
+		$header = " <a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px; width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
 		if($pro!="not pro"){
-			$footer= "<a class='subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
-			$header = " <a class='subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
+			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
+			$header = " <a class='efb subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
 		}   
 		
 		$st = $this->get_setting_Emsfb();

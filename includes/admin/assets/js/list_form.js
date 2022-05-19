@@ -46,18 +46,18 @@ function fun_emsFormBuilder_render_view(x) {
   fun_backButton(2);
 
   function creatRow(i,newM){
-    return ` <tr class="pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
-   <th scope="row" class="emsFormBuilder-tr" data-id="${i.form_id}" >
+    return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
+   <th scope="row" class="efb emsFormBuilder-tr" data-id="${i.form_id}" >
      [EMS_Form_Builder id=${Number(i.form_id)}]  
    </th>
-   <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
-   <td class="emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
-   <td > 
-   <button type="button" class="efb btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb bi-trash"></i></button>
-   <button type="button" class="efb btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb bi-pencil"></i></button>
-   <button type="button" class="efb btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb bi-chat text-muted"></i>`}</button>
-   <input type="text"  class="efb d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
-   <button type="button" class=" d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
+   <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
+   <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
+   <td  class="efb emsFormBuilder-tr"  > 
+   <button type="button" class="efb  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
+   <button type="button" class="efb  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
+   <button type="button" class="efb  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
+   <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
+   <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
      onClick ="copyCodeEfb('${i.form_id}-fc')" 
      data-bs-toggle="tooltip" data-bs-placement="bottom"
      title="${efb_var.text.copy}">
@@ -86,20 +86,20 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="title-holder efb"> <img src="${efb_var.images.title}" class="title efb">
-                <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
+   <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+                <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
             </h4>
-    <div class="card efb">
-    <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
-        <thead>
-            <tr >
-            <th scope="col">${efb_var.text.formCode}</th>
-            <th scope="col">${efb_var.text.formName}</th>
-            <th scope="col">${efb_var.text.createDate}</th>
-            <th scope="col">${efb_var.text.edit}</th>
+    <div class="efb card efb">
+    <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
+        <thead class="efb">
+            <tr class="efb">
+            <th scope="col" class="efb">${efb_var.text.formCode}</th>
+            <th scope="col" class="efb">${efb_var.text.formName}</th>
+            <th scope="col" class="efb">${efb_var.text.createDate}</th>
+            <th scope="col" class="efb">${efb_var.text.edit}</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="efb">
         ${rows}
         </tbody>
     </table>
@@ -135,7 +135,7 @@ function emsFormBuilder_get_edit_form(id) {
 // نمایش پنجره پیغام حذف یک ردیف  فرم
 function emsFormBuilder_delete(id) {
   //v2
-  const body = `<div class="efb  mb-3"><div class="efb clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
@@ -171,20 +171,20 @@ function emsFormBuilder_show_content_message(id) {
     let r
     if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
       r = `   
-      <div class="mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
-        <label for="replayM_emsFormBuilder" class="form-label m-2">${efb_var.text.reply}:</label>
-        <textarea class=" efb form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
+      <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
+        <label for="replayM_emsFormBuilder" class="efb form-label m-2">${efb_var.text.reply}:</label>
+        <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
       </div>
-     <div class="col text-right row mx-1">
-     <button type="submit" class="btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb bi-reply mx-1"></i> ${efb_var.text.reply} </button>
-     <p class="mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder"></p>
+     <div class="efb col text-right row mx-1">
+     <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
+     <p class="efb mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder"></p>
      </div></div>`;
     } else {r = '<!-- comment --!>';}
     return r;
   }
 
   const body = `
-    <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
+    <div class="efb  modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
       ${m} 
      </div>
      ${replayM()}
@@ -251,13 +251,13 @@ function fun_emsFormBuilder_back() {
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 //response7788  
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
-  let m = `<Div class="bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-   <p class="small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
-   <p class="small mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
-  ${track != 0 ? `<p class="small mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-  <p class="small mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
+  let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
+   <p class="efb small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
+   <p class="efb small mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
+  ${track != 0 ? `<p class="efb small mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
+  <p class="efb small mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
   <hr>
-  <h6 class="efb text-dark my-2">${efb_var.text.response} </h6>`;
+  <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   let s= false;
@@ -271,9 +271,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
       console.log($name,c.type ,"URL", c.url);
       if (c.type == "Image" ||c.type == "image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail m-1">`
+        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
-        value = `</br><a class="btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${efb_var.text.download}</a>`
+        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${efb_var.text.download}</a>`
       } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -285,21 +285,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         if (media == "video") {
           const len = c.url.length;
           const type = c.url.slice((len - c.url.lastIndexOf(x=>x==".")), len);          
-          value = type !== 'avi' ? `</br><div class="px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
+          value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
         } else {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {        
-        value = c.url.length>1 ? `</br><a class="btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb fs-5">💤</span>`
+        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
       }
     }else if (c.type == "esign") {
       s=true;
-      value= `<img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
+      value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`
     }else if(c.type=="maps"){
      
       if(typeof(c.value)=="object"){
         s=true;
-        value = `<div id="${c.id_}-map" data-type="maps" class="efb maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
         marker_maps_efb= c.value;
         initMap();
@@ -307,16 +307,16 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
     }else if(c.type=="rating"){
       s=true;
-      value=`<div class='fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
+      value=`<div class='efb fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
       for(let i=0 ; i<parseInt(c.value) ; i++){
-        value += `<i class="bi bi-star-fill"></i>`
+        value += `<i class="efb bi bi-star-fill"></i>`
       }
       value+="</div>";
     }
     if (c.id_ == 'passwordRegisterEFB') value = '**********';
-    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="my-0">${c.name}: <span class="mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="mb-1"> ${c.paymentIntent}</span></p>`
+    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
   }
   m += '</div>';  
   return m;
@@ -350,14 +350,14 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 
   const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');  
-  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
+  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
   const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];  
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length < 1 || isHTML(message)) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
@@ -377,61 +377,61 @@ function fun_ws_show_list_messages(value) {
   let iconRead = 'bi-envelope-open';
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
   if (form_type_emsFormBuilder == 'subscribe') {
-    head = `<div ><button class="efb btn efb btn-primary text-white mt-2" onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb bi-download mx-2""></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div ><button class="efb  btn efb btn-primary text-white mt-2" onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2""></i>${efb_var.text.downloadCSVFile}</button ></div>`;
     iconRead = 'bi-person';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'register') {
     const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
-    head = `<div > <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
     iconRead = 'bi-person ';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'survey') {    
     const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
     head = `<div >
-    <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
-    <button  class="efb btn efb btn-primary text-white mt-2"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" >  <i class="efb bi-bar-chart-line mx-2"></i>${efb_var.text.chart}</button >
+    <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
+    <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" >  <i class="efb  bi-bar-chart-line mx-2"></i>${efb_var.text.chart}</button >
     </div>`;
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
   }else if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment'){
     const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
-    head = `<div > <button  class="efb btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
   }  
   if (value.length > 0) {
     for (const v of value) {
       let state = Number(v.read_);
       if(response_state_efb.findIndex(x=>x.msg_id==v.msg_id)!=-1){state=0}      
-      rows += `<tr class="efb pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
-         <th scope="row" class="">${v.track}</th>
-         <td class="">${v.date}</td>
-            <td> 
-            <button type="button" class="efb btn btn-comment btn-sm" id="btn-m-${v.msg_id}" >
-             ${Number(state) == 0 ? `<svg xmlns="http://www.w3.org/2000/svg" class="jump" width="14" height="14" fill="currentColor" class="bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb ${iconRead} text-muted"></i> `}</button>
+      rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
+         <th scope="row" class="efb ">${v.track}</th>
+         <td class="efb ">${v.date}</td>
+            <td class="efb "> 
+            <button type="button" class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" >
+             ${Number(state) == 0 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</button>
             </td>                               
             </tr>` ;
       no += 1;
     }
   } else {
-    rows = `<tr class="efb pointer-efb fs-6 efb"><td>${efb_var.text.noResponse}</td><td></td><td></td></tr>`
+    rows = `<tr class="efb  pointer-efb fs-6 efb"><td>${efb_var.text.noResponse}</td><td></td><td></td></tr>`
   }
 
 
 
 
 
-  document.getElementById('content-efb').innerHTML = `<div class="head-efb">${head}</div>
-    <h4 class="title-holder efb"> <img src="${efb_var.images.title}" class="title efb">
-    <i class="efb bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
+  document.getElementById('content-efb').innerHTML = `<div class="efb head-efb">${head}</div>
+    <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+    <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
-    <div class="card efb">
-    <table class="table table-striped table-hover mt-3" id="emsFormBuilder-list">
+    <div class="efb card efb">
+    <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
-    <th scope="col">${efb_var.text.trackNo}</th>
-    <th scope="col">${efb_var.text.formDate}</th>
-    <th scope="col">${efb_var.text.response}</th>
+    <th scope="col" class="efb">${efb_var.text.trackNo}</th>
+    <th scope="col" class="efb">${efb_var.text.formDate}</th>
+    <th scope="col" class="efb">${efb_var.text.response}</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody class="efb">
     ${rows}
     </tbody>
     </table>
@@ -528,11 +528,11 @@ function fun_update_message_state_by_id(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        let iconRead = `<i class="efb bi-envelope-open text-muted"></iv>`;
+        let iconRead = `<i class="efb  bi-envelope-open text-muted"></iv>`;
         if (form_type_emsFormBuilder == 'subscribe') {
-          iconRead = `<i class="efb bi-person text-muted"></iv>`;
+          iconRead = `<i class="efb  bi-person text-muted"></iv>`;
         } else if (form_type_emsFormBuilder == 'register') {
-          iconRead = `<i class="efb bi-person text-muted"></iv>`;
+          iconRead = `<i class="efb  bi-person text-muted"></iv>`;
         }
         document.getElementById(`btn-m-${id}`).innerHTML = iconRead;
         document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
@@ -668,7 +668,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
   //v2
   //respomse
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
-  const body = `<div class="efb  mb-3"><div class="efb clearfix">${resp}</div></div>`
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
 }
 
@@ -685,7 +685,7 @@ function fun_ws_show_response(value) {
 function fun_show_content_page_emsFormBuilder(state) {
   if (state == "forms") {
     window.location.reload();
-    document.getElementById('content-efb').innerHTML = `<div class="card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb-color text-center"><i class="fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
+    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
   } else if (state == "setting") {
     fun_show_setting__emsFormBuilder();
     fun_backButton(0);
@@ -725,26 +725,26 @@ function fun_show_help__emsFormBuilder() {
 
   let str = "";
   for (const l in listOfHow_emsfb) {
-    str += `<a class="btn efb btn-darkb text-white btn-lg d-block mx-3 mt-2" href="${listOfHow_emsfb[l].url}"><i class="efb bi-youtube mx-1"></i>${listOfHow_emsfb[l].title}</a>`
+    str += `<a class="efb btn efb btn-darkb text-white btn-lg d-block mx-3 mt-2" href="${listOfHow_emsfb[l].url}"><i class="efb  bi-youtube mx-1"></i>${listOfHow_emsfb[l].title}</a>`
   }
   document.getElementById('content-efb').innerHTML = `
-  <img src="${efb_var.images.title}"  class="crcle-footer">
-  <div class="container row">
-  <h4 class="title-holder efb">
-      <img src="${efb_var.images.title}" class="title efb">
-      <i class="efb bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
+  <img src="${efb_var.images.title}"  class="efb crcle-footer">
+  <div class="efb container row">
+  <h4 class="efb title-holder efb">
+      <img src="${efb_var.images.title}" class="efb title efb">
+      <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
   </h4>
-  <div class="crd efb col-md-7"><div class="card-body"> <div class="d-grid gap-2">${str}</div></div></div>
-  <div class="col-md-4 mx-1 py-5 crd efb">
-                  <img src="${efb_var.images.logo}"  class="description-logo efb">
-                  <h1 class="efb pointer-efb" onclick="Link_emsFormBuilder('ws')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
-                  <h3 class="efb pointer-efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
-                  <div class="clearfix"></div>
-                  <p class=" card-text efb pb-3 fs-7">
+  <div class="efb crd efb col-md-7"><div class="efb card-body"> <div class="efb d-grid gap-2">${str}</div></div></div>
+  <div class="efb col-md-4 mx-1 py-5 crd efb">
+                  <img src="${efb_var.images.logo}"  class="efb description-logo efb">
+                  <h1 class="efb  pointer-efb" onclick="Link_emsFormBuilder('ws')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
+                  <h3 class="efb  pointer-efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
+                  <div class="efb clearfix"></div>
+                  <p class="efb  card-text efb pb-3 fs-7">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="btn efb btn-warning text-white btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
-                  <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+                  <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
+                  <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
  `;
@@ -790,133 +790,133 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key=="easyFormBuilder" ? "d-none" : "d-block";
-    if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}"  class="sen sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
+    if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}"  class="efb sen sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
   } );
   const mxCSize = !mobile_view_efb ? 'mx-5'  : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4'  : 'mx-1';
   document.getElementById('content-efb').innerHTML = `
-  <div class="container">
-            <h4 class="title-holder efb">
-                <img src="${efb_var.images.title}" class="title efb">
-                <i class="efb bi-gear title-icon mx-1"></i>${efb_var.text.setting}
+  <div class="efb container">
+            <h4 class="efb title-holder efb">
+                <img src="${efb_var.images.title}" class="efb title efb">
+                <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
-            <div class="crd efb">
-                <div class="card-body">
+            <div class="efb crd efb">
+                <div class="efb card-body">
                         <nav>
-                            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="efb nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb bi bi-gear mx-2"></i>${efb_var.text.general}</button>
-                            <button class="efb nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
-                            <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
-                            <button class="efb nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
-                            <button class="efb nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
-                            <button class="efb nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
+                            <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
+                            <button class="efb  nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-home" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
+                            <button class="efb  nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><i class="efb  bi bi-google mx-2"></i>${efb_var.text.googleKeys}</button>
+                            <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
+                            <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
+                            <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
+                            <button class="efb  nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
                         </div>
                         </nav>
-                        <div class="tab-content" id="nav-tabContent">
-                        <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
+                        <div class="efb tab-content" id="nav-tabContent">
+                        <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
                             <!--General-->
-                            <div class="m-3">
-                                <h5 class="efb card-title mt-3 mobile-title">
-                                    <i class="efb bi-gem m-3"></i>${efb_var.text.proVersion}
+                            <div class="efb m-3">
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
-                                <div class="card-body mx- py-1 ${mxCSize4}">
-                                    <input type="text" class="form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
-                                    <span id="activeCode_emsFormBuilder-message" class="text-danger"></span>
+                                <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">
+                                    <input type="text" class="efb form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
+                                    <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
                                
-                                <h5 class="efb card-title mt-3 mobile-title">
-                                    <i class="efb bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
                                 </h5>
-                                <h6 class="efb ${mxCSize} text-danger mobile-text">${efb_var.text.iUsebootTempW}</h6>
-                                <div class="card-body mx- py-1 ${mxCSize4}">
+                                <h6 class="efb  ${mxCSize} text-danger mobile-text">${efb_var.text.iUsebootTempW}</h6>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">
                            
-                                <input  class="elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
-                                <label class="form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
+                                <input  class="efb elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
+                                <label class="efb form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
                                
                                 </div>
                               
-                                <h5 class="efb card-title mt-3 mobile-title">
-                                    <i class="efb bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
                                 </h5>
-                                <p class="efb ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
-                                <div class="card-body text-center py-1">
-                                    <button type="button" class="btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
-                                        <i class="efb bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
+                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
+                                <div class="efb card-body text-center py-1">
+                                    <button type="button" class="efb btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
+                                        <i class="efb  bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
                                     </button>
                                 </div>
                            
-                                <div class="clearfix"></div>
-                                <h5 class="efb card-title mt-3 mobile-title">
-                                    <i class="efb bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
+                                <div class="efb clearfix"></div>
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
                                 </h5>
-                                <p class="${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
-                                <div class="card-body mx- py-1 ${mxCSize4}">
-                                        <div class="row col-12">
-                                            <div class="col-md-8">
-                                              <input type="text"  class="form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
-                                              <span id="shortCode_emsFormBuilder-message" class="text-danger"></span>
+                                <p class="efb ${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">
+                                        <div class="efb row efb col-12">
+                                            <div class="efb  col-md-8">
+                                              <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
+                                              <span id="shortCode_emsFormBuilder-message" class="efb text-danger"></span>
                                             </div> 
-                                              <button type="button" class="btn col-md-4 efb h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder')">
-                                                  <i class="efb bi-clipboard-check mx-1"></i> ${efb_var.text.copy}
+                                              <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder')">
+                                                  <i class="efb  bi-clipboard-check mx-1"></i> ${efb_var.text.copy}
                                               </button>
                                           </div>
                                 </div>
                             <!--End General-->
                             </div>  
                         </div>
-                        <div class="tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-profile-tab">
-                            <div class="m-3">
+                        <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="efb m-3">
                                 <div id="message-google-efb"></div>
                                 
                              <!--Google-->
                             
-                             ${ apiKeyMap=='null' ? `<div class="m-3 p-3 efb alert-info" role=""><h4 class="alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
-                             <h5 class="efb card-title mt-3 mobile-title">
-                                <i class="efb bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
+                             ${ apiKeyMap=='null' ? `<div class="efb m-3 p-3 efb alert-info" role=""><h4 class="efb alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
+                             <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
-                            <p class="${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
-                            <div class="card-body mx- py-1 ${mxCSize4}">                                   
-                                <label class="form-label mx-2">${efb_var.text.siteKey}</label>
-                                <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
-                                <span id="sitekey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
-                                <label class="form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
-                                <span id="secretkey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                            <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
+                            <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
+                                <label class="efb form-label mx-2">${efb_var.text.siteKey}</label>
+                                <input type="text" class="efb form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
+                                <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                <input type="text" class="efb  form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
+                                <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
-                            <h5 class="efb card-title mt-3 mobile-title">
-                                <i class="efb bi-geo-alt m-3"></i> ${efb_var.text.maps} 
+                            <h5 class="efb  card-title mt-3 mobile-title">
+                                <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
                             <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
-                            <p class="${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
-                            <div class="card-body mx- py-1 ${mxCSize4}">                                   
-                                <label class="form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
-                                <span id="apikey_map_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                            <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
+                            <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
+                                <label class="efb form-label mx-2 ">${efb_var.text.aPIKey}</label>
+                                <input type="text" class="efb form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
+                                <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            <div class="mx-3">
+                        <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
+                            <div class="efb mx-3">
                                 <!--Email-->
-                                <h5 class="efb card-title mt-3 mobile-title">
-                                    <i class="efb bi-at m-3"></i>${efb_var.text.alertEmail}
+                                <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  bi-at m-3"></i>${efb_var.text.alertEmail}
                                 </h5>
-                                <p class="${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
-                                <div class="card-body mx- py-1 ${mxCSize4}">
-                                    <label class="form-label mx-2">${efb_var.text.email}</label>
-                                    <input type="email" class="form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
-                                    <span id="email_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                                <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">
+                                    <label class="efb form-label mx-2">${efb_var.text.email}</label>
+                                    <input type="email" class="efb form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
+                                    <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 </div>
                                 
-                                <h5 class="card-title mt-3col-12 efb ">
-                                    <i class="efb bi-envelope m-3"></i>${efb_var.text.emailServer}
+                                <h5 class="efb card-title mt-3col-12 efb ">
+                                    <i class="efb  bi-envelope m-3"></i>${efb_var.text.emailServer}
                                 </h5>
-                                <p class="${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
-                                <div class="card-body mx- py-1 ${mxCSize4}">
-                                    <button type="button" class="btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
-                                        <i class="efb bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
+                                <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">
+                                    <button type="button" class="efb btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
+                                        <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
                                 </div>
@@ -925,31 +925,31 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
               
                       
-                        <div class="tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
-                            <div class="mx-3 my-2">
+                        <div class="efb tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
+                            <div class="efb mx-3 my-2">
                             <!-- Text Section -->
-                               <h5 class="efb card-title mt-3 mobile-title">
-                                 <i class="efb bi-fonts m-3"></i>${efb_var.text.localization}
+                               <h5 class="efb  card-title mt-3 mobile-title">
+                                 <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
-                               <p class="${mxCSize}">${efb_var.text.translateLocal}</p>
-                                <div id="textList-efb"  class="mt-2 py-2 ${mobile_view_efb?'':'px-5'}">${textList} </div>                                
+                               <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
+                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb?'':'px-5'}">${textList} </div>                                
                                 <!-- END Text Section -->
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
-                            <div class="mx-3 my-2">
+                        <div class="efb tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
+                            <div class="efb mx-3 my-2">
                             <!-- Text Section -->
-                               <h5 class="efb card-title mt-3 mobile-title">
-                                 <i class="efb bi-credit-card m-3"></i>${efb_var.text.stripe}
+                               <h5 class="efb  card-title mt-3 mobile-title">
+                                 <i class="efb  bi-credit-card m-3"></i>${efb_var.text.stripe}
                                </h5>
-                               <p class="${mxCSize}">${efb_var.text.stripeMP} <a class="efb pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
-                                <div class="card-body mx- py-1 ${mxCSize4}">                                   
-                                  <label class="form-label mx-2">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
-                                  <span id="stripePKey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
-                                  <label class="form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
-                                  <span id="stripeSKey_emsFormBuilder-message" class="text-danger col-12 efb"></span>
+                               <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
+                                <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
+                                  <label class="efb form-label mx-2">${efb_var.text.publicKey}</label>
+                                  <input type="text" class="efb form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
+                                  <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                  <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                  <input type="text" class="efb  form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
+                                  <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                               </div>
                                                            
                                 <!-- END Text Section -->
@@ -957,72 +957,72 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
 
 
-                        <div class="tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-contact-tab">
-                        <div class="my-2 mx-1">
+                        <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <div class="efb my-2 mx-1">
 
-                          <nav class="navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
-                              <div class="container-fluid">
-                                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                                  <div class="collapse navbar-collapse py-1" id="navbarTogglerDemo01">
-                                  <ul class="navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
-                                    <li class="nav-item"><a class="nav-link efb btn text-capitalize btn-outline-pink " onclick="email_template_efb('p')" >
-                                     <i class="bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
+                          <nav class="efb navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
+                              <div class="efb container-fluid">
+                                  <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="efb navbar-toggler-icon"></span></button>
+                                  <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01">
+                                  <ul class="efb navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
+                                    <li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize btn-outline-pink " onclick="email_template_efb('p')" >
+                                     <i class="efb bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
                                     </li>                                  
-                                    <li class="nav-item">
-                                        <a class="nav-link efb btn text-capitalize  " onclick="email_template_efb('r')" >
-                                        <i class="bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
+                                    <li class="efb nav-item">
+                                        <a class="efb nav-link efb btn text-capitalize  " onclick="email_template_efb('r')" >
+                                        <i class="efb bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link efb btn text-capitalize  " onclick="Link_emsFormBuilder('wiki')" >
-                                        <i class="bi-question mx-1 "></i>${efb_var.text.help}</a>
+                                    <li class="efb nav-item">
+                                        <a class="efb nav-link efb btn text-capitalize  " onclick="Link_emsFormBuilder('wiki')" >
+                                        <i class="efb bi-question mx-1 "></i>${efb_var.text.help}</a>
                                     </li>
 
-                                    <li class="dropdown">
-                                    <a class="nav-link efb btn text-capitalize dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
-                                    <span class="caret"></span></a>
-                                    <ul class="dropdown-menu">
-                                      <li class="nav-item"><a onClick="fun_add_email_template_efb(1)" class="nav-link efb btn">${efb_var.text.emailTemplate} 1</a></li>
-                                     <li class="nav-item"><a onClick="fun_add_email_template_efb(2)"  class="nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
+                                    <li class="efb dropdown">
+                                    <a class="efb nav-link efb btn text-capitalize dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
+                                    <span class="efb caret"></span></a>
+                                    <ul class="efb dropdown-menu">
+                                      <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn">${efb_var.text.emailTemplate} 1</a></li>
+                                     <li class="efb nav-item"><a onClick="fun_add_email_template_efb(2)"  class="efb nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
                                     </ul>
                                   </li>
                                     
                               </div>      
                           </nav>
                         </div>
-                        <div class="mx-3 row col-12 mb-2">
+                        <div class="efb  mx-3 row col-12 mb-2">
                             <!--EmailTemplate-->
-                            <div class="col-md-8 bg-back">
-                              <h3 class="efb card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                              <textarea class="form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp:''}</textarea>                        
-                              <span id="emailTemp_emsFirmBuilder-message" class="text-danger"></span>
+                            <div class="efb  col-md-8 bg-back">
+                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
+                              <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp:''}</textarea>                        
+                              <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                             </div>
-                            <div class="col-md-4 mt1 efb guide p-2"> 
-                            <h3 class="efb card-title mt-3 mobile-title text-capitalize">${efb_var.text.info}</h3>
-                            <p class="efb m-2 fs-8">
+                            <div class="efb col-md-4 mt1 efb guide p-2"> 
+                            <h3 class="efb  card-title mt-3 mobile-title text-capitalize">${efb_var.text.info}</h3>
+                            <p class="efb  m-2 fs-8">
                             ${efb_var.text.infoEmailTemplates}
                             </br></br>
-                            <span class="efb fs-7"> ${efb_var.text.noticeEmailContent}</span> 
+                            <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
                             </br></br>
-                            <span class="efb fs-7">shortcode_title <span class="efb text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
+                            <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
                             </br></br>
-                            <span class="efb fs-7">shortcode_message <span class="efb text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
+                            <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
                             </br></br>
-                            <span class="efb fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
+                            <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
                             </br></br> 
-                            <span class="efb fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
+                            <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
                              </br></br>
-                            <span class="efb fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
+                            <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
                             </p>
                             </br></br>
-                            <a class="btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+                            <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
                             </div>
                          
                             <!--End EmailTemplate-->
                         </div>
                     </div>
                       
-                        <button type="button" id="save-stng-efb" class="btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
-                            <i class="efb bi-save mx-1"></i>${efb_var.text.save}
+                        <button type="button" id="save-stng-efb" class="efb btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
+                            <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>                  
                 </div>
             </div>
@@ -1060,7 +1060,7 @@ function fun_set_setting_emsFormBuilder() {
   document.getElementById('save-stng-efb').classList.add('disabled');
   
   const nnrhtml = document.getElementById('save-stng-efb').innerHTML;
-  document.getElementById('save-stng-efb').innerHTML = `<i class="efb bi-hourglass-split"></i>`
+  document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
   
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
@@ -1094,12 +1094,12 @@ function fun_set_setting_emsFormBuilder() {
         let ti ='';
         if(el.value.length<5 && el.value.length>1){
           st =0;
-          c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.pleaseEnterVaildEtemp}</p></div>`
+          c =`<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseEnterVaildEtemp}</p></div>`
         }else if(el.value.length>10000){
           st =0;
-          c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
+          c =`<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
         }else if(el.value.length>1 && el.value.indexOf('shortcode_message')==-1 && el.value.indexOf('shortcode_title')==-1){
-          c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
+          c =`<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
           st =0;
         }
 
@@ -1242,7 +1242,7 @@ function fun_find_track_emsFormBuilder() {
     document.getElementById('track_code_emsFormBuilder').disabled = true;
     document.getElementById('track_code_btn_emsFormBuilder').disabled = true;
     const btnValue = document.getElementById('track_code_btn_emsFormBuilder').innerHTML;
-    document.getElementById('track_code_btn_emsFormBuilder').innerHTML = `<i class="bi-hourglass-split"></i>`;
+    document.getElementById('track_code_btn_emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split"></i>`;
 
 
 
@@ -1556,7 +1556,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   let publicRows = [];
   let options = {};
   let body= `
-  <div class=" ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
+  <div class="efb  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
         ${loading_messge_efb()}
     </div>
@@ -1573,10 +1573,10 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
     for (let t in titles) {
       chartId.push(Math.random().toString(36).substring(8));
       if (t != 0) {
-        chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `hidden` : ``}">
-          <h1 class="fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-          <h3 class="text-white">${efb_var.text.pleaseWaiting}<h3> </div>`
-      } else {chartview += ` </br> <div id="${chartId[t]}"/ class="${t == 0 ? `hidden` : ``}"></div>`}
+        chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}">
+          <h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
+          <h3 class="efb text-white">${efb_var.text.pleaseWaiting}<h3> </div>`
+      } else {chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}"></div>`}
     }
  
   /*End Add div of charts */
@@ -1647,7 +1647,7 @@ function googleCloudOffer() {
 function clickToCheckEmailServer() {
   document.getElementById('clickToCheckEmailServer').classList.add('disabled')
   const nnrhtml = document.getElementById('clickToCheckEmailServer').innerHTML;
-  document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="bi bi-hourglass-split"></i>`;
+  document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="efb bi bi-hourglass-split"></i>`;
   const email =document.getElementById('email_emsFormBuilder').value;
   // call and waitning response  
   if(email.length>5){
@@ -1704,12 +1704,12 @@ function email_template_efb(s){
     c= c.replace(/(@efb@)+/g, '/')
     if(c.match(/(<script+)/gi)){
       //show error message you can't use script code
-      c= `<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
+      c= `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
       //return 0;
     }else if(c.length>2 && c.length<2000 ){
       ti = efb_var.text.preview;
       if(!c.includes('shortcode_message') && !c.includes('shortcode_title')){ 
-        c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
+        c =`<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>` ;
        ti =efb_var.text.error
       }
       else if(!efb_var.pro) {
@@ -1719,10 +1719,10 @@ function email_template_efb(s){
       }
       // موارد زیر در سمت سرور هم قبل از ذخیره سازی اضافه شود برای  کاربر رایگان
     }else if(c.length>=10000){
-      c =`<div class="text-center text-darkb efb"><div class="bi-exclamation-triangle fs-3 text-danger efb"></div><p class="fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
+      c =`<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
       //ti =efb_var.text.error
     }else if(c.length<2){
-      c =`<div class="text-center text-darkb efb"><div class="bi-emoji-frown fs-4 efb"></div><p class="fs-5 efb">${efb_var.text.notFound}</p></div>`
+      c =`<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.notFound}</p></div>`
       //show_modal_efb(``, ti, '', 'saveBox');
     }else{
       ti=efb_var.text.preview
@@ -1761,20 +1761,20 @@ function EmailTemp1Efb(){
   .footer a, .footer a:hover {color: #828999;}
   </style></head>
   <body topmargin='0' rightmargin='0' bottommargin='0' leftmargin='0' marginwidth='0' marginheight='0' width='100%' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; width: 100%; height: 100%; -webkit-font-smoothing: antialiased; text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; line-height: 100%; background-color: #2D3445; color: #FFFFFF;' bgcolor='#2D3445' text='#FFFFFF'>
-  <table width='100%' align='center' border='0' cellpadding='0' cellspacing='0' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; width: 100%;' class='background'><tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;' bgcolor='#2D3445'>
-  <table border='0' cellpadding='0' cellspacing='0' align='center' width='500' style='border-collapse: collapse; border-spacing: 0; padding: 0; width: inherit; max-width: 500px;' class='wrapper'>
+  <table width='100%' align='center' border='0' cellpadding='0' cellspacing='0' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; width: 100%;' class='efb background'><tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;' bgcolor='#2D3445'>
+  <table border='0' cellpadding='0' cellspacing='0' align='center' width='500' style='border-collapse: collapse; border-spacing: 0; padding: 0; width: inherit; max-width: 500px;' class='efb wrapper'>
   <tr>
   <td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;
-  padding-top: 0px;' class='hero'><a target='_blank' style='text-decoration: none;' href='shortcode_website_url'><img border='0' vspace='0' hspace='0' src='${efb_var.images.emailTemplate1}' alt='Please enable images to view this content' title='Email Notification' width='340' style='width: 87.5%;max-width: 340px;color: #FFFFFF; font-size: 13px; margin: 0; padding: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: block;'/></a></td>
-  </tr><tr></tr><tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 24px; font-weight: bold; line-height: 130%;padding-top: 5px;color: #FFFFFF;font-family: sans-serif;' class='header'>shortcode_title
+  padding-top: 0px;' class='efb hero'><a target='_blank' style='text-decoration: none;' href='shortcode_website_url'><img border='0' vspace='0' hspace='0' src='${efb_var.images.emailTemplate1}' alt='Please enable images to view this content' title='Email Notification' width='340' style='width: 87.5%;max-width: 340px;color: #FFFFFF; font-size: 13px; margin: 0; padding: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; border: none; display: block;'/></a></td>
+  </tr><tr></tr><tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0;padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 24px; font-weight: bold; line-height: 130%;padding-top: 5px;color: #FFFFFF;font-family: sans-serif;' class='efb header'>shortcode_title
   </td></tr><tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;
-  padding-top: 15px; color: #FFFFFF; font-family: sans-serif;' class='paragraph'> shortcode_message </td></tr><tr>
+  padding-top: 15px; color: #FFFFFF; font-family: sans-serif;' class='efb paragraph'> shortcode_message </td></tr><tr>
   <td align='center' valign='top' style='background:#2D3445; border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%;
-  padding-top: 25px; padding-bottom: 5px; border-color: #2d3445;' class='button'><a href='shortcode_website_url' target='_blank' style='text-decoration: none;'>
+  padding-top: 25px; padding-bottom: 5px; border-color: #2d3445;' class='efb button'><a href='shortcode_website_url' target='_blank' style='text-decoration: none;'>
   <table border='0' cellpadding='0' cellspacing='0' align='center' style='max-width: 240px; min-width: 120px; border-collapse: collapse; border-spacing: 0; padding: 0;'><tr><td align='center' valign='middle' style='padding: 12px 24px; margin: 0; text-decoration: none; border-collapse: collapse; border-spacing: 0; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px;' bgcolor='#0a016e'><a target='_blank' style='text-decoration: none; color: #FFFFFF; font-family: sans-serif; font-size: 17px; font-weight: 400; line-height: 120%;' href='shortcode_website_url'>
   ${efb_var.text.clickHere}  </a></td></tr></table></a> </td>  </tr>
-  <tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; padding-top: 30px;' class='line'><hr color='#565F73' align='center' width='100%' size='1' noshade style='margin: 0; padding: 0;' /></td></tr><tr>
-  <td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 13px; font-weight: 400; line-height: 150%; padding-top: 10px; padding-bottom: 20px; color: #828999; font-family: sans-serif;' class='footer'>
+  <tr><td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; padding-top: 30px;' class='efb line'><hr color='#565F73' align='center' width='100%' size='1' noshade style='margin: 0; padding: 0;' /></td></tr><tr>
+  <td align='center' valign='top' style='border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 13px; font-weight: 400; line-height: 150%; padding-top: 10px; padding-bottom: 20px; color: #828999; font-family: sans-serif;' class='efb footer'>
   ${efb_var.text.sentBy} <a href='shortcode_website_url' target='_blank' style='text-decoration: none; color: #828999; font-family: sans-serif; font-size: 13px; font-weight: 400; line-height: 150%;'>shortcode_website_name</a>.
   </td></tr></table></td></tr></table>  
   
@@ -1783,7 +1783,7 @@ function EmailTemp1Efb(){
 
 function EmailTemp2Efb(){
   return`<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;${efb_var.rtl==1 ?`direction:rtl;` :''}}</style><center>
-<table class='body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
+<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
           <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 <td style='font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:13px;color:#202020;line-height:1.5'>
@@ -1811,7 +1811,7 @@ function fun_add_email_template_efb(i){
 
 function funNproEmailTemp(){
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
-  <a type="button" onclick="pro_show_efb(1)" class="pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb bi-gem text-light"></i></a>
-  <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
- <br> <img src="https://whitestudio.team/img/favicon.png" style="margin: 5px"> <a class='subtle-link' target='_blank' href='https://whitestudio.team/'>White Studio Team</a></td></tr>`
+  <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
+  <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
+ <br> <img src="https://whitestudio.team/img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'>White Studio Team</a></td></tr>`
 }

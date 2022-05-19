@@ -64,7 +64,7 @@ for (let v of valueJson_ws) {
       else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
 
       const vtype =(v.type=="payCheckbox" || v.type=="payRadio" || v.type=="paySelect"  || v.type=="payMultiselect") ? v.type.slice(2).toLowerCase() : v.type ;
-      el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${vtype}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
+      el += `<div class="efb row emsFormBuilder" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${vtype}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
       
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
@@ -88,18 +88,18 @@ for (let v of valueJson_ws) {
         typeFile= v.file; 
       }
       classData = drog==true ? "form-control-file text-secondary " : "" ;
-      el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"`:``}>`
+      el = ` <div class="efb row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"`:``}>`
       exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
       break;
     case 'textarea':
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
-      el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
+      el = `<div class="efb row emsFormBuilder" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
       break
     case 'button':
       id = v.id ? v.id : v.id_;
-      el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
+      el = `<div class="efb row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="efb ${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, amount:v.amount });
       break
     case 'checkbox':
@@ -107,8 +107,8 @@ for (let v of valueJson_ws) {
       id = v.id ? v.id : v.id_;
       const typ = v.type == "checkbox" ? "checkbox" : "radio";
       req = v.required ? v.required : false;      
-      el = `<div class=" emsFormBuilder"><div class="row"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
-      // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
+      el = `<div class="efb  emsFormBuilder"><div class="efb row"><label for="${v.id_}" id="${v.id_}" class="efb emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
+      // el = ` <label for="${v.id_}" class="efb emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="efb ${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
       break
     case 'multiselect':
@@ -116,9 +116,9 @@ for (let v of valueJson_ws) {
       id = v.id ? v.id : v.id_;
       req = v.required ? v.required : false;
       if(v.allowMultiSelect==true && test_view__emsFormBuilder==true){
-         el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}(Disabled) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="${efb_var.text.selectOpetionDisabled}" data-id="${v.id_}" disabled>`;
+         el += `<div class="efb row emsFormBuilder" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name}(Disabled) ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} placeholder="${efb_var.text.selectOpetionDisabled}" data-id="${v.id_}" disabled>`;
       }else{
-        el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`;
+        el += ` <div class="efb  emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="efb emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${v.allowMultiSelect==true ? `multiple-emsFormBuilder`:``} ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`;
       }
       
       exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount });
@@ -132,8 +132,8 @@ for (let v of valueJson_ws) {
         
         const row =valueJson_ws.find(x => x.id_ ===parent_id)
         test_view__emsFormBuilder= row.allowMultiSelect ==true ? true : false;
-        if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}"}></div> <div class="col-10 emsFormBuilder_option"><label for="${v.parents}" class="emsFormBuilder" >${v.name}</label></div></div>`
-        if (exportView_emsFormBuilder[indx].type == "select" && test_view__emsFormBuilder==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
+        if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="efb row emsFormBuilder"><div class="efb emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="efb ${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} data-id="${v.id_}"}></div> <div class="efb col-10 efb emsFormBuilder_option"><label for="${v.parents}" class="efb emsFormBuilder" >${v.name}</label></div></div>`
+        if (exportView_emsFormBuilder[indx].type == "select" && test_view__emsFormBuilder==false) exportView_emsFormBuilder[indx].element += `<option  id='${id}' class="efb ${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}" value="${v.name}" data-id="${v.id_}">${v.name}</option>`
         exportView_emsFormBuilder[indx].required = false;
         test_view__emsFormBuilder=true;
       }
@@ -141,34 +141,34 @@ for (let v of valueJson_ws) {
   }
 }
 const button_name = form_type_emsFormBuilder!="form" ? efb_var.text[form_type_emsFormBuilder] : efb_var.text.send
-const content = `<!-- commenet --!><div class="m-2">
-<div class="row d-flex justify-content-center align-items-center">
-    <div class="col-md-12">
+const content = `<!-- commenet --!><div class="efb m-2">
+<div class="efb  row d-flex justify-content-center align-items-center">
+    <div class="efb col-md-12 efb">
         <div id="emsFormBuilder-form-view" >
         <form id="emsFormBuilder-form-view-id">
-            <h1 id="emsFormBuilder-form-view-title" class="emsFormBuilder">${efb_var.text.preview}</h1>                
-            <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'}> 
-                <span class="emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="fa fa-tachometer"></i></span> 
-                <div class="emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
+            <h1 id="emsFormBuilder-form-view-title" class="efb emsFormBuilder">${efb_var.text.preview}</h1>                
+            <div class="efb emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'}> 
+                <span class="efb emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="efb fa fa-tachometer"></i></span> 
+                <div class="efb emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
                 </div>
-                <span class="emsFormBuilder-step-view"><i class="px-1 fa fa-floppy-o"></i></span> 
+                <span class="efb emsFormBuilder-step-view"><i class="efb px-1 fa fa-floppy-o"></i></span> 
             </div>
-            <div class="emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'} > 
-                <h5 class="emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${efb_var.text.preview}</h5> 
+            <div class="efb emsFormBuilder-all-steps-view" ${form_type_emsFormBuilder=="form" ? '':'style="display:none;"'} > 
+                <h5 class="efb emsFormBuilder-step-name-view f-setp-name" id ="emsFormBuilder-step-name-view">${efb_var.text.preview}</h5> 
             </div>
             <div id="emsFormBuilder-message-area-view"></div>
-            <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
+            <div class="efb emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
             </div>
             <div  id="emsFormBuilder-tabInfo-view">
             </div>
             <div  id="emsFormBuilder-tabList-view">
             </div>           
-            <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
+            <div class="efb thanks-message text-center" id="emsFormBuilder-text-message-view"> 
                 <h3>${efb_var.text.registered}</h3> <span>${efb_var.text.yourInformationRegistered}</span>
             </div>
             <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
             
-            ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
+            ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb emsformbuilder" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="efb ${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="efb ${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
                               
             </div>
           </form>      
@@ -207,9 +207,9 @@ function ShowTab_emsFormBuilder_view(n) {
     }
   }
   if (n == (x.length - 1)) {
-    //document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+    //document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="efb fa fa-angle-double-right"></i>';
   } else {
-   // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="fa fa-angle-double-right"></i>';
+   // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = '<i class="efb fa fa-angle-double-right"></i>';
   }
   validateForm_fixStepInd_view(n)
 }
@@ -254,7 +254,7 @@ function emsFormBuilder_nevButton_view(n) {
     if(demo_emsFormBuilder==false){
       endMessage_emsFormBuilder_view()
     }else{
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="px-1 fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>${efb_var.text.done}!</br><small>(Demo)</smal><h3>`
+      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb px-1 fas fa-thumbs-up faa-bounce animated text-primary"></h1> <h3>${efb_var.text.done}!</br><small>(Demo)</smal><h3>`
     }
 
 
@@ -294,7 +294,7 @@ function validateForm_emsFormBuilder_view() {
             if(input.value.length<=6){
               valid =  false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.password8Chars}</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="efb text-danger" id="${input.id}-message">${efb_var.text.password8Chars}</small>`
             }else{
               input.classList.remove('invalid');
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();
@@ -305,7 +305,7 @@ function validateForm_emsFormBuilder_view() {
             if (check===null && input.classList.contains('require')==true){
               valid=false;
               input.className += ' invalid';
-              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${efb_var.text.enterValidURL}</small>`
+              document.getElementById(`${input.id}-row`).innerHTML +=`<small class="efb text-danger" id="${input.id}-message">${efb_var.text.enterValidURL}</small>`
             }else{
               valid=true;
               if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
@@ -364,7 +364,7 @@ function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClas
 
 function createStepsOfPublic() {
   if (valueJson_ws.length==1 && valueJson_ws=="N" && document.getElementById('emsFormBuilder-form-view')){    
-    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
+    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
     return false;
   }
  
@@ -410,11 +410,11 @@ function createStepsOfPublic() {
       
     }
    
-    if (tags!="")  document.getElementById(id).innerHTML += id=="emsFormBuilder-firstTab-view" ? tags : `<div class="emsFormBuilder-tab-view"> ${tags}</div>`
+    if (tags!="")  document.getElementById(id).innerHTML += id=="emsFormBuilder-firstTab-view" ? tags : `<div class="efb emsFormBuilder-tab-view"> ${tags}</div>`
    
 
 
-    i == 1 ? document.getElementById('emsFormBuilder-firstStepIcon-view').innerHTML = `<i class="${icon}"></i>` : document.getElementById('emsFormBuilder-addStep-view').innerHTML += `<span class="emsFormBuilder-step-view" id="stepIcon-${i - 1}"><i class="${icon}"></i></span>`
+    i == 1 ? document.getElementById('emsFormBuilder-firstStepIcon-view').innerHTML = `<i class="efb ${icon}"></i>` : document.getElementById('emsFormBuilder-addStep-view').innerHTML += `<span class="efb emsFormBuilder-step-view" id="stepIcon-${i - 1}"><i class="efb ${icon}"></i></span>`
 
   }//end for
 
@@ -520,8 +520,8 @@ function saveLocalStorage_emsFormBuilder_view() {
 }
 
 function alarm_emsFormBuilder(val) {
-  return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-  <div class="emsFormBuilder"><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
+  return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
+  <div class="efb emsFormBuilder"><i class="efb fas fa-exclamation-triangle faa-flash animated"></i></div>
     <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
@@ -529,8 +529,8 @@ function alarm_emsFormBuilder(val) {
 
 
 /* function loading_emsFormBuilder() {
-  return `<div  id="loading_emsFormBuilder"><div class="spinner-border text-warning" role="status">
-    <span class="sr-only">${efb_var.text.loading}...</span>
+  return `<div  id="loading_emsFormBuilder"><div class="efb spinner-border text-warning" role="status">
+    <span class="efb sr-only">${efb_var.text.loading}...</span>
   </div></div>`
 
 } */
@@ -568,12 +568,12 @@ function endMessage_emsFormBuilder_view() {
   }
   if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder.length<1 ) {
     let str = "" 
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
-    <div class="display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="fa fa-angle-double-left"></i></button></div>`;
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
+    <div class="efb display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="efb fa fa-angle-double-left"></i></button></div>`;
     
     // faild form
   } else {
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3> ${efb_var.text.pleaseWaiting}<h3>`
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3> ${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
   }
 }
@@ -596,7 +596,7 @@ function valid_email_emsFormBuilder(el) {
     check += el.value.match(format) ?0 :1;
     el.value.match(format) ? 0: el.className += " invalid";
     if (check>0){
-       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${efb_var.text.enterTheEmail}</small>`
+       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="efb text-danger" id="${el.id}-message">${efb_var.text.enterTheEmail}</small>`
       }
       else {
         if (document.getElementById("alarm_emsFormBuilder")) {          
@@ -616,7 +616,7 @@ function valid_phone_emsFormBuilder(el) {
     check += el.value.match(format) ?0 :1;    
     if (check>0 ){
       el.value.match(format) ? 0: el.className += " invalid";
-       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${efb_var.text.enterThePhone}</small>`
+       document.getElementById(`${el.id}-row`).innerHTML +=`<small class="efb text-danger" id="${el.id}-message">${efb_var.text.enterThePhone}</small>`
       }
       else {
         if (document.getElementById("alarm_emsFormBuilder")){
@@ -673,7 +673,7 @@ if(el.files[0] && el.files[0].size<15000000){
    el.classList.remove('text-secondary');
    if(el.files[0]) message=  el.files[0].size<15000000? `Please upload the ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;
    el.setAttribute("data-title", message);
-   document.getElementById(`${id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${message}</small>`;
+   document.getElementById(`${id}-row`).innerHTML +=`<small class="efb text-danger" id="${el.id}-message">${message}</small>`;
   
    rtrn=false;
  }
