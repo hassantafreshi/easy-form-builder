@@ -110,7 +110,7 @@ class _Public {
 		//foreach ($id as $row_id){
 			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
 		//}
-		$this->id = $id;
+		//$this->id = $id;
 		if($this->value==null){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
 		}
@@ -1284,7 +1284,8 @@ class _Public {
 		}
 
         include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
-        //error_log('payment');
+        error_log('payment');
+        error_log($_POST['id']);
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		//error_log($this->id);

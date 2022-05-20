@@ -2770,7 +2770,7 @@ function noti_message_efb(title, message, sec ,alert) {
 
 function gm_authFailure() {
   const body =`<p class="efb fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
-  noti_message_efb(efb_var.text.error, body, 120 ,'danger')
+  noti_message_efb(efb_var.text.error, body, 15 ,'danger')
 
 }
 
@@ -3380,7 +3380,7 @@ fun_add_stripe_efb=()=>{
                 action: "pay_stripe_sub_efb",
                 value: JSON.stringify(sendBack_emsFormBuilder_pub),
                 name: formNameEfb,
-                id : efb_var.id.id,
+                id : efb_var.id,
                 nonce: ajax_object_efm.nonce,
               };
               //console.log(data);
@@ -3410,8 +3410,8 @@ fun_add_stripe_efb=()=>{
                               if(( (valueJson_ws[0].captcha==true && sitekye_emsFormBuilder.length>1 &&
                                  grecaptcha.getResponse().length>2) || valueJson_ws[0].captcha==false)) document.getElementById(id).classList.remove('disabled')
                               fun_disabled_all_pay_efb()
-                              efb_var.id.id = res.data.uid
-                              //console.log(res.data ,efb_var.id.id);
+                              efb_var.id = res.data.uid
+                              //console.log(res.data ,efb_var.id);
                               stsStripeEfb.innerHTML = `
                               <h3 class="efb  text-darkb p-0 m-0 mt-1 text-center"><i class="efb bi-check2-circle"></i> ${efb_var.text.successPayment}</h3> 
                               <p class="efb  text-muted p-0  m-0 mb-2 text-center">${transStat.paymentIntent.description}</p>

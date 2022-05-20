@@ -641,7 +641,7 @@ function actionSendData_emsFormBuilder() {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
       name: formNameEfb,
-      id: efb_var.id.id,
+      id: efb_var.id,
       valid: recaptcha_emsFormBuilder,
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce

@@ -857,6 +857,7 @@ height: auto;
 }
 .star-efb.h-d-efb{
 font-size: 50px!important;
+
 }
 .star-efb.h-l-efb{
 height: auto;
@@ -1156,7 +1157,7 @@ display: block;
 .h-d-efb{
   height: fit-content;
   font-size: 20px !important;  
-  line-height: normal!important;
+  
 }
 
 input[type="textarea"].h-d-efb,textarea.h-d-efb{
@@ -1207,31 +1208,28 @@ input[type=file].h-xxxl-efb{
 .h-l-efb{
     height: fit-content;
     font-size: 30px!important;
-    line-height: normal!important;    
+        
 }
 
 /* xlarge height size */
 .h-xl-efb {
     height: fit-content;
     font-size: 35px!important;
-    line-height: normal!important;
-   
+       
 }
 
 /* xxlarge height size */
 .h-xxl-efb {
     height: fit-content;
     font-size: 40px!important;
-    line-height: normal!important;
-   
+    
 }
 
 /* xxxlarge height size */
 .h-xxxl-efb{
     height: fit-content;
     font-size: 50px!important;
-    line-height: normal!important;
-   
+       
 }
 
 .hStyleOpEfb{
