@@ -93,7 +93,7 @@ class _Public {
 			return 1;
 		}
 		$row_id = array_pop($id);
-		error_log($row_id);
+		//error_log($row_id);
 		$this->id = $row_id;
 	/* 	if($row_id==0){
 			$this->EMS_Form_Builder_track();
@@ -199,7 +199,7 @@ class _Public {
 					$send['user_image']=get_avatar_url(get_current_user_id());
 					$value=$send;
 				}
-				error_log($state);
+				//error_log($state);
 		$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 		'ajax_value' =>$value,
 		 'type' => $typeOfForm,
@@ -420,8 +420,8 @@ class _Public {
 		$r= $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
-		error_log('type');
-		error_log($type);
+		//error_log('type');
+		//error_log($type);
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
@@ -467,7 +467,7 @@ class _Public {
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				error_log(json_encode($formObj));
+				//error_log(json_encode($formObj));
 				if($formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
 					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
@@ -516,7 +516,7 @@ class _Public {
 			}
 
 		  
-					error_log($type);
+					//error_log($type);
 					
 					switch($type){
 						case "form":						
@@ -531,7 +531,6 @@ class _Public {
 								//error_log($setting->emailSupporter);
 									$email = $setting->emailSupporter;
 								}
-								
 								$this->send_email_Emsfb($email,$check,$pro,"newMessage");
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 									if($trackingCode=="true"||$trackingCode=="true")
@@ -563,6 +562,7 @@ class _Public {
 							$currentDateTime = date('Y-m-d H');
 							$vv;
 							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name` WHERE track = '$id' AND read_=2 " );	
+							$trackId= $id;
 							if($value!=null){
 								$vv=$value[0]->content;
 								$vv_ =str_replace('\\', '', $vv);
@@ -615,14 +615,14 @@ class _Public {
 										$email = $setting->emailSupporter;
 									}
 									
-									$this->send_email_Emsfb($email,$check,$pro,"newMessage");
+									$this->send_email_Emsfb($email,$trackId,$pro,"newMessage");
 									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 										if($trackingCode=="true"||$trackingCode=="true")
 										{
 	
-										$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
+										$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled_TrackingCode");
 										}else{
-										 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
+										 $this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled");
 										}
 									}
 								}
@@ -991,7 +991,7 @@ class _Public {
 		if(isset($read)==false) $read=0;
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "Emsfb_msg_";
-		error_log($this->name);
+		//error_log($this->name);
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -1156,7 +1156,7 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state){
-	  
+	 
 	
    $cont = $track;
    $subject ="📮 ". $this->lanText["youRecivedNewMessage"];
@@ -1255,7 +1255,7 @@ class _Public {
 
 	public function pay_stripe_sub_Emsfb() {
 		
-        error_log('pay_stripe_sub_Emsfb');
+        //error_log('pay_stripe_sub_Emsfb');
         /* $efbFunction = new efbFunction();   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text); */
@@ -1284,8 +1284,8 @@ class _Public {
 		}
 
         include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
-        error_log('payment');
-        error_log($_POST['id']);
+        //error_log('payment');
+        //error_log($_POST['id']);
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		//error_log($this->id);

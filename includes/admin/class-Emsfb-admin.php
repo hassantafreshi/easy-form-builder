@@ -624,8 +624,6 @@ class Admin {
                 $jsn  = $v->content;
                 $jsn  = str_replace('\\', '', $jsn);
                 $json = json_decode($jsn);
-                /* 	error_log($jsn);
-                    error_log(gettype($json)); */
                 foreach ($json as $keyR => $row) {
                     foreach ($row as $key => $val) {
                         //error_log(json_encode($val));
