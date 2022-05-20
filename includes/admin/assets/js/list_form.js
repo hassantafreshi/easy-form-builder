@@ -740,7 +740,7 @@ function fun_show_help__emsFormBuilder() {
                   <h1 class="efb  pointer-efb" onclick="Link_emsFormBuilder('ws')"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
                   <h3 class="efb  pointer-efb  card-text " onclick="Link_emsFormBuilder('ws')">${efb_var.text.byWhiteStudioTeam}</h3>
                   <div class="efb clearfix"></div>
-                  <p class="efb  card-text efb pb-3 fs-7">
+                  <p class="efb  card-text efb pb-3 fs-6">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
                   <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
