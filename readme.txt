@@ -169,6 +169,7 @@ How *Easy Form Builder* makes your life easier:
 
 - *Payment Multi choose* : Payment Multi choose is the payment field and show list of service or product or order so user can select multiple row of the list on payment or order forms. 
 
+- *Supported currencies* : Easy Form builder payments powered by Stripe so the plugin support 135+ currencies.
 
 *Free advanced features of Form builder* 
 
@@ -234,7 +235,7 @@ You can Localize or translate every single words,  phrase or messages to your la
 Adding a multiple selection dropdown (Multiple Select field) to your WP forms allows your customers select multiple option without using any checkboxes inputs also the customer can search in dropdown list for free
  
 **Accept payment with Stripe**
-Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder.
+Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder and build your service payment form or order payment form.
 
 
 
@@ -278,6 +279,7 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 9. create a contact-us form
 10. localization Easy form builder to your language
 11. Email template Editor of Easy form builder 
+12. Order payment form
 
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
@@ -307,6 +309,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 == Changelog ==
 
 = 3.0.0 =
+* Improve UI
 * Added custom Payment WP Forms with drag and drop Easy Form Builder plugin
 * Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
 * Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder
@@ -315,7 +318,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
 * Added Link field on WordPress Easy Form builder
 * Added title field on Easy form builder
-* Payment form supports these currencies:
+* Easy Form Builder payment form supports these currencies:
       USD (United State dollar)
       AED (United Arab Emirates dirham, درهم إماراتي)
       AFN*(Afghan afghani)

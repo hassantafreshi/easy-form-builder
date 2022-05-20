@@ -998,7 +998,7 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 
                             <h3 class="efb  card-title mt-3 mobile-title text-capitalize">${efb_var.text.info}</h3>
-                            <p class="efb  m-2 fs-8">
+                            <p class="efb  m-2 fs-6">
                             ${efb_var.text.infoEmailTemplates}
                             </br></br>
                             <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
@@ -1021,7 +1021,7 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
                     </div>
                       
-                        <button type="button" id="save-stng-efb" class="efb btn efb btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
+                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
                             <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>                  
                 </div>

@@ -111,6 +111,10 @@ class Create {
 			if(	$pro==true){
 					/* wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 					wp_enqueue_script('whitestudio-admin-pro-js'); */
+
+					wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+					wp_enqueue_script('stripe-js');
+					
 			}
 
 			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
@@ -127,11 +131,8 @@ class Create {
 		}
 
 
-			// اگر نسخه ویژه بود و پلاگین نصب بود این بخش فعال شود
-		//stripe77
-		wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-		wp_enqueue_script('stripe-js');
-		
+
+	
 		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
 

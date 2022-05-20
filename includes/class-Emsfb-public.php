@@ -27,6 +27,7 @@ class _Public {
 
 		global $wpdb;
 		$this->db = $wpdb;
+		$this->id =-1;
 		//global $wp_session;
 		// stripe
 		// اگر پرو بود و مقدار پیمنت  ترو بود اضافه شود
@@ -38,9 +39,9 @@ class _Public {
 
 
 
+		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
-		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EMS_Form_Builder' ) ); 
 		
 		add_action('wp_enqueue_scripts', array($this,'fun_footer'));
 		
@@ -48,17 +49,18 @@ class _Public {
 		add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
 		
 		
-		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public'));
 		
 		add_action('wp_ajax_nopriv_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
 		add_action('wp_ajax_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
 		
-
+		
 		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		
+		
+		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) ); 
 		add_action('init',  array($this, 'hide_toolmenu'));
 		
 		$efbFunction = new efbFunction();  
@@ -84,17 +86,30 @@ class _Public {
 		wp_enqueue_script('efb_js');
 	}
 
-	public function EMS_Form_Builder($id){
+	public function EFB_Form_Builder($id){
+
+		/* error_log(json_encode($id)); */
+		if($this->id!=-1){
+			return 1;
+		}
+		$row_id = array_pop($id);
+		error_log($row_id);
+		$this->id = $row_id;
+	/* 	if($row_id==0){
+			$this->EMS_Form_Builder_track();
+			
+		} */
 		$this->public_scripts_and_css_head();
+		$state="";
 		//add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
 		//error_log('form Genrate');
 		$efbFunction = new efbFunction();  
 		
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$pro=false;
-		foreach ($id as $row_id){
+		//foreach ($id as $row_id){
 			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
-		}
+		//}
 		$this->id = $id;
 		if($this->value==null){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
@@ -107,6 +122,7 @@ class _Public {
 		$lang = explode( '_', $lang )[0];
 		}
 		$state="form";
+		
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
 			
@@ -183,7 +199,7 @@ class _Public {
 					$send['user_image']=get_avatar_url(get_current_user_id());
 					$value=$send;
 				}
-
+				error_log($state);
 		$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 		'ajax_value' =>$value,
 		 'type' => $typeOfForm,
@@ -249,12 +265,18 @@ class _Public {
 
 		
 		return $content; 
-		
+		die();
 		// 
 	}
 
 
 	public function EMS_Form_Builder_track(){
+
+		if($this->id!=-1){
+			return 1;
+		}
+		$this->id=0;
+		error_log('run');
 		$this->public_scripts_and_css_head();
 		//Confirmation Code show
 		$lang = get_locale();

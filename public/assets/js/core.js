@@ -27,7 +27,7 @@ setTimeout(() => {
     
     if (typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder = ajax_object_efm.poster;
-    
+    console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
@@ -932,7 +932,7 @@ function emsFormBuilder_show_content_message(value, content) {
   <textarea class="efb  form-control border-d" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
   </div>
   <div class="efb col text-right row my-2 mx-1">
-  <button type="submit" class="efb btn efb btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
+  <button type="submit" class="efb btn btn-r btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
   <!-- recaptcha  -->
   ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->

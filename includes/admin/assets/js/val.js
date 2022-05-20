@@ -115,11 +115,11 @@ function show_setting_window_efb(idset) {
     const labelFontSizeEls = `
       <label for="labelFontSizeEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">                                            
-                            <option value="fs-6" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
-                            <option value="fs-7" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-                            <option value="fs-5" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
-                            <option value="fs-4" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
-                            <option value="fs-3" ${valj_efb[indx].label_text_size && valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+                            <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
+                            <option value="fs-7" ${ valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+                            <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
+                            <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+                            <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
                         </select>`;
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
@@ -190,10 +190,10 @@ function show_setting_window_efb(idset) {
     const widthEls = `
       <label for="widthEl" class="efb  mt-3 bi-arrow-left-right mx-2">${efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="sizeEl" >                                            
-          <option value="33" ${valj_efb[indx].size && valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
-          <option value="50" ${valj_efb[indx].size && valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
-          <option value="80" ${valj_efb[indx].size && valj_efb[indx].size == 80 ? `selected` : ''} >80%</option>
-          <option value="100" ${valj_efb[indx].size && valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
+          <option value="33" ${valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
+          <option value="50" ${valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
+          <option value="80" ${valj_efb[indx].size == 80 ? `selected` : ''} >80%</option>
+          <option value="100" ${valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
       </select>
       `
     const classesEls = `
@@ -233,13 +233,13 @@ function show_setting_window_efb(idset) {
         if(isNumericEfb(iset))idset=iset="step-"+iset;
        //console.log(iset)
         icon = valj_efb[indx].icon }
-      let list =`<tr class="efb list text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
+      let list =`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-XXX" data-row="-2" data-state="0" data-visible="1">
       <th scope="row" class="efb bi-XXXXX"></th>
       <td>None</td>      
     </tr>`
       bootstrap_icons.forEach((e,key )=> {
         const v= e.replace(`-`, ' ');      
-        list+=`<tr class="efb list text-white" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
+        list+=`<tr class="efb efblist text-white" data-id="${iset}" data-name="bi-${e}" data-row="${key}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-${e}"></th>
         <td>${v}</td>      
       </tr>`      
@@ -355,14 +355,15 @@ function show_setting_window_efb(idset) {
       `
     }
     const selectHeightEls = () => {
+      console.log(indx,valj_efb[indx].el_height ,valj_efb[indx].el_height );
       return `
         <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
         <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            
-        <option value="h-d-efb" ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
-        <option value="h-l-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>                      
-        <option value="h-xl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xl-efb' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
-        <option value="h-xxl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xxl-efb' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
-        <option value="h-xxxl-efb"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_height == 'h-xxxl-efb' ? `selected` : ''} >${efb_var.text.xxxlarge}</option>   
+        <option value="h-d-efb" ${ valj_efb[indx].el_height == 'h-d-efb' ? `selected` : ''}>${efb_var.text.default}</option>
+        <option value="h-l-efb"  ${ valj_efb[indx].el_height == 'h-l-efb' ? `selected` : ''} >${efb_var.text.large}</option>                      
+        <option value="h-xl-efb"  ${ valj_efb[indx].el_height == 'h-xl-efb' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+        <option value="h-xxl-efb"  ${ valj_efb[indx].el_height == 'h-xxl-efb' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+        <option value="h-xxxl-efb"  ${ valj_efb[indx].el_height == 'h-xxxl-efb' ? `selected` : ''} >${efb_var.text.xxxlarge}</option>   
         </select>
         `
     }
@@ -370,14 +371,14 @@ function show_setting_window_efb(idset) {
       return `
         <label for="fontSizeEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
         <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="fontSizeEl" data-tag="${valj_efb[indx].type}">                                                  
-        <option value="display-1" ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size ==  'display-1' ? `selected` : ''}>${efb_var.text.xxxlarge}</option>
-        <option value="display-2"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
-        <option value="display-3"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-3' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
-        <option value="display-4"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-4' ? `selected` : ''} >${efb_var.text.large}</option>                            
-        <option value="display-5"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-5' ? `selected` : ''} >${efb_var.text.medium }</option>                            
-        <option value="display-6"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-6' ? `selected` : ''} >${efb_var.text.small }</option>                            
-        <option value="display-7"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-7' ? `selected` : ''} >${efb_var.text.xsmall}</option>                            
-        <option value="display-8"  ${valj_efb[indx].el_text_size && valj_efb[indx].el_text_size == 'display-8' ? `selected` : ''} >${efb_var.text.xxsmall}</option>                            
+        <option value="display-1"  ${valj_efb[indx].el_text_size ==  'display-1' ? `selected` : ''}>${efb_var.text.xxxlarge}</option>
+        <option value="display-2"  ${valj_efb[indx].el_text_size == 'display-2' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+        <option value="display-3"  ${valj_efb[indx].el_text_size == 'display-3' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
+        <option value="display-4"  ${valj_efb[indx].el_text_size == 'display-4' ? `selected` : ''} >${efb_var.text.large}</option>                            
+        <option value="display-5"  ${valj_efb[indx].el_text_size == 'display-5' ? `selected` : ''} >${efb_var.text.medium }</option>                            
+        <option value="display-6"  ${valj_efb[indx].el_text_size == 'display-6' ? `selected` : ''} >${efb_var.text.small }</option>                            
+        <option value="display-7"  ${valj_efb[indx].el_text_size == 'display-7' ? `selected` : ''} >${efb_var.text.xsmall}</option>                            
+        <option value="display-8"  ${valj_efb[indx].el_text_size == 'display-8' ? `selected` : ''} >${efb_var.text.xxsmall}</option>                            
         </select>
         `
     }
