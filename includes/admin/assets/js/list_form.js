@@ -790,7 +790,7 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key=="easyFormBuilder" ? "d-none" : "d-block";
-    if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}"  class="efb sen sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
+    if(key!="forbiddenChr")  textList+=`<input type="text"  id="${key}"  class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value? value : ''}">`
   } );
   const mxCSize = !mobile_view_efb ? 'mx-5'  : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4'  : 'mx-1';
@@ -821,7 +821,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </h5>
                                 <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
-                                    <input type="text" class="efb form-control efb h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
                                
@@ -832,7 +832,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
                            
                                 <input  class="efb elEdit form-check-input efb fs-5" type="checkbox" id="bootstrap_emsFormBuilder" ${bootstrap==true ? "checked" :""}>
-                                <label class="efb form-check-label efb" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
+                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>                                            
                                
                                 </div>
                               
@@ -871,17 +871,17 @@ function fun_show_setting__emsFormBuilder() {
                                 
                              <!--Google-->
                             
-                             ${ apiKeyMap=='null' ? `<div class="efb m-3 p-3 efb alert-info" role=""><h4 class="efb alert-heading">🎉 ${efb_var.text.SpecialOffer} </h4> <div>${googleCloudOffer()} </div></div>`:`` }
+                             ${ apiKeyMap=='null' ? `<div class="efb m-3 p-3 efb alert-info" role=""><h5 class="efb alert-heading">🎉 ${efb_var.text.SpecialOffer} </h5> <div>${googleCloudOffer()} </div></div>`:`` }
                              <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
                             </h5>
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
                                 <label class="efb form-label mx-2">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb  form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                             <h5 class="efb  card-title mt-3 mobile-title">
@@ -891,7 +891,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
                                 <label class="efb form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
@@ -906,7 +906,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
                                     <label class="efb form-label mx-2">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
                                     <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 </div>
                                 
@@ -915,7 +915,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </h5>
                                 <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
-                                    <button type="button" class="efb btn col-md-4 efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
+                                    <button type="button" class="efb btn  efb btn-outline-pink btn-lg "onClick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
                                         <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
@@ -945,10 +945,10 @@ function fun_show_setting__emsFormBuilder() {
                                <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
                                   <label class="efb form-label mx-2">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb  form-control col-12 efb h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                               </div>
                                                            
