@@ -655,7 +655,7 @@ function actionSendData_emsFormBuilder() {
       data: data,
       success: function (res) { response_fill_form_efb(res) },
       error: function (res) { console.error(res);
-        response_fill_form_efb({ success: false, data: { success: false, m: `'E:JQ Co'` } }) }
+        response_fill_form_efb({ success: false, data: { success: false, m: `E:JQ Co` } }) }
 
     })
 
@@ -730,10 +730,6 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id) {
-  //789
-  // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
-  // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
-  // روی تست ولیدت را تست کن ببین مشکل از کجاست
    document.getElementById(`${id}_-message`).innerHTML="";
   let file = ''
   if (true) {
@@ -972,71 +968,73 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  <hr>
  <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
- for (const c of content) {
+ let list = []
+  for (const c of content) {
     
-  s= false;
-  let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
-  if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
-    s=true;
-    list.push(c.url);
-    $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
-    console.log($name,c.type ,"URL", c.url);
-    if (c.type == "Image" ||c.type == "image") {
-      value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
-    }else if (c.type == "Document" ||c.type == "document") {
-      value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${efb_var.text.download}</a>`
-    } else if (c.type == "Media" ||c.type == "media") {
-      const audios = ['mp3', 'wav', 'ogg'];
-      let media = "video";
-      audios.forEach(function (aud) {
-        if (c.url.indexOf(aud) !== -1) {
-          media = 'audio';
-        }
-      })
-      if (media == "video") {
-        const len = c.url.length;
-        const type = c.url.slice((len - c.url.lastIndexOf(x=>x==".")), len);          
-        value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
-      } else {
-        value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
-      }
-    } else {        
-      value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
-    }
-
-  }else if (c.type == "esign") {
-    console.log('esign');
-    console.log(c.value);
-    s=true;
-    value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-    m +=value ;
-    console.log(value);
-  }else if(c.type=="maps"){
-   
-    if(typeof(c.value)=="object"){
+    s= false;
+    let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
+    if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
       s=true;
-      value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
-      valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
-      marker_maps_efb= c.value;
-      initMap();
+      list.push(c.url);
+      $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
+      console.log($name,c.type ,"URL", c.url);
+      if (c.type == "Image" ||c.type == "image") {
+        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
+      }else if (c.type == "Document" ||c.type == "document") {
+        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${ajax_object_efm.text.download}</a>`
+      } else if (c.type == "Media" ||c.type == "media") {
+        const audios = ['mp3', 'wav', 'ogg'];
+        let media = "video";
+        audios.forEach(function (aud) {
+          if (c.url.indexOf(aud) !== -1) {
+            media = 'audio';
+          }
+        })
+        if (media == "video") {
+          const len = c.url.length;
+          const type = c.url.slice((len - c.url.lastIndexOf(x=>x==".")), len);          
+          value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
+        } else {
+          value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
+        }
+      } else {        
+        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
+      }
+
+    }else if (c.type == "esign") {
+      console.log('esign');
+      console.log(c.value);
+      s=true;
+      value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
+      m +=value ;
+      console.log(value);
+    }else if(c.type=="maps"){
+     
+      if(typeof(c.value)=="object"){
+        s=true;
+        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
+        marker_maps_efb= c.value;
+        initMap();
+        m +=value ;
+      }
+    }else if(c.type=="rating"){
+      s=true;
+      value=`<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
+      for(let i=0 ; i<parseInt(c.value) ; i++){
+        value += `<i class="efb bi bi-star-fill"></i>`
+      }
+      value+="</div>";
       m +=value ;
     }
-  }else if(c.type=="rating"){
-    s=true;
-    value=`<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
-    for(let i=0 ; i<parseInt(c.value) ; i++){
-      value += `<i class="efb bi bi-star-fill"></i>`
-    }
-    value+="</div>";
-    m +=value ;
-  }
-  if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
-  if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
+    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-  if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
-}
-m += '</div>';  
-return m;
+    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+  }
+  m += '</div>';  
+  console.log('m',m);
+  return m;
 }
 
 

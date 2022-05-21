@@ -59,9 +59,10 @@ function creator_form_builder_Efb() {
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false, 
       show_pro_bar: false, captcha: false,private:false,sendEmail: false,font:true,stateForm:0,
-      thank_you_message:{thankYou:efb_var.text.thanksFillingOutform, done:efb_var.text.done, trackingCode:efb_var.text.trackingCode, error:efb_var.text.error,pleaseFillInRequiredFields:efb_var.text.pleaseFillInRequiredFields }, email_temp:'',font:true,      
+      thank_you:'msg',
+      thank_you_message:{icon:'bi-hand-thumbs-up',thankYou:efb_var.text.thanksFillingOutform, done:efb_var.text.done, trackingCode:efb_var.text.trackingCode, error:efb_var.text.error,pleaseFillInRequiredFields:efb_var.text.pleaseFillInRequiredFields}, email_temp:'',font:true,      
     });
-
+    console.log(valj_efb);
     if(form_type_emsFormBuilder=="payment"){
       Object.assign(valj_efb[0], {getway:'stripe' , currency:'usd', paymentmethod:'charge' })
     }
@@ -1599,7 +1600,7 @@ let add_buttons_zone_efb = (state, id) => {
   if(true) {
     let t=valj_efb.findIndex(x=>x.type=="stripe");
     t= t!=-1 ? valj_efb[t].step : 0 ;
-    dis =valj_efb[0].type=="payment" &&  (valj_efb[0].steps==1  && t==1  )? 'disabled' :'';
+    dis =valj_efb[0].type=="payment" &&  (valj_efb[0].steps==1  && t==1  ) && preview_efb!=true? 'disabled' :'';
   }
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
@@ -2784,12 +2785,12 @@ function funTnxEfb(val,title,message){
   <div class="efb "><h5 class="efb mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-               <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3" onclick="copyCodeEfb('trackingCodeEfb')">
+               <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copy}
                </button></div>`
   return `
-                      <h4 class="efb  my-1">
-                        <i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${t}
+                    <h4 class="efb  my-1">
+                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon  :'bi-hand-thumbs-up'}  title-icon mx-2" id="DoneIconEfb"></i>${t}
                     </h4>
                     <h3 class="efb ">${m}</h3>
                    ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
@@ -2831,7 +2832,7 @@ function previewFormEfb(state){
   const len = valj_efb.length;
   const p = calPLenEfb(len)
   let timeout =  (len/2)*(Math.log(len)) * p;
-  console.log(timeout);
+  //console.log(timeout);
   timeout<1700 ? timeout=1700 : 0;
   if (state != "show" && state !="run") {
     if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {

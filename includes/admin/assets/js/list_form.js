@@ -9,18 +9,13 @@ let response_state_efb ;
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
 jQuery(function () {
-  //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-  //ajax_object_efm.ajax_value مقدار جی سون
-  //ajax_object_efm.language زبان بر می گرداند
-  //ajax_object_efm.messages_state پیام های خوانده نشده را بر می گرداند
   valueJson_ws_form = ajax_object_efm.ajax_value;
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb=ajax_object_efm.response_state;
   pro_ws = ajax_object_efm.pro =='1' ? true :false;
  
   if(ajax_object_efm.setting,ajax_object_efm.setting.length>0){
-    valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-      console.log(ajax_object_efm ,valueJson_ws_setting.bootstrap , ajax_object_efm.bootstrap)
+    valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));      
     if(valueJson_ws_setting.bootstrap==0 &&   ajax_object_efm.bootstrap==1){
       if(localStorage.getItem('bootstrap_w')=== null) localStorage.setItem('bootstrap_w',0)
       if (localStorage.getItem('bootstrap_w')>=0 && localStorage.getItem('bootstrap_w') <3) {
@@ -52,10 +47,10 @@ function fun_emsFormBuilder_render_view(x) {
    </th>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
-   <td  class="efb emsFormBuilder-tr"  > 
-   <button type="button" class="efb  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
-   <button type="button" class="efb  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
-   <button type="button" class="efb  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
+   <td  class="efb" > 
+   <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
+   <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
+   <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16"><path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097 1.016-.417 2.13-.771 2.966-.079.186.074.394.273.362 2.256-.37 3.597-.938 4.18-1.234A9.06 9.06 0 0 0 8 15z"/></svg>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
    <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
      onClick ="copyCodeEfb('${i.form_id}-fc')" 
@@ -99,9 +94,7 @@ function fun_emsFormBuilder_render_view(x) {
             <th scope="col" class="efb">${efb_var.text.edit}</th>
             </tr>
         </thead>
-        <tbody class="efb">
-        ${rows}
-        </tbody>
+        <tbody class="efb">${rows}</tbody>
     </table>
  </div>
  `
@@ -114,7 +107,7 @@ function fun_emsFormBuilder_render_view(x) {
 
 
 
-  for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)) {
+  for (const el of document.querySelectorAll(`.emsFormBuilder-tr`)) {    
     el.addEventListener("click", (e) => {emsFormBuilder_messages(el.dataset.id)});
   }
 }
@@ -184,9 +177,7 @@ function emsFormBuilder_show_content_message(id) {
   }
 
   const body = `
-    <div class="efb  modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
-      ${m} 
-     </div>
+    <div class="efb  modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">${m} </div>
      ${replayM()}
      </div></div></div><div></div></div>`;
 
@@ -476,6 +467,7 @@ function fun_delete_form_with_id_by_server(id) {
 
 function emsFormBuilder_messages(id) {
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
+  console.log(id , ajax_object_efm,row)
   form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
@@ -553,43 +545,6 @@ function fun_update_message_state_by_id(id) {
     })
   });
 }
-/* function fun_update_message_state_by_id(id) {
-  jQuery(function ($) {
-    data = {
-      action: "update_message_state_Emsfb",
-      type: "POST",
-      nonce: ajax_object_efm_core.nonce,
-      id: id
-    };
-    $.post(ajax_object_efm.ajax_url, data, function (res) {
-      if (res.success == true) {
-        let iconRead = 'fa fa-envelope-open-o';
-        if (form_type_emsFormBuilder == 'subscribe') {
-          iconRead = 'fa fa-user-o';
-        } else if (form_type_emsFormBuilder == 'register') {
-          iconRead = 'fa fa-user-o';
-        }
-        document.getElementById(`icon-${id}`).className = iconRead;
-        document.getElementById(`efbCountM`).innerHTML = parseInt(document.getElementById(`efbCountM`).innerHTML) - 1;
-        
-        if (res.data.ajax_value != undefined) {
-          const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
-          const len = value.length
-          
-          setTimeout(() => {
-            formName_Efb = valj_efb[0].formName;
-            localStorage.setItem('valj_efb', JSON.stringify(value));
-            const edit = { id: res.data.id, edit: true };
-            localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
-            fun_ws_show_edit_form(id);
-          }, len * 6)
-        }
-      } else {
-        
-      }
-    })
-  });
-} */
 function fun_get_messages_by_id(id) {
   jQuery(function ($) {
     data = {
@@ -649,10 +604,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         // noti_message_efb(res.data.m, 7 , 'info')
         document.getElementById('replayM_emsFormBuilder').innerHTML = "";
-        document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-
-        // اضافه شدن به سمت یو آی 
-        const userIp = ajax_object_efm.user_ip;
+        document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');        
         const date = Date();       
         document.getElementById('replayM_emsFormBuilder').value = "";
 
@@ -671,7 +623,6 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
-  //respomse
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
@@ -683,7 +634,6 @@ function fun_ws_show_response(value) {
     const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
   }
-  //document.getElementById('loading_message_emsFormBuilder').remove();
 }
 
 
@@ -703,13 +653,11 @@ function fun_show_content_page_emsFormBuilder(state) {
 }
 
 function fun_hande_active_page_emsFormBuilder(no) {
-  //active
   let count = 0;
   for (const el of document.querySelectorAll(`.nav-link`)) {
     count += 1;
     if (el.classList.contains('active')) el.classList.remove('active');
     if (count == no) el.classList.add('active');
-    //active
   }
 }
 
@@ -770,9 +718,8 @@ function fun_show_setting__emsFormBuilder() {
   let textList ="<!--list EFB -->";
   let bootstrap = false ;
   let emailTemp="null"
-//JSON.parse(ajax_object_efm.setting[0].text.replace(/[\\]/g, ''))
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
-   // console.log(ajax_object_efm.setting[0].setting);
+
     if (valueJson_ws_setting.length == 0) {valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
     }else if (typeof valueJson_ws_setting=="string"){
       valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
@@ -1498,13 +1445,8 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 
 function generat_csv_emsFormBuilder() {
-  //const head  = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  
-  
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
-  //040820
-
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
 }
@@ -1643,10 +1585,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
 
 }//end function
 
-function googleCloudOffer() {
-
-  return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `
-}
+function googleCloudOffer() {return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> `}
 
 
 function clickToCheckEmailServer() {
@@ -1721,8 +1660,7 @@ function email_template_efb(s){
         
         c+=funNproEmailTemp();
         //console.log("Not Pro");
-      }
-      // موارد زیر در سمت سرور هم قبل از ذخیره سازی اضافه شود برای  کاربر رایگان
+      }      
     }else if(c.length>=10000){
       c =`<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>` ;
       //ti =efb_var.text.error

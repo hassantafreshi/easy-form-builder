@@ -88,7 +88,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Get notified by email when a form has been submitted 
 
-- Showing the Confirmation code filled in forms 
+- Showing an unique confirmation code after filled forms 
 
 - Reliable spam protection through Google’s reCAPTCHA v2 and localized 
 
@@ -96,11 +96,11 @@ How *Easy Form Builder* makes your life easier:
 
 - Email notification for forms and responses 
 
-- Show Form notification on entry mangement when have new response or message
+- Shown Form notification on entry management when have new response or message
 
 - Entry Management for forms and response 
 
-- Unique Confirmation code ( tracking ID) finder 
+- Confirmation code ( tracking ID) finder 
 
 - User-friendly and feature-rich panel to manage your forms and their responses 
 
@@ -113,6 +113,8 @@ How *Easy Form Builder* makes your life easier:
 - Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form
 
 - Change or Build Email Template for Email notification of forms
+
+- Customize the thank you message  
 
 
 

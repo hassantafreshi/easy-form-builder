@@ -89,9 +89,7 @@ class _Public {
 	public function EFB_Form_Builder($id){
 
 		/* error_log(json_encode($id)); */
-		if($this->id!=-1){
-			return __('Easy Form Builder' , 'easy-form-builder');
-		}
+		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$row_id = array_pop($id);
 		//error_log($row_id);
 		$this->id = $row_id;
@@ -272,18 +270,16 @@ class _Public {
 
 	public function EMS_Form_Builder_track(){
 
-		if($this->id!=-1){
-			return __('Easy Form Builder' , 'easy-form-builder');
-		}
-		$this->id=0;
-		error_log('run');
+		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
+		$this->id=0;;
+		
 		$this->public_scripts_and_css_head();
 		//Confirmation Code show
 		$lang = get_locale();
 
 				$efbFunction = new efbFunction();   
 				//translate v2
-				$text=["trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
+				$text=["download","trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
 				$text= $efbFunction->text_efb($text);
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -321,7 +317,7 @@ class _Public {
 			   'text' =>$text 
 		 ));  
 
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";	
 		return $content; 
 
 	}
@@ -639,7 +635,7 @@ class _Public {
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
 					 
-							$m = "Error 500 ";
+							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$this->id  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
 							wp_send_json_success($response,$_POST);
 							
