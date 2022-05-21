@@ -842,7 +842,7 @@ div#dropZoneEFB {
 .star-efb {
 direction: rtl;
 height: auto;
-
+padding: 10px 0px!important;
 }
 
 .efb.display-7 {

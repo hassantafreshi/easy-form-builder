@@ -262,7 +262,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s= false;
   for (const c of content) {
-    console.log(c,list);
+    console.log( c.type);
+    
     s= false;
     let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
@@ -292,9 +293,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       } else {        
         value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
       }
+
     }else if (c.type == "esign") {
+      console.log('esign');
+      console.log(c.value);
       s=true;
-      value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`
+      value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
+      m +=value ;
+      console.log(value);
     }else if(c.type=="maps"){
      
       if(typeof(c.value)=="object"){
@@ -303,20 +309,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
         marker_maps_efb= c.value;
         initMap();
-
+        m +=value ;
       }
     }else if(c.type=="rating"){
       s=true;
-      value=`<div class='efb fs-5 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
+      value=`<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
       for(let i=0 ; i<parseInt(c.value) ; i++){
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value+="</div>";
+      m +=value ;
     }
-    if (c.id_ == 'passwordRegisterEFB') value = '**********';
-    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
+    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
   }
   m += '</div>';  
   return m;

@@ -90,7 +90,7 @@ class _Public {
 
 		/* error_log(json_encode($id)); */
 		if($this->id!=-1){
-			return 1;
+			return __('Easy Form Builder' , 'easy-form-builder');
 		}
 		$row_id = array_pop($id);
 		//error_log($row_id);
@@ -273,7 +273,7 @@ class _Public {
 	public function EMS_Form_Builder_track(){
 
 		if($this->id!=-1){
-			return 1;
+			return __('Easy Form Builder' , 'easy-form-builder');
 		}
 		$this->id=0;
 		error_log('run');
