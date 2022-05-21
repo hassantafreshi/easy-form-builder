@@ -261,9 +261,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   let s= false;
-  for (const c of content) {
-    console.log( c.type);
-    
+  for (const c of content) {   
     s= false;
     let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
     if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
