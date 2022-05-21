@@ -668,7 +668,7 @@ function fun_show_help__emsFormBuilder() {
     2: { title: efb_var.text.howConfigureEFB, url: 'https://youtu.be/dkrAcBGJjLQ' },
     3: { title: efb_var.text.howGetGooglereCAPTCHA, url: 'https://youtu.be/AZ9LPPTPuh0' },
     4: { title: efb_var.text.howActivateAlertEmail, url: 'https://youtu.be/Zz3NV6mA-us' },
-    5: { title: efb_var.text.howCreateAddForm, url: 'https://youtu.be/JSI-lFRA_9I' },
+    5: { title: efb_var.text.howCreateAddForm, url: 'https://youtu.be/AnkhmZ5Cz9w' },
     6: { title: efb_var.text.howActivateTracking, url: 'https://youtu.be/q0OTaj0iiGs' },
     7: { title: efb_var.text.howWorkWithPanels, url: 'https://youtu.be/SJh5h89P8UU' },
     8: { title: efb_var.text.howAddTrackingForm, url: 'https://youtu.be/GK99Jcb3_ZY' },

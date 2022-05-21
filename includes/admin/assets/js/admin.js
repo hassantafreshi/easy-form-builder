@@ -48,7 +48,7 @@ function Link_emsFormBuilder(state) {
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
   switch(state){
     case  'publishForm':
-    link = "https://youtu.be/JSI-lFRA_9I";
+    link = "https://youtu.be/AnkhmZ5Cz9w";
     break;
     case  'createSampleForm':
     case  'tutorial':

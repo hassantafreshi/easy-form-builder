@@ -14,7 +14,7 @@ Easy Form Builder is a user-friendly plugin to help you create powerful forms. W
 == Description ==
 **Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
 
-[youtube https://youtu.be/JSI-lFRA_9I]
+[youtube https://youtu\.be/AnkhmZ5Cz9w]
 
 
 
@@ -299,7 +299,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 3. [How to activate the alert email (Notification email) for new form submissions](https://youtu.be/Zz3NV6mA-us)
 
-4. [How to create and add a form with *Easy Form Builder*](https://youtu.be/JSI-lFRA_9I)
+4. [How to create and add a form with *Easy Form Builder*](https://youtu\.be/AnkhmZ5Cz9w)
 
 5. [How to activate a Confirmation Code in *Easy Form Builder*](https://youtu.be/q0OTaj0iiGs)
 

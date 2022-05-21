@@ -110,7 +110,7 @@ class _Public {
 		//}
 		//$this->id = $id;
 		if($this->value==null){
-			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$this->lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
 		}
 		$typeOfForm =$this->value[0]->form_type;
 		$value = $this->value[0]->form_structer;
@@ -239,7 +239,7 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }
-		 $efb_m ="<h6 class='efb text-center my-1 text-pinkEfb efb'>".__('Easy Form Builder', 'easy-form-builder')."</h6> ";
+		 $efb_m ="<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 	
 		 if($pro==true) $efb_m="";
 		 if($formObj[0]["stateForm"]==true){
