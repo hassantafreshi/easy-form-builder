@@ -40,7 +40,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Easily Localization
 
-- Build Form with ReCAPTCHA.
+- Build Forms with ReCAPTCHA.
 
 - Instant reply functionality 
 
@@ -48,7 +48,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Mobile-friendly form builder plugin
 
-- Build Email Template for Email notification
+- Create Email Template for Email notification
 
 - Easy to embed forms to wordpress page and post
 
@@ -74,7 +74,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Create Support forms 
 
-- Create subscription or newsletters signup forms 
+- Create subscription or newsletters forms 
 
 - Create Login (sign-in) forms 
 
@@ -90,31 +90,36 @@ How *Easy Form Builder* makes your life easier:
 
 - Showing an unique confirmation code after filled forms 
 
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized 
-
 - Send notification email when the user have a new message 
-
-- Email notification for forms and responses 
-
-- Shown Form notification on entry management when have new response or message
-
-- Entry Management for forms and response 
-
-- Confirmation code ( tracking ID) finder 
 
 - User-friendly and feature-rich panel to manage your forms and their responses 
 
-- Present survey (poll) results in Pie Chart 
+- Shown Form notification on entry management when have new response or message
+
+- Entry Management able to show response message of forms and edit forms or delete forms
+
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized automaticaly to your language 
 
 - Add custom email template for form notification emails 
 
+- Confirmation code (tracking ID) finder form
+
+- Show survey (poll) results in Pie Chart 
+
 - Easily Localization Easy Form Builder to your language 
+
+- Email notification automatically send email messages every time a respondent submits your built form on Easy form Builder
 
 - Multiple Select (Multi Selection Dropdown list) field used for select multiple option in a support form or any kind of form
 
 - Change or Build Email Template for Email notification of forms
 
-- Customize the thank you message  
+- Forms Templates for create contact-us or support forms
+
+- Customizable the thank you message in forms.
+
+- Create any kind of forms you want!
+
 
 
 
@@ -126,15 +131,15 @@ How *Easy Form Builder* makes your life easier:
 
 - Build multi-step (unlimited steps) Forms
 
-- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
-
 - Get export of result of Surveys to CSV format file 
 
 - Get export of responses or messages of forms to CSV format file 
 
+- Build Easily any kind of payment order or service forms on Easy Form Builder
+
 - Payment Fields (inputs) like Payment Multi choose, Payment Single choose ,Payment Selection Choose,Payment dropdown list
 
-- Build payment order form
+- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
 
 
 
@@ -173,6 +178,7 @@ How *Easy Form Builder* makes your life easier:
 
 - *Supported currencies* : Easy Form builder payments powered by Stripe so the plugin support 135+ currencies.
 
+
 *Free advanced features of Form builder* 
 
 - *User Registration Forms* : Create premade login form and premade user registration form in WordPress for **free**.
@@ -191,12 +197,13 @@ How *Easy Form Builder* makes your life easier:
 
 - *Email Notification* : Quickly respond to incoming inquiries with our instant contact form notification system for **free**.
 
-- *Confirmation Code* : Showing the Confirmation code in filled out contact forms or other type of forms for **free**.
+- *Confirmation Code* : Showing the Confirmation code(tracking code) in filled out contact forms or other type of forms for **free**.
 
 - *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
 
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
+- *Confirmation code finder form* :By adding **Confirmation code finder form**, it enables the user to check the received answers or responses by entering his own tracking code.  You cand find out on Easy Form Builder > Panel > Setting > General > copy Confirmation Code Finder
 
 
 

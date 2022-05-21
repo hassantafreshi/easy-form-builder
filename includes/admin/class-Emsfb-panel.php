@@ -136,8 +136,8 @@ class Panel_edit  {
 		
 			?>
 			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
-			<div class="efb  side-menu-efb bg-light bg-gradient border border-secondary  text-dark fade efbDW-0"  id="sideBoxEfb">
-				<div class="efb  head sidemenu bg-light bg-gradient py-2 my-1">
+			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 "  id="sideBoxEfb">
+				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
 				</div>
