@@ -93,8 +93,8 @@ Features:
 - MultiSelect (Multi Selection) field for free
 - Stripe gateway available for create payment forms (Available in pro version)
 - Build own costum payment form (Available in pro version)
-- Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder (Available in pro version)
-- Added Payment Single choose feild for create a form payment on WP Easy Form Builder plugin (Available in pro version)
+- Added Payment Multi Choose field for build own custom payment forms with Easy Form Builder (Available in pro version)
+- Added Payment Single choose field for create a form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Payment Selection Choose field usable for build custom pay form in Easy form builder (Available in pro version)
 - Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Link field on WordPress Easy Form builder (Available in pro version)

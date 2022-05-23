@@ -500,7 +500,7 @@ class efbFunction {
 			"stripeMP" => $state  &&  isset($ac->text->stripeKeys) ? $ac->text->stripeKeys : __('You need stripe keys if you want to use payment in forms.','easy-form-builder'),
 			"publicKey" => $state  &&  isset($ac->text->publicKey) ? $ac->text->publicKey : __('Public Key','easy-form-builder'),
 			"price" => $state  &&  isset($ac->text->price) ? $ac->text->price : __('Price','easy-form-builder'),
-			"title" => $state  &&  isset($ac->text->title) ? $ac->text->title : __('Tittle','easy-form-builder'),
+			"title" => $state  &&  isset($ac->text->title) ? $ac->text->title : __('title','easy-form-builder'),
 			"medium" => $state  &&  isset($ac->text->medium) ? $ac->text->medium : __('Medium','easy-form-builder'),
 			"small" => $state  &&  isset($ac->text->small) ? $ac->text->small : __('Small','easy-form-builder'),
 			"xsmall" => $state  &&  isset($ac->text->xsmall) ? $ac->text->xsmall : __('XSmall','easy-form-builder'),

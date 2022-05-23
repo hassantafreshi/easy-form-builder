@@ -14,7 +14,7 @@ Easy Form Builder is a user-friendly plugin to help you create powerful forms. W
 == Description ==
 **Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
 
-[youtube https://youtu\.be/AnkhmZ5Cz9w]
+[youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
 
 
@@ -34,7 +34,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Confirmation code 
 
-- Entry mangement
+- Entry management
 
 - Form validation
 
@@ -321,8 +321,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Improve UI
 * Added custom Payment WP Forms with drag and drop Easy Form Builder plugin
 * Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
-* Added Payment Multi Choose feild for build own custom payment forms with Easy Form Builder
-* Added Payment Single choose feild for create a form payment on WP Easy Form Builder plugin
+* Added Payment Multi Choose field for build own custom payment forms with Easy Form Builder
+* Added Payment Single choose field for create a form payment on WP Easy Form Builder plugin
 * Added Payment Selection Choose field usable for build custom pay form in Easy form builder
 * Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
 * Added Link field on WordPress Easy Form builder
