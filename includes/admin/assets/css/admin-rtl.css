@@ -8,27 +8,36 @@ body {
 	text-align: initial;
 }
 
-ul.wp-submenu.wp-submenu-wrap {
-    text-align: initial;
-}
-
-li#collapse-menu {
-	float: right;
-}
-
-.nav-link {
-	float: right !important;
-}
-
-.rtl-text {
-	text-align: right;
-}
-
-.close{
-	float: left!important;
+.search-form-control.efb {
+    padding-right: 40px!important;
+	padding-left:0px!important;
 }
 
 
 input[type=file] {
     padding: 3px 14px;
 }
+
+input[type="email"]:-moz-placeholder {
+    text-align: right;
+}
+input[type="email"]:-ms-input-placeholder {
+    text-align: right;
+}
+input[type="email"]::-webkit-input-placeholder {
+    text-align: right;
+}
+
+
+.btn-edit-holder {
+    float: left!important;
+	margin-top: -40px;
+	margin-left: 0%!important;
+	margin-right: 73%;
+	position: relative;
+	z-index: 10;
+}
+
+
+
+

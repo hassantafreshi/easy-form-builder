@@ -1,1771 +1,907 @@
-//console.log("core.js")
 
 let exportView_emsFormBuilder = [];
 let stepsCount;
-let sendBack_emsFormBuilder_pub = []; // این مقدار برگشت داده می شود به سرور
+let sendBack_emsFormBuilder_pub = []; 
 let sessionPub_emsFormBuilder = "reciveFromClient"
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
-let language_emsFormBuilder ="ar"
-let multiSelectElemnets_emsFormBuilder =[] ;
-let check_call_emsFormBuilder = 1//  و در حالت پابلیک 1 شود این مقدار توسط سرور داده شود در حالت فراخونی در سمت ادمین صفر شود
-let formName =""
-let files_emsFormBuilder =[];
-let sitekye_emsFormBuilder =""
-let trackingCode_state_emsFormBuilder =""
-let form_state_emsFormBuilder =""
-let recaptcha_emsFormBuilder;
-let poster_emsFormBuilder ='';
-let pro_w_emsFormBuilder=false;
-const fileSizeLimite_emsFormBuilder =8300000;
-let select_options_emsFormBuilder=[];
-let form_type_emsFormBuilder='form';
-let mousePostion_efb = {x: 0, y: 0 };
-let draw_mouse_efb = false;
-let c2d_contex_efb
-let lastMousePostion_efb = mousePostion_efb;
-let canvas_id_efb ="";
-
-//exportView_emsFormBuilder مقدار المان ها را در خود نگه می دارد
-//sendBack_emsFormBuilder_pub مقدار فرم پر شده توسط کاربر در خود نگه می دارد
+let multiSelectElemnets_emsFormBuilder = [];
+let formNameEfb = ""
+let files_emsFormBuilder = [];
+//let trackingCode_state_emsFormBuilder = ""
+let recaptcha_emsFormBuilder = '';
+let poster_emsFormBuilder = '';
+//let pro_w_emsFormBuilder = false;
+const fileSizeLimite_emsFormBuilder = 8300000;
+let select_options_emsFormBuilder = [];
+let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
+console.log("Easy Form Builder");
+let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
+setTimeout(() => {
 
-jQuery (function() {
-  //789 امنیت باید اضافه شود به این قسمت
-   
-    //ajax_object_efm.ajax_url ایجکس ادمین برای برگرداند مقدار لازم می شود
-    //ajax_object_efm.ajax_value مقدار جی سون
-    //ajax_object_efm.language زبان بر می گرداند
-  //   console.log("ajax_object_efm_state",ajax_object_efm);
-    //console.log("ajax_object_efm.ajax_url",ajax_object_efm.ajax_url);
-    //console.log("ajax_object_efm.nonce",ajax_object_efm.nonce);
-    //console.log("ajax_object_efm_state_2",ajax_object_efm.state);
+
+  jQuery(function () {
+    //789 امنیت باید اضافه شود به این قسمت
+  
     
-    if(typeof ajax_object_efm == 'undefined') return;
-    console.log(ajax_object_efm);
-    poster_emsFormBuilder =ajax_object_efm.poster;
-    console.log("poster_emsFormBuilder",ajax_object_efm);
-  //  console.log(ajax_object_efm.rtl,'return');
-    if(ajax_object_efm.form_setting && ajax_object_efm.form_setting.length>0 && ajax_object_efm.form_setting!=="setting was not added" ){
-      form_type_emsFormBuilder=ajax_object_efm.type;
-      console.log(form_type_emsFormBuilder);
-      if(ajax_object_efm.type!="userIsLogin"){
-        const vs=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
-        console.log(vs)
-        console.log(vs.trackingCode);
-        sitekye_emsFormBuilder =vs.siteKey;
-        trackingCode_state_emsFormBuilder =vs.trackingCode;
-        form_state_emsFormBuilder = vs.stateForm ? vs.stateForm : "";
-        //console.log(trackingCode_state_emsFormBuilder)
-      }else{
-     //   console.log(ajax_object_efm)
-        form_type_emsFormBuilder=ajax_object_efm.type;
+    if (typeof ajax_object_efm == 'undefined') return;
+    poster_emsFormBuilder = ajax_object_efm.poster;
+    console.log(ajax_object_efm.state);
+    efb_var = ajax_object_efm;
+    if (ajax_object_efm.state != 'tracker') {
+      const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
+      if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
+        form_type_emsFormBuilder = ajax_object_efm.type;
+        if (ajax_object_efm.type != "userIsLogin") {
+          const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+  
+          if (ajax_value[0].captcha == true){ sitekye_emsFormBuilder = vs.siteKey;
+          }else{ sitekye_emsFormBuilder="";}
+          //trackingCode_state_emsFormBuilder = vs.trackingCode;
+        } else {
+          //   console.log(ajax_object_efm)
+          form_type_emsFormBuilder = ajax_object_efm.type;
+        }
       }
-      
     }
-
-
-  //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
-    if( ajax_object_efm.state!=='settingError' ){
-      if(ajax_object_efm.state=='notShow'){
-        fun_not_show_emsFormBuilder();
-      }else if(ajax_object_efm.state=='form'){
-        //console.log("id",ajax_object_efm.id);
-        fun_render_view(ajax_object_efm.ajax_value,1);
-      }else if (ajax_object_efm.state=='tracker'){
-        //console.log("tracker");
+  
+    //console.log(ajax_object_efm);
+    //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
+    if (ajax_object_efm.state !== 'settingError') {
+  
+      if (ajax_object_efm.state == 'form') {
+        
+        
+        fun_render_view(ajax_object_efm.ajax_value, 1);
+      } else if (ajax_object_efm.state == 'tracker') {
+          console.log(`ajax_object_efm.state`,ajax_object_efm.state);
         fun_tracking_show_emsFormBuilder()
-      }else if(ajax_object_efm.state=='settingError' || ajax_object_efm.state=='MapsAPINotSet'){
-        //console.log("settingError");
-        fun_show_alert_setting_emsFormBuilder(ajax_object_efm.state)
-      }else if (ajax_object_efm.state=='userIsLogin'){
-        document.getElementById('body_emsFormBuilder').innerHTML=show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
+      } else if (ajax_object_efm.state == 'settingError') {
+        
+        fun_show_alert_setting_emsFormBuilder()
+      } else if (ajax_object_efm.state == 'userIsLogin') {
+        document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
       }
-    }else{
+    } else {
       fun_show_alert_setting_emsFormBuilder()
     }
-
-
-});
-/* new code multiSelect start */
-var Motus = {};
-(function() {
-  var createMultiselect = function(element, data, selectCb, options) {
-    
-    var labels = {};
-   // console.log('name',options)
-    //  console.log(`select opetion ${options.selectOption}`);
-    labels.emptyText =  options.selectOption ;
-    labels.selectedText = (options && options.selectedText) ? options.selected : 'Selected';
-    labels.selectedAllText = (options && options.selectedAllText) ? options.selectedAllOption : 'Select All';
-    labels.title = (options && options.title) ? options.field : 'Field';
-    
-    //define the elements
-    var container = document.createElement("div");
-    var multiselectLabel = document.createElement("div");
-    var dataContainer = document.createElement("div");
-   // var button = document.createElement("button");
-    var span = document.createElement("span");
-    var searchField = document.createElement("input");
-    var clearSelection = document.createElement('span');
-    /* var carret = document.createElement("b"); */
-    var list = document.createElement("ul");
-    
-    //set the ids
-    var timestamp = Math.round(new Date().getTime() * Math.random());
-    container.setAttribute('id','multiselect_container_'+timestamp);
-    dataContainer.setAttribute('id','multiselect_datacontainer_'+timestamp);
-    multiselectLabel.setAttribute('id','multiselect_label_'+timestamp);
-    span.setAttribute('id','multiselect_button_'+timestamp);
-    list.setAttribute('id','multiselect_list_'+timestamp);
-    
-    var _fnIsChild = function(element, parent){
-      var node = element.parentNode;
-      while(node){
-        if(node === parent){
-          return true;
-        }
-        node = node.parentNode;
-      }
-      return false;
-    }
-    
-    var _selectionText = function(element) {
-      var text = "";
-      var selection = element.querySelectorAll("input:checked");
-      if (selection.length === 0) {
-        text = labels.emptyText;
-      } else if (selection.length > 3) {
-        text = selection.length + " " +labels.selectedText;
-      } else { 
-        var arr = [];
-        for (var i = 0; i < selection.length; i++) {
-          arr.push(selection[i].parentNode.textContent);
-        }
-        text = arr.join(",");
-      }
-      return text;
-    };
-
-    var _openList = function(e) {
-      list.style.display = "block";
-      e.srcElement.children[0].focus();
-    };
-
-    var _selectItem = function(e) {
-      var text = _selectionText(container);
-      container
-        .getElementsByTagName("span")[0]
-        .children[0].setAttribute("placeholder", text);
-      
-      if(selectCb){
-        var selectionElements = container.querySelectorAll("input:checked");
-        var selection = [];
-        for(var i=0; i < selectionElements.length; i++){
-          selection.push(selectionElements[i].value);
-        }
-        selectCb(selection);
-      }
-      
-    };
-
-    var _clearSearch = function() {
-      var elements = container.getElementsByTagName("li");
-      for (var i = 0; i < elements.length; i++) {
-        elements[i].style.display = "";
+  
+  
+  });
+  /* new code multiSelect start */
+  var Motus = {};
+  (function () {     
+    var exportObj = {
+      init: function (element, data, selectCb, options) {
+        createMultiselect(element, data, selectCb, options);
       }
     };
-
-    var _performSearch = function(e) {
-      if(e.which != 13 && e.which != 38 && e.which != 40){
-        var active = list.getElementsByClassName("multiselect-label--active");
-        if( active.length > 0 ){
-          active[0].classList.remove("multiselect-label--active");
-        }
-        var first = true;
-        var filter = e.srcElement.value.toUpperCase();
-        var elements = container.getElementsByTagName("li");
-        for (var i = 0; i < elements.length; i++) {
-          var cb = elements[i].getElementsByTagName("label")[0].textContent;
-          if (cb.toUpperCase().indexOf(filter) !== -1) {
-            if(first){
-              first = false;
-              elements[i].children[0].children[0].classList.add("multiselect-label--active");
-            }
-            elements[i].style.display = "";
-          } else {
-            elements[i].style.display = "none";
-          }
-        }
-      }
-    };
-    
-    var _fnClearSelection = function(e){
-      var inputs = list.getElementsByTagName('input');
-      for(var i=0; i < inputs.length; i++){
-        if(inputs[i].checked){
-          inputs[i].parentNode.click();
-        }
-      }
-      e.stopPropagation();
-    };
-    
-    var _fnSelectAll = function(e){
-      var inputs = list.getElementsByTagName('input');
-      for(var i=0; i < inputs.length; i++){
-        if(!inputs[i].checked){
-          inputs[i].parentNode.click();
-        }
-      }
-      e.stopPropagation();
-    };
-    
-    container.classList.add("multiselect-container-emsFormBuilder");
-    multiselectLabel.classList.add("multiselect-label");
-    //multiselectLabel.innerHTML = labels.title;
-    dataContainer.classList.add("multiselect-data-container-emsFormBuilder");
-    span.classList.add("multiselect-button");
-
-    searchField.setAttribute("type", "text");
-    searchField.setAttribute("placeholder", labels.emptyText);
-    searchField.classList.add("multiselect-text-emsFormBuilder");
-    searchField.addEventListener("keyup", _performSearch);
-
-   /*  clearSelection.classList.add('fa');
-    clearSelection.classList.add('fa-times'); */
-   // clearSelection.innerHTML = 'X';
-    clearSelection.addEventListener("click", _fnClearSelection);
-    
-    /* carret.classList.add("carret-emsFormBuilder");
-    carret.classList.add("carret-emsFormBuilder-emsFormBuilder"); */
-
-    span.appendChild(searchField);
-  //  span.appendChild(clearSelection);
-  //span.appendChild(carret);
-
-  span.addEventListener("click", _openList);
-    
-    list.classList.add("multiselect-list-emsFormBuilder");
-
-    for (var i = -1; i < data.length; i++) {
-      var item = document.createElement("li");
-      var a = document.createElement("a");
-      var label = document.createElement("label");
-      var input = document.createElement("input");
-
-      a.setAttribute("tabindex", "0");
-
-      label.classList.add("multiselect-item-label-emsFormBuilder");
-      
-      if(i == -1){
-        a.addEventListener("click", _fnSelectAll);
-        label.appendChild(document.createTextNode(options.selectedAllOption));
-        label.classList.add('multiselect-item-label-emsFormBuilder--select-all');
-      }
-      else{
-        if (i == 0) {
-          label.classList.add("multiselect-item-label-emsFormBuilder--active");
-        }
-        input.setAttribute("type", "checkbox");
-        input.setAttribute("class", "multiselect-checkbox-efb");
-        label.appendChild(input);
-        input.setAttribute("value", data[i].value);
-        input.addEventListener("change", _selectItem);
-        label.appendChild(document.createTextNode(data[i].label));
-      }
-      a.appendChild(label);
-      item.appendChild(a);
-      list.appendChild(item);
-    }
-
-    dataContainer.appendChild(span);
-    dataContainer.appendChild(list);
-    container.appendChild(multiselectLabel);
-    container.appendChild(dataContainer);
-    element.appendChild(container);
-
-    //Change to the specific window
-    document.addEventListener("click", function(e) {
-      if ( !_fnIsChild(e.target, container) ) {
-        list.style.display = "none";
-        searchField.value = "";
-        _clearSearch();
-      }
-    });
-
-    document.addEventListener("keyup", function(e) {
-      if(list.style.display == 'block'){
-        //mouse down
-        if (e.which === 40) {
-          var active = list.getElementsByClassName(
-            "multiselect-label--active"
-          )[0];
-          var next = active.parentNode.parentNode.nextSibling;
-          //Find the next visible element
-          while(next && next.style && next.style.display == 'none'){
-            next = next.nextSibling;
-          }
-          if (next) {
-            active.classList.remove("multiselect-label--active");
-            next
-              .getElementsByClassName("multiselect-label")[0]
-              .classList.add("multiselect-label--active");
-            next.children[0].focus();
-            searchField.focus();
-            e.preventDefault();
-          }
-        } else if (e.which === 38) {
-          //mouse up
-          var active = list.getElementsByClassName(
-            "multiselect-label--active"
-          )[0];
-          var prev = active.parentNode.parentNode.previousSibling;
-          //Find the previous visible element
-          while(prev && prev.style && prev.style.display === 'none'){
-            prev = prev.previousSibling;
-          }
-          if (prev) {
-            active.classList.remove("multiselect-label--active");
-            prev
-              .getElementsByClassName("multiselect-label")[0]
-              .classList.add("multiselect-label--active");
-            prev.children[0].focus();
-            searchField.focus();
-            e.preventDefault();
-          }
-        } else if (e.which === 13) {
-          // enter
-          list.getElementsByClassName("multiselect-label--active")[0].click();
-          e.preventDefault();
-        }
-      }
-    });
-  };
-  var exportObj = {
-    init: function(element, data, selectCb, options) {
-      createMultiselect(element, data, selectCb, options);
-    }
-  };
-
-  Motus.ElementMultiselect = exportObj;
-
-})();
+  
+    Motus.ElementMultiselect = exportObj;
+  
+  })();
+},g_timeout_efb)
 
 
-var opetionSelect_emsFormBuilder = function(data){
-  select_options_emsFormBuilder=data;
- // console.log(`select_options_emsFormBuilder`,select_options_emsFormBuilder)
+var opetionSelect_emsFormBuilder = function (data) {
+  select_options_emsFormBuilder = data;
 }
 /* new code multiSelect end */
 
-function fun_render_view(val,check){
-    let options_multiSelect=[];
-    exportView_emsFormBuilder =[];
-    valueJson_ws=JSON.parse(val.replace(/[\\]/g, ''));
-  // const vs=ajax_object_efm.form_setting.setting;
-   //console.log('ajax_object_efm',sitekye_emsFormBuilder,trackingCode_state_emsFormBuilder)
-    //console.log(valueJson_ws);
-    if(valueJson_ws== undefined) {valueJson_ws="N"; return 0;}
-    formName = valueJson_ws[0].formName
-    if(valueJson_ws[0].EfbVersion>1.2) {
-      trackingCode_state_emsFormBuilder =valueJson_ws[0].trackingCode=="true" ? true : false;
-      form_state_emsFormBuilder =valueJson_ws[0].stateForm=="true" ? true : false;
+function fun_render_view(val, check) {
   
-    }
-  /*   console.log(valueJson_ws[0]);
-    console.log(trackingCode_state_emsFormBuilder , valueJson_ws[0].trackingCode )
-    console.log(valueJson_ws[0].steps); */
-    for (let v of valueJson_ws) {
-     //console.log(v);
-      let el="";
-      let id;
-      let req;
-      let classData =``;
-      switch (v.type) {
-        case 'text':
-        case 'password':
-        case 'email':
-        case 'number':
-        case 'image':
-        case 'date':
-        case 'tel':
-        case 'url':
-        case 'range':
-        case 'color':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          //console.log(v.required , "required");
-         
-          if (v.type=="date") { 
-            //console.log(v ,231)
-           if (v.clander=="Persian" || v.clander=="Arabic") {
-              v.type="text";
-             if (v.clander=="Arabic"){
-               classData="hijri-picker" 
-               el =` <link href="bootstrap-datetimepicker-ar.css" rel="stylesheet" />`
-              }else{
-                 classData="jalali-picker";
-              }
-            };
-          }
-          else if (v.type=="email" || v.type=="tel" || v.type === "url" || v.type === "password")  classData ="validation";
-          el += `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v`} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}>`;
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-          if (v.clander=="Persian" || v.clander=="Arabic") {
-            el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-            el +=`    
-            <script>
-            
-            jQuery(function($) {
-    
-              initDefault();
-    
-          });
-    
-          function initDefault() {
-           
-              $(".hijri-picker").hijriDatePicker({
-                  hijri:true,
-                  showSwitcher:false
-              });
-          }
-          </script>`;
-          }
-    
-          exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
-          break;
-        case 'file':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          const drog = v.fileDrogAndDrop ? v.fileDrogAndDrop : false; // برای تشخیص اینکه حالت دراگ اند دراپ هست یا نه
-          let acception =`.zip`;
-          let typeFile ="Zip"
-          if(v.file=="Image"){
-            acception =`.png,.jpg,.jpeg`;  
-            typeFile= "Photo"; 
-          }else if (v.file=="Media"){
-            acception =`.mp3,.mp4,.wav,.wav,.AVI,.WebM,.MKV,.FLV`;
-            typeFile= v.file; 
-          }else if (v.file =="Document"){
-            acception =`.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp`;
-            typeFile= v.file; 
-          }else if (v.file =="Zip"){
-            acception =`.zip,.rar`;
-            typeFile= v.file; 
-          }
-          classData = drog==true ? "form-control-file text-secondary emsFormBuilder" : "" ;
-          el = ` <div class="row emsFormBuilder ${drog==true ?`inputDnD` :``}" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder=${v.tooltip}` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog==true ?` data-title="${ajax_object_efm.text.DragAndDropA} ${typeFile} ${ajax_object_efm.text.orClickHere}"`:``}>`
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-         
-          exportView_emsFormBuilder.push({ id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount })
-          break;
-        case 'textarea':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          el = `<div class="row emsFormBuilder" id="${id}-row"> <label for="${id}" class="emsFormBuilder" >${v.name}  ${v.required == true ? '*' : ''}</label><textarea id='${id}' name="${id}" class="${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'required' : ''}></textarea>`
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
-          break
-        case 'button':
-          id = v.id ? v.id : v.id_;
-          el = `<div class="row emsFormBuilder" id="${id}-row"> <button  id='${id}' name="${id}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `btn btn-primary emsFormBuilder_v btn-lg btn-block`}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" value="${v.name}">${v.name}</button>`
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, amount:v.amount });
-          break
-        case 'checkbox':
-        case 'radiobutton':
-       
-          
-          id = v.id ? v.id : v.id_;
-          const typ = v.type == "checkbox" ? "checkbox" : "radio";
-          req = v.required ? v.required : false;
-       
-          const m = v.type =="radiobutton" ? "m-2" : '';
-          el = `<div class=" emsFormBuilder"><div class="row ${m}"><label for="${v.id_}" id="${v.id_}" class="emsFormBuilder emsFormBuilder-title ${v.required == true ? 'require' : ''}" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label></div>`
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-          // el = ` <label for="${v.id_}" class="emsFormBuilder" >${v.name}</label><input type="checkbox"  id='${id}' name="${v.id_}" class="${v.class ? `${v.class}  emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}" ${v.required == true ? 'require' : ''}>`
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: typ, required: req, amount:v.amount });
-          break
-        case 'multiselect':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          //console.log(v.required , "required");
-          let multiSelect=false;
-         // console.log(v)
-          if(v.allowMultiSelect==true){
-            multiSelect=true;
-            el += `<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><div id='${id}' name="${v.id_}" class=" multiple-emsFormBuilder ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v  `}  ${v.required == true ? 'require' : ''}" value="${v.name}"  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}" }> </div>`
-            
-          }else{
-          
-            el += ` <div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}"><label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label><select id='${id}' name="${v.id_}" class="${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v test`}  ${v.required == true ? 'require' : ''}" value=""  placeholder='${v.tooltip ? v.tooltip : ' Select'}' data-id="${v.id_}"   ${v.allowMultiSelect == true ? 'multiple="multiple" multiple' : ''}>`
-          }
-          el +=`<small class="text-danger" id="${v.id_}-message"></small>`;
-       
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, parents: v.id_, type: 'select', required: req, amount:v.amount ,multiselect:multiSelect});
-          break
-        case 'option':
-          id = v.id ? v.id : v.id_;
-          const indx = exportView_emsFormBuilder.findIndex(x => x.parents === v.parents);
-          // console.log(exportView_emsFormBuilder[indx], v);
-          if (indx > -1){
-            req = (exportView_emsFormBuilder[indx].required && exportView_emsFormBuilder[indx].required != undefined )? exportView_emsFormBuilder[indx].required : false;
-            
-            if (exportView_emsFormBuilder[indx].type == "radio" || exportView_emsFormBuilder[indx].type == "checkbox") exportView_emsFormBuilder[indx].element += `<div class="row emsFormBuilder"><div class="emsFormBuilder_option col-1"><input type="${exportView_emsFormBuilder[indx].type}" id='${id}' name="${v.parents}" class="${v.class ? `${v.class}  emsFormBuilder_v col` : `emsFormBuilder emsFormBuilder_v`} ${req == true ? 'require' : ''}" value="${v.name}" ${v.tooltip ? `placeholder=${v.tooltip}` : ''} data-id="${v.id_}"}></div> <div class="col-10 emsFormBuilder_option"><label for="${id}" class="emsFormBuilder" >${v.name}</label></div></div>`
-         
-       
-            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==false) {
-              
-              if (!exportView_emsFormBuilder[indx].element.includes("<option") ) { 
-                 exportView_emsFormBuilder[indx].element +=  ` <option style="display:none" value="">Select an option</option>`;
-                }
-                exportView_emsFormBuilder[indx].element +=  `<option  id='${id}' class="${v.class ? `${v.class}` : `emsFormBuilder `} ${req == true ? 'require' : ''}" value="${v.name}" name="${v.parents}"  data-id="${v.id_}">${v.name}</option>`;
-              
-            }
-            if (exportView_emsFormBuilder[indx].type == "select" && exportView_emsFormBuilder[indx].multiselect==true) options_multiSelect.push({parents:v.parents, id:id, class:`${v.class ? `${v.class}` : 'emsFormBuilder'}`, value:v.name , name:v.name, dataId:v.id_ } )
+  let options_multiSelect = [];
+  exportView_emsFormBuilder = [];
+  valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
+  valj_efb = valueJson_ws
+  formNameEfb = valj_efb[0].formName;
+  state_efb = "run";
+  previewFormEfb('run');
 
-            //console.log(v.parents)
-            exportView_emsFormBuilder[indx].required = false;
-          }
-          break
-        case 'esignature':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
-        
-          <div class="col-12">
-              <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
-             <canvas type="canvas" data-code="${v.id_}" data-id="${v.id_}-efb-canvas"  id='${id}' name="${id}" class=" border  canvas_efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}"  height="160"  >update your browser!</canvas>
-             <small class="text-danger" id="${v.id_}-message"></small>
-             <input type="hidden" id="${v.id_}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
-             <a class="btn btn-danger m-1" data-id="${v.id_}" id="${v.id_}-sefb-sig-clr" onClick="fun_clear_esignature_efb('${v.id_}')">${ajax_object_efm.text.clear}</a>
-           </div>
-        </div>`
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
-          break;
-        case 'maps':
-        case'map':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
-        
-          <div class="col-12">
-              <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
-             <canvas type="canvas" data-code="${v.id_}" data-id="${v.id_}-efb-canvas"  id='${id}' name="${id}" class=" border  canvas_efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} ${v.required == true ? 'require' : ''}"  height="160"  >update your browser!</canvas>
-             <small class="text-danger" id="${v.id_}-message"></small>
-             <input type="hidden" id="${v.id_}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
-             <a class="btn btn-danger m-1" data-id="${v.id_}" id="${v.id_}-sefb-sig-clr" onClick="fun_clear_esignature_efb('${v.id_}')">${ajax_object_efm.text.clear}</a>
-           </div>
-        </div>`
-          console.log('test');
-        el = `
-        <div class="col-12">
-        <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>
-        <div id="floating-panel"><input id="delete-markers"  type="button" value="${ajax_object_efm.text.clear}" /></div>
-        <div id="map" height="250"></div>
-        </div>`
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
-          break;
-        case 'rating':
-          id = v.id ? v.id : v.id_;
-          req = v.required ? v.required : false;
-          el = `	<div class=" emsFormBuilder  row" id="emsFormBuilder-${v.id_}">
-                 <div class="col-12 d-flex justify-content-center" id="${v.id_}">
-                  <label for="${v.id_}" class="emsFormBuilder" data-id="${v.id_}" >${v.name}  ${v.required == true ? '*' : ''}</label>                    
-                   <div class="rate-efb d-flex justify-content-center" id="${v.id_}">
-                    <input type="radio" data-id="${v.id_}" id="star5" name="rate-efb" value="5" data-star="star" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
-                    <label for="star5" title="5stars" class="star-efb"></label>
-                    <input type="radio" data-id="${v.id_}" id="star4" name="rate-efb" value="4"  data-star="star" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} "  />
-                    <label for="star4"  title="4stars" class="star-efb"></label>
-                    <input type="radio" data-id="${v.id_}" id="star3" name="rate-efb"  data-star="star"  value="3" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
-                    <label for="star3" title="3stars" class="star-efb"></label>
-                    <input type="radio" data-id="${v.id_}" id="star2"  data-star="star"  name="rate-efb" value="2" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
-                    <label for="star2" title="2stars" class="star-efb"></label>
-                    <input type="radio" data-id="${v.id_}" id="star1" data-star="star" name="rate-efb" value="1" class="rating-efb ${v.class ? `${v.class} emsFormBuilder_v` : `emsFormBuilder emsFormBuilder_v`} " />
-                    <label for="star1" title="1stars" class="star-efb"></label>
-                  </div>
-                </div>
-                <small class="text-danger" id="${v.id_}-message"></small>
-              </div>`
-          exportView_emsFormBuilder.push({id_:v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount:v.amount });
-          break;
-        }
-    }
-    //console.log(ajax_object_efm )
-    
-    const button_name = ajax_object_efm.type!="form" && ajax_object_efm.type!="survey" ? ajax_object_efm.text[ajax_object_efm.type] : ajax_object_efm.text.send
-    const content = `<!-- commenet --!><div class="m-2">
-    <div class="row d-flex justify-content-center align-items-center">
-        <div class="col-md-12">
-            <div id="emsFormBuilder-form-view" >
-          ${sitekye_emsFormBuilder ? ` <div class=" overpage-efb preview-overpage-efb " id="overpage-efb"> <h1 class="mx-1 mt-5 text-info text-center"> ${ajax_object_efm.text.waitingLoadingRecaptcha}</h> </div>` :`<!-- recaptcha not added  -->`} 
-            <form id="emsFormBuilder-form-view-id">
-                <h1 class='emsFormBuilder' id="emsFormBuilder-form-view-title">Form Bulider</h1>                
-                <div class="emsFormBuilder-all-steps-view" id="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
-                    <span class="emsFormBuilder-step-view" id="emsFormBuilder-firstStepIcon-view"><i class="fa fa-tachometer"></i></span> 
-                    <div class="emsFormBuilder-addStep-view" id="emsFormBuilder-addStep-view" >
-                    </div>
-                    <span class="emsFormBuilder-step-view"><i class="fa fa-floppy-o"></i></span> 
-                </div>
-                <div class="emsFormBuilder-all-steps-view" ${ajax_object_efm.type=="form" ? '':'style="display:none;"'}> 
-                    <h5 class="emsFormBuilder-step-name-view f-setp-name emsFormBuilder" id ="emsFormBuilder-step-name-view">${ajax_object_efm.text.define}</h5> 
-                </div>
-                <div id="emsFormBuilder-message-area-view"></div>
-                <div class="emsFormBuilder-tab-view" id="emsFormBuilder-firstTab-view">
-                </div>
-                <div  id="emsFormBuilder-tabInfo-view">
-                </div>
-                <div  id="emsFormBuilder-tabList-view">
-                </div>           
-                <div class="thanks-message text-center" id="emsFormBuilder-text-message-view"> 
-                    <h3>${ajax_object_efm.text.registered}</h3> <span>${ajax_object_efm.text.yourInformationRegistered}</span>
-                </div>
-                <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
-                <!-- recaptcha  -->
-                ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-                <!-- recaptcha end  -->
-                   
-                ${valueJson_ws[0].steps>1 ?` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> </div> ` :`<button type="button" id="emsFormBuilder-text-nextBtn-view" class="btn btn-lg btn-block mat-shadow-efb btn-type-efb btn-lg-efb    " onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> ` }
-                </div>
-              </form>      
-            </div>
-        </div>
-    </div>
-    </div>`;
-
-
-    if (check ==1) {if (document.getElementById('body_emsFormBuilder')) document.getElementById('body_emsFormBuilder').innerHTML =content}
-    else {return content}
-    
-    
-    
-    if (exportView_emsFormBuilder.length > 0) {
-      const steps = valueJson_ws[0].steps;
-      const fname = valueJson_ws[0].formName;
-      //console.log(steps, fname)
-    
-      document.getElementById('emsFormBuilder-form-view-title').innerHTML = String(valueJson_ws[0].formName);
-      document.getElementById('emsFormBuilder-step-name-view').innerHTML = valueJson_ws[0]['name-1'];
-      //emsFormBuilder-all-steps-view
-      ////console.log(document.getElementById('emsFormBuilder-form-view-title').value)
-    
-    
-    
-    }
-    
-    ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
-    createStepsOfPublic()
-
-    
-   if(options_multiSelect.length>0){
-      for (const el of document.querySelectorAll(`.multiple-emsFormBuilder`)) {
-        data=[]
-        for(const opt of options_multiSelect){
-         // console.log(row)
-          if(opt.parents==el.id){
-            data.push({label: opt.name, value: opt.value})
-          }
-        }
-        //console.log(data)
-        //ajax_object_efm.text
-        Motus.ElementMultiselect.init(el, data, opetionSelect_emsFormBuilder , 
-          {selectOption:ajax_object_efm.text.selectOption,
-          selected:ajax_object_efm.text.selected,
-          selectedAllOption:ajax_object_efm.text.selectedAllOption,
-          field:ajax_object_efm.text.field});
-      }
-    }
-  }
-
-
-
-/*  */
-
-
-
+}
 
 function ShowTab_emsFormBuilder_view(n) {
-    var x = document.getElementsByClassName("emsFormBuilder-tab-view");
-  //  console.log(n);
-    if (x[n]) {      
-   
-        x[n].style.display = "block";
-        x[n].classList.add("fadeInEmsFormBuilder");
- 
-    }
-    ////console.log(x,n,x[n],"check")
-    if( document.getElementById("emsFormBuilder-text-prevBtn-view")){
-      if (n == 0 ) {
-        document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
-      } else {
-        document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
-      }
-    }
-    if (n == (x.length - 1)) {
-     // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
-    } else {
-     // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
-    }
-    validateForm_fixStepInd_view(n)
+  var x = document.getElementsByClassName("emsFormBuilder-tab-view");
+  
+  if (x[n]) {
+
+    x[n].style.display = "block";
+    x[n].classList.add("fadeInEmsFormBuilder");
+
   }
   
-  function emsFormBuilder_nevButton_view(n) {
-  //recaptcha
-  if(currentTab_emsFormBuilder==0){
-   // console.log(`grecaptcha[${grecaptcha.getResponse()}]`,grecaptcha.getResponse());
-   // if(!grecaptcha.getResponse()){document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha;}
-    const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
-    if( response!=null) { 
-      //reCaptcha not verified
-     // alert("no pass"); 
-     recaptcha_emsFormBuilder=response;
-     if(document.getElementById('recaptcha-message'))document.getElementById('recaptcha-message').innerHTML=''
-    
-    }else if ( sitekye_emsFormBuilder.length>1 && response==null){
-      document.getElementById('recaptcha-message').innerHTML=ajax_object_efm.text.errorVerifyingRecaptcha;
-      return ;
-    }else { 
-      //reCaptch verified
-      document.getElementById('recaptcha-message').innerHTML=''
-      recaptcha_emsFormBuilder=response;
-     // alert("pass"); 
-      //console.log(response);
-    }
-  }
-  //recaptcha
-    if (n != 0) {      
-      var x = document.getElementsByClassName("emsFormBuilder-tab-view");
-      console.log(n);
-      if (n == 1 && !validateForm_emsFormBuilder_view()) {
-        console.log('return false');
-        return false;
-      }
-      x[currentTab_emsFormBuilder].style.display = "none";
-      currentTab_emsFormBuilder = currentTab_emsFormBuilder + n;
-      stepName_emsFormBuilder_view(currentTab_emsFormBuilder);
-    }
-  
+  if (document.getElementById("emsFormBuilder-text-prevBtn-view")) {
     if (n == 0) {
-      //console.log(document.getElementById("emsFormBuilder-firstTab-view").style.display);
-      document.getElementById("emsFormBuilder-firstTab-view").style.display = "block";
-      document.getElementById("emsFormBuilder-firstTab-view").classList.add = "emsFormBuilder-step-view";
-      document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "block";
-      if(form_type_emsFormBuilder=="form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
-      document.getElementById("emsFormBuilder-form-view-title").style.display = "block";
-      document.getElementById("emsFormBuilder-text-message-view").style.display = "none";
-      for (el of document.querySelectorAll('.finish')) {
-        //console.log(el, 88)
-        el.classList.remove("finish");
-        el.classList.remove("active");
-        el.classList.contains('first')
-      }
-  
-      // endMessage_emsFormBuilder_view()
-      currentTab_emsFormBuilder = n;
-    }
-  
-    // این قسمت برای تنظیم که در دراپ زون محتوا قرار دارد یا نه
-    // راه حل می توان هر دراپ زون را جدا جدا بررسی کرد یا اینکه قبل از ذخیره سازی دردیتا بیس بررسی شود
-  
-    if (x && currentTab_emsFormBuilder >= x.length) {
-      document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "none";
-     if(form_type_emsFormBuilder=="form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "none";
-      document.getElementById("emsFormBuilder-form-view-title").style.display = "none";
-      document.getElementById("emsFormBuilder-text-message-view").style.display = "block";
-      endMessage_emsFormBuilder_view()
-  
-  
-    }
-  
-  
-    ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
-  }
-  
-  
-  
-  function validateForm_emsFormBuilder_view() {
-    let x, y, i, valid = true , NotValidCount=0;
-   // console.log('validateForm_emsFormBuilder_view');
-    x = document.getElementsByClassName("emsFormBuilder-tab-view");
-    y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
-    let value = null;
-    try {
-     // console.log(x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation"));
-      for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
-        
-       try{
-         const req =input.classList.contains('require');
-         console.log(input.type);
-         if (input.tagName == "INPUT" ||input.tagName == "TEXTAREA") {
-          
-           if (input.value == "" && input.classList.contains('require')) {
-             input.className += " invalid"; 
-             valid = false;
-             NotValidCount +=1;
-             console.log(`input type[${input.type}] valid[${false}]`)
-           } else {
-             input.classList.remove('invalid');
-             value = input.value
-             valid=true
-           }
-          
-           switch(input.type){
-             case 'email':
-               console.log("email0",req ,789987)
-             req===true ? valid= valid_email_emsFormBuilder(input) : valid=true;
-               break;
-             case 'tel':
-               //console.log('707 tel' , req , req===true ,input.classList)
-               req===true ? valid= valid_phone_emsFormBuilder(input) : valid=true;
-               break;
-             case 'password':
-               req===true ? valid= valid_password_emsFormBuilder(input) : valid=true;
-               break;
-             case "range":
-               value = el.value;
-             break;
-             case 'url':
-               const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-               if (check===null && input.classList.contains('require')==true){
-                 //console.log(check ,999)
-                 valid=false;
-                 input.className += ' invalid';
-                 document.getElementById(`${input.id}-row`).innerHTML +=`<small class="text-danger" id="${input.id}-message">${ajax_object_efm.text.enterٰValidURL}</small>`
-               }else{
-                 valid=true;
-                 if (document.getElementById(`${input.id}-message`)) document.getElementById(`${input.id}-message`).remove();  input.classList.remove('invalid');
-               }
-               break;
-             case 'file':
-               const id = input.id;
-               valid= input.files[0] ? true : false;
-               //console.log ( "324 check" ,valid ,input.type ,input.id)
-               break;
-             case "text":
-             case "color":
-             case "number":
-             case "date":
-             case "url":
-             case "textarea":
-                     value = input.value;
-                     console.log(`valid ${el} len [${value.length}] 879`)
-                     if(value.length<1){
-                       state=false;
-                       document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
-                       NotValidCount +=1;
-                     }else{
-                       el.classList.remove('invalid');
-                       document.getElementById(`${el.id}-message`).innerHTML=""
-                     }
-               break;
-             case "radio":
-               console.log("test");
-               console.log(input.value)
-                value = "efb@null";
-                console.log("test");
-                value=input.value ? input.value :value;
-               console.log("test");
-               console.log(`value[${value}] el.value[${input.value}]`);
-               valid = true;
-               if(value=="efb@null"){
-                 state=true;
-                 valid = false;
-               }
-              
-               break;
-           }
-          // if(valid==false) NotValidCount +=1;
-           //console.log ("324 out check" ,valid,input.type ,input.id , input.classList);
-         } else if (input.tagName == "LABEL") {
-           
-           const ll = document.getElementsByName(input.dataset.id);
-           let state = false;
-   
-           for (let l of ll) {
-             if (l.checked == true) {
-               input.classList.remove('invalid');
-               state = true;
-               value = l.value;
-               //console.log('set true', value)
-             }
-           }
-           if (state == false) {
-             value = ""
-             input.className += " invalid"; valid = false;
-           }
-           //console.log(input.dataset.id,value , 240);
-   
-         } else if (input.tagName == "SELECT") {
-           
-           if (input.value == "") {
-             input.className += " invalid"; valid = false;
-            // document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
-           } else {        
-             value = input.value;
-             input.classList.remove('invalid');
-             //console.log(value, "value select",240)
-           }
-           //console.log(input.dataset.id,`[${value}]` , 240);
-         }
-       
-         if (valid== false){
-           NotValidCount +=1;
-          
-           
-           document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
-          // window.scrollTo({ top: 0, behavior: 'smooth' });
-          document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
-         }
-         if (valid == true && NotValidCount==0) {
-           document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
-           if (document.getElementById("alarm_emsFormBuilder")) document.getElementById("emsFormBuilder-message-area-view").innerHTML = ""
-         } 
-       }catch(re){
-
-       }
-      }
-
-  
-    }catch(re){
-    
-    }finally{
-      //console.log(' 324' ,valid);
-      
-    }
-    console.log(NotValidCount)
-    return NotValidCount>0 ?false:true;
-    /* 
-      for (i = 0; i < y.length; i++) {
-        if (y[i].value == ""  ) { y[i].className += " invalid"; valid = false; }
-      } if (valid) { document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish"; } return valid; */
-  }
-  function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
-  
-  
-  
-  
-  function createStepsOfPublic() {
-    
-    if (valueJson_ws.length==1 && valueJson_ws=="N" && document.getElementById('emsFormBuilder-form-view')){
-      //console.log('not found')
-      document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 id="formNotFound">${ajax_object_efm.text.formNotFound}</h3> <span>${ajax_object_efm.text.errorV01}</span>`;
-      return false;
-    }
-   
-    stepsCount = Number(valueJson_ws[0].steps);
-    const addStep = document.getElementById("emsFormBuilder-addStep-view");
-    const tabList = document.getElementById("emsFormBuilder-tabList-view");
-    const tabInfo = document.getElementById("emsFormBuilder-tabInfo-view");
-    if (addStep.hasChildNodes()) {
-      while (addStep.hasChildNodes()) {
-        addStep.removeChild(addStep.childNodes[0]);
-      }
-    }
-  
-    if (tabList.hasChildNodes()) {
-      while (tabList.hasChildNodes()) {
-        tabList.removeChild(tabList.childNodes[0]);
-      }
-    }
-    if (tabInfo.hasChildNodes()) {
-      while (tabInfo.hasChildNodes()) {
-        tabInfo.removeChild(tabInfo.childNodes[0]);
-      }
-    }
-   
-  
-    exportView_emsFormBuilder=  exportView_emsFormBuilder.sort(function(a, b) { 
-      return a.amount- b.amount;
-      })
-    //add icons
-    for (let i = 1; i <= stepsCount; i++) {
-  
-      //console.log(104, i ,stepsCount)
-      tags = "";
-      icon = 'icon-' + i;
-      icon = valueJson_ws[0][icon] ? valueJson_ws[0]['icon-' + i] : 'fa fa-tachometer';
-      stepNames_emsFormBuilder[i - 1] = valueJson_ws[0]['name-' + i]
-      //console.log(icon);
-      let id ;
-      
-      for (let v of exportView_emsFormBuilder) {
-        
-        //console.log(v ,Number(v.step) , Number(v.step) == i , i ,stepsCount ,444)
-        if (Number(v.step) == i) {
-        id = Number(v.step) ===1 ? "emsFormBuilder-firstTab-view" : "emsFormBuilder-tabList-view";
-        //console.log(`type:${v.type} ,step:${v.step} ,${typeof v.step} , i:${i}, amount:${v.amount}`,789)
-         tags +=  v.type != 'select' ? `${v.element}</div></br>` : `${v.element}</select></div></br>`;
-         //console.log(`id[${id}] i${i} step[${v.step}] s==i[${v.step ===i }]`)
-        };
-        
-      }
-     
-      if (tags!="")  document.getElementById(id).innerHTML += id=="emsFormBuilder-firstTab-view" ? tags : `<div class="emsFormBuilder-tab-view"> ${tags}</div>`
-     
-  
-  
-      i == 1 ? document.getElementById('emsFormBuilder-firstStepIcon-view').innerHTML = `<i class="${icon}"></i>` : document.getElementById('emsFormBuilder-addStep-view').innerHTML += `<span class="emsFormBuilder-step-view" id="stepIcon-${i - 1}"><i class="${icon}"></i></span>`
-  
-    }//end for
-  
-  
-    for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
-      //console.log(el.type ,7889 ,el.classList.contains('multiple-emsFormBuilder'))
-      //console.log(el.tagName =="CANVAS" , el.tagName);
-      if (el.type != "submit" && el.tagName !="CANVAS" && !el.classList.contains("rating-efb") && !el.classList.contains("map-efb")) {
-       
-        if( el.type =="file"){
-          const ob = valueJson_ws.find(x => x.id_ ===  el.dataset.id);
-          files_emsFormBuilder.push ({id:el.id ,value:"@file@", state:0 , url:"" ,type:"file" , name:ob.name, session: sessionPub_emsFormBuilder});
-          //console.log(files_emsFormBuilder);
-        }
-        
-        el.addEventListener("change", (e) => {
-         // e.preventDefault();
-          let ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-         // console.log(el.type ,el.value ,ob);
-          let value =""
-          const id_ = el.dataset.id
-          let state
-        //  console.log(el.type);
-          switch (el.type) {
-            case "text":
-            case "color":
-            case "number":
-            case "date":
-            case "url":            
-            case "textarea":
-                value = el.value;
-                const len = el.type =="textarea" ? 5 : el.type =="text" ? 2 : 1;
-                //console.log(`valid ${el.type}`)
-                if(value.length<len){
-                  state=false;
-                  document.getElementById(`${el.id}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField;
-                }else{
-                  el.classList.remove('invalid');
-                  document.getElementById(`${el.id}-message`).innerHTML=""
-                }
-            break;
-            case "checkbox":
-            case "radio":
-              value = el.value; 
-              ob.name =document.getElementById(ob.parents).innerText
-             // console.log(value);
-            break;
-            case "select-one":
-              value =el.value;        
-              //console.log(value,ob.name);
-            break;
-            case "range":
-              value =el.value;        
-              //console.log(value,ob.name);
-            break;
-            case "email":
-             // console.log('email')
-              state=valid_email_emsFormBuilder(el);
-              value = state==true ? el.value :'';
-              console.log(value,'email')
-            break;
-            case "tel":
-               state=valid_phone_emsFormBuilder(el);
-               value = state==true ? el.value :'';
-            break;
-            case "password":
-             // console.log('pasword',355);
-              state=valid_password_emsFormBuilder(el);
-              value = state==true ? el.value :'';
-            break;
-            case "select-multiple":
-              const parents =el.name ;
-              if (el.classList.contains('multiple-emsFormBuilder')==true){
-               
-                for (let i = 0; i < el.children.length; i++) {
-                //console.log(el.children[i].value ,7889);
-                value += el.children[i].value + ",";
-                }
-              }
-            break;
-            case undefined:
-              //select_options_emsFormBuilder
-            //  console.log(el.id ,exportView_emsFormBuilder)
-            
-              let check=false;
-              for(ex of exportView_emsFormBuilder){
-              //  console.log(ex.id_ ,'cont');
-                if(ex.id_==el.id){
-                  check=true;
-                  break;
-                }
-              }
-              if(check==true){
-                 ob = valueJson_ws.find(x => x.id_ === el.id);
-                 for(o of select_options_emsFormBuilder){                
-                  value+= o + `,`;
-                 }
-
-                
-              }
-
-            break;
- 
-   
-
-          }
-       
-          if(value!="" || value.length>1){
-            const type = el.type || 'multiselect';
-            const o = [{ id_: id_, name: ob.name, type:type, value: value, session: sessionPub_emsFormBuilder }];
-           // console.log(o ,968)
-            fun_sendBack_emsFormBuilder(o[0] ,355);
-            //console.log(sendBack_emsFormBuilder_pub, el.type);
-          }
-        });
-      } else if (el.type == "submit") {
-  
-        el.addEventListener("click", (e) => {
-          //console.log(el, el.value, el.dataset.id)
-          const id_ = el.dataset.id
-          const ob = valueJson_ws.find(x => x.id_ === id_);
-          const o = [{ id_: id_, name: ob.name, type:el.type, value: el.value, session: sessionPub_emsFormBuilder }];
-          fun_sendBack_emsFormBuilder(o[0]);
-        });
-      } else if (el.tagName =="CANVAS"){
-
-        console.log('CANVAS',el.dataset.code ,el)
-        const canvas =  el
-        c2d_contex_efb = canvas.getContext("2d");
-        c2d_contex_efb.lineWidth = 5;
-        c2d_contex_efb.strokeStyle = "#000";
-
-        canvas.addEventListener("mousedown", (e)=> {
-          draw_mouse_efb = true;
-          canvas_id_efb = el.dataset.code;
-          lastMousePostion_efb = getmousePostion_efb(canvas, e);
-        }, false);
-
-        canvas.addEventListener("mouseup", (e)=> {
-          draw_mouse_efb = false;
-          console.log(el.dataset.code);
-          const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
-          const value = document.getElementById(`${el.dataset.code}-sig-data`).value;
-          console.log(value);
-          const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
-          // console.log(o ,968)
-           fun_sendBack_emsFormBuilder(o[0]);
-        }, false);
-
-        canvas.addEventListener("mousemove", (e)=> {mousePostion_efb = getmousePostion_efb(canvas, e); }, false);
-
-        // touch event support for mobile
-        canvas.addEventListener("touchmove", (e)=> {
-         // canvas_id_efb = el.dataset.code;
-          let touch = e.touches[0];
-          let ms = new MouseEvent("mousemove", { clientY: touch.clientY ,clientX: touch.clientX});
-          canvas.dispatchEvent(ms);
-        }, false);
-
-        canvas.addEventListener("touchstart", (e)=> {
-          canvas_id_efb = el.dataset.code;
-          mousePostion_efb = getTouchPos_efb(canvas, e);
-          let touch = e.touches[0];
-          let ms = new MouseEvent("mousedown", {
-            clientY: touch.clientY,
-            clientX: touch.clientX
-          });
-          canvas.dispatchEvent(ms);
-        }, false);
-
-        canvas.addEventListener("touchend", (e)=> {
-          let ms = new MouseEvent("mouseup", {});
-          canvas.dispatchEvent(ms);
-          const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
-          const value = document.getElementById(`${el.dataset.code}-sig-data`).value;
-          console.log(value);
-          const o = [{ id_: el.dataset.code, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
-          fun_sendBack_emsFormBuilder(o[0]);
-        }, false);
-
-      } else if ( el.classList.contains('rating-efb')){
-//            console.log(el)
-            el.addEventListener("click", ()=> {
-              console.log(el)
-              const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-              const value = el.value;
-              console.log(value,ob.type);
-              const o = [{ id_: el.dataset.id, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
-              // console.log(o ,968)
-               fun_sendBack_emsFormBuilder(o[0]);
-               
-            }, false);
-      } else if ( el.classList.contains('map-efb')){
-           
-            el.addEventListener("click", ()=> {
-              
-              const ob = valueJson_ws.find(x => x.id_ === el.dataset.id);
-             /*  const value = el.value;
-              console.log(value,ob.type); */
-              const o = [{ id_: el.dataset.id, name: ob.name, type:ob.type, value: value, session: sessionPub_emsFormBuilder }];
-              // console.log(o ,968)
-               fun_sendBack_emsFormBuilder(o[0]);
-               
-            }, false);
-      }
-  
-    }//end for
-  
-  
-  
-  }//end function createStepsOfPublic
-  
-  
-  function fun_sendBack_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-   // console.log(sendBack_emsFormBuilder_pub.length ,ob, ob.id_,"email")
-    if (sendBack_emsFormBuilder_pub.length) {
-      const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-      //console.log(indx ,"indx")
-      indx==-1 ? sendBack_emsFormBuilder_pub.push(ob): sendBack_emsFormBuilder_pub[indx] = ob;
+      document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "none";
     } else {
-      sendBack_emsFormBuilder_pub.push(ob);
+      document.getElementById("emsFormBuilder-text-prevBtn-view").style.display = "inline";
     }
-   console.log(sendBack_emsFormBuilder_pub);
   }
-  function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
-    //console.log(ob ,2223,"first")
-    let r=0
-    if (multiSelectElemnets_emsFormBuilder.length>0){
-      const indx = multiSelectElemnets_emsFormBuilder.findIndex(x => x.parents === ob.parents);
-      if(indx!==-1){ 
-        const map = multiSelectElemnets_emsFormBuilder[indx];
-      //  const r= Object.keys(map).find(key => map[key] === true);
-        //console.log(`map`,map,223);
-        const keys = Object.keys(map);
-        let check = 0;
-        for (const key  of keys){
-  
-          if (ob[key]===map[key]){
-            check=1;
-            // اگر کی ورودی با مقدار مولتی سلکت یکی بود وضعیت تغییر کند اگر نبود اضافه شود به لیست
-            // اگر یکی بود اون آپشن آن سلکت بشه
-          }
-          if(check===1 && key!=='parents' && map[key] !== undefined  && ob[key] !== undefined && map[key]!==ob[key] ){
-          
-            //console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob ,22233 )
-            multiSelectElemnets_emsFormBuilder[indx]=ob;
-            //console.log( multiSelectElemnets_emsFormBuilder[indx] ,ob , key ,22233 , "result" );
-            document.getElementById(key).selected
-            check=2;
-            //console.log(multiSelectElemnets_emsFormBuilder,22233)
-          //  if (map[key])
-          }
-          
-       //   if (keu)
-        }
-        if (check==1 )  Object.assign(multiSelectElemnets_emsFormBuilder[indx], ob);
-        //console.log(multiSelectElemnets_emsFormBuilder[indx],22233 )
-        // بررسی شود اگر مقدار انتخاب شده بود
-      }else{
-        multiSelectElemnets_emsFormBuilder.push(ob);
-      }
-    }else{
-      multiSelectElemnets_emsFormBuilder.push(ob);
-    } 
-    //console.log(multiSelectElemnets_emsFormBuilder,223 ,'fine')
-    return r;
+  if (n == (x.length - 1)) {
+    // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="efb ${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
+  } else {
+    // document.getElementById("emsFormBuilder-text-nextBtn-view").innerHTML = `<i class="efb ${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i>`;
   }
-  
-  
-  
-  
-  function saveLocalStorage_emsFormBuilder_view() {
-    //////console.log('save!')
-    localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
-  }
-  
-  function alarm_emsFormBuilder(val) {
-    return `<div class="alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-      <div><i class="fas fa-exclamation-triangle faa-flash animated"></i></div>
-      <strong>${ajax_object_efm.text.alert} </strong>${val}
-    </div>`
-  }
-  
-  
+  validateForm_fixStepInd_view(n)
+}
 
-  function showloading_emsFormBuilder() {
-    const stepMax =currentTab_emsFormBuilder+1;
-    const time = stepMax < 3 ? 700 : stepMax * 200;
-    //console.log(Date(), time);
-  
-    document.getElementById("body").classList.add = "wait";
-    if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-    else body.style.pointerEvents = "none";
-    setTimeout(() => {
-      document.getElementById("body").classList.remove = "wait";
-      if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-      else body.style.pointerEvents = "none";
-      //console.log(Date());
-    }, time);
-  }
-  
-  
-  function endMessage_emsFormBuilder_view() {
-    let counter =0;
-    const stepMax =currentTab_emsFormBuilder+1;
-    let notfilled = []
-    //console.log(sendBack_emsFormBuilder_pub)
-    for (i = 1; i <= stepMax; i++) {
-      if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
-    }
-    let countRequired =0;
-    let valueExistsRequired =0;
-    for(let el of exportView_emsFormBuilder){
-      if (el.required==true){
-        const id = el.id_;
-        countRequired +=1;
-        if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired+=1;
-      }
-    }
-    //console.log(notfilled.length)
-    document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
-    //window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (countRequired!=valueExistsRequired && sendBack_emsFormBuilder_pub.length<1 ) {
-      //console.log(notfilled ,sendBack_emsFormBuilder_pub,exportView_emsFormBuilder ,countRequired,valueExistsRequired)
-      let str = ""
-      currentTab_emsFormBuilder=0;
-   //   console.log(sendBack_emsFormBuilder_pub)
-   //   console.log(`countRequired[${countRequired}] valueExistsRequired[${valueExistsRequired}]`)
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>Failed</h3> <span>${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
-      <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-      
-      // faild form
+function emsFormBuilder_nevButton_view(n) {
+  //recaptcha
+  if (currentTab_emsFormBuilder == 0) {
+    const response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+    
+    if (response != null) {
+      //reCaptcha not verified
+      // alert("no pass"); 
+      recaptcha_emsFormBuilder = response;
+      if (document.getElementById('recaptcha-message')) document.getElementById('recaptcha-message').innerHTML = ''
+
+    } else if (sitekye_emsFormBuilder.length > 1 && response == null) {
+      document.getElementById('recaptcha-message').innerHTML = ajax_object_efm.text.errorVerifyingRecaptcha;
+      return;
     } else {
-      document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
-    //setInterval(myFunction, 2000);
-   
-    let checkFile = 0; 
-    for (file of files_emsFormBuilder){
-      if (files_emsFormBuilder.length>0 && file.state == 1 )  {checkFile += 1;
-      }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
-        //console.log(`error => ${file.state}`,file)
-        checkFile =-100;
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3 class="font-weight-bold">File Error</h3> <span class="font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-        <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-       return;
-
-      }
-     
+      //reCaptch verified
+      document.getElementById('recaptcha-message').innerHTML = ''
+      recaptcha_emsFormBuilder = response;
     }
-    if (checkFile==0){
-      if(files_emsFormBuilder.length>0){
-        //console.log("files upload" , sendBack_emsFormBuilder_pub );
-        for(const file of files_emsFormBuilder){ sendBack_emsFormBuilder_pub.push(file);}
-        
-        //console.log("files upload" , sendBack_emsFormBuilder_pub ,files_emsFormBuilder.length);
-      }
-      if (validation_before_send_emsFormBuilder()==true) actionSendData_emsFormBuilder() 
-    }else{
-       const timeValue = setInterval(function() {
-         
-         //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
-         let checkFile = 0;
-         for (file of files_emsFormBuilder){
-           //console.log(`files_emsFormBuilder check ${file.state == 3} `,file)
-           if (files_emsFormBuilder.length>0 && file.state == 1 )  {checkFile += 1;
-            }else if( files_emsFormBuilder.length>0 && file.state == 3 ) { 
-              //console.log(`error => ${file.state}`,file)
-              checkFile =-100;
-              document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-              <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-             return;
+  }
+  //recaptcha
+  if (n != 0) {
+    var x = document.getElementsByClassName("emsFormBuilder-tab-view");
+    if (n == 1 && !validateForm_emsFormBuilder_view()) return false;
+    x[currentTab_emsFormBuilder].style.display = "none";
+    currentTab_emsFormBuilder = currentTab_emsFormBuilder + n;
+    stepName_emsFormBuilder_view(currentTab_emsFormBuilder);
+  }
 
+  if (n == 0) {
+    document.getElementById("emsFormBuilder-firstTab-view").style.display = "block";
+    document.getElementById("emsFormBuilder-firstTab-view").classList.add = "emsFormBuilder-step-view";
+    document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "block";
+    if (form_type_emsFormBuilder == "form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
+    document.getElementById("body_efb-title").style.display = "block";
+    document.getElementById("efb-final-step").style.display = "none";
+    for (el of document.querySelectorAll('.finish')) {
+      el.classList.remove("finish");
+      el.classList.remove("active");
+      el.classList.contains('first')
+    }
+
+    // endMessage_emsFormBuilder_view()
+    currentTab_emsFormBuilder = n;
+  }
+
+  // این قسمت برای تنظیم که در دراپ زون محتوا قرار دارد یا نه
+  // راه حل می توان هر دراپ زون را جدا جدا بررسی کرد یا اینکه قبل از ذخیره سازی دردیتا بیس بررسی شود
+
+  if (x && currentTab_emsFormBuilder >= x.length) {
+    document.getElementById("emsFormBuilder-text-nextprevious-view").style.display = "none";
+    if (form_type_emsFormBuilder == "form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "none";
+    document.getElementById("body_efb-title").style.display = "none";
+    document.getElementById("efb-final-step").style.display = "block";
+    endMessage_emsFormBuilder_view()
+  }
+  ShowTab_emsFormBuilder_view(currentTab_emsFormBuilder);
+}
+
+function validateForm_emsFormBuilder_view() {
+  //console.log("valudation");
+  let x, y, i, valid = true, NotValidCount = 0;
+  x = document.getElementsByClassName("emsFormBuilder-tab-view");
+  y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
+  let value
+  try {
+    for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
+      //require      
+      const req = input.classList.contains('require');
+      if (input.tagName == "INPUT") {
+        if (input.value == "" && input.classList.contains('require')) {
+          input.className += " invalid"; valid = false;
+        } else {
+          input.classList.remove('invalid');
+          value = input.value
+        }        
+        switch (input.type) {
+          case 'email':
+            req === true ? valid = valid_email_emsFormBuilder(input) : valid = true;
+            break;
+          case 'tel':            
+            req === true ? valid = valid_phone_emsFormBuilder(input) : valid = true;
+            break;
+          case 'password':
+            req === true ? valid = valid_password_emsFormBuilder(input) : valid = true;
+            break;
+          case "range":
+            value = el.value;
+            break;
+          case 'url':
+            const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            if (check === null && input.classList.contains('require') == true) {              
+              valid = false;
+              input.className += ' invalid';
+              document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterValidURL;
+              //document.getElementById(`${input.id}-row`).innerHTML += `<small class="efb text-danger" id="${input.id}-message">${ajax_object_efm.text.enterValidURL}</small>`
+            } else {
+              valid = true;
+              document.getElementById(`${id}-message`).innerHTML=""
+              input.classList.remove('invalid');
             }
+            break;
+          case 'file':
+            const id = input.id;
+            valid = input.files[0] ? true : false;            
+            break;
+          case "text":
+          case "color":
+          case "number":
+          case "date":
+          case "url":
+          case "textarea":
+            value = el.value;            
+            if (value.length < 5) {
+              state = false;
+              document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
+
+            } else {
+              el.classList.remove('invalid');
+              
+              document.getElementById(`${el.id}-message`).innerHTML = ""
+            }
+            break;
+        }        
+      } else if (input.tagName == "LABEL") {
+
+        const ll = document.getElementsByName(input.dataset.id);
+        let state = false;
+
+        for (let l of ll) {
+          if (l.checked == true) {
+            input.classList.remove('invalid');
+            state = true;
+            value = l.value;            
           }
-         //console.log("waiting for files upload",checkFile);
-         if (checkFile==0){
-           // اگر همه فایل ها آپلود شده بودن
-           //intervalFiles
-           for(const file of files_emsFormBuilder){ sendBack_emsFormBuilder_pub.push(file);}
-              if (validation_before_send_emsFormBuilder()==true)  actionSendData_emsFormBuilder();
-           clearInterval(timeValue);
-         }
-      }, 1500);
-
-    }
-      //  Ok form
-  
-    }
-  
-  
-  
-  }
-  
-
-  
-  function stepName_emsFormBuilder_view(i) {
-    document.getElementById('emsFormBuilder-step-name-view').innerHTML = stepNames_emsFormBuilder[i] != "null" && stepNames_emsFormBuilder[i] != undefined ? ` ${stepNames_emsFormBuilder[i]}` : "";
-    //console.log(stepNames_emsFormBuilder[i] != "null", i)
-  }
-  
-  
-  function actionSendData_emsFormBuilder() {
-    
-    if(ajax_object_efm.type=="userIsLogin") return 0;
-
-    if(form_type_emsFormBuilder!='login') localStorage.setItem('sendback'  ,JSON.stringify(sendBack_emsFormBuilder_pub));
-  //  console.log(sendBack_emsFormBuilder_pub ,form_type_emsFormBuilder);
-   
-    jQuery(function($) {
-     
-      data = {
-        action: "get_form_Emsfb",
-        value: JSON.stringify(sendBack_emsFormBuilder_pub),
-        name: formName,
-        id:ajax_object_efm.id.id,
-        valid:recaptcha_emsFormBuilder,
-        type:form_type_emsFormBuilder,
-        nonce:ajax_object_efm.nonce     
-      };
-    //  console.log('sync');
-      $.ajax({
-        type: "POST",
-        async: false,
-        url:ajax_object_efm.ajax_url,
-        data:data,
-        success: function(res) {response_fill_form_efb(res)},
-        error: function(){response_fill_form_efb({success: false,data: {success: false,m:'Some thing went wrong, contact to admin (E:JQ Co)'}})}
-
-      }) 
-   
-    });
-
-    
-
-  }
-  
-  
-  
-  
-  function valid_email_emsFormBuilder(el) {
-    //if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
-    let check =0;
-    const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      //console.log(el)
-      check += el.value.match(format) ?0 :1;
-      if (check>0){
-        el.value.match(format) ? 0: el.classList.add("invalid");
-        document.getElementById(`${el.id}-message`).innerHTML =ajax_object_efm.text.enterTheEmail;
-        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
-        // document.getElementById(`${el.id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">Please Enter Email Address</small>`
         }
-        else {
-          el.classList.remove('invalid');
-          document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
-          document.getElementById(`${el.id}-message`).innerHTML=' ';
-        }
-     // if (check>0) alert("Please enter email address");
-    return check>0 ? false : true
-  }
-  
-  
-  function valid_password_emsFormBuilder(el) {
-    //console.log(el.value);
-   // if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
-    let check =0;
-    const format = /^(?=.*[0-9])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,20}$/;
-    const id = el.id;
-  //  console.error("value",el.value.match(format));
-    if(!el.value.match(format)) 
-      { 
-        el.value.match(format) ? 0: el.classList.add("invalid");
-        //870
-       // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
- 
-       document.getElementById(`${id}-message`).innerHTML =ajax_object_efm.text.enterThePassword;
-       document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true;
-      // console.log(`return not acepet ${el.value}`);
-       return false;
+        if (state == false) {
+          value = ""
+          input.className += " invalid"; valid = false;
+        }        
+
+      } else if (input.tagName == "SELECT") {        
+        if (input.value == "") {
+          input.className += " invalid"; valid = false;
+        } else {
+          value = input.value;          
+        }        
       }
-      else
-      { 
-        el.classList.remove('invalid');
-        document.getElementById(`${id}-message`).innerHTML=""
-        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false;
-        //console.log(`return acepet ${el.value}`);
-        return true;
+      if (valid == false) {
+        NotValidCount += 1;        
+        document.getElementById("emsFormBuilder-message-area-view").innerHTML = alarm_emsFormBuilder(ajax_object_efm.text.pleaseFillInRequiredFields);
+        // window.scrollTo({ top: 0, behavior: 'smooth' });
+        if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
       }
+      if (valid == true && NotValidCount == 0) {
+        document.getElementsByClassName("emsFormBuilder-step-view")[currentTab_emsFormBuilder].className += " finish";
+        if (document.getElementById("alarm_emsFormBuilder")) document.getElementById("emsFormBuilder-message-area-view").innerHTML = ""
+      }
+    }
+  } catch (re) {} finally {}
+  return NotValidCount > 0 ? false : true;
+}
+function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
+function createStepsOfPublic() {  
+  for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+    //validate change
+    let price = '';
+    if (el.type != "submit") {
+     switch(el.type){
+       case "file":         
+        const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+        files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
+       break;
+       case "hidden":
+       break;
+       
+     }
+      el.addEventListener("change", (e) => {
+        // e.preventDefault();
+        //console.log(el);
+        let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);        
+        let value = ""
+        const id_ = el.dataset.vid
+        let state  
      
-  }
-
-  function valid_phone_emsFormBuilder(el) {
-   // if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
-    let check =0;
-    const format =/^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/gm;
-    const id = el.id;
-      //console.log(el)
-      check += el.value.match(format) ?0 :1;
-      //console.log( 707,el.classList.contains('require'),)
-      if (check>0 ){
-         el.value.match(format) ? 0: el.classList.add("invalid");
-         //870
-        // document.getElementById(`${id}-row`).value +=`<small class="text-danger" id="${id}-message">Please Enter Phone Number</small>`
-  
-        document.getElementById(`${id}-message`).innerHTML =ajax_object_efm.text.enterThePhones;
-        document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = true
-        }
-        else {
-          el.classList.remove('invalid');
-          document.getElementById(`${id}-message`).innerHTML=""
-          document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false
-      /*     if (document.getElementById("alarm_emsFormBuilder")){
-            el.classList.remove('invalid');
-                 
-          }  */
-        }
-     // if (check>0) alert("Please enter email address");
-     return check>0 ? false : true
-  }
-  
-  
-  function valid_file_emsFormBuilder(id){
-    //789
-    // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
-    // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
-    // روی تست ولیدت را تست کن ببین مشکل از کجاست
-    
-    if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove(); 
-    let file =''
-    if( true) {
-      const f = valueJson_ws.find(x => x.id_ === id);  
-      file = f.file && f.file.length>3 ? f.file :'Zip' ;
-      //console.log(`file type`,file)
-    }
-   
-    let check =0;
-    let rtrn = false;
-    let fileName =''
-    const el = document.getElementById(id);
-    let accept = el.accept.split(",");
-    if(file ==="Document"){      
-      accept.push('msword');
-      accept.push('ms-excel');
-      accept.push('ms-powerpoint');
-    } else if(file ==="Media"){      
-      accept.push(' audio/mpeg');
-      accept.push(' audio/');
-      accept.push(' video/');
-    }
-  
-  if(el.files[0] && el.files[0].size<fileSizeLimite_emsFormBuilder){
-    //console.log('file',`file type[${el.files[0].type}] ,[${el.files[0].size}]`)  
-    for(ac of accept){
-      //validition of type file
-      const r = el.files[0].type.indexOf(ac.slice(1, ac.length))
-      //console.log(`r ${r} , file type[${el.files[0].type}]` ,ac);
-      
-    if(r!=-1) check =+1;
-    
-    }
-   // //console.log(`document.getElementById(\${el.id}-message).innerHTML.length ${document.getElementById(`${el.id}-message`).innerHTML.length}`);
-   document.getElementById(`${el.id}-message`) && document.getElementById(`${el.id}-message`).innerHTML.length>5 ? document.getElementById(`${id}-row`).innerHTML="" :0;
-  }
-    
-   if (check>0){
-    
-    
-     el.setAttribute("data-title", el.files[0].name);
-     el.classList.remove('text-warning');
-     el.classList.add('text-secondary');
-     if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();     
-   //start
-  // const timeValue = setInterval(function() {
-    //console.log("waiting for recaptcha",id ,file);
-    // if (recaptcha_emsFormBuilder && recaptcha_emsFormBuilder.length>10){
-      //console.log(" I'm not robat",id , file);
-      fun_upload_file_emsFormBuilder(id ,file);
-    //  clearInterval(timeValue);
-   // }
-// }, 1000);
-
-
-
-
-     //end
-    // fun_upload_file_emsFormBuilder(id ,file);
-    
-     rtrn=true;
-   }else{
-  
-  
-  
-     let message = `${ajax_object_efm.text.pleaseUploadA} ${file}`;
-     el.classList.add('text-warning');
-     el.classList.remove('text-secondary');
-     if(el.files[0]) message=  el.files[0].size<fileSizeLimite_emsFormBuilder? `Please upload a ${file} file (${accept.join()})` : `The ${file} size is too large , Allowed Maximum size is 8MB. Try new ${file} file`;
-     el.setAttribute("data-title", message);
-     document.getElementById(`${id}-row`).innerHTML +=`<small class="text-danger" id="${el.id}-message">${message}</small>`;
-    
-     rtrn=false;
-   }
-  
-   return rtrn;
-  }
-
-
-
-
-  function findPosition(obj) { 
-      var currenttop = 0; 
-      if (obj.offsetParent) { 
-          do { 
-              currenttop += obj.offsetTop; 
-          } while ((obj = obj.offsetParent)); 
-          return [currenttop]; 
-      } 
-  } 
-
-
-
-
-function fun_upload_file_emsFormBuilder(id ,type){
-  //این تابع فایل را به سمت سرور ارسال می کند
-  const indx = files_emsFormBuilder.findIndex(x => x.id === id);
-
-  //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
-  files_emsFormBuilder[indx].state =1;
-  files_emsFormBuilder[indx].type =type;
-  let r=""
-  jQuery(function($) {
-      var fd = new FormData();
-      var file = jQuery(document).find('#'+id);
-      var caption = jQuery(this).find('#'+id);
-      var individual_file = file[0].files[0];
-      fd.append("file", individual_file);
-      var individual_capt = caption.val();
-      fd.append("caption", individual_capt);  
-      fd.append('action', 'update_file_Emsfb');  
-      fd.append('nonce', ajax_object_efm.nonce );  
-      //console.log("log",individual_capt)
-      jQuery.ajax({
-          type: 'POST',
-          url: ajax_object_efm.ajax_url,
-          data: fd,
-          contentType: false,
-          processData: false,
-
-          success: function(response){
-            //files_emsFormBuilder
-              //console.log(response);
-  
-              if(response.data.success===true)
-              {
-           //   r = response.data.file.url;
-              files_emsFormBuilder[indx].url = response.data.file.url;
-              files_emsFormBuilder[indx].state = 2;
-              //console.log('fun_test_ajax_request', indx , files_emsFormBuilder[indx]);
-              }else{
-                files_emsFormBuilder[indx].state = 3;
-                files_emsFormBuilder[indx].url = individual_file.name;
-                //console.log(`files_emsFormBuilder[indx].state [${files_emsFormBuilder[indx].state}] [${individual_file.name}]`);
+        switch (el.type) {
+          case "text":
+          case "color":
+          case "number":
+          case "date":
+          case "textarea":
+            value = el.value;
+            const len = el.type == "textarea" ? 5 : el.type == "text" ? 2 : 1;            
+            if (value.length < len) {
+              state = false;
+              el.className = colorBorderChangerEfb(el.className,"border-danger");
+              document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
+              const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==id_);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
+            } else {
+              //console.log(value.search(`"`));
+              if (value.search(`"`)!=-1){
+                el.value = value.replaceAll(`"`,'');
+                noti_message_efb(efb_var.text.error,`Don't use forbidden Character like: "`,10,"danger");
               }
+              el.className = colorBorderChangerEfb(el.className,"border-success");
+              document.getElementById(`${el.id}-message`).innerHTML = ""
+            }
+            break;
+            case 'url':
+              const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+              if (che == null ) {
+                valid = false;
+                el.className = colorBorderChangerEfb(el.className,"border-danger");
+                document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterValidURL;            
+              } else {
+                valid = true;
+                value = el.value;
+                document.getElementById(`${el.id}-message`).innerHTML=""
+                el.className = colorBorderChangerEfb(el.className,"border-success");
+              }
+              break;
+          case "checkbox":
+          case "radio":
+            value = el.value;
+            if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
+            if(el.value.length>1 || el.checked==true){
+              document.getElementById(`${ob.id_}_-message`).innerHTML ="";
+            }else{
+            
+              document.getElementById(`${ob.id_}_-message`).innerHTML =ajax_object_efm.text.enterTheValueThisField;
+            
+            }
+            break;
+          case "select-one":
+          case "select":
+            value = el.value;
+            //console.log(el.options[el.selectedIndex].id);
+            document.getElementById(`${ob.id_}_-message`).innerHTML ="";
+            el.className = colorBorderChangerEfb(el.className,"border-success");            
+            if(valj_efb[0].type=="payment" && el.classList.contains('payefb')){
+              let v = el.options[el.selectedIndex].id;
+              v=  valueJson_ws.find(x => x.id_ ==v && x.value==el.value); 
+              //console.log(v);
+              if(typeof v.price=="string") price=v.price;
+            }
+            break;
+          case "range":
+            value = el.value;
+     
+            document.getElementById(`${el.id}-message`).innerHTML ="";
+            break;
+          case "email":
+            state = valid_email_emsFormBuilder(el);
+            value = state == true ? el.value : '';
+            break;
+          case "tel":
+            state = valid_phone_emsFormBuilder(el);
+            value = state == true ? el.value : '';
+            break;
+          case "password":            
+            state = valid_password_emsFormBuilder(el);
+            value = state == true ? el.value : '';
+            break;
+          case "select-multiple":
+            const parents = el.name;
+            if (el.classList.contains('multiple-emsFormBuilder') == true) {
+            //  console.log(el.children);
+              for (let i = 0; i < el.children.length; i++) {                
+                value += el.children[i].value + ",";
+              }
+            }
+            break;
+          case "file":            
+            valid_file_emsFormBuilder(id_);
+            //value= value ==true ? "true": "";
+            break;
+          case "hidden":
+            break;
+          case undefined:
+            //select_options_emsFormBuilder            
+            let check = false;
+            for (ex of exportView_emsFormBuilder) {              
+              if (ex.id_ == el.id) {
+                check = true;
+                break;
+              }
+            }
+            if (check == true) {
+              ob = valueJson_ws.find(x => x.id_ === el.id);
+              for (o of select_options_emsFormBuilder) {
+                value += o + `,`;
+              }
+            }
+            break;
+        }
+
+
+
+
+
+
+        if (value != "" || value.length > 1) {
+          const type = ob.type
+          const id_ob = ob.type!="paySelect" ? el.id :el.options[el.selectedIndex].id;
+          //console.log(ob,id_ob);
+          let o = [{ id_: id_, name:ob.name,id_ob:id_ob,amount:ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          
+          if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
+            let q = valueJson_ws.find(x => x.id_ === el.id);  
+            //console.log(el , valueJson_ws);
+            const p = price.length>0 ?{price:price} : {price:q.price}
+            Object.assign(o[0],p)
+            //console.log(q ,p,o[0]);
+            fun_sendBack_emsFormBuilder(o[0]);
+            fun_total_pay_efb()
+          }else{
+
+            fun_sendBack_emsFormBuilder(o[0]);
           }
+          
+        }
+  
       });
-  }); 
- 
+      
+    } else if (el.type == "submit") {
+      el.addEventListener("click", (e) => {
+        //console.log(el);
+        const id_ = el.dataset.vid
+        const ob = valueJson_ws.find(x => x.id_ === id_);
+        let o = [{ id_: id_, name: ob.name,id_ob:el.id, amount:ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
+        if(valj_efb[0].type=="payment" && el.classList.contains('payefb')) {
+          let q = valueJson_ws.find(x => x.id_ === el.id);  
+          //console.log(el , valueJson_ws);
+          const p = price.length>0 ?{price:price} : {price:q.price}
+          Object.assign(o[0],p)
+          //console.log(q ,p,o[0]);
+
+          console.log(ob,id_ob)
+          fun_sendBack_emsFormBuilder(o[0]);
+          fun_total_pay_efb()
+        }else{
+
+          fun_sendBack_emsFormBuilder(o[0]);
+        }
+      
+      });
+    }
+    
+  }//end for
+}//end function createStepsOfPublic
+
+
+function fun_sendBack_emsFormBuilder(ob) {
+  //console.log(ob);
+  if (sendBack_emsFormBuilder_pub.length) {
+    let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
+      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
+      indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
+    } else { if(indx == -1){sendBack_emsFormBuilder_pub.push(ob) }else{
+      //console.log(typeof ob.price);
+     if(typeof ob.price !="string") {
+       sendBack_emsFormBuilder_pub[indx].value = ob.value;
+      }else{
+        sendBack_emsFormBuilder_pub[indx].value = ob.value;
+        sendBack_emsFormBuilder_pub[indx].price = ob.price;
+      }
+    } }
+
+  } else {
+    sendBack_emsFormBuilder_pub.push(ob);
+  }
+  //console.log(sendBack_emsFormBuilder_pub);
+}
+function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
+  let r = 0
+  if (multiSelectElemnets_emsFormBuilder.length > 0) {
+    const indx = multiSelectElemnets_emsFormBuilder.findIndex(x => x.parents === ob.parents);
+    if (indx !== -1) {
+      const map = multiSelectElemnets_emsFormBuilder[indx];
+      const keys = Object.keys(map);
+      let check = 0;
+      for (const key of keys) {
+        if (ob[key] === map[key]) {
+          check = 1;
+          // اگر کی ورودی با مقدار مولتی سلکت یکی بود وضعیت تغییر کند اگر نبود اضافه شود به لیست
+          // اگر یکی بود اون آپشن آن سلکت بشه
+        }
+        if (check === 1 && key !== 'parents' && map[key] !== undefined && ob[key] !== undefined && map[key] !== ob[key]) {
+          multiSelectElemnets_emsFormBuilder[indx] = ob;
+          document.getElementById(key).selected
+          check = 2;
+        }
+      }
+      if (check == 1) Object.assign(multiSelectElemnets_emsFormBuilder[indx], ob);      
+      // بررسی شود اگر مقدار انتخاب شده بود
+    } else {
+      multiSelectElemnets_emsFormBuilder.push(ob);
+    }
+  } else {
+    multiSelectElemnets_emsFormBuilder.push(ob);
+  }
   return r;
 }
 
 
-function fun_tracking_show_emsFormBuilder(){
-  document.getElementById("body_tracker_emsFormBuilder").innerHTML= ` <div class="row d-flex justify-content-center align-items-center">
-  <div class="col-md-12 ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}">
-      <div id="emsFormBuilder-form-view-track" >
-      <form id="emsFormBuilder-form-view-id-track">
-         <!-- <h1 id="emsFormBuilder-form-title">${ajax_object_efm.text.trackingForm}</h1> -->
-          
-  
-          <div class="msFormBuilder-all-steps-view" > 
-              <h6 class="step-name f-setp-name" id ="step-name">${ajax_object_efm.text.pleaseEnterTheTracking}</h6> 
-          </div>        
-          <div id="emsFormBuilder-message-area-track"></div>
-          <div class=" mt-2 pb-5 fadeInEmsFormBuilder ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}" id="firsTab">
-              <h5 class="emsFormBuilder">${ajax_object_efm.text.trackingCode}:*</h5>
-              <input placeholder="" type="text"  class="require emsFormBuilder" id="tracking_code_emsFormBuilder" max="20">
-              </br>
-              <!-- recaptcha  -->
-              ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
-              <!-- recaptcha end  -->
-          </div>
-  
 
-          <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
-              <div style="float:right;"> 
-              <button type="button" id="vaid_check_emsFormBuilder" class="mat-shadow emsFormBuilder " onclick="fun_vaid_tracker_check_emsFormBuilder()"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-left' :'fa fa-angle-double-right'}"></i></button> 
-              </div>
-          </div>
 
-        </form>      
-      </div>
-  </div>
-</div>`
+function saveLocalStorage_emsFormBuilder_view() {  
+  localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
 }
 
-
-
-function fun_not_show_emsFormBuilder(){
-  document.getElementById("body_emsFormBuilder").innerHTML= ` <div class="row d-flex justify-content-center align-items-center">
-  <div class="col-md-12 ${ajax_object_efm.rtl==1 ? 'rtl-text' :''}">
-      <div id="emsFormBuilder-form-view-track" >
-        
-              <h3 class="step-name f-setp-name" id ="step-name">${ajax_object_efm.text.formShowonlyLoggedUser}</h3> 
-                     
-  </div>
-</div>`
+function alarm_emsFormBuilder(val) {
+  return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
+      <div><i class="efb jump bi-exclamation-triangle-fill text-center"></i></div>
+      <strong>${ajax_object_efm.text.alert} </strong>${val}
+    </div>`
 }
 
-function fun_vaid_tracker_check_emsFormBuilder(){
-  el =document.getElementById('tracking_code_emsFormBuilder').value;
-  
-  if (el.length!=12 ){
-    document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.trackingCodeIsNotValid)
-  }else{
-    if(currentTab_emsFormBuilder==0){
-      const  response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
-      if(response == null) { 
-        //reCaptcha not verified
-       // alert("no pass"); 
-       
-       document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(ajax_object_efm.text.checkedBoxIANotRobot);
-        return ;
+function endMessage_emsFormBuilder_view() {
+  let counter = 0;
+  const stepMax = currentTab_emsFormBuilder + 1;
+  let notfilled = []
+  for (i = 1; i <= stepMax; i++) {
+    if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
+  }
+  let countRequired = 0;
+  let valueExistsRequired = 0;
+  for (let el of exportView_emsFormBuilder) {
+    if (el.required == true) {
+      const id = el.id_;
+      countRequired += 1;
+      if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired += 1;
+    }
+  }
+  if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
+  //window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
+    let str = ""
+    currentTab_emsFormBuilder = 0;
+    document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="efb mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+
+    // faild form
+  } else {
+    let checkFile = 0;
+    for (file of files_emsFormBuilder) {
+      if (files_emsFormBuilder.length > 0 && file.state == 1) {
+        checkFile += 1;
+      } else if (files_emsFormBuilder.length > 0 && file.state == 3) {        
+        checkFile = -100;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3 class="efb font-weight-bold">File Error</h3> <span class="efb font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+         <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+        return;
+
       }
-      else { 
+
+    }
+    if (checkFile == 0) {
+      if (files_emsFormBuilder.length > 0) {        
+        for (const file of files_emsFormBuilder) {if(sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == file.id_)==-1) sendBack_emsFormBuilder_pub.push(file); } 
+      }
+      //final validation
+      if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder()
+    } else {
+      const timeValue = setInterval(function () {
+        //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
+        let checkFile = 0;
+        for (file of files_emsFormBuilder) {          
+          if (files_emsFormBuilder.length > 0 && file.state == 1) {
+            checkFile += 1;
+          } else if (files_emsFormBuilder.length > 0 && file.state == 3) {            
+            checkFile = -100;
+            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+            return;
+
+          }
+        }        
+        if (checkFile == 0) {
+          // اگر همه فایل ها آپلود شده بودن
+          //intervalFiles
+          for (const file of files_emsFormBuilder) { sendBack_emsFormBuilder_pub.push(file); }
+          if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder();
+          clearInterval(timeValue);
+        }
+      }, 1500);
+    }
+    //  Ok form
+
+  }
+
+
+
+}
+
+
+
+function stepName_emsFormBuilder_view(i) {
+  document.getElementById('emsFormBuilder-step-name-view').innerHTML = stepNames_emsFormBuilder[i] != "null" && stepNames_emsFormBuilder[i] != undefined ? ` ${stepNames_emsFormBuilder[i]}` : "";  
+}
+
+
+function actionSendData_emsFormBuilder() {
+  if (ajax_object_efm.type == "userIsLogin") return 0;
+  if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
+ recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+ //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
+  jQuery(function ($) {
+
+    data = {
+      action: "get_form_Emsfb",
+      value: JSON.stringify(sendBack_emsFormBuilder_pub),
+      name: formNameEfb,
+      id: efb_var.id,
+      valid: recaptcha_emsFormBuilder,
+      type: form_type_emsFormBuilder,
+      nonce: efb_var.nonce
+    };  
+    
+    ///if(form_type_emsFormBuilder=="payment") data.concat(uid:)
+    $.ajax({
+      type: "POST",
+      async: false,
+      url: ajax_object_efm.ajax_url,
+      data: data,
+      success: function (res) { response_fill_form_efb(res) },
+      error: function (res) { console.error(res);
+        response_fill_form_efb({ success: false, data: { success: false, m: `E:JQ Co` } }) }
+
+    })
+
+  });
+
+
+
+}
+
+
+
+
+function valid_email_emsFormBuilder(el) {
+  //if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
+  let check = 0;
+  const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;  
+  check += el.value.match(format) ? 0 : 1;
+  if (check > 0) {
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className,"border-danger");
+    document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheEmail;
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
+  }
+  else {
+    el.className = colorBorderChangerEfb(el.className,"border-success")
+    document.getElementById(`${el.id}-message`).innerHTML = '';
+  }
+  // if (check>0) alert("Please enter email address");
+  return check > 0 ? false : true
+}
+
+
+function valid_password_emsFormBuilder(el) {
+  let check = 0;
+  const format = /^(?=.*[0-9])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,20}$/;
+  const id = el.id;
+  if (!el.value.match(format)) {
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className,"border-danger");
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
+    document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterThePassword;
+    return false;
+  }
+  else {
+    el.className = colorBorderChangerEfb(el.className,"border-success")
+    document.getElementById(`${id}-message`).innerHTML = ""
+   // document.getElementById('emsFormBuilder-text-nextBtn-view').disabled = false;    
+    return true;
+  }
+
+}
+
+function valid_phone_emsFormBuilder(el) {
+  // if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
+  let check = 0;
+  const format = /^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/gm;
+  const id = el.id;  
+  check += el.value.match(format) ? 0 : 1;
+  if (check > 0) {
+    el.value.match(format) ? 0 :  el.className = colorBorderChangerEfb(el.className,"border-danger");
+    const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
+              if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
+    document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterThePhones;
+  }
+  else {
+    el.className = colorBorderChangerEfb(el.className,"border-success")
+    document.getElementById(`${id}-message`).innerHTML = ""
+  }
+  // if (check>0) alert("Please enter email address");
+  return check > 0 ? false : true
+}
+
+
+function valid_file_emsFormBuilder(id) {
+   document.getElementById(`${id}_-message`).innerHTML="";
+  let file = ''
+  if (true) {
+    const f = valueJson_ws.find(x => x.id_ === id);
+    file = f.file && f.file.length > 3 ? f.file : 'Zip';    
+  }
+  let check = 0;
+  let rtrn = false;
+  let fileName = ''
+  const i = `${id}_`;
+  let message="";
+  const el = document.getElementById(i);
+
+  if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
+    const filetype = el.files[0].type.length>1 ?el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".")-1)*-1))
+    //console.log(file,el.files[0].name,filetype);
+    const r= validExtensions_efb_fun(file,filetype)
+    if (r == true) {
+      check = +1;
+      message=`${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
+    }
+  }
+
+  if (check > 0) {
+
+     document.getElementById(`${el.id}-message`).innerHTML = "" ;
+    fun_upload_file_emsFormBuilder(id, file);
+
+    rtrn = true;
+  } else {
+    if (el.files[0] && message.length<2) message = el.files[0].size < fileSizeLimite_emsFormBuilder ? `${ ajax_object_efm.text.pleaseUploadA} ${ ajax_object_efm.text[file]}` : ajax_object_efm.text.fileSizeIsTooLarge;
+    document.getElementById(`${el.id}-message`).innerHTML = message;
+    rtrn = false;
+  }
+
+  return rtrn;
+}
+
+function findPosition(obj) {
+  var currenttop = 0;
+  if (obj.offsetParent) {
+    do {
+      currenttop += obj.offsetTop;
+    } while ((obj = obj.offsetParent));
+    return [currenttop];
+  }
+}
+
+
+
+
+function fun_upload_file_emsFormBuilder(id, type) {
+  //این تابع فایل را به سمت سرور ارسال می کند
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  files_emsFormBuilder[indx].state = 1;
+  files_emsFormBuilder[indx].type = type;
+  let r = ""
+  jQuery(function ($) {
+    var fd = new FormData();
+    var idn = '#' + id + '_'
+    var file = jQuery(document).find(idn);    
+    var caption = jQuery(this).find(idn);
+    //console.log(file);
+    var individual_file = file[0].files[0];
+    fd.append("file", individual_file);
+    var individual_capt = caption.val();
+    fd.append("caption", individual_capt);
+    fd.append('action', 'update_file_Emsfb');
+    fd.append('nonce', ajax_object_efm.nonce);    
+    jQuery.ajax({
+      type: 'POST',
+      url: ajax_object_efm.ajax_url,
+      data: fd,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        //files_emsFormBuilder
+        if (response.data.success === true) {
+          r = response.data.file.url;
+            if(response.data.file.error){
+              noti_message_efb("",response.data.file.error,14,"danger");
+              return;
+            }
+            files_emsFormBuilder[indx].url = response.data.file.url;
+            files_emsFormBuilder[indx].state = 2;
+            files_emsFormBuilder[indx].id = idn;
+          const ob = valueJson_ws.find(x => x.id_ === id);            
+          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name,amount:ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url:files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
+          fun_sendBack_emsFormBuilder(o[0]);
+        } else {
+          //show message file type is not correct;        
+        }
+      }
+    });
+  });
+
+  return r;
+}
+
+
+function fun_tracking_show_emsFormBuilder() {
+  document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
+  <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
+                <div class="efb  card card-public row mb-3 " id="body_efb-track">
+                    <h4 class="efb  title-holder  col-12 mt-4"><i class="efb  bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                <div class="efb  mb-5 row col-md-12">
+                        <label for="trackingCodeEfb" class="efb form-label mx-2 col-12">
+                        ${ajax_object_efm.text.trackingCode}:<span class="efb text-danger mx-1">*</span></label>
+                        <div class="efb  col-12 text-center mx-2 row">
+                        <input type="text" class="efb  input-efb form-control border-d efb-rounded mb-4 text-labelEfb h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
+                         <button type="submit" class="efb  btn btn-pinkEfb col-12 text-white"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+                        <i class="efb  bi-search"></i> ${ajax_object_efm.text.search}  </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- recaptcha  -->
+                ${sitekye_emsFormBuilder ? `<div class="efb  row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                <!-- recaptcha end  -->
+            <!-- efb -->            
+        </div>
+        <div id="alert_efb" class="efb mx-5"></div>
+`
+}
+
+function fun_vaid_tracker_check_emsFormBuilder() {
+  el = document.getElementById('trackingCodeEfb').value;
+  const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
+  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+  if (el.length < 5) {
+    document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+    document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+    noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.trackingCodeIsNotValid, 117, 'danger')
+    //document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(efb_var.text.trackingCodeIsNotValid)
+  } else {
+    if (currentTab_emsFormBuilder == 0) {
+      const response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
+      if (response == null) {
+        //reCaptcha not verified
+        // alert("no pass"); 
+        noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.checkedBoxIANotRobot, 117, 'danger')
+        //document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(efb_var.text.checkedBoxIANotRobot);
+        return;
+      }
+      else {
         //reCaptch verified
-       
-        recaptcha_emsFormBuilder=response;
-       // alert("pass"); 
-        //console.log(response);
-        document.getElementById('emsFormBuilder-message-area-track') ? document.getElementById('emsFormBuilder-message-area-track').remove() :''
-        document.getElementById('emsFormBuilder-form-view-track').innerHTML =`<div class="text-center"><h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3></div>`;
-        jQuery(function($) {
-          
+        recaptcha_emsFormBuilder = response;
+        jQuery(function ($) {
           data = {
             action: "get_track_Emsfb",
             value: el,
-            name: formName,
-            valid:recaptcha_emsFormBuilder,
-            nonce:ajax_object_efm.nonce,
-          
-           
+            name: formNameEfb,
+            valid: recaptcha_emsFormBuilder,
+            nonce: ajax_object_efm.nonce,
           };
-         
+
           $.ajax({
             type: "POST",
             async: false,
-            url:ajax_object_efm.ajax_url,
-            data:data,
-            success: function(res) {response_Valid_tracker_efb(res)},
-            error: function(){response_Valid_tracker_efb({success: false,data: {success: false,m:'Some thing went wrong,Plase contact to admin (E:JQ Co)'}})}
-    
-          }) 
-
+            url: ajax_object_efm.ajax_url,
+            data: data,
+            success: function (res) {              
+              document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+              document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+              response_Valid_tracker_efb(res)
+            },
+            error: function () {
+              document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+              document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+              response_Valid_tracker_efb({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact Admin (E:JQ Co)' } })
+            }
+          })
         });
       }
     }
@@ -1774,221 +910,206 @@ function fun_vaid_tracker_check_emsFormBuilder(){
 
 
 
-function emsFormBuilder_show_content_message (value , content){
-  //console.log(value)
-  
- 
-  const msg_id =value.msg_id;
-  
-
+function emsFormBuilder_show_content_message(value, content) {
+  const msg_id = value.msg_id;
   const userIp = "XXXXXXXXX";
   const track = value.track;
-  const date ="XXXXXXXXXX";
-  
-  const val =JSON.parse(value.content.replace(/[\\]/g, ''));
-  //console.log(content );
-  
-  let m = fun_emsFormBuilder_show_messages( val, "user" ,track,date)
-  for(c of content) {
-    //console.log(c);
-    const val =JSON.parse(c.content.replace(/[\\]/g, ''));
-    m += fun_emsFormBuilder_show_messages( val, c.rsp_by ,track,date);
+  const date = "XXXXXXXXXX";
+
+  const val = JSON.parse(value.content.replace(/[\\]/g, ''));
+  let m = fun_emsFormBuilder_show_messages(val, "user", track, date)
+  for (c of content) {  
+    const val = JSON.parse(c.content.replace(/[\\]/g, ''));
+    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, date)}</div></div>`
   }
   //reply  message ui
-  //console.log(`sitekye_emsFormBuilder[${sitekye_emsFormBuilder}]`);
-  let replayM = `<div class="mx-2 mt-2"><div class="form-group mb-1" id="replay_section__emsFormBuilder">
-  <label for="replayM_emsFormBuilder">${ajax_object_efm.text.reply}</label>
-  <textarea class="form-control" id="replayM_emsFormBuilder" rows="3" data-id="${msg_id}"></textarea>
+  let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-1" id="replay_section__emsFormBuilder">
+  <label for="replayM_emsFormBuilder" class:'mx-1">${ajax_object_efm.text.reply}:</label>
+  <textarea class="efb  form-control border-d" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
   </div>
-  <div class="col text-right row">
-  <button type="submit" class="btn btn-info" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.send} </button>
+  <div class="efb col text-right row my-2 mx-1">
+  <button type="submit" class="efb btn btn-r btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
   <!-- recaptcha  -->
-  ${sitekye_emsFormBuilder ? `<div class="row mx-3"><div class="g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="text-danger" id="recaptcha-message"></small></div>` : ``}
+  ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
-  <p class="mx-2" id="replay_state__emsFormBuilder">  </p>
+  <p class="efb mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
+  const body = `
+  <div class="efb modal-header efb">
+  <h5 class="efb modal-title efb"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
+   <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
+ </div>
+  <div class="efb  modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
+    ${m} 
+   </div>
+   ${replayM}
+   </div>
+   </div>
+</div>
+<div>
+</div></div>`;
+
+  return body;
 
 
-  return `
-
-  <div class="">
-    <div class="card-title bg-secondary px-2 py-2 text-white m-0"><i class="fa fa-comments"></i> ${ajax_object_efm.text.messages}</div>
-   
-    <div class="my-2">
-    <div class="my-1 mx-1 border border-secondary rounded-sm pb-3">
-    
-     <div class="mx-4 my-1 border-bottom border-info pb-1" id="conver_emsFormBuilder">
-     </br>
-      ${m} 
-     </div>
-     ${replayM}
-     </div>
-      
-     </div>
-   
-  </div>
-  <div>
-</div>`;
-
-
-//window.scrollTo({ top: 0, behavior: 'smooth' });
+  //window.scrollTo({ top: 0, behavior: 'smooth' });
 
 }
 
 
 
-function fun_emsFormBuilder_show_messages(content,by,track,date){
-  //console.log('by',by);
-  if (by ==1) {by='Admin'}else if(by==0 ||by.length==0 || by.length==-1 )(by="visitor")
-  let m =`<Div class="border border-light round  p-2"><div class="border-bottom mb-1 pb-1">
-  <span class="small"><b>${ajax_object_efm.text.info}</b></span></br>
-  <span class="small">${ajax_object_efm.text.by}: ${by}</span></br>
-  ${track!=0 ? `<span class="small"> ${ajax_object_efm.text.trackingCode}: ${track} </span></br>` :''}
- <!-- <span>${ajax_object_efm.text.date}: ${date} </span></small> -->
-  </div>
-  <div class="mx-1">
-  <h6 class="my-3"> ${ajax_object_efm.text.response} </h6>`;
-  for (const c of content){
-    //JSON.parse(content.replace(/[\\]/g, ''))
-    console.log(c , c.type =="rating");
-    let value = `<b>${c.value}</b>`;
-    //console.log(`value up ${value}`)    ;
-    //if (c.value =="@file@" && c.state==2){
-      if ((c.value == "@file@" && c.state == 2)|| c.type=="esignature" || c.type=="rating"  || c.type=="map") {
-     if(c.type=="Image"){
-      value =`</br><img src="${c.url}" alt="${c.name}" class="img-thumbnail">`
-     }
-     else if(c.type=="esignature"){
-      value =`</br><img src="${c.value}" alt="${c.name}" class="img-thumbnail">`
-     }else if(c.type=="Document"){
-      value =`</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
-     }else if(c.type=="Media"){
-        const audios = ['mp3','wav','ogg'];
-        let media ="video";
-        audios.forEach(function(aud){    
-          if(c.url.indexOf(aud)!==-1){
-            media = 'audio';     
+function fun_emsFormBuilder_show_messages(content, by, track, date) {
+  if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
+  let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
+  <p class="efb small mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
+ ${track != 0 ? `<p class="efb small mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
+ <p class="efb small mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
+ <hr>
+ <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
+ content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
+ let list = []
+  for (const c of content) {
+    
+    s= false;
+    let value = `<b>${c.value.toString().replaceAll('@efb!' ,',')}</b>`;    
+    if (c.value == "@file@" && list.findIndex(x=>x == c.url)==-1) {
+      s=true;
+      list.push(c.url);
+      $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
+      console.log($name,c.type ,"URL", c.url);
+      if (c.type == "Image" ||c.type == "image") {
+        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
+      }else if (c.type == "Document" ||c.type == "document") {
+        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${ajax_object_efm.text.download}</a>`
+      } else if (c.type == "Media" ||c.type == "media") {
+        const audios = ['mp3', 'wav', 'ogg'];
+        let media = "video";
+        audios.forEach(function (aud) {
+          if (c.url.indexOf(aud) !== -1) {
+            media = 'audio';
           }
         })
-        if(media=="video"){          
-          const len =c.url.length;
-          const type = c.url.slice((len-3),len);
-          value = type !=='avi' ? `</br><div class="px-1"><video class="emsFormBuilder" poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="text-center" ><a href="${c.url}">Video Download Link</a></p>` :`<p class="text-center"><a href="${c.url}">Download Viedo</a></p>`;
-        }else{
-          value=`<div ><audio controls><source src="${c.url}"></audio> </div>`;
+        if (media == "video") {
+          const len = c.url.length;
+          const type = c.url.slice((len - c.url.lastIndexOf(x=>x==".")), len);          
+          value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
+        } else {
+          value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
-     }else if(c.type=="rating"){
-      const rate =parseInt(c.value) ;
-      let star ="☆☆☆☆☆"
-      switch(rate){
-        case 1:
-          star ="☆☆☆☆★"
-        break
-        case 2:
-          star ="☆☆☆★★"
-        break
-        case 3:
-          star ="☆☆★★★"
-        break
-        case 4:
-          star ="☆★★★★"
-        break
-        case 5:
-          star ="★★★★★"
-        break   
+      } else {        
+        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
       }
-      value =`</br><h3 class="text-warning" >${star}</h3>`
-     }else if(c.type=="map"){
 
-     }else{
-      if (c.url.length!=0)value =`</br><a class="btn btn-primary" href="${c.url}" >${c.name}</a>`
+    }else if (c.type == "esign") {
+      console.log('esign');
+      console.log(c.value);
+      s=true;
+      value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
+      m +=value ;
+      console.log(value);
+    }else if(c.type=="maps"){
+     
+      if(typeof(c.value)=="object"){
+        s=true;
+        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        valj_efb.push({id_:c.id_ ,mark:-1 ,lat:c.value[0].lat , lng:c.value[0].lng ,zoom:9 , type:"maps" })
+        marker_maps_efb= c.value;
+        initMap();
+        m +=value ;
       }
+    }else if(c.type=="rating"){
+      s=true;
+      value=`<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;      
+      for(let i=0 ; i<parseInt(c.value) ; i++){
+        value += `<i class="efb bi bi-star-fill"></i>`
+      }
+      value+="</div>";
+      m +=value ;
     }
-    
-    m +=`<p class="my-0">${c.name}: <span class="test"> ${value!=='<b>@file@</b>'?value:''}</span> </p> `
+    if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
+    if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+
+    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
   }
-  m+= '</div></div>';
-//console.log(`m`,m)
+  m += '</div>';  
+  console.log('m',m);
   return m;
 }
 
 
-function fun_send_replayMessage_emsFormBuilder(id){
+function fun_send_replayMessage_emsFormBuilder(id) {
   //پاسخ مدیر را ارسال می کند به سرور 
-
-  //console.log("fun_send_replayMessage_emsFormBuilder","Rmessage");
-  const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g,'</br>');		
-  //console.log(message,id)
-  document.getElementById('replay_state__emsFormBuilder').innerHTML=`<i class="fas fa-spinner fa-pulse"></i> Sending...`;
+  const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
+  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
-  const by = ajax_object_efm.user_name.length>1? ajax_object_efm.user_name : "Guest";
-  const ob = [{name:'Message',value:message ,by:by}];
-  //console.log(ob);
+  const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : "Guest";
+  const ob = [{ name: 'Message', value: message, by: by }];
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
-  if (message.length<1 || isHTML(message)){
-    document.getElementById('replay_state__emsFormBuilder').innerHTML=`<h6><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i> Error, You can't use HTML Tag or send blanket message.</h6>`;
-    return ;
-  }else{
-    fun_send_replayMessage_ajax_emsFormBuilder(ob ,id)
+  if (message.length < 1 || isHTML(message)) {
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
+    return;
+  } else {
+    fun_send_replayMessage_ajax_emsFormBuilder(ob, id)
   }
 
 
 }
 
 
-function fun_send_replayMessage_ajax_emsFormBuilder(message,id){
-  
-  //console.log(`fun_send_replayMessage_ajax_emsFormBuilder(${id})` ,message ,ajax_object_efm.ajax_url,"Rmessage")
-  if(message.length<1){
-    document.getElementById('replay_state__emsFormBuilder').innerHTML="Please Enter message";
-    document.getElementById('replayM_emsFormBuilder').innerHTML="";
+function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
+  if (message.length < 1) {
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
+   // noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
+    document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  //console.log(`${form_type_emsFormBuilder}`);
-  jQuery(function($) {
+  jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",
       type: "POST",
-      id:id,
-      valid:recaptcha_emsFormBuilder,
+      id: id,
+      valid: recaptcha_emsFormBuilder,
       message: JSON.stringify(message),
-      nonce:ajax_object_efm.nonce ,
-      type:form_type_emsFormBuilder,
-      
+      nonce: ajax_object_efm.nonce,
+      type: form_type_emsFormBuilder,
+
     };
-    console.log('response_rMessage_id');
     $.ajax({
       type: "POST",
       async: false,
-      url:ajax_object_efm.ajax_url,
-      data:data,
-      success: function(res) {response_rMessage_id(res,message)},
-      error: function(){response_rMessage_id({success: false,data: {success: false,m:'Some thing went wrong,Plase contact to admin (E:JQ Co)'}})}
+      url: ajax_object_efm.ajax_url,
+      data: data,
+      success: function (res) { response_rMessage_id(res, message) },
+      error: function () { response_rMessage_id({ success: false, data: { success: false, m: 'Some thing went wrong,Plase contact Admin (E:JQ Co)' } }) }
 
-    }) 
+    })
+
   });
 }
 
 
-function fun_emsFormBuilder__add_a_response_to_messages(message,userIp,track,date){
-  document.getElementById('conver_emsFormBuilder').innerHTML+= fun_emsFormBuilder_show_messages(message,userIp,track,date);
+function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
+  //message,res.data.by,0,0,date
+  const resp = fun_emsFormBuilder_show_messages(message, by, track, date);
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
+  document.getElementById('resp_efb').innerHTML += body
 }
 
 
-function fun_show_alert_setting_emsFormBuilder(state){
-  const urlVideo = state =="MapsAPINotSet" ? "URLMapsAPINotSet" : "https://www.youtube.com/embed/a1jbMqunzkQ";
-  const m= `<div class="alert alert-danger" role="alert"> <h2 class="font-weight-bold">
+function fun_show_alert_setting_emsFormBuilder() {
+  const m = `<div class="efb alert alert-danger" role="alert"> <h2 class="efb font-weight-bold">
             ${ajax_object_efm.text.error}</br>
-            ${state =="MapsAPINotSet" ? ajax_object_efm.text.formIsNotShownMaps : ajax_object_efm.text.formIsNotShown}</br>
-            <a href="${urlVideo}"  target="_blank" class="font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
-  if (document.getElementById('body_emsFormBuilder')) { 
-    document.getElementById('body_emsFormBuilder').innerHTML=m;
-  }else if(document.getElementById('body_tracker_emsFormBuilder')){
-    document.getElementById('body_tracker_emsFormBuilder').innerHTML=m;
-  }else{
+            ${ajax_object_efm.text.formIsNotShown}</br>
+            <a href="https://www.youtube.com/embed/a1jbMqunzkQ"  target="_blank" class="efb font-weight-normal">${ajax_object_efm.text.pleaseWatchTutorial}</a> </h2> </div>`
+  if (document.getElementById('body_emsFormBuilder')) {
+    document.getElementById('body_emsFormBuilder').innerHTML = m;
+  } else if (document.getElementById('body_tracker_emsFormBuilder')) {
+    document.getElementById('body_tracker_emsFormBuilder').innerHTML = m;
+  } else {
     window.alert(`${ajax_object_efm.text.error} ${ajax_object_efm.text.formIsNotShown}`)
   }
 }
@@ -1996,435 +1117,265 @@ function fun_show_alert_setting_emsFormBuilder(state){
 
 
 
+function validation_before_send_emsFormBuilder() {
+  // console.log( localStorage.getItem('sendback'),sendBack_emsFormBuilder_pub)
+  const count = [0, 0]
+  let fill = 0;
+  let require = 0;
+  for (const v of valueJson_ws) {
+    require += v.required == true && v.type !== "file" ? 1 : 0;
+    if (v.type == "file") {
 
-
-  
-function validation_before_send_emsFormBuilder(){
- // console.log( localStorage.getItem('sendback'),sendBack_emsFormBuilder_pub)
-  const count=[0,0]
-  let fill=0;
-  let require=0;
- /*    console.log(valueJson_ws);
-  console.log(sendBack_emsFormBuilder_pub);  */
-  for (const v of valueJson_ws){
-   // require +=  v.required== true && v.type!=="file"   ? 1 : 0;
-   // console.log(v.type , v.required ,require);
-    console.log(v.type)
-    if(v.type=="file" ){
-      if( v.required== true){
-        require +=1;
-       /*   if (document.getElementById(v.id_).files[0]==undefined ){
-          fill += 1;
-          }else{          
-          } */
-        console.log(`file is ${fill}`);       
-      }
-    }else{
-      //require +=  v.required== true  ? 1 : 0;
-     // console.log(v.type);
-      if(v.required==true){
-        require += 1;
+      if (document.getElementById(`${v.id_}_`).files[0] == undefined && v.required == true) {
+        fill -= 1;        
       }
     }
   }
-  //210720-8YO43
-  //console.log(valueJson_ws ,sendBack_emsFormBuilder_pub)
-  for (const row of sendBack_emsFormBuilder_pub){
-    //console.log(sendBack_emsFormBuilder_pub);
-    
- //  console.log('row' ,row.type , row);
-    //count[0] +=1;
-    if(row.value=="@file@"){
-      console.log(`flie lengh[${document.getElementById(row.id).files.length}]`)
-      if (document.getElementById(row.id).files.length>=1 )fill += 1;
-
-    }else if(row.type!="file"){
-      //console.log(valueJson_ws);
-      let indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-      console.log(row ,"row");
-      console.log(valueJson_ws ,"row");
-
-      if(valueJson_ws[indx].type=="multiselect" || valueJson_ws[indx].type=="option"  || valueJson_ws[indx].type=="Select" ||valueJson_ws[indx].type=="checkbox") {
-      //const id = row.type=="checkbox" ? valueJson_ws[indx].parents : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
-      //console.log(row.type, valueJson_ws[indx].type ,id);
-       let id = valueJson_ws.findIndex(x => x.id_ ==valueJson_ws[indx].parents);
-       if(row.type=="checkbox" || row.type=="radio"){
-          id= valueJson_ws[indx].parents ;
-          // console.log(row ,valueJson_ws[indx],valueJson_ws[indx].parents ,id , "checkbox" ,7777);
-           id =valueJson_ws.findIndex(x => x.id_ ==valueJson_ws[indx].parents)
-         }else if(row.type=="select-one"){
-           ///id =valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_)
-           id= valueJson_ws[indx].parents 
-           id =valueJson_ws.findIndex(x => x.id_ ==row.id_)
-           //console.log(`id[${id}] indx[${indx}]`,valueJson_ws[id] , valueJson_ws[indx] , "Ncheckbox" ,7777);
-         }else if(row.type=="multiselect"){
-           fill += row.value && row.value.length>0 ?  1 :0;
-         }
-        
-     //    console.log(id,indx , valueJson_ws[id],fill, "OP");
-        fill +=  id!=-1 && valueJson_ws[id].required==true  ? 1 :0;
-      //  console.log(fill,valueJson_ws[id].required==true , "OP");
-      }else if (valueJson_ws[indx].type=="esignature" || valueJson_ws[indx].type=="rating" || valueJson_ws[indx].type=="map"){
-        //esignatures
-        console.log(valueJson_ws[indx].type)
-        id =sendBack_emsFormBuilder_pub.findIndex(x => x.id_ ==valueJson_ws[indx].id_)
-        console.log(valueJson_ws[indx] ,sendBack_emsFormBuilder_pub[id].value);
-        fill += id!=-1 && sendBack_emsFormBuilder_pub[id].value.length>=1  ?1 :0 ;
-      }else{
-        fill += valueJson_ws[indx].required== true ? 1 :0; 
-       // console.log(valueJson_ws[indx].type ,indx , valueJson_ws[indx],fill, "other");
+  for (const row of sendBack_emsFormBuilder_pub) {
+    //console.log(row);
+    count[0] += 1;
+    if (row.value == "@file@") {
       
+      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      if(indx!=-1){
+    //  fill += valueJson_ws[indx].required == true ? 1 : 0;  
+      if(row.url.length>5){ 
+         fill += valueJson_ws[indx].required == true ? 1 : 0;
+         count[1] += 1;
+        }
       }
-     // if(row.value.length>0) count[1] +=1;
-    }else{
-     // if(row.value.length>0) count[1] +=1;
+    } else if (row.type != "@file@" && row.type != "payment") {      
+      const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
+      //console.log(valueJson_ws ,row)
+      if (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
+       || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect" ) {    
+        const exists = valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "payMultiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);      
+        fill += valueJson_ws[indx].required == true && exists > -1 ? 1 : 0;
+       // console.log(valueJson_ws[indx].id_ ,exists ,fill)
+      } else {
+        fill += valueJson_ws[indx].required == true ? 1 : 0;
+      }
+      if (row.value.length > 0) count[1] += 1;
+    } else {
+      if (row.value.length > 0) count[1] += 1;
     }
 
   }
-  count[1]=fill;
-  console.log(count ,`rquire[${require}] filed[${fill}]`);
- // require= require>fill ? 1 :0;
-  console.log(count,require);
-  if( ((count[1]==0 && count[0]!=0) || (count[0]==0 && count[1]==0) ) || require>fill ){
-    console.log(sendBack_emsFormBuilder_pub)
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br>${ajax_object_efm.text.error} ${require!=1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields}</span>
-    <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-   // window.scrollTo({ top: 0, behavior: 'smooth' });
-   document.getElementById('emsFormBuilder-form-view').scrollIntoView(true);
-    //sendBack_emsFormBuilder_pub=[];
- //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
-    for (const v of valueJson_ws){
-      if ( v.type!='file' && v.type!='checkbox' && v.type!='radiobutton' && v.type!='option'  && v.type!='multiselect' && v.type!='select'){
-       // console.log(v);
-        ( v.id_ && document.getElementById(v.id_).value.length<5 ) ? document.getElementById(`${v.id_}-message`).innerHTML=ajax_object_efm.text.enterTheValueThisField : 0
+  require = require > fill ? 1 : 0;
+  if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {  
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
+     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+     if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
+    //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
+    for (const v of valueJson_ws) {
+      if (v.type != 'file'  && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect'  && v.type != 'payRadio' && v.type != 'payCheckbox') {
+        // console.log(v);
+        (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
       }
     }
-    
-  }else{
+
+  } else {
     return true;
   }
 }
 
 
-function show_user_profile_emsFormBuilder(ob){
-
-
-  return `<div class="padding ">
-  <div class="row container d-flex justify-content-center" >
-      <div class="col-xl-6 col-md-12 text-center" id="emsFormBuilder-form">
-          <div class="">
-              <div class="row mx-0">
-                  <div class="col-sm-12 bg-c-lite-green user-profile">
-                      <div class="card-block text-center text-dark">
-                          <div class="mb-5"> <img src="${ob.user_image}" class="userProfileImageEFB" alt="${ob.display_name}"> </div>
-                          <h6 class="f-w-600">${ob.display_name}</h6>
-                          <p>${ob.user_login}</p> 
-                         
-                          <button type="button"  class="btn btn-lg btn-block mat-shadow-efb btn-type-efb btn-lg-efb  " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
-                      </div>
-                  </div>
-                  
-              </div>
-          </div>
-      </div>
-  </div>
-</div>`
+function show_user_profile_emsFormBuilder(ob) {
+  return `<div class="efb mt-5"><div class="efb card-block text-center text-dark ">
+              <div class="efb mb-3 d-flex justify-content-center"> <img src="${ob.user_image}" class="efb userProfileImageEFB" alt="${ob.display_name}"> </div>
+              <h6 class="efb  mb-1 d-flex justify-content-center text-dark">${ob.display_name}</h6> <p class="efb ">${ob.user_login}</p>                          
+              <button type="button"  class="efb btn btn-lg btn-danger efb mt-1 " onclick="emsFormBuilder_logout()">${ajax_object_efm.text.logout}</button>
+          </div> </div>`
 }
 
 
-function emsFormBuilder_logout(){
-  document.getElementById('emsFormBuilder-form').innerHTML= `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder text-center"></h1> <h3 class="text-center">${ajax_object_efm.text.pleaseWaiting}<h3>`;
-  
-  form_type_emsFormBuilder="logout";
-  formName="logout";
-  ajax_object_efm.type="logout";
-  sendBack_emsFormBuilder_pub={logout:true};
-  recaptcha_emsFormBuilder='';
- // console.log('emsFormBuilder_logout');
- 
+function emsFormBuilder_logout() {
+  document.getElementById('body_efb').innerHTML = loading_messge_efb();
+
+  form_type_emsFormBuilder = "logout";
+  formNameEfb = "logout";
+  ajax_object_efm.type = "logout";
+  sendBack_emsFormBuilder_pub = { logout: true };
+  recaptcha_emsFormBuilder = '';
+  // console.log('emsFormBuilder_logout');
+
   actionSendData_emsFormBuilder();
 }
 
+/* new Code */
 
 
 /* password recovery */
-function Show_recovery_pass_efb(){
+function Show_recovery_pass_efb() {
   let el = document.getElementById(`recoverySectionemsFormBuilder`);
-  el.style.display = el.style.display == "none" ? "block":"none";
+  el.style.display = el.style.display == "none" ? "block" : "none";
 
-    document.getElementById('emsFormBuilder-text-message-view').scrollIntoView(true);
+  document.getElementById('efb-final-step').scrollIntoView(true);
 
-    //btn_recovery_pass_efb
-    //if data-id == 1 
-    el = document.getElementById('btn_recovery_pass_efb');
-    el.disabled = true;
+  //btn_recovery_pass_efb
+  //if data-id == 1 
+  el = document.getElementById('btn_recovery_pass_efb');
+  el.disabled = true;
 
-    if(el.dataset.id==1){
-      
-      el.dataset.id=0;
-     const us =   document.getElementById('username_recovery_pass_efb');
-      const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      //console.log(el)
-      el.addEventListener("click",(e)=>{
-        form_type_emsFormBuilder="recovery";
-        formName=form_type_emsFormBuilder;
-        sendBack_emsFormBuilder_pub={email:us.value};
-        console.log(sendBack_emsFormBuilder_pub);
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
-        actionSendData_emsFormBuilder() 
-      })
-     
-      us.addEventListener("keyup",(e)=>{
-       const check = us.value.match(format) ?0 :1;
+  if (el.dataset.id == 1) {
+
+    el.dataset.id = 0;
+    const us = document.getElementById('username_recovery_pass_efb');
+    const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;  
+    el.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = "recovery";
+      formNameEfb = form_type_emsFormBuilder;
+      sendBack_emsFormBuilder_pub = { email: us.value };    
+      document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
+      actionSendData_emsFormBuilder()
+    })
+
+    us.addEventListener("keyup", (e) => {
+      const check = us.value.match(format) ? 0 : 1;
       // console.log(check , us.value)
-       if (check==0){ el.classList.remove('disabled') } else { el.classList.contains('disabled')!= true ? el.classList.add('disabled') : 0}
-      })
+      if (check == 0) { el.classList.remove('disabled') } else { el.classList.contains('disabled') != true ? el.classList.add('disabled') : 0 }
+    })
 
-    }
+  }
 
 }
 /* password recovery */
 
 
-function response_fill_form_efb(res){
-  console.log(res);
-  console.log(trackingCode_state_emsFormBuilder);
-  if (  res.data.success==true ) {
-    switch(form_type_emsFormBuilder){
+function response_fill_form_efb(res) {
+  if (res.data.success == true) {
+  
+    //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
+    switch (form_type_emsFormBuilder) {
       case 'form':
       case 'survey':
-        document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.sentSuccessfully}</h1></br> <span>${ajax_object_efm.text.thanksFillingOutform}</span></br></br></h3> ${(trackingCode_state_emsFormBuilder==true || trackingCode_state_emsFormBuilder=="true")  && form_type_emsFormBuilder!="survey" ? `<h4><span> ${ajax_object_efm.text.trackingCode} </span><span><b>${res.data.track}</b></span></h4>` : ""}`;
+      case 'payment':
+        document.getElementById('efb-final-step').innerHTML = funTnxEfb(res.data.track)
         break;
-       case 'subscribe':
-         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h1 class='emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
-       break;
-       case 'recovery':
-       case 'register': 
-       console.log(res.data.m) ;             
-         document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='emsFormBuilder'>${res.data.m}</h3></br></br></h3>`;
-       break;
-       case 'login':
-        
-         console.log(res.data);
-         if(res.data.m.state==true){
-           //console.log(res.data);
-           document.getElementById('body_emsFormBuilder').innerHTML=show_user_profile_emsFormBuilder(res.data.m);
-     
-           location.reload();
-         }else{
-           pro_w_emsFormBuilder = res.data.m.pro;
-           console.log(res.data.m ,pro_w_emsFormBuilder);
-           document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h3 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
+      case 'subscribe':
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='efb emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        break;
+      case 'recovery':
+      case 'register':
+        document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',res.data.m);
+        break;
+      case 'login':
+
+
+        if (res.data.m.state == true) {          
+          document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
+
+          location.reload();
+        } else {
+          //pro_w_emsFormBuilder = res.data.m.pro;
+          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb jump bi-exclamation-triangle-fill  text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
            </br>
-           <a href="#" id="btn_Show_recovery_efb" class="  emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
-           <div class"p-5 fade" id="recoverySectionemsFormBuilder" style="display: none;">     
-              <input type="email" id="username_recovery_pass_efb" class="m-1" placeholder="Email" >
-              <a href="#" id="btn_recovery_pass_efb" class="btn btn-lg btn-block my-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
+           <a href="#" id="btn_Show_recovery_efb" class="efb   emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
+           <div class="efb p-5 " id="recoverySectionemsFormBuilder" style="display: none;">     
+              <input type="email" id="username_recovery_pass_efb" class="efb m-1" placeholder="Email" >
+              <a href="#" id="btn_recovery_pass_efb" class="efb btn btn-lg btn-block mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
-           <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;" ><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+              <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
+              `;
 
-         }
-       break;
-       case "logout":
-     
-         location.reload();
-        
+        }
+        break;
+      case "logout":
+        location.reload();
+      break;
 
-       break;
-       
     }
-    document.getElementById('body_emsFormBuilder').scrollIntoView(true);
-  //  window.scrollTo({ top: 0, behavior: 'smooth' });
- } else {
-  
-   console.log(`res : error` ,res.data.m)
- //  console.log(`transladed : ${ajax_object_efm.text.somethingWentWrongPleaseRefresh}`)
-  //${ajax_object_efm.text.somethingWentWrongPleaseRefresh}
-   document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span> <br> ${res.data.m}</span>
-   <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-prevBtn" class="emsformbuilder" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
-   
+    if(document.getElementById('body_efb'))document.getElementById('body_efb').scrollIntoView(true);
+    //  window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
- } 
+
+  }
 
 }
 
-function response_Valid_tracker_efb(res){
+function response_Valid_tracker_efb(res) {
 
-  if (res.data.success==true) {
-    //console.log(res.data);
-   document.getElementById('emsFormBuilder-form-view-track').innerHTML = emsFormBuilder_show_content_message(res.data.value ,res.data.content)
- } else {             
-   //console.log(`res : error`)      
-   document.getElementById('emsFormBuilder-form-view-track').innerHTML = `<h1 class='emsFormBuilder'><i class="fas fa-exclamation-triangle faa-flash animated text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span>${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m}</span>
-   <div class="display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="emsformbuilder" onclick="window.location.href=window.location.href" style="display;"><i class="${ajax_object_efm.rtl==1 ? 'fa fa-angle-double-right' :'fa fa-angle-double-left'}"></i></button></div>`;
+  if (res.data.success == true) {    
+    document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
+  } else {    
+    noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
+    document.getElementById('body_efb-track').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted mx-5">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-info m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div>`;
 
- } 
+  }
 }
 
-function response_rMessage_id(res,message){
-  console.log(res,message);
-  if (res.success==true) {
-    //console.log(`response`,res);
-    document.getElementById('replayM_emsFormBuilder').value="";
-    document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
+function response_rMessage_id(res, message) {
+  if (res.success == true && res.data.success==true) {
+    document.getElementById('replayM_emsFormBuilder').value = "";
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-
-    // اضافه شدن به سمت یو آی 
-   // const userIp =ajax_object_efm.user_ip;
     const date = Date();
-    //console.log(message);
-    fun_emsFormBuilder__add_a_response_to_messages(message,res.data.by,0,date);
-
-  }else{
-    //console.log(res);
-    document.getElementById('replay_state__emsFormBuilder').innerHTML=res.data.m;
+    fun_emsFormBuilder__add_a_response_to_messages(message, res.data.by, 0, 0, date);
+    const chatHistory = document.getElementById("resp_efb");
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  } else {
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger">${res.data.m}</p>`;
+    noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
 }
 
-/* remove overpage after loading recaptcha */
-function onloadRecaptchakEFB(){
-if(document.getElementById('overpage-efb')) document.getElementById('overpage-efb').remove();
-}
-/* remove overpage after loading recaptcha */ 
 
+function noti_message_efb(title, message, sec, alert) {
+  sec = sec * 1000
+  alert = alert ? `alert-${alert}` : 'alert-info';
+  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible  mx-5 ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    <h4 class="efb alert-heading">${title}</h4>
+    <p>${message}</p>
+    <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
+  </div>`
+  setTimeout(function () {
+    jQuery('.alert_efb').hide();
+    document.getElementById('alert_efb').innerHTML = ""
+  }, sec);
 
-
-/* clear esignature function */
-function fun_clear_esignature_efb(id){
-  const canvas =   document.querySelector(`[data-id='${id}-efb-canvas']`);
-  document.getElementById(`${id}-sig-data`).value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-  const c2d = canvas.getContext("2d");
-  c2d.clearRect(0, 0, canvas.width, canvas.height);
-  var w = canvas.width;
-  canvas.width = 1;
-  canvas.width = w;
-  c2d.lineWidth = 5;
-  c2d.strokeStyle = "#000";
-  c2d.save();
-  const o = [{ id_: id }];
-  // console.log(o ,968)
-   fun_sendBack_emsFormBuilder(o[0]);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  jQuery('.alert').alert()
 }
 
-window.requestAnimFrame = ((callback) => {
-  return window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimaitonFrame ||
-    function(callback) {
-      window.setTimeout(callback, 1000 / 60);
-    };
-})();
 
+function loadCaptcha_efb() {
 
-function getmousePostion_efb(canvasDom, mouseEvent) {
-  let rct = canvasDom.getBoundingClientRect();
-  return {
-    y: mouseEvent.clientY - rct.top,
-    x: mouseEvent.clientX - rct.left
+  if (!window.grecaptcha || !window.grecaptcha.render) {
+    setTimeout(() => {
+      this.loadCaptcha_efb();
+    }, 500);
+  } else {
+    //
+    if (valj_efb[0].steps == 1) { document.getElementById('btn_send_efb').classList.toggle('disabled'); }
+    grecaptcha.render('gRecaptcha', {
+      'sitekey': sitekye_emsFormBuilder
+    });   
   }
-}
-
-function getTouchPos_efb(canvasDom, touchEvent) {
-  let rct = canvasDom.getBoundingClientRect();
-  return {
-    y: touchEvent.touches[0].clientY - rct.top,
-    x: touchEvent.touches[0].clientX - rct.left
-  }
-}
-
-function renderCanvas_efb() {
-  if (draw_mouse_efb) {
-    console.log( canvas_id_efb)
-    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-    c2d_contex_efb.lineTo(mousePostion_efb.x, mousePostion_efb.y);
-    c2d_contex_efb.stroke();
-    lastMousePostion_efb = mousePostion_efb;
-
-    const data = document.querySelector(`[data-id='${canvas_id_efb}-efb-canvas']`).toDataURL();
-   // console.log(data)
-    document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
-   // image.setAttribute("src", data);
-  }
-}
+};
 
 
-(function drawLoop() {
-  requestAnimFrame(drawLoop);
-  renderCanvas_efb();
-})();
-/* clear esignature function  end*/
-
-
-/* map section */
-
-let map;
-let markers = [];
-
-//document.addEventListener('ondomready', function(){
-  function initMap() {
-    console.log('initMap');
-    setTimeout(function() {
-      // code to be executed after 1 second
-      console.log('test map function',google,document.getElementById("map"))
-      const haightAshbury = { lat: 37.769, lng: -122.446 };
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 12,
-        center: haightAshbury,
-        mapTypeId: "terrain",
-      });
-      console.log('map function');
-      // This event listener will call addMarker() when the map is clicked.
-      map.addListener("click", (event) => {
-       if (markers.length <1)  addMarker(event.latLng);
-      });
-      // add event listeners for the buttons
-     
-      document
-        .getElementById("delete-markers")
-        .addEventListener("click", deleteMarkers);
-      // Adds a marker at the center of the map.
-      addMarker(haightAshbury);
-    }, 1000);
+function fun_total_pay_efb(){
+  //console.log('fun_total_pay_efb');
+  let total=0;
+  updateTotal=(i)=>{
+    i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    //totalpayEfb
+    for (const l of document.querySelectorAll(".totalpayEfb")) {
+      l.innerHTML=i
+    }
   }
 
-//});
-console.log('testinit')
-initMap();
-// Adds a marker to the map and push to the array.
-function addMarker(position) {
-  const marker = new google.maps.Marker({
-    position,
-    map,
-  });
-
-  markers.push(marker);
-    console.log(markers.length)
+  for(let r of sendBack_emsFormBuilder_pub){
+    //console.log(r.price, typeof r.price);
+      if(typeof r.price=="string" || typeof r.price=="number") total +=parseFloat(r.price)
+    }
+    setTimeout(() => { updateTotal(total);}, 800);
+   
+    
 }
-
-// Sets the map on all markers in the array.
-function setMapOnAll(map) {
-  for (let i = 0; i < markers.length; i++) {
-    markers[i].setMap(map);
-  }
-}
-
-// Removes the markers from the map, but keeps them in the array.
-function hideMarkers() {
-  setMapOnAll(null);
-}
-
-// Shows any markers currently in the array.
-function showMarkers() {
-  setMapOnAll(map);
-}
-
-// Deletes all markers in the array by removing references to them.
-function deleteMarkers() {
-  hideMarkers();
-  markers = [];
-}
-/* map section end */

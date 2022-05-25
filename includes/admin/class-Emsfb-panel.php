@@ -14,218 +14,109 @@ class Panel_edit  {
 	public function __construct() {
 		global $wpdb;
 		$this->db = $wpdb;
+		
 		if ( is_admin() ) {
 			$rtl = is_rtl();
-			$lang = [
-				"create" => __('Create','easy-form-builder'),
-				"define" => __('Define','easy-form-builder'),
-				"formName" => __('Form Name','easy-form-builder'),
-				"createDate" => __('Create Date','easy-form-builder'),
-				"edit" => __('Edit','easy-form-builder'),
-				"content" => __('Content','easy-form-builder'),
-				"trackNo" => __('Track No.','easy-form-builder'),
-				"formDate" => __('Form Date','easy-form-builder'),
-				"by" => __('By','easy-form-builder'),
-				"ip" => __('IP','easy-form-builder'),
-				"guest" => __('Guest','easy-form-builder'),
-				"info" => __('Info','easy-form-builder'),
-				"response" => __('Response','easy-form-builder'),
-				"date" => __('Date','easy-form-builder'),
-				"videoDownloadLink" => __('Video Download Link','easy-form-builder'),
-				"downloadViedo" => __('Download Viedo','easy-form-builder'),
-				"youCantUseHTMLTagOrBlank" => __('You can not use HTML Tag or send blank message.','easy-form-builder'),
-				"error" => __('Error,','easy-form-builder'),
-				"reply" => __('Reply','easy-form-builder'),
-				"messages" => __('Messages','easy-form-builder'),
-				"close" => __('Close','easy-form-builder'),
-				"pleaseWaiting" => __('Please Waiting','easy-form-builder'),
-				"loading" => __('Loading','easy-form-builder'),
-				"remove" => __('Remove!','easy-form-builder'),
-				"areYouSureYouWantDeleteItem" => __('Are you sure want to delete this item?','easy-form-builder'),
-				"no" => __('NO','easy-form-builder'),
-				"yes" => __('Yes','easy-form-builder'),
-				"numberOfSteps" => __('Number of steps','easy-form-builder'),
-				"easyFormBuilder" => __('Easy Form Builder','easy-form-builder'),
-				"titleOfStep" => __('Title of step','easy-form-builder'),
-				"proVersion" => __('Pro Version','easy-form-builder'),
-				"getProVersion" => __('Get Pro version','easy-form-builder'),
-				"clickHereGetActivateCode" => __('Click here to get Activate Code.','easy-form-builder'),
-				"enterActivateCode" => __('Enter Activate Code','easy-form-builder'),
-				"reCAPTCHAv2" => __('reCAPTCHA v2','easy-form-builder'),
-				"reCAPTCHA" => __('reCAPTCHA','easy-form-builder'),
-				"googleMaps" => __('Google Maps','easy-form-builder'),
-				"apiKey" => __('API Keys','easy-form-builder'),
-				"aboutGoogleMpas" => __('Google maps API get service for loaded map','easy-form-builder'),
-				"protectsYourWebsiteFromFraud" => __('protects your website from fraud and abuse.','easy-form-builder'),
-				"clickHereWatchVideoTutorial" => __('Click here to watch a video tutorial.','easy-form-builder'),
-				"siteKey" => __('SITE KEY','easy-form-builder'),
-				"enterSITEKEY" => __('Enter SITE KEY','easy-form-builder'),
-				"enterAPIKey" => __('Enter API KEY','easy-form-builder'),
-				"SecreTKey" => __('SECRET KEY','easy-form-builder'),
-				"EnterSECRETKEY" => __('Enter SECRET KEY','easy-form-builder'),
-				"alertEmail" => __('Alert Email','easy-form-builder'),
-				"whenEasyFormBuilderRecivesNewMessage" => __('When Easy Form Builder recives a new message, It will send an alret email to admin of plugin.','easy-form-builder'),
-				"email" => __('Email','easy-form-builder'),
-				"enterAdminEmail" => __('Enter Admin Email','easy-form-builder'),
-				"clearFiles" => __('Clear Files','easy-form-builder'),
-				"youCanRemoveUnnecessaryFileUploaded" => __('You can Remove unnecessary file uploaded by user with below button','easy-form-builder'),
-				"clearUnnecessaryFiles" => __('Clear unnecessary files','easy-form-builder'),
-				"trackingCode" => __('Tracking code','easy-form-builder'),
-				"ifShowTrackingCodeToUser" => __("If you don't want to show tracking code to user, don't mark below option.",'easy-form-builder'),
-				"showTrackingCode" => __('Show tracking Code','easy-form-builder'),
-				"onlyLoggedUser" => __('Only for logged-in users','easy-form-builder'),
-				"trackingCodeFinder" => __('Tracking code Finder','easy-form-builder'),
-				"copyAndPasteBelowShortCodeTrackingCodeFinder" => __('Copy and Paste below short-code of tracking code finder in any page or post.','easy-form-builder'),
-				"save" => __('Save','easy-form-builder'),
-				"waiting" => __('Waiting','easy-form-builder'),
-				"saved" => __('Saved','easy-form-builder'),
-				"error" => __('Error,','easy-form-builder'),
-				"stepName" => __('Step Name','easy-form-builder'),
-				"IconOfStep" => __('Icon of step','easy-form-builder'),
-				"define" => __('Define','easy-form-builder'),
-				"stepTitles" => __('Step Titles','easy-form-builder'),
-				"elements" => __('Elements:','easy-form-builder'),
-				"properties" => __('Properties','easy-form-builder'),
-				"delete" => __('Delete','easy-form-builder'),
-				"newOption" => __('New option','easy-form-builder'),
-				"documents" => __('Documents','easy-form-builder'),
-				"image" => __('Image','easy-form-builder'),
-				"media" => __('Media','easy-form-builder'),
-				"videoOrAudio" => __('(Video or Audio)','easy-form-builder'),
-				"zip" => __('Zip','easy-form-builder'),
-				"required" => __('Required','easy-form-builder'),
-				"button" => __('button','easy-form-builder'),
-				"text" => __('text','easy-form-builder'),
-				"password" => __('password','easy-form-builder'),
-				"email" => __('email','easy-form-builder'),
-				"number" => __('number','easy-form-builder'),
-				"file" => __('file','easy-form-builder'),
-				"date" => __('date','easy-form-builder'),
-				"tel" => __('tel','easy-form-builder'),
-				"textarea" => __('textarea','easy-form-builder'),
-				"checkbox" => __('checkbox','easy-form-builder'),
-				"radiobutton" => __('radiobutton','easy-form-builder'),
-				"multiselect" => __('multiselect','easy-form-builder'),
-				"url" => __('url','easy-form-builder'),
-				"range" => __('range','easy-form-builder'),
-				"color" => __('color','easy-form-builder'),
-				"rating" => __('Rating','easy-form-builder'),
-				"maps" => __('Maps','easy-form-builder'),
-				"divider" => __('Divider','easy-form-builder'),
-				"esignature" => __('E-signature','easy-form-builder'),
-				"html" => __('Html','easy-form-builder'),
-				"fileType" => __('File Type','easy-form-builder'),
-				"fileType" => __('File Type','easy-form-builder'),
-				"label" => __('Label:*','easy-form-builder'),
-				"class" => __('Class','easy-form-builder'),
-				"id" => __('ID','easy-form-builder'),
-				"tooltip" => __('Tooltip','easy-form-builder'),
-				"formUpdated" => __('The Form Updated','easy-form-builder'),
-				"goodJob" => __('Good Job','easy-form-builder'),
-				"formUpdatedDone" => __('The form has been successfully updated','easy-form-builder'),
-				"formIsBuild" => __('The form is successfully built','easy-form-builder'),
-				"formCode" => __('Form Code','easy-form-builder'),
-				"close" => __('Close','easy-form-builder'),
-				"done" => __('Done','easy-form-builder'),
-				"demo" => __('Demo','easy-form-builder'),
-				"alert" => __('Alert!','easy-form-builder'),
-				"pleaseFillInRequiredFields" => __('Please fill in all required fields.','easy-form-builder'),
-				"availableInProversion" => __('This option is available in Pro version','easy-form-builder'),
-				"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
-				"someStepsNotDefinedCheck" => __('Some steps not defined, Please check:','easy-form-builder'),
-				"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
-				"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
-				"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
-				"preview" => __('Preview','easy-form-builder'),
-				"somethingWentWrongPleaseRefresh" => __('Something went wrong, Please refresh and try again','easy-form-builder'),
-				"formNotCreated" => __('The form has not been created!','easy-form-builder'),
-				"atFirstCreateForm" => __('At first create a form and add elemants then try again','easy-form-builder'),
-				"formNotBuilded" => __('The form has not been builded!','easy-form-builder'),
-				"allowMultiselect" => __('Allow multi-select','easy-form-builder'),
-				"DragAndDropUI" => __('Drag and drop UI','easy-form-builder'),
-				"clickHereForActiveProVesrsion" => __('Click here for Active Pro vesrsion','easy-form-builder'),
-				"someStepsNotDefinedCheck" => __('Some steps not defined, Please check:','easy-form-builder'),
-				"ifYouNeedCreateMoreThan2Steps" => __('If you need create more than 2 Steps, activeate ','easy-form-builder'),
-				"youCouldCreateMinOneAndMaxtwo" => __('You can create minmum 1 and maximum 2 Steps.','easy-form-builder'),
-				"youCouldCreateMinOneAndMaxtwenty" => __('You Could create minmum 1 Step and maximum 20 Step','easy-form-builder'),
-				"selectOpetionDisabled" => __('Select a option (Disabled in test view)','easy-form-builder'),
-				"DragAndDropA" => __('Drag and drop a','easy-form-builder'),
-				"pleaseEnterTheTracking" => __('Please enter the tracking code','easy-form-builder'),
-				"somethingWentWrongTryAgain" => __('Something went wrong, Please refresh and try again','easy-form-builder'),			
-				"enterThePhone" => __('Please Enter the phone number','easy-form-builder'),			
-				"pleaseMakeSureAllFields" => __('Please make sure all fields are filled in correctly.','easy-form-builder'),
-				"enterTheEmail" => __('Please Enter the Email address','easy-form-builder'),
-				"formNotFound" => __('Form is not found','easy-form-builder'),
-				"errorV01" => __('Error Code:V01','easy-form-builder'),
-				"enterٰValidURL" => __('Please enter a valid URL. Protocol is required (http://, https://)','easy-form-builder'),
-				"password8Chars" => __('Password must be at least 8 characters','easy-form-builder'),
-				"registered" => __('Registered','easy-form-builder'),
-				"yourInformationRegistered" => __('Your information is successfully registered','easy-form-builder'),		
-				"youNotPermissionUploadFile" => __('You do not have permission to upload this file:','easy-form-builder'),
-				"pleaseUploadA" => __('Please upload a','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-				"trackingForm" => __('Tracking Form','easy-form-builder'),
-				"trackingCodeIsNotValid" => __('Tracking Code is not valid.','easy-form-builder'),
-				"checkedBoxIANotRobot" => __('Please Checked Box of I am Not robot','easy-form-builder'),
-				"howConfigureEFB" => __('How to configure Easy Form Builder','easy-form-builder'),
-				"howGetGooglereCAPTCHA" => __('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
-				"howActivateAlertEmail" => __('How to activate the alert email for new form submission','easy-form-builder'),
-				"howCreateAddForm" => __('How to create and add a form with Easy Form Builder','easy-form-builder'),
-				"howActivateTracking" => __('How to activate a tracking code in Easy Form Builder','easy-form-builder'),
-				"howWorkWithPanels" => __('How to work with panels in Easy Form Builder','easy-form-builder'),
-				"howAddTrackingForm" => __('How to add a tracking form to a post, page, or custom post type','easy-form-builder'),
-				"howFindResponse" => __('How to find a response through a tracking ID','easy-form-builder'),
-				"pleaseEnterVaildValue" => __('Please enter a vaild value','easy-form-builder'),
-				"step" => __('step','easy-form-builder'),
-				"advancedCustomization" => __('Advanced customization','easy-form-builder'),
-				"orClickHere" => __(' or click here','easy-form-builder'),
-				"downloadCSVFile" => __(' Download CSV file','easy-form-builder'),
-				"downloadCSVFileSub" => __('Download CSV file of subscriptions','easy-form-builder'),
-				"login" => __('Login','easy-form-builder'),
-				"thisInputLocked" => __('this input is locked','easy-form-builder'),
-				"thisElemantAvailableRemoveable" => __('This elemant is available and removeable.','easy-form-builder'),
-				"thisElemantWouldNotRemoveableLoginform" => __('This elemant would not removeable in Login form.','easy-form-builder'),
-				"send" => __('Send','easy-form-builder'),
-				"contactUs" => __('Contact us','easy-form-builder'),
-				"support" => __('Support','easy-form-builder'),
-				"subscribe" => __('Subscribe','easy-form-builder'),
-				"login" => __('Login','easy-form-builder'),
-				"logout" => __('Logout','easy-form-builder'),
-				"survey" => __('Survey','easy-form-builder'),
-				"chart" => __('Chart','easy-form-builder'),
-				"noComment" => __('No comment','easy-form-builder'),
-				"please" => __('Please','easy-form-builder'),
-			];
-			wp_enqueue_script( 'Emsfb-listicons-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/listicons.js' );
-			wp_enqueue_script('Emsfb-listicons-js');
 
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
-
+			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
+			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
+			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
+			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/recaptcha.png',
+			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
+			];
 			$pro =false;
-			$ac= $this->get_activeCode_Emsfb();
-			if (md5($_SERVER['SERVER_NAME'])==$ac){$pro=true;}
+			$efbFunction = new efbFunction(); 
+			//$lng =new lng();		
+			$ac= $efbFunction->get_setting_Emsfb();
+			$lang = $efbFunction->text_efb(1);
+			
+			/* error_log(gettype($ac));
+			error_log($ac->activeCode); */
+			$smtp =false;
+			$captcha =false;
+			$maps=false;
+			$mdtest = "15f57cc603c2ea64721ae0d0b5983136";
+
+			if(gettype($ac)!="string" && isset($ac) ){
+				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
+				if(isset($ac->siteKey)){$captcha="true";}	
+				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
+				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+					error_log($ac->apiKeyMap);		
+					$k= $ac->apiKeyMap;
+					$maps =true;
+					$lng = strval(get_locale());					
+						if ( strlen($lng) > 0 ) {
+						$lng = explode( '_', $lng )[0];
+						}
+					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+					wp_enqueue_script('googleMaps-js');
+				}
+			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
+			
+			
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
 				'check' => 0,
 				'rtl' => $rtl,
-				'text' => $lang		));
+				'text' => $lang,
+				'images' => $img,
+				'captcha'=>$captcha,
+				'smtp'=>$smtp,
+				'maps'=> $maps,
+				'bootstrap' =>$this->check_temp_is_bootstrap(),
+				"language"=> get_locale()));
+
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
+			wp_enqueue_script('efb-val-js'); 
 
 		
 			if($pro==true){
-				// اگر پولی بود این کد لود شود 
-				//پایان کد نسخه پرو
-				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac, null, null, true);	
-				wp_enqueue_script('whitestudio-admin-pro-js');
+
+/* 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
+				wp_enqueue_script('whitestudio-admin-pro-js'); */
+
+				//اگر پلاگین مربوط نصب بود این بخش فعال شود
+				//stipe
+				//اگر نسه پرو بود
+				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+				wp_enqueue_script('stripe-js');
+
 			}
+			
+
+
+			if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+				$k= $ac->apiKeyMap;
+				$lng = get_locale();
+					if ( strlen( $lng ) > 0 ) {
+					$lng = explode( '_', $lng )[0];
+					}
+				//error_log($lang);
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				wp_enqueue_script('googleMaps-js');
+			}
+
 			
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
-					'check' => 0
-						));
+					'check' => 0));
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
+			wp_enqueue_script('efb-bootstrap-select-js'); 
+
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
+			wp_enqueue_script('efb-main-js'); 
+
+			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/api/plugin/efb/addson/zone.js'.get_locale().'', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js');
+
+
 
 			
 			$table_name = $this->db->prefix . "Emsfb_form";
@@ -233,65 +124,92 @@ class Panel_edit  {
 		
 			$table_name = $this->db->prefix . "Emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
-		
+			
 
-			$lang = get_locale();
-		
-			if ( strlen( $lang ) > 0 ) {
-				$lang = explode( '_', $lang )[0];
+			$lng = get_locale();
+			$k ="";
+			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
+			if ( strlen( $lng ) > 0 ) {
+				$lng = explode( '_', $lng )[0];
 				}
 
 		
 			?>
-			<div id="body_emsFormBuilder" class="m-2"> 
-				<div id="msg_emsFormBuilder" class="mx-2">
-
-				
+			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
+			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 "  id="sideBoxEfb">
+				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
+				<span> </span>
+					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
 				</div>
-			<nav class="navbar navbar-expand-lg navbar-light bg-light">
-				<a class="navbar-brand" href="https://whitestudio.team/?s=pwp" target="_blank">
-					<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo.png' ?>" width="30" height="30" class="d-inline-block align-top" alt="">
-					<?php _e('Easy Form Builder','easy-form-builder') ?>
-				</a>
-				<button class="navbar-toggler" id="navbartogglerb" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
+				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
+				</div></div>
+			<div id="body_emsFormBuilder" class="efb m-2"> 
+				<div id="msg_emsFormBuilder" class="efb mx-2">
+			</div>
 
-				<div class="collapse navbar-collapse" id="navbarToggler">
-					<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-					<li class="nav-item">
-						<a class="nav-link active" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php _e('Forms','easy-form-builder') ?><span class="sr-only">(current)</span></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php _e('Setting','easy-form-builder') ?></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="admin.php?page=Emsfb_create" role="button"><?php _e('Create','easy-form-builder') ?></a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link " onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php _e('help','easy-form-builder') ?></a>
-					</li>
-					</ul>
-					<div class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php _e('Search track No.','easy-form-builder') ?>">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php _e('Search','easy-form-builder') ?></button>
+			<div class="efb top_circle-efb-1"></div>
+			<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>" </script>
+				<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
+					<div class="efb container">
+						<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
+							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
+							<?= __('Easy Form Builder','easy-form-builder') ?></a>
+						<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="efb navbar-toggler-icon efb"></span>
+						</button>
+						<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
+							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
+								<li class="efb nav-item"><a class="efb nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
+								</li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
+								</li>
+								<li class="efb nav-item">
+									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
+								</li>
+							</ul>
+							<div class="efb d-flex">
+								<form class="efb d-flex">
+									<i class="efb  bi-search search-icon"></i>
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["trackNo"]  ?>">
+									<button class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></button>
+								</form>
+								<div class="efb nav-icon efb mx-2">
+									<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
+								</div>
+								<div class="efb nav-icon efb">
+									<a class="efb nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb  bi-gear"></i></a>
+								</div>
+							</div>
+						</div>
 					</div>
-				</div>
-			</nav>
+				</nav>
+				<div id="alert_efb" class="efb mx-5"></div>
+				<!-- end  new nav  -->
+					<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="efb modal-content efb " id="settingModalEfb-sections">
+									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
+					</div></div></div>
 
-
-					<div class="row mb-2">					
-					<button type="button" class="btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="fa fa-home"></i></button>
+					<div class="efb row mb-2">					
+					<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
 					</div>
-					<div class="row" id ="emsFormBuilder-content">
-					 <h2 id="loading_message_emsFormBuilder" class="efb-color text-center m-5 center"><i class="fas fa-spinner fa-pulse"></i><?php _e('Loading','easy-form-builder') ?></h2>
+					<div class="efb row" id ="content-efb">
+				 	<div class="efb card-body text-center my-5"><div class="efb lds-hourglass"></div> <h3 class="efb "><?=  $lang["loading"] ?></h3></div>
+					<!--  <h2 id="loading_message_emsFormBuilder" class="efb -color text-center m-5 center"><i class="efb fas fa-spinner fa-pulse"></i><?=  $lang["loading"] ?></h2> -->
 					</div>
-					<div class="row mt-2 d-flex justify-content-center align-items-center ">
-					<button type="button" id="more_emsFormBuilder" class="mat-shadow emsFormBuilder p-3" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="fa fa-angle-double-down"></i></button>
-					</div>
-				</div>
+					<div class="efb mt-3 d-flex justify-content-center align-items-center ">
+					<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="efb bi-chevron-double-down"></i></button>
+					</div></div>
+					<datalist id="color_list_efb">
+						<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
+					</datalist>
 			<?php
-
+		
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 				//check ip from share internet
@@ -304,7 +222,6 @@ class Panel_edit  {
 			}
 
 
-			
 
 			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, null, true);
 			wp_enqueue_script('Emsfb-list_form-js');
@@ -317,31 +234,18 @@ class Panel_edit  {
 					'user_ip'=> $ip,
 					'setting'=>$stng,
 					'messages_state' =>$this->get_not_read_message(),
-					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.png'
-					
+					'response_state' =>$this->get_not_read_response(),
+					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
+					'bootstrap'=>$this->check_temp_is_bootstrap(),
+					'pro'=>$pro									
 				));
+
+				;
 					
 		}else{
 			echo "Easy Form Builder: You dont access this section";
 		}
 	}
-	public function get_activeCode_Emsfb()
-	{
-		// اکتیو کد بر می گرداند	
-		
-		$table_name = $this->db->prefix . "Emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
-		$rtrn='null';
-		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$r =json_decode($val);
-			$rtrn =$r->activeCode;
-			break;
-			} 
-		}
-		return $rtrn;
-	}
-
 
 	
 	public function get_not_read_message(){
@@ -349,16 +253,40 @@ class Panel_edit  {
 		
 		$table_name = $this->db->prefix . "Emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
-		$rtrn='null';
+
 		//error_log(json_encode($value));
+		return $value;
+	}
+	public function get_not_read_response(){
+		$table_name_msg = $this->db->prefix . "Emsfb_msg_";
+		$table_name_rsp = $this->db->prefix . "Emsfb_rsp_"; 
+		//$table_name = $this->db->prefix . "Emsfb_rsp_"; 
+		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
+		FROM `$table_name_msg` AS t 
+		 INNER JOIN `$table_name_rsp` AS tr 
+		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
 		return $value;
 	}
 
 
-	
+	public function check_temp_is_bootstrap (){
+		
+        $it = list_files(get_template_directory()); 
+        $s = false;
+        foreach($it as $path) {
+			if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
+            {			
+                $f = file_get_contents($path);
+                if(preg_match("/col-md-12/i", $f)){
+                    $s= true;
+                    break;
+                }
+            } 
+        }
+		//error_log($s);
+        return  $s;
+    }//end fun
 
-
-	
 
 
 
