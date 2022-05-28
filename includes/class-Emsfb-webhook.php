@@ -21,7 +21,7 @@ class webhook {
   
 
     public function web_hooks(){
-        error_log('webook');
+       /*  error_log('webook');
         add_action('rest_api_init',  @function(){
     
           
@@ -29,7 +29,7 @@ class webhook {
                   'method'=> 'GET',
                   'callback'=> 'test_fun'
               ]); 
-          });
+          }); */
     }
 
 

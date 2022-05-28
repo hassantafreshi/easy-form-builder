@@ -68,7 +68,7 @@ class Emsfb {
 
 
     public function webhooks(){
-        error_log('webook');
+   /*      error_log('webook');
         add_action('rest_api_init',  @function(){
     
           
@@ -76,7 +76,7 @@ class Emsfb {
                   'method'=> 'GET',
                   'callback'=> 'test_fun'
               ]); 
-          });
+          }); */
     }
 
 
