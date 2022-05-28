@@ -21,6 +21,7 @@ class Emsfb {
 
         $this->includes();
         $this->init_hooks();
+       if(is_admin()==false) $this->webhooks();
     }
 
     /**
@@ -62,5 +63,32 @@ class Emsfb {
         }
 
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+        //require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
     }
+
+
+    public function webhooks(){
+        error_log('webook');
+        add_action('rest_api_init',  @function(){
+    
+          
+              register_rest_route('efb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
+                  'method'=> 'GET',
+                  'callback'=> 'test_fun'
+              ]); 
+          });
+    }
+
+
+    private function test_fun($slug){
+        error_log($slug['name']);
+        error_log($slug['id']);
+        return $slug['id'];
+       // return $fs;
+    
+      
+    } 
+
+
+
 }
