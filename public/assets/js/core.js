@@ -27,7 +27,7 @@ setTimeout(() => {
     
     if (typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder = ajax_object_efm.poster;
-    console.log(ajax_object_efm.state);
+    //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
@@ -55,7 +55,7 @@ setTimeout(() => {
         
         fun_render_view(ajax_object_efm.ajax_value, 1);
       } else if (ajax_object_efm.state == 'tracker') {
-          console.log(`ajax_object_efm.state`,ajax_object_efm.state);
+          //console.log(`ajax_object_efm.state`,ajax_object_efm.state);
         fun_tracking_show_emsFormBuilder()
       } else if (ajax_object_efm.state == 'settingError') {
         
@@ -464,7 +464,7 @@ function createStepsOfPublic() {
           Object.assign(o[0],p)
           //console.log(q ,p,o[0]);
 
-          console.log(ob,id_ob)
+          //console.log(ob,id_ob)
           fun_sendBack_emsFormBuilder(o[0]);
           fun_total_pay_efb()
         }else{
@@ -977,7 +977,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s=true;
       list.push(c.url);
       $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
-      console.log($name,c.type ,"URL", c.url);
+      //console.log($name,c.type ,"URL", c.url);
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
@@ -1003,11 +1003,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
     }else if (c.type == "esign") {
       console.log('esign');
-      console.log(c.value);
+      //console.log(c.value);
       s=true;
       value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m +=value ;
-      console.log(value);
+      //console.log(value);
     }else if(c.type=="maps"){
      
       if(typeof(c.value)=="object"){
@@ -1033,7 +1033,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
   }
   m += '</div>';  
-  console.log('m',m);
+  //console.log('m',m);
   return m;
 }
 

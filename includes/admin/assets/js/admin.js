@@ -298,7 +298,7 @@ function FunfindCardFormEFB(){
 }
 
 function create_form_by_type_emsfb(id,s){
-  console.log(id,s);
+  //console.log(id,s);
   //v2
   //console.log(id);
   localStorage.removeItem('valj_efb');
