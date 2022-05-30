@@ -135,7 +135,7 @@ Thanks goes to these wonderful people
     <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
 <td>
   <a href="https://github.com/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush Samadi</strong></sub></a><br />
-    <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> 
+    <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a> 
 </td>
 
 </tbody>
