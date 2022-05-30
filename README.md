@@ -123,19 +123,21 @@ Thanks goes to these wonderful people
 <table align="center">
 <tbody>
 <tr>
-<td><a href="https://github.com/hassantafreshi/"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan Tafreshi</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/all-contributors/all-contributors/pulls?q=is%3Apr+reviewed-by%3Akentcdodds">👀</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
-<td><a href="https://github.com/01mrlast"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson Last</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji><a title="Talks" href="#talk-kentcdodds">📢</a></td>
-<td><a href="https://github.com/aminkhadivar/"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin Khadivar</strong></sub></a><br /><a href="#design-tbenning" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/all-contributors/all-contributors/commits?author=tbenning">💻</a></td>
+<td><a href="https://github.com/hassantafreshi/"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan Tafreshi</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
+<td><a href="https://github.com/01mrlast"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson Last</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation-Berkmann18">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji><a title="Talks" href="#talk-kentcdodds">📢</a></td>
+<td><a href="https://github.com/aminkhadivar/"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin Khadivar</strong></sub></a><br /><a href="#design-tbenning" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
   <td><a href="https://github.com/thaikolja"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja Nolte</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
 <td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
   <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
-<td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
-  <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
-  
-<td></td>
-  
-<td></td>
+<td>
+  <a href="https://github.com/ehssantafreshi"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
+    <a title="Translation" href="#translation-Berkmann18">🌍</a></td>
+<td>
+<td>
+  <a href="https://github.com/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush Samadi</strong></sub></a><br />
+    <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> 
+<td>
 </tr>
 </tbody>
 </table>
