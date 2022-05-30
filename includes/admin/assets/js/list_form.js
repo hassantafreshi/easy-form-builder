@@ -713,7 +713,7 @@ function fun_show_setting__emsFormBuilder() {
   let email = 'null';
   let trackingcode = 'null';
   let apiKeyMap = 'null';
-  let smtp = 'null';
+  let smtp = false;
   let text= efb_var.text;
   let textList ="<!--list EFB -->";
   let bootstrap = false ;
@@ -735,9 +735,10 @@ function fun_show_setting__emsFormBuilder() {
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
     stripePKey = f(`stripePKey`);
-    smtp = f('smtp');
+    smtp = f('smtp')=='null' ? false : true;
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
+    console.log(`smtp[${smtp}]`);
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -871,6 +872,12 @@ function fun_show_setting__emsFormBuilder() {
                                         <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
                                     </button>
                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
+                                </div>
+                                <div class="efb card-body mx- py-1 mx-4">
+                           
+                                <input class="efb elEdit form-check-input efb fs-5" type="checkbox" id="hostSupportSmtp_emsFormBuilder" ${smtp==true ? "checked" :""}>
+                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>                                            
+                               
                                 </div>
                                 <!--End Email-->
                             </div>
@@ -1017,6 +1024,7 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
+    console.log(el.id ,el);
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id=="emailTemp_emsFirmBuilder"){
@@ -1025,7 +1033,8 @@ function fun_set_setting_emsFormBuilder() {
         el.value= el.value.replace(/(["])+/g, `'`);
       }
       return el.value;
-    } else if (el.type == "checkbox") {      
+    } else if (el.type == "checkbox") {  
+      console.log(el.type , el.checked);
       return el.checked;
     }
     return "NotFoundEl"
@@ -1106,8 +1115,9 @@ function fun_set_setting_emsFormBuilder() {
     const email = f(`email_emsFormBuilder`);
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
-    const smtp = f('smtp_emsFormBuilder')
+    //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
+    smtp = f('hostSupportSmtp_emsFormBuilder');
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp= emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = efb_var.text;
@@ -1609,7 +1619,7 @@ function clickToCheckEmailServer() {
           noti_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
         } else {
   
-          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 7, 'danger');
+          noti_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
   
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
