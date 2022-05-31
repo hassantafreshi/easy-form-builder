@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.0.0
-Requires at least: 	4.7
-Tested up to: 			5.9.2
+Stable tag: 			3.0.1
+Requires at least: 	      4.7
+Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -20,7 +20,7 @@ Easy Form Builder is a user-friendly plugin to help you create powerful forms. W
 
 You don't need any coding skills to use *Easy Form Builder*. Simply drag and drop your layouts in order to easily create unlimited custom multi step forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
-Find out all you need to know by checking out our documentation [click here](https://github.com/hassantafreshi/easy-form-builder/wiki)
+Find out all you need to know by checking out our documentation [Click Here](https://whitestudio.team/documents)
 
 How *Easy Form Builder* makes your life easier:
 
@@ -118,7 +118,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Customizable the thank you message in forms.
 
-- Create any kind of forms you want!
+- Create any kind of form you want!
 
 
 
@@ -139,7 +139,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Payment Fields (inputs) like Payment Multi choose, Payment Single choose ,Payment Selection Choose,Payment dropdown list
 
-- Create Advance form by Use advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
+- Create Advance form by using advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
 
 
 
@@ -151,32 +151,32 @@ How *Easy Form Builder* makes your life easier:
 
 - *Signature Forms* : Create signature forms or add the signature field to your contact form and so on.
 
-- *Location picker (Geolocation)* :  Pick a Location or multiple location by your user or showing your location on forms .
+- *Location picker (Geolocation)* :  Pick a Location or multiple locations by your user or showing your location on forms .
 
-- *Countries list*:Easy Form Builder able you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
+- *Countries list*:Easy Form Builder enables you to add Country list select field (drop down field of countries list) to your country form or contact-us form.
 
-- *States / Provinces*:Easy Form Builder able you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
+- *States / Provinces*:Easy Form Builder enables you to add states / Provinces list select field (drop down field of states / Provinces list) to your form.
 
 - *Multiple Select*: Multi Select (Multi Select Dropdown) is a field for multiple selection and searchable dropdown list so you can easily add to your WordPress form for **free**.
 
 - *Heading* : Heading fields on Easy Form Builder new fields like H tags can add contact-us form or any kind of forms.
 
-- *Link* : You can easily can add link on WP forms.
+- *Link* : You can easily add links on WP forms.
 
 
 **Payment Forms Field of Easy Form Builder**
 
-- *Stripe payment* : Build easily payment forms for accept payments online like order form, booking form, donation form, with add Stripe Fields to the forms.
+- *Stripe payment* : Build easy payment forms for accept payments online like order form, booking form, donation form, with add Stripe Fields to the forms.
 
-- *Payment dropdown list* : by add payment drop-down list to a form  you shown list price on  payment form.
+- *Payment dropdown list* : by adding a payment drop-down list to a form  you shown list price on  payment form.
 
-- *Payment Selection Choose* : Payment Selection Choose is the payment field for price list and user just can select multiple row of the list on payment form.
+- *Payment Selection Choose* : Payment Selection Choose is the payment field for the price list and user just can select multiple row of the list on payment form.
 
 - *Payment Single choose* : Payment Single Choose is the payment field Show list of order or service or product and user can select one of them on payment form.
 
-- *Payment Multi choose* : Payment Multi choose is the payment field and show list of service or product or order so user can select multiple row of the list on payment or order forms. 
+- *Payment Multi choose* : Payment Multi choose is the payment field and show list of service or product or order so users can select multiple row of the list on payment or order forms. 
 
-- *Supported currencies* : Easy Form builder payments powered by Stripe so the plugin support 135+ currencies.
+- *Supported currencies* : Easy Form builder payments powered by Stripe so the plugin supports 135+ currencies.
 
 
 *Free advanced features of Form builder* 
@@ -185,7 +185,7 @@ How *Easy Form Builder* makes your life easier:
 
 - *Surveys* :  create survey or poll forms and analyze the data with reports and view result in chart for **free**.
 
-- *Private Form (Form Locker)* : Manage form permissions and add access control rules including members of site only having access to forms.
+- *Private Form (Form Locker)* : Manage form permissions and add access control rules including members of the site only having access to forms.
 
 - *Email Template* : Easy Form Builder has 2 email template for send email notification forms for *free*.
 
@@ -199,11 +199,11 @@ How *Easy Form Builder* makes your life easier:
 
 - *Confirmation Code* : Showing the Confirmation code(tracking code) in filled out contact forms or other type of forms for **free**.
 
-- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email template for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
+- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email templates for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”
 
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
-- *Confirmation code finder form* :By adding **Confirmation code finder form**, it enables the user to check the received answers or responses by entering his own tracking code.  You cand find out on Easy Form Builder > Panel > Setting > General > copy Confirmation Code Finder
+- *Confirmation code finder form* :By adding **Confirmation code finder form**, it enables the user to check the received answers or responses by entering his own tracking code.  You can find out on Easy Form Builder > Panel > Setting > General > copy Confirmation Code Finder
 
 
 
@@ -231,10 +231,10 @@ You can easily Add the country form according to the language of your website (L
 You can easily Add the States/ Provinces list (state form) according to the language of your website (Language of Wordpress site) by adding fields States/ Provinces list (state form) in Easy Form builder to your forms, you can create contact us form, support form or any kind of forms included States / Provinces list field (state form).
 
 **Confirmation code**
-Confirmation code or tracking code is usable for create feedback form or support form when you want be touch easily to your user or customers for free.
+Confirmation code or tracking code is usable for creating feedback form or support form when you want to be touch easily to your user or customers for free.
 
 **Email Notification Template**
-Easy Form Builder has a default email template notification as well as Admin can create thier own email template, form notification.
+Easy Form Builder has a default email template notification as well as Admin can create their own email template, form notification.
  
  **Easily Localization**
 You can Localize or translate every single words,  phrase or messages to your language in Easy Form Builder (this path: Easy Form Builder plugin → Panel → Setting → localization )
@@ -250,9 +250,9 @@ Taking payments form with integration Stripe Just Enter Public and Secret key on
 
 
  
-**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
 
-**Notice** : In each page you would not add more then ONE form.
+**Notice** : In each page you would not add more than ONE form.
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
@@ -260,11 +260,11 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 
 == Installation ==
 
-**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framwork” → Save
+**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
 2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
-3. In the menu bar, navigate to “Easy Form Builder” → “Settings” → “Add Google re-captcha keys”
+3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
 
@@ -316,6 +316,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.0.1 =
+* Improve UI
+* Fix bug login form
 
 = 3.0.0 =
 * Improve UI

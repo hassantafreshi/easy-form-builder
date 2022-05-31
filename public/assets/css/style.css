@@ -1,0 +1,742 @@
+.bg-color {
+    background-color: #eee;
+}
+
+#emsFormBuilder-form ,
+#emsFormBuilder-form-view ,
+#emsFormBuilder-form-view-track
+{
+    background-color: #2b232d12!important;
+    margin: 0px auto;
+    font-family: revert;
+    padding: 40px;
+    border-radius: 0px 10px
+}
+
+#emsFormBuilder-form-title,
+#emsFormBuilder-form-title-view
+ {
+    color: #633a82
+}
+
+h1.emsFormBuilder {
+    text-align: center
+}
+
+input[type=text].emsFormBuilder_v,input[type=number].emsFormBuilder_v,select.emsFormBuilder_v {
+    padding: 10px;
+    width: 100%;
+    height: revert;
+    font-size: 17px;
+    font-family: revert;
+    border: 1px solid #633a82;
+    background-color: #fffefead!important;
+    border-radius: 10px;
+    -webkit-appearance: none
+}
+
+.canvas_efb{
+  width: 100%;
+}
+
+
+
+.tab input:focus {
+    border: 1px solid #633a82 !important;
+    outline: none
+}
+
+input.invalid.emsFormBuilder ,
+label.invalid.emsFormBuilder , 
+textarea.invalid.emsFormBuilder , 
+select.invalid.emsFormBuilder  {
+    border: 1px solid #e00606d9!important;
+    background: rgba(252, 107, 107, 0.472);
+}
+
+
+input[type="color"].emsFormBuilder {
+    -webkit-appearance: none;
+    padding: 5px 5px 5px 5px!important;
+	border: none!important;
+	width: 64px!important;
+    height: 64px!important;
+    border-radius: 0px!important;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+	border: none;
+}
+
+.tab,
+.emsFormBuilder-tab-view 
+{
+    display: none
+}
+
+button.emsFormBuilder,
+#emsFormBuilder-text-prevBtn-view {
+    background-color: #25012eb5!important;
+    color: #f1fcfc;
+    border: none;
+    clip-path: circle(50%);
+    height: 3.5em;
+    width: 3.5em;
+    font-size: 17px;
+    padding: 5%;
+    font-family: Raleway;
+    cursor: pointer
+}
+
+#emsFormBuilder-prevBtn{
+    background-color: #25012eb5!important;
+    color: #f1fcfc;
+    border: none;
+    clip-path: circle(50%);
+    height: 3.5em;
+    width: 3.5em;
+    font-size: 17px;
+
+    font-family: Raleway;
+    cursor: pointer   
+}
+
+button:hover.emsFormBuilder {
+    opacity: 0.8
+}
+
+button:focus.emsFormBuilder  {
+    outline: none !important
+}
+
+#prevBtn.emsFormBuilder  {
+    background-color: #633a82
+}
+
+/* .all-steps , */
+.emsFormBuilder-all-steps-view {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+    display: inline-flex;
+    justify-content: center
+}
+
+/* .step, */
+.emsFormBuilder-step-view
+ {
+    height: 40px;
+    width: 40px;
+    margin: 0 2px;
+    background-color: #d7cae2db;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+    color: #633a82;
+    opacity: 0.5
+}
+
+/* .step.active, */
+.emsFormBuilder-step-view.active
+ {
+    opacity: 1
+}
+
+/* .step.finish , */
+.emsFormBuilder-step-view.finish {
+    color: #f1fcfc;
+    background: #633a82;
+    opacity: 1
+}
+
+
+
+.thanks-message {
+    display: none
+}
+
+/* .addStep, */
+.emsFormBuilder-addStep-view{
+    display: inline-flex;
+}
+
+.border-light {
+    width: 100%;
+    margin: 0.5rem;
+    background-color: #eee;
+    display: inline-block;
+    border-style: dotted;
+    border-color: #e0e0e0 !important
+}
+/* .section{
+  background-color: #faf8ff;
+  border-color: #abbac5 !important
+  
+} */
+#tabList {
+    margin-bottom: 5%;
+}
+
+option.emsFormBuilder ,select.emsFormBuilder  {
+ 
+    font-weight: 900;
+    font-family: 'FontAwesome', 'Second Font name'
+  }
+
+  div.el i.fa {
+    display: list-item;
+    letter-spacing: 3px;
+    font-weight: 400;
+}
+.form-group.row {
+    margin-bottom: auto;
+}
+
+
+#loading_emsFormBuilder {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.863);
+    z-index: 2;
+    cursor: pointer;
+    pointer-events: none;
+  }
+  .wait{ cursor: wait; }
+
+  .bttn{
+    position: absolute;
+    font-size: x-large;
+    padding: 0px 10px 10px 0px;
+   
+  }
+
+  .btn.emsFormBuilder {
+      
+      text-transform:capitalize;
+    }
+  .btn-type-efb {
+    background-color: #25012eb5!important;
+    color: #eee !important;;
+  }
+
+  h5.emsFormBuilder{
+      margin: inherit;
+      padding: 7px 7px 0px 7px;
+    }
+    h5::last-letter.emsFormBuilder {
+        color: #00f;
+      }
+
+    .display-btn.emsFormBuilder {
+        margin: 3%;
+    }
+
+
+    .black_box {
+        
+        background:#eee;
+        float:left;
+        border:2px solid #eee;
+        outline: 2px dashed #6c757d61;
+        outline-offset: -10px;
+    }
+    div.section{
+        margin-top: 4%!important;
+    }
+
+
+    .mat-shadow.emsFormBuilder, .mat-shadow-dz.emsFormBuilder,.mat-shadow-efb {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+      }
+      
+      .mat-shadow:hover.emsFormBuilde , .dropZone:-moz-drag-over{
+        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+      }
+
+      .btn-lg-efb{
+        height: 5rem;
+      }
+
+      .emsFormBuilder-form,
+      .emsFormBuilder-form-view
+       {
+        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+      }
+
+     .emsFormBuilder-step-name-view,
+     .step-name
+     {
+        TEXT-ALIGN: initial;
+        padding: px 0px 0px 0px;
+        border-bottom: 4px groove #f1e6fa;
+        margin: initial;
+     
+      }
+
+    /*   .all-steps, */
+      .emsFormBuilder-all-steps-view
+       {
+        text-align: center;
+        margin-top: 5px;
+        margin-bottom: 13px;
+        }
+   
+
+        .fadeInEmsFormBuilder {
+
+            animation: fadein 2s;
+            -moz-animation: fadein 2s; /* Firefox */
+            -webkit-animation: fadein 2s; /* Safari and Chrome */
+            -o-animation: fadein 2s; /* Opera */
+        }
+        @keyframes fadein {
+            from {
+                opacity:0;
+            }
+            to {
+                opacity:1;
+            }
+        }
+        @-moz-keyframes fadein { /* Firefox */
+            from {
+                opacity:0;
+            }
+            to {
+                opacity:1;
+            }
+        }
+        @-webkit-keyframes fadein { /* Safari and Chrome */
+            from {
+                opacity:0;
+            }
+            to {
+                opacity:1;
+            }
+        }
+        @-o-keyframes fadein { /* Opera */
+            from {
+                opacity:0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+
+        label.emsFormBuilder {
+            margin: 0px 3px;
+            font-weight: 500;
+        }
+
+        input.emsFormBuilder,
+        option.emsFormBuilder,
+        select.emsFormBuilder,
+        textarea.emsFormBuilder {
+            margin-bottom: 3px;
+            padding: 10px;
+            width: 100%;
+            padding: 10px;
+            background-color: #fffefead!important;
+            border: 1px solid #633a82!important;
+            border-radius: 10px;
+        }
+        label.emsFormBuilder-title {
+            margin: 10px 10px 10px 5px;
+            font-size: x-large;
+            font-weight: 400;
+        }
+
+
+
+        .row.emsFormBuilder {
+            margin: 5px 5px;
+        }
+
+        input[type=radio].emsFormBuilder,
+        input[type=checkbox].emsFormBuilder{
+            width: 13px!important;
+            height: 13px!important;
+        }
+
+        select option.emsFormBuilder {
+            border: 1px solid #a39ea9
+        }
+
+    /*     .choices {
+            width: -webkit-fill-available;
+        } */
+
+     /*      .overpage-mbox{
+              margin: 10%;
+              background: #fff;
+          }
+ */
+
+/* 
+          .dropdown-menu {
+            padding: 5px 10px!important;
+          } */
+
+
+
+          /* drog and drop section start*/
+.inputDnD.emsFormBuilder .form-control-file.emsFormBuilder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 7em;
+  outline: none;
+  visibility: hidden;
+  cursor: pointer;
+  background-color: #c61c23;
+  box-shadow: 0 0 5px solid currentColor;
+}
+.inputDnD.emsFormBuilder .form-control-file:before.emsFormBuilder {
+  content: attr(data-title);
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 100%;
+  min-height: 6em;
+  line-height: 2em;
+  padding-top: 1.5em;
+  opacity: 1;
+  visibility: visible;
+  text-align: center;
+  border: 0.10em  dashed currentColor;
+  -webkit-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+}
+.inputDnD.emsFormBuilder .form-control-file:hover:before.emsFormBuilder {
+  border-style: solid;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+
+video.emsFormBuilder {
+    max-width: 100%!important;
+}
+
+
+/* New for multi select */
+/* New for multi select */
+/* New for multi select */
+/* New for multi select */
+
+
+
+
+.multiselect-container-emsFormBuilder{
+    width: 100%;
+    position: relative;
+    display: contents;  
+    flex-direction: row;
+    align-items: center;
+    overflow: visible;
+    vertical-align: middle;
+  }
+  .multiselect-label{
+    font-weight: bold;
+    font-size: 14px;
+    margin: 0 5px
+  }
+  .multiselect-data-container-emsFormBuilder{
+    position: relative;
+    overflow: visible;
+    vertical-align: middle;
+  }
+  .multiselect-button-emsFormBuilder{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #633a82;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  
+  .multiselect-text-emsFormBuilder{
+    border: 0;
+    padding: 3px 0;
+    width: 145px;
+  }
+  
+  .multiselect-button-emsFormBuilder input,
+  .multiselect-button-emsFormBuilder b{
+    pointer-events: none;
+  }
+  
+  .multiselect-list-emsFormBuilder{
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    max-height: 250px;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.15);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+    border-radius: 4px;
+    list-style-type: none;
+    overflow: auto;
+    z-index: 1000;
+  }
+  
+  .multiselect-item-label-emsFormBuilder{
+    display: block;
+    height: 100%;
+    padding: 1%;
+    margin: 1%;
+  }
+
+  .multiselect-clear{
+    padding: 0 5px; 
+  }
+  
+  .carret-emsFormBuilder{
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 0;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+  }
+  
+  .multiselect-item-label--select-all{
+    font-weight: bold;
+    border-bottom: 1px solid #b7b7b7;
+    padding: 5px;
+  }
+
+
+  input.multiselect-checkbox-efb {
+    margin: 0% 2% !important;
+}
+div.emsFormBuilder {
+    width: 100%;
+}
+
+b.carret-emsFormBuilder {
+    margin: 3%;
+}
+
+
+/* user profile */
+
+img.userProfileImageEFB{
+    text-align: center;
+    display: inline;
+    border-radius: 5px 0 0 5px;
+}
+/* user profile */
+
+
+
+/* password recovery */
+a.get-emsFormBuilder {
+    background-color: #633a82;
+    color: #fff;
+    border: none;
+    font-size: 17px;
+    font-family: Raleway;
+    cursor: pointer;
+    
+}
+
+#recoverySectionemsFormBuilder{
+    background: #1c003030;
+   border-radius: 0px 5px;
+   width: inherit;
+    margin: 1% 0%;
+    padding: 3%;
+}
+
+
+input#username_recovery_pass_efb {
+    width: -webkit-fill-available;
+}
+a#btn_Show_recovery_efb{
+    color: #9b1d1d;
+}
+
+
+@keyframes fadeinout {
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      display: none;
+    }
+  }
+
+/* password recovery */
+
+/* overpage */
+.overpage-efb {
+	position:         absolute !important; /* Sit on top of the page content */
+	width:            100%; /* Full width (cover the whole page) */
+	height:           100%; /* Full height (cover the whole page) */
+	top:              0;
+	left:             0;
+	right:            0;
+	bottom:           0;
+	background-color: rgba(0, 0, 0, 0.5) !important; /* Black background with opacity */
+	z-index:          10000 !important; /* Specify a stack order in case you're using a different order for other elements */
+	cursor:           pointer; /* Add a pointer on hover */
+}
+
+.preview-overpage-efb {
+	position: absolute !important;
+}
+
+
+
+/* overpage */
+
+
+/* drog and drop section start*/
+.inputDnD .form-control-file {
+	position:         relative;
+	width:            100%;
+	height:           100%;
+	min-height:       7em;
+	outline:          none;
+	visibility:       hidden;
+	cursor:           pointer;
+	background-color: #c61c23;
+	box-shadow:       0 0 5px solid currentColor;
+}
+
+.inputDnD .form-control-file:before {
+	content:            attr(data-title);
+	position:           absolute;
+	top:                0.5em;
+	left:               0;
+	width:              100%;
+	min-height:         6em;
+	line-height:        2em;
+	padding-top:        1.5em;
+	opacity:            1;
+	visibility:         visible;
+	text-align:         center;
+	border:             0.10em dashed currentColor;
+  font-size:           initial;
+	-webkit-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	transition:         all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	overflow:           hidden;
+}
+
+.inputDnD .form-control-file:hover:before {
+	border-style: solid;
+	box-shadow:   0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+
+
+hr.solid {
+	margin-top: 0rem;
+	position: relative;
+	  border: none;
+	  height: 1px;
+	  background: #999;
+  }
+
+  .text-small{
+	  font-size: small;
+  }
+  
+ 
+  
+/* drog and drop section end*/
+
+/* rating section */
+
+.rate-efb {
+  height: auto;
+  padding: 0 10px;
+}
+.star-efb{
+  font-size: xx-large!important;
+}
+.rate-efb:not(:checked) > input {
+  position:absolute;
+  top:-9999px;
+}
+.rate-efb:not(:checked) > label {
+  float:right;
+  width:auto;
+  overflow:hidden;
+  white-space:nowrap;
+  cursor:pointer;
+  color:rgb(93, 93, 93);
+}
+.rate-efb:not(:checked) > label:before {
+ content: '★ ';
+}
+.rate-efb > input:checked ~ label {
+  color: #ffc700;    
+}
+.rate-efb:not(:checked) > label:hover,
+.rate-efb:not(:checked) > label:hover ~ label {
+  color: #deb217;  
+}
+.rate-efb > input:checked + label:hover,
+.rate-efb > input:checked + label:hover ~ label,
+.rate-efb > input:checked ~ label:hover,
+.rate-efb > input:checked ~ label:hover ~ label,
+.rate-efb > label:hover ~ input:checked ~ label {
+  color: #c59b08;
+}
+
+/* Modified from: https://github.com/mukulkant/Star-rating-using-pure-css */
+/* rating section  end*/
+
+
+/* maps  section */
+
+#map {
+  height: 100%;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  padding-left: 10px;
+}
+/* maps  section end */

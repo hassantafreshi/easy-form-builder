@@ -243,7 +243,7 @@ function add_dasboard_emsFormBuilder(){
           value += createCardFormEfb(i)
         }
         
-       document.getElementById('tab_container').innerHTML = `
+       document.getElementById('tab_container_efb').innerHTML = `
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
@@ -298,7 +298,7 @@ function FunfindCardFormEFB(){
 }
 
 function create_form_by_type_emsfb(id,s){
-  console.log(id,s);
+  //console.log(id,s);
   //v2
   //console.log(id);
   localStorage.removeItem('valj_efb');
@@ -585,3 +585,15 @@ function sideMenuEfb(s){
     el.classList.add('show');
   }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  // your code here
+  console.log('page loaded');
+  const els= document.getElementById('wpbody-content');
+  for (let i = 0; i < els.children.length; i++) {
+   // console.log(els.children[i].tagName , els.children[i].id);
+    if(els.children[i].tagName!='SCRIPT' && els.children[i].tagName!='STYLE' && (els.children[i].id.toLowerCase().indexOf('efb')==-1 && els.children[i].id.indexOf('_emsFormBuilder')==-1) ){
+      document.getElementById('wpbody-content').children[i].remove()
+    }
+  }
+}, false);

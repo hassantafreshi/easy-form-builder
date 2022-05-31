@@ -303,6 +303,7 @@ class efbFunction {
 			"ddate" => $state ? $ac->text->ddate : __('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : __('Your e-mail server able to send Emails','easy-form-builder'),
 			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('SMTP Error, the host is not able send email . Please contact host support','easy-form-builder'),
+			
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : __('The file is not the right file type','easy-form-builder'),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : __('The Field is not available in this type forms','easy-form-builder'),
@@ -407,8 +408,8 @@ class efbFunction {
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : __('Error, Check site Key and secret Key on Easy Form Builder > Panel > Setting > Google Keys','easy-form-builder'),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : __('Error, Captcha problem!','easy-form-builder'),
 			"createAcountDoneM" => $state ? $ac->text->createAcountDoneM : __('Your account has been successfully created! You will receive an email containing your information','easy-form-builder'),
-			"incorrectUP" => $state ? $ac->text->incorrectUP : __('The username or password is incorrect','easy-form-builder'),
-			"newPassM" => $state ? $ac->text->newPassM : __('If your email is correct, the new password will send to your email.','easy-form-builder'),
+			"incorrectUP" => $state ? $ac->text->incorrectUP : __('The username or password is invalid','easy-form-builder'),
+			"newPassM" => $state ? $ac->text->newPassM : __('If your email is valid, the new password will send to your email.','easy-form-builder'),
 			"surveyComplatedM" => $state ? $ac->text->surveyComplatedM : __('survey has been completed','easy-form-builder'),
 			"error405" => $state ? $ac->text->error405 : __('Security Error 405','easy-form-builder'),
 			"errorSettingNFound" => $state ? $ac->text->errorSettingNFound : __('Error,Setting not Found','easy-form-builder'),
@@ -510,6 +511,8 @@ class efbFunction {
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('You can not add reCAPTCHA on Payment form','easy-form-builder'),
+			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service able to send email. Please check your email and if you received the email with this subject:Email server [Easy Form Builder] , so checked option:I confirm This Host support SMTP and save','easy-form-builder'),
+			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : __('I confirm This Host support SMTP','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

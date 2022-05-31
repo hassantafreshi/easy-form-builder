@@ -141,7 +141,7 @@ class Panel_edit  {
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
 				</div>
-				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
+				<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
 				</div></div>
 			<div id="body_emsFormBuilder" class="efb m-2"> 
 				<div id="msg_emsFormBuilder" class="efb mx-2">

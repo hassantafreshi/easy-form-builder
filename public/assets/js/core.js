@@ -27,7 +27,7 @@ setTimeout(() => {
     
     if (typeof ajax_object_efm == 'undefined') return;
     poster_emsFormBuilder = ajax_object_efm.poster;
-    console.log(ajax_object_efm.state);
+    //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
@@ -55,7 +55,7 @@ setTimeout(() => {
         
         fun_render_view(ajax_object_efm.ajax_value, 1);
       } else if (ajax_object_efm.state == 'tracker') {
-          console.log(`ajax_object_efm.state`,ajax_object_efm.state);
+          //console.log(`ajax_object_efm.state`,ajax_object_efm.state);
         fun_tracking_show_emsFormBuilder()
       } else if (ajax_object_efm.state == 'settingError') {
         
@@ -464,7 +464,7 @@ function createStepsOfPublic() {
           Object.assign(o[0],p)
           //console.log(q ,p,o[0]);
 
-          console.log(ob,id_ob)
+          //console.log(ob,id_ob)
           fun_sendBack_emsFormBuilder(o[0]);
           fun_total_pay_efb()
         }else{
@@ -633,7 +633,8 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
- recaptcha_emsFormBuilder = valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+  //console.log(valueJson_ws);
+ recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
  //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
   jQuery(function ($) {
 
@@ -690,10 +691,10 @@ function valid_email_emsFormBuilder(el) {
 
 function valid_password_emsFormBuilder(el) {
   let check = 0;
-  const format = /^(?=.*[0-9])(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,20}$/;
   const id = el.id;
-  if (!el.value.match(format)) {
-    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className,"border-danger");
+
+  if (el.value.length<3) {
+    el.className = colorBorderChangerEfb(el.className,"border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ ==el.dataset.vid);
               if (i!=-1){ sendBack_emsFormBuilder_pub.splice(i,1)}
     document.getElementById(`${id}-message`).innerHTML = ajax_object_efm.text.enterThePassword;
@@ -977,7 +978,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s=true;
       list.push(c.url);
       $name =c.url.slice((c.url.lastIndexOf("/")+1), (c.url.lastIndexOf("."))) ;
-      console.log($name,c.type ,"URL", c.url);
+      //console.log($name,c.type ,"URL", c.url);
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
@@ -1003,11 +1004,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
     }else if (c.type == "esign") {
       console.log('esign');
-      console.log(c.value);
+      //console.log(c.value);
       s=true;
       value= `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m +=value ;
-      console.log(value);
+      //console.log(value);
     }else if(c.type=="maps"){
      
       if(typeof(c.value)=="object"){
@@ -1033,7 +1034,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
   }
   m += '</div>';  
-  console.log('m',m);
+  //console.log('m',m);
   return m;
 }
 
@@ -1269,12 +1270,12 @@ function response_fill_form_efb(res) {
           location.reload();
         } else {
           //pro_w_emsFormBuilder = res.data.m.pro;
-          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb jump bi-exclamation-triangle-fill  text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
+          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb fs-2 bi-exclamation-triangle-fill text-danger"></i></h3> <span> <br>${res.data.m.error}</span>
            </br>
            <a href="#" id="btn_Show_recovery_efb" class="efb   emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
            <div class="efb p-5 " id="recoverySectionemsFormBuilder" style="display: none;">     
-              <input type="email" id="username_recovery_pass_efb" class="efb m-1" placeholder="Email" >
-              <a href="#" id="btn_recovery_pass_efb" class="efb btn btn-lg btn-block mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
+              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v form-control h-d-efb efb-square" placeholder="Email" >
+              <a href="#" id="btn_recovery_pass_efb" class="efb btn btn-lg btn-block btn-pink mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
               `;
