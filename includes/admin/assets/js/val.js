@@ -132,10 +132,13 @@ function show_setting_window_efb(idset) {
     const paymentMethodEls =()=>{
      // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
       return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
-      <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
+      <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
       <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
-     <!-- <option value="subscription" ${valj_efb[0].paymentmethod=='subscription' ? 'selected' :''}>${efb_var.text.subscriptionBilling}</option> -->                                                           
-     <!-- <option value="recurring" ${valj_efb[0].paymentmethod=='recurring' ? 'selected' :''}>${efb_var.text.recurringPayment}</option> -->
+      <option value="day" ${valj_efb[0].paymentmethod=='day' ? 'selected' :''}>${efb_var.text.dayly}</option>                                                            
+      <option value="week" ${valj_efb[0].paymentmethod=='week' ? 'selected' :''}>${efb_var.text.weekly}</option>                                                            
+      <option value="month" ${valj_efb[0].paymentmethod=='month' ? 'selected' :''}>${efb_var.text.monthly}</option>                                                            
+      <option value="year" ${valj_efb[0].paymentmethod=='year' ? 'selected' :''}>${efb_var.text.yearly}</option>                                                            
+    
       </select>`;
     } 
      

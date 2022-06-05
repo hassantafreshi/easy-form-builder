@@ -633,8 +633,8 @@ function stepName_emsFormBuilder_view(i) {
 function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
-  //console.log(valueJson_ws);
- recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+  recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
+  console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
  //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
   jQuery(function ($) {
 
@@ -1031,7 +1031,15 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
     if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+    if(c.type=="payment" && c.paymentGateway=="stripe") {
+      m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+      m += `<div class="efb mx-3 fs7 text-capitalize">
+            <p class="efb my-0">${efb_var.text.ddate }:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
+            <p class="efb my-0">${efb_var.text.updated }:<span class="efb mb-1"> ${c.updatetime}</span></p>
+            <p class="efb  my-0">${efb_var.text.methodPayment }:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
+            ${c.paymentmethod!='charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>`:''}
+            </div>`
+    }
   }
   m += '</div>';  
   //console.log('m',m);
@@ -1245,6 +1253,7 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
+  console.log(res);
   if (res.data.success == true) {
   
     //form_type_emsFormBuilder یک پیام مرتبت نشان دهد

@@ -451,7 +451,7 @@ function create_form_by_type_emsfb(id,s){
 
 function head_introduce_efb(state){
   //v2
-  console.log(mobile_view_efb);
+  //console.log(mobile_view_efb);
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text=`${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ?  '' : 'btn-lg';
@@ -588,7 +588,7 @@ function sideMenuEfb(s){
 
 document.addEventListener('DOMContentLoaded', function() {
   // your code here
-  console.log('page loaded');
+  //console.log('page loaded');
   const els= document.getElementById('wpbody-content');
   for (let i = 0; i < els.children.length; i++) {
    // console.log(els.children[i].tagName , els.children[i].id);

@@ -312,7 +312,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB'){m +=value ; value = '**********'};
     if( (s==true && c.value == "@file@") || (s==false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-    if(c.type=="payment" && c.paymentGateway=="stripe") m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+    if(c.type=="payment" && c.paymentGateway=="stripe") {
+      m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
+      m += `<div class="efb mx-3 fs7 text-capitalize">
+            <p class="efb my-0">${efb_var.text.ddate }:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
+            <p class="efb my-0">${efb_var.text.updated }:<span class="efb mb-1"> ${c.updatetime}</span></p>
+            <p class="efb  my-0">${efb_var.text.methodPayment }:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
+            ${c.paymentmethod!='charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>`:''}
+            </div>`
+    }
   }
   m += '</div>';  
   return m;
@@ -737,8 +745,7 @@ function fun_show_setting__emsFormBuilder() {
     stripePKey = f(`stripePKey`);
     smtp = f('smtp')=='null' ? false : true;
     bootstrap = f('bootstrap');
-    emailTemp = f('emailTemp');
-    console.log(`smtp[${smtp}]`);
+    emailTemp = f('emailTemp');    
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -1024,7 +1031,7 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
-    console.log(el.id ,el);
+    //console.log(el.id ,el);
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id=="emailTemp_emsFirmBuilder"){
@@ -1034,7 +1041,7 @@ function fun_set_setting_emsFormBuilder() {
       }
       return el.value;
     } else if (el.type == "checkbox") {  
-      console.log(el.type , el.checked);
+      //console.log(el.type , el.checked);
       return el.checked;
     }
     return "NotFoundEl"
