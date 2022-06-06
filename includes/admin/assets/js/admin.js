@@ -44,7 +44,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function Link_emsFormBuilder(state) {
-  let link ='https://whitestudio.team/'
+  let link ='https://whitestudio.team/documents/'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
   switch(state){
     case  'publishForm':
@@ -52,23 +52,23 @@ function Link_emsFormBuilder(state) {
     break;
     case  'createSampleForm':
     case  'tutorial':
-      link = valj_efb.length<1 ||  valj_efb[0].type !="payment" ?  github+"How-to-Create-a-form-on-Easy-Form-Builder#how-to-create-your-first-form-with-easy-form-builder" : github+"How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+      link += valj_efb.length<1 ||  valj_efb[0].type !="payment" ?  "how-to-create-your-first-form-with-easy-form-builde" :"How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
       break;
     case  'stripe':
       //stripe
-      link = github+"";
+      link = link+"how-to-setup-and-use-the-stripe-on-easy-form-builder";
       break;
     case  'ws':
-      link = link + '#proBox';
+      link = 'https://whitestudio.team/';
       break;
     case  'efb':
       link = "https://wordpress.org/plugins/easy-form-builder/";
       break;
     case  'wiki':
-      link = link + 'documents';
+      link = link;
     break;
     case 'EmailNoti':
-    link = github+"How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
+    link += "How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
     break;
   }
   //console.log(link);
@@ -451,7 +451,7 @@ function create_form_by_type_emsfb(id,s){
 
 function head_introduce_efb(state){
   //v2
-  console.log(mobile_view_efb);
+  //console.log(mobile_view_efb);
   const link = state=="create" ? '#form' : 'admin.php?page=Emsfb_create'
   let text=`${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ?  '' : 'btn-lg';
@@ -588,7 +588,7 @@ function sideMenuEfb(s){
 
 document.addEventListener('DOMContentLoaded', function() {
   // your code here
-  console.log('page loaded');
+  //console.log('page loaded');
   const els= document.getElementById('wpbody-content');
   for (let i = 0; i < els.children.length; i++) {
    // console.log(els.children[i].tagName , els.children[i].id);

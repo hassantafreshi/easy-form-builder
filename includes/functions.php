@@ -513,6 +513,12 @@ class efbFunction {
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('You can not add reCAPTCHA on Payment form','easy-form-builder'),
 			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service able to send email. Please check your email and if you received the email with this subject:Email server [Easy Form Builder] , so checked option:I confirm This Host support SMTP and save','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : __('I confirm This Host support SMTP','easy-form-builder'),
+			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : __('Interval','easy-form-builder'),
+			"nextBillingD" => $state  &&  isset($ac->text->nextBillingD) ? $ac->text->nextBillingD : __('Next Billing Date','easy-form-builder'),
+			"dayly" => $state  &&  isset($ac->text->dayly) ? $ac->text->dayly : __('Daily','easy-form-builder'),
+			"monthly" => $state  &&  isset($ac->text->monthly) ? $ac->text->monthly : __('Monthly','easy-form-builder'),
+			"weekly" => $state  &&  isset($ac->text->weekly) ? $ac->text->weekly : __('Weekly','easy-form-builder'),
+			"yearly" => $state  &&  isset($ac->text->yearly) ? $ac->text->yearly : __('Yearly','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			

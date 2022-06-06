@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.0.1
+Stable tag: 			3.1.0
 Requires at least: 	      4.7
 Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
@@ -166,6 +166,7 @@ How *Easy Form Builder* makes your life easier:
 
 **Payment Forms Field of Easy Form Builder**
 
+
 - *Stripe payment* : Build easy payment forms for accept payments online like order form, booking form, donation form, with add Stripe Fields to the forms.
 
 - *Payment dropdown list* : by adding a payment drop-down list to a form  you shown list price on  payment form.
@@ -177,6 +178,8 @@ How *Easy Form Builder* makes your life easier:
 - *Payment Multi choose* : Payment Multi choose is the payment field and show list of service or product or order so users can select multiple row of the list on payment or order forms. 
 
 - *Supported currencies* : Easy Form builder payments powered by Stripe so the plugin supports 135+ currencies.
+
+- *Payment form* : Create payment forms for recurring payments (Daily, Weekly, Monthly or Yearly form payment ) or one time payment.
 
 
 *Free advanced features of Form builder* 
@@ -316,6 +319,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.1.0 =
+* Improve UI
+* Change API service for countries list
+* Added recurring payments
 
 = 3.0.1 =
 * Improve UI

@@ -69,6 +69,13 @@ class _Public {
 
 
 		
+	/* 	$Sk='sk_test_51I8kkNH3QbE1T7b4bgGzTgS5QAFQzrW7YLAohlj3JbIFRSXqnbFGCoHXsC0rnl4rx29YbnqO53bDMhPuk3CtbfpD00L7mPWtvd';
+		$stripe = new \Stripe\StripeClient($Sk);
+	    $product = $stripe->products->create([
+		   'name' => 'Gold Special test',
+		 ]);
+		 error_log($product); */
+		
 		
 	}
 
@@ -160,7 +167,7 @@ class _Public {
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 		$send=array();				
 		//translate v2
-		$showform =["onetime","proVersion","errorCode","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
+		$showform =["interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","errorCode","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
 		$text= $efbFunction->text_efb($showform);
 				
 				
@@ -279,7 +286,7 @@ class _Public {
 
 				$efbFunction = new efbFunction();   
 				//translate v2
-				$text=["download","trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
+				$text=["nextBillingD","download","trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
 				$text= $efbFunction->text_efb($text);
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -421,12 +428,15 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
+		error_log($this->id);
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($this->value[0]) ? str_replace('\\', '', $this->value[0]->form_structer) :'';
+		error_log(json_encode($fs));
 		//error_log($fs);
 
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
+		
 		
 		if($fs!='' && $type!="payment"){
 			$formObj=  json_decode($fs,true);
@@ -463,8 +473,9 @@ class _Public {
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				//error_log(json_encode($formObj));
-				if($formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
+				error_log(json_encode($formObj));
+				error_log(json_encode($formObj[0]));
+				if($formObj[0]['type']!='payment' && $formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
 					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
 						$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
@@ -976,7 +987,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.0.1')</script>";
+		return "<script>console.log('Easy Form Builder v3.1.0')</script>";
 	
 	  }//end function
 
@@ -1255,6 +1266,9 @@ class _Public {
         /* $efbFunction = new efbFunction();   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text); */
+		
+		$user = wp_get_current_user();
+		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
 			//error_log('not valid nonce');
             $m = __('error', 'easy-form-builder') . ' 403';
@@ -1294,7 +1308,9 @@ class _Public {
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
 		//error_log(gettype($val_));
-		
+		$paymentmethod = $fs_[0]['paymentmethod'];
+		error_log('============paymentmethod==========');
+		error_log($paymentmethod);
 		$price_c =0;
 		$price_f=0;
 		$email ='';
@@ -1369,10 +1385,10 @@ class _Public {
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f*100;
-		
+		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
-			$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+			
 			//private key
 			$stripe = new \Stripe\StripeClient($Sk);
 			$newPay = [
@@ -1381,19 +1397,90 @@ class _Public {
 				'payment_method_types' =>['card'],
 				'description' =>$description,
 			];
-			if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}        
-			$paymentIntent = $stripe->paymentIntents->create($newPay);		
+
+			 $subPay;
+			 $amount;
+			 $paymentIntent;
+			 $amount;$created;$val ;
+			 if($paymentmethod=='charge'){
+				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));} 
+				$paymentIntent = $stripe->paymentIntents->create($newPay);				
+				$amount = $paymentIntent->amount/100;
+				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
+				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+
+				
+			}else{
+				$token= sanitize_text_field($_POST['token']);			
+				//Create a products 
+				//$stripe = new \Stripe\StripeClient($Sk);
+				$product = $stripe->products->create([
+					'name' => $description,
+					]);
+
+					 $ip =$this->get_ip_address();
+					//Create price for products				
+					$price= $stripe->prices->create([
+						'unit_amount' => $price_f,
+						'currency' => $currency,
+						'recurring' => ['interval' => $paymentmethod],
+						'product' => $product->id,
+					
+					]);
+	
+	
+					$customerData= [
+						'description' => $description,
+						'source'=>$token,
+					];
+					if(strlen($email)>1){$customerData=array_merge($customerData , array('email'=>$email));} 
+					$customer =$stripe->customers->create($customerData);
+					  $paymentIntent =	$stripe->subscriptions->create([
+						'customer' => $customer,
+						'items' => [
+						  ['price' => $price],
+						],
+					  ]);
+		
+					  $amount = $paymentIntent->plan->amount/100;
+					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
+					  $val =  $amount . ' ' . $paymentIntent->currency;
+				
+			}
+			
+
 			$filtered = array_filter($val_, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
-			$amount = $paymentIntent->amount/100;
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-			$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+			
 		
-			$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
-				   'value'=> $val, 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
-			       'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'];
-			$filtered=array_merge($filtered , array($ar)); 		
+
+			$response;	
+			error_log($this->id);
+			if($paymentmethod!='charge'){
+
+				$amount = $price->unit_amount/100;
+				$payA =  $amount  . ' '. $price->currency;
+				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
+				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
+				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
+				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
+				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description ];
+				 $filtered=array_merge($filtered , array($ar)); 
+				 
+				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
+			}else{
+				$amount = $paymentIntent->amount/100;
+				$payA =  $amount  . ' '. $paymentIntent->currency;
+				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
+				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
+				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description ];
+				 $filtered=array_merge($filtered , array($ar)); 
+				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
+			}
 			//array_push($filtered,$ar);
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
 			$this->get_ip_address();
@@ -1402,7 +1489,10 @@ class _Public {
 			$this->name = sanitize_text_field($_POST['name']);
 			$check=	$this->insert_message_db(2);
 			//error_log(	$this->name);
-			$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret , 'uid'=>$check);		
+			//$response->transStat
+			//array_push($response->transStat ,array('id'=>$check));
+			$response=array_merge($response , ['id'=>$check]);
+			error_log(json_encode($response));
 			wp_send_json_success($response, $_POST);
 
 		}else{
