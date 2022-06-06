@@ -29,6 +29,7 @@ setTimeout(() => {
     poster_emsFormBuilder = ajax_object_efm.poster;
     //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
+    localStorage.setItem('formId',efb_var.id)
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
       if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
@@ -634,7 +635,7 @@ function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
-  console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
+  //console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
  //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
   jQuery(function ($) {
 
@@ -654,7 +655,7 @@ function actionSendData_emsFormBuilder() {
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
-      success: function (res) { response_fill_form_efb(res) },
+      success: function (res) {localStorage.removeItem('formId'); response_fill_form_efb(res) },
       error: function (res) { console.error(res);
         response_fill_form_efb({ success: false, data: { success: false, m: `E:JQ Co` } }) }
 

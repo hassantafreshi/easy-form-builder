@@ -1652,11 +1652,11 @@ const isNumericEfb=(value)=>  {return /^\d+$/.test(value);}
 
 const open_whiteStudio_efb = (state) => {
   
-  let link = `https://whitestudio.team/`
-  const gits = `https://github.com/hassantafreshi/easy-form-builder/wiki`;
+  let link = `https://whitestudio.team/documents/`
+ 
   switch (state) {
     case 'mapErorr':
-      link = `${gits}/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
+      link = `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
@@ -1666,16 +1666,16 @@ const open_whiteStudio_efb = (state) => {
       link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
       break;
     case 'emptyStep':
-      link = `${gits}/How-to-Create-a-form-on-Easy-Form-Builder#empty-step-alert`
+      link = `How-to-Create-a-form-on-Easy-Form-Builder#empty-step-alert`
       break;
     case 'notInput':
       link += `?notInputExists`
       break;
     case 'pickupByUser':
-      link = `${gits}/How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
+      link = `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder#how-to-add-a-location-picker-when-creating-form`
       break;
     case 'paymentform':
-      link = `${gits}/How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
+      link = `How-to-Create-a-Payment-Form-in-Easy-Form-Builder`
       break;
 
 

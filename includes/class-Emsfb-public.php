@@ -987,7 +987,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.0.1')</script>";
+		return "<script>console.log('Easy Form Builder v3.1.0')</script>";
 	
 	  }//end function
 
@@ -1417,9 +1417,7 @@ class _Public {
 				$product = $stripe->products->create([
 					'name' => $description,
 					]);
-					error_log('=======product========='); 
-					 error_log(json_encode($product)); 
-	
+
 					 $ip =$this->get_ip_address();
 					//Create price for products				
 					$price= $stripe->prices->create([
