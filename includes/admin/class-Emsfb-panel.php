@@ -113,7 +113,7 @@ class Panel_edit  {
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
 			wp_enqueue_script('efb-main-js'); 
 
-			wp_register_script('addsOnLocal-js', 'https://easyformbuilder.ir/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
 
 

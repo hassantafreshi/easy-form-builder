@@ -120,6 +120,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Create any kind of form you want!
 
+- Submitting an Offline Forms
+
 
 
 
@@ -207,6 +209,9 @@ How *Easy Form Builder* makes your life easier:
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
 - *Confirmation code finder form* :By adding **Confirmation code finder form**, it enables the user to check the received answers or responses by entering his own tracking code.  You can find out on Easy Form Builder > Panel > Setting > General > copy Confirmation Code Finder
+
+- *Offline Forms*: When Internet connection of user is lost , Easy Form Builder have stored information of filled forms and user can send the information after internet have online.
+
 
 
 
@@ -321,6 +326,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.1.1 =
+* Offline Form
 
 = 3.1.0 =
 * Improve UI

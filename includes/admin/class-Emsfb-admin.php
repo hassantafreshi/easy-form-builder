@@ -587,7 +587,7 @@ class Admin {
         /* 	error_log('get_ajax_track_admin');
             error_log($value[0]->track); */
 
-        if ($value[0] != null) {
+        if (count($value)>0) {
             $response = ['success' => true, "ajax_value" => $value];
         }
         else {

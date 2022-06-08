@@ -1163,10 +1163,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb col-md-9 col-sm-12 efb ${valj_efb[iVJ].classes}"  id='${rndm}-f'>
       <div class="efb  btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
-      <label for="${rndm}_1" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
+      <label for="${rndm}_1" data-lid="${rndm}" data-value="${valj_efb[iVJ].button_1_text}" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb left-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
         <input type="radio" name="${rndm}" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
       <span class="efb border-right border border-light efb"></span>
-      <label for="${rndm}_2" onClick="yesNoGetEFB('${valj_efb[iVJ].button_2_text}' ,'${rndm}')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
+      <label for="${rndm}_2" data-lid="${rndm}" data-value="${valj_efb[iVJ].button_2_text}" onClick="yesNoGetEFB('${valj_efb[iVJ].button_2_text}' ,'${rndm}')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} yesno-efb right-efb ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_2">
         <input type="radio" name="${rndm}" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_2" value="${valj_efb[iVJ].button_2_text}"> <span id="${rndm}_2_lab">${valj_efb[iVJ].button_2_text}</span></label>
       </div>
         ${desc}`
@@ -2439,7 +2439,7 @@ function viewfileEfb(id, indx) {
 
   }
   let box_v = `<div class="efb ">
-  <button type="button" class="efb btn m-2 btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
+  <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
        aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
        <div class="efb card efb">
         <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center"></i>
@@ -2454,7 +2454,7 @@ function viewfileEfb(id, indx) {
       const box = document.getElementById(`${id}_box`)
       if (valj_efb[indx].file == "image") {
         box.innerHTML = `<div class="efb ">
-            <button type="button" class="efb btn m-2 btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
+            <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
                  aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button> 
             <img src="${fileURL}" alt="image">
             </div>`;         
@@ -3059,6 +3059,8 @@ function previewFormEfb(state){
     }
    // if (state != "show") myModal.show();
    step_el_efb=valj_efb[0].steps;
+    console.log(`efb_var.id[${efb_var.id}]`);
+   if(localStorage.getItem('formId')==efb_var.id){ fun_offline_Efb() }
   }, timeout) //nlogn
 }//end function v2
 
@@ -4220,4 +4222,102 @@ let change_el_edit_Efb = (el) => {
     }
 
   },len_Valj*10)
+}
+
+
+fun_offline_Efb=()=>{
+  console.log('fun_offline_Efb');
+  let el ='';
+  const values =JSON.parse(localStorage.getItem('sendback'))
+  for(let value of values){
+    sendBack_emsFormBuilder_pub.push(value);
+    console.log(value);
+    switch(value.type){
+      case 'email':
+        case 'text':
+        case 'password':
+        case 'tel':
+        case 'url':
+        case "date":
+        case 'color':
+        case 'range':
+        case 'number':
+        case 'firstName':
+        case 'lastName':
+          document.getElementById(value.id_ob).value=value.value;
+          break;
+        case 'textarea':
+          document.getElementById(value.id_ob).innerHTML=value.value;
+          break;
+          case 'checkbox':
+          case 'radio':
+          case 'payCheckbox':
+          case 'payRadio':
+          case 'payRadio':
+            document.getElementById(value.id_ob).checked=true;
+          break;
+          case 'paySelect':
+          case 'conturyList':
+          case 'stateProvince':
+          case 'select':
+            document.getElementById(value.id_ob).value=value.value;
+          break;
+          case 'multiselect':
+          case 'payMultiselect':
+           const op= document.getElementById(`${value.id_}_options`)
+           op.innerHTML=value.value.replaceAll('@efb!',',');
+            const vs = value.value.split('@efb!');
+            for(v of vs){
+              console.log(v ,value.id_);
+               el = document.querySelector(`.efblist  [data-name="${v}"]`)
+              if(el){
+                el.className +=` border-info`;
+                el.innerHTML=`
+                <th scope="row" class="bi-check-square text-info efb"></th>
+                <td class="efb  ms">${v}</td>
+                `
+                console.log(el);
+                op.dataset.select =`${el.dataset.row} @efb!`
+              }
+            }
+          break;
+          case 'esign':
+                
+                el = document.getElementById(`${value.id_}_`);
+                let ctx = el.getContext("2d");
+                let image = new Image();
+                image.onload = function() {
+                    ctx.drawImage(image, 0, 0);
+                };
+                image.src = value.value
+                console.log(image);
+          break;
+          case 'yesNo':
+                 el = document.querySelectorAll(`[data-lid='${value.id_}']`)
+                for(let op of el){
+                  if(op.dataset.value==value.value){
+                    console.log(op);
+                    op.className += 'active';
+                  }
+                }
+          break;
+          case 'switch':
+            document.getElementById(value.id_ob).checked=value.value=="On"?true:false;
+          break;
+          case 'rating':
+           if(value.value>=1) document.getElementById(`${value.id_}-star1`).checked=true;
+           if(value.value>=2) document.getElementById(`${value.id_}-star2`).checked=true;
+           if(value.value>=3) document.getElementById(`${value.id_}-star3`).checked=true;
+           if(value.value>=4) document.getElementById(`${value.id_}-star4`).checked=true;
+           if(value.value==5) document.getElementById(`${value.id_}-star5`).checked=true;
+          break;
+          case 'document':
+            let s = value.url.split('/');
+            s=s.pop();
+            el= document.getElementById(`${value.id_}_-message`);
+            el.className =`efb text-success efb fs-7 fw-bolder`;
+            el.innerHTML= `${efb_var.text.uploadedFile}: ${s}`;
+          break;
+    }
+  }
 }

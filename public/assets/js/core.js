@@ -16,8 +16,8 @@ const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
-console.log("Easy Form Builder");
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
+console.log("Easy Form Builder",g_timeout_efb);
 setTimeout(() => {
 
 
@@ -29,7 +29,7 @@ setTimeout(() => {
     poster_emsFormBuilder = ajax_object_efm.poster;
     //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
-    localStorage.setItem('formId',efb_var.id)
+    localStorage.setItem('form_id',efb_var.id)
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
       if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
@@ -482,6 +482,7 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   //console.log(ob);
+  localStorage.setItem('formId',localStorage.getItem('form_id'))
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
@@ -612,7 +613,9 @@ function endMessage_emsFormBuilder_view() {
         if (checkFile == 0) {
           // اگر همه فایل ها آپلود شده بودن
           //intervalFiles
-          for (const file of files_emsFormBuilder) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub)); }
+          for (const file of files_emsFormBuilder) { 
+            sendBack_emsFormBuilder_pub.push(file); 
+            localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub)); }
           if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder();
           clearInterval(timeValue);
         }
@@ -634,11 +637,16 @@ function stepName_emsFormBuilder_view(i) {
 
 
 function actionSendData_emsFormBuilder() {
+  console.log('test');
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
   //console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
  //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
+ if(!navigator.onLine){
+  response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
+   return;
+ }
   jQuery(function ($) {
 
     data = {
