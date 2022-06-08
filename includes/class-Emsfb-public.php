@@ -428,11 +428,11 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
-		error_log($this->id);
+		//error_log($this->id);
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($this->value[0]) ? str_replace('\\', '', $this->value[0]->form_structer) :'';
-		error_log(json_encode($fs));
+		//error_log(json_encode($fs));
 		//error_log($fs);
 
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
@@ -473,8 +473,8 @@ class _Public {
 					'secret'        => $secretKey,
 					'response'     => $response,
 				);
-				error_log(json_encode($formObj));
-				error_log(json_encode($formObj[0]));
+				/* error_log(json_encode($formObj));
+				error_log(json_encode($formObj[0])); */
 				if($formObj[0]['type']!='payment' && $formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
 					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
@@ -710,6 +710,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "login":
+							error_log('login');
 							$username ;
 							$password;
 							$m = str_replace("\\","",$this->value);
@@ -753,6 +754,7 @@ class _Public {
 								$send['user_registered']=$user->data->user_registered;
 								$send['user_image']=get_avatar_url($user->data->ID);
 								$response = array( 'success' => true , 'm' =>$send); 
+								error_log(json_encode($response));
 								wp_send_json_success($response,$_POST);
 							}else{
 								// user not login
@@ -762,11 +764,12 @@ class _Public {
 
 								$send['error']=$this->lanText["incorrectUP"];
 								$response = array( 'success' => true , 'm' =>$send); 
+								error_log(json_encode($response));
 								wp_send_json_success($response,$_POST);
 							}
 							
 							
-							
+							error_log('end login');
 
 
 						break;
@@ -987,7 +990,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.1.0')</script>";
+		return "<script>console.log('Easy Form Builder v3.1.1')</script>";
 	
 	  }//end function
 
@@ -1309,8 +1312,8 @@ class _Public {
 		$val_ = json_decode($val,true);
 		//error_log(gettype($val_));
 		$paymentmethod = $fs_[0]['paymentmethod'];
-		error_log('============paymentmethod==========');
-		error_log($paymentmethod);
+	/* 	error_log('============paymentmethod==========');
+		error_log($paymentmethod); */
 		$price_c =0;
 		$price_f=0;
 		$email ='';
@@ -1457,7 +1460,7 @@ class _Public {
 		
 
 			$response;	
-			error_log($this->id);
+			//error_log($this->id);
 			if($paymentmethod!='charge'){
 
 				$amount = $price->unit_amount/100;
@@ -1492,7 +1495,7 @@ class _Public {
 			//$response->transStat
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
-			error_log(json_encode($response));
+			//error_log(json_encode($response));
 			wp_send_json_success($response, $_POST);
 
 		}else{
