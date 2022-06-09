@@ -111,6 +111,7 @@ console.info('Easy Form Builder > WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder(){
+  console.log('actionSendData_emsFormBuilder');
   data ={};
   var name = formName_Efb
   jQuery(function ($) {

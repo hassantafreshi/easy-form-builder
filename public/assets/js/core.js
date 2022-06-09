@@ -29,7 +29,8 @@ setTimeout(() => {
     poster_emsFormBuilder = ajax_object_efm.poster;
     //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
-    localStorage.setItem('form_id',efb_var.id)
+    localStorage.setItem('form_id',efb_var.id);
+
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
       if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {

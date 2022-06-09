@@ -1611,12 +1611,12 @@ let add_buttons_zone_efb = (state, id) => {
   }
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <button id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}    ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb  ${valj_efb[0].icon!='bi-undefined' ? `${valj_efb[0].icon} mx-2` :''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span</button>
+    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color} ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb  ${valj_efb[0].icon!='bi-undefined' ? `${valj_efb[0].icon} mx-2` :''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
-  <button id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon!='bi-undefined' ? 'mx-2':'' }">${valj_efb[0].button_Previous_text}</span></button>
-  <button id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text!='bi-undefined' ? ' mx-2':'' }">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` :``}</button>
+  <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length>2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` :``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon!='bi-undefined' ? 'mx-2':'' }">${valj_efb[0].button_Previous_text}</span></a>
+  <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text!='bi-undefined' ? ' mx-2':'' }">${valj_efb[0].button_Next_text}</span> ${ valj_efb[0].button_Next_icon.length>3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` :``}</a>
   </div>
   `
   let c = `<div class="efb footer-test mt-1 efb">`
@@ -1745,15 +1745,20 @@ const saveFormEfb = () => {
   let btnIcon = `bi-question-lg`
   let returnState= false;
   const gateway = valj_efb.findIndex(x=>x.type=="stripe");
+
+  const len = valj_efb.length;
+  
   setTimeout(()=>{
     
     
-   
+    console.log(`save[${valj_efb.length}]`);
     //settingModalEfb-body
     const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
     //console.log(valj_efb[0].type=="payment" &&  gateway==-1)
     let timeout =1000;
+    timeout =(len * (Math.log(len)) * calPLenEfb(len))
+     console.log(timeout);
     check_show_box=()=>{
      
       setTimeout(() => {
@@ -1857,7 +1862,7 @@ const saveFormEfb = () => {
     show_modal_efb(body,efb_var.text.error, btnIcon, 'error')
     myModal.show();
   }
-  },100)
+  },500)
 }//end function
 
 
@@ -2555,6 +2560,7 @@ function handle_navbtn_efb(steps, device) {
         duration: 500
       });
       current_s_efb += 1;
+      localStorage.setItem('step',current_s_efb);
       setProgressBar_efb(current_s_efb,steps_len_efb);
      
       if (current_s_efb <= steps) {
@@ -2626,6 +2632,7 @@ function handle_navbtn_efb(steps, device) {
         duration: 500
       });
       current_s_efb = current_s_efb-1;
+      localStorage.setItem('step',current_s_efb);
       setProgressBar_efb(current_s_efb,steps_len_efb);
       if (current_s_efb == 1) { 
         jQuery("#prev_efb").toggleClass("d-none"); 
@@ -2667,6 +2674,7 @@ function handle_navbtn_efb(steps, device) {
           });
           current_s_efb += 1;
           setProgressBar_efb(current_s_efb,steps_len_efb);
+          
           send_data_efb();
           //send to server after validation
        
@@ -3107,6 +3115,7 @@ function fun_prev_send(){
       duration: 500
     });
     current_s_efb -= 1;
+    localStorage.setItem('step',current_s_efb);
     setProgressBar_efb(current_s_efb,stp);
    //preview problem
   });
