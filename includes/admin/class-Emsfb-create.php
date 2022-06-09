@@ -196,7 +196,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-		error_log('add_form_structure');
+		//error_log('add_form_structure');
 	
 		
 		$efbFunction = new efbFunction(); 
@@ -238,8 +238,8 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		error_log('insert');
-		error_log(strlen($this->value));
+		/* error_log('insert');
+		error_log(strlen($this->value)); */
 		$table_name = $this->db->prefix . "Emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 
@@ -248,7 +248,7 @@ class Create {
 			'form_created_by' => $this->userId, 
 			'form_type'=>$this->formtype, 			
 		));    $this->id_  = $this->db->insert_id; 
-		error_log(json_encode($r));
+		
 	}
 	public function check_temp_is_bootstrap (){
         $it = list_files(get_template_directory()); 
