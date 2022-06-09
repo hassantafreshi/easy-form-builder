@@ -43,7 +43,7 @@ const fields_efb = [{ name: efb_var.text.text, icon: 'bi-file-earmark-text', id:
 
 
 function show_setting_window_efb(idset) {
-  console.log('show_setting_window_efb');
+  //console.log('show_setting_window_efb');
     if(document.getElementById('sideBoxEfb').classList.contains('show')){
       sideMenuEfb(0);
      //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -367,7 +367,7 @@ function show_setting_window_efb(idset) {
       `
     }
     const selectHeightEls = () => {
-      console.log(indx,valj_efb[indx].el_height ,valj_efb[indx].el_height );
+      //console.log(indx,valj_efb[indx].el_height ,valj_efb[indx].el_height );
       return `
         <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
         <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            

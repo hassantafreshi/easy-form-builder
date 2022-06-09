@@ -32,10 +32,18 @@ input[type="email"]::-webkit-input-placeholder {
 .btn-edit-holder {
     float: left!important;
 	margin-top: -40px;
-	margin-left: 0%!important;
+	margin-left: 2%!important;
+	margin-right: 62%!important;
 	margin-right: 73%;
 	position: relative;
 	z-index: 10;
+}
+
+
+.search-icon.efb {
+    position: relative;
+    right: 45px;
+	left: 0px!important;;
 }
 
 

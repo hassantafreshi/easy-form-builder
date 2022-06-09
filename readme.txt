@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.1.0
+Stable tag: 			3.1.1
 Requires at least: 	      4.7
 Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
@@ -120,6 +120,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Create any kind of form you want!
 
+- Submitting an Offline Forms
+
 
 
 
@@ -207,6 +209,9 @@ How *Easy Form Builder* makes your life easier:
 - *Spam Protection* : add Google recaptcha validation for your forms for **free**.
 
 - *Confirmation code finder form* :By adding **Confirmation code finder form**, it enables the user to check the received answers or responses by entering his own tracking code.  You can find out on Easy Form Builder > Panel > Setting > General > copy Confirmation Code Finder
+
+- *Offline Forms*: When Internet connection of user is lost , Easy Form Builder have stored information of filled forms and user can send the information after internet have online.
+
 
 
 
@@ -296,22 +301,24 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
 
-1. [How to configure *Easy Form Builder*](https://youtu.be/dkrAcBGJjLQ)
+1. [How to configure *Easy Form Builder*](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/#settingUp-Notification)
 
-2. [How to get Google reCAPTCHA and implement it into *Easy Form Builder*](https://youtu.be/AZ9LPPTPuh0)
+2. [How to get Google reCAPTCHA and implement it into *Easy Form Builder*](https://whitestudio.team/document/how-to-get-google-recaptcha-and-implement-it-into-easy-form-builder/)
 
-3. [How to activate the alert email (Notification email) for new form submissions](https://youtu.be/Zz3NV6mA-us)
+3. [How to activate the alert email (Notification email) for new form submissions](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/#email-notification)
 
-4. [How to create and add a form with *Easy Form Builder*](https://youtu\.be/AnkhmZ5Cz9w)
+4. [How to create and add a form with *Easy Form Builder*](https://whitestudio.team/document/how-to-create-your-first-form-with-easy-form-builder/)
 
-5. [How to activate a Confirmation Code in *Easy Form Builder*](https://youtu.be/q0OTaj0iiGs)
+5. [How to activate a Confirmation Code in *Easy Form Builder*](https://whitestudio.team/document/how-to-activate-confirmation-code-in-easy-form-builder/)
 
-6. [How to work with panels in *Easy Form Builder*](https://youtu.be/SJh5h89P8UU)
+6. [How to work with panels in *Easy Form Builder*](https://whitestudio.team/document/complete-guide-of-form-entries-and-mange-forms/)
 
 7. [How to add The Confirmation Code Finder to a post, page, or custom post type
-   ](https://youtu.be/GK99Jcb3_ZY)
+   ](https://whitestudio.team/document/how-to-add-the-confirmation-code-finder/)
 
-8. [How to find a response through a Confirmation Code](https://youtu.be/X9cW2j-JkS4)
+8. [How to find a response through a Confirmation Code](https://whitestudio.team/document/how-to-find-a-response-through-a-confirmation-code/)
+
+9. [How use ready Email templates](https://whitestudio.team/document/how-to-customize-the-email-template-in-easy-form-builder/#readyTemplate)
 
 
 
@@ -319,6 +326,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.1.1 =
+* Offline Form
 
 = 3.1.0 =
 * Improve UI

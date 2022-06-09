@@ -263,7 +263,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
-        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${efb_var.text.download}</a>`
+        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" >${efb_var.text.download}</a>`
       } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -280,7 +280,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {        
-        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
+        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" >${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
       }
 
     }else if (c.type == "esign") {
@@ -671,22 +671,23 @@ function fun_hande_active_page_emsFormBuilder(no) {
 
 function fun_show_help__emsFormBuilder() {
   document.getElementById("more_emsFormBuilder").style.display = "none";
+  const ws="https://whitestudio.team/";
   listOfHow_emsfb = {
-    /*  1:{title:'How to activate pro version of Easy form builder.',url:'https://www.youtube.com/embed/RZTyFcjZTSM'},*/
-    2: { title: efb_var.text.howConfigureEFB, url: 'https://youtu.be/dkrAcBGJjLQ' },
-    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: 'https://youtu.be/AZ9LPPTPuh0' },
-    4: { title: efb_var.text.howActivateAlertEmail, url: 'https://youtu.be/Zz3NV6mA-us' },
-    5: { title: efb_var.text.howCreateAddForm, url: 'https://youtu.be/AnkhmZ5Cz9w' },
-    6: { title: efb_var.text.howActivateTracking, url: 'https://youtu.be/q0OTaj0iiGs' },
-    7: { title: efb_var.text.howWorkWithPanels, url: 'https://youtu.be/SJh5h89P8UU' },
-    8: { title: efb_var.text.howAddTrackingForm, url: 'https://youtu.be/GK99Jcb3_ZY' },
-    9: { title: efb_var.text.howFindResponse, url: 'https://youtu.be/X9cW2j-JkS4' },
+    1: {title:  efb_var.text.howProV,url: `${ws}document/how-to-activate-pro-version-easy-form-builder-plugin/` },
+    2: { title: efb_var.text.howConfigureEFB, url: `${ws}document/how-to-set-up-form-notification-emails-in-easy-form-builder/#settingUp-Notification` },
+    3: { title: efb_var.text.howGetGooglereCAPTCHA, url: `${ws}document/how-to-get-google-recaptcha-and-implement-it-into-easy-form-builder/` },
+    4: { title: efb_var.text.howActivateAlertEmail, url: `${ws}document/how-to-set-up-form-notification-emails-in-easy-form-builder/#email-notification` },
+    5: { title: efb_var.text.howCreateAddForm, url: `${ws}document/how-to-create-your-first-form-with-easy-form-builder/` },
+    6: { title: efb_var.text.howActivateTracking, url: `${ws}document/how-to-activate-confirmation-code-in-easy-form-builder/` },
+    7: { title: efb_var.text.howWorkWithPanels, url: `${ws}document/complete-guide-of-form-entries-and-mange-forms/` },
+    8: { title: efb_var.text.howAddTrackingForm, url: `${ws}document/how-to-add-the-confirmation-code-finder/` },
+    9: { title: efb_var.text.howFindResponse, url: `${ws}document/how-to-find-a-response-through-a-confirmation-code/` },
   }
 
 
   let str = "";
   for (const l in listOfHow_emsfb) {
-    str += `<a class="efb btn efb btn-darkb text-white btn-lg d-block mx-3 mt-2" href="${listOfHow_emsfb[l].url}"><i class="efb  bi-youtube mx-1"></i>${listOfHow_emsfb[l].title}</a>`
+    str += `<a class="efb btn efb btn-darkb text-white btn-lg d-block mx-3 mt-2" target="_blank" href="${listOfHow_emsfb[l].url}"><i class="efb  bi-youtube mx-1"></i>${listOfHow_emsfb[l].title}</a>`
   }
   document.getElementById('content-efb').innerHTML = `
   <img src="${efb_var.images.title}"  class="efb crcle-footer">
@@ -1473,7 +1474,7 @@ function convert_to_dataset_emsFormBuilder() {
 
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  console.log(head,exp);
+  //console.log(head,exp);
   let rows = exp;
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
@@ -1773,5 +1774,5 @@ function funNproEmailTemp(){
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
- <br> <img src="https://whitestudio.team/img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'>White Studio Team</a></td></tr>`
+ <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
 }

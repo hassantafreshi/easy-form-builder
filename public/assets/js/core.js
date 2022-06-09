@@ -16,8 +16,8 @@ const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
-console.log("Easy Form Builder");
 let g_timeout_efb= typeof ajax_object_efm =="object" && typeof ajax_object_efm.ajax_value=="string" ? ajax_object_efm.ajax_value.length/30  : 1100 ;
+console.log("Easy Form Builder");
 setTimeout(() => {
 
 
@@ -29,7 +29,8 @@ setTimeout(() => {
     poster_emsFormBuilder = ajax_object_efm.poster;
     //console.log(ajax_object_efm.state);
     efb_var = ajax_object_efm;
-    localStorage.setItem('formId',efb_var.id)
+    localStorage.setItem('form_id',efb_var.id);
+
     if (ajax_object_efm.state != 'tracker') {
       const ajax_value = typeof(ajax_object_efm.ajax_value )=="string" ?  JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
       if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
@@ -482,6 +483,8 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   //console.log(ob);
+  localStorage.setItem('formId',localStorage.getItem('form_id'))
+  localStorage.getItem('formName' ,valj_efb[0].formName);
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
@@ -500,6 +503,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   } else {
     sendBack_emsFormBuilder_pub.push(ob);
   }
+  localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub))
   //console.log(sendBack_emsFormBuilder_pub);
 }
 function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
@@ -588,7 +592,8 @@ function endMessage_emsFormBuilder_view() {
     }
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {        
-        for (const file of files_emsFormBuilder) {if(sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == file.id_)==-1) sendBack_emsFormBuilder_pub.push(file); } 
+        for (const file of files_emsFormBuilder) {if(sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ == file.id_)==-1)
+          { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub));} } 
       }
       //final validation
       if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder()
@@ -610,7 +615,9 @@ function endMessage_emsFormBuilder_view() {
         if (checkFile == 0) {
           // اگر همه فایل ها آپلود شده بودن
           //intervalFiles
-          for (const file of files_emsFormBuilder) { sendBack_emsFormBuilder_pub.push(file); }
+          for (const file of files_emsFormBuilder) { 
+            sendBack_emsFormBuilder_pub.push(file); 
+            localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub)); }
           if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder();
           clearInterval(timeValue);
         }
@@ -637,6 +644,10 @@ function actionSendData_emsFormBuilder() {
   recaptcha_emsFormBuilder = valueJson_ws.length>1 && valueJson_ws[0].hasOwnProperty('captcha')==true && valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object" ? grecaptcha.getResponse() :"";
   //console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
  //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
+ if(!navigator.onLine){
+  response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
+   return;
+ }
   jQuery(function ($) {
 
     data = {
@@ -655,7 +666,11 @@ function actionSendData_emsFormBuilder() {
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
-      success: function (res) {localStorage.removeItem('formId'); response_fill_form_efb(res) },
+      success: function (res) {
+        
+        if (localStorage.getItem("formId")) {localStorage.removeItem('formId');}
+         response_fill_form_efb(res) 
+        },
       error: function (res) { console.error(res);
         response_fill_form_efb({ success: false, data: { success: false, m: `E:JQ Co` } }) }
 
@@ -983,7 +998,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       if (c.type == "Image" ||c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       }else if (c.type == "Document" ||c.type == "document") {
-        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" download="${$name}">${ajax_object_efm.text.download}</a>`
+        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" >${ajax_object_efm.text.download}</a>`
       } else if (c.type == "Media" ||c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -1000,7 +1015,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
         }
       } else {        
-        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" download="${$name}">${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
+        value = c.url.length>1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" >${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
       }
 
     }else if (c.type == "esign") {
@@ -1254,7 +1269,7 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
+  //console.log(res);
   if (res.data.success == true) {
   
     //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
@@ -1301,7 +1316,7 @@ function response_fill_form_efb(res) {
     //  window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
-    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color :'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height :'h-l-efb'}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
 
   }

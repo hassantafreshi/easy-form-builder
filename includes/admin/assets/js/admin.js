@@ -90,15 +90,15 @@ if(state!=0){
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   <div id="alert"></div>
-  <button type="button" class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
+  <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
       <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
-  </button>
-  <button type="button" class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
+  </a>
+  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#Output" onclick="open_whiteStudio_efb('publishForm')">
       <i class="efb  bi-question mx-1"></i>${efb_var.text.help}
-  </button>
-  <button type="button" class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
+  </a>
+  <a  class="efb btn efb btn-outline-pink btn-lg m-3 px-3" data-bs-toggle="modal" data-bs-target="#close" onclick="location.reload(true);">
       <i class="efb  bi-x mx-1"></i>${efb_var.text.close}
-  </button>
+  </a>
   `
 }else {
   content =`<h3 class="efb ">${m}</h3>`
@@ -111,6 +111,7 @@ console.info('Easy Form Builder > WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder(){
+  console.log('actionSendData_emsFormBuilder');
   data ={};
   var name = formName_Efb
   jQuery(function ($) {

@@ -133,7 +133,7 @@ class Create {
 
 
 	
-		wp_register_script('addsOnLocal-js', 'https://whitestudio.team//wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -196,7 +196,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-
+		//error_log('add_form_structure');
 	
 		
 		$efbFunction = new efbFunction(); 
@@ -238,8 +238,10 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
+		/* error_log('insert');
+		error_log(strlen($this->value)); */
 		$table_name = $this->db->prefix . "Emsfb_form";
-		$this->db->insert($table_name, array(
+		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 
 			'form_structer' => $this->value, 
 			'form_email' => $this->email, 
