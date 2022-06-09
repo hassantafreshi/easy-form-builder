@@ -1611,7 +1611,7 @@ let add_buttons_zone_efb = (state, id) => {
   }
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color} ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb  ${valj_efb[0].icon!='bi-undefined' ? `${valj_efb[0].icon} mx-2` :''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length>3 ? `<i class="efb  ${valj_efb[0].icon!='bi-undefined' ? `${valj_efb[0].icon} mx-2` :''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` :`` }<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_button_form_np">
@@ -1745,9 +1745,6 @@ const saveFormEfb = () => {
   let btnIcon = `bi-question-lg`
   let returnState= false;
   const gateway = valj_efb.findIndex(x=>x.type=="stripe");
-
-  const len = valj_efb.length;
-  
   setTimeout(()=>{
     
     
@@ -1757,8 +1754,6 @@ const saveFormEfb = () => {
     show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
     //console.log(valj_efb[0].type=="payment" &&  gateway==-1)
     let timeout =1000;
-    timeout =(len * (Math.log(len)) * calPLenEfb(len))
-     console.log(timeout);
     check_show_box=()=>{
      
       setTimeout(() => {
@@ -1862,7 +1857,7 @@ const saveFormEfb = () => {
     show_modal_efb(body,efb_var.text.error, btnIcon, 'error')
     myModal.show();
   }
-  },500)
+  },100)
 }//end function
 
 
