@@ -165,6 +165,8 @@ How *Easy Form Builder* makes your life easier:
 
 - *Link* : You can easily add links on WP forms.
 
+- *Offline form* : the offline form is feature save or resume forms before submit.
+
 
 **Payment Forms Field of Easy Form Builder**
 
@@ -293,10 +295,10 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 6. Setting of Easy Form Builder
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
-9. create a contact-us form
-10. localization Easy form builder to your language
+9. Create a contact-us form
+10. Localization Easy form builder to your language
 11. Email template Editor of Easy form builder 
-12. Order payment form
+12. Order payment forms
 
 == Frequently Asked Questions ==
 The following clips demonstrate how to use Easy Form Builder correctly:
@@ -328,7 +330,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 == Changelog ==
 
 = 3.1.1 =
-* Offline Form
+* Offline Forms
+* Improve UI
 
 = 3.1.0 =
 * Improve UI
