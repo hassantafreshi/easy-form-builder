@@ -483,8 +483,8 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   //console.log(ob);
-  localStorage.setItem('formId',localStorage.getItem('form_id'))
-  localStorage.getItem('formName' ,valj_efb[0].formName);
+  
+  
   if (sendBack_emsFormBuilder_pub.length) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
@@ -503,7 +503,9 @@ function fun_sendBack_emsFormBuilder(ob) {
   } else {
     sendBack_emsFormBuilder_pub.push(ob);
   }
-  localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub))
+  localStorage.setItem('sendback',JSON.stringify(sendBack_emsFormBuilder_pub));
+  localStorage.setItem('formId',localStorage.getItem('form_id'))
+  
   //console.log(sendBack_emsFormBuilder_pub);
 }
 function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند

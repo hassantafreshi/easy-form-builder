@@ -518,8 +518,8 @@ function show_setting_window_efb(idset) {
                </button> 
                 </label>
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
-                    <div class="efb  col-md-7">${efb_var.text.title}</div>
-                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3">${efb_var.text.price}</div>`:''}
+                    <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
+                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
                 </div>
                 <div class="efb  mb-3" id="optionListefb">
                  ${opetions}

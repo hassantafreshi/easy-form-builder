@@ -710,7 +710,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "login":
-							error_log('login');
+							//error_log('login');
 							$username ;
 							$password;
 							$m = str_replace("\\","",$this->value);
@@ -754,7 +754,7 @@ class _Public {
 								$send['user_registered']=$user->data->user_registered;
 								$send['user_image']=get_avatar_url($user->data->ID);
 								$response = array( 'success' => true , 'm' =>$send); 
-								error_log(json_encode($response));
+								//error_log(json_encode($response));
 								wp_send_json_success($response,$_POST);
 							}else{
 								// user not login
@@ -764,12 +764,12 @@ class _Public {
 
 								$send['error']=$this->lanText["incorrectUP"];
 								$response = array( 'success' => true , 'm' =>$send); 
-								error_log(json_encode($response));
+								//error_log(json_encode($response));
 								wp_send_json_success($response,$_POST);
 							}
 							
 							
-							error_log('end login');
+							//error_log('end login');
 
 
 						break;

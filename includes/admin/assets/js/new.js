@@ -1206,17 +1206,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       </div>
       <div id="stripeCardSectionEfb" class="efb ">
         <div class="efb  col-md-12 my-2">
-        <label for="cardnoEfb" class="efb  fs-6 text-dark priceEfb">${efb_var.text.cardNumber}: </label>
-        <div id="cardnoEfb" class="efb  text-labelEfb"></div>
+        <label for="cardnoEfb" class="efb fs-6 text-dark priceEfb">${efb_var.text.cardNumber}: </label>
+        <div id="cardnoEfb" class="efb form-control h-d-efb text-labelEfb"></div>
         </div>
-        <div class="efb  col-md-12 row my-2">
-          <div class="efb  col-md-6 my-2">     
+        <div class="efb  col-sm-12 row my-2">
+          <div class="efb  col-sm-6 my-2">     
           <label for="cardexpEfb" class="efb  fs-6 text-dark priceEfb">${efb_var.text.cardExpiry}: </label>
-          <div id="cardexpEfb" class="efb  text-labelEfb"></div>
+          <div id="cardexpEfb" class="efb form-control h-d-efb text-labelEfb"></div>
           </div>
-          <div class="efb  col-md-6 my-2">
+          <div class="efb  col-sm-6 my-2">
           <label for="cardcvcEfb" class="efb  fs-6 text-dark priceEfb">${efb_var.text.cardCVC}: </label>
-          <div id="cardcvcEfb" class="efb  text-labelEfb"></div>
+          <div id="cardcvcEfb" class="efb form-control h-d-efb text-labelEfb"></div>
           </div>
         </div>
       </div>
@@ -3062,8 +3062,8 @@ function previewFormEfb(state){
     }
    // if (state != "show") myModal.show();
    step_el_efb=valj_efb[0].steps;
-    //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
-   if(localStorage.getItem('formId')==efb_var.id && localStorage.getItem('formName')==valj_efb[0].formName){ fun_offline_Efb() }
+    console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
+   if(localStorage.getItem('formId')==efb_var.id ){ fun_offline_Efb() }
   }, timeout) //nlogn
 }//end function v2
 
@@ -3341,7 +3341,6 @@ fun_add_stripe_efb=()=>{
       /* console.log(valj_efb[0].currency ,document.getElementById('currencyPayEfb'));
       document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency; */
       const elements = stripe.elements()
-      
       const numElm = elements.create('cardNumber',{showIcon:true,iconStyle:'solid', style:elsStripeStyleEfb})
       numElm.mount(cardnoEfb)
           
@@ -4235,7 +4234,7 @@ fun_offline_Efb=()=>{
   const values =JSON.parse(localStorage.getItem('sendback'))
   for(let value of values){
     sendBack_emsFormBuilder_pub.push(value);
-    console.log(value);
+    //console.log(value);
     switch(value.type){
       case 'email':
         case 'text':
