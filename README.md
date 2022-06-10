@@ -46,7 +46,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 **Version Numbers**
 
 *  Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
-* [Easy Form Builder 2.0.0 – 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is maintained but no longer extended. (stable)
+* [Easy Form Builder 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is deprecated and will no longer be supported
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is under active development. (recommended)
 
 
@@ -98,6 +98,8 @@ Features:
 - Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Link field on WordPress Easy Form builder (Available in pro version)
 - Added title field on Easy form builder (Available in pro version)
+- Offline form
+
 
 
 ## Documentation
