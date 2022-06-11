@@ -522,6 +522,7 @@ class efbFunction {
 			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate pro version of Easy form builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
+			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
