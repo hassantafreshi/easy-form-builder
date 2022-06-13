@@ -47,7 +47,7 @@ input[type="email"]::-webkit-input-placeholder {
 }
 
 .description-logo.efb{
-	float: right;
+	float: right!important;
 }
 
 
