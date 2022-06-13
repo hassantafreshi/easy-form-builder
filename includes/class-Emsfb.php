@@ -22,6 +22,7 @@ class Emsfb {
         $this->includes();
         $this->init_hooks();
        if(is_admin()==false) $this->webhooks();
+       if(is_admin()==true) $this->checkDbchange();
     }
 
     /**
@@ -32,6 +33,7 @@ class Emsfb {
             EMSFB_PLUGIN_FILE,
             ['\Emsfb\Install', 'install']
         );
+        //register_activation_hook(__FILE__ ,[$this, 'test_fun']);
 
         add_action('init', [$this, 'load_textdomain']);
     }
@@ -80,14 +82,61 @@ class Emsfb {
     }
 
 
-    private function test_fun($slug){
+/*     private function test_fun($slug){
         error_log($slug['name']);
         error_log($slug['id']);
         return $slug['id'];
        // return $fs;
     
       
-    } 
+    }  */
+    public function checkDbchange(){
+        global $wpdb;
+        $test_tabale = $wpdb->prefix . "Emsfb_form";
+		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
+		$check_test_table = $wpdb->get_var( $query );
+        $table_name = $wpdb->prefix . "emsfb_form";
+ /*        error_log('checkDbchange');
+        error_log(strcmp($table_name,$check_test_table));
+        error_log($check_test_table);
+        error_log($table_name); */
+        if(strlen($check_test_table)>0){
+			if ( strcmp($table_name,$check_test_table)!=0) {
+                $message =  __('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
+                ?>                    
+                    <div class="notice notice-warning is-dismissible">
+                        <p> <?php echo '<b>'.__('Warning').':</b> '. $message.''; ?> </p>
+                    </div>
+                <?php
+            $this->email_send();
+            }
+        }
+    }
+
+    public static  function email_send(){
+		$message=__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
+		$usr=get_userdata(1);
+		//error_log("email");
+		$users = get_super_admins();
+		foreach ($users as $key => $value) {
+			$user =get_user_by('login',$value);
+			$to = $usr ->data->user_email;
+			//error_log($to);
+			$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+			$headers = array(
+				'MIME-Version: 1.0\r\n',
+				'"Content-Type: text/html; charset=ISO-8859-1\r\n"',
+				'From:'.$from.''
+				);
+			$subject = "Important Warning form ".get_bloginfo('name');			
+			$to = wp_mail($to, $subject, strip_tags($message), $headers);
+            //error_log(json_encode($to));
+
+		}
+
+	}
+
+    
 
 
 

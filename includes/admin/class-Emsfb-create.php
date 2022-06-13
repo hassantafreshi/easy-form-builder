@@ -240,7 +240,7 @@ class Create {
 	public function insert_db(){
 		/* error_log('insert');
 		error_log(strlen($this->value)); */
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 
 			'form_structer' => $this->value, 

@@ -1,1 +1,1 @@
-console.log('EFB v3.1.1')
+console.log('EFB v3.2.0')

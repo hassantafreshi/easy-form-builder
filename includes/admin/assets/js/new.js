@@ -3062,7 +3062,7 @@ function previewFormEfb(state){
     }
    // if (state != "show") myModal.show();
    step_el_efb=valj_efb[0].steps;
-    console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
+    //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
    if(localStorage.getItem('formId')==efb_var.id ){ fun_offline_Efb() }
   }, timeout) //nlogn
 }//end function v2

@@ -119,10 +119,10 @@ class Panel_edit  {
 
 
 			
-			$table_name = $this->db->prefix . "Emsfb_form";
+			$table_name = $this->db->prefix . "emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 		
-			$table_name = $this->db->prefix . "Emsfb_setting";
+			$table_name = $this->db->prefix . "emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
 			
 
@@ -251,16 +251,16 @@ class Panel_edit  {
 	public function get_not_read_message(){
 		//error_log('get_not_read_message');
 		
-		$table_name = $this->db->prefix . "Emsfb_msg_"; 
+		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
 
 		//error_log(json_encode($value));
 		return $value;
 	}
 	public function get_not_read_response(){
-		$table_name_msg = $this->db->prefix . "Emsfb_msg_";
-		$table_name_rsp = $this->db->prefix . "Emsfb_rsp_"; 
-		//$table_name = $this->db->prefix . "Emsfb_rsp_"; 
+		$table_name_msg = $this->db->prefix . "emsfb_msg_";
+		$table_name_rsp = $this->db->prefix . "emsfb_rsp_"; 
+		//$table_name = $this->db->prefix . "emsfb_rsp_"; 
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
 		FROM `$table_name_msg` AS t 
 		 INNER JOIN `$table_name_rsp` AS tr 
