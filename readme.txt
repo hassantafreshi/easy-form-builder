@@ -98,7 +98,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Entry Management able to show response message of forms and edit forms or delete forms
 
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized automaticaly to your language 
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized automatically to your language 
 
 - Add custom email template for form notification emails 
 
