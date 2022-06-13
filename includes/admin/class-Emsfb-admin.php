@@ -210,7 +210,7 @@ class Admin {
         }
         $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "Emsfb_form";
+        $table_name = $this->db->prefix . "emsfb_form";
         $r          = $this->db->delete(
             $table_name,
             ['form_id' => $id],
@@ -250,7 +250,7 @@ class Admin {
         $id         = number_format($_POST['id']);
         $value      = ($_POST['value']);
         $name       = sanitize_text_field($_POST['name']);
-        $table_name = $this->db->prefix . "Emsfb_form";
+        $table_name = $this->db->prefix . "emsfb_form";
         //,`form_name` =>
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
         $m = $lang["updated"];
@@ -290,7 +290,7 @@ class Admin {
         } */
         $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "Emsfb_msg_";
+        $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_by' => get_current_user_id(), 'read_date' => current_time('mysql')], ['msg_id' => $id]);
 
         $m =   $lang["updated"];
@@ -317,7 +317,7 @@ class Admin {
         }
         $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "Emsfb_form";
+        $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
 
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
@@ -347,7 +347,7 @@ class Admin {
 
         $id = number_format($_POST['id']);
        // error_log($_POST['form']);
-        $table_name = $this->db->prefix . "Emsfb_msg_";
+        $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, $_POST);
@@ -373,7 +373,7 @@ class Admin {
 
         $id = number_format($_POST['id']);
 
-        $table_name = $this->db->prefix . "Emsfb_rsp_";
+        $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
         $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id, 'read_' => 0]);
         foreach ($value as $key => $val) {
@@ -426,7 +426,7 @@ class Admin {
         $id = number_format($_POST['id']);
         $m  = sanitize_text_field($_POST['message']);
 
-        $table_name = $this->db->prefix . "Emsfb_rsp_";
+        $table_name = $this->db->prefix . "emsfb_rsp_";
         //echo $table_name;
 
         $ip = $this->ip;
@@ -483,7 +483,7 @@ class Admin {
         $m = json_decode($m,true);
      //  $setting    = sanitize_text_field($_POST['message']);
         $setting    = $_POST['message'];
-        $table_name = $this->db->prefix . "Emsfb_setting";
+        $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
         $em_st=false;
         //error_log( $_POST['message']);
@@ -581,7 +581,7 @@ class Admin {
         }
         //error_log('get_track_id_Emsfb');
 
-        $table_name = $this->db->prefix . "Emsfb_msg_";
+        $table_name = $this->db->prefix . "emsfb_msg_";
         $id         = sanitize_text_field($_POST['value']);
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE track = '$id'");
         /* 	error_log('get_ajax_track_admin');
@@ -616,7 +616,7 @@ class Admin {
 
         //error_log('clear_garbeg_admin');
 
-        $table_name = $this->db->prefix . "Emsfb_msg_";
+        $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT content FROM `$table_name`");
         $urlsDB     = [];
         foreach ($value as $v) {
@@ -704,7 +704,7 @@ class Admin {
                     $newAc["emailTemp"] = isset($ac->emailTemp) ? $ac->emailTemp:"";
                     $newAc["smtp"] = "true";
                     $newAc["text"] = isset($ac->text) ? $ac->text  : $efbFunction->text_efb(0); //change78 باید لیست جملات اینجا ذخیره شود
-                    $table_name = $this->db->prefix . "Emsfb_setting";
+                    $table_name = $this->db->prefix . "emsfb_setting";
                     $newAc= json_encode( $newAc ,JSON_UNESCAPED_UNICODE );
                     $newAc= str_replace('"', '\"', $newAc);                   
                     $this->db->insert(
@@ -735,7 +735,7 @@ class Admin {
 
 
     public function get_not_read_message() {
-        $table_name = $this->db->prefix . "Emsfb_msg_";
+        $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
         $rtrn       = 'null';
         return $value;

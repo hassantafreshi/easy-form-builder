@@ -15,3 +15,4 @@ vendor/stripe/stripe-php/.php-cs-fixer.php
 vendor/stripe/stripe-php/.gitignore
 vendor/stripe/stripe-php/.editorconfig
 vendor/stripe/stripe-php/.coveralls.github-actions.yml
+easy-form-builder.zip

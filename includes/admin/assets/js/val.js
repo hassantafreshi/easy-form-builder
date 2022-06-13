@@ -512,7 +512,7 @@ function show_setting_window_efb(idset) {
                 <!--notAdvanced-->
                 ${Nadvanced}
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
-                <label for="optionListefb" class="efb  ">Options 
+                <label for="optionListefb" class="efb  ">${efb_var.text.options} 
                 <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
                 <i class="efb  bi-plus-circle  text-success"></i>
                </button> 

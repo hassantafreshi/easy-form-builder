@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.1.1
+Stable tag: 			3.2.0
 Requires at least: 	      4.7
 Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
@@ -98,7 +98,7 @@ How *Easy Form Builder* makes your life easier:
 
 - Entry Management able to show response message of forms and edit forms or delete forms
 
-- Reliable spam protection through Google’s reCAPTCHA v2 and localized automaticaly to your language 
+- Reliable spam protection through Google’s reCAPTCHA v2 and localized automatically to your language 
 
 - Add custom email template for form notification emails 
 
@@ -328,6 +328,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 3.1.2 =
+* rename table names
+* Fixed issues about rtl language
 
 = 3.1.1 =
 * Offline Forms

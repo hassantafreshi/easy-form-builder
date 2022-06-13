@@ -46,6 +46,8 @@ input[type="email"]::-webkit-input-placeholder {
 	left: 0px!important;;
 }
 
-
+.description-logo.efb{
+	float: right!important;
+}
 
 

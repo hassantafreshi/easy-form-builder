@@ -110,7 +110,7 @@ class _Public {
 		//error_log('form Genrate');
 		$efbFunction = new efbFunction();  
 		
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$pro=false;
 		//foreach ($id as $row_id){
 			$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );							
@@ -429,7 +429,7 @@ class _Public {
 		$setting;
 		$this->id = sanitize_text_field($_POST['id']);
 		//error_log($this->id);
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($this->value[0]) ? str_replace('\\', '', $this->value[0]->form_structer) :'';
 		//error_log(json_encode($fs));
@@ -565,7 +565,7 @@ class _Public {
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$id = $this->id;
-							$table_name = $this->db->prefix . "Emsfb_msg_";
+							$table_name = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
 							$vv;
 							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name` WHERE track = '$id' AND read_=2 " );	
@@ -580,7 +580,7 @@ class _Public {
 									if(strpos($item['type'], 'pay')===false){return $item;}					
 								});
 								$form_id = $value[0]->form_id;
-								$table_name = $this->db->prefix . "Emsfb_form";
+								$table_name = $this->db->prefix . "emsfb_form";
 								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 							
 								
@@ -945,11 +945,11 @@ class _Public {
 		
 			$this->get_ip_address();
 			
-			$table_name = $this->db->prefix . "Emsfb_msg_";
+			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track FROM `$table_name` WHERE track = '$id'" );	
 			if($value!=null){
 				$id=$value[0]->msg_id;
-				$table_name = $this->db->prefix . "Emsfb_rsp_";
+				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
 				///get_current_user_id
 				foreach($content as $key=>$val){
@@ -990,7 +990,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.1.1')</script>";
+		return "<script>console.log('Easy Form Builder v3.2.0')</script>";
 	
 	  }//end function
 
@@ -1000,7 +1000,7 @@ class _Public {
 		//error_log($this->value);
 		if(isset($read)==false) $read=0;
 		$uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
-		$table_name = $this->db->prefix . "Emsfb_msg_";
+		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->name);
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
@@ -1017,7 +1017,7 @@ class _Public {
 
 	public function update_message_db(){
 		//error_log($this->id);
-		$table_name = $this->db->prefix . "Emsfb_msg_";
+		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->ip);
 
 		return $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0 ,  'ip'=>$this->ip ), array( 'track' => $this->id ) );
@@ -1110,7 +1110,7 @@ class _Public {
 				$m=sanitize_text_field($_POST['message']);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
-				$table_name = $this->db->prefix . "Emsfb_rsp_";				
+				$table_name = $this->db->prefix . "emsfb_rsp_";				
 				$ip =$this->get_ip_address();
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
@@ -1132,10 +1132,10 @@ class _Public {
 					$by = $usr->user_nicename;
 					//error_log($by);
 				}
-				$table_name = $this->db->prefix . "Emsfb_msg_";
+				$table_name = $this->db->prefix . "emsfb_msg_";
 				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
 				$form_id  = $value[0]->form_id;
-				$table_name = $this->db->prefix . "Emsfb_form";
+				$table_name = $this->db->prefix . "emsfb_form";
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 				$valn =str_replace('\\', '', $vald[0]->form_structer);
 				$valn= json_decode($valn,true);
@@ -1217,7 +1217,7 @@ class _Public {
 	 
 	
 	 
-	 $table_name = $this->db->prefix . "Emsfb_setting";
+	 $table_name = $this->db->prefix . "emsfb_setting";
  
  
 	 $value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
@@ -1303,7 +1303,7 @@ class _Public {
 		$val_ = sanitize_text_field($_POST['value']);
 		//error_log($this->id);
 		/* error_log($val_); */
-		$table_name = $this->db->prefix . "Emsfb_form";
+		$table_name = $this->db->prefix . "emsfb_form";
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		/* error_log($this->value[0]->form_structer); */
 		$fs =str_replace('\\', '', $this->value[0]->form_structer);
