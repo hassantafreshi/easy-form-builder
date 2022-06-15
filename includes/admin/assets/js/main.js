@@ -109,7 +109,7 @@ function myFunction() {
         '<strong>Copied to Clipboard</strong>' +
         '<button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>' +
         '</div>';
-    setTimeout(function () {
+    setTimeout(function () { 
         $('.alert').hide();
     }, 3000);
 }

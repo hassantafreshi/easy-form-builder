@@ -117,8 +117,8 @@ class Install {
 						}
 					}
 					if($s==true){										
-						$v = $wpdb->get_results("SELECT setting FROM  `$table_name_stng` ORDER BY id DESC LIMIT 1");
-						if(count($v) == 0){
+						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
+						if(count($v) == 0 ||$v=NULL){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));

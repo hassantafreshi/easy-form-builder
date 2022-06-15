@@ -60,9 +60,7 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
         }
-        else {
-            require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
-        }
+        
 
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
         //require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';

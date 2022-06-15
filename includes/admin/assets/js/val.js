@@ -838,7 +838,7 @@ function show_setting_window_efb(idset) {
 function remove_other_noti_Efb(){
   window.onload=(()=>{
     // remove all notifications from other plugins or wordpress
-      setTimeout(()=>{
+      setTimeout(() => { 
           for (const el of document.querySelectorAll(".notice")) {
               el.remove()
           }

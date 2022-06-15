@@ -18,7 +18,10 @@ class _Public {
 	public $id;
 	public $ip;
 	public $name;
+	public $setting;
 	protected $db;
+	public $efbFunction;
+	public $lanText;
 	
 	//private $wpdb;
 	
@@ -62,10 +65,10 @@ class _Public {
 		
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) ); 
 		add_action('init',  array($this, 'hide_toolmenu'));
+		$this->efbFunction = new efbFunction();  
+		$text= ["eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+		$this->lanText= $this->efbFunction->text_efb($text);
 		
-		$efbFunction = new efbFunction();  
-		$text= ["error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent"	];
-		$this->lanText= $efbFunction->text_efb($text);
 
 
 		
@@ -107,8 +110,8 @@ class _Public {
 		$this->public_scripts_and_css_head();
 		$state="";
 		//add_action('wp_enqueue_scripts', array($this,'public_scripts_and_css_head'));
-		//error_log('form Genrate');
-		$efbFunction = new efbFunction();  
+		
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		
 		$table_name = $this->db->prefix . "emsfb_form";
 		$pro=false;
@@ -143,8 +146,8 @@ class _Public {
 			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
 		
 		}
-		//error_log($paymentType);
-		$r= $this->get_setting_Emsfb('setting');
+		//error_log($this->setting);
+		$r= $this->setting!=NULL || empty($this->setting)==true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$paymentKey="null";
 		if(gettype($r)=="object"){
 			$setting =str_replace('\\', '', $r->setting);
@@ -167,8 +170,8 @@ class _Public {
 		$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 		$send=array();				
 		//translate v2
-		$showform =["offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","errorCode","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","minSelect","search","selectOption","copy","or","document","error", "somethingWentWrongTryAgain", "define", "loading", "trackingCode", "pleaseWaiting", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "fileSizeIsTooLarge", "documents", "document", "image", "media", "zip", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "enterThePhones", "pleaseWatchTutorial", "somethingWentWrongPleaseRefresh", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "enterThePassword", "PleaseFillForm", "selectOption", "selected", "selectedAllOption", "field", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "sync", "enterTheValueThisField", "thankYou", "login", "logout", "YouSubscribed", "send", "subscribe", "contactUs", "support", "send", "register", "passwordRecovery", "info", "areYouSureYouWantDeleteItem", "noComment", "waitingLoadingRecaptcha", "please", "itAppearedStepsEmpty", "youUseProElements", "fieldAvailableInProversion", "thisEmailNotificationReceive", "activeTrackingCode", "default", "defaultValue", "name", "latitude", "longitude", "previous", "next", "invalidEmail", "aPIkeyGoogleMapsError", "howToAddGoogleMap", "deletemarkers", "updateUrbrowser", "stars", "nothingSelected", "availableProVersion", "thanksFillingOutform", "finish", "select", "up", "red", "Red", "sending", "enterYourMessage", "name", "add", "code", "star", "form", "black", "pleaseReporProblem", "reportProblem", "ddate", "serverEmailAble", "sMTPNotWork", "aPIkeyGoogleMapsFeild","download" , "done", "copyTrackingcode", "copiedClipboard", "browseFile", "dragAndDropA", "fileIsNotRight", "on", "off", "settingsNfound", "lastName", "firstName", "contactusForm", "registerForm"];				
-		$text= $efbFunction->text_efb($showform);
+		$text =["eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+		$text= empty($this->lanText) || sizeof($this->lanText)<1 ? $efbFunction->text_efb($text) :$this->lanText;
 				
 				
 				
@@ -176,8 +179,6 @@ class _Public {
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
 				
 				$formObj= json_decode($fs,true);
-	
-				
 				if(($formObj[0]["stateForm"]==true || $formObj[0]["stateForm"]==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
 					$value="";
@@ -185,16 +186,11 @@ class _Public {
 				}else{
 					$formObj[0]["stateForm"] =false;
 				}
-				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 
+				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
 					$typeOfForm ="userIsLogin";
 					$user = wp_get_current_user();
-			//		$Value = $value->data;
 					$state="userIsLogin";
-				//	$poster = get_avatar_url(get_current_user_id());
-
-
-
 					$send['state']=true;
 					$send['display_name']=$user->data->display_name;
 					$send['user_email']=$user->data->user_email;
@@ -204,7 +200,6 @@ class _Public {
 					$send['user_image']=get_avatar_url(get_current_user_id());
 					$value=$send;
 				}
-				//error_log($state);
 		$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 		'ajax_value' =>$value,
 		 'type' => $typeOfForm,
@@ -222,10 +217,6 @@ class _Public {
 				'paymentGateway' =>$paymentType,
 				'paymentKey' => $paymentKey
 			));
-			/* 
-			$paymentType="";
-		    $paymentKey ='';
-			*/
 		}
 		wp_localize_script( 'core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
@@ -245,10 +236,8 @@ class _Public {
 				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				 wp_enqueue_script('googleMaps-js');
 			 }
-		 }
-		 $efb_m ="<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
-	
-		 if($pro==true) $efb_m="";
+		 }	
+		 $efb_m= $pro==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		 if($formObj[0]["stateForm"]==true){
 
 			
@@ -284,10 +273,10 @@ class _Public {
 		//Confirmation Code show
 		$lang = get_locale();
 
-				$efbFunction = new efbFunction();   
+				$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ; 
 				//translate v2
-				$text=["nextBillingD","download","trackingCode", "pleaseEnterTheTracking", "alert", "pleaseFillInRequiredFields", "error", "somethingWentWrongTryAgain", "define", "loading", "enterThePhone", "please", "pleaseMakeSureAllFields", "enterTheEmail", "formNotFound", "errorV01", "enterValidURL", "password8Chars", "somethingWentWrongPleaseRefresh", "enterThePhones", "registered", "yourInformationRegistered", "preview", "selectOpetionDisabled", "youNotPermissionUploadFile", "pleaseUploadA", "trackingForm", "trackingCodeIsNotValid", "checkedBoxIANotRobot", "messages", "pleaseWatchTutorial", "formIsNotShown", "errorVerifyingRecaptcha", "orClickHere", "sentSuccessfully", "thanksFillingOutform", "trackingCode", "waitingLoadingRecaptcha", "sync", "please", "entrTrkngNo", "search", "guest", "info", "response", "reply", "ddate", "by", "sending", "enterYourMessage", "finish", "youCantUseHTMLTagOrBlank", "error", "settingsNfound"];
-				$text= $efbFunction->text_efb($text);
+				$text=["eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+				$text= empty($this->lanText) || sizeof($this->lanText)<1 ? $efbFunction->text_efb($text) :$this->lanText;
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
@@ -331,8 +320,9 @@ class _Public {
 
 
 	function public_scripts_and_css_head(){
-	$efbFunction = new efbFunction(); 
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 	$r= $this->get_setting_Emsfb('setting');
+	$this->setting =$r;
 	$googleCaptcha=false;
 	$bootstrap =false;
 		if(gettype($r)=="object"){
@@ -830,7 +820,7 @@ class _Public {
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(0);
 			
-							//$r= $this->get_setting_Emsfb('setting');
+							
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>2){
@@ -854,7 +844,7 @@ class _Public {
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(0);
 			
-							//$r= $this->get_setting_Emsfb('setting');
+							
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
@@ -1205,7 +1195,7 @@ class _Public {
 	";
 	$cont=$message;
    }   
-   $efbFunction = new efbFunction(); 
+   $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
    $check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
 
 	}
@@ -1220,21 +1210,18 @@ class _Public {
 	 $table_name = $this->db->prefix . "emsfb_setting";
  
  
-	 $value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+	 $value = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
  	//error_log(gettype($value));
 	$rtrn;
 	$siteKey;
 	$trackingCode ="";
 	$mapKey="";
 	
-	if(count($value)>0){
+	if($value!= null){
 		//error_log('count($value)>0');
-		foreach($value[0] as $key=>$val){
-			$v =str_replace('\\', '', $val);
-			/* error_log(gettype($v ));
-			error_log($v); */
-		   $r =json_decode($v);
-		   $i=0;
+			$r =str_replace('\\', '', $value);
+			$r =json_decode($r);
+		
    
 		   foreach($r as $k=>$v){	   
 			   if($k=="siteKey" && $state=="pub"){				
@@ -1246,7 +1233,7 @@ class _Public {
 			   }
 		   }
 		   
-		} 
+		//} 
    
 	   if($state=="pub"){
 			
@@ -1263,12 +1250,7 @@ class _Public {
 	 return $rtrn;
 	}
 
-	public function pay_stripe_sub_Emsfb() {
-		
-        //error_log('pay_stripe_sub_Emsfb');
-        /* $efbFunction = new efbFunction();   
-        $text = ["error403","somethingWentWrongPleaseRefresh"];
-        $lang= $efbFunction->text_efb($text); */
+	public function pay_stripe_sub_Emsfb() {		
 		
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;

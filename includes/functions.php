@@ -347,7 +347,7 @@ class efbFunction {
 			"EnterSECRETKEY" => $state ? $ac->text->EnterSECRETKEY : __('Enter the SECRET KEY','easy-form-builder'),
 			"clearFiles" => $state ? $ac->text->clearFiles : __('Clear Files','easy-form-builder'),			
 			"enterActivateCode" => $state ? $ac->text->enterActivateCode : __('Enter the Activate Code','easy-form-builder'),			
-			"error" => $state ? $ac->text->error : __('Error,','easy-form-builder'),
+			"error" => $state ? $ac->text->error : __('Error','easy-form-builder'),
 			"somethingWentWrongTryAgain" => $state ? $ac->text->somethingWentWrongTryAgain : __('Something went wrong, Please refresh and try again','easy-form-builder'),										
 			"enterThePhone" => $state ? $ac->text->enterThePhone : __('Please Enter the phone number','easy-form-builder'),
 			"pleaseMakeSureAllFields" => $state ? $ac->text->pleaseMakeSureAllFields : __('Please make sure all fields are filled in correctly.','easy-form-builder'),
@@ -523,6 +523,7 @@ class efbFunction {
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
+			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : __('You have trouble with JQuery . Please contact to admin (Error code: JQ-500)','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
@@ -535,10 +536,18 @@ class efbFunction {
 		$rtrn =[];
 		$st="null";
 		if(gettype($inp) =="array"){
-			foreach ($inp as $key => $value) {
+			/* foreach ($inp as $key => $value) {
+				$filtered = array_filter($lang, function($v,$k) use ($value) { 
+					error_log($value , $k);
+					if($k==$value) return $
+				});
+			} */
+			$rtrn=array_intersect_key($lang, array_flip($inp));
+			error_log(json_encode($rtrn));
+	/* 		foreach ($inp as $key => $value) {
 				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
 				$rtrn +=["".$value.""=>"".$lang[$value].""];
-			}
+			} */
 
 		}else{
 			foreach ($lang as $key => $value) {
@@ -699,16 +708,21 @@ class efbFunction {
 	public function get_setting_Emsfb()
 	{			
 		$table_name = $this->db->prefix . "emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+		//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+		$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
 		$rtrn='null';
+		/* error_log(json_encode($value)); */
+		$v =str_replace('\\', '', $value);
+		$rtrn =json_decode($v);
+		$rtrn = $rtrn!=null ? $rtrn :'null';
 		
-		if(count($value)>0){		
+/* 		if(count($value)>0){		
 			foreach($value[0] as $key=>$val){
 			$v =str_replace('\\', '', $val);
 			$rtrn =json_decode($v);
 			break;
 			} 
-		}
+		} */
 		//error_log(json_encode($rtrn));
 		return $rtrn;
 	}
