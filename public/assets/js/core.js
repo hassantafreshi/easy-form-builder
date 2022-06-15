@@ -1286,7 +1286,6 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  //console.log(res);
   if (res.data.success == true) {
 
     //form_type_emsFormBuilder یک پیام مرتبت نشان دهد

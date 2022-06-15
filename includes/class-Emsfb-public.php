@@ -36,8 +36,7 @@ class _Public {
 		// اگر پرو بود و مقدار پیمنت  ترو بود اضافه شود
 		//
 		
-		
-		//add_action('init',  array($this,'modify_jquery'));
+		//modify_jquery_login_efb
 
 
 
@@ -186,19 +185,23 @@ class _Public {
 				}else{
 					$formObj[0]["stateForm"] =false;
 				}
-
-				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register") && is_user_logged_in()){
-					$typeOfForm ="userIsLogin";
-					$user = wp_get_current_user();
-					$state="userIsLogin";
-					$send['state']=true;
-					$send['display_name']=$user->data->display_name;
-					$send['user_email']=$user->data->user_email;
-					$send['user_login']=$user->data->user_login;
-					$send['user_nicename']=$user->data->user_nicename;
-					$send['user_registered']=$user->data->user_registered;
-					$send['user_image']=get_avatar_url(get_current_user_id());
-					$value=$send;
+				//modify_jquery_login_efb
+				error_log($this->value[0]->form_type);
+				if (($this->value[0]->form_type=="login" || $this->value[0]->form_type=="register")){
+					if( is_user_logged_in()){
+						$typeOfForm ="userIsLogin";
+						$user = wp_get_current_user();
+						$state="userIsLogin";
+						$send['state']=true;
+						$send['display_name']=$user->data->display_name;
+						$send['user_email']=$user->data->user_email;
+						$send['user_login']=$user->data->user_login;
+						$send['user_nicename']=$user->data->user_nicename;
+						$send['user_registered']=$user->data->user_registered;
+						$send['user_image']=get_avatar_url(get_current_user_id());
+						$value=$send;
+					}
+					//$this->modify_jquery_login_efb();
 				}
 		$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 		'ajax_value' =>$value,
@@ -237,7 +240,7 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }	
-		 $efb_m= $pro==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		 $efb_m= $pro!=true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		 if($formObj[0]["stateForm"]==true){
 
 			
@@ -731,9 +734,15 @@ class _Public {
 							$user = wp_signon( $creds, false );
 							if(isset($user->ID)){
 								$userID = $user->ID;
-								wp_set_current_user( $userID, $creds['user_login'] );
-								wp_set_auth_cookie( $userID, true, false );
-								do_action( 'wp_login', $creds['user_login'] );
+								do_action( 'wp_login', $creds['user_login'] ,$user );				
+								wp_set_current_user($user->ID );
+								wp_set_auth_cookie( $user->ID, true, false );
+								/* $redirect_to = $_SERVER['HTTP_REFERER'];
+								error_log($redirect_to);
+								wp_redirect($redirect_to);
+								header("Refresh:0"); */
+		
+
 
 								$send=array();
 								$send['state']=true;
@@ -743,8 +752,7 @@ class _Public {
 								$send['user_nicename']=$user->data->user_nicename;
 								$send['user_registered']=$user->data->user_registered;
 								$send['user_image']=get_avatar_url($user->data->ID);
-								$response = array( 'success' => true , 'm' =>$send); 
-								//error_log(json_encode($response));
+								$response = array( 'success' => true , 'm' =>$send); 								
 								wp_send_json_success($response,$_POST);
 							}else{
 								// user not login
@@ -1489,13 +1497,14 @@ class _Public {
 
 
 	
-	function modify_jquery() {
+	function modify_jquery_login_efb() {
 		//this function added jquery vesrion 3.5.1 for multiselect
-/* 		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
+		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
+			error_log('login!');
 			wp_deregister_script('jquery');
-			wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', false, '3.5.1');
+			wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/3.3.2/jquery.min.js', false, '3.3.2');
 			wp_enqueue_script('jquery');
-		} */
+		}
 	
 	}
 	public function load_textdomain(): void {
@@ -1506,6 +1515,8 @@ class _Public {
             EMSFB_PLUGIN_DIRECTORY . "/languages"
         );
     }
+
+	
 }
 
 new _Public();

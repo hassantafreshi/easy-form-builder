@@ -795,7 +795,7 @@ function show_setting_window_efb(idset) {
           ${iconEls('tyi')}
           ${thankYouMessageDoneEls}
           ${thankYouMessageEls}
-          ${thankYouMessageConfirmationCodeEls}
+          ${valj_efb[0].type!="register" ? thankYouMessageConfirmationCodeEls :''}
           </div>
           </div>        
       </div>
