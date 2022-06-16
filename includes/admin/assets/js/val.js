@@ -94,12 +94,14 @@ function show_setting_window_efb(idset) {
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
-    const thankYouMessageEls = `<label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.thankYouMessage}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : efb_var.text.thankYouMessage}">`;
-    const thankYouMessageDoneEls = `<label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}">`;
-    const thankYouMessageConfirmationCodeEls = `<label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}">`;
+    const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;
+    console.log(`form type[${valj_efb[0].type}]`,m_tankYouMessage);
+    const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
+    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
+    const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
+    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}"></div>`;
+    const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
+    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
     const thankYouMessageErrorEls = `<label for="thankYouMessageErrorEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.error} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.error}" id="thankYouMessageErrorEl" required value="${valj_efb[0].thank_you_message.error ? valj_efb[0].thank_you_message.error : efb_var.text.error}">`;
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
@@ -124,6 +126,18 @@ function show_setting_window_efb(idset) {
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
                         </select>`;
+
+      const thankYouTypeEls = `
+      <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-2 efb">${efb_var.text.landingTnx}</label>
+                        <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d efb-rounded"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">                                            
+                        <option value="rdrct" ${ valj_efb[0].thank_you == 'rdrct' ? `selected` : ''}>${efb_var.text.redirectPage}</option>                            
+                        <option value="msg" ${ valj_efb[0].thank_you == 'msg' ? `selected` : ''}>${efb_var.text.thankYouMessage}</option>
+                        </select>`;
+                       
+    const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
+    ${pro_efb==true ?"":funProEfb()}
+    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('redirectPage')"> </i></label> 
+    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">                                            
@@ -234,7 +248,7 @@ function show_setting_window_efb(idset) {
       //console.log(`valj_efb`,valj_efb);
       if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
       else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
-      else if ( side =='tyi') {
+      else if ( side =='tnx') {
        
         if(valj_efb[0].thank_you_message.hasOwnProperty('icon')){
           iset=idset=side="DoneIconEfb"; icon=valj_efb[0].thank_you_message.icon; t=`${efb_var.text.thankYou}`;
@@ -262,25 +276,25 @@ function show_setting_window_efb(idset) {
          iNo =bootstrap_icons.findIndex(x=>x==icon.replace('bi-',''));
       }
       //check for Nex and previous
-    
-      return `<label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0">${t} ${efb_var.text.icon} </label>
-      
-        
-        <div class="efb  listSelect my-2">     
-        <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded" id="iconEl" data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? icon :'None'}</div>
-        <i class="efb  efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="${iset}"></i>
-        <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
-        <table class="efb  table ${iset}">
-                <thead class="efb  efblist">
-                  <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
-                    <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
-                      <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
-                    </div></tr>
-                </thead> <tbody class="efb">
-                ${list}
-                </tbody></table>
-        </div>
-    </div>
+
+      return `
+      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0">${t} ${efb_var.text.icon} </label>
+          <div class="efb  listSelect my-2">     
+            <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded" id="iconEl" data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? icon :'None'}</div>
+            <i class="efb  efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="${iset}"></i>
+            <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
+            <table class="efb  table ${iset}">
+                    <thead class="efb  efblist">
+                      <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
+                        <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
+                          <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
+                        </div></tr>
+                    </thead> <tbody class="efb">
+                    ${list}
+                    </tbody></table>
+            </div>
+          </div>
+      </div>
         `
     }
   
@@ -793,10 +807,12 @@ function show_setting_window_efb(idset) {
       </div>
       <div class="efb mb-3 mt-3" id="collapseAdvanced">
               <div class="efb  mb-3 px-3 row">   
-          ${iconEls('tyi')}
-          ${thankYouMessageDoneEls}
-          ${thankYouMessageEls}
-          ${valj_efb[0].type!="register" ? thankYouMessageConfirmationCodeEls :''}
+          ${thankYouTypeEls}
+          ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
+          ${valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
+          ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
+          ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
+          ${thankYouredirectEls}
           </div>
           </div>        
       </div>

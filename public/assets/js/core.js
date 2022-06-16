@@ -1300,7 +1300,8 @@ function response_fill_form_efb(res) {
         break;
       case 'recovery':
       case 'register':
-        document.getElementById('efb-final-step').innerHTML = funTnxEfb('', '', res.data.m);
+        const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou : ajax_object_efm.text.checkYourEmail;
+        document.getElementById('efb-final-step').innerHTML = funTnxEfb('', '', );
         break;
       case 'login':
 

@@ -143,6 +143,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Create Advance form by using advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
 
+- Thank you page will be redirected after completing the form on your landing page or an URL.
+
 
 
 **New Forms Field of Easy Form Builder**
@@ -166,6 +168,7 @@ How *Easy Form Builder* makes your life easier:
 - *Link* : You can easily add links on WP forms.
 
 - *Offline form* : the offline form is feature save or resume forms before submit.
+
 
 
 **Payment Forms Field of Easy Form Builder**
@@ -256,6 +259,8 @@ Adding a multiple selection dropdown (Multiple Select field) to your WP forms al
 **Accept payment with Stripe**
 Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder and build your service payment form or order payment form.
 
+**Redirect page**
+Redirect page option on Easy Form Builder is thank you page and will have redirected after completing the form on your landing page or an URL.
 
 
 

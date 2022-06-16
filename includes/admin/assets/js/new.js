@@ -1156,7 +1156,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     `
     const proActiv = `⭐ 
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
-    <button type="button" class="efb btn efb btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
+    <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
     <i class="efb  bi-gem text-dark"> ${efb_var.text.pro}</i>`;
 
     ps = elementId == "html" ? 'col-md-12' : 'col-md-12'
@@ -1595,7 +1595,6 @@ let editFormEfb = () => {
   setTimeout(() => {
     dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
-
       try {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
@@ -3716,6 +3715,53 @@ let change_el_edit_Efb = (el) => {
         const sizef = el.options[el.selectedIndex].value
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
+        break;
+      case "thankYouTypeEl":
+        valj_efb[0].thank_you = el.options[el.selectedIndex].value;
+        const els =document.querySelectorAll(`.efb.tnxmsg`)
+        el = document.getElementById('tnxrdrct');
+        console.log(el);
+        console.log(valj_efb[0].thank_you ,els);
+
+        if(valj_efb[0].thank_you!='msg'){
+          for (let i = 0; i < els.length; i++) {
+            els[i].classList.remove('d-block');
+            els[i].classList.add('d-none');
+          }
+         el.classList.remove('d-none');
+         el.classList.add('d-block');
+        }else{
+          for (let i = 0; i < els.length; i++) {
+            els[i].classList.remove('d-none');
+            els[i].classList.add('d-block');
+          }
+          el.classList.remove('d-block');
+          el.classList.add('d-none');
+        }
+         if(pro_efb!=true){
+          //pro_show_efb(1);
+          valj_efb[0].thank_you ='msg';
+          valj_efb[0].rePage = '';
+        }
+        //const el_ = document.querySelectorAll(``)
+        break;
+      case "thankYouredirectEl":
+        postId = el.value.match(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi)
+        if(pro_efb!=true){
+          pro_show_efb(1);
+          valj_efb[0].thank_you ='msg';
+          valj_efb[0].rePage = '';
+          break;
+        }
+       if (postId != null) {      
+        valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');;
+        console.log(valj_efb[0].rePage)
+        valj_efb[0].thank_you ='rdrct';
+       }else{
+        valj_efb[0].thank_you ='msg';
+        valj_efb[0].rePage = '';
+        noti_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
+       }
         break;
       case "paymentGetWayEl":
         //console.log('paymentGetWayEl')

@@ -531,6 +531,8 @@ class efbFunction {
 			"advance" => $state  &&  isset($ac->text->advance) ? $ac->text->advance : __('Advance','easy-form-builder'),
 			"all" => $state  &&  isset($ac->text->all) ? $ac->text->all : __('All','easy-form-builder'),
 			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : __('New','easy-form-builder'),
+			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
+			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
