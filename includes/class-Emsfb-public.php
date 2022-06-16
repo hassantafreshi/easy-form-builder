@@ -669,7 +669,7 @@ class _Public {
 							$creds['user_login'] =esc_sql($username);
 							$creds['user_pass'] = esc_sql($password);
 							$creds['user_email'] = esc_sql($email);
-							$creds['role'] = 'subscriber';
+							$creds['role'] = 'subscriber';			
 							$state =wp_insert_user($creds);
 							$response;
 							//error_log(json_encode($state));							

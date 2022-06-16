@@ -524,6 +524,13 @@ class efbFunction {
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
 			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : __('You have trouble with JQuery . Please contact to admin (Error code: JQ-500)','easy-form-builder'),
+			"basic" => $state  &&  isset($ac->text->basic) ? $ac->text->basic : __('Basic','easy-form-builder'),
+			"blank" => $state  &&  isset($ac->text->blank) ? $ac->text->blank : __('Blank','easy-form-builder'),
+			"support" => $state  &&  isset($ac->text->support) ? $ac->text->support : __('Support','easy-form-builder'),
+			"signInUp" => $state  &&  isset($ac->text->signInUp) ? $ac->text->signInUp : __('Sign-In|Up','easy-form-builder'),
+			"advance" => $state  &&  isset($ac->text->advance) ? $ac->text->advance : __('Advance','easy-form-builder'),
+			"all" => $state  &&  isset($ac->text->all) ? $ac->text->all : __('All','easy-form-builder'),
+			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : __('New','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
@@ -543,7 +550,7 @@ class efbFunction {
 				});
 			} */
 			$rtrn=array_intersect_key($lang, array_flip($inp));
-			error_log(json_encode($rtrn));
+			//error_log(json_encode($rtrn));
 	/* 		foreach ($inp as $key => $value) {
 				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
 				$rtrn +=["".$value.""=>"".$lang[$value].""];

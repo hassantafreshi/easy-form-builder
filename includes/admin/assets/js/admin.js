@@ -205,10 +205,23 @@ function getOS_emsFormBuilder() {
 
 createCardFormEfb = (i) => {
   //console.log(i,efb_var);
+      Array.prototype.uniqueEfb = function() {
+        var a = this.concat();
+        for(var i=0; i<a.length; ++i) {
+            for(var j=i+1; j<a.length; ++j) {
+                if(a[i] === a[j])
+                    a.splice(j--, 1);
+            }
+        }
+        return a;
+    };
+  //const tags = ;
+  tag_efb =tag_efb.concat(i.tag.split(' ')).uniqueEfb();
+  console.log(tag_efb);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
   return `
-  <div class="efb  col ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${i.pro == true && efb_var.pro != true ? `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>` : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
@@ -218,24 +231,24 @@ createCardFormEfb = (i) => {
 }
 
 const boxs_efb = [
-  { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'blank', pro: false },
-  { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'contactUs', pro: false },
-  { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'payment pay', pro: true },
-  { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'support feedback', pro: false },
-  { id: 'survey', title: efb_var.text.survey, desc: efb_var.text.createsurveyForm, status: true, icon: 'bi-bar-chart-line', tag: 'survey', pro: false },
-  { id: 'contactTemplate', title: efb_var.text.contactusTemplate, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'contactUs', pro: false },
-  { id: 'curvedContactTemplate', title: `${efb_var.text.curved} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'contactUs', pro: false },
-  { id: 'multipleStepContactTemplate', title: `${efb_var.text.multiStep} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'contactUs', pro: false },
-  { id: 'privateContactTemplate', title: `${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'contactUs', pro: false },
-  { id: 'customerFeedback', title: efb_var.text.customerFeedback, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'support feedback', pro: false },
-  { id: 'supportTicketForm', title: efb_var.text.supportTicketF, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'support feedback', pro: false },
-  { id: 'orderForm', title: `${efb_var.text.purchaseOrder} ${efb_var.text.payment}`, desc: efb_var.text.purchaseOrder, status: true, icon: 'bi-bag', tag: 'payment pay order', pro: true },
-  { id: 'register', title: efb_var.text.registerForm, desc: efb_var.text.createRegistrationForm, status: true, icon: 'bi-person-plus', tag: 'register', pro: false },
-  { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'login', pro: false },
-  { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'subscription', pro: false },
+  { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
+  { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'all payment new', pro: true },
+  { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
+  { id: 'survey', title: efb_var.text.survey, desc: efb_var.text.createsurveyForm, status: true, icon: 'bi-bar-chart-line', tag: 'all survey', pro: false },
+  { id: 'contactTemplate', title: efb_var.text.contactusTemplate, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'curvedContactTemplate', title: `${efb_var.text.curved} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'multipleStepContactTemplate', title: `${efb_var.text.multiStep} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'privateContactTemplate', title: `${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'customerFeedback', title: efb_var.text.customerFeedback, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
+  { id: 'supportTicketForm', title: efb_var.text.supportTicketF, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
+  { id: 'orderForm', title: `${efb_var.text.purchaseOrder} ${efb_var.text.payment}`, desc: efb_var.text.purchaseOrder, status: true, icon: 'bi-bag', tag: 'all payment', pro: true },
+  { id: 'register', title: efb_var.text.registerForm, desc: efb_var.text.createRegistrationForm, status: true, icon: 'bi-person-plus', tag: 'all signInUp', pro: false },
+  { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'all signInUp', pro: false },
+  { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
   /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
 ]//supportTicketF
-
+let tag_efb=[];
 function add_dasboard_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
@@ -243,6 +256,21 @@ function add_dasboard_emsFormBuilder() {
 
     value += createCardFormEfb(i)
   }
+  let cardtitles = `<!-- card titles -->`;
+  for (let i of tag_efb) {
+    console.log(i);
+    cardtitles += `
+    <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
+      <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
+    </li>
+    `
+  }
+console.log(efb_var.text)
+ cardtitles = `
+    <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
+    <hr class="efb hr">
+    </ul>
+    `
 
   document.getElementById('tab_container_efb').innerHTML = `
 
@@ -251,8 +279,11 @@ function add_dasboard_emsFormBuilder() {
           ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` : ''}
           <div class="efb d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
+            
           </div
-            <div class="efb row"><div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb row">
+            ${cardtitles}
+            <div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
             </section>`
 
 

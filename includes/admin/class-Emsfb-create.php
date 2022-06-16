@@ -112,8 +112,8 @@ class Create {
 					/* wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
 					wp_enqueue_script('whitestudio-admin-pro-js'); */
 
-					wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-					wp_enqueue_script('stripe-js');
+					/* wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+					wp_enqueue_script('stripe-js'); */
 					
 			}
 
