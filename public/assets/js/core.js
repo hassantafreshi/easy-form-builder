@@ -1027,7 +1027,6 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       }
 
     } else if (c.type == "esign") {
-      console.log('esign');
       //console.log(c.value);
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
@@ -1277,7 +1276,6 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
   if (res.data.success == true) {
 
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){

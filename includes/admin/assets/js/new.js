@@ -120,7 +120,7 @@ const show_modal_efb = (body, title, icon, type) => {
   //console.log(myModal);
   document.getElementById("settingModalEfb-title").innerHTML = title;
   document.getElementById("settingModalEfb-icon").className = icon + ` mx-2`;
-  document.getElementById("settingModalEfb-body").innerHTML = body
+  document.getElementById("settingModalEfb-body").innerHTML = body;
   if (type == "settingBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.contains('modal-new-efb') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new-efb')
@@ -1539,7 +1539,7 @@ const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-squa
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
-const headSizeEfb = (classes, value) => { console.log(classes); return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
+const headSizeEfb = (classes, value) => { return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
@@ -2684,7 +2684,6 @@ function gm_authFailure() {
 }
 
 function funTnxEfb(val, title, message) {
-  console.log(message);
   const done = valj_efb[0].thank_you_message.done || efb_var.text.done
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
   const t = title ? title : done;
@@ -3721,8 +3720,6 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
         const els =document.querySelectorAll(`.efb.tnxmsg`)
         el = document.getElementById('tnxrdrct');
-        console.log(el);
-        console.log(valj_efb[0].thank_you ,els);
 
         if(valj_efb[0].thank_you!='msg'){
           for (let i = 0; i < els.length; i++) {
@@ -3756,7 +3753,6 @@ let change_el_edit_Efb = (el) => {
         }
        if (postId != null) {      
         valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');;
-        console.log(valj_efb[0].rePage)
         valj_efb[0].thank_you ='rdrct';
        }else{
         valj_efb[0].thank_you ='msg';
@@ -4112,11 +4108,7 @@ let change_el_edit_Efb = (el) => {
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
-            //radio || checkbox  
-            /* console.log('radio || checkbox');
-           console.log(document.querySelector(`[data-op="${el.dataset.id}"]`).value);
-           console.log(document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML); 
-           console.log(document.querySelector(`[data-op="${el.dataset.id}"]`).value , document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML) */
+            //radio || checkbox          
             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           }

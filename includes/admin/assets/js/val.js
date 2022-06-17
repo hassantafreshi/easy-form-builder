@@ -95,8 +95,7 @@ function show_setting_window_efb(idset) {
     <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
-    const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;
-    console.log(`form type[${valj_efb[0].type}]`,m_tankYouMessage);
+    const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;    
     const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
     const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
@@ -920,7 +919,6 @@ function creator_form_builder_Efb() {
   let nav = "<!--efb.app-->";
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      console.log(ob,navs[ob]);
       nav += `<li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
@@ -977,7 +975,6 @@ function creator_form_builder_Efb() {
 }
 
 function funUpdateLisetElEfb(cat){
-  console.log(cat);
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);
   //efb nav-link cat fs-6 efb basic
@@ -1001,7 +998,6 @@ change_visible_el_efb=(cat)=>{
 }
 
 function funUpdateLisetcardTitleEfb(cat){
-  console.log(cat);
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);
 }

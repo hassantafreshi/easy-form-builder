@@ -155,7 +155,7 @@ function emsFormBuilder_show_content_message(id) {
   const date = valueJson_ws_messages[indx].date;
   const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
   let m = "<--messages-->"
-  console.log(valueJson_ws_messages[indx]);
+  //console.log(valueJson_ws_messages[indx]);
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
@@ -241,8 +241,6 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-  //response7788  
-  console.log(by);
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
    <p class="efb small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
@@ -261,7 +259,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       list.push(c.url);
       $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
-      console.log($name, c.type, "URL", c.url);
+      //console.log($name, c.type, "URL", c.url);
       if (c.type == "Image" || c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document") {
@@ -286,12 +284,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
 
     } else if (c.type == "esign") {
-      console.log('esign');
-      console.log(c.value);
+     
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m += value;
-      console.log(value);
+      
     } else if (c.type == "maps") {
 
       if (typeof (c.value) == "object") {
@@ -375,8 +372,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 function fun_ws_show_list_messages(value) {
   //v2
-  // show list of filled out of the form;
-  console.log(form_type_emsFormBuilder);
+  
   let rows = '';
   let no = 1;
   let head = `<!-- rows -->`;
@@ -478,7 +474,7 @@ function fun_delete_form_with_id_by_server(id) {
 
 function emsFormBuilder_messages(id) {
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
-  console.log(id, ajax_object_efm, row)
+  
   form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
@@ -635,7 +631,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
-  console.log(by)
+
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
@@ -1316,15 +1312,13 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(v.content.replace(/[\\]/g, ''))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
-    console.log(`i_count F[${i_count}]`);
+    
     let countMultiNo = [];
     let NoMulti = [];
 
-    console.log(v);
+   
     for (c in content) {
-      console.log(content[c]);
-      console.log(`i_count Fb[${i_count}]`, rows[i_count][1], rows[i_count][1] == "null@EFB", rows[0][1] == efb_var.text.trackNo);
-      //tc if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count X[${i_count}]`);  rows[i_count][1] = v.track;}
+    
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       //console.log(c,content[c]);
@@ -1332,7 +1326,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
         && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect') {
 
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-        //if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count ![${i_count}]`);  rows[i_count][1] = v.track;}
+        
 
         value_col_index = rows[0].findIndex(x => x == content[c].name);
 
@@ -1697,7 +1691,7 @@ function email_template_efb(s) {
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.notFound}</p></div>`
       //show_modal_efb(``, ti, '', 'saveBox');
     } else {
-      ti = efb_var.text.preview
+      ti = efb_var.text.preview;
     }
     show_modal_efb(c, ti, '', 'saveBox');
     const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -1782,8 +1776,10 @@ function fun_add_email_template_efb(i) {
 }
 
 function funNproEmailTemp() {
+  ws = "https://whitestudio.team/";
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
 }
+

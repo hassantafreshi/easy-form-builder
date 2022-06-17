@@ -963,7 +963,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.2.0')</script>";
+		return "<script>console.log('Easy Form Builder v3.2.1')</script>";
 	
 	  }//end function
 
