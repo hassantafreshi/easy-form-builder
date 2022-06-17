@@ -155,6 +155,7 @@ function emsFormBuilder_show_content_message(id) {
   const date = valueJson_ws_messages[indx].date;
   const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
   let m = "<--messages-->"
+  console.log(valueJson_ws_messages[indx]);
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
@@ -241,6 +242,7 @@ function fun_emsFormBuilder_back() {
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   //response7788  
+  console.log(by);
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
    <p class="efb small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
@@ -404,10 +406,11 @@ function fun_ws_show_list_messages(value) {
   if (value.length > 0) {
     for (const v of value) {
       let state = Number(v.read_);
+      $txtColor = state==2 ? 'text-danger' :'';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
-         <th scope="row" class="efb ">${v.track}</th>
-         <td class="efb ">${v.date}</td>
+         <th scope="row" class="efb ${$txtColor}">${v.track}</th>
+         <td class="efb ${$txtColor}">${v.date}</td>
             <td class="efb "> 
             <button type="button" class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" >
              ${Number(state) == 0 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</button>
@@ -632,6 +635,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
+  console.log(by)
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
@@ -640,6 +644,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 
 function fun_ws_show_response(value) {
   for (v of value) {
+    
     const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
   }

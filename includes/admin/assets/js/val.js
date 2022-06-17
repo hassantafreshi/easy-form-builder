@@ -15,8 +15,8 @@ const fields_efb = [
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false , tag:'basic all'},
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false, tag:'advance all' }, 
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
-  { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'basic all' },
-  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'basic all' },
+  { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
+  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
@@ -94,14 +94,15 @@ function show_setting_window_efb(idset) {
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
+    let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;
     console.log(`form type[${valj_efb[0].type}]`,m_tankYouMessage);
     const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
     const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}"></div>`;
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}"></div>`;
     const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
     const thankYouMessageErrorEls = `<label for="thankYouMessageErrorEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.error} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.error}" id="thankYouMessageErrorEl" required value="${valj_efb[0].thank_you_message.error ? valj_efb[0].thank_you_message.error : efb_var.text.error}">`;
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
@@ -809,7 +810,7 @@ function show_setting_window_efb(idset) {
               <div class="efb  mb-3 px-3 row">   
           ${thankYouTypeEls}
           ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
-          ${valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
+          ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
           ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
           ${thankYouredirectEls}

@@ -28,9 +28,6 @@ setTimeout(() => {
   (function () {
 
     jQuery(function () {
-      //789 امنیت باید اضافه شود به این قسمت
-
-
       if (typeof ajax_object_efm == 'undefined') return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       //console.log(ajax_object_efm.state);
@@ -53,16 +50,10 @@ setTimeout(() => {
             form_type_emsFormBuilder = ajax_object_efm.type;
           }
         }
-      }
-
-      //console.log(ajax_object_efm);
-      //  if((sitekye_emsFormBuilder!==null && sitekye_emsFormBuilder.length>0) && ajax_object_efm.state!=='settingError' ){
+      }    
       if (ajax_object_efm.state !== 'settingError') {
-
         if (ajax_object_efm.state == 'form') {
-
-
-          fun_render_view(ajax_object_efm.ajax_value, 1);
+          fun_render_view_efb(ajax_object_efm.ajax_value, 1);
         } else if (ajax_object_efm.state == 'tracker') {
           //console.log(`ajax_object_efm.state`,ajax_object_efm.state);
           fun_tracking_show_emsFormBuilder()
@@ -100,7 +91,7 @@ var opetionSelect_emsFormBuilder = function (data) {
 }
 /* new code multiSelect end */
 
-function fun_render_view(val, check) {
+function fun_render_view_efb(val, check) {
 
   let options_multiSelect = [];
   exportView_emsFormBuilder = [];
@@ -1286,8 +1277,17 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
+  console.log(res);
   if (res.data.success == true) {
 
+    if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
+      document.getElementById('efb-final-step').innerHTML = `
+      <h3 class="efb ">${efb_var.text.sentSuccessfully}</h3>
+      <h3 class="efb">Please wait while redirected <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      `      
+      window.location.href = res.data.m;
+      return ;
+    }
     //form_type_emsFormBuilder یک پیام مرتبت نشان دهد
     switch (form_type_emsFormBuilder) {
       case 'form':
@@ -1300,8 +1300,8 @@ function response_fill_form_efb(res) {
         break;
       case 'recovery':
       case 'register':
-        const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou : ajax_object_efm.text.checkYourEmail;
-        document.getElementById('efb-final-step').innerHTML = funTnxEfb('', '', );
+        const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message : ajax_object_efm.text.checkYourEmail;
+        document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',m );
         break;
       case 'login':
 
@@ -1321,7 +1321,6 @@ function response_fill_form_efb(res) {
               </div>
               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
               `;
-
         }
         break;
       case "logout":
@@ -1330,12 +1329,9 @@ function response_fill_form_efb(res) {
 
     }
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView(true);
-    //  window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
-
-
   }
 
 }
@@ -1394,7 +1390,6 @@ function loadCaptcha_efb() {
       this.loadCaptcha_efb();
     }, 500);
   } else {
-    //
     if (valj_efb[0].steps == 1) { document.getElementById('btn_send_efb').classList.toggle('disabled'); }
     grecaptcha.render('gRecaptcha', {
       'sitekey': sitekye_emsFormBuilder
@@ -1415,7 +1410,6 @@ function fun_total_pay_efb() {
   }
 
   for (let r of sendBack_emsFormBuilder_pub) {
-    //console.log(r.price, typeof r.price);
     if (typeof r.price == "string" || typeof r.price == "number") total += parseFloat(r.price)
   }
   setTimeout(() => { updateTotal(total); }, 800);

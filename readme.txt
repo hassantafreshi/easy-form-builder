@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.2.0
+Stable tag: 			3.2.1
 Requires at least: 	      4.7
 Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
@@ -333,7 +333,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
-= 3.1.2 =
+
+= 3.2.1 = 
+* Added new options to form builder: redirecet to thank you page or URL
+* login form
+
+= 3.2.0 =
 * rename table names
 * Fixed issues about rtl language
 

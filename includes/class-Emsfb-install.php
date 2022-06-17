@@ -83,7 +83,7 @@ class Install {
 							`content` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,		
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-							`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
+							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							PRIMARY KEY  (msg_id)
 						) {$charset_collate};";
@@ -98,7 +98,7 @@ class Install {
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-							`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL, 
+							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL, 
 							`reader_ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`rsp_by` int(1) COLLATE utf8mb4_unicode_ci NOT NULL, 
 							PRIMARY KEY  (rsp_id)

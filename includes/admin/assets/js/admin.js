@@ -44,7 +44,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function Link_emsFormBuilder(state) {
-  let link = 'https://whitestudio.team/documents/'
+  let link = 'https://whitestudio.team/document/'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
   switch (state) {
     case 'publishForm':
@@ -70,9 +70,12 @@ function Link_emsFormBuilder(state) {
     case 'EmailNoti':
       link += "How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
       break;
+    case 'redirectPage':
+      link += "how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
+    break;
   }
   //console.log(link);
-  window.open(link, "_blank")
+  window.open(link, "_blank");
 }
 
 

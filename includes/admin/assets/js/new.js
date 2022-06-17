@@ -1549,7 +1549,7 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 
 const open_whiteStudio_efb = (state) => {
 
-  let link = `https://whitestudio.team/documents/`
+  let link = `https://whitestudio.team/documents/`;
 
   switch (state) {
     case 'mapErorr':
@@ -1577,6 +1577,7 @@ const open_whiteStudio_efb = (state) => {
 
 
   }
+  
   window.open(link, "_blank")
 }
 
@@ -2683,7 +2684,7 @@ function gm_authFailure() {
 }
 
 function funTnxEfb(val, title, message) {
-
+  console.log(message);
   const done = valj_efb[0].thank_you_message.done || efb_var.text.done
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
   const t = title ? title : done;

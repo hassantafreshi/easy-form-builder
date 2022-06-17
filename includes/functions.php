@@ -22,18 +22,11 @@ class efbFunction {
 		
     }
 
-	function test_call_efb(){
-		//error_log('test functions Coll Done!');
-
-		
-	}
 
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!==null && isset($ac->text) ? true : false ;
-	//	error_log($ac);
-		
+		$state= $ac!==null && isset($ac->text) ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -533,6 +526,7 @@ class efbFunction {
 			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : __('New','easy-form-builder'),
 			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
+			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 			
