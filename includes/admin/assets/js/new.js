@@ -1549,7 +1549,7 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 
 const open_whiteStudio_efb = (state) => {
 
-  let link = `https://whitestudio.team/documents/`;
+  let link = `https://whitestudio.team/document/`;
 
   switch (state) {
     case 'mapErorr':
@@ -2642,7 +2642,7 @@ function ReadyElForViewEfb(content) {
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 if (localStorage.getItem('count_view') >= 0 && localStorage.getItem('count_view') < 3 && typeof efb_var == "object" && efb_var.maps != "1") {
-  setTimeout(() => { noti_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
+ // setTimeout(() => { noti_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
 }
 
 

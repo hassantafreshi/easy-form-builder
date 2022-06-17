@@ -208,7 +208,7 @@ function getOS_emsFormBuilder() {
 
 createCardFormEfb = (i) => {
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
-  console.log(tag_efb);
+  //console.log(tag_efb);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
   return `
@@ -249,14 +249,14 @@ function add_dasboard_emsFormBuilder() {
   }
   let cardtitles = `<!-- card titles -->`;
   for (let i of tag_efb) {
-    console.log(i);
+    //console.log(i);
     cardtitles += `
     <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
       <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
     </li>
     `
   }
-console.log(efb_var.text)
+//console.log(efb_var.text)
  cardtitles = `
     <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
     <hr class="efb hr">

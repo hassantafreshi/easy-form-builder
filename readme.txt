@@ -262,12 +262,11 @@ Taking payments form with integration Stripe Just Enter Public and Secret key on
 **Redirect page**
 Redirect page option on Easy Form Builder is thank you page and will have redirected after completing the form on your landing page or an URL.
 
-
-
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
 
 **Notice** : In each page you would not add more than ONE form.
+
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).

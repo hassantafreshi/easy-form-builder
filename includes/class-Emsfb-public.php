@@ -401,9 +401,7 @@ class _Public {
 			$email_user="null";
 			$not_captcha=$formObj[0]["captcha"];
 			if($formObj[0]["thank_you"]=="rdrct"){
-				$rePage= preg_replace('/(http:@efb@)+/','http://',$formObj[0]["rePage"]);
-				$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
-				$rePage =preg_replace('/(@efb@)+/','/',$rePage);
+				$rePage= $this->string_to_url($formObj[0]["rePage"]);
 			}
 			//error_log($rePage);
 			
@@ -412,6 +410,7 @@ class _Public {
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$_POST);
 		}
+
 	
 	
 
@@ -553,9 +552,11 @@ class _Public {
 									wp_send_json_success($response,$_POST);
 									die();
 								}
-								/* error_log("table");
-								error_log($fs) */;
+								
 								$fs = json_decode ($fs,true);
+								if($fs[0]["thank_you"]=="rdrct"){
+									$rePage= $this->string_to_url($fs[0]["rePage"]);								
+								}
 								$valobj =[] ;
 								foreach ($fs as $f){
 								$it= array_filter($filtered, function($item) use ($f) { 							
@@ -608,7 +609,8 @@ class _Public {
 								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							}
-					 
+							
+							
 							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$this->id  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
 							if($rePage!="null" && $check == 1){$response = array( 'success' => true  ,'m'=>$rePage); }
@@ -1483,6 +1485,15 @@ class _Public {
             EMSFB_PLUGIN_DIRECTORY . "/languages"
         );
     }
+	
+	public function string_to_url($string) {
+		
+			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
+			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
+			$rePage =preg_replace('/(@efb@)+/','/',$rePage);
+	
+		return $rePage;
+	}
 
 	
 }

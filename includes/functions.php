@@ -527,11 +527,7 @@ class efbFunction {
 			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
-			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-			
-			
-
-
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
 
@@ -568,8 +564,6 @@ class efbFunction {
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
 				$message = $this->email_template_efb($pro,$state,$cont);  
-			//	error_log("message");
-				//error_log($message);
 				if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $message, $headers );
 				//$mailResult = wp_mail( $support,$sub, $message, $headers);
 				if($state=="reportProblem" || $state =="testMailServer" )
@@ -585,20 +579,12 @@ class efbFunction {
 	public function email_template_efb($pro, $state, $m){
 		
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
-        $lang= $this->text_efb($text);		
-		
-		$footer= "
-		<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
+        $lang= $this->text_efb($text);				
+		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
 		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
-		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>
-		";
-		//$header = " <a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px; width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
+		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	
 		if($pro!="not pro"){
-			
-			//$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
-			//<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a>
-			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";
-			//$header = " <a class='efb subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
+			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		}   
 		
 		$st = $this->get_setting_Emsfb();
@@ -618,7 +604,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color:white; background-color'>".$lang["getProVersion"]."</a></button>";
+			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
@@ -650,7 +636,8 @@ class efbFunction {
 					
 				</td></tr></tbody></center></td>
 			</tr></table>
-			</center> ".$footer."
+			</center>
+			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
 		</body></html>
 			";
 			if($temp!="0"){
@@ -669,8 +656,7 @@ class efbFunction {
 			//	error_log($temp);
 				$val =  $temp;
 			}
-			//($val);
-			error_log($val);
+			
 			return $val;
 	}
 
@@ -688,16 +674,7 @@ class efbFunction {
 		/* error_log(json_encode($value)); */
 		$v =str_replace('\\', '', $value);
 		$rtrn =json_decode($v);
-		$rtrn = $rtrn!=null ? $rtrn :'null';
-		
-/* 		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$v =str_replace('\\', '', $val);
-			$rtrn =json_decode($v);
-			break;
-			} 
-		} */
-		//error_log(json_encode($rtrn));
+		$rtrn = $rtrn!=null ? $rtrn :'null';	
 		return $rtrn;
 	}
 
