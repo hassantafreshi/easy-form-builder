@@ -42,7 +42,7 @@ class Emsfb {
      * Load plugin textdomain.
      */
     public function load_textdomain(): void {
-       
+        
         load_plugin_textdomain(
             EMSFB_PLUGIN_TEXTDOMAIN,
             false,
@@ -59,10 +59,9 @@ class Emsfb {
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
+            
         }
-        else {
-            require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
-        }
+        
 
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
         //require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';

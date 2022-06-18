@@ -34,8 +34,8 @@ class Admin {
             include(ABSPATH . "wp-includes/pluggable.php");
            
         }
-        
-    
+       
+       // apply_filters( 'the_content', [$this,'check_shortCode'] );
         // Add plugin caps to admin role
         if (is_admin() and is_super_admin()) {
             $this->add_cap();
@@ -50,7 +50,7 @@ class Admin {
         //$current_user->display_name
         if (is_admin()) {
             // برای نوشتن انواع اکشن مربوط به حذف و اضافه اینجا انجام شود
-
+           
             if (!function_exists('get_plugin_data')) {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
             }
@@ -135,13 +135,6 @@ class Admin {
             wp_enqueue_style('Font_Roboto');
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
-
-
-
-                //code_v2 start
-                
-            
-                
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
                  wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true);
@@ -149,11 +142,6 @@ class Admin {
                 
                 wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
-
-                
-
-                //code_v2 end
-
         }
     }
 
@@ -163,12 +151,6 @@ class Admin {
     public function admin_menu() {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
-
-        
-
-        
-
-      //  add_menu_page(__('Panel', 'Emsfb'),__('Panel', 'Emsfb'), 'Emsfb', '', '');
         add_menu_page(
             __('Panel', 'Emsfb'),
             $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
@@ -291,7 +273,7 @@ class Admin {
         $id = number_format($_POST['id']);
 
         $table_name = $this->db->prefix . "emsfb_msg_";
-        $r          = $this->db->update($table_name, ['read_' => 1, 'read_by' => get_current_user_id(), 'read_date' => current_time('mysql')], ['msg_id' => $id]);
+        $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => current_time('mysql')], ['msg_id' => $id]);
 
         $m =   $lang["updated"];
         $response = ['success' => true, 'r' =>"updated"];
@@ -529,27 +511,12 @@ class Admin {
                     wp_send_json_success($response, $_POST);
                     die();
                 }
-                //error_log('end if');
+        
             } 
-         /*    else{
-                $m[$key] = sanitize_text_field($value);
-            } */
+
  
         }
-        //echo $table_name;
-      //  error_log(strval(strpos($setting ,'emailTemp')));
-       
-/*             if(strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_shortcode_email')==false ){
-                $m = $lang["addSCEmailM"];
-            //    $m = "lang[addSCEmailM]";
-            error_log($m);
-                $response = ['success' => false, "m" =>$m];
-                wp_send_json_success($response, $_POST);
-                die();
-            }
-     */
-        
-       // error_log($setting);
+ 
         $this->db->insert(
             $table_name,
             [
@@ -740,10 +707,6 @@ class Admin {
         $rtrn       = 'null';
         return $value;
     }
-
-
-
-
    
 
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }

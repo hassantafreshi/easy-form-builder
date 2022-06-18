@@ -22,18 +22,11 @@ class efbFunction {
 		
     }
 
-	function test_call_efb(){
-		//error_log('test functions Coll Done!');
-
-		
-	}
 
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!==null && isset($ac->text) ? true : false ;
-	//	error_log($ac);
-		
+		$state= $ac!==null && isset($ac->text) ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -347,7 +340,7 @@ class efbFunction {
 			"EnterSECRETKEY" => $state ? $ac->text->EnterSECRETKEY : __('Enter the SECRET KEY','easy-form-builder'),
 			"clearFiles" => $state ? $ac->text->clearFiles : __('Clear Files','easy-form-builder'),			
 			"enterActivateCode" => $state ? $ac->text->enterActivateCode : __('Enter the Activate Code','easy-form-builder'),			
-			"error" => $state ? $ac->text->error : __('Error,','easy-form-builder'),
+			"error" => $state ? $ac->text->error : __('Error','easy-form-builder'),
 			"somethingWentWrongTryAgain" => $state ? $ac->text->somethingWentWrongTryAgain : __('Something went wrong, Please refresh and try again','easy-form-builder'),										
 			"enterThePhone" => $state ? $ac->text->enterThePhone : __('Please Enter the phone number','easy-form-builder'),
 			"pleaseMakeSureAllFields" => $state ? $ac->text->pleaseMakeSureAllFields : __('Please make sure all fields are filled in correctly.','easy-form-builder'),
@@ -523,11 +516,18 @@ class efbFunction {
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
-			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-			
-			
-
-
+			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : __('You have trouble with JQuery . Please contact to admin (Error code: JQ-500)','easy-form-builder'),
+			"basic" => $state  &&  isset($ac->text->basic) ? $ac->text->basic : __('Basic','easy-form-builder'),
+			"blank" => $state  &&  isset($ac->text->blank) ? $ac->text->blank : __('Blank','easy-form-builder'),
+			"support" => $state  &&  isset($ac->text->support) ? $ac->text->support : __('Support','easy-form-builder'),
+			"signInUp" => $state  &&  isset($ac->text->signInUp) ? $ac->text->signInUp : __('Sign-In|Up','easy-form-builder'),
+			"advance" => $state  &&  isset($ac->text->advance) ? $ac->text->advance : __('Advance','easy-form-builder'),
+			"all" => $state  &&  isset($ac->text->all) ? $ac->text->all : __('All','easy-form-builder'),
+			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : __('New','easy-form-builder'),
+			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
+			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
+			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
 
@@ -535,23 +535,12 @@ class efbFunction {
 		$rtrn =[];
 		$st="null";
 		if(gettype($inp) =="array"){
-			foreach ($inp as $key => $value) {
-				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
-				$rtrn +=["".$value.""=>"".$lang[$value].""];
-			}
-
+			$rtrn=array_intersect_key($lang, array_flip($inp));
 		}else{
-			foreach ($lang as $key => $value) {
-				//	$rtrn +=["".$value.""=>"".str_replace('"' ,"'","".$lang[$value]).""];
-				/* errorlog($value);
-				errorlog($key); */
-				$rtrn +=["".$key.""=>"".$value.""];
-			}
+			$rtrn=$lang;
 		}
 		array_push($rtrn);
-		
-		//error_log(json_encode($rtrn));
-			return $rtrn;
+		return $rtrn;
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state){
@@ -575,8 +564,6 @@ class efbFunction {
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
 				$message = $this->email_template_efb($pro,$state,$cont);  
-			//	error_log("message");
-				//error_log($message);
 				if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $message, $headers );
 				//$mailResult = wp_mail( $support,$sub, $message, $headers);
 				if($state=="reportProblem" || $state =="testMailServer" )
@@ -592,14 +579,12 @@ class efbFunction {
 	public function email_template_efb($pro, $state, $m){
 		
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
-        $lang= $this->text_efb($text);		
-		
-		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px;  width:16px;height:16px' > ".  __('Easy Form Builder' , 'easy-form-builder')."</a> <br>
-		<a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'> <image src='https://plugins.svn.wordpress.org/easy-form-builder/assets/ws.png' style='margin:0px 5px; width:16px;height:16px'>". $lang["createdBy"]. " White Studio Team</a>";
-		$header = " <a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'> <img src='https://plugins.svn.wordpress.org/easy-form-builder/assets/icon-256x256.png' style='margin:0px 5px; width:25px;height:25px' >". __('Easy Form Builder' , 'easy-form-builder')."</a>";
+        $lang= $this->text_efb($text);				
+		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
+		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
+		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	
 		if($pro!="not pro"){
-			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>". get_bloginfo('name')."</a> ";
-			$header = " <a class='efb subtle-link' target='_blank'  href='".home_url().">". get_bloginfo('name')."</a>";
+			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		}   
 		
 		$st = $this->get_setting_Emsfb();
@@ -619,7 +604,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #3a22ff;'>".$lang["getProVersion"]."</a></button>";
+			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
@@ -638,36 +623,22 @@ class efbFunction {
 			$align ="left";
 		}
 		$val ="
-		<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional //EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'><html xmlns='http://www.w3.org/1999/xhtml' xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:v='urn:schemas-microsoft-com:vml' lang='en'><head> <link rel='stylesheet' type='text/css' hs-webfonts='true' href='https://fonts.googleapis.com/css?family=Lato|Lato:i,b,bi'> <title>Email template</title> <meta property='og:title' content='Email template'> <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'> <meta http-equiv='X-UA-Compatible' content='IE=edge'> <meta name='viewport' content='width=device-width, initial-scale=1.0'> <style type='text/css'> a {  color: inherit; font-weight: bold; color: #253342; text-decoration : none } h1 { font-size: 56px; } h2 { font-size: 28px; font-weight: 900; } p { font-weight: 100; } td { vertical-align: top; } #email { margin: auto; width: 600px; background-color: white; } button { font: inherit; background-color: #ff4b93; border: none; padding: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; color: white; border-radius: 5px;  } .subtle-link { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #CBD6E2; } </style></head>
-		<body bgcolor='#F5F8FA' style='width: 100%; margin: auto 0;direction:".$d."; padding:0; font-family:Lato, sans-serif; font-size:18px; color:#33475B; word-break:break-word'>
-		<div id='email'>
-		<table align='center' role='presentation'  width='100%'>
-			<tr><td>
-				 ".$header."
-			</td><tr>
-		</table>
-			<table role='presentation' width='100%'>
-				<tr>
-					<td bgcolor='#6030b8' align='center' style='color: white;'>
-						<img alt='new message form builder' style='padding:30px 0px 0px 0px;' src='".EMSFB_PLUGIN_URL ."public/assets/images/easy-form-builder-m.png' width='400px' align='middle'>
-						<h1> ".$title." </h1>
-					</td>
-			</table>
-				<table role='presentation' border='0' cellpadding='0' cellspacing='10px'
-					style='padding: 30px 30px 30px 60px;'>
-					<tr> <td>
-					".$message."                                
-					</td> </tr>
-				</table>
-				 <table role='presentation' bgcolor='#F5F8FA' width='100%'>
-					<tr> <td align='".$align."' style='padding: 30px 30px;'>
-						<p style='color:#99ACC2'>".$lang["sentBy"]." ".  get_bloginfo('name')."</p>
-						".$footer."
-					</td></tr>
-				</table>
-				</div>
-			</body>
-			</html>
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;}</style><center>
+			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
+				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
+				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
+				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
+					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
+					</td></tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;'><td>
+							<span>".$message." </span>
+				</td> </tr>
+				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 
+					
+				</td></tr></tbody></center></td>
+			</tr></table>
+			</center>
+			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
+		</body></html>
 			";
 			if($temp!="0"){
 				$temp=str_replace('shortcode_message' ,$message,$temp);
@@ -679,14 +650,12 @@ class efbFunction {
 				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
-				
-			//	error_log($pro);
-				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
+				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
+				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro=="not pro"){	$temp = substr_replace($temp,$footer,($p),0);}
 			//	error_log($temp);
 				$val =  $temp;
 			}
-			//($val);
 			
 			return $val;
 	}
@@ -699,17 +668,13 @@ class efbFunction {
 	public function get_setting_Emsfb()
 	{			
 		$table_name = $this->db->prefix . "emsfb_setting"; 
-		$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+		//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+		$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
 		$rtrn='null';
-		
-		if(count($value)>0){		
-			foreach($value[0] as $key=>$val){
-			$v =str_replace('\\', '', $val);
-			$rtrn =json_decode($v);
-			break;
-			} 
-		}
-		//error_log(json_encode($rtrn));
+		/* error_log(json_encode($value)); */
+		$v =str_replace('\\', '', $value);
+		$rtrn =json_decode($v);
+		$rtrn = $rtrn!=null ? $rtrn :'null';	
 		return $rtrn;
 	}
 

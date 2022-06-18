@@ -1,44 +1,45 @@
 
 
 const currency_efb = ["USD (United State dollar)","AED (United Arab Emirates dirham, درهم إماراتي)","AFN (Afghan afghani)","ALL (Albania Lek)","AMD (Armenian dram, Հայկական Դրամ)","ANG (Netherlands Antillean guilder, Antilliaanse gulden)","AOA (Angolan kwanza)","ARS (Argentine peso,Peso argentino)","AUD (Australian dollar)","AWG (Aruban florin, Arubaanse florin)","AZN (Azerbaijani manat, Azərbaycan manatı)","BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)","BBD (Barbadian dollar)","BDT (Bangladeshi taka, টাকা)","BGN (Bulgarian lev, Български лев)","BIF (franc burundais)","BMD (Bermudian dollar)","BND (Brunei dollar, ringgit Brunei)","BOB  (Bolivian boliviano, boliviano)","BRL  (Brazilian real, Real brasileiro)","BSD (Bahamian dollar)","BWP (Botswana pula)","BYN (Belarusian ruble, беларускі рубель)","BZD (Belize dollar)","CAD (Canadian dollar, dollar canadien)","CDF (Congolese franc, franc congolais)","CHF (Swiss franc)","CLP  (Chilean peso, Peso chileno)","CNY (Renminbi, 人民币)","COP  (Colombian peso, peso colombiano)","CRC  (Costa Rican colón, colón costarricense)","CVE  (Cape Verdean escudo, escudo cabo-verdiano)","CZK (Czech koruna, koruna česká)","DJF  (Djiboutian franc, الفرنك الجيبوتي)","DKK (Danish krone, dansk krone)","DOP (Dominican peso, peso dominicano)","DZD (Algerian dinar, دينار جزائري)","EGP (Egyptian pound, جنيه مصرى)","ETB (Ethiopian birr)","EUR (Euro)","FJD (Fijian dollar)","FKP  (Falkland Islands pound)","GBP (Pound sterling)","GEL (Georgian lari,  ქართული ლარი)","GIP (Gibraltar pound)","GMD (Gambian dalasi)","GNF  (Guinean franc, franc guinéen)","GTQ  (Guatemalan quetzal,  quetzal guatemalteco)","GYD (Guyanese dollar)","HKD (Hong Kong dollar, 港元)","HNL  (Honduran lempira, lempira hondureño)","HRK (Croatian kuna, hrvatska kuna)","HTG (Haitian gourde, gourde haïtienne)","HUF (Hungarian forint, Magyar forint)","IDR (Indonesian rupiah)","ILS (Israeli new shekel, שקל חדש)","INR (Indian rupee)","ISK (Icelandic krona, króna)","JMD (Jamaican dollar)","JPY (Japanese yen, 日本円)","KES (Kenyan shilling, Kenyan shilling)","KGS (Kyrgyzstani som, Кыргыз сому)","KHR (Cambodian riel, រៀលកម្ពុជា/រៀលខ្មែរ)","KMF (Comorian franc)","KRW (South Korean won, 대한민국 원)","KYD (Cayman Islands dollar)","KZT (Kazakhstani tenge, Қазақстан теңгесі)","LAK (Lao kip,ເງີນກີບລາວ)","LBP (Lebanese pound, Livre libanaise)","LKR (Sri Lankan rupee, ශ්‍රී ලංකා රුපියල්)","LRD (Liberian dollar)","LSL (Lesotho loti)","MAD (Moroccan dirham, ⴰⴷⵔⵀⵎ ⵏ ⵍⵎⵖⵔⵉⴱ)","MDL (Moldovan leu, leu moldovenesc)","MGA (Malagasy ariary,ariary malgache)","MKD (Macedonian denar,денар)","MMK (Myanmar kyat)","MNT (Mongolian tögrög, Монгол төгрөг)","MOP (Macanese pataca)","MRO (Mauritanian ouguiya, أوقية موريتانية)","MUR (Mauritian rupee, Roupie mauricienne)","MVR (Maldivian rufiyaa)","MWK (Malawian kwacha)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","MZN (Mozambican metical, Metical moçambicano)","NAD (Namibian dollar)","NGN (Nigerian naira)","NIO (Nicaraguan córdoba, córdoba nicaragüense)","NOK (Norwegian krone, norsk krone)","NPR (Nepalese rupee, रुपैयाँ)","NZD (New Zealand dollar)","PAB (Panamanian balboa, Balboa panameño)","PEN (Peruvian sol, sol peruano)","PGK (Papua New Guinean kina)","PHP (Philippine peso, Piso ng Pilipinas)","PKR (Pakistani rupee)","PLN (Polish złoty, Polski złoty)","PYG (Paraguayan guaraní, Guaraní paraguayo)","QAR (Qatari riyal, ريال قطري)","RON (Romanian leu, Leu românesc)","RSD (Serbian dinar, Cрпски динар)","RUB (Russian ruble, Российский рубль)","RWF (Rwandan franc, franc rwandais)","SAR (Saudi riyalSaudi riyal, ريال سعودي)","SBD (Solomon Islands dollar)","SCR (Seychellois rupee, roupie seychelloise)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","SHP (Saint Helena pound)","SLL (Sierra Leonean leone)","SOS (Somali shilling, Shilin Soomaali)","SRD (Surinamese, Surinamese )","STD (São Tomé and Príncipe dobra, dobra são-tomense)","SZL (Swazi lilangeni)","THB (Thai baht, บาทไทย)","TJS (Tajikistani somoni, Сомонӣ)","TOP (Tonga Pa'anga)","TRY (Turkish New Lira)","TTD (Trinidad/Tobago Dollar)","TWD (Taiwan Dollar)","TZS (Tanzania Shilling)","UAH (Ukraine Hryvnia)","UGX (Uganda Shilling)","UYU (Uruguay Peso)","UZS (Uzbekistani soʻm, Oʻzbek soʻmi)","VND (Vietnam Dong)","VUV (Vanuatu Vatu)","WST (Samoa Tala)","XAF (CFA Franc BEAC)","XCD (East Caribbean Dollar)","XOF (CFA Franc BCEAO)","XPF (CFP Franc)","YER (Yemen Rial)","ZAR (South Africa Rand)","ZMW (Zambian kwacha)"];
-const fields_efb = [{ name: efb_var.text.text, icon: 'bi-file-earmark-text', id: 'text', pro: false },
+const fields_efb = [
+  { name: efb_var.text.text, icon: 'bi-file-earmark-text', id: 'text', pro: false,  tag:'basic all'},
   { name: efb_var.text.name, icon: 'bi-person-circle', id: 'name', pro: false },
-  { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false },
-  { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false },
-  { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false },
-  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false }, */
-  { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false },
-  { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false }, 
-  { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false },
-  { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false },
-  { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false },
-  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false }, 
-  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true },
-  { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true },
-  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true }, 
-  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true },
-  { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true },
-  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false },
-  { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false },
- // { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true },
-  { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false },
-  { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false },
-  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true },
-  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false },
-  { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true },
-  { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true },
-  { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true }, 
-  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true },
-  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true },
-  { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true },
-  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true },
-  { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true },
-  { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true },
-/*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true },
-  { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true }, */
-  //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true },
-  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true },
+  { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
+  { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
+  { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
+  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, */
+  { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
+  { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
+  { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},
+  { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false, tag:'basic all' },
+  { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false , tag:'basic all'},
+  { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false, tag:'advance all' }, 
+  { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
+  { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
+  { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
+  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
+  { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
+  { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
+  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
+  { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false, tag:'basic all' },
+ // { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true, tag:'advance all' },
+  { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
+  { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
+  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
+  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
+  { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
+  { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
+  { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
+  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
+  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
+  { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
+  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
+  { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
+  { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
+/*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
+  { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
+  //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
+  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
 ]
 
 
@@ -93,12 +94,14 @@ function show_setting_window_efb(idset) {
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
-    const thankYouMessageEls = `<label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.thankYouMessage}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : efb_var.text.thankYouMessage}">`;
-    const thankYouMessageDoneEls = `<label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}">`;
-    const thankYouMessageConfirmationCodeEls = `<label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
-    <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}">`;
+    let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
+    const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;    
+    const thankYouMessageEls = `<div class="efb tnxmsg mt-1  ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageEl" class="efb form-label mt-2 mb-1 efb">${ efb_var.text.thankYouMessage }</label>
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.thankYouMessage}" id="thankYouMessageEl" required value="${valj_efb[0].thank_you_message.thankYou ? valj_efb[0].thank_you_message.thankYou : m_tankYouMessage}"></div>`;
+    const thankYouMessageDoneEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageDoneEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.done} ${efb_var.text.message}</label>
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.done}" id="thankYouMessageDoneEl" required value="${valj_efb[0].thank_you_message.done ? valj_efb[0].thank_you_message.done : efb_var.text.done}"></div>`;
+    const thankYouMessageConfirmationCodeEls = `<div class="efb tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}"><label for="thankYouMessageConfirmationCodeEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="thankYouMessageConfirmationCodeEl" required value="${valj_efb[0].thank_you_message.trackingCode ? valj_efb[0].thank_you_message.trackingCode : efb_var.text.trackingCode}"></div>`;
     const thankYouMessageErrorEls = `<label for="thankYouMessageErrorEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.error} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.error}" id="thankYouMessageErrorEl" required value="${valj_efb[0].thank_you_message.error ? valj_efb[0].thank_you_message.error : efb_var.text.error}">`;
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
@@ -123,6 +126,18 @@ function show_setting_window_efb(idset) {
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
                         </select>`;
+
+      const thankYouTypeEls = `
+      <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-2 efb">${efb_var.text.landingTnx}</label>
+                        <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d efb-rounded"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">                                            
+                        <option value="rdrct" ${ valj_efb[0].thank_you == 'rdrct' ? `selected` : ''}>${efb_var.text.redirectPage}</option>                            
+                        <option value="msg" ${ valj_efb[0].thank_you == 'msg' ? `selected` : ''}>${efb_var.text.thankYouMessage}</option>
+                        </select>`;
+                       
+    const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
+    ${pro_efb==true ?"":funProEfb()}
+    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('redirectPage')"> </i></label> 
+    <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? valj_efb[0].rePage.replace(/(@efb@)+/g, '/') : ''}"></div>`
     const paymentGetWayEls =()=>{
       return`<label for="paymentGetWayEl" class="efb mt-3 bi-wallet-fill mx-2 efb"> ${efb_var.text.paymentGateway}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">                                            
@@ -233,7 +248,7 @@ function show_setting_window_efb(idset) {
       //console.log(`valj_efb`,valj_efb);
       if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
       else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
-      else if ( side =='tyi') {
+      else if ( side =='tnx') {
        
         if(valj_efb[0].thank_you_message.hasOwnProperty('icon')){
           iset=idset=side="DoneIconEfb"; icon=valj_efb[0].thank_you_message.icon; t=`${efb_var.text.thankYou}`;
@@ -261,25 +276,25 @@ function show_setting_window_efb(idset) {
          iNo =bootstrap_icons.findIndex(x=>x==icon.replace('bi-',''));
       }
       //check for Nex and previous
-    
-      return `<label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0">${t} ${efb_var.text.icon} </label>
-      
-        
-        <div class="efb  listSelect my-2">     
-        <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded" id="iconEl" data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? icon :'None'}</div>
-        <i class="efb  efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="${iset}"></i>
-        <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
-        <table class="efb  table ${iset}">
-                <thead class="efb  efblist">
-                  <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
-                    <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
-                      <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
-                    </div></tr>
-                </thead> <tbody class="efb">
-                ${list}
-                </tbody></table>
-        </div>
-    </div>
+
+      return `
+      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0">${t} ${efb_var.text.icon} </label>
+          <div class="efb  listSelect my-2">     
+            <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded" id="iconEl" data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? icon :'None'}</div>
+            <i class="efb  efblist  h-d-efb iconDD bi-caret-down-fill text-primary" data-id="${iset}"></i>
+            <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-secondary" data-id="${iset}" data-list="${iset}">
+            <table class="efb  table ${iset}">
+                    <thead class="efb  efblist">
+                      <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
+                        <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
+                          <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
+                        </div></tr>
+                    </thead> <tbody class="efb">
+                    ${list}
+                    </tbody></table>
+            </div>
+          </div>
+      </div>
         `
     }
   
@@ -792,10 +807,12 @@ function show_setting_window_efb(idset) {
       </div>
       <div class="efb mb-3 mt-3" id="collapseAdvanced">
               <div class="efb  mb-3 px-3 row">   
-          ${iconEls('tyi')}
-          ${thankYouMessageDoneEls}
-          ${thankYouMessageEls}
-          ${thankYouMessageConfirmationCodeEls}
+          ${thankYouTypeEls}
+          ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
+          ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
+          ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
+          ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
+          ${thankYouredirectEls}
           </div>
           </div>        
       </div>
@@ -804,7 +821,7 @@ function show_setting_window_efb(idset) {
           `
         break;
         case 'stripe':
-  
+        
   
         body = `<div class="efb  mb-3">
         <!--  not   advanced-->
@@ -838,10 +855,150 @@ function show_setting_window_efb(idset) {
 function remove_other_noti_Efb(){
   window.onload=(()=>{
     // remove all notifications from other plugins or wordpress
-      setTimeout(()=>{
+      setTimeout(() => { 
           for (const el of document.querySelectorAll(".notice")) {
               el.remove()
           }
       },50)
   })
 }
+
+
+function creator_form_builder_Efb() {
+  remove_other_noti_Efb()
+  if (valj_efb.length < 2) {
+    step_el_efb = 1;
+
+    valj_efb.push({
+      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
+      button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
+      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
+      el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false,
+      show_pro_bar: false, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,
+      thank_you: 'msg',
+      thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
+    });
+    if (form_type_emsFormBuilder == "payment") {
+      Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' })
+    }
+
+  }
+
+
+  let els = "<!--efb.app-->";
+  let dragab = true;
+  let disable = "disable";
+  let formType = valj_efb[0].type
+  const ond = `onClick="noti_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
+  if (formType == "login") {
+    dragab = false;
+    disable = ond;
+    //thisElemantNotAvailable
+  }
+
+  for (let ob of fields_efb) {
+   
+    if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
+    // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
+    els += `
+    <div class="efb tag col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"` : ''}>
+     ${ob.pro == true && pro_efb == false ? ` <a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
+      <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
+    </div>
+    `
+  }
+
+  let navs = [
+    { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb()` },
+    { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
+    { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
+    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` }
+
+  ]
+  //if (devlop_efb == true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
+  let nav = "<!--efb.app-->";
+  for (let ob in navs) {
+    if( typeof navs[ob] == 'object') {
+      nav += `<li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+    }
+  }
+
+  document.getElementById(`content-efb`).innerHTML = `
+  <div class="efb ${mobile_view_efb ? 'my-2 mx-1' : 'm-5'}" id="pCreatorEfb" >
+  <div id="panel_efb">
+      <nav class="efb navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
+          <div class="efb container-fluid">
+              <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="efb navbar-toggler-icon"></span></button>
+              <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01"><ul class="efb navbar-nav me-auto mb-2 mb-lg-0">${nav}</ul></div>
+          </div>      
+      </nav>
+      <div class="efb row">
+      <!-- over page -->
+      <div id="overlay_efb" class="efb d-none"><div class="efb card-body text-center efb mt-5 pt-2"><div class="efb lds-hourglass efb text-white"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div></div>
+      <!--end  over page -->
+          <div class="efb  col-md-4" id="listElEfb">
+          
+            <ul class="efb my-2 row" id="listCatEfb">
+                <li class="efb col-3">
+                  <a class="efb nav-link cat fs-6 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
+                </li>
+                <li class="efb col-3">
+                  <a class="efb nav-link cat fs-6 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
+                </li>
+                <li class="efb col-3">
+                  <a class="efb nav-link cat fs-6 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
+                </li>
+                <li class="efb col-3">
+                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advance}</a>
+                </li>
+                <hr class="efb hr">
+            </ul>
+          <div class="efb row">${els}</div></div>
+         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row " id="dropZoneEFB">
+       
+        <div id="efb-dd" class="efb text-center ">
+        <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
+        <div class="efb text-muted fs-4 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
+        </div>
+
+         </div></div></div></div>
+      </div>
+  <div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+      <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+          <div class="efb modal-content efb " id="settingModalEfb-sections">
+                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb ">${efb_var.text.editField}</span></h5></div>
+                  <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div></div>
+  </div></div></div>
+  </div></div>
+  `
+  create_dargAndDrop_el()
+}
+
+function funUpdateLisetElEfb(cat){
+  change_active_cat_efb(cat);
+  change_visible_el_efb(cat);
+  //efb nav-link cat fs-6 efb basic
+  
+}
+
+ change_active_cat_efb=(cat)=>{
+  let els = document.querySelectorAll('.efb.cat');
+  for(let i =0;i<els.length;i++){
+    els[i].classList.remove('active');
+    els[i].classList.contains(cat) ? els[i].classList.add('active') : '';
+  }
+ 
+}
+change_visible_el_efb=(cat)=>{
+  let els = document.querySelectorAll('.efb.tag');
+  for(let i =0;i<els.length;i++){
+    els[i].classList.remove('d-none');
+    els[i].classList.contains(cat) ? '' : els[i].classList.add('d-none'); 
+  }
+}
+
+function funUpdateLisetcardTitleEfb(cat){
+  change_active_cat_efb(cat);
+  change_visible_el_efb(cat);
+}
+

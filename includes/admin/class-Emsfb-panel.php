@@ -84,8 +84,8 @@ class Panel_edit  {
 				//اگر پلاگین مربوط نصب بود این بخش فعال شود
 				//stipe
 				//اگر نسه پرو بود
-				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-				wp_enqueue_script('stripe-js');
+			/* 	wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+				wp_enqueue_script('stripe-js'); */
 
 			}
 			

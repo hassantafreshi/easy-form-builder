@@ -83,7 +83,7 @@ class Install {
 							`content` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,		
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-							`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL,
+							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							PRIMARY KEY  (msg_id)
 						) {$charset_collate};";
@@ -98,7 +98,7 @@ class Install {
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-							`read_` int(1) COLLATE utf8mb4_unicode_ci NOT NULL, 
+							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL, 
 							`reader_ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`rsp_by` int(1) COLLATE utf8mb4_unicode_ci NOT NULL, 
 							PRIMARY KEY  (rsp_id)
@@ -117,8 +117,8 @@ class Install {
 						}
 					}
 					if($s==true){										
-						$v = $wpdb->get_results("SELECT setting FROM  `$table_name_stng` ORDER BY id DESC LIMIT 1");
-						if(count($v) == 0){
+						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
+						if(count($v) == 0 ||$v=NULL){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));

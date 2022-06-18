@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.2.0
+Stable tag: 			3.2.1
 Requires at least: 	      4.7
 Tested up to: 			6.0.0
 Requires PHP:			5.5 or higher
@@ -143,6 +143,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Create Advance form by using advanced Field (element) like location picker (maps) , Esign (e-signature) , Yes/No question ,Star rating, Switch button and ...
 
+- Thank you page will be redirected after completing the form on your landing page or an URL.
+
 
 
 **New Forms Field of Easy Form Builder**
@@ -166,6 +168,7 @@ How *Easy Form Builder* makes your life easier:
 - *Link* : You can easily add links on WP forms.
 
 - *Offline form* : the offline form is feature save or resume forms before submit.
+
 
 
 **Payment Forms Field of Easy Form Builder**
@@ -256,13 +259,14 @@ Adding a multiple selection dropdown (Multiple Select field) to your WP forms al
 **Accept payment with Stripe**
 Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder and build your service payment form or order payment form.
 
-
-
+**Redirect page**
+Redirect page option on Easy Form Builder is thank you page and will have redirected after completing the form on your landing page or an URL.
 
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
 
 **Notice** : In each page you would not add more than ONE form.
+
 
 
 Help to make Easy Form Builder better by reporting any bugs you may encounter and post them in the support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
@@ -328,7 +332,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
-= 3.1.2 =
+
+= 3.2.1 = 
+* Added new options to form builder: redirecet to thank you page or URL
+* login form
+
+= 3.2.0 =
 * rename table names
 * Fixed issues about rtl language
 
