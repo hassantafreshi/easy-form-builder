@@ -270,7 +270,7 @@ class _Public {
 		}else{
 
 			$valstng= json_decode($stng);
-			if(isset($valstng->apiKeyMap)>5){
+			if(isset($valstng->apiKeyMap) && $valstng->apiKeyMap!=""){
 				//error_log("maps");
 				$key= $valstng->apiKeyMap;
 				$lng = strval(get_locale());

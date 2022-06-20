@@ -1481,7 +1481,7 @@ let add_buttons_zone_efb = (state, id) => {
     let t = valj_efb.findIndex(x => x.type == "stripe");
      t = t==-1 ? valj_efb.findIndex(x => x.type == "persiaPay") : t;
     t = t != -1 ? valj_efb[t].step : 0;
-    dis = (valj_efb[0].type == "payment" || valj_efb[0].type == "persiaPay" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
+    dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
