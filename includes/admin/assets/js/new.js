@@ -148,7 +148,7 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
   }
-  console.log(document.getElementById("settingModalEfb-body"));
+  //console.log(document.getElementById("settingModalEfb-body"));
   // myModal.show()
 }
 
@@ -2408,7 +2408,7 @@ function handle_navbtn_efb(steps, device) {
     {
       let state= valj_efb.findIndex(x => x.type == "stripe");
       state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-      console.log(state);
+      //console.log(state);
       if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
     }
     if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
@@ -2477,7 +2477,7 @@ function handle_navbtn_efb(steps, device) {
           {
             let state= valj_efb.findIndex(x => x.type == "stripe");
             state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-            console.log(state);
+            //console.log(state);
             if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
           }   
           //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
@@ -2507,7 +2507,7 @@ function handle_navbtn_efb(steps, device) {
       {
         let state= valj_efb.findIndex(x => x.type == "stripe");
         state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-        console.log(state);
+        //console.log(state);
         if(valj_efb[state].step == current_s) { jQuery("#next_efb").removeClass('disabled'); }
       }  
       //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
@@ -3934,7 +3934,7 @@ let change_el_edit_Efb = (el) => {
     }
 
   }, len_Valj * 10)
-  console.log(4229);
+
 }
 
 
@@ -3944,7 +3944,7 @@ fun_offline_Efb = () => {
   const values = JSON.parse(localStorage.getItem('sendback'))
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
-    console.log(value);
+
     switch (value.type) {
       case 'email':
       case 'text':

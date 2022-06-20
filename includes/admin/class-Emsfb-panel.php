@@ -45,7 +45,7 @@ class Panel_edit  {
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
 				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-					error_log($ac->apiKeyMap);		
+					//error_log($ac->apiKeyMap);		
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					

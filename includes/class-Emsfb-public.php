@@ -127,7 +127,7 @@ class _Public {
 						$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
 						//error_log($paymentKey);
 					}else if($paymentType=="payping"){
-						error_log("payping");
+						//error_log("payping");
 						$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
 						wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), null, true);
 						wp_enqueue_script('parsipay_js');
