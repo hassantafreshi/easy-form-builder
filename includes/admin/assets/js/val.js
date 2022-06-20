@@ -40,7 +40,9 @@ const fields_efb = [
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
+  { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' },
 ]
+
 
 
 function show_setting_window_efb(idset) {
@@ -50,7 +52,10 @@ function show_setting_window_efb(idset) {
      //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
       return};
     //console.log('show_setting_window_efb',idset,valj_efb)
-  
+    document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
+    sideMenuEfb(1)
+    // document.getElementById('sideBoxEfb').classList.add('show');
+     //console.log('body',body);
     let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
     let body = ``;
     //const bodySetting = document.getElementById("settingModalEfb-body");
@@ -171,6 +176,18 @@ function show_setting_window_efb(idset) {
       `
   
     }
+
+    const paymentPersianPayEls =()=>{
+      // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+       return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
+       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
+       <option value="payping" ${valj_efb[0].persiaPay=='payping' ? 'selected' :''}>پی پینگ</option>                                                            
+       <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>فرم ساز آسان</option>
+       </select>`;
+     } 
+
+     const currencyPersianPayEls= `<p for="currencyTypeEl" class="efb text-labelEfb fs-5 mt-3 bi-cash mx-2 efb"> ${efb_var.text.currency}: تومان</p>
+      `;
   
     const labelPostionEls = `    
     <div class="efb row efb">     
@@ -825,11 +842,21 @@ function show_setting_window_efb(idset) {
   
         body = `<div class="efb  mb-3">
         <!--  not   advanced-->
+          <h2 class="efb  text-muted">${efb_var.text.stripe}</h2>
               ${valj_efb[0].type=="payment" ? currencyTypeEls() :''}
           ${valj_efb[0].type=="payment" ? paymentMethodEls() :''}
         <div class="efb  clearfix"></div>
         </div>`
     
+        break;
+        case 'persiaPay':
+          body = `<div class="efb  mb-3">
+          <h2 class="efb  text-muted">${efb_var.text.paymentGateway}</h2>
+          <!--  not   advanced-->
+                ${valj_efb[0].type=="payment" ? currencyPersianPayEls :''}
+            ${valj_efb[0].type=="payment" ? paymentPersianPayEls() :''}
+          <div class="efb  clearfix"></div>
+          </div>`
         break;
   
     }
@@ -837,7 +864,7 @@ function show_setting_window_efb(idset) {
     
     //console.log("show_setting_window_efb",body)
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
-    sideMenuEfb(1)
+    //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
     //console.log('body',body);
     document.getElementById('sideMenuConEfb').innerHTML=body;

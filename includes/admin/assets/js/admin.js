@@ -65,7 +65,7 @@ function Link_emsFormBuilder(state) {
       link = "https://wordpress.org/plugins/easy-form-builder/";
       break;
     case 'wiki':
-      link = link;
+      link = `https://whitestudio.team/documents/`;
       break;
     case 'EmailNoti':
       link += "How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";

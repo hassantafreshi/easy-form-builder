@@ -148,6 +148,7 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
   }
+  console.log(document.getElementById("settingModalEfb-body"));
   // myModal.show()
 }
 
@@ -1086,45 +1087,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         cl = valj_efb[0].paymentmethod;
       }
       dataTag = elementId;
-      ui = `
-      <!-- stripe -->
-      <div class="efb  col-sm-12 stripe"  id='${rndm}-f'>
-      <div class="efb  stripe-bg mx-2 p-3 card w-100">
-      <div class="efb  headpay border-b row col-md-12 mb-3">
-        <div class="efb  h3 col-sm-5">
-          <div class="efb  col-12 text-dark"> ${efb_var.text.payAmount}:</div>
-          <div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i><span>Powered by Stripe</span></div>
-        </div> 
-        <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"> 
-          <span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1">0</span> 
-          <span class="efb currencyPayEfb" id="currencyPayEfb">${valj_efb[0].currency.toUpperCase()}</span>
-          <span class="efb  text-labelEfb ${cl} text-capitalize" id="chargeEfb">${sub}</span>
-        </div>
-      </div>
-      <div id="stripeCardSectionEfb" class="efb ">
-        <div class="efb  col-md-12 my-2">
-        <label for="cardnoEfb" class="efb fs-6 text-dark priceEfb">${efb_var.text.cardNumber}: </label>
-        <div id="cardnoEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-        </div>
-        <div class="efb  col-sm-12 row my-2">
-          <div class="efb  col-sm-6 my-2">     
-          <label for="cardexpEfb" class="efb  fs-6 text-dark priceEfb">${efb_var.text.cardExpiry}: </label>
-          <div id="cardexpEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-          </div>
-          <div class="efb  col-sm-6 my-2">
-          <label for="cardcvcEfb" class="efb  fs-6 text-dark priceEfb">${efb_var.text.cardCVC}: </label>
-          <div id="cardcvcEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-          </div>
-        </div>
-      </div>
-      <a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled" id="btnStripeEfb">${efb_var.text.payNow}</a>
-      <div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
-     
-      </div>
-      </div>      
-      <!-- end stripe -->
-      `
+      ui =add_ui_stripe_efb(rndm,cl,sub);
       valj_efb[0].type = "payment";
+      break;
+    case "persiaPay":
+      valj_efb[0].type = "payment";
+      dataTag = elementId;
+      valj_efb[0].paymentmethod="charge"
+      ui =add_ui_persiaPay_efb(rndm);
       break;
     case 'heading':
       dataTag = elementId;
@@ -1143,7 +1113,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile") ? true : false;
+    const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay") ? true : false;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
@@ -1336,6 +1306,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
   let size = 100;
+  
   let type = elementId;
   switch (elementId) {
     case "firstName":
@@ -1350,7 +1321,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
   if (elementId == "dadfile" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps"
     || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect"
-    || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe") { pro = true }
+    || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay") { pro = true }
   const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     //console.log(elementId);
@@ -1363,6 +1334,11 @@ let sampleElpush_efb = (rndm, elementId) => {
     })
     if (elementId == "stripe") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' });
+      valj_efb[0].type = 'payment';
+      form_type_emsFormBuilder = "payment";
+    }
+    if (elementId == "persiaPay") {
+      Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'payping' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
     }
@@ -1503,8 +1479,9 @@ let add_buttons_zone_efb = (state, id) => {
   let dis = ''
   if (true) {
     let t = valj_efb.findIndex(x => x.type == "stripe");
+     t = t==-1 ? valj_efb.findIndex(x => x.type == "persiaPay") : t;
     t = t != -1 ? valj_efb[t].step : 0;
-    dis = valj_efb[0].type == "payment" && (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
+    dis = (valj_efb[0].type == "payment" || valj_efb[0].type == "persiaPay" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
@@ -1642,7 +1619,15 @@ const saveFormEfb = () => {
   let box = `error`
   let btnIcon = `bi-question-lg`
   let returnState = false;
-  const gateway = valj_efb.findIndex(x => x.type == "stripe");
+  let  gateway = '';
+  if(valj_efb[0].type == 'payment'){
+    gateway = valj_efb.findIndex(x => x.type == "stripe") 
+    gateway = gateway == -1 ? valj_efb[0].gateway : gateway;
+    if(gateway == 'persiaPay'){
+      gateway =  valj_efb[0].persiaPay ;
+    }
+
+  }
   setTimeout(() => {
 
 
@@ -1683,7 +1668,7 @@ const saveFormEfb = () => {
         }
       }
       //console.log("befor run");
-      if (valj_efb.length > 2 && proState == true && stepState == true && ((valj_efb[0].type == "payment" && gateway != -1) || valj_efb[0].type != "payment")) {
+      if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) ||(valj_efb[0].type == "persiaPay" && gateway != -1) ) || valj_efb[0].type != "payment")) {
         title = efb_var.text.save
         box = `saveBox`
         icon = `bi-check2-circle`
@@ -1716,7 +1701,15 @@ const saveFormEfb = () => {
         message = efb_var.text.addPaymentGetway;
         icon = 'bi-exclamation-triangle'
         returnState = true;
-      } else if (valj_efb[0].type == "payment" && valj_efb[0].captcha == true) {
+      
+      } else if (valj_efb[0].type == "persiaPay" && gateway == -1) {
+        //console.log('payment not add');
+        btnText = efb_var.text.help
+        btnFun = `open_whiteStudio_efb('persiaPay')`
+        message = efb_var.text.addPaymentGetway;
+        icon = 'bi-exclamation-triangle'
+        returnState = true;
+      } else if ((valj_efb[0].type == "payment" || valj_efb[0].type == "persiaPay") && valj_efb[0].captcha == true) {
         btnText = efb_var.text.help
         btnFun = `open_whiteStudio_efb('paymentform')`
         message = efb_var.text.paymentNcaptcha;
@@ -2411,7 +2404,13 @@ function handle_navbtn_efb(steps, device) {
   current_s_efb = 1
   setProgressBar_efb(current_s_efb, steps_len_efb);
   if (steps > 1) {
-    if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
+    if (valj_efb[0].type == "payment" && preview_efb != true)
+    {
+      let state= valj_efb.findIndex(x => x.type == "stripe");
+      state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
+      console.log(state);
+      if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
+    }
     if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
 
     jQuery("#next_efb").click(function () {
@@ -2473,9 +2472,16 @@ function handle_navbtn_efb(steps, device) {
             jQuery("#next_efb").html(val);
           }
           //next_efb
-          //disabled      
-
-          if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
+          //disabled   
+          if (valj_efb[0].type == "payment" && preview_efb != true)
+          {
+            let state= valj_efb.findIndex(x => x.type == "stripe");
+            state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
+            console.log(state);
+            if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
+          }   
+          //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
+          //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
 
         }
       }, 200)
@@ -2497,7 +2503,15 @@ function handle_navbtn_efb(steps, device) {
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
-      if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step != current_s) { jQuery("#next_efb").removeClass('disabled'); }
+      if (valj_efb[0].type == "payment" && preview_efb != true)
+      {
+        let state= valj_efb.findIndex(x => x.type == "stripe");
+        state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
+        console.log(state);
+        if(valj_efb[state].step == current_s) { jQuery("#next_efb").removeClass('disabled'); }
+      }  
+      //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
+      //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step != current_s) { jQuery("#next_efb").removeClass('disabled'); }
       prev_s_efb = current_s.prev();
       jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
       jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
@@ -2662,8 +2676,8 @@ function noti_message_efb(title, message, sec, alert) {
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
-  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible  mx-5 ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
-    <h5 class="efb alert-heading">${title}</h5>
+  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    <h5 class="efb alert-heading fs-4">${title}</h5>
     <p>${message}</p>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
   </div>`
@@ -3205,255 +3219,7 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 }
 
 
-fun_add_stripe_efb = () => {
-  if (typeof document.getElementById('cardnoEfb') != "object") return;
-  //console.log('fun_add_stripe_efb');
-  if (ajax_object_efm.hasOwnProperty('paymentKey')) {
-    if (efb_var.pro) noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
-    if (ajax_object_efm.paymentKey == "null") {
-      noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
-      return;
-    }
-    const stripe = Stripe(ajax_object_efm.paymentKey, { locale: 'auto' })
-    //console.log(stripe);
-    const elsStripeStyleEfb = {
-      base: {
-        iconColor: '#6c757d',
-        color: '#6c757d',
-        fontFamily: 'sans-serif',
-        fontSize: '30px',
-        '::placeholder': { color: '#757593' }
-      },
-      complete: { color: 'green' }
-    }
-    const btntripeStyleEfb = {
-      fontFamily: 'sans-serif',
-      fontSize: '20px',
-      fontWeight: '400',
-      complete: { color: 'green' }
-    }
 
-
-    const cardnoEfb = document.getElementById('cardnoEfb')
-    const cardexpEfb = document.getElementById('cardexpEfb')
-    const cardcvcEfb = document.getElementById('cardcvcEfb')
-    const btnStripeEfb = document.getElementById('btnStripeEfb')
-    const stsStripeEfb = document.getElementById('statusStripEfb')
-    /* console.log(valj_efb[0].currency ,document.getElementById('currencyPayEfb'));
-    document.getElementById('currencyPayEfb').innerHTML=valj_efb[0].currency; */
-    const elements = stripe.elements()
-    const numElm = elements.create('cardNumber', { showIcon: true, iconStyle: 'solid', style: elsStripeStyleEfb })
-    numElm.mount(cardnoEfb)
-
-    const expElm = elements.create('cardExpiry', { disabled: true, style: elsStripeStyleEfb })
-    expElm.mount(cardexpEfb)
-
-    const cvcElm = elements.create('cardCvc', { disabled: true, style: elsStripeStyleEfb })
-    cvcElm.mount(cardcvcEfb)
-
-    numElm.on('change', (e) => {
-      if (e.complete) {
-        expElm.update({ disabled: false })
-        expElm.focus()
-      }
-    })
-
-    expElm.on('change', (e) => {
-      if (e.complete) {
-        cvcElm.update({ disabled: false })
-        cvcElm.focus()
-      }
-    })
-
-    cvcElm.on('change', (e) => {
-
-      if (e.complete) {
-        //btnStripeEfb.disabled = false 
-        //console.log(btnStripeEfb.classList);
-        btnStripeEfb.classList.remove('disabled');
-
-      }
-    })
-
-    btnStripeEfb.addEventListener('click', () => {
-      btnStripeEfb.classList.add('disabled');
-      btnStripeEfb.innerHTML = efb_var.text.pleaseWaiting;
-      //console.log('click');
-      //console.log(ajax_object_efm.ajax_url);
-      const v = fun_pay_valid_price();
-      //console.log(v)
-      if (v == false) {
-        noti_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
-        btnStripeEfb.innerHTML = efb_var.text.payNow;
-        btnStripeEfb.classList.remove('disabled');
-        return false;
-      } else {
-        // btnStripeEfb.classList.add('disabled');
-        if (valj_efb[0].paymentmethod == "charge") {
-          jQuery(function ($) {
-            data = {
-              action: "pay_stripe_sub_efb",
-              value: JSON.stringify(sendBack_emsFormBuilder_pub),
-              name: formNameEfb,
-              id: efb_var.id,
-              nonce: ajax_object_efm.nonce,
-            };
-            //console.log(data);
-            $.ajax({
-              type: "POST",
-              async: false,
-              url: ajax_object_efm.ajax_url,
-              data: data,
-              success: function (res) {
-                //console.log(res) ;    
-
-                if (res.data.success == true) {
-                  stripe.confirmCardPayment(res.data.client_secret, {
-                    payment_method: { card: numElm }
-                  }).then(transStat => {
-                    fun_trans(transStat, res.data.transStat, res.data.id);
-                  })
-                } else {
-
-                  btnStripeEfb.innerHTML = efb_var.text.error;
-                  noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
-                }
-
-              },
-              error: function (res) {
-                console.error(res);
-                btnStripeEfb.classList.remove('disabled');
-                const m = `<p class="efb h4">${efb_var.text.error}${res.status}</p> ${res.statusText} </br> ${res.responseText}`
-
-                noti_message_efb('Stripe', m, 120, 'danger')
-                btnStripeEfb.innerHTML = efb_var.text.payNow;
-
-              }
-            })
-          }); //end jquery
-        } else {
-          stripe.createToken(numElm).then((transStat) => {
-            if (transStat.error) {
-              stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
-            } else {
-              //console.log(transStat);
-              jQuery(function ($) {
-                data = {
-                  action: "pay_stripe_sub_efb",
-                  value: JSON.stringify(sendBack_emsFormBuilder_pub),
-                  name: formNameEfb,
-                  id: efb_var.id,
-                  nonce: ajax_object_efm.nonce,
-                  token: transStat.token.id
-                };
-                //console.log(data);
-                $.ajax({
-                  type: "POST",
-                  async: false,
-                  url: ajax_object_efm.ajax_url,
-                  data: data,
-                  success: function (res) {
-                    //console.log(res.data) ;  
-                    //console.log(res) ;    
-
-                    if (res.data.success == true) {
-                      fun_trans(transStat, res.data.transStat, res.data.id);
-                    } else {
-                      stsStripeEfb.innerHTML = `<div clss"text-danger"><strong>${efb_var.text.error}</strong> ${res.data.re}</div>`;
-                      btnStripeEfb.classList.remove('disabled');
-                      btnStripeEfb.innerHTML = efb_var.text.payNow;
-                    }
-
-
-
-                  },
-                  error: function (res) {
-                    console.error(res);
-                    btnStripeEfb.classList.remove('disabled');
-                    const m = `<p class="efb h4">${efb_var.text.error}${res.status}</p> ${res.statusText} </br> ${res.responseText}`
-
-                    noti_message_efb('Stripe', m, 120, 'danger')
-                    btnStripeEfb.innerHTML = efb_var.text.payNow;
-
-                  }
-                })
-              }); //end jquery
-            }
-          });//end stripe
-        }
-
-
-      }
-
-      fun_trans = (transStat, data, trackid) => {
-        /*             console.log(trackid);
-                    console.log(data); */
-        if (transStat.error) {
-          stsStripeEfb.innerHTML = `
-              <strong>${efb_var.text.error}  </string> ${transStat.error.message}
-              `
-          noti_message_efb(efb_var.text.error, transStat.error.message, 10, 'warning')
-          btnStripeEfb.classList.remove('disabled');
-          btnStripeEfb.innerHTML = efb_var.text.payNow
-        }
-        else {
-          const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-          //console.log(transStat);
-          if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
-            grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
-          fun_disabled_all_pay_efb()
-          // efb_var.id = data.uid;  
-          //console.log(data , data.paymentcurrency);
-          val = `            
-              
-              <p class="efb  text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${data.paymentIntent}</p>
-              <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : ${data.amount} ${data.paymentcurrency.toUpperCase()}</p>
-              <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.ddate}</b>: ${data.paymentCreated}</p>
-              `;
-          if (valj_efb[0].paymentmethod != "charge") {
-            val += `             
-                 <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.interval}</b>: ${data.interval}</p>
-                 <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.nextBillingD}</b> : ${data.nextDate}</p>`
-          }
-          //console.log(res.data ,efb_var.id);
-          stsStripeEfb.innerHTML = `
-              <h3 class="efb  text-darkb p-0 m-0 mt-1 text-center"><i class="efb bi-check2-circle"></i> ${efb_var.text.successPayment}</h3>
-              <p class="efb  text-muted p-0  m-0 mb-2 text-center">${data.description}</p>
-              <div class="m-3">${val}</div>`;
-
-          let o = [{
-            amount: 0,
-            id_: "payment",
-            name: "Payment",
-            paymentAmount: data.amount,
-            paymentCreated: data.created,
-            paymentGateway: "stripe",
-            paymentIntent: data.paymentIntent,
-            paymentcurrency: data.currency,
-            payment_method: 'card',
-            type: "payment",
-            paymentmethod: data.paymentmethod,
-            value: `${data.val}`
-          }];
-          efb_var.id = trackid;
-          //console.log(id)
-          //console.log(o)
-          sendBack_emsFormBuilder_pub.push(o[0])
-          btnStripeEfb.innerHTML = "Done"
-          btnStripeEfb.style.display = "none";
-          jQuery("#statusStripEfb").show("slow")
-          //active next or send button !!
-          //disable button
-        }
-        stsStripeEfb.style.display = 'block'
-      }
-    })//end  btnStripeEfb
-
-
-  }// end if paymentKey
-
-
-}//end fun_add_stripe_efb
 
 fun_pay_valid_price = () => {
   //console.log('fun_pay_valid_price')
@@ -4178,7 +3944,7 @@ fun_offline_Efb = () => {
   const values = JSON.parse(localStorage.getItem('sendback'))
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
-    //console.log(value);
+    console.log(value);
     switch (value.type) {
       case 'email':
       case 'text':
@@ -4225,6 +3991,7 @@ fun_offline_Efb = () => {
             op.dataset.select = `${el.dataset.row} @efb!`
           }
         }
+
         break;
       case 'esign':
 
@@ -4260,6 +4027,13 @@ fun_offline_Efb = () => {
         el = document.getElementById(`${value.id_}_-message`);
         el.className = `efb text-success efb fs-7 fw-bolder`;
         el.innerHTML = `${efb_var.text.uploadedFile}: ${s}`;
+        break;
+      case 'stripe':
+
+      break;
+      case 'persiaPay':
+        console.log('stripe')
+        
         break;
     }
   }

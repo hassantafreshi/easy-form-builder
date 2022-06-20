@@ -99,28 +99,43 @@ class _Public {
 		}
 		$paymentType="";
 		//error_log($typeOfForm);
-		
-		if($typeOfForm=="payment"){
-			//,\"type\":\"stripe\",
-			if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
-		
-		}
-		//error_log($this->setting);
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		$paymentKey="null";
-		if(gettype($r)=="string"){
-			//error_log($r);
-			$setting =str_replace('\\', '', $r);
-			$setting =json_decode($setting);
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
-			if($typeOfForm=="payment" &&  $paymentType=="stripe" && $pro== true){ 
-				wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-				wp_enqueue_script('stripe-js');
-				//pub key stripe
-				$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
-				//error_log($paymentKey);
+		$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+		if($typeOfForm=="payment"){
+			$r = $this->setting;
+			if(gettype($r)=="string"){
+				$setting =str_replace('\\', '', $r);
+				$setting =json_decode($setting);
+				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
+
+				if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
+				if(strpos($value , ',\"type\":\"persiaPay\",'))$paymentType="payping";
+
+				if($paymentType!="null" && $pro==true){
+					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
+						wp_enqueue_script('pay_js');
+					if($paymentType=="stripe"){ 
+						wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+						wp_enqueue_script('stripe-js');
+
+						wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), null, true);
+						wp_enqueue_script('parsipay_js');
+						//pub key stripe
+						$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+						//error_log($paymentKey);
+					}else if($paymentType=="payping"){
+						error_log("payping");
+						$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
+						wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), null, true);
+						wp_enqueue_script('parsipay_js');
+					}
+				}
+		
+		
+		
 			}
+		
 		}
 
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
@@ -185,6 +200,7 @@ class _Public {
 		wp_localize_script( 'core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
 		// $pro=false;		
+		$stng = $this->get_setting_Emsfb('pub');
 		 if(gettype($stng)!=="integer" && $stng!=$this->lanText["settingsNfound"]){
 			 $valstng= json_decode($stng);
 			 if( $formObj[0]["captcha"]==true && (($valstng->siteKey) !=null) && strlen($valstng->siteKey)>1){				
@@ -201,7 +217,7 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }	
-		 $efb_m= $pro!=true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		 $efb_m= $pro==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		 if($formObj[0]["stateForm"]==true){
 
 			
@@ -252,7 +268,7 @@ class _Public {
 		}else{
 
 			$valstng= json_decode($stng);
-			if(strlen($valstng->apiKeyMap)>5){
+			if(isset($valstng->apiKeyMap)>5){
 				//error_log("maps");
 				$key= $valstng->apiKeyMap;
 				$lng = strval(get_locale());

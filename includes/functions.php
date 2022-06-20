@@ -527,6 +527,7 @@ class efbFunction {
 			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
+			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

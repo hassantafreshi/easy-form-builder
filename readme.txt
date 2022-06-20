@@ -259,8 +259,8 @@ Adding a multiple selection dropdown (Multiple Select field) to your WP forms al
 **Accept payment with Stripe**
 Taking payments form with integration Stripe Just Enter Public and Secret key on Easy Form Builder and build your service payment form or order payment form.
 
-**Redirect page**
-Redirect page option on Easy Form Builder is thank you page and will have redirected after completing the form on your landing page or an URL.
+**Thank you page(Redirect page)**
+Redirect page option on Easy Form Builder is like thank you page and will have redirected after completing the form on your landing page or an URL.
 
  
 **Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
@@ -291,8 +291,8 @@ Help to make Easy Form Builder better by reporting any bugs you may encounter an
 
 
 == Screenshots == 
-1. Create a form
-2. Form Builder
+1. Form Builder
+2. Create a form
 3. Preview a form
 4. Panel of Easy form builder
 5. List of responses
@@ -336,6 +336,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 3.2.1 = 
 * Added new options to form builder: redirecet to thank you page or URL
 * login form
+* Change Email Template
+* Improve loading speed
 
 = 3.2.0 =
 * rename table names
