@@ -26,7 +26,7 @@ class efbFunction {
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!==null && isset($ac->text) ? true : false ;		
+		$state= $ac!=='null' && isset($ac->text) ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -527,6 +527,7 @@ class efbFunction {
 			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
+			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -588,6 +589,7 @@ class efbFunction {
 		}   
 		
 		$st = $this->get_setting_Emsfb();
+		if($st=="null") return;
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
 		$title=$lang["newMessage"];

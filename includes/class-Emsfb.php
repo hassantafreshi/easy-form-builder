@@ -95,10 +95,7 @@ class Emsfb {
 		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
 		$check_test_table = $wpdb->get_var( $query );
         $table_name = $wpdb->prefix . "emsfb_form";
- /*        error_log('checkDbchange');
-        error_log(strcmp($table_name,$check_test_table));
-        error_log($check_test_table);
-        error_log($table_name); */
+
         if(strlen($check_test_table)>0){
 			if ( strcmp($table_name,$check_test_table)!=0) {
                 $message =  __('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 

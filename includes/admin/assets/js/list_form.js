@@ -284,11 +284,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
 
     } else if (c.type == "esign") {
-     
+
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m += value;
-      
+
     } else if (c.type == "maps") {
 
       if (typeof (c.value) == "object") {
@@ -372,7 +372,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 function fun_ws_show_list_messages(value) {
   //v2
-  
+
   let rows = '';
   let no = 1;
   let head = `<!-- rows -->`;
@@ -402,7 +402,7 @@ function fun_ws_show_list_messages(value) {
   if (value.length > 0) {
     for (const v of value) {
       let state = Number(v.read_);
-      $txtColor = state==2 ? 'text-danger' :'';
+      $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">                    
          <th scope="row" class="efb ${$txtColor}">${v.track}</th>
@@ -474,7 +474,7 @@ function fun_delete_form_with_id_by_server(id) {
 
 function emsFormBuilder_messages(id) {
   const row = ajax_object_efm.ajax_value.find(x => x.form_id == id)
-  
+
   form_type_emsFormBuilder = row.form_type;
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
@@ -482,6 +482,10 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
+  console.log('show message');
+  show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
+  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  myModal.show();
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0) {
@@ -640,7 +644,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 
 function fun_ws_show_response(value) {
   for (v of value) {
-    
+
     const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
   }
@@ -729,6 +733,7 @@ function fun_show_setting__emsFormBuilder() {
   let textList = "<!--list EFB -->";
   let bootstrap = false;
   let emailTemp = "null"
+  let payToken="null";
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -750,6 +755,24 @@ function fun_show_setting__emsFormBuilder() {
     smtp = f('smtp') == 'null' ? false : true;
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
+    payToken = f('payToken');
+  }
+
+  let persianPayToken = () => {
+    if (efb_var.language == "fa_IR") {
+      return `
+      <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
+      <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('wiki')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
+      <div class="efb mx-3 my-2">
+        <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
+          <label class="efb form-label mx-2">توکن</label>
+          <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="payToken_emsFormBuilder" placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
+        </div>
+      </div>
+    `
+    } else {
+      return `<!--Efb Not Persia-->`;
+    }
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -920,9 +943,13 @@ function fun_show_setting__emsFormBuilder() {
                                   <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                                               
                               </div>
+                              
+                              ${persianPayToken()}
+                         
                                                            
-                                <!-- END Text Section -->
+                                <!-- END payment Section -->
                             </div>
                         </div>
 
@@ -1038,7 +1065,7 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
-    //console.log(el.id ,el);
+    console.log(id,el );
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
@@ -1135,7 +1162,8 @@ function fun_set_setting_emsFormBuilder() {
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = efb_var.text;
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, stripePKey: stripePKey, stripeSKey: stripeSKey });
+    const payToken = f('payToken_emsFormBuilder');
+    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken });
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1312,13 +1340,13 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(v.content.replace(/[\\]/g, ''))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
-    
+
     let countMultiNo = [];
     let NoMulti = [];
 
-   
+
     for (c in content) {
-    
+
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       //console.log(c,content[c]);
@@ -1326,7 +1354,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
         && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect') {
 
         if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-        
+
 
         value_col_index = rows[0].findIndex(x => x == content[c].name);
 

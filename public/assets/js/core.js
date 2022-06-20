@@ -1363,23 +1363,6 @@ function response_rMessage_id(res, message) {
 }
 
 
-function noti_message_efb(title, message, sec, alert) {
-  sec = sec * 1000
-  alert = alert ? `alert-${alert}` : 'alert-info';
-  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible  mx-5 ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
-    <h4 class="efb alert-heading">${title}</h4>
-    <p>${message}</p>
-    <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
-  </div>`
-  setTimeout(function () {
-    jQuery('.alert_efb').hide();
-    document.getElementById('alert_efb').innerHTML = ""
-  }, sec);
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  jQuery('.alert').alert()
-}
-
 
 function loadCaptcha_efb() {
 
@@ -1396,21 +1379,3 @@ function loadCaptcha_efb() {
 };
 
 
-function fun_total_pay_efb() {
-  //console.log('fun_total_pay_efb');
-  let total = 0;
-  updateTotal = (i) => {
-    i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    //totalpayEfb
-    for (const l of document.querySelectorAll(".totalpayEfb")) {
-      l.innerHTML = i
-    }
-  }
-
-  for (let r of sendBack_emsFormBuilder_pub) {
-    if (typeof r.price == "string" || typeof r.price == "number") total += parseFloat(r.price)
-  }
-  setTimeout(() => { updateTotal(total); }, 800);
-
-
-}
