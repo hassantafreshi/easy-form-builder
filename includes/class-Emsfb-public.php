@@ -76,7 +76,8 @@ class _Public {
 		$this->public_scripts_and_css_head();
 		$state="";
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
+		$text =isset($this->text_) ?  $this->text_ : $this->text_ = ["pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+		$this->lanText= $this->efbFunction->text_efb($text);
 		$table_name = $this->db->prefix . "emsfb_form";
 		$pro=false;
 		$this->value = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
@@ -144,8 +145,8 @@ class _Public {
 				$send=array();
 
 				//translate v3
-				$text = empty($this->text_)==false ? $this->text_: ["pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
-				$text= empty($this->lanText) || sizeof($this->lanText)<1 ? $efbFunction->text_efb() :$this->lanText;
+				$this->text_=["pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+				$text= empty($this->lanText) || sizeof($this->lanText)<1 ? $efbFunction->text_efb($this->text_) :$this->lanText;
 
 				$fs =str_replace('\\', '', $this->value[0]->form_structer);
 				
@@ -303,10 +304,10 @@ class _Public {
 
 	function public_scripts_and_css_head(){
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-	$r=$this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
-	$this->setting =$r;
-	$googleCaptcha=false;
-	$bootstrap =false;
+		$r=$this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+		$this->setting =$r;
+		$googleCaptcha=false;
+		$bootstrap =false;
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
 			$setting =json_decode($setting);
@@ -384,7 +385,9 @@ class _Public {
 
 	  public function get_ajax_form_public(){
 		//error_log('get_ajax_form_public');
-		
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
@@ -894,6 +897,9 @@ class _Public {
 
 	  }
 	  public function get_ajax_track_public(){
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
@@ -1029,6 +1035,9 @@ class _Public {
 
 	public function file_upload_public(){
 		//error_log('file_upload_public');
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
 			
@@ -1064,7 +1073,9 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		//error_log($_POST['message']);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');
@@ -1160,46 +1171,48 @@ class _Public {
 
 	public function send_email_Emsfb($to , $track ,$pro , $state){
 	 
-	
-   $cont = $track;
-   $subject ="📮 ". $this->lanText["youRecivedNewMessage"];
-   if($state=="notiToUserFormFilled_TrackingCode"){
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
+				$cont = $track;
+		$subject ="📮 ". $this->lanText["youRecivedNewMessage"];
+		if($state=="notiToUserFormFilled_TrackingCode"){
 
-	$subject =$this->lanText["WeRecivedUrM"];
-	$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-			<p>". $this->lanText["trackNo"].": ".$cont." </p>
+			$subject =$this->lanText["WeRecivedUrM"];
+			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
+					<p>". $this->lanText["trackNo"].": ".$cont." </p>
+					<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+					";
+			$cont=$message;
+		}elseif($state=="notiToUserFormFilled"){
+
+			$subject =$this->lanText["WeRecivedUrM"];	   
+			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
 			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 			";
-	$cont=$message;
-   }elseif($state=="notiToUserFormFilled"){
-
-	$subject =$this->lanText["WeRecivedUrM"];	   
-	$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
-	";
-	$cont=$message;
-   }elseif ($state=="register"){  
-	$subject =$this->lanText["thankRegistering"];   	
-	$message ="<h2>".$this->lanText["welcome"]."</h2>
-	".$cont."
-	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
-	";
-	$cont=$message;
-   }elseif ($state=="subscribe"){
-	$subject =$this->lanText["welcome"];   
-	$message ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
-	";
-	$cont=$message;
-   }elseif ($state=="survey"){
-	$subject =$this->lanText["welcome"];   
-	$message ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-	<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
-	";
-	$cont=$message;
-   }   
-   $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-   $check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
+			$cont=$message;
+		}elseif ($state=="register"){  
+			$subject =$this->lanText["thankRegistering"];   	
+			$message ="<h2>".$this->lanText["welcome"]."</h2>
+			".$cont."
+			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+			";
+			$cont=$message;
+		}elseif ($state=="subscribe"){
+			$subject =$this->lanText["welcome"];   
+			$message ="<h2>".$this->lanText["thankSubscribing"]."</h2>
+			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+			";
+			$cont=$message;
+		}elseif ($state=="survey"){
+			$subject =$this->lanText["welcome"];   
+			$message ="<h2>".$this->lanText["thankDonePoll"]."</h2>
+			<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
+			";
+			$cont=$message;
+		}   
+		// $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
 
 	}
 
