@@ -759,20 +759,18 @@ function fun_show_setting__emsFormBuilder() {
   }
 
   let persianPayToken = () => {
-    if (efb_var.language == "fa_IR") {
+    const visible = efb_var.language == "fa_IR" ? "d-block" : "d-none";
       return `
       <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
       <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('wiki')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
           <label class="efb form-label mx-2">توکن</label>
-          <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="payToken_emsFormBuilder" placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
+          <input type="text" class="efb form-control w-75 h-d-efb border-d ${visible} efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
         </div>
       </div>
     `
-    } else {
-      return `<!--Efb Not Persia-->`;
-    }
+  
   }
 
   Object.entries(text).forEach(([key, value]) => {
