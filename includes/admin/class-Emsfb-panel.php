@@ -102,6 +102,16 @@ class Panel_edit  {
 				wp_enqueue_script('googleMaps-js');
 			}
 
+			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), null, true);
+			wp_enqueue_script('pay_js');
+	
+			if("fa_IR"==get_locale()){
+				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), null, true);
+				wp_enqueue_script('persia_pay');
+			}
+	
+			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), null, true);
+			wp_enqueue_script('stripe_js');
 			
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
