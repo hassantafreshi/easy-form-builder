@@ -31,13 +31,7 @@ class Install {
 		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
 		$check_test_table = $wpdb->get_var( $query );
 
-		/* deactivate_plugins( plugin_basename( __FILE__ ), true );
-		$url = admin_url( 'plugins.php?deactivate=true' );
-        header( "Location: $url" );
-		die(); */
-		/* add_action('report_admin',array($this,'email_send'));
-		do_action('report_admin'); */
-		
+
 		if(strlen($check_test_table)>0){
 			if ( strcmp($table_name,$check_test_table)!=0 ) {
 				$state=1;
@@ -116,16 +110,22 @@ class Install {
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
 					}
-					if($s==true){										
+															
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
-						if(count($v) == 0 ||$v=NULL){
+						if($v==NULL && $s==true){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
 							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 							dbDelta( $s );			
-						}								
-					}
+						}else if($v==NULL && $s==false){
+							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
+							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
+							, 'date'=>current_time('mysql') , 'email'=>'' ));
+							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+							dbDelta( $s );			
+						}
+					
 
 		}
 	

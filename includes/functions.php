@@ -26,7 +26,7 @@ class efbFunction {
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!==null && isset($ac->text) ? true : false ;		
+		$state= $ac!=='null' && isset($ac->text) ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -589,6 +589,7 @@ class efbFunction {
 		}   
 		
 		$st = $this->get_setting_Emsfb();
+		if($st=="null") return;
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
 		$title=$lang["newMessage"];
