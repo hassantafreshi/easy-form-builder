@@ -222,8 +222,12 @@ const obj_delete_row = (dataid, is_step) => {
       document.getElementById('maps').draggable = true;
       document.getElementById('maps_b').classList.remove('disabled')
     } else if (valj_efb[foundIndex].type == "stripe") {
+     const v= valj_efb.findIndex(x => x.type == 'persiaPay');
+     if(v==-1){
       valj_efb[0].type = "form";
       form_type_emsFormBuilder = "form";
+     }
+     
       //console.log(valj_efb[0]);
     } else if (fun_el_select_in_efb(valj_efb[foundIndex].type) || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox') {
       obj_delete_options(valj_efb[foundIndex].id_)

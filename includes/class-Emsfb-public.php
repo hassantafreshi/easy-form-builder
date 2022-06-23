@@ -101,7 +101,7 @@ class _Public {
 			
 		}
 		$paymentType="";
-		//error_log($typeOfForm);
+		error_log($typeOfForm);
 		$paymentKey="null";
 		$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		if($typeOfForm=="payment"){
@@ -114,7 +114,8 @@ class _Public {
 
 				if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
 				if(strpos($value , ',\"type\":\"persiaPay\",'))$paymentType="payping";
-
+				error_log($pro);
+				error_log($paymentTypero);
 				if($paymentType!="null" && $pro==true){
 					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
 						wp_enqueue_script('pay_js');
@@ -989,7 +990,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.2.2')</script>";
+		return "<script>console.log('Easy Form Builder v3.2.3')</script>";
 	
 	  }//end function
 
