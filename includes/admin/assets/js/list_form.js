@@ -482,7 +482,6 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  console.log('show message');
   show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   myModal.show();
@@ -759,20 +758,20 @@ function fun_show_setting__emsFormBuilder() {
   }
 
   let persianPayToken = () => {
-    if (efb_var.language == "fa_IR") {
+    const visible = efb_var.language == "fa_IR" ? "style='display:block'" : "style='display:none'";
       return `
+      <div ${visible}>
       <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
       <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('wiki')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
           <label class="efb form-label mx-2">توکن</label>
-          <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="payToken_emsFormBuilder" placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
+          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
         </div>
       </div>
+      </div>
     `
-    } else {
-      return `<!--Efb Not Persia-->`;
-    }
+  
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -1065,7 +1064,6 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
-    console.log(id,el );
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {

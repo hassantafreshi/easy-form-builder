@@ -69,11 +69,8 @@ class Admin {
             add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                   // پاسخ ادمین را در دیتابیس ذخیره می کند
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
-            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل
-            
+            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل             
         }
-
-     
     }
 
     public function add_cap() {
