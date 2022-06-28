@@ -1659,7 +1659,7 @@ function clickToCheckEmailServer() {
         } else {
 
           noti_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
-
+          document.getElementById("hostSupportSmtp_emsFormBuilder").checked = false;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
         document.getElementById('clickToCheckEmailServer').classList.remove('disabled')

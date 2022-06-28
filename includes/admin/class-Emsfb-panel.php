@@ -34,7 +34,7 @@ class Panel_edit  {
 			
 			/* error_log(gettype($ac));
 			error_log($ac->activeCode); */
-			$smtp =false;
+			$smtp =0;
 			$captcha =false;
 			$maps=false;
 			$mdtest = "15f57cc603c2ea64721ae0d0b5983136";
@@ -43,7 +43,7 @@ class Panel_edit  {
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}	
-				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
+				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}	
 				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 					//error_log($ac->apiKeyMap);		
 					$k= $ac->apiKeyMap;
@@ -202,7 +202,7 @@ class Panel_edit  {
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
+									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb "> <?= __('Please Wait', 'easy-form-builder' ) ?></h3></div></div>
 					</div></div></div>
 
 					<div class="efb row mb-2">					

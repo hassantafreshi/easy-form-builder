@@ -88,7 +88,7 @@ class Create {
 									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
 					</div></div></div>
             <div id="tab_container_efb">
-           
+			<div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb "> <?= __('Please Wait', 'easy-form-builder' ) ?></h3></div>
         	</div>
 			<datalist id="color_list_efb">
 			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
