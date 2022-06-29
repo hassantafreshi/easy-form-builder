@@ -231,7 +231,7 @@ class _Public {
 				 wp_enqueue_script('googleMaps-js');
 			 }
 		 }	
-		 $efb_m= $pro==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		 $efb_m= $pro==true ||$this->pro_efb==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		 if($formObj[0]["stateForm"]==true){
 
 			
