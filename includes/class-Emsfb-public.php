@@ -18,6 +18,7 @@ class _Public {
 	public $efbFunction;
 	public $lanText;
 	public $text_;
+	public $pro_efb;
 	
 	public function __construct() {
 
@@ -92,6 +93,16 @@ class _Public {
 		$lang = explode( '_', $lang )[0];
 		}
 		$state="form";
+		//
+		if(strpos($value , '"type\":\"multiselect\"')){
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
+			wp_enqueue_script('efb-bootstrap-select-js'); 
+
+			
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
+			wp_enqueue_style('Emsfb-bootstrap-select-css');
+		
+		}
 		
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
@@ -101,7 +112,6 @@ class _Public {
 			
 		}
 		$paymentType="";
-		error_log($typeOfForm);
 		$paymentKey="null";
 		$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 		if($typeOfForm=="payment"){
@@ -112,10 +122,10 @@ class _Public {
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 
-				if(strpos($value , ',\"type\":\"stripe\",'))$paymentType="stripe";
-				if(strpos($value , ',\"type\":\"persiaPay\",'))$paymentType="payping";
-				error_log($pro);
-				error_log($paymentTypero);
+				if(strpos($value , ',\"type\":\"stripe\",')){$paymentType="stripe";}
+				else if(strpos($value , ',\"type\":\"persiaPay\",')){$paymentType="payping";}
+				else if(strpos($value , ',\"type\":\"zarinPal\",')){$paymentType="zarinpal";}
+
 				if($paymentType!="null" && $pro==true){
 					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
 						wp_enqueue_script('pay_js');
@@ -312,9 +322,11 @@ class _Public {
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
 			$setting =json_decode($setting);
+			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 			//error_log($setting->bootstrap);
 			$bootstrap = isset($setting->bootstrap) ? $setting->bootstrap : false;
 			$googleCaptcha = isset($setting->siteKey) &&  isset($setting->secretKey) && strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
+			$this->pro_efb = isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode ? true :false;
 		}
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
@@ -326,6 +338,15 @@ class _Public {
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
+
+		/* pro */
+		
+		if($this->pro_efb==1){
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js');
+			wp_enqueue_script('efb-pro-els'); 
+		}
+			
+
 		/* v2 */
 
 		//اگر پرو بود اگر پلاگین نصب بود 
@@ -335,16 +356,20 @@ class _Public {
 			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
 			wp_enqueue_script('efb-bootstrap-min-js'); 
 	
+			/* wp_enqueue_script('efb-bootstrap-bundle-min-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true);
+			wp_enqueue_script('efb-bootstrap-bundle-min-js');  */
+			
 			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true);
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
 			
+			
 			wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
 			wp_enqueue_style('Emsfb-bootstrap-css');
+		/* 	wp_register_style('bootstrap-css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', true);
+			wp_enqueue_style('bootstrap-css'); */
 		}
 		
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js');
-		wp_enqueue_script('efb-bootstrap-select-js'); 
 		
 
 		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
@@ -356,11 +381,8 @@ class _Public {
 
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
-		wp_enqueue_script('efb-main-js'); 
-
+		wp_enqueue_script('efb-main-js'); 		
 		
-		wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
-		wp_enqueue_style('Emsfb-bootstrap-select-css');
 
 		/* end v2 */
 		
@@ -990,7 +1012,7 @@ class _Public {
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
 
-		return "<script>console.log('Easy Form Builder v3.2.3')</script>";
+		return "<script>console.log('Easy Form Builder v3.2.4')</script>";
 	
 	  }//end function
 
@@ -1239,14 +1261,19 @@ class _Public {
 		//error_log('count($value)>0');
 			$r =str_replace('\\', '', $value);
 			$r =json_decode($r);
-			if($state=="pub"){						
-				$pro = isset($r->activeCode) ? $r->activeCode : "";
+			if($state=="pub"){	
+				$this->setting =$value;		
+				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				$pro = false;
+				if(isset($r->activeCode) &&  md5($server_name) ==$r->activeCode){$pro=true;}			
+				$this->pro_efb = $pro;
 				$trackingCode = isset($r->trackingCode) ? $r->trackingCode : "";
 				$siteKey = isset($r->siteKey) ? $r->siteKey : "";
 				$mapKey = isset($r->apiKeyMap) ? $r->apiKeyMap : "";
 				$paymentKey = isset($r->stripePKey) ? $r->stripePKey : "";
 				$rtr=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey);		
 				$rtrn =json_encode($rtr,JSON_UNESCAPED_UNICODE);
+				
 			}else{
 				$rtrn=$value;
 				$this->setting =$rtrn;
@@ -1301,7 +1328,6 @@ class _Public {
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
 		$val_ = json_decode($val,true);
-		//error_log(gettype($val_));
 		$paymentmethod = $fs_[0]['paymentmethod'];
 		$price_c =0;
 		$price_f=0;
@@ -1351,9 +1377,7 @@ class _Public {
 					$iv = array_keys($filtered);
 					 $a = $iv[0];
 				} */
-				if($a !=-1){
-					/* error_log($fs_[$a]["id_"]);					
-					error_log($fs_[$a]["id_op"]); */						
+				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
 					}

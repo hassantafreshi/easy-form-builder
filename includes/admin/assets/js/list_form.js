@@ -1692,9 +1692,9 @@ function email_template_efb(s) {
   if (s == 'p') {
     //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
-    let ti = efb_var.text.error
-    c = c.replace(/(http:@efb@|https:@efb@)+/g, '//')
-    c = c.replace(/(@efb@)+/g, '/')
+    let ti = efb_var.text.error;
+    c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
+    c = c.replace(/(@efb@)+/g, '/');
     if (c.match(/(<script+)/gi)) {
       //show error message you can't use script code
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
@@ -1703,7 +1703,7 @@ function email_template_efb(s) {
       ti = efb_var.text.preview;
       if (!c.includes('shortcode_message') && !c.includes('shortcode_title')) {
         c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>`;
-        ti = efb_var.text.error
+        ti = efb_var.text.error;
       }
       else if (!efb_var.pro) {
 
@@ -1791,11 +1791,11 @@ function EmailTemp2Efb() {
 function fun_add_email_template_efb(i) {
   switch (i) {
     case 1:
-      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp1Efb()
+      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp1Efb();
       break;
 
     case 2:
-      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp2Efb()
+      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp2Efb();
       break;
 
   }

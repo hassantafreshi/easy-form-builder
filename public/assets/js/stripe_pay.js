@@ -291,3 +291,53 @@ fun_add_stripe_efb = () => {
     <!-- end stripe -->
     `
 }
+
+
+fun_pay_valid_price = () => {
+  //console.log('fun_pay_valid_price')
+  let s = false;
+  let price = 0
+  for (let o of sendBack_emsFormBuilder_pub) {
+    //console.log(o.hasOwnProperty('price'))
+    if (o.hasOwnProperty('price')) price += parseFloat(o.price)
+  }
+  s = price > 0 ? true : false;
+  //console.log(s,price);
+
+  return s;
+}
+//pub function
+fun_disabled_all_pay_efb = () => {
+  let type = '';
+  document.getElementById('stripeCardSectionEfb').classList.add('d-none');
+  for (let o of valj_efb) {
+    if (o.hasOwnProperty('priceEfb')) {
+      if (o.hasOwnProperty('parent')) {
+        const p = valj_efb.findIndex(x => x.id_ == o.parent);
+        type = valj_efb[p].type;
+        //console.log(o.parent,p,type);
+        let ov = document.querySelector(`[data-vid ="${o.parent}"]`);
+        ov.classList.remove('payefb');
+        ov.classList.add('disabled');
+        ov.disabled = true;
+        if (type != "multiselect" && type != "select" && type != "payMultiselect" && type != "paySelect") {
+          const ob = valj_efb.filter(obj => {
+            return obj.parent === o.parent
+          })
+          //console.log(ob);
+          for (let o of ob) {
+            ov = document.getElementById(o.id_);
+            //console.log(ov);
+            ov.classList.add('disabled');
+            ov.classList.remove('payefb');
+            ov.disabled = true;
+          }//end for
+
+        }//end if multiselect 
+      }
+
+    }
+  }
+}
+
+
