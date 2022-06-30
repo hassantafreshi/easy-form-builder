@@ -17,3 +17,7 @@ function fun_total_pay_efb() {
     setTimeout(() => { updateTotal(total); }, 800);
     if(valj_efb[0].getway=="persiaPay") fun_total_pay_persiaPay_efn(total)
   }
+
+  fun_currency_no_convert_efb = (currency, number) => {
+    return new Intl.NumberFormat('us', { style: 'currency', currency: currency }).format(number)
+  }

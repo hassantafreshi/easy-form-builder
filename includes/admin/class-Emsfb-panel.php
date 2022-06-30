@@ -43,7 +43,7 @@ class Panel_edit  {
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}	
-				if(isset($ac->smtp) && $ac->smtp!="false"){$smtp=$ac->smtp;}else{$smtp_m =$lang["sMTPNotWork"];}	
+				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
 				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 					//error_log($ac->apiKeyMap);		
 					$k= $ac->apiKeyMap;
@@ -74,6 +74,9 @@ class Panel_edit  {
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
 			wp_enqueue_script('efb-val-js'); 
+
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js');
+			wp_enqueue_script('efb-pro-els');
 
 		
 			if($pro==true){
@@ -210,7 +213,8 @@ class Panel_edit  {
 					</div>
 					<div class="efb row" id ="content-efb">
 				 	<div class="efb card-body text-center my-5"><div class="efb lds-hourglass"></div> <h3 class="efb "><?=  $lang["loading"] ?></h3></div>
-					<!--  <h2 id="loading_message_emsFormBuilder" class="efb -color text-center m-5 center"><i class="efb fas fa-spinner fa-pulse"></i><?=  $lang["loading"] ?></h2> -->
+					 		
+					
 					</div>
 					<div class="efb mt-3 d-flex justify-content-center align-items-center ">
 					<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="efb bi-chevron-double-down"></i></button>
