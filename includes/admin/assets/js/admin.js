@@ -769,7 +769,7 @@ let change_el_edit_Efb = (el) => {
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
       case "SendemailEl":
-        if (efb_var.smtp == "true") {
+        if (efb_var.smtp == "true" || efb_var.smtp == 1) {
           valj_efb[0].sendEmail = el.checked
           valj_efb[0].email_to = el.dataset.id.replace('-id', '');
         } else {

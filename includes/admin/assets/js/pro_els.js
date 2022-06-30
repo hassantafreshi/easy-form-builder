@@ -1,4 +1,3 @@
-console.log('pro.js')
 
  maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `

@@ -1613,7 +1613,6 @@ function fun_validation_efb() {
     }
 
   }
-  console.log(`idi[${idi}]`);
   if (idi != "null") { document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}); }
   //console.log(state,idi);
   return state
