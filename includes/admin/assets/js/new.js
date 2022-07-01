@@ -1174,18 +1174,6 @@ function setProgressBar_efb(curStep, steps_len_efb) {
     .css("width", percent + "%")
 }
 
-function calPLenEfb(len) {
-  let p = 2
-  if (len <= 5) { p = 40 }
-  else if (len > 5 && len <= 10) { p = 20 }
-  else if (len > 10 && len <= 50) { p = 15 }
-  else if (len > 50 && len <= 100) { p = 9 }
-  else if (len > 100 && len <= 300) { p = 3 }
-  else if (len > 300 && len <= 600) { p = 1.5 }
-  else if (len > 600 && len <= 1000) { p = 1.2 }
-  else { p = 1.1 }
-  return p;
-}
 
 
 function ReadyElForViewEfb(content) {
@@ -1885,3 +1873,16 @@ let get_position_col_el = (dataId, state) => {
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)
 }) */
+
+function calPLenEfb(len) {
+  let p = 2
+  if (len <= 5) { p = 40 }
+  else if (len > 5 && len <= 10) { p = 20 }
+  else if (len > 10 && len <= 50) { p = 15 }
+  else if (len > 50 && len <= 100) { p = 9 }
+  else if (len > 100 && len <= 300) { p = 3 }
+  else if (len > 300 && len <= 600) { p = 1.5 }
+  else if (len > 600 && len <= 1000) { p = 1.2 }
+  else { p = 1.1 }
+  return p;
+}
