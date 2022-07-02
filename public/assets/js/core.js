@@ -487,7 +487,7 @@ function createStepsOfPublic() {
 //end function createStepsOfPublic
 
 
-/* function fun_sendBack_emsFormBuilder(ob) {
+function fun_sendBack_emsFormBuilder(ob) {
   //console.log(ob);
 
 
@@ -515,7 +515,7 @@ function createStepsOfPublic() {
   localStorage.setItem('formId', localStorage.getItem('form_id'))
 
   //console.log(sendBack_emsFormBuilder_pub);
-} */
+}
 /* function fun_multiSelectElemnets_emsFormBuilder(ob) { 
   // این تابع آبجکت ارسال به سرور مدیریت می کند
   let r = 0
@@ -1170,7 +1170,7 @@ function fun_show_alert_setting_emsFormBuilder() {
 
 
 
-/* function validation_before_send_emsFormBuilder() {
+function validation_before_send_emsFormBuilder() {
   // console.log( localStorage.getItem('sendback'),sendBack_emsFormBuilder_pub)
   const count = [0, 0]
   let fill = 0;
@@ -1231,7 +1231,7 @@ function fun_show_alert_setting_emsFormBuilder() {
   } else {
     return true;
   }
-} */
+}
 
 
 function show_user_profile_emsFormBuilder(ob) {
@@ -1398,6 +1398,9 @@ function loadCaptcha_efb() {
     });
   }
 };
+
+
+
 
 function calPLenEfb(len) {
   let p = 2

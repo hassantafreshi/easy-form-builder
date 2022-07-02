@@ -49,7 +49,6 @@ class _Public {
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		
 		
-		//add_action('init',  array($this, 'public_scripts_and_css_head'));
 		$this->efbFunction = new efbFunction();  
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) ); 
 		add_action('init',  array($this, 'hide_toolmenu'));
@@ -70,7 +69,6 @@ class _Public {
 		}	
 		/* wp_register_script('efb_js', plugins_url('../public/assets/js/efb.js',__FILE__), null, null, true);
 		wp_enqueue_script('efb_js'); */
-		//$this->public_scripts_and_css_head();
 	}
 
 	public function EFB_Form_Builder($id){
@@ -264,7 +262,7 @@ class _Public {
 
 			 $content="<div id='body_efb' class='efb card card-public row pb-3 efb'>
 			 <div class='efb text-center my-5'>
-			 <div class='efb lds-hourglass efb text-center my-2'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
+			 <div class='efb lds-hourglass efb text-center my-2' style='display:inline-block'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
 			 ".$efb_m."
 			 </div>
 			 
@@ -284,14 +282,14 @@ class _Public {
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;;
 		
-		//$this->public_scripts_and_css_head();
+		$this->public_scripts_and_css_head();
 		//Confirmation Code show
 		$lang = get_locale();
 
 				$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ; 
 				//translate v2
-				//$text=["pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
-				$text= empty($this->lanText) && sizeof($this->lanText)<1 ? $efbFunction->text_efb($text) :$this->lanText;
+				$text=["pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+				$text= $efbFunction->text_efb($text) ;
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
 		}
@@ -336,14 +334,16 @@ class _Public {
 
 	function public_scripts_and_css_head(){
 	
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
+		wp_enqueue_style('Emsfb-style-css');
+
 		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('core_js');
+		
 
 		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
-		wp_enqueue_style('Emsfb-style-css');
 
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), null, true);
@@ -414,7 +414,7 @@ class _Public {
 		//change langugae recaptcha
 		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
-	//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+		//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 		if($googleCaptcha==true){
 			$lang = get_locale();
 			if ( strlen( $lang ) > 0 ) {
@@ -434,21 +434,19 @@ class _Public {
 
 	  public function get_ajax_form_public(){
 		//error_log('get_ajax_form_public');
-		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
+		$text_ =['error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$efbFunction = new efbFunction() ;
+		$this->lanText= $this->efbFunction->text_efb($text_);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-		//recaptcha start
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+
+		$r=  $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
-		//error_log('type');
-		//error_log($type);
 		$email=get_option('admin_email');
 		$setting;
 		$rePage ="null";
@@ -461,14 +459,13 @@ class _Public {
 		//error_log($fs);
 
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
-		
+		$email_user="null";
 		
 		if($fs!='' && $type!="payment"){
 			$formObj=  json_decode($fs,true);
 			$email_fa = $formObj[0]["email"];
 			$trackingCode = $formObj[0]["trackingCode"];
-			$send_email_to_user_state =$formObj[0]["sendEmail"];
-			$email_user="null";
+			$send_email_to_user_state =$formObj[0]["sendEmail"];			
 			$not_captcha=$formObj[0]["captcha"];
 			if($formObj[0]["thank_you"]=="rdrct"){
 				$rePage= $this->string_to_url($formObj[0]["rePage"]);
@@ -525,10 +522,6 @@ class _Public {
 				}
 			}
 		if ($type=="logout" || $type=="recovery") {$not_captcha==true;}
-		
-		//error_log(( $captcha_success=="null" || $captcha_success->success!=true ));
-		
-		//error_log( $not_captcha );
 		if ($not_captcha==true && ( $captcha_success=="null" || $captcha_success->success!=true )  ) {
 			
 		  $response = array( 'success' => false  , 'm'=>$this->lanText["errorCaptcha"]); 
@@ -547,16 +540,10 @@ class _Public {
 			$fs =str_replace('\\', '', $this->value);
 			$valobj = json_decode($fs , true);
 			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-				foreach($valobj as $key => $val){	
-						if ($val["id_"]==$formObj[0]["email_to"]){
-							$email_user=$val["value"];
-						}
-				} 
+				$email_user = array_filter($valobj, function($item) use($formObj){ 
+					if($item['id_']==$formObj[0]["email_to"]){return $item["value"];}					
+				});			
 			}
-
-		  
-					//error_log($type);
-					
 					switch($type){
 						case "form":						
 							$this->get_ip_address();
@@ -574,10 +561,15 @@ class _Public {
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 									if($trackingCode=="true"||$trackingCode=="true")
 									{
-
-									$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
+										foreach($email_user as $key => $val){	
+											$this->send_email_Emsfb($val['value'],$check,$pro,"notiToUserFormFilled_TrackingCode");
+										}
+									//$this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled_TrackingCode");
 									}else{
-									 $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
+										foreach($email_user as $key => $val){	
+											$this->send_email_Emsfb($val['value'],$check,$pro,"notiToUserFormFilled");
+										}
+									// $this->send_email_Emsfb($email_user,$check,$pro,"notiToUserFormFilled");
 									}
 								}
 							}
@@ -660,10 +652,15 @@ class _Public {
 									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 										if($trackingCode=="true"||$trackingCode=="true")
 										{
-	
-										$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled_TrackingCode");
+											foreach($email_user as $key => $val){	
+												$this->send_email_Emsfb($val['value'],$trackId,$pro,"notiToUserFormFilled_TrackingCode");
+											}
+										//$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled_TrackingCode");
 										}else{
-										 $this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled");
+											foreach($email_user as $key => $val){	
+												$this->send_email_Emsfb($val['value'],$trackId,$pro,"notiToUserFormFilled");
+											}
+										 //$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled");
 										}
 									}
 								}
@@ -736,7 +733,8 @@ class _Public {
 										$to = $email;								
 										if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
-											$this->send_email_Emsfb($email_user,$ms,$pro,"register");
+											foreach($email_user as $key => $val){$this->send_email_Emsfb($val['value'],$ms,$pro,"register");}
+											//$this->send_email_Emsfb($email_user,$ms,$pro,"register");
 									    }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									}
@@ -881,7 +879,9 @@ class _Public {
 									$email = $setting->emailSupporter;
 								}													
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
-									 $this->send_email_Emsfb($email_user,"",$pro,"subscribe");
+
+									foreach($email_user as $key => $val){$this->send_email_Emsfb($val['value'],'',$pro,"subscribe");}
+									// $this->send_email_Emsfb($email_user,"",$pro,"subscribe");
 								}
 							}
 							if(strlen($email_fa)>4){
@@ -908,7 +908,8 @@ class _Public {
 			
 								
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
-									$this->send_email_Emsfb($email_user,"",$pro,"survey");
+									foreach($email_user as $key => $val){$this->send_email_Emsfb($val['value'],'',$pro,"survey");}
+									//$this->send_email_Emsfb($email_user,"",$pro,"survey");
 							    }
 							}
 							if(strlen($email_fa)>4){
@@ -926,7 +927,8 @@ class _Public {
 						break;
 
 						if(strlen($email_fa)>4){
-							//error_log($email_fa);
+							error_log('email_fa');
+							error_log($email_fa);
 							$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 						}
 						
@@ -941,106 +943,78 @@ class _Public {
 			$response = array( 'success' => false , "m"=>$this->lanText["errorSettingNFound"]); 
 			wp_send_json_success($response,$_POST);
 		}
+	  }//end function 
 
-
-
-	  }
 	  public function get_ajax_track_public(){
 		$this->public_scripts_and_css_head();
-		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
+		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$lanText= $this->efbFunction->text_efb($text_);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
-			//error_log('not valid nonce');
-			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+			$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
-		
 		$response=$_POST['valid'];
 		$captcha_success =[];
 		$not_captcha=true;
-		
-		if(gettype($r)=="string"){
-		 $setting =json_decode($r);
-		 $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
-	
-		 if($secretKey!="null"){
-			 $verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-			 $captcha_success =json_decode($verify['body']);
-			 $not_captcha=false;	 
-		 }
+		if(gettype($this->setting)=="string"){
+		$r=str_replace('\\', '', $this->setting);
+			 $setting =json_decode($r);
+			 $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
+			if($secretKey!="null"){
+				$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+				$captcha_success =json_decode($verify['body']);
+				$not_captcha=false;	 
+			}
 		}
-
 		 $strR = json_encode($captcha_success);
-		 //error_log($strR);	
-
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
-		 // "Error, you are a robot?";		
-		  $response = array( 'success' => false  , 'm'=> $this->lanText["errorMRobot"]); 
+		  $response = array( 'success' => false  , 'm'=> $lanText["errorMRobot"]); 
 		  wp_send_json_success($response,$_POST);
 		 }
 		 else if ((!empty($captcha_success) && $captcha_success->success==true) ||  $not_captcha==true) {
-		//	 "successful!!";
-
-		if(empty($_POST['value']) ){
-			$response = array( 'success' => false , "m"=>$this->lanText["enterVValue"]); 
-			wp_send_json_success($response,$_POST);
-			die();
-		}
-		
+			if(empty($_POST['value']) ){
+				$response = array( 'success' => false , "m"=>$lanText["enterVValue"]); 
+				wp_send_json_success($response,$_POST);
+				die();
+			}		
 			$id = sanitize_text_field($_POST['value']);
-		
-			$this->get_ip_address();
-			
+			$this->get_ip_address();			
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track FROM `$table_name` WHERE track = '$id'" );	
 			if($value!=null){
 				$id=$value[0]->msg_id;
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT content,rsp_by FROM `$table_name` WHERE msg_id = '$id'" );
-				///get_current_user_id
-				foreach($content as $key=>$val){
-					
+				foreach($content as $key=>$val){					
 					$r = (int)$val->rsp_by;
 					if ($r>0){
 						$usr =get_user_by('id',$r);
 						$val->rsp_by= $usr->display_name;
 					}else{
-						$val->rsp_by=$this->lanText["guest"];
+						$val->rsp_by=$lanText["guest"];
 					}				 
 				}
-				//$ip = $this->ip;
 			}
 			$r = false;
 			if($value!=null){
 				$r=true;
-				
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
 			}else{
-
-				$response = array( 'success' => false  , "m" =>$this->lanText["cCodeNFound"]); 
+				$response = array( 'success' => false  , "m" =>$lanText["cCodeNFound"]); 
 			}
 		
 			wp_send_json_success($response,$_POST);
 			}
-		//recaptcha end
-
-			
 	  }//end function
 
 
 
 
 	  public function fun_footer(){
-
-		
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
-
-		return "<script>console.log('Easy Form Builder v3.2.4')</script>";
-	
+		return "<script>console.log('Easy Form Builder v3.2.5')</script>";
 	  }//end function
 
 
@@ -1261,31 +1235,32 @@ class _Public {
 			";
 			$cont=$message;
 		}   
-		// $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+	/* 	error_log('to');
+		error_log($to); */
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
 
 	}
 
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
-	public function get_setting_Emsfb($state)
-	{
+	public function get_setting_Emsfb($state){
 		// تنظیمات  برای عموم بر می گرداند
 	 //error_log($state);
 	
 	 
-	 $table_name = $this->db->prefix . "emsfb_setting";
+	 	$table_name = $this->db->prefix . "emsfb_setting";
  
  
-	 $value = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
- 	//error_log(gettype($value));
-	$rtrn;
-	$siteKey;
-	$trackingCode ="";
-	$mapKey="";
+	 	$value = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+ 		//error_log(gettype($value));
+		$rtrn;
+		$siteKey;
+		$trackingCode ="";
+		$mapKey="";
 
 	
-	if($value!= null){
-		//error_log('count($value)>0');
+		if($value!= null){
+			//error_log('count($value)>0');
 			$r =str_replace('\\', '', $value);
 			$r =json_decode($r);
 			if($state=="pub"){	
@@ -1305,9 +1280,9 @@ class _Public {
 				$rtrn=$value;
 				$this->setting =$rtrn;
 			}
-	}else{
-		$rtrn=0;
-	}
+		}else{
+			$rtrn=0;
+		}
 		//error_log(json_encode($rtrn));
 	 //return $value[0];
 	 return $rtrn;
