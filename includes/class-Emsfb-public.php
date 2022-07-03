@@ -1204,7 +1204,7 @@ class _Public {
 
 			$subject =$this->lanText["WeRecivedUrM"];
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-					<p>". $this->lanText["trackNo"].": ".$cont." </p>
+					<p>". $this->lanText["trackNo"].":<br> ".$cont." </p>
 					<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 					";
 			$cont=$message;
@@ -1236,8 +1236,6 @@ class _Public {
 			$cont=$message;
 		}   
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-	/* 	error_log('to');
-		error_log($to); */
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
 
 	}
