@@ -88,7 +88,9 @@ class _Public {
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
 		if($value_form==null){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
-		}
+		}/* else{
+			$this->fun_convert_form_structer($value_form[0]->form_structer);
+		} */
 		$typeOfForm =$value_form[0]->form_type;
 		$value = $value_form[0]->form_structer;
 
@@ -236,7 +238,7 @@ class _Public {
 		 $stng = $this->pub_stting;
 		 if(gettype($stng)!=="integer" && $lanText["settingsNfound"]){
 			// $valstng= json_decode($stng);
-			 if( $formObj[0]["captcha"]==true && (($this->pub_stting->siteKey) !=null) && strlen($this->pub_stting->siteKey)>1){				
+			 if( $formObj[0]["captcha"]==true && (isset($this->pub_stting->siteKey)==true) && strlen($this->pub_stting->siteKey)>1){				
 				 $k =$this->pub_stting->siteKey;}
 			 if( isset($this->pub_stting->apiKeyMap) && strlen($this->pub_stting->apiKeyMap)>5){
 				 //error_log("maps");
@@ -1014,7 +1016,7 @@ class _Public {
 	  public function fun_footer(){
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.2.5')</script>";
+		return "<script>console.log('Easy Form Builder v3.2.6')</script>";
 	  }//end function
 
 
@@ -1204,7 +1206,7 @@ class _Public {
 
 			$subject =$this->lanText["WeRecivedUrM"];
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-					<p>". $this->lanText["trackNo"].": ".$cont." </p>
+					<p>". $this->lanText["trackNo"].":<br> ".$cont." </p>
 					<button><a href='".home_url()."' style='color: white;'>".get_bloginfo('name')."</a></button>
 					";
 			$cont=$message;
@@ -1236,8 +1238,6 @@ class _Public {
 			$cont=$message;
 		}   
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-	/* 	error_log('to');
-		error_log($to); */
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
 
 	}
@@ -1549,6 +1549,9 @@ class _Public {
 	
 		return $rePage;
 	}
+
+
+
 
 	
 }

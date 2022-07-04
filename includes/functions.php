@@ -577,8 +577,7 @@ class efbFunction {
 			   return $mailResult;
 		}
 
-	public function email_template_efb($pro, $state, $m){
-		
+	public function email_template_efb($pro, $state, $m){		
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);				
 		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
@@ -625,7 +624,7 @@ class efbFunction {
 			$align ="left";
 		}
 		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d."}</style><center>
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
@@ -654,11 +653,11 @@ class efbFunction {
 				$p = strripos($temp, '</body>');
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
-				if($pro=="not pro"){	$temp = substr_replace($temp,$footer,($p),0);}
-			//	error_log($temp);
+				if($pro=="not pro" ||$pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
+		       
 				$val =  $temp;
 			}
-			
+			error_log($val);
 			return $val;
 	}
 

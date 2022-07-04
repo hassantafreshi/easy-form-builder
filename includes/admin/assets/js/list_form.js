@@ -243,10 +243,10 @@ function fun_emsFormBuilder_back() {
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-   <p class="efb small mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
-   <p class="efb small mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
-  ${track != 0 ? `<p class="efb small mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-  <p class="efb small mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
+   <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
+   <p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
+  ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
+  <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
   <hr>
   <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);

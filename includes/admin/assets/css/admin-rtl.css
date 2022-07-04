@@ -5,6 +5,11 @@ body {direction: rtl !important;}.wp-menu-name {/* direction: rtl;float:     rig
      } 
     
      .col-md-12 .efb.ttiptext.show {
-        margin:-1% 70% 0 0!important;
+        margin:-1% 30% 0 0!important;
+    
     } 
+  
   }
+.efb.ttiptext.show {
+    width: fit-content!important;
+}
