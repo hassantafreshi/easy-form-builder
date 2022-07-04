@@ -1008,9 +1008,9 @@ function emsFormBuilder_show_content_message(value, content) {
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-  <p class="efb small mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
- ${track != 0 ? `<p class="efb small mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
- <p class="efb small mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
+  <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
+ ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
+ <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
  <hr>
  <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);

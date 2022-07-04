@@ -286,7 +286,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = `
        ${label}
         <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 ttEfb show"  id='${rndm}-f'>        
-          <input type="${elementId}" class="efb  input-efb px-2 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
+          <input type="${elementId}" class="efb  input-efb px-2 pb-0 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
           ${desc}`
       dataTag = elementId;
 
