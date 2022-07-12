@@ -67,6 +67,13 @@ class Create {
 
 	public function render_settings() {
 	?>
+	<!-- new code ddd -->
+	<div class="efb" id="sideMenuFEfb">
+		
+			
+			
+	</div>
+	<!-- end new code dd -->
 	<!--sideMenu--> <div class="efb sideMenuConEfb efbDW-0" id="sideMenuFEfb">
 				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
@@ -93,6 +100,7 @@ class Create {
 			<datalist id="color_list_efb">
 			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
 			</datalist>
+			
 		<?php
 
 
@@ -132,7 +140,16 @@ class Create {
 
 
 
-	
+			/* new code v4 */
+			wp_register_script('jquery-1', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-1.js', array('jquery'), null, true);	
+			wp_enqueue_script('jquery-1');
+
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), null, true);	
+			wp_enqueue_script('jquery-ui');
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), null, true);	
+			wp_enqueue_script('jquery-dd');
+			/*end new code v4 */
+
 		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
 

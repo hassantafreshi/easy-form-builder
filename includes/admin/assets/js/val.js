@@ -981,7 +981,7 @@ function creator_form_builder_Efb() {
                 <hr class="efb hr">
             </ul>
           <div class="efb row">${els}</div></div>
-         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row " id="dropZoneEFB">
+         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb items sortable_cancel card-body dropZoneEFB row " id="dropZoneEFB">
        
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
@@ -999,6 +999,8 @@ function creator_form_builder_Efb() {
   </div></div>
   `
   create_dargAndDrop_el()
+  console.log('efb.app loaded')
+  items_dd_efb();
 }
 
 function funUpdateLisetElEfb(cat){

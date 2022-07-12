@@ -241,7 +241,7 @@ i.efb {
     border-radius: 100px !important;
     transition: 0.5s;
 }
-
+/* 778899 */
 .btn-primary.efb {
     background-color: #4636f1 !important;
     background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
@@ -442,7 +442,7 @@ i.efb {
 }
 
 .field-selected-efb {
-    border: 1px solid #f2effa;
+    border: 1px dashed #ffbaba;
     border-radius: 5px !important;
     margin: 0px;
     padding: 0px;
@@ -2701,4 +2701,24 @@ a.efb.btn {
 .efb.my-5 {
     margin-top: 3rem !important;
     margin-bottom: 3rem !important;
+}
+
+
+/* admin css */
+.efb.ddefb {
+    background: #dc3545a1;
+    border-radius: 7px !important;
+    width: 7%!important;
+    position: absolute;
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0px !important;
+    font-size: x-large;
+    height: 34%;
+    margin: -26px 90% 0px 0px;
+}
+
+.efb.childd{
+	transform: translateZ(-10px)
 }

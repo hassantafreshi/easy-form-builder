@@ -1519,7 +1519,254 @@ class _Public {
 		}
 
     }
+	public function fun_convert_form_structer($form_structure){
+		$form_ = str_replace('\\', '', $form_structure);;
+		$form_ = json_decode($form_, true);
+		$str = '<!--efb-->';
+		$this->name ='<!--efb head-->';
+		//	$str = sprintf('<div class="efb-form-container">%s</div>',$form_[0]['type']);
+		$first = $form_[1];
+		array_filter($form_, function($item) use($first) { 
+			if(isset($item['id_'])!=true ){
+				
+				
+				/* 
+				'<h4 id="title_efb" class="efb %s text-center mt-1">%s</h4><p id="desc_efb" class="efb %s text-center  fs-6 efb">%s</p>'
+				$first['label_text_color'], $first['name'], $first['message_text_color'] , $first['message'] );
+				 */
+				
+				
 
+				// موارد مربوط به هد و ایکون و غیره اینجا هندل شود
+				//error_log(json_encode($item));
+				return false;
+			}
+			/* else if( $item['type']=='option'){
+				return false;
+			} */
+			$dataTag = '';
+			$desc ='<!--efb-->';
+			$label ='<!--efb-->';
+			$ui ='<!--efb-->';
+			//add pos function 
+			$pos =['','','',''];
+			if($item['type']!='option' && $item['type']!='step'){
+				error_log($item['size']);
+				error_log($item['label_position']);
+				switch ($item['size']) {
+					case 100:
+					case '100':
+					  $pos[1] = 'col-md-12';$pos[2] = 'col-md-3';$pos[3] = 'col-md-9';
+					  break;
+					case 80:
+					case '80':
+					 $pos[1] = 'col-md-10';$pos[2] = 'col-md-2';$pos[3] = 'col-md-10';
+					  break;
+					case 50:
+					case '50':
+					  $pos[1] = 'col-md-6';$pos[2] = 'col-md-3';$pos[3] = 'col-md-9';
+					  break;
+					case 33:
+					case '33':
+					  $pos[1] = 'col-md-4';$pos[2] = 'col-md-4';$pos[3] = 'col-md-8';
+					  break;
+				  }
+				  if ($item['label_position'] == "up") {$pos[2] = 'col-md-12';$pos[3] = 'col-md-12';} else {$pos[0] = 'row px-0';}
+				error_log($pos[0]);
+				error_log($pos[1]);
+				error_log($pos[2]);
+				$desc = sprintf('<small id="%s-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb mx-4 %s  %s %s">%s </small>',$item['id_'] ,$item['message_align'],$item['message_text_color'],$item['message_text_size'],$item['message']);
+				
+				$required = $item['required']==true ? '*' : '';
+				
+				
+				$label = sprintf('<small id="%s_-message" class="efb text-danger efb fs-7 ttiptext px-2  "></small> <label for="%s_" class="efb  %s col-sm-12 col-form-label %s %s %s" id="%s_labG"><span id="%s_lab" class="efb  %s">%s</span> <span class="efb  mx-1 text-danger" id="%s_req">%s</span></label>',
+				 $item['id_'],$item['id_'],$pos[2],$item['label_text_color'],$item['label_align'],
+				 $item['label_text_size'],$item['id_'],$item['id_'],$item['label_text_size'],$item['name'],$item['id_'],$required);
+			}else if($item['type']=='option'){
+				return false;
+			}
+			
+			error_log($desc);
+			error_log($label);
+			$required = isset($item['required'])==true && $item['required']==true ? 'required' : '';
+			switch ($item['type']) {
+				case 'email':
+				case 'text':
+				case 'password':
+				case 'tel':
+				case 'url':
+				case "date":
+				case 'color':
+				case 'range':
+				case 'number':
+				case 'firstName':
+				case 'lastName':
+					$type = $item['type'] == "firstName" || $item['type'] == "lastName" ? 'text' : $item['type'];
+					$value = strlen($item['value'])>0 ? "value='".$item['value']."'" : '';
+      				$classes = $item['type'] != 'range' ? 'form-control '.$item['el_border_color'].'' : 'form-range';
+
+					$input = '<!--tags--><div class="efb %s col-sm-12 ttEfb show"  id="%s-f"><input type="%s" class="efb input-efb px-2  %s emsFormBuilder_v   %s  %s  %s  %s  %s efbField" data-id="%s-el" data-vid="%s" id="%s" placeholder="%s" %s>';					 
+					 $input = sprintf($input, $pos[3] ,$item['id_'] ,$item['type'], $classes, $item['classes'], $item['el_height'],$item['corner'], $item['el_text_color'],$required,$item['id_'],$item['id_'],$item['id_'],$item['placeholder'],$item['value']);
+					 error_log($input);
+					 $ui = " {$label} {$input} {$desc}</div></div>";
+					$dataTag = $item['type'];
+					break;
+				case 'textarea':				 
+						$input = sprintf('<div class="efb %s col-sm-12 ttEfb show"  id="%s-f"><textarea  id="%s_"  placeholder="%s" class="efb px-2 input-efb emsFormBuilder_v form-control %s %s %s %s %s %s efbField" data-vid="%s" data-id="%s-el"  value="%s" rows="5" ></textarea>',$pos[3], $item['id_'], $item['id_'], $item['placeholder'], $required, $item['classes'],
+						$item['el_height'], $item['corner'], $item['el_text_color'], $item['el_border_color'],
+						$item['id_'], $item['id_'], $item['value']);
+						$ui = " {$label} {$input} {$desc}</div></div>";
+						$dataTag = $item['type'];
+					break;
+				case 'maps';
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'file':					 
+						$input = sprintf('<div class="efb  %s col-sm-12 ttEfb show"  id="%s-f"> <input type="file" class="efb mb-0 input-efb px-2 emsFormBuilder_v %s %s %s %s %s form-control efb efbField" data-vid="%s" data-id="%s-el" id="%s_" >'
+								, $pos[3], $item['id_'], $required, $item['classes'], $item['el_height'], $item['corner'], $item['el_border_color'], $item['id_'], $item['id_'], $item['id_']);
+						$ui = " {$label} {$input} {$desc}</div></div>";
+						$dataTag = $item['type'];
+					break;
+				case "mobile":
+						# code...
+						$input = sprintf('<div class="efb  %s col-sm-12 ttEfb show"  id="%s-f"> <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %s  %s %s %s %s %s efbField" data-id="%s-el" data-vid="%s" id="%s_" placeholder="%s" value = "%s" >',$pos[3], $item['id_'], $item['el_border_color'], $item['classes'], $item['el_height'], $item['corner'], 
+						$item['el_text_color'], $required, $item['id_'], $item['id_'], $item['id_'], $item['placeholder'], $item['value']);
+						$ui = " {$label} {$input} {$desc}</div></div>";  						 
+						$dataTag = $item['type'];
+					break;
+				case 'dadfile':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'checkbox':
+				case 'radio':
+				case 'payCheckbox':
+				case 'payRadio':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'switch':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'esign':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'rating':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case "step":
+						$step_no = $item['id_'];
+						$ui = $step_no == 1 ? '<fieldset data-step="step-'.$step_no.'-efb" class="efb my-2  steps-efb efb row ">': '<!-- fieldset!!! --> </fieldset><fieldset data-step="step-'.$step_no.'-efb"  class="efb my-2 steps-efb efb row d-none">';
+						# code...
+						error_log($ui);
+						// هدر 
+						//$first :  valj_efb[0]
+						//head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
+						//$this->name .=printf('')
+						$dataTag = $item['type'];
+					break;
+				case 'select':
+				case 'paySelect':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'conturyList':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'stateProvince':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'multiselect':
+				case 'payMultiselect':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'html':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'yesNo':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'link':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'stripe':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case "persiaPay":
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'heading':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				case 'booking':
+						# code...
+						$dataTag = $item['type'];
+					break;
+				default:
+					# code...
+					break;
+			}
+			
+			$newElement='<div  class="efb my-1 mx-0 ttEfb  %s  %s col-sm-12 efbField" data-step="%s" data-amount="%s" id="%s" data-id="%s-id" data-tag="%s"> %s<!--endTag EFB-->';
+			$this->value .= sprintf($newElement, $pos[0], $pos[1], $item['step'] , $item['amount'],$item['id_'],$item['id_'],$dataTag,$ui);
+		});	
+
+		$str= $form_[0]['show_icon']==0 || $form_[0]['show_icon']==false  ?sprintf('<h4 id="title_efb" class="efb %s text-center mt-1">%s</h4><p id="desc_efb" class="efb %s text-center  fs-6 efb">%s</p>',$form_[1]['label_text_color'], $form_[1]['name'], $form_[1]['message_text_color'] , $form_[1]['message'] ) : '';
+		//s1 head
+		//s2 content new.js  1342
+		$str = '<div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">'.$str.'<form id="efbform">%s<div class="efb mt-1 px-2">%s</div> </form></div>';
+		error_log($str);
+		/* 
+		
+		 content += `
+           ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+           <!-- fieldset1 --> 
+           ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
+           </fieldset>
+          <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
+            ${loading_messge_efb()}                
+            <!-- fieldset2 --></fieldset>`
+
+
+    		
+		 */
+		//head nveshteh shavad
+		/* 
+		  head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
+			${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb progress mx-5"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}
+			`
+		
+		*/
+		//buttons
+		$step_no = intval($form_[0]["steps"]) +1;
+		error_log($step_no);
+		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
+		 $this->value .= '</fieldset>
+		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
+		  <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb">'.__('Waiting','easy-form-builder').'</h3></div>                
+		   <!-- final fieldset --></fieldset>';
+		 //  error_log($this->value);
+		   //print_r($this->value);
+
+		   //content = $this->value
+		   //head = $this->name
+		   //body =  $str 
+		   //sprintf($str,$this->value,$this->name,$this->value)
+	}
 
 	
 /* 	function modify_jquery_login_efb() {
