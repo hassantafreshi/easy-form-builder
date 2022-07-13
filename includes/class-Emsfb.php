@@ -22,7 +22,7 @@ class Emsfb {
         $this->includes();
         $this->init_hooks();
        if(is_admin()==false) $this->webhooks();
-       if(is_admin()==true) $this->checkDbchange();
+       //if(is_admin()==true) $this->checkDbchange();
     }
 
     /**

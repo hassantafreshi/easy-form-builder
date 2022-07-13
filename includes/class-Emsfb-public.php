@@ -88,9 +88,9 @@ class _Public {
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
 		if($value_form==null){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
-		}else{
+		}/* else{
 			$this->fun_convert_form_structer($value_form[0]->form_structer);
-		}
+		} */
 		$typeOfForm =$value_form[0]->form_type;
 		$value = $value_form[0]->form_structer;
 
