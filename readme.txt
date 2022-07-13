@@ -60,6 +60,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Easily build any kind of forms like contact-us form , survey form , payment form , private form 
 
+- Easy form builder able you to build forms with smartphones, tablets or other devices
+
 
 
 **Free features of Easy Form Builder:**
