@@ -72,7 +72,7 @@ function Link_emsFormBuilder(state) {
       break;
     case 'redirectPage':
       link += "how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
-      break;
+    break;
   }
   //console.log(link);
   window.open(link, "_blank");
@@ -207,20 +207,20 @@ function getOS_emsFormBuilder() {
 }
 
 createCardFormEfb = (i) => {
-  tag_efb = tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
+  tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
   //console.log(tag_efb);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
   return `
-  <span class="efb tag list  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   <button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
   ${prw}
-  </div></div></span>`
+  </div></div></div>`
 }
-funProEfb = () => { return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>` }
+funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
@@ -239,7 +239,7 @@ const boxs_efb = [
   { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
   /*  {id:'reservation', title:efb_var.text.reservation, desc:efb_var.text.createReservationyForm, status:false, icon:'bi-calendar-check'}, */
 ]//supportTicketF
-let tag_efb = [];
+let tag_efb=[];
 function add_dasboard_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
@@ -256,8 +256,8 @@ function add_dasboard_emsFormBuilder() {
     </li>
     `
   }
-  //console.log(efb_var.text)
-  cardtitles = `
+//console.log(efb_var.text)
+ cardtitles = `
     <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
     <hr class="efb hr">
     </ul>
@@ -274,7 +274,7 @@ function add_dasboard_emsFormBuilder() {
           </div
             <div class="efb row">
             ${cardtitles}
-            <div class="efb items sortable_cancel items ui-sortable  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
             </section>`
 
 
@@ -338,7 +338,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "contact") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
-    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.contactUs, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "2jpzt59do", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you": "msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
+    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.contactUs, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "2jpzt59do", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.contactusForm, "icon": "bi-chat-right-fill", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-muted", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "uoghulv7f", "dataId": "uoghulv7f-id", "type": "text", "placeholder": efb_var.text.firstName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.firstName, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "xzdeosw2q", "dataId": "xzdeosw2q-id", "type": "text", "placeholder": efb_var.text.lastName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.lastName, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
@@ -373,7 +373,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
     //register v2
-    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you": "msg", "thank_you_message": efb_var.text.createAcountDoneM, "email_temp": "", "sendEmail": false, "stateForm": false },
+    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": efb_var.text.createAcountDoneM, "email_temp": "", "sendEmail": false, "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "besie", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
@@ -383,7 +383,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "login") {
     // login v2
     form_type_emsFormBuilder = "login";
-    json = [{ "type": "login", "steps": 1, "formName": efb_var.text.login, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.login, "button_color": "btn-darkb", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you": "msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
+    json = [{ "type": "login", "steps": 1, "formName": efb_var.text.login, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.login, "button_color": "btn-darkb", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.loginForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-dark", "icon_color": "text-danger", "visible": 1 },
     { "id_": "emaillogin", "dataId": "emaillogin-id", "type": "text", "placeholder": efb_var.text.emailOrUsername, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.emailOrUsername, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordlogin", "dataId": "passwordlogin-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
@@ -393,7 +393,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "support") {
     // support v2
     form_type_emsFormBuilder = "form";
-    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.support, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you": "msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
+    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.support, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Support", "icon": "bi-ui-checks-grid", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-dark", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "rhglopgi8", "dataId": "rhglopgi8-id", "type": "select", "placeholder": "Select", "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": "How can we help you?", "required": true, "amount": 2, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": "Accounting & Sell question", "id_op": "n470h48lg", "step": "1", "amount": 3 },
@@ -426,7 +426,7 @@ function create_form_by_type_emsfb(id, s) {
     // if subscription has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder = "subscribe";
     const json =
-      [{ "type": "subscribe", "steps": 1, "formName": efb_var.text.subscribe, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.subscribe, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "82i3wedt1", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you": "msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false, "dShowBg": true },
+      [{ "type": "subscribe", "steps": 1, "formName": efb_var.text.subscribe, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.subscribe, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "82i3wedt1", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false, "dShowBg": true },
       { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "", "icon": "bi-check2-square", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
       { "id_": "janf5eutd", "dataId": "janf5eutd-id", "type": "text", "placeholder": efb_var.text.name, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.name, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
       { "id_": "82i3wedt1", "dataId": "82i3wedt1-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
@@ -435,7 +435,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id == "survey") {
     console.log("survey !!!!!!!!!!!!!!");
     form_type_emsFormBuilder = "survey";
-    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you": "msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
+    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": "Select", "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pasta", "id_op": "n9r68xhl1", "step": "1", "amount": 3 },
@@ -443,7 +443,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "6x1lv1ufx", "dataId": "6x1lv1ufx-id", "parent": "6af03cgwb", "type": "option", "value": "Fish and seafood", "id_op": "6x1lv1ufx", "step": "1", "amount": 5 },
     { "id_": "yythlx4tt", "dataId": "yythlx4tt-id", "parent": "6af03cgwb", "type": "option", "value": "Vegetables", "id_op": "yythlx4tt", "step": "1", "amount": 6 },
     { "id_": "fe4q562zo", "dataId": "fe4q562zo-id", "type": "checkbox", "placeholder": "Check Box", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Lnaguage", "required": 0, "amount": 7, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "khd2i7ubz", "dataId": "khd2i7ubz-id", "parent": "fe4q562zo", "type": "option", "value": "English", "id_op": "khd2i7ubz", "step": "1", "amount": 8 }, { "id_": "93hao0zca", "dataId": "93hao0zca-id", "parent": "fe4q562zo", "type": "option", "value": "French", "id_op": "93hao0zca", "step": "1", "amount": 9 }, { "id_": "75bcbj6s1", "dataId": "75bcbj6s1-id", "parent": "fe4q562zo", "type": "option", "value": "German", "id_op": "75bcbj6s1", "step": "1", "amount": 10 }, { "id_": "lh1csq8mw", "dataId": "lh1csq8mw-id", "parent": "fe4q562zo", "type": "option", "value": "Russian", "id_op": "lh1csq8mw", "step": "1", "amount": 11 },
+    { "id_": "khd2i7ubz", "dataId": "khd2i7ubz-id", "parent": "fe4q562zo", "type": "option", "value": "English", "id_op": "khd2i7ubz", "step": "1", "amount": 8 }, { "id_": "93hao0zca", "dataId": "93hao0zca-id", "parent": "fe4q562zo", "type": "option", "value": "French", "id_op": "93hao0zca", "step": "1", "amount": 9 }, { "id_": "75bcbj6s1", "dataId": "75bcbj6s1-id", "parent": "fe4q562zo", "type": "option", "value": "German", "id_op": "75bcbj6s1", "step": "1", "amount": 10 }, { "id_": "lh1csq8mw", "dataId": "lh1csq8mw-id", "parent": "fe4q562zo", "type": "option", "value": "Russian", "id_op": "lh1csq8mw", "step": "1", "amount": 11 }, 
     { "id_": "5gopt8r6b", "dataId": "5gopt8r6b-id", "parent": "fe4q562zo", "type": "option", "value": "Portuguese", "id_op": "5gopt8r6b", "step": "1", "amount": 12 }, { "id_": "v57zhziyi", "dataId": "v57zhziyi-id", "parent": "fe4q562zo", "type": "option", "value": "Hindi", "id_op": "v57zhziyi", "step": "1", "amount": 13 }, { "id_": "16suwyx5m", "dataId": "16suwyx5m-id", "type": "radio", "placeholder": "Radio Button", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Gender", "required": 0, "amount": 14, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }, { "id_": "ha0sfnwbp", "dataId": "ha0sfnwbp-id", "parent": "16suwyx5m", "type": "option", "value": "Male", "id_op": "ha0sfnwbp", "step": "1", "amount": 15 }, { "id_": "w3jpyg24h", "dataId": "w3jpyg24h-id", "parent": "16suwyx5m", "type": "option", "value": "Female", "id_op": "w3jpyg24h", "step": "1", "amount": 16 }, { "id_": "in4xa2y0f", "dataId": "in4xa2y0f-id", "parent": "16suwyx5m", "type": "option", "value": "Non-binary", "id_op": "in4xa2y0f", "step": "1", "amount": 17 }, { "id_": "1028hto5a", "dataId": "1028hto5a-id", "parent": "16suwyx5m", "type": "option", "value": "Transgender", "id_op": "1028hto5a", "step": "1", "amount": 18 }, { "id_": "rz3vkawya", "dataId": "rz3vkawya-id", "parent": "16suwyx5m", "type": "option", "value": "Intersex", "id_op": "rz3vkawya", "step": "1", "amount": 19 }, { "id_": "2oezrrpny", "dataId": "2oezrrpny-id", "parent": "16suwyx5m", "type": "option", "value": "I prefer not to say", "id_op": "2oezrrpny", "step": "1", "amount": 20 }];
     valueJson_ws_p = json;
     valj_efb = json;
@@ -526,43 +526,7 @@ window.onload = (() => {
   }, 50)
 
   document.body.scrollTop;
-
-  //items_dd_efb();
-
 })
-
-
-
-items_dd_efb = () => {
-  jQuery(function () {
-
-    $(".items").sortable({
-
-      items: "setion:not(.unsortable)",
-      start: function (event, ui) {
-        ui.item.toggleClass("highlight");
-        if (ui.item.hasClass('unsortable')) {
-          console.log('item is ------> unsortable');
-          return;
-        }
-      },
-      stop: function (event, ui) {
-        ui.item.hasClass('ui-state-disabled') ? ui.item.removeData('sortableItem') : false;
-        ui.item.toggleClass("highlight");
-        sort_obj_el_efb_();       
-      }
-    });
-    $("#items").disableSelection();
-  });
-}
-
-items_dd_refresh_efb = () => {
-  jQuery(function () {
-    jQuery(".items").sortable("refresh");
-  })
-}
-
-
 
 
 switch_color_efb = (color) => {
@@ -874,7 +838,7 @@ let change_el_edit_Efb = (el) => {
           //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
           document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
           valj_efb[indx].value = el.value;
-        } else if (el.dataset.tag == 'heading' || el.dataset.tag == 'textarea' || el.dataset.tag == 'link') {
+        } else if (el.dataset.tag == 'heading' || el.dataset.tag == 'textarea' ||el.dataset.tag == 'link' ) {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
           document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
           valj_efb[indx].value = el.value;
@@ -931,17 +895,17 @@ let change_el_edit_Efb = (el) => {
         break;
       case "thankYouTypeEl":
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
-        const els = document.querySelectorAll(`.efb.tnxmsg`)
+        const els =document.querySelectorAll(`.efb.tnxmsg`)
         el = document.getElementById('tnxrdrct');
 
-        if (valj_efb[0].thank_you != 'msg') {
+        if(valj_efb[0].thank_you!='msg'){
           for (let i = 0; i < els.length; i++) {
             els[i].classList.remove('d-block');
             els[i].classList.add('d-none');
           }
-          el.classList.remove('d-none');
-          el.classList.add('d-block');
-        } else {
+         el.classList.remove('d-none');
+         el.classList.add('d-block');
+        }else{
           for (let i = 0; i < els.length; i++) {
             els[i].classList.remove('d-none');
             els[i].classList.add('d-block');
@@ -949,29 +913,29 @@ let change_el_edit_Efb = (el) => {
           el.classList.remove('d-block');
           el.classList.add('d-none');
         }
-        if (pro_efb != true) {
+         if(pro_efb!=true){
           //pro_show_efb(1);
-          valj_efb[0].thank_you = 'msg';
+          valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
         }
         //const el_ = document.querySelectorAll(``)
         break;
       case "thankYouredirectEl":
         postId = el.value.match(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi)
-        if (pro_efb != true) {
+        if(pro_efb!=true){
           pro_show_efb(1);
-          valj_efb[0].thank_you = 'msg';
+          valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
           break;
         }
-        if (postId != null) {
-          valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');;
-          valj_efb[0].thank_you = 'rdrct';
-        } else {
-          valj_efb[0].thank_you = 'msg';
-          valj_efb[0].rePage = '';
-          noti_message_efb(efb_var.text.error, efb_var.text.enterValidURL, 8, 'warning');
-        }
+       if (postId != null) {      
+        valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');;
+        valj_efb[0].thank_you ='rdrct';
+       }else{
+        valj_efb[0].thank_you ='msg';
+        valj_efb[0].rePage = '';
+        noti_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
+       }
         break;
       case "paymentGetWayEl":
         //console.log('paymentGetWayEl')
@@ -1469,12 +1433,12 @@ const saveFormEfb = () => {
   let box = `error`
   let btnIcon = `bi-question-lg`
   let returnState = false;
-  let gateway = '';
-  if (valj_efb[0].type == 'payment') {
-    gateway = valj_efb.findIndex(x => x.type == "stripe")
+  let  gateway = '';
+  if(valj_efb[0].type == 'payment'){
+    gateway = valj_efb.findIndex(x => x.type == "stripe") 
     gateway = gateway == -1 ? valj_efb[0].gateway : gateway;
-    if (gateway == 'persiaPay') {
-      gateway = valj_efb[0].persiaPay;
+    if(gateway == 'persiaPay'){
+      gateway =  valj_efb[0].persiaPay ;
     }
 
   }
@@ -1518,7 +1482,7 @@ const saveFormEfb = () => {
         }
       }
       //console.log("befor run");
-      if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
+      if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) ||(valj_efb[0].type == "persiaPay" && gateway != -1) ) || valj_efb[0].type != "payment")) {
         title = efb_var.text.save
         box = `saveBox`
         icon = `bi-check2-circle`
@@ -1551,7 +1515,7 @@ const saveFormEfb = () => {
         message = efb_var.text.addPaymentGetway;
         icon = 'bi-exclamation-triangle'
         returnState = true;
-
+      
       } else if (valj_efb[0].type == "persiaPay" && gateway == -1) {
         //console.log('payment not add');
         btnText = efb_var.text.help
@@ -1616,9 +1580,11 @@ let editFormEfb = () => {
       try {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
+         
           let el = addNewElement(type, valj_efb[v].id_, true, false);
+       
           dropZoneEFB.innerHTML += el;
-          console.log(valj_efb[v].type, '!!!!!!');
+          //console.log(valj_efb[v].type,'!!!!!!')   ;
           if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
 
           if (type == 'maps') {
@@ -1638,7 +1604,7 @@ let editFormEfb = () => {
     }
 
     fub_shwBtns_efb()
-    // enableDragSort('dropZoneEFB');
+    //enableDragSort('dropZoneEFB');
   }, len);
 
 
@@ -1669,7 +1635,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
   let pro = false;
   let size = 100;
-
+  
   let type = elementId;
   switch (elementId) {
     case "firstName":
@@ -1701,7 +1667,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       form_type_emsFormBuilder = "payment";
     }
     if (elementId == "persiaPay") {
-      Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay: 'payping' });
+      Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'payping' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
     }
@@ -1843,7 +1809,6 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 const sort_obj_el_efb_ = () => {
   // این تابع  مرتبط سازی المان ها را بر عهده دارد و آی دی و قدم آن را بعد از هر تغییر در ترتیب توسط کاربر مرتبط می کند
   // باید بعد بجز المان ها برای آبجکت هم اینجا را  اضافه کنید
-  console.log('sort_obj_el_efb_');
   let amount = 0;
   let step = 0;
   let state = false;
@@ -1853,11 +1818,9 @@ const sort_obj_el_efb_ = () => {
 
     amount += 1;
 
-    const id = el.id;
-    let indx = valj_efb.findIndex(x => x.id_ === id);
-    console.log(id, indx, el.id);
-    try {
+    let indx = valj_efb.findIndex(x => x.id_ === el.id)
 
+    try {
       if (indx != -1) {
 
         if (el.classList.contains('stepNavEfb')) {
@@ -1889,7 +1852,7 @@ const sort_obj_el_efb_ = () => {
     } catch {
 
     }
-    console.log(valj_efb);
+
   }
 
   if (len > 20) {
@@ -1904,23 +1867,23 @@ const sort_obj_el_efb_ = () => {
   valj_efb=valj_efb_; */
 
   if (state) fub_shwBtns_efb();
+  //console.log(valj_efb);
 }//enf fun obj
 
 const sort_obj_el_efb = () => {
   let amount = 1;
   let step = 0;
   let state = false;
-  console.error('------', valj_efb.length)
+  //console.error('------', valj_efb.length)
 
-  for (const el of document.querySelectorAll(".efbFields")) {
-    console.log(el)
+  for (const el of document.querySelectorAll(".efbField")) {
+
     if (el.classList.contains('stepNavEfb')) {
       amount = 1;
       step = el.dataset.step;
     } else {
       if (step == 1) {
-        const id = el.id.slice(0, el.id.length - 2);
-        //const indx = valj_efb.findIndex(x => x.dataId == el.dataset.id) // این خط خطا دارد
+
         const indx = valj_efb.findIndex(x => x.dataId == el.dataset.id) // این خط خطا دارد
 
         const lastIndx = (valj_efb.length) - 1;
@@ -2019,12 +1982,12 @@ const obj_delete_row = (dataid, is_step) => {
       document.getElementById('maps').draggable = true;
       document.getElementById('maps_b').classList.remove('disabled')
     } else if (valj_efb[foundIndex].type == "stripe") {
-      const v = valj_efb.findIndex(x => x.type == 'persiaPay');
-      if (v == -1) {
-        valj_efb[0].type = "form";
-        form_type_emsFormBuilder = "form";
-      }
-
+     const v= valj_efb.findIndex(x => x.type == 'persiaPay');
+     if(v==-1){
+      valj_efb[0].type = "form";
+      form_type_emsFormBuilder = "form";
+     }
+     
       //console.log(valj_efb[0]);
     } else if (fun_el_select_in_efb(valj_efb[foundIndex].type) || valj_efb[foundIndex].type == 'radio' || valj_efb[foundIndex].type == 'checkbox') {
       obj_delete_options(valj_efb[foundIndex].id_)
@@ -2063,24 +2026,24 @@ function show_duplicate_fun(idset) {
 }
 
 /* darggable new */
-/* let enableDragSort = (listClass) => {
+let enableDragSort = (listClass) => {
   const sortLists = document.getElementsByClassName(listClass);
   Array.prototype.map.call(sortLists, (lst) => { enableDragList(lst) });
-} */
+}
 
-/* let enableDragList = (lst) => {
+let enableDragList = (lst) => {
   Array.prototype.map.call(lst.children, (item) => { enableDragItem(item) });
-} */
+}
 
-/* let enableDragItem = (item) => {
+let enableDragItem = (item) => {
   // این تابع وقتی المان جدیدی اضافه می شود باید فراخوانی شود تا به حالت درگ و دروپ به آن اضافه شود
   if (!item.classList.contains('stepNavEfb')) {
     // if not step
     item.setAttribute('draggable', true)
-    item.ondrag = handleDrag;
-    item.ondragend = handleDrop;
+    //item.ondrag = handleDrag;
+   // item.ondragend = handleDrop;
   }
-} */
+}
 let status_drag_start = false;
 let handleDrag = (item) => {
 
@@ -2094,11 +2057,10 @@ let handleDrag = (item) => {
   if (status_drag_start == false) {
     //console.log(valj_efb);
     for (i of valj_efb) {
-      const id = `${i.id_}-p`;
-      if (i.type != "option" && i.type != "form" && i.type != "payment" && selectedItem.id != i.id_ && selectedItem.previousElementSibling.id != i.id_ && i.id_ != 1) {
-        //console.log(i,i.id_,document.getElementById(i.id_));
 
-        document.getElementById(id).classList.add("ddefb")
+      if (i.type != "option" && i.type != "form" && i.type != "payment" && selectedItem.id != i.id_ && selectedItem.previousElementSibling.id != i.id_) {
+        //console.log(i,i.id_,document.getElementById(i.id_));
+        document.getElementById(i.id_).classList.add("drophere")
       }
     }
     status_drag_start = true;
@@ -2106,23 +2068,21 @@ let handleDrag = (item) => {
 
   selectedItem.classList.add('drag-sort-active-efb');
   if (lst === swapItem.parentNode) {
-    console.log(swapItem.nextSibling);
-    console.log
     swapItem = swapItem !== selectedItem.nextSibling && swapItem.dataset == "steps" && swapItem.id != "1" ? swapItem : swapItem.nextSibling;
     if (lst.insertBefore(selectedItem, swapItem)) {
 
-      console.log('true');
+
     }
   }
 }
 
 let handleDrop = (item) => {
   item.target.classList.remove('drag-sort-active-efb');
-  //sort_obj_el_efb_()
+  sort_obj_el_efb_()
   if (status_drag_start == true) {
     for (i of valj_efb) {
       if (i.type != "option" && i.type != "form")
-        if (document.getElementById(`${i.id_}-p`)) document.getElementById(`${i.id_}-p`).classList.remove("ddefb")
+        if (document.getElementById(i.id_)) document.getElementById(i.id_).classList.remove("drophere")
     }
     status_drag_start = false;
   }
@@ -2165,7 +2125,7 @@ fun_efb_add_el = (t) => {
 
   const rndm = Math.random().toString(36).substr(2, 9);
 
-  console.log(t);
+  //console.log(t);
 
   if (t == "steps" && valj_efb.length < 2) { return; }
   if (valj_efb.length < 2) { dropZoneEFB.innerHTML = "", dropZoneEFB.classList.add('pb') }
@@ -2209,8 +2169,8 @@ fun_efb_add_el = (t) => {
   }
 }
 
-googleMapsNOkEfb = () => {
-  return `<div class="efb  boxHtml-efb sign-efb h-100" >
+googleMapsNOkEfb =()=>{
+ return `<div class="efb  boxHtml-efb sign-efb h-100" >
         <div class="efb  noCode-efb m-5 text-center">
         <button type="button" class="efb  btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
          <i class="efb  bi-question-lg text-pinkEfb"></i></button> 

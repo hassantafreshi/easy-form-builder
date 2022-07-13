@@ -82,6 +82,15 @@ function pro_show_efb(state) {
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   myModal.show()
 }
+function move_show_efb() {
+  const body = `<div class="efb  pro-version-efb-modal"><i class="efb "></i></div>
+  <div class="efb  text-center">
+   <img src="${efb_var.images.movebtn}" class="efb  img-fluid" alt="">
+  </div>`
+  show_modal_efb(body, '','bi-arrows-move', 'saveBox')
+  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  myModal.show()
+}
 
 
 const show_modal_efb = (body, title, icon, type) => {
@@ -194,7 +203,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         });
 
         indexVJ = valj_efb.length - 1;
+        const sort = indexVJ<=1 ? 'unsortable'  : 'sortable';
         newElement = ` 
+        <section class="efb  ${sort} list   row my-2  ${shwBtn} efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <div class="efb  row my-2  ${shwBtn} efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <h2 class="efb  col-10 mx-2 my-0"><i class="efb  ${valj_efb[indexVJ].icon} ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'}  ${valj_efb[indexVJ].icon_color}"
                     id="${step_el_efb}_icon"></i> <span id="${step_el_efb}_lab" class="efb   text-darkb  ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'} ">${valj_efb[indexVJ].name}</span></span></h2>
@@ -209,7 +220,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                 </div>
             </div>
         </div>
-        `;
+        </section>`;
+   
       }
       const t = valj_efb[0].steps == 1 ? 0 : 1;
       if (previewSate != true) editState == false ? add_buttons_zone_efb(0, 'dropZoneEFB') : add_buttons_zone_efb(t, 'dropZoneEFB')
@@ -411,9 +423,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           </button>`
       }
       if (step_el_efb <= 2 || (step_el_efb > 2 && pro_efb == true)) {
-        valj_efb[0].steps = editState == false ? step_el_efb : valj_efb[0].steps
+        valj_efb[0].steps = editState == false ? step_el_efb : valj_efb[0].steps;
+        const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += ` 
-        <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+       <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
         <small id="${valj_efb[iVJ].id_}-des" class="efb  form-text ${valj_efb[iVJ].message_text_color} border-bottom px-4">${valj_efb[iVJ].message}</small>
@@ -428,7 +442,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           ${del}
         </div>
         </div>
-        </div>`
+        <!--  </div> -->
+        </setion>
+        `
       } else {
         pro_show_efb(2);
       }
@@ -614,11 +630,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
     </button>
+    
     <!--<button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}-id')">
     <i class="efb  bi-files text-warning"></i> -->
     </button>
-    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id')"> <i class="efb  bi-x-lg text-danger"></i>`}
-
+    ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id')"> <i class="efb  bi-x-lg text-danger"></i></button>`}
+    <span class="efb  btn btn-edit btn-sm " onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
     `
     const proActiv = `⭐ 
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
@@ -630,6 +647,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const tagId = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
     //data-toggle="tooltip" data-placement="top" title="Tooltip on top !!! " data-bs-custom-class="custom-tooltip" 
     newElement += `
+    ${previewSate == false  ? `<setion class="efb my-1 ttEfb ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-1` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     <div class="efb my-1 ttEfb ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     
@@ -637,6 +655,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el ? '</div>' : ''}
     ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link") || previewSate != true ? endTags : '</div>'}
+
+    ${previewSate == false  ? ` </setion><!--endTag EFB-->` :''}
      <!--endTag EFB-->
 
     `

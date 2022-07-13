@@ -609,7 +609,7 @@ class efbFunction {
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
-			<button><a href='".home_url()."' target='_blank' style='color: white;'>".get_bloginfo('name')."</a></button>
+			<button><a href='".home_url()."' target='_blank' style='color: black;'>".get_bloginfo('name')."</a></button>
 			";
 		}else{
 

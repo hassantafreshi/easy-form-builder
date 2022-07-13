@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://buy.stripe.com/8wM4hUguR4Zf304144
-Stable tag: 			3.2.6
+Stable tag: 			3.3.0
 Requires at least: 	      4.7
-Tested up to: 			6.0.0
+Tested up to: 			6.0.1
 Requires PHP:			5.5 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -332,6 +332,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.3.0 = 
+* Improvements drag and drop form builder
+
 = 3.2.6 = 
 * Fixed issues
 

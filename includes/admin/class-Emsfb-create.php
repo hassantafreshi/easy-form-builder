@@ -141,13 +141,11 @@ class Create {
 
 
 			/* new code v4 */
-			wp_register_script('jquery-1', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-1.js', array('jquery'), null, true);	
-			wp_enqueue_script('jquery-1');
-
+			
 			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), null, true);	
 			wp_enqueue_script('jquery-ui');
 			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), null, true);	
-			wp_enqueue_script('jquery-dd');
+			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
 		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
@@ -156,7 +154,8 @@ class Create {
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
-		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png'
+		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
+		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
 		];
 		
 		$smtp =-1;
