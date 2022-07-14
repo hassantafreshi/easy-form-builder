@@ -1580,7 +1580,9 @@ let editFormEfb = () => {
       try {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
+         
           let el = addNewElement(type, valj_efb[v].id_, true, false);
+       
           dropZoneEFB.innerHTML += el;
           //console.log(valj_efb[v].type,'!!!!!!')   ;
           if (valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)
@@ -1602,7 +1604,7 @@ let editFormEfb = () => {
     }
 
     fub_shwBtns_efb()
-    enableDragSort('dropZoneEFB');
+    //enableDragSort('dropZoneEFB');
   }, len);
 
 
@@ -1770,7 +1772,7 @@ function create_dargAndDrop_el() {
 
 
 
-    enableDragSort('dropZoneEFB');
+    //enableDragSort('dropZoneEFB');
   }); // end drogZone
 
 }
@@ -1865,6 +1867,7 @@ const sort_obj_el_efb_ = () => {
   valj_efb=valj_efb_; */
 
   if (state) fub_shwBtns_efb();
+  //console.log(valj_efb);
 }//enf fun obj
 
 const sort_obj_el_efb = () => {
@@ -2037,8 +2040,8 @@ let enableDragItem = (item) => {
   if (!item.classList.contains('stepNavEfb')) {
     // if not step
     item.setAttribute('draggable', true)
-    item.ondrag = handleDrag;
-    item.ondragend = handleDrop;
+    //item.ondrag = handleDrag;
+   // item.ondragend = handleDrop;
   }
 }
 let status_drag_start = false;

@@ -981,7 +981,7 @@ function creator_form_builder_Efb() {
                 <hr class="efb hr">
             </ul>
           <div class="efb row">${els}</div></div>
-         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row " id="dropZoneEFB">
+         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row items " id="dropZoneEFB">
        
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
@@ -998,7 +998,8 @@ function creator_form_builder_Efb() {
   </div></div></div>
   </div></div>
   `
-  create_dargAndDrop_el()
+  create_dargAndDrop_el();
+  items_dd_efb();
 }
 
 function funUpdateLisetElEfb(cat){
@@ -1029,3 +1030,35 @@ function funUpdateLisetcardTitleEfb(cat){
   change_visible_el_efb(cat);
 }
 
+
+items_dd_efb = () => {
+  jQuery(function () {
+
+    jQuery(".items").sortable({
+
+      items: "setion:not(.unsortable)",
+      start: function (event, ui) {
+        ui.item.toggleClass("highlight");
+        if (ui.item.hasClass('unsortable')) {
+          console.log('item is ------> unsortable');
+          return;
+        }
+      },
+      stop: function (event, ui) {
+        ui.item.hasClass('ui-state-disabled') ? ui.item.removeData('sortableItem') : false;
+        ui.item.toggleClass("highlight");
+        sort_obj_el_efb_();       
+      }
+    });
+    jQuery("#items").disableSelection();
+  });
+}
+
+items_dd_refresh_efb = () => {
+  jQuery(function () {
+    jQuery(".items").sortable("refresh");
+  })
+}
+
+console.log('load');
+  console. log(jQuery(). jquery);

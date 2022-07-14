@@ -55,6 +55,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts into order to easily create unlimited custom multistep forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 
 Features:
+
 - Simple drag and drop functionality
 - Create unlimited forms for free
 - Create multistep (limited steps) form for free
@@ -98,6 +99,7 @@ Features:
 - Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Link field on WordPress Easy Form builder (Available in pro version)
 - Added title field on Easy form builder (Available in pro version)
+- You can build forms with smartphones, tablets or other devices
 - Offline form
 
 

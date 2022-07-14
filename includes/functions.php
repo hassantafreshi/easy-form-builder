@@ -609,7 +609,7 @@ class efbFunction {
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
-			<button><a href='".home_url()."' target='_blank' style='color: white;'>".get_bloginfo('name')."</a></button>
+			<button><a href='".home_url()."' target='_blank' style='color: black;'>".get_bloginfo('name')."</a></button>
 			";
 		}else{
 
@@ -625,7 +625,7 @@ class efbFunction {
 		}
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
-			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
+			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>

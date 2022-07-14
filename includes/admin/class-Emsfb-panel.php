@@ -24,7 +24,8 @@ class Panel_edit  {
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
-			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
+			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png',
+			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
@@ -125,6 +126,14 @@ class Panel_edit  {
 
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js');
 			wp_enqueue_script('efb-main-js'); 
+			
+				/* new code v4 */
+			
+				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), null, true);	
+				wp_enqueue_script('jquery-ui');
+				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), null, true);	
+				wp_enqueue_script('jquery-dd'); 
+				/*end new code v4 */
 
 			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
