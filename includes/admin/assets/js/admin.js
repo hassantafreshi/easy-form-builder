@@ -18,7 +18,10 @@ jQuery(function () {
   state_check_ws_p = Number(efb_var.check)
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
-  if (state_check_ws_p) { add_dasboard_emsFormBuilder(); }
+  if (state_check_ws_p==1) { add_dasboard_emsFormBuilder(); 
+  }else if(state_check_ws_p==2){
+    add_addons_emsFormBuilder();
+  }
 })
 
 
@@ -44,7 +47,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function Link_emsFormBuilder(state) {
-  let link = 'https://whitestudio.team/document/'
+  let link = 'https://whitestudio.team/documents/'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
   switch (state) {
     case 'publishForm':
@@ -294,6 +297,60 @@ function add_dasboard_emsFormBuilder() {
   }
 
 }
+function add_addons_emsFormBuilder() {
+  //v2
+  let value = `<!-- boxs -->`;
+  for (let i of boxs_efb) {
+
+    value += createCardFormEfb(i)
+  }
+  let cardtitles = `<!-- card titles -->`;
+  for (let i of tag_efb) {
+    //console.log(i);
+    cardtitles += `
+    <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
+      <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
+    </li>
+    `
+  }
+//console.log(efb_var.text)
+ cardtitles = `
+    <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
+    <hr class="efb hr">
+    </ul>
+    `
+
+  document.getElementById('tab_container_efb').innerHTML = `
+
+          ${head_introduce_efb('create')}
+          <section id="content-efb">
+          ${!mobile_view_efb ? `<h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
+          <div class="efb d-flex justify-content-center ">
+            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
+            
+          </div
+            <div class="efb row">
+            ${cardtitles}
+            <div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            </section>`
+
+
+  let newform_ = document.getElementsByClassName("efbCreateNewForm")
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'npreview');
+    })
+  }
+  newform_ = document.getElementsByClassName("efbPreviewForm")
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'preview');
+    })
+  }
+
+}
 
 
 
@@ -480,7 +537,12 @@ function head_introduce_efb(state) {
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
 
-  let cont = '';
+  let cont = ``;
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('ws')">
+  <i class="efb bi-diamond text-pinkEfb mx-1"></i>
+  <span class="efb text-dark">${efb_var.text.getPro}</span><br>
+  ${efb_var.text.yFreeVEnPro}
+  </div>`;
   if (state != "create") {
     cont = `
     
@@ -499,6 +561,7 @@ function head_introduce_efb(state) {
                   ${cont}
                  
               </div>
+              ${efb_var.pro ? vType : ''}
               ${(state != "create" && mobile_view_efb) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}
               ${(state != "create" && mobile_view_efb == false) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}  
     </div>  

@@ -59,6 +59,7 @@ class Emsfb {
         if (is_admin()) {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
+            require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             
         }
         

@@ -528,6 +528,10 @@ class efbFunction {
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
+			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('GET PRO','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version, to enable the Professional Advanced features, get pro version.','easy-form-builder'),				
+			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
+			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

@@ -100,6 +100,7 @@ class Admin {
         $role->add_cap('Emsfb');
         $role->add_cap('Emsfb_create');
         $role->add_cap('Emsfb_panel');
+        $role->add_cap('Emsfb_addon');
 
     }
 
@@ -178,6 +179,7 @@ class Admin {
             '' . $icon . ''
         ); 
         add_submenu_page('Emsfb', __('Panel', 'easy-form-builder'), __('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
+        
     }
 
     /**
@@ -188,6 +190,8 @@ class Admin {
         $list_table = new Panel_edit();
 
     }
+
+
 
     public function delete_form_id_public() {
         $efbFunction = new efbFunction();   

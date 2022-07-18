@@ -126,7 +126,7 @@ class _Public {
 		$stng= $this->get_setting_Emsfb('pub');
 		if(gettype($stng)=="integer" && $stng==0){
 			
-			$stng=$anText["settingsNfound"];
+			$stng=$lanText["settingsNfound"];
 			$state="form";
 			
 		}
@@ -1080,8 +1080,14 @@ class _Public {
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 			//error_log($_FILES["file"]["name"]);			
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
-			//error_log($name);
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));	
+			error_log($name);
+			if(is_ssl()==true){
+				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+			}else{				
+				error_log('not ssl');
+			}
+			error_log(json_encode($upload));
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
 			  wp_send_json_success($response,$_POST);
 		}else{
