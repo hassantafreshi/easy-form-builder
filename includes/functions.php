@@ -174,7 +174,7 @@ class efbFunction {
 			"setting" => $state ? $ac->text->setting : __('Setting','easy-form-builder'),
 			"maps" => $state ? $ac->text->maps : __('Maps','easy-form-builder'),
 			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : __('Find video tutorial in beside box and for tutorial articles click on document button.','easy-form-builder'),
-			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Get pro version for unlimited access to all plugin services.','easy-form-builder'),
+			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Get Pro version for unlimited access to all plugin services.','easy-form-builder'),
 			"aPIKey" => $state ? $ac->text->aPIKey : __('API KEY','easy-form-builder'),
 			"youNeedAPIgMaps" => $state ? $ac->text->youNeedAPIgMaps : __('You need API key of Google Maps if you want to use Maps in forms.','easy-form-builder'),
 			"copiedClipboard" => $state ? $ac->text->copiedClipboard : __('Copied to Clipboard','easy-form-builder'),
@@ -257,7 +257,7 @@ class efbFunction {
 			"latitude" => $state ? $ac->text->latitude : __('Latitude','easy-form-builder'),
 			"longitude" => $state ? $ac->text->longitude : __('Longitude','easy-form-builder'),
 			"exDot" => $state ? $ac->text->exDot : __('e.g.','easy-form-builder'),
-			"pleaseDoNotAddJsCode" => $state ? $ac->text->pleaseDoNotAddJsCode : __('(Please do not add Javascript or jQuery codes to html codes for security reasons)','easy-form-builder'),
+			"pleaseDoNotAddJsCode" => $state ? $ac->text->pleaseDoNotAddJsCode : __('(Please do not add Javascript or jQuery codes to HTML codes for security reasons)','easy-form-builder'),
 			"button1Value" => $state ? $ac->text->button1Value : __('Button 1 value','easy-form-builder'),
 			"button2Value" => $state ? $ac->text->button2Value : __('Button 2 value','easy-form-builder'),
 			"iconList" => $state ? $ac->text->iconList : __('Icons list','easy-form-builder'),
@@ -265,15 +265,15 @@ class efbFunction {
 			"next" => $state ? $ac->text->next : __('Next','easy-form-builder'),
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : __('Code has not yet been added. Click on','easy-form-builder'),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : __(' and adding html code.','easy-form-builder'),
-			"proMoreStep" => $state ? $ac->text->proMoreStep : __('When you activate pro version, so you can create unlimited form steps.','easy-form-builder'),
-			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : __('API key of Google maps has not been added. Please add API key of google maps on Easy Form Builder > Panel > setting > Google Keys and try again.','easy-form-builder'),
+			//"proMoreStep" => $state ? $ac->text->proMoreStep : __('When you activate the Pro version, so you can create unlimited form steps.','easy-form-builder'),
+			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : __('API key of Google maps has not been added. Please add the API key of google maps on Easy Form Builder > Panel > setting > Google Keys and try again.','easy-form-builder'),
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : __('How to Add Google maps to Easy form Builder WordPress Plugin','easy-form-builder'),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : __('Delete markers','easy-form-builder'),
 			"updateUrbrowser" => $state ? $ac->text->updateUrbrowser : __('update your browser','easy-form-builder'),
 			"stars" => $state ? $ac->text->stars : __('Stars','easy-form-builder'),
 			"nothingSelected" => $state ? $ac->text->nothingSelected : __('Nothing selected','easy-form-builder'),
 			"duplicate" => $state ? $ac->text->duplicate : __('Duplicate','easy-form-builder'),
-			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in pro version','easy-form-builder'),
+			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in the Pro version','easy-form-builder'),
 			"mobilePreview" => $state ? $ac->text->mobilePreview : __('Mobile Preview','easy-form-builder'),
 			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out our form.','easy-form-builder'),
 			"finish" => $state ? $ac->text->finish : __('Finish','easy-form-builder'),
@@ -295,7 +295,7 @@ class efbFunction {
 			"reportProblem" => $state ? $ac->text->reportProblem : __('Report problem','easy-form-builder'),
 			"ddate" => $state ? $ac->text->ddate : __('Date','easy-form-builder'),
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : __('Your e-mail server able to send Emails','easy-form-builder'),
-			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('SMTP Error, the host is not able send email . Please contact host support','easy-form-builder'),
+			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : __('SMTP Error, the host is not able send email. Please contact host support','easy-form-builder'),
 			
 			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : __('Google Maps Loading Errors.','easy-form-builder'),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : __('The file is not the right file type','easy-form-builder'),
@@ -512,7 +512,7 @@ class efbFunction {
 			"monthly" => $state  &&  isset($ac->text->monthly) ? $ac->text->monthly : __('Monthly','easy-form-builder'),
 			"weekly" => $state  &&  isset($ac->text->weekly) ? $ac->text->weekly : __('Weekly','easy-form-builder'),
 			"yearly" => $state  &&  isset($ac->text->yearly) ? $ac->text->yearly : __('Yearly','easy-form-builder'),
-			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate pro version of Easy form builder','easy-form-builder'),
+			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy form builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
@@ -529,9 +529,19 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('GET PRO','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version, to enable the Professional Advanced features, get pro version.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version, to enable the Professional Advanced features, get Pro version.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
+			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('stripeTAddon','easy-form-builder'),				
+			"stripeDAddon" => $state  &&  isset($ac->text->stripeDAddon) ? $ac->text->stripeDAddon : __('stripeDAddon','easy-form-builder'),				
+			"offlineTAddon" => $state  &&  isset($ac->text->offlineTAddon) ? $ac->text->offlineTAddon : __('offlineTAddon','easy-form-builder'),				
+			"offlineDAddon" => $state  &&  isset($ac->text->offlineDAddon) ? $ac->text->offlineDAddon : __('offlineDAddon','easy-form-builder'),				
+			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('persiaPayTAddon','easy-form-builder'),				
+			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('persiaPayDAddon','easy-form-builder'),				
+			"trackCTAddon" => $state  &&  isset($ac->text->trackCTAddon) ? $ac->text->trackCDAddon : __('trackCTAddon','easy-form-builder'),				
+			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
+			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
+			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder then try againhank','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -581,16 +591,18 @@ class efbFunction {
 			   return $mailResult;
 		}
 
-	public function email_template_efb($pro, $state, $m){		
+	public function email_template_efb($pro, $state, $m){	
+		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
 		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
         $lang= $this->text_efb($text);				
-		$footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
+		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
 		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
-		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	
-		if($pro!="not pro"){
+		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	 */
+		//if($pro ==1){
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
-		}   
-		
+		//}   
+
 		$st = $this->get_setting_Emsfb();
 		if($st=="null") return;
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
@@ -620,12 +632,11 @@ class efbFunction {
 			$title =$lang["hiUser"];
 			$message=$m;
 		}	
+		$d =  "ltr" ;
+		$align ="left";
 		if(is_rtl()){
 			$d =  "rtl" ;
 			$align ="right";
-		}else{
-			$d =  "ltr" ;
-			$align ="left";
 		}
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
@@ -657,11 +668,11 @@ class efbFunction {
 				$p = strripos($temp, '</body>');
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
-				if($pro=="not pro" ||$pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
+				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
 		       
 				$val =  $temp;
 			}
-			error_log($val);
+			
 			return $val;
 	}
 
@@ -695,6 +706,7 @@ class efbFunction {
 		$user_res = $data[0]->content;
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
+		//error_log($user_res);
 		$user_res = json_decode($user_res,true);
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");

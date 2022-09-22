@@ -157,6 +157,9 @@ class Panel_edit  {
 
 		
 			?>
+			<style>
+				.efb {font-family: 'Roboto', sans-serif!important;}
+			</style>
 			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
 			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 "  id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">

@@ -79,12 +79,26 @@ class Addon {
 		}
 	}
 
+
+
+
 	public function render_settings() {
+		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+
+		wp_register_script('whiteStudioAddone', 'http://127.0.0.1/ws/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+        wp_enqueue_script('whiteStudioAddone');
 	?>
 	<!-- new code ddd -->
+	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
+							<div class="efb modal-content efb " id="settingModalEfb-sections">
+									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
+	</div></div></div>
 	<div id="tab_container_efb">
 			<div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb "></h3></div>	
         	</div>
+			<div id="alert_efb" class="efb mx-5"></div>
 	<!-- end new code dd -->
 	
 			
@@ -99,7 +113,7 @@ class Addon {
 		
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			
 			if (md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
@@ -112,7 +126,9 @@ class Addon {
 					
 			}
 
-			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+
+
+			/* if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
@@ -122,7 +138,7 @@ class Addon {
 					}
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
-			}
+			} */
 		}
 
 
@@ -135,8 +151,8 @@ class Addon {
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
-		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js');
+		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		wp_enqueue_script('addsOnLocal-js'); */
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -148,10 +164,41 @@ class Addon {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-		
+		        /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+		$addons = ['AdnSPF' => 0,
+		'AdnOF' => 0,
+		'AdnPPF' => 0,
+		'AdnATC' => 0,
+		'AdnSS' => 0,
+		'AdnCPF' => 0,
+		'AdnESZ' => 0,
+		'AdnSE' => 0];
+			
+
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
+			if(isset($ac->AdnSPF)==true){
+				//$ac
+				error_log($ac->AdnSPF);
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnOF"]=$ac->AdnOF;
+				$addons["AdnATC"]=$ac->AdnATC;
+				$addons["AdnPPF"]=$ac->AdnPPF;
+				$addons["AdnSS"]=$ac->AdnSS;
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnESZ"]=$ac->AdnESZ;
+				$addons["AdnSE"]=$ac->AdnSE;
+			}
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 		/* wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), null, true);
@@ -178,7 +225,8 @@ class Addon {
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
-			"language"=> get_locale()
+			"language"=> get_locale(),
+			"addson"=>$addons
 			
 		));
 

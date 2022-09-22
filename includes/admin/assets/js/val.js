@@ -47,11 +47,12 @@ const fields_efb = [
 
 function show_setting_window_efb(idset) {
   //console.log('show_setting_window_efb');
-    if(document.getElementById('sideBoxEfb').classList.contains('show')){
-      sideMenuEfb(0);
-     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
-      return};
+  if(document.getElementById('sideBoxEfb').classList.contains('show')){
+    sideMenuEfb(0);
+    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+    return};
     //console.log('show_setting_window_efb',idset,valj_efb)
+    state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
@@ -976,7 +977,7 @@ function creator_form_builder_Efb() {
                   <a class="efb nav-link cat fs-6 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
                 </li>
                 <li class="efb col-3">
-                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advance}</a>
+                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
                 </li>
                 <hr class="efb hr">
             </ul>

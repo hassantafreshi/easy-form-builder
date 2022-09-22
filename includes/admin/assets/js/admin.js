@@ -9,18 +9,32 @@ let exportJson_ws = [];
 let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
+const efb_version =3.4;
+//let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
 
 
 
 jQuery(function () {
-  state_check_ws_p = Number(efb_var.check)
+  state_check_ws_p = Number(efb_var.check);
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
   if (state_check_ws_p==1) { add_dasboard_emsFormBuilder(); 
   }else if(state_check_ws_p==2){
-    add_addons_emsFormBuilder();
+    timeout=500;
+    
+    fun_timeout=()=>{
+      setTimeout(() => {        
+        if(typeof addons_efb =='undefined'){
+          timeout +=100
+          console.log(`timeout addons_efb[${timeout}]`);
+          fun_timeout();
+        }else{
+          add_addons_emsFormBuilder();}
+       }, timeout); 
+    }
+    fun_timeout();
   }
 })
 
@@ -47,7 +61,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function Link_emsFormBuilder(state) {
-  let link = 'https://whitestudio.team/documents/'
+  let link = 'https://whitestudio.team/document'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
   switch (state) {
     case 'publishForm':
@@ -55,11 +69,11 @@ function Link_emsFormBuilder(state) {
       break;
     case 'createSampleForm':
     case 'tutorial':
-      link += valj_efb.length < 1 || valj_efb[0].type != "payment" ? "how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+      link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
       break;
     case 'stripe':
       //stripe
-      link = link + "how-to-setup-and-use-the-stripe-on-easy-form-builder";
+      link = link + "s/how-to-setup-and-use-the-stripe-on-easy-form-builder";
       break;
     case 'ws':
       link = 'https://whitestudio.team/';
@@ -71,11 +85,40 @@ function Link_emsFormBuilder(state) {
       link = `https://whitestudio.team/documents/`;
       break;
     case 'EmailNoti':
-      link += "How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
+      link += "s/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
       break;
     case 'redirectPage':
-      link += "how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
+      link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
     break;
+    /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+    case 'AdnSPF':
+      //AdnSPF == strip payment
+    case 'AdnOF':
+      //AdnOF == offline form
+    case 'AdnPPF':
+      //AdnPPF == persia payment
+    case 'AdnATC':
+      // AdnATC == advance tracking code
+    case 'AdnSS':
+      //AdnSS == sms service
+    case 'AdnCPF':
+   // AdnCPF == crypto payment
+    case 'AdnESZ':
+   //AdnESZ == zone picker
+    case 'AdnSE':
+      //AdnSE == email service
+      console.log(state)
+      link = 'https://whitestudio.team/addons';
+      break;
   }
   //console.log(link);
   window.open(link, "_blank");
@@ -113,7 +156,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder > WhiteStudio.team');
+console.info('Easy Form Builder 3.4.0> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -142,7 +185,7 @@ function actionSendData_emsFormBuilder() {
     }
 
     $.post(ajaxurl, data, function (res) {
-      // console.log("res",res);
+      //console.log("res",res);
       if (res.data.r == "insert") {
         if (res.data.value && res.data.success == true) {
           state_check_ws_p = 0;
@@ -161,6 +204,84 @@ function actionSendData_emsFormBuilder() {
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
         } else {
           show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+        }
+      }
+    })
+    return true;
+  });
+
+}
+function actionSendAddons_efb(val) {
+  //console.log('actionSendData_emsFormBuilder');
+  data = {};
+  jQuery(function ($) {
+      data = {
+        action: "add_addons_Emsfb",
+        value: val,
+        nonce: efb_var.nonce
+      };
+
+      console.log(data)
+    $.post(ajaxurl, data, function (res) {
+      console.log("res",res);
+      if (res.data.r == "done") {
+        if (res.data.value && res.data.success == true) {
+          //show_message_result_form_set_EFB(1, res.data.value)
+          noti_message_efb(efb_var.text.done,'', 30,'info');
+          location.reload();
+        } else {
+          alert(res, "error")
+          //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+
+        }
+      } else {
+        if (res.data.m == null || res.data.m.length > 1) {
+
+         // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
+         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+        } else {
+          //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+        }
+      }
+    })
+    return true;
+  });
+
+}
+function actionSendAddonsUn_efb(val) {
+  //console.log('actionSendData_emsFormBuilder');
+  data = {};
+  jQuery(function ($) {
+      data = {
+        action: "remove_addons_Emsfb",
+        value: val,
+        nonce: efb_var.nonce
+      };
+
+      console.log(data)
+    $.post(ajaxurl, data, function (res) {
+      console.log("res",res);
+      if (res.data.r == "done") {
+        if (res.data.value && res.data.success == true) {
+          //show_message_result_form_set_EFB(1, res.data.value)
+          noti_message_efb(efb_var.text.done,'', 30,'info');
+          location.reload();
+        } else {
+          alert(res, "error")
+          //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+
+        }
+      } else {
+        if (res.data.m == null || res.data.m.length > 1) {
+
+         // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
+         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+        } else {
+          //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         }
       }
     })
@@ -221,6 +342,35 @@ createCardFormEfb = (i) => {
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   <button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
   ${prw}
+  </div></div></div>`
+}
+createCardAddoneEfb = (i) => {
+  tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
+  //console.log(tag_efb);
+  let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
+  let nameNtn = efb_var.text.install;
+  let iconNtn = 'bi-download';
+  let colorNtn = 'btn-primary';
+ 
+  if (i.pro == true &&  efb_var.pro != true) {
+    funNtn=`pro_show_efb(1)`;
+    nameNtn = efb_var.text.pro;
+    iconNtn ='bi-gem';
+    colorNtn = 'btn-warning';
+  }else if (efb_var.addson[i.name]== 1 ){
+    funNtn=`funBTNAddOnsUnEFB('${i.name}')`;
+    nameNtn = efb_var.text.remove;
+    iconNtn ='';
+    colorNtn = 'btn-secondary';
+  }
+
+  return `
+  <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+ 
+  <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
+  <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
+  <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
+  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="Link_emsFormBuilder('${i.name}')"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>
   </div></div></div>`
 }
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
@@ -300,19 +450,14 @@ function add_dasboard_emsFormBuilder() {
 function add_addons_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
-  for (let i of boxs_efb) {
-
-    value += createCardFormEfb(i)
+  console.log('addons_efb',addons_efb);
+  for (let i of addons_efb) {
+    if(i.state==true) {
+      value += createCardAddoneEfb(i)
+    }
   }
   let cardtitles = `<!-- card titles -->`;
-  for (let i of tag_efb) {
-    //console.log(i);
-    cardtitles += `
-    <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
-      <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
-    </li>
-    `
-  }
+
 //console.log(efb_var.text)
  cardtitles = `
     <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
@@ -324,14 +469,11 @@ function add_addons_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
-          <div class="efb d-flex justify-content-center ">
-            <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
-            
-          </div
+          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
+  
             <div class="efb row">
             ${cardtitles}
-            <div class="efb  row row-cols-1 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
+            <div class="efb  row row-cols-1 mt-0 row-cols-md-3 g-4" id="listFormCardsEFB">${value}</div></div>
             </section>`
 
 
@@ -364,6 +506,28 @@ function FunfindCardFormEFB() {
   }
   let result = '<!--Search-->'
   for (let c of cards) { result += createCardFormEfb(c); }
+  if (result == "'<!--Search-->'") result = "NotingFound";
+  //console.log(document.getElementById("listFormCardsEFB"))
+  document.getElementById("listFormCardsEFB").innerHTML = result;
+
+  let newform_ = document.getElementsByClassName("efbCreateNewForm")
+  for (const n of newform_) {
+    n.addEventListener("click", (e) => {
+      form_type_emsFormBuilder = n.id;
+      create_form_by_type_emsfb(n.id, 'npreview');
+    })
+  }
+}
+function FunfindCardAddonEFB() {
+  //console.log('FunfindCardFormEFB')
+  let cards = [];
+  const v = document.getElementById('findCardFormEFB').value.toLowerCase();
+  document.getElementById('listFormCardsEFB').innerHTML = ''
+  for (let row of addons_efb) {
+    if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
+  }
+  let result = '<!--Search-->'
+  for (let c of cards) {result += createCardAddoneEfb(c); }
   if (result == "'<!--Search-->'") result = "NotingFound";
   //console.log(document.getElementById("listFormCardsEFB"))
   document.getElementById("listFormCardsEFB").innerHTML = result;
@@ -561,7 +725,7 @@ function head_introduce_efb(state) {
                   ${cont}
                  
               </div>
-              ${efb_var.pro ? vType : ''}
+              ${state == "create" && (efb_var.pro==false || efb_var.pro =='false') ? vType : ''}
               ${(state != "create" && mobile_view_efb) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}
               ${(state != "create" && mobile_view_efb == false) ? `<div class="efb col-lg-5 col-md-12 "> <img src="${efb_var.images.head}" class="efb img-fluid"></div>` : ''}  
     </div>  
@@ -781,7 +945,9 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
+  
   setTimeout(() => {
+ 
     switch (el.id) {
       case "labelEl":
         valj_efb[indx].name = el.value;
@@ -828,7 +994,9 @@ let change_el_edit_Efb = (el) => {
         }
         postId = aId[valj_efb[indx].type]
         id = valj_efb[indx].id_
-        document.getElementById(`${id}${postId}`).classList.toggle('required')
+        document.getElementById(`${id}${postId}`).classList.toggle('required');
+       
+        //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
       case "SendemailEl":
@@ -1876,11 +2044,11 @@ const sort_obj_el_efb_ = () => {
   let step = 0;
   let state = false;
   let op_state = false;
+  let last_setp =0;
   const len = valj_efb.length;
   for (const el of document.querySelectorAll(".efbField")) {
 
     amount += 1;
-
     let indx = valj_efb.findIndex(x => x.id_ === el.id)
 
     try {
@@ -1888,10 +2056,13 @@ const sort_obj_el_efb_ = () => {
 
         if (el.classList.contains('stepNavEfb')) {
           //اگر استپ بود
-          step = el.dataset.step;
+          last_setp +=1;
+          //step = el.dataset.step;
+          step = last_setp ;
           //el.dataset.amount=amount;
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
+
 
         } else {
 
@@ -2244,22 +2415,28 @@ googleMapsNOkEfb =()=>{
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
-  //console.log(el.id , activeEl_efb);
-  if (el.id != activeEl_efb) {
+  console.log(el.id , activeEl_efb , el.id.includes(activeEl_efb));
+ if (el.id != activeEl_efb ) {
+ 
+    
     if (activeEl_efb == 0) {
       activeEl_efb = document.getElementById(el.id).dataset.id;
 
     } else {
       //console.log(activeEl_efb,activeEl_efb.slice(0,-3),document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none'))
 
-      document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none')
-    }
-    const ac = document.querySelector(`[data-id="${activeEl_efb}"]`)
-    if (ac) {
-      // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
-      if (ac.classList.contains('field-selected-efb')) ac.classList.remove('field-selected-efb')
-    }
+      document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
 
+    }
+   // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
+    const ac = document.querySelector(`.field-selected-efb`);
+    if (ac) {
+   // if (ac && state_view_efb==0) {
+      console.log('ac', document.getElementById('sideMenuFEfb').className , document.getElementById('sideMenuFEfb').classList.contains('efbDW-0'));
+      // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
+     ac.classList.remove('field-selected-efb')
+    }
+    //state_view_efb=0
     activeEl_efb = el.dataset.id
     const eld = document.getElementById(`btnSetting-${activeEl_efb}`);
     if (eld.classList.contains('d-none')) eld.classList.remove('d-none');
@@ -2285,3 +2462,70 @@ const headSizeEfb = (classes, value) => { return classes.replace(/\bdisplay+-\d+
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
 const isNumericEfb = (value) => { return /^\d+$/.test(value); }
+
+/* move to pro_els.js */
+
+funBTNAddOnsEFB=(val,v_required)=>{
+ console.log(val,v_required,efb_version);
+
+ if(efb_version>=v_required){
+   addons_btn_state_efb(val);
+   actionSendAddons_efb(val)
+ }else{
+  //efb_var.text.upDMsg
+  noti_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
+ }
+}
+
+funBTNAddOnsUnEFB=(val)=>{
+  console.log('funBTNAddOnsUnEFB',val);
+  emsFormBuilder_delete(val,'addon');
+}
+
+fun_confirm_remove_addon_emsFormBuilder=(val)=>{
+
+  console.log('fun_confirm_remove_addon_emsFormBuilder',val);
+   actionSendAddonsUn_efb(val);
+ 
+ 
+ }
+
+function emsFormBuilder_delete(id, type) {
+  //v2
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
+  show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
+  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+
+  myModal.show();
+  confirmBtn.addEventListener("click", (e) => {
+    if(type=='form'){
+    fun_confirm_remove_emsFormBuilder(Number(id))
+    }else if(type=='message'){
+      fun_confirm_remove_message_emsFormBuilder(Number(id))
+    }else if (type =='addon'){
+      addons_btn_state_efb(id);
+      fun_confirm_remove_addon_emsFormBuilder(id);
+    }
+    activeEl_efb = 0;
+    myModal.hide()
+  })
+  //myModal.show();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+addons_btn_state_efb=(id)=>{
+
+    for (const el of document.querySelectorAll(".addons")) {
+      el.classList.add('disabled')
+    }
+    document.getElementById(id).innerHTML = `<i class="efb bi-hourglass-split mx-1"></i>`
+
+
+
+}
+
+
+
+

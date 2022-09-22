@@ -828,11 +828,15 @@ function valid_file_emsFormBuilder(id) {
 
 
 function fun_upload_file_emsFormBuilder(id, type) {
+  //v3.3.5 updated
   //این تابع فایل را به سمت سرور ارسال می کند
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
+  
   let r = ""
+  //console.log('upload file',id);
+  
   jQuery(function ($) {
     var fd = new FormData();
     var idn = '#' + id + '_'
@@ -845,12 +849,38 @@ function fun_upload_file_emsFormBuilder(id, type) {
     fd.append("caption", individual_capt);
     fd.append('action', 'update_file_Emsfb');
     fd.append('nonce', ajax_object_efm.nonce);
+    var idB ='#'+id+'-prB'
     jQuery.ajax({
       type: 'POST',
       url: ajax_object_efm.ajax_url,
       data: fd,
       contentType: false,
       processData: false,
+      xhr: function(){
+        //upload Progress
+          var xhr = $.ajaxSettings.xhr();
+          if (xhr.upload) {
+          xhr.upload.addEventListener('progress', function(event) {
+          var percent = 0;
+          var position = event.loaded || event.position;
+          var total = event.total;
+          if (event.lengthComputable)
+          {
+          percent = Math.ceil(position / total * 100);
+          }
+          //update progressbar
+          console.log(percent);
+ 
+          
+          $(idB).css("width", + percent +"%");
+          $(idB).text(percent +"% = " + file[0].files[0].name);
+        
+          }, true);
+          }
+          return xhr;
+     
+        
+        },
       success: function (response) {
         //files_emsFormBuilder
         if (response.data.success === true) {
@@ -865,6 +895,10 @@ function fun_upload_file_emsFormBuilder(id, type) {
           const ob = valueJson_ws.find(x => x.id_ === id);
           const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
           fun_sendBack_emsFormBuilder(o[0]);
+           $(idB).css("width", + 100 +"%");
+          $(idB).text(100 +"% = " + file[0].files[0].name);
+
+          $("#"+id+"-prG").addClass("d-none");
         } else {
           //show message file type is not correct;        
         }
@@ -961,8 +995,8 @@ function emsFormBuilder_show_content_message(value, content) {
   const userIp = "XXXXXXXXX";
   const track = value.track;
   const date = "XXXXXXXXXX";
-
-  const val = JSON.parse(value.content.replace(/[\\]/g, ''));
+  console.log(value.content);
+  const val = JSON.parse(replaceContentMessageEfb(value.content));
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date)
   for (c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
@@ -1013,6 +1047,8 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
  <hr>
  <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
+
+ 
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   for (const c of content) {
@@ -1221,7 +1257,8 @@ function validation_before_send_emsFormBuilder() {
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws) {
-      if (v.type != 'file' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox') {
+      //dadfile
+      if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox') {
         // console.log(v);
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
@@ -1359,10 +1396,17 @@ function response_Valid_tracker_efb(res) {
 
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
+    jQuery('#replayM_emsFormBuilder').on('keypress', 
+    function (event) {
+      console.log('replayM_emsFormBuilder',event.which)
+        if (event.which == '13') {
+            event.preventDefault();
+        }
+    });
   } else {
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
-    document.getElementById('body_efb-track').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted mx-5">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-info m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div>`;
+    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb jump  bi-exclamation-triangle-fill text-center text-danger efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
 }
@@ -1414,6 +1458,3 @@ function calPLenEfb(len) {
   else { p = 1.1 }
   return p;
 }
-
-
-

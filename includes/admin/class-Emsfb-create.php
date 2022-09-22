@@ -68,6 +68,9 @@ class Create {
 	public function render_settings() {
 	?>
 	<!-- new code ddd -->
+	<style>
+				.efb {font-family: 'Roboto', sans-serif!important;}
+			</style>
 	<div class="efb" id="sideMenuFEfb">
 		
 			

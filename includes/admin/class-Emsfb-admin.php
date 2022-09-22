@@ -60,6 +60,7 @@ class Admin {
            
             //$this->get_not_read_message();
             add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //یک فرم بر اساس ي دی حذف می کند
+            add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);                 //یک پیام بر اساس ي دی حذف می کند
             add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   // اطلاعات یک فرم را بر اساسا آی دی بر می گرداند
             add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);           // اطلاعات یک مسیج را بر می گرداند بر اساس ای دی
             add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   // اطلاعات همه مسیج را بر می گرداند بر اساس ای دی
@@ -70,6 +71,8 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل    
+            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                //فرم را بروز رسانی می کند
+            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //فرم را بروز رسانی می کند
             
         /*    add_action( 'save_post', function ( $post_ID,$post,$update )
            {
@@ -101,6 +104,8 @@ class Admin {
         $role->add_cap('Emsfb_create');
         $role->add_cap('Emsfb_panel');
         $role->add_cap('Emsfb_addon');
+
+        
 
     }
 
@@ -191,8 +196,6 @@ class Admin {
 
     }
 
-
-
     public function delete_form_id_public() {
         $efbFunction = new efbFunction();   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
@@ -217,6 +220,36 @@ class Admin {
         $r          = $this->db->delete(
             $table_name,
             ['form_id' => $id],
+            ['%d']
+        );
+
+        $response = ['success' => true, 'r' => $r];
+        wp_send_json_success($response, $_POST);
+    }
+    public function delete_message_id_public() {
+        $efbFunction = new efbFunction();   
+        $text = ["error403","somethingWentWrongPleaseRefresh"];
+        $lang= $efbFunction->text_efb($text);
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
+            //error_log('not valid nonce');
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' =>$m];
+            wp_send_json_success($response, $_POST);
+            die("secure!");
+        }
+        
+        if (empty($_POST['id'])) {
+            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" => $m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+        $id = number_format($_POST['id']);
+
+        $table_name = $this->db->prefix . "emsfb_msg_";
+        $r          = $this->db->delete(
+            $table_name,
+            ['msg_id' => $id],
             ['%d']
         );
 
@@ -258,6 +291,185 @@ class Admin {
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
         $m = $lang["updated"];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        wp_send_json_success($response, $_POST);
+    }
+    public function add_addons_Emsfb() {
+        error_log('add_addons_Emsfb');
+        $efbFunction = new efbFunction();   
+        $text = ["error403","done","invalidRequire"];
+        $lang= $efbFunction->text_efb($text);
+        $ac= $efbFunction->get_setting_Emsfb();
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
+            //error_log('not valid nonce');
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_success($response, $_POST);
+            die("secure!");
+        }
+
+        if (empty($_POST['value']) ) {
+            $m = $lang["invalidRequire"];
+            $response = ['success' => false, "m" => $m];
+
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+
+        if ($this->isScript($_POST['value'])) {        
+            $m = $lang["nAllowedUseHtml"];
+            $response = ['success' => false, "m" => $m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+
+        $value      = $_POST['value'];
+        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+        //http://127.0.0.1/ws/wp-json/wl/v1/addons-link/webbro/test
+        error_log('wp_remote_get');
+        $request = wp_remote_get( 'http://127.0.0.1/ws/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'' );
+        
+        if( is_wp_error( $request ) ) {
+
+            $m = $lang["error403"];
+            $response = ['success' => false, "m" => $m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+        
+        $body = wp_remote_retrieve_body( $request );
+        error_log($body);
+        $data = json_decode( $body );
+        if($data->status==false){
+            $response = ['success' => false, "m" => $data->error];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+        if($data->download==true){
+            error_log($data->link);
+            $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+           // $url =$data->link;
+            $this->fun_addon_new($url);
+
+        }
+        /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+        if(isset($ac->AdnSPF)==false){
+
+            //$ac['AdnSPF=0;
+            $ac->AdnSPF=0;
+            $ac->AdnOF=0;
+            $ac->AdnPPF=0;
+            $ac->AdnATC=0;
+            $ac->AdnSS=0;
+            $ac->AdnCPF=0;
+            $ac->AdnESZ=0;
+            $ac->AdnSE=0;
+        }
+        $ac->{$value}=1;
+        
+        $table_name = $this->db->prefix . "emsfb_setting";
+        $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
+        error_log($newAc);
+        $newAc= str_replace('"', '\"', $newAc);   
+              
+        $this->db->insert(
+            $table_name,
+            [
+                'setting' => $newAc,
+                'edit_by' => get_current_user_id(),
+                'date'    => current_time('mysql'),
+                'email'   => $ac->emailSupporter,
+            ]
+        );
+        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
+        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        error_log($value);
+        $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
+        wp_send_json_success($response, $_POST);
+    }
+    public function remove_addons_Emsfb() {
+        error_log('remove_addons_Emsfb');
+        $efbFunction = new efbFunction();   
+        $text = ["error403","done","invalidRequire"];
+        $lang= $efbFunction->text_efb($text);
+        $ac= $efbFunction->get_setting_Emsfb();
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
+            //error_log('not valid nonce');
+            $m = $lang["error403"];
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_success($response, $_POST);
+            die("secure!");
+        }
+
+        if (empty($_POST['value']) ) {
+            $m = $lang["invalidRequire"];
+            $response = ['success' => false, "m" => $m];
+
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+
+        if ($this->isScript($_POST['value'])) {        
+            $m = $lang["nAllowedUseHtml"];
+            $response = ['success' => false, "m" => $m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
+
+        $value      = $_POST['value'];
+        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+        //http://127.0.0.1/ws/wp-json/wl/v1/addons-link/webbro/test
+       
+        /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+        if(isset($ac->AdnSPF)==false){
+
+            //$ac['AdnSPF=0;
+            $ac->AdnSPF=0;
+            $ac->AdnOF=0;
+            $ac->AdnPPF=0;
+            $ac->AdnATC=0;
+            $ac->AdnSS=0;
+            $ac->AdnCPF=0;
+            $ac->AdnESZ=0;
+            $ac->AdnSE=0;
+        }
+        $ac->{$value}=0;
+        
+        $table_name = $this->db->prefix . "emsfb_setting";
+        $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
+        error_log($newAc);
+        $newAc= str_replace('"', '\"', $newAc);   
+              
+        $this->db->insert(
+            $table_name,
+            [
+                'setting' => $newAc,
+                'edit_by' => get_current_user_id(),
+                'date'    => current_time('mysql'),
+                'email'   => $ac->emailSupporter,
+            ]
+        );
+        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
+        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        error_log($value);
+        $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
 
@@ -352,6 +564,7 @@ class Admin {
        // error_log($_POST['form']);
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
+        //error_log(json_encode($value));
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, $_POST);
     }
@@ -732,6 +945,60 @@ class Admin {
 
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
   
+
+        public function fun_addon_new($url){
+            error_log('fun_addon_new');
+    
+    
+            
+            //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
+            //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
+            error_log($url);
+            $r =download_url($url);
+            if(is_wp_error($r)){
+                //show error message
+                error_log('error download');
+                error_log(json_encode($r));
+            }else{
+                error_log('success download');
+                
+                $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
+                if(is_wp_error($r)){
+                    error_log('error rename');
+                }else{
+                    error_log('success rename');
+                    require_once(ABSPATH . 'wp-admin/includes/file.php');
+                    WP_Filesystem();
+                    $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
+                    if(is_wp_error($r)){
+                        error_log('error unzip');
+                        error_log(json_encode($r));
+                    }else{
+                        error_log('success unzip');
+                    }
+                 /* $zip = new ZipArchive;
+                    $res = $zip->open( ABSPATH .'wp-content/plugins/easy-form-builder/temp/temp.zip');
+                    if ($res === TRUE) {
+                    $zip->extractTo( ABSPATH . 'wp-content/plugins/easy-form-builder/temp');
+                    $zip->close();
+                    error_log('success unzip');
+                    } else {
+                    error_log('error unzip');
+                    } */
+                }
+                //$r
+                /* $s = unzip_file($r,WP_PLUGIN_DIR.'/easy-form-builder/images/');
+                if(is_wp_error($s)){
+                    //show error message
+                    error_log('error unzip');
+                    error_log(json_encode($s));
+                }else{
+                    error_log('success unzip');
+                    //$s
+                } */
+            }
+            error_log('fun_addon_new');
+        }
        
 }
 

@@ -52,6 +52,7 @@ efb_var_waitng(50)
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
     el.addEventListener("click", (e) => {
+      //console.log(el.className , el);
       active_element_efb(el);
 
     });
@@ -78,6 +79,10 @@ function pro_show_efb(state) {
       ${efb_var.text.activateProVersion}
     </button>
   </div>`
+ /*  console.log(state);
+  console.log(message);
+  console.log(body); */
+  console.log(efb_var.text.proVersion);
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   myModal.show()
@@ -205,7 +210,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         indexVJ = valj_efb.length - 1;
         const sort = indexVJ<=1 ? 'unsortable'  : 'sortable';
         newElement = ` 
-        <section class="efb  ${sort} list   row my-2  ${shwBtn} efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
+        <section class="efb  ${sort} list   row my-2  efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <div class="efb  row my-2  ${shwBtn} efbField stepNavEfb" data-step="${step_el_efb}" data-amount="${step_el_efb}" data-id="${step_el_efb}" id="${step_el_efb}" data-tag="steps">
             <h2 class="efb  col-10 mx-2 my-0"><i class="efb  ${valj_efb[indexVJ].icon} ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'}  ${valj_efb[indexVJ].icon_color}"
                     id="${step_el_efb}_icon"></i> <span id="${step_el_efb}_lab" class="efb   text-darkb  ${valj_efb[indexVJ].label_text_size != "default" ? valj_efb[indexVJ].label_text_size : 'fs-5'} ">${valj_efb[indexVJ].name}</span></span></h2>
@@ -919,6 +924,7 @@ function fun_renderform_Efb() {
 
           break;
         case "dadfile":
+          
           set_dadfile_fun_efb(v.id_, i)
           break;
 
@@ -960,17 +966,14 @@ function copyCodeEfb(id) {
 
 
 function validExtensions_efb_fun(type, fileType) {
-  let validExtensions = ["image/jpeg", "image/jpg", "image/png", 'image/gif'];
-  if (type == "document") {
-    validExtensions = ["doc", "docx", "docm", "dot", "pdf", "xls", "xlss", "pptm", "pptx", "ppt", "application/pdf", "text", 'text/plain', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel',
-      'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/vnd.ms-powerpoint.presentation.macroEnabled.12', 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-      'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation', 'application/vnd.oasis.opendocument.text'];
+  type= type.toLowerCase();
+  console.log(type);
+  filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
+  'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
+  'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
+  'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip'
   }
-  else if (type == "media") { validExtensions = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'video/mp4', 'video/webm', 'video/x-matroska', 'video/avi',]; }
-  else if (type == "zip") { validExtensions = ['application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip']; }
-  return validExtensions.includes(fileType);
+  return filetype_efb[type].includes(fileType);
 }
 
 
@@ -1587,11 +1590,16 @@ function fun_validation_efb() {
   let idi = "null";
   for (let row in valj_efb) {
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step) {
-      const s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
+      let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
       //console.log(sendBack_emsFormBuilder_pub,s ,valj_efb[row].id_ )
       // console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
+      if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
+        //files_emsFormBuilder
+        let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
+        s = r.state==0 ? -1 :1;
+      }
       if (s == -1) {
         if (state == true) { state = false; idi = valj_efb[row].id_ }
         // console.log(`id [${id}]`);
@@ -1906,3 +1914,12 @@ function calPLenEfb(len) {
   else { p = 1.1 }
   return p;
 }
+
+
+function replaceContentMessageEfb(value){ 
+  value = value.replace(/(\\"|"\\)/g, '"');
+  value = value.replace(/(\\\\n|\\\\r)/g, '<br>');
+  return value;
+
+}
+
