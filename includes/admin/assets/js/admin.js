@@ -331,16 +331,21 @@ function getOS_emsFormBuilder() {
 }
 
 createCardFormEfb = (i) => {
-  tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
-  //console.log(tag_efb);
+  tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
+  let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
+
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
+  if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
+    const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
+    btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
+  }
   return `
   <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
-  <button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>
+  ${btn}
   ${prw}
   </div></div></div>`
 }
@@ -982,6 +987,16 @@ let change_el_edit_Efb = (el) => {
         break;
       case "cardEl":
         valj_efb[0].dShowBg ? valj_efb[0].dShowBg = el.checked : Object.assign(valj_efb[0], { dShowBg: el.checked });
+        break;
+        case "offLineEl":
+          if(efb_var.addons.AdnOF!=0){
+            valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
+            console.log(el.id,valj_efb[0]);
+          }else{
+            el.checked=false;
+            noti_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
+            
+          }
         break;
       case "requiredEl":
         valj_efb[indx].required = el.checked;
@@ -2376,9 +2391,11 @@ fun_efb_add_el = (t) => {
   } else {
 
     let el = addNewElement(t, rndm, false, false);
-    dropZoneEFB.innerHTML += el;
-    if (t == "mobile") {
-
+    if(el!='null'){
+      dropZoneEFB.innerHTML += el;
+      if (t == "mobile") {
+  
+      }
     }
   }
 

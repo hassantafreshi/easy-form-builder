@@ -598,17 +598,26 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui = link_el_pro_efb (previewSate, rndm,iVJ);
       break;
     case 'stripe':
-      let sub = efb_var.text.onetime;
-      let cl = `one`;
-      //console.log(valj_efb[0].paymentmethod);
-      if (valj_efb[0].paymentmethod != 'charge') {
-        const n = `${valj_efb[0].paymentmethod}ly`
-        sub = efb_var.text[n];
-        cl = valj_efb[0].paymentmethod;
+      if(efb_var.addons.AdnSPF ==1){
+        let sub = efb_var.text.onetime;
+        let cl = `one`;
+        //console.log(valj_efb[0].paymentmethod);
+        if (valj_efb[0].paymentmethod != 'charge') {
+          const n = `${valj_efb[0].paymentmethod}ly`
+          sub = efb_var.text[n];
+          cl = valj_efb[0].paymentmethod;
+        }
+        dataTag = elementId;
+        ui =add_ui_stripe_efb(rndm,cl,sub);
+        valj_efb[0].type = "payment";
+      }else{
+        console.log(valj_efb);
+        noti_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
+        const l = valj_efb.length -1;
+        valj_efb.splice(l,1);
+        console.log(valj_efb,l);
+        return 'null';
       }
-      dataTag = elementId;
-      ui =add_ui_stripe_efb(rndm,cl,sub);
-      valj_efb[0].type = "payment";
       break;
     case "persiaPay":
       valj_efb[0].type = "payment";

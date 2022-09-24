@@ -111,6 +111,14 @@ class Create {
 		$maps =false;
 		$efbFunction = new efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
+		$addons = ['AdnSPF' => 0,
+		'AdnOF' => 0,
+		'AdnPPF' => 0,
+		'AdnATC' => 0,
+		'AdnSS' => 0,
+		'AdnCPF' => 0,
+		'AdnESZ' => 0,
+		'AdnSE' => 0];
 		//v2 translate
 		
 		$lang = $efbFunction->text_efb(1);
@@ -138,6 +146,18 @@ class Create {
 					}
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
+			}
+			if(isset($ac->AdnSPF)==true){
+				//$ac
+				
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnOF"]=$ac->AdnOF;
+				$addons["AdnATC"]=$ac->AdnATC;
+				$addons["AdnPPF"]=$ac->AdnPPF;
+				$addons["AdnSS"]=$ac->AdnSS;
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnESZ"]=$ac->AdnESZ;
+				$addons["AdnSE"]=$ac->AdnSE;
 			}
 		}
 
@@ -194,7 +214,8 @@ class Create {
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
-			"language"=> get_locale()
+			"language"=> get_locale(),
+			"addons"=>$addons
 			
 		));
 

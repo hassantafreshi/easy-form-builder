@@ -211,7 +211,7 @@ class efbFunction {
 			"editField" => $state ? $ac->text->editField : __('Edit Field','easy-form-builder'),
 			"description" => $state ? $ac->text->description : __('Description','easy-form-builder'),
 			"thisEmailNotificationReceive" => $state ? $ac->text->thisEmailNotificationReceive : __('Enable email notification','easy-form-builder'),
-			"activeTrackingCode" => $state ? $ac->text->activeTrackingCode : __('Active Confirmation Code','easy-form-builder'),
+			"activeTrackingCode" => $state ? $ac->text->activeTrackingCode : __('Active the Confirmation Code','easy-form-builder'),
 			"addGooglereCAPTCHAtoForm" => $state ? $ac->text->addGooglereCAPTCHAtoForm : __('Add Google reCAPTCHA to the form ','easy-form-builder'),
 			"dontShowIconsStepsName" => $state ? $ac->text->dontShowIconsStepsName : __('Do not show Icons & Steps name','easy-form-builder'),
 			"dontShowProgressBar" => $state ? $ac->text->dontShowProgressBar : __('Do not show progress bar','easy-form-builder'),
@@ -542,8 +542,10 @@ class efbFunction {
 			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
 			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder then try againhank','easy-form-builder'),				
+			"AfLnFrm" => $state  &&  isset($ac->text->AfLnFrm) ? $ac->text->AfLnFrm : __('Activation offline form mode','easy-form-builder'),				
+			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : __('Before activation this option, install','easy-form-builder'),				
+			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : __('Before creating a payment form you should install addon payment like Stripe Addon','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
-			
 		];
 
 		//error_log(gettype($inp));

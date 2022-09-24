@@ -39,6 +39,14 @@ class Panel_edit  {
 			$captcha =false;
 			$maps=false;
 			$mdtest = "15f57cc603c2ea64721ae0d0b5983136";
+			$addons = ['AdnSPF' => 0,
+			'AdnOF' => 0,
+			'AdnPPF' => 0,
+			'AdnATC' => 0,
+			'AdnSS' => 0,
+			'AdnCPF' => 0,
+			'AdnESZ' => 0,
+			'AdnSE' => 0];
 
 			if(gettype($ac)!="string" && isset($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
@@ -56,6 +64,16 @@ class Panel_edit  {
 					wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 					wp_enqueue_script('googleMaps-js');
 				}
+				if(isset($ac->AdnSPF)==true){
+					$addons["AdnSPF"]=$ac->AdnSPF;
+					$addons["AdnOF"]=$ac->AdnOF;
+					$addons["AdnATC"]=$ac->AdnATC;
+					$addons["AdnPPF"]=$ac->AdnPPF;
+					$addons["AdnSS"]=$ac->AdnSS;
+					$addons["AdnSPF"]=$ac->AdnSPF;
+					$addons["AdnESZ"]=$ac->AdnESZ;
+					$addons["AdnSE"]=$ac->AdnSE;
+				}
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
 			
@@ -71,7 +89,9 @@ class Panel_edit  {
 				'smtp'=>$smtp,
 				'maps'=> $maps,
 				'bootstrap' =>$this->check_temp_is_bootstrap(),
-				"language"=> get_locale()));
+				"language"=> get_locale(),
+				"addons"=>$addons
+			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
 			wp_enqueue_script('efb-val-js'); 

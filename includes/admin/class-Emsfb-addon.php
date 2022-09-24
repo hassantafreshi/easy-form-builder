@@ -164,8 +164,8 @@ class Addon {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-		        /*
-            AdnSPF == strip payment
+		/*
+            AdnSPF == stripe payment
             AdnOF == offline form
             AdnPPF == persia payment
             AdnATC == advance tracking code

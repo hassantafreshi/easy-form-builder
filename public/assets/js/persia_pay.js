@@ -24,7 +24,7 @@ add_ui_persiaPay_efb=(rndm)=>{
         <div class="efb  headpay border-b row col-md-12 mb-3">
           <div class="efb  h3 col-sm-5">
             <div class="efb  col-12 text-dark"> ${efb_var.text.payAmount}:</div>
-            <div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i>پرداخت توسط <span Class="efb fs-6" id="efbPayBy">پی‌پینگ</span></div>
+            <div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i>پرداخت توسط <span Class="efb fs-6" id="efbPayBy">زرین پال</span></div>
           </div>
           <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb">
             <span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1">0</span>
