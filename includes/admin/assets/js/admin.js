@@ -1913,7 +1913,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       form_type_emsFormBuilder = "payment";
     }
     if (elementId == "persiaPay") {
-      Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'payping' });
+      Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'zarinPal' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
     }

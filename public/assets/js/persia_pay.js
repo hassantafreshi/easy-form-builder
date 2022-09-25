@@ -9,13 +9,15 @@ pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;
     console.log(gateWay);
-    if(gateWay=="payping"){
-        fun_pay_pp_efb();
+    if(gateWay=="zarinPal"){
+      fun_pay_pp_efb();
     }else if(gateWay=="efb"){
 
     }
 }
-fun_pay_pp_efb=()=>{}
+fun_pay_pp_efb=()=>{
+  btnPersiaPayEfb()
+}
 
 add_ui_persiaPay_efb=(rndm)=>{
     return `
@@ -39,3 +41,79 @@ add_ui_persiaPay_efb=(rndm)=>{
     </div>
     `;
 }
+
+
+function btnPersiaPayEfb(){
+  console.log("btnPersiaPayEfb");
+  let btnEfb = document.getElementById('persiaPayEfb');
+  let PaymentState = document.getElementById('afterPayefb');
+
+  btnEfb.innerHTML="لطفا صبر کنید";
+  btnEfb.classList.add('disabled')
+  //console.log(ajax_object_efm.ajax_url);
+product = localStorage.getItem('pay_efb')==null ? 2 : localStorage.getItem('pay_efb');
+console.log(product);
+          jQuery(function ($) {
+              data = {
+                action: "pay_IRBank_payEfb",
+                value: JSON.stringify(sendBack_emsFormBuilder_pub),
+                id : efb_var.id,                      
+                product:product,
+                name:formNameEfb,
+                nonce: ajax_object_efm.nonce,
+                url :window.location.href
+              };
+              //console.log(res);
+              $.ajax({
+                type: "POST",
+                async: false,
+                url: ajax_object_efm.ajax_url,
+                data: data,
+                success: function (res) {         
+                  console.log(res.data) ;    
+      
+                  if(res.data.success==true){
+                       console.log(res.data);
+                      document.getElementById('beforePay').classList.add('d-none');
+                      window.open(res.data.url ,'_self');
+                      console.log(res.data.re);
+                      PaymentState.innerHTML = `<div class="my-5"><h2 class="text-center mt-4 text-muted  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
+                      <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
+                    
+                      console.log("suc",PaymentState.innerHTML)
+                      //active next or send button !!
+                      //disable button
+               
+                  //PaymentState.style.display='block'
+                  }else{
+                    console.log(res.data.re);
+                    PaymentState.innerHTML = `
+                      <div clss"text-danger"><strong>Error,  </strong> ${res.data.re}</div>
+                      `
+                       
+                      btnEfb.classList.remove('disabled');
+                      btnEfb.innerHTML="پرداخت";
+
+
+                  }
+                  
+                },
+                error: function (res) {
+                  console.error(res) ;  
+                  btnEfb.classList.remove('disabled'); 
+                  PaymentState.innerHTML =`<p class="h4">${res.status}</p> ${res.statusText} </br> ${res.responseText}`
+      
+                  //noti_message_efb('Stripe', m, 120, 'danger')
+                  btnEfb.innerHTML="پرداخت" 
+                
+                }
+              })
+            }); //end jquery 
+     
+
+
+   
+    
+  
+
+}//end  btnStripeEfb

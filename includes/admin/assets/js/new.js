@@ -620,6 +620,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       break;
     case "persiaPay":
+      case "zarinPal":
       valj_efb[0].type = "payment";
       dataTag = elementId;
       valj_efb[0].paymentmethod="charge"
@@ -1522,7 +1523,8 @@ function previewFormEfb(state) {
   // if (state != "show") myModal.show();
   step_el_efb = valj_efb[0].steps;
   //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
-  if (localStorage.getItem('formId') == efb_var.id && state == 'run') { fun_offline_Efb() }
+ 
+  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && ( addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='boolean' &&  valj_efb[0].AfLnFrm==true ) ) { fun_offline_Efb() }
   //}, timeout) //nlogn
 }//end function v2
 

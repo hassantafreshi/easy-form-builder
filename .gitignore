@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 .vscode/
+.vscode/*
 includes/vendor.zip
 vendor/stripe/stripe-php/VERSION
 vendor/stripe/stripe-php/README.md

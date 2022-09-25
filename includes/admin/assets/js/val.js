@@ -78,7 +78,7 @@ function show_setting_window_efb(idset) {
     <label class="efb form-check-label fs-6" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
     </div>`;
     const offLineEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].fLnFrm && valj_efb[0].fLnFrm == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].AfLnFrm && valj_efb[0].AfLnFrm == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
@@ -186,7 +186,7 @@ function show_setting_window_efb(idset) {
       // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
        return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
-       <option value="zarinpal" ${valj_efb[0].persiaPay=='zarinpal' ? 'selected' :''}>زرین پال</option>                                                            
+       <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
        <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>فرم ساز آسان</option>
        </select>`;
      } 

@@ -8,6 +8,7 @@ let currentTab_emsFormBuilder = 0;
 let multiSelectElemnets_emsFormBuilder = [];
 let formNameEfb = ""
 let files_emsFormBuilder = [];
+let addons_emsFormBuilder =""
 //let trackingCode_state_emsFormBuilder = ""
 let recaptcha_emsFormBuilder = '';
 let poster_emsFormBuilder = '';
@@ -38,8 +39,10 @@ setTimeout(() => {
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
+          const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+          console.log(vs);
+          addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
-            const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
 
             if (ajax_value[0].captcha == true) {
               sitekye_emsFormBuilder = vs.siteKey;
