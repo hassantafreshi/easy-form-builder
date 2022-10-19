@@ -63,63 +63,104 @@ function alarm_emsFormBuilder(val) {
 function Link_emsFormBuilder(state) {
   let link = 'https://whitestudio.team/document'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
-  switch (state) {
-    case 'publishForm':
-      link = "https://youtu.be/AnkhmZ5Cz9w";
+  if(efb_var.language != "fa_IR"){
+    switch (state) {
+      case 'publishForm':
+        link = "https://youtu.be/AnkhmZ5Cz9w";
+        break;
+      case 'createSampleForm':
+      case 'tutorial':
+        link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+        break;
+      case 'stripe':
+        //stripe
+        link = "https://whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder";
+        break;
+      case 'ws':
+        link = 'https://whitestudio.team/';
+        break;
+      case 'efb':
+        link = "https://wordpress.org/plugins/easy-form-builder/";
+        break;
+      case 'wiki':
+        link = `https://whitestudio.team/documents/`;
+        break;
+      case 'EmailNoti':
+        link += "s/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
+        break;
+      case 'redirectPage':
+        link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
       break;
-    case 'createSampleForm':
-    case 'tutorial':
-      link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+      case 'AdnSPF':
+        //AdnSPF == strip payment
+      case 'AdnOF':
+        //AdnOF == offline form
+      case 'AdnPPF':
+        //AdnPPF == persia payment
+      case 'AdnATC':
+        // AdnATC == advance tracking code
+      case 'AdnSS':
+        //AdnSS == sms service
+      case 'AdnCPF':
+     // AdnCPF == crypto payment
+      case 'AdnESZ':
+     //AdnESZ == zone picker
+      case 'AdnSE':
+        //AdnSE == email service
+        console.log(state)
+        link = 'https://whitestudio.team/addons';
+        break;
+    }
+  }else{
+    switch (state) {
+      case 'publishForm':
+        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
+        break;
+      case 'createSampleForm':
+      case 'tutorial':
+        link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+        break;
+      case 'stripe':
+        //stripe
+        link = "https://whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder";
+        break;
+      case 'ws':
+        link = 'https://easyformbuilder.ir/';
+        break;
+      case 'efb':
+        link = "https://wordpress.org/plugins/easy-form-builder/";
+        break;
+      case 'wiki':
+        link = `https://easyformbuilder.ir/documents/`;
+        break;
+      case 'EmailNoti':
+        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/";
+        break;
+      case 'redirectPage':
+        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
       break;
-    case 'stripe':
-      //stripe
-      link = link + "s/how-to-setup-and-use-the-stripe-on-easy-form-builder";
-      break;
-    case 'ws':
-      link = 'https://whitestudio.team/';
-      break;
-    case 'efb':
-      link = "https://wordpress.org/plugins/easy-form-builder/";
-      break;
-    case 'wiki':
-      link = `https://whitestudio.team/documents/`;
-      break;
-    case 'EmailNoti':
-      link += "s/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
-      break;
-    case 'redirectPage':
-      link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
-    break;
-    /*
-            AdnSPF == strip payment
-            AdnOF == offline form
-            AdnPPF == persia payment
-            AdnATC == advance tracking code
-            AdnSS == sms service
-            AdnCPF == crypto payment
-            AdnESZ == zone picker
-            AdnSE == email service
-        */
-    case 'AdnSPF':
-      //AdnSPF == strip payment
-    case 'AdnOF':
-      //AdnOF == offline form
-    case 'AdnPPF':
-      //AdnPPF == persia payment
-    case 'AdnATC':
-      // AdnATC == advance tracking code
-    case 'AdnSS':
-      //AdnSS == sms service
-    case 'AdnCPF':
-   // AdnCPF == crypto payment
-    case 'AdnESZ':
-   //AdnESZ == zone picker
-    case 'AdnSE':
-      //AdnSE == email service
-      console.log(state)
-      link = 'https://whitestudio.team/addons';
-      break;
+      case 'AdnSPF':
+        //AdnSPF == strip payment
+      case 'AdnOF':
+        //AdnOF == offline form
+      case 'AdnPPF':
+        //AdnPPF == persia payment
+      case 'AdnATC':
+        // AdnATC == advance tracking code
+      case 'AdnSS':
+        //AdnSS == sms service
+      case 'AdnCPF':
+     // AdnCPF == crypto payment
+      case 'AdnESZ':
+     //AdnESZ == zone picker
+      case 'AdnSE':
+        //AdnSE == email service
+        console.log(state)
+        link = 'https://easyformbuilder.ir/';
+        break;
+    }
   }
+
   //console.log(link);
   window.open(link, "_blank");
 }
@@ -336,7 +377,8 @@ createCardFormEfb = (i) => {
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
 
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
-  if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
+  console.log('payment',i.tag,efb_var.addons.AdnSPF,efb_var.addons.AdnPPF)
+  if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 || efb_var.addons.AdnPPF==0) ) {
     const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
     btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
   }
@@ -1550,6 +1592,11 @@ let change_el_edit_Efb = (el) => {
           //console.log( valj_efb[ipndx])
           el.setAttribute('value', valj_efb[ipndx].price);
           el.setAttribute('defaultValue', valj_efb[ipndx].price);
+          console.log(`id[${valj_efb[ipndx].id_}-price] `);
+          const currency = valj_efb[0].currency || efb_var.language== "fa_IR" ? 'IRR':"USD"
+          const no = valj_efb[ipndx].price.toLocaleString('en-IN', { style: 'currency', currency: currency });
+          console.log(no, valj_efb[ipndx].id_ , `${valj_efb[ipndx].id_}-price`);
+          document.getElementById(`${valj_efb[ipndx].id_}-price`).innerHTML=no;
         }
         break;
       case "htmlCodeEl":
@@ -1560,7 +1607,7 @@ let change_el_edit_Efb = (el) => {
 
           document.getElementById(idhtml).innerHTML = el.value;
           document.getElementById(idhtml).classList.remove('sign-efb')
-          valj_efb[postId].value = el.value.replace(/\r?\n|\r/g, " ");
+          valj_efb[postId].value = el.value.replace(/\r?\n|\r/g, "@efb@nq#");
           valj_efb[postId].value = valj_efb[postId].value.replace(/"/g, `@!`);
 
         } else {
@@ -1983,10 +2030,11 @@ let sampleElpush_efb = (rndm, elementId) => {
   //console.log(valj_efb);
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  if (tag != undefined && tag.includes("pay")) {
+  console.log(`tayppee =>>>>>>>> ${tag}`);
+  if (tag != undefined || (typeof tag=="string" && tag.includes("pay")==-1)) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
-    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: '0', amount: amount_el_efb });
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });
   }
   //console.log(valj_efb)
 }

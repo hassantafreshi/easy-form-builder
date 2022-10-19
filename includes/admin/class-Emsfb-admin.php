@@ -299,8 +299,24 @@ class Admin {
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
-        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+        	/*
+            AdnSPF == stripe payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+        $value      = $_POST['value'];
+        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE"];
+        error_log('array_search');
+        error_log($value);
+        $dd =gettype(array_search($value, $allw));
+        error_log($dd);
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1 || $dd!="integer") {
+            error_log('not valid nonce');
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -322,34 +338,39 @@ class Admin {
             die();
         }
 
-        $value      = $_POST['value'];
-        $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-        //http://127.0.0.1/ws/wp-json/wl/v1/addons-link/webbro/test
-        error_log('wp_remote_get');
-        $request = wp_remote_get( 'http://127.0.0.1/ws/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'' );
-        
-        if( is_wp_error( $request ) ) {
+       if($value!="AdnOF"){
 
-            $m = $lang["error403"];
-            $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
-            die();
-        }
-        
-        $body = wp_remote_retrieve_body( $request );
-        error_log($body);
-        $data = json_decode( $body );
-        if($data->status==false){
-            $response = ['success' => false, "m" => $data->error];
-            wp_send_json_success($response, $_POST);
-            die();
-        }
-        if($data->download==true){
-            error_log($data->link);
-            $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
-           // $url =$data->link;
-            $this->fun_addon_new($url);
+            // اگر لینک دانلود داشت
+            $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+            error_log('wp_remote_get');
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'' ;
+            error_log($u);
+            $request = wp_remote_get($u );
+            error_log(json_encode($request));
+            if( is_wp_error( $request ) ) {
 
+                $m = $lang["error403"];
+                $response = ['success' => false, "m" => $m];
+                wp_send_json_success($response, $_POST);
+                die();
+            }
+            
+            $body = wp_remote_retrieve_body( $request );
+            error_log('body');
+            error_log($body);
+            $data = json_decode( $body );
+            if($data->status==false){
+                $response = ['success' => false, "m" => $data->error];
+                wp_send_json_success($response, $_POST);
+                die();
+            }
+            if($data->download==true){
+                error_log($data->link);
+                $url =$data->link;
+                $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                $this->fun_addon_new($url);
+
+            }
         }
         /*
             AdnSPF == strip payment
@@ -426,7 +447,7 @@ class Admin {
 
         $value      = $_POST['value'];
         $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-        //http://127.0.0.1/ws/wp-json/wl/v1/addons-link/webbro/test
+        
        
         /*
             AdnSPF == strip payment
@@ -498,7 +519,7 @@ class Admin {
         //error_log(json_encode($_POST['value']));
 /*         if ($_POST['value']) {
             if ($this->isHTML(json_encode($_POST['value']))) {
-                $response = ['success' => false, "m" => __("You are not allowed use HTML tag")];
+                $response = ['success' => false, "m" => __("You are not allowed to use HTML tag")];
                 wp_send_json_success($response, $_POST);
                 die();
             }

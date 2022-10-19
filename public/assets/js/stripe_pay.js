@@ -106,7 +106,7 @@ fun_add_stripe_efb = () => {
                     stripe.confirmCardPayment(res.data.client_secret, {
                       payment_method: { card: numElm }
                     }).then(transStat => {
-                      fun_trans(transStat, res.data.transStat, res.data.id);
+                      fun_trans_efb(transStat, res.data.transStat, res.data.id);
                     })
                   } else {
   
@@ -152,7 +152,7 @@ fun_add_stripe_efb = () => {
                       //console.log(res) ;    
   
                       if (res.data.success == true) {
-                        fun_trans(transStat, res.data.transStat, res.data.id);
+                        fun_trans_efb(transStat, res.data.transStat, res.data.id);
                       } else {
                         stsStripeEfb.innerHTML = `<div clss"text-danger"><strong>${efb_var.text.error}</strong> ${res.data.re}</div>`;
                         btnStripeEfb.classList.remove('disabled');
@@ -180,7 +180,7 @@ fun_add_stripe_efb = () => {
   
         }
   
-        fun_trans = (transStat, data, trackid) => {
+        fun_trans_efb = (transStat, data, trackid) => {
           /*             console.log(trackid);
                       console.log(data); */
           if (transStat.error) {
@@ -286,8 +286,7 @@ fun_add_stripe_efb = () => {
     <a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled" id="btnStripeEfb">${efb_var.text.payNow}</a>
     <div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
    
-    </div>
-    </div>      
+        
     <!-- end stripe -->
     `
 }
@@ -307,37 +306,5 @@ fun_pay_valid_price = () => {
   return s;
 }
 //pub function
-fun_disabled_all_pay_efb = () => {
-  let type = '';
-  document.getElementById('stripeCardSectionEfb').classList.add('d-none');
-  for (let o of valj_efb) {
-    if (o.hasOwnProperty('priceEfb')) {
-      if (o.hasOwnProperty('parent')) {
-        const p = valj_efb.findIndex(x => x.id_ == o.parent);
-        type = valj_efb[p].type;
-        //console.log(o.parent,p,type);
-        let ov = document.querySelector(`[data-vid ="${o.parent}"]`);
-        ov.classList.remove('payefb');
-        ov.classList.add('disabled');
-        ov.disabled = true;
-        if (type != "multiselect" && type != "select" && type != "payMultiselect" && type != "paySelect") {
-          const ob = valj_efb.filter(obj => {
-            return obj.parent === o.parent
-          })
-          //console.log(ob);
-          for (let o of ob) {
-            ov = document.getElementById(o.id_);
-            //console.log(ov);
-            ov.classList.add('disabled');
-            ov.classList.remove('payefb');
-            ov.disabled = true;
-          }//end for
-
-        }//end if multiselect 
-      }
-
-    }
-  }
-}
 
 

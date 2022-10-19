@@ -118,11 +118,15 @@ How *Easy Form Builder* makes your life easier:
 
 - Forms Templates for creating contact-us or support forms
 
+- Save the IP of who is submitting a form
+
 - Customizable the thank you message in forms
 
 - Create any kind of form you want
 
 - Submitting an Offline Forms
+
+
 
 
 

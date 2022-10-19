@@ -127,6 +127,9 @@ class _Public {
 		$paymentType="";
 		$paymentKey="null";
 		$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+
+		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
+		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
 		if($typeOfForm=="payment"){
 			$r = $this->setting;
 			if(gettype($r)=="string"){
@@ -137,32 +140,34 @@ class _Public {
 				
 				if(strpos($value , ',\"type\":\"stripe\",')){$paymentType="stripe";}
 				else if(strpos($value , ',\"type\":\"persiaPay\",')){
-					$paymentType="payping";}
+					$paymentType="zarinPal";}
 				else if(strpos($value , ',\"type\":\"zarinPal\",')){error_log('paymentType');$paymentType="zarinPal";}
-
+					
 					error_log('140 pub');
 					if($paymentType!="null" && $pro==true){
-					error_log('142 pub');
-					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
+						error_log('142 pub');
+						error_log($paymentType);
+						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
 						wp_enqueue_script('pay_js');
-					if($paymentType=="stripe"){ 
-						wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-						wp_enqueue_script('stripe-js');
+						if($paymentType=="stripe"){ 
+							
+							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
+							wp_enqueue_script('stripe-js');
 
-						wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), null, true);
-						wp_enqueue_script('parsipay_js');
-						//pub key stripe
-						$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
-						
-					}else if($paymentType=="persiaPay" || $paymentType=="zarinPal" ){
-						//error_log("payping");
-						error_log('151 pub');
-						error_log($paymentKey);
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), null, true);
+							wp_enqueue_script('parsipay_js');
+							//pub key stripe
+							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
+							
+						}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
+							//error_log("payping");
+							error_log('151 pub');
+							error_log($paymentKey);
 
-						$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-						wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), null, true);
-						wp_enqueue_script('parsipay_js');
-					}
+							$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), null, true);
+							wp_enqueue_script('parsipay_js');
+						}
 				}
 		
 		
@@ -197,7 +202,7 @@ class _Public {
 				//modify_jquery_login_efb
 				//error_log($value_form[0]->form_type);
 
-				$ar_core;
+				
 				if($value_form[0]->form_type=="form"){
 
 				}else if (($value_form[0]->form_type=="login" || $value_form[0]->form_type=="register")){
@@ -464,7 +469,8 @@ class _Public {
 		$setting;
 		$rePage ="null";
 		$this->id = sanitize_text_field($_POST['id']);
-		//error_log($this->id);
+		error_log($this->id);
+		error_log($type);
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
@@ -516,8 +522,8 @@ class _Public {
 					'response'     => $response,
 				);
 				/* error_log(json_encode($formObj));
-				error_log(json_encode($formObj[0])); */
-				if($formObj[0]['type']!='payment' && $formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
+				//error_log(json_encode($formObj[0])); */
+				if(gettype($formObj)!="string" && $formObj[0]['type']!='payment' && $formObj[0]['captcha']==true && strlen($response)>5 && $formObj[0]["captcha"]==true){				
 					//error_log($setting->secretKey);
 					if(isset($setting->secretKey) && strlen($setting->secretKey)>5){
 						$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
@@ -561,7 +567,7 @@ class _Public {
 						case "form":						
 							$this->get_ip_address();
 							$ip = $this->ip;
-							$check=	$this->insert_message_db(0);
+							$check=	$this->insert_message_db(0,false);
 							if(!empty($r)){
 								
 								//$setting =json_decode($r->setting);	
@@ -598,14 +604,34 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "payment":	
-						
+							error_log('===========payment');
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$id = $this->id;
-							$table_name = $this->db->prefix . "emsfb_msg_";
+							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
-							$vv;
-							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name` WHERE track = '$id' AND read_=2 " );	
+							error_log("id");
+							error_log("payment_getWay");
+							error_log($id);
+							
+							
+							$payment_getWay =isset($_POST['payment']) ? sanitize_text_field($_POST['payment']) :'stripe';
+							
+							error_log($payment_getWay);
+							error_log('table_name');
+							error_log($table_name_);
+							error_log(gettype($id));
+							if( strlen($id)<7 && $payment_getWay=="zarinPal"){
+								$response = array( 'success' => false , "m"=>"خطای داده های پرداختی ، صفحه را رفرش کنید"); 
+								wp_send_json_success($response,$_POST);
+								die();
+							}		
+							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name_` WHERE track = '$id' AND read_=2" );	
+							error_log(json_encode($this->db));
+							error_log(json_encode($value));
+						
+							error_log("value");
+							error_log(gettype($value));
 							$trackId= $id;
 							if($value!=null){
 								$vv=$value[0]->content;
@@ -616,6 +642,114 @@ class _Public {
 								$filtered = array_filter($valobj, function($item) use ($vv) { 
 									if(strpos($item['type'], 'pay')===false){return $item;}					
 								});
+								error_log("vv_");
+								error_log($vv_);
+								error_log("fs");
+								error_log($fs);
+								$amount =0;
+								foreach ($vv as $k => $v) {
+									# code...
+									error_log(json_encode($v));
+									$amount +=$v['price'];
+								}
+								$result;
+								if($payment_getWay=="persiaPay"){
+									//zarinPal validation code
+										
+
+										
+										$amount = $amount*10;
+									if(gettype($r)=="string" && $fs!=''){
+										$setting =str_replace('\\', '', $r);
+										$setting =json_decode($setting);
+										
+										error_log('amount');
+										error_log($amount);
+										$TokenCode = $setting->payToken;
+										error_log('TokenCode');
+										error_log($TokenCode);
+										//error_log($TokenCode);
+										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($_POST['auth']), "amount" => $amount);
+										$jsonData = json_encode($data);
+										$msg="ok";
+						
+										
+									
+										/* try{
+											$ch = curl_init('https://api.zarinpal.com/pg/v4/payment/verify.json');
+											curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v4');
+											curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+											curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+											curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+											curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+												'Content-Type: application/json',
+												'Content-Length: ' . strlen($jsonData)
+											));
+											$result = curl_exec($ch);
+											curl_close($ch);
+											error_log($result);
+											$result = json_decode($result, true);
+											
+											if($result['errors']){
+											 $msg = 'زرین پال ، شرح خطا:' . $result['errors']['code'];
+											}else{        
+												if($result['data']['code'] == 100 || $result['data']['code'] == 101){
+						
+													$refid =$result['data']['ref_id'];
+													if( isset($refid) && $refid != '' ){
+														$msg = 'ok';
+														$outp['msg'] = $msg;
+														$status=true;
+													}else{
+														$msg = 'متافسانه زرین پال  قادر به دریافت کد پیگیری نمی‌باشد! نتیجه درخواست: ' . $header['http_code'];
+													}
+												}elseif($header['http_code'] == 400){
+													$msg = ' تراکنش ناموفق بود، شرح خطا: ' . $response;
+													$outp['msg'] = $msg;
+												}else{
+													error_log($result['errors']['code']);
+													$msg = ' تراکنش ناموفق بود، شرح خطا: ' . $header['http_code'];
+												}
+											}
+										}catch( Exception $e ){
+											$msg = ' تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
+										}  */
+										include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiaPay/zarinpal.php");
+										$persiaPay = new zarinPalEFB() ;
+										$result = $persiaPay->validate_payment_zarinPal($jsonData);
+										if($result['errors']){
+											$msg = $result['errors']['message'];
+										}
+									}else{
+										$msg = 'خطای تنظیمات : با مدیر وبسایت تماس بگیرید ، خطای 406 ' ;
+										//تنظیمات یافت نشد
+									}
+
+
+									if($msg!="ok"){
+										$response = array( 'success' => false , "m"=>$this->$msg); 
+										wp_send_json_success($response,$_POST);
+										die();
+									}
+									date_default_timezone_set('Iran');
+									
+									$result=[
+										'id_' =>"payment",
+										'name' => "payment",
+										'amount' => 0,
+										'total' => $amount,
+										'type' => "payment",
+										"paymentGateway"=>$payment_getWay,
+										"paymentCreated"=>wp_date( __( 'Y/m/d \a\t g:ia', 'textdomain' ) ),
+										"paymentmethod"=>'کارت',
+										"paymentIntent"=>sanitize_text_field($_POST['auth']),
+										"paymentCard"=>$result['data']['card_pan'], 
+										"refId"=>$result['data']['ref_id']
+										
+									];
+									
+									//end zarinPal
+								}
 								$form_id = $value[0]->form_id;
 								$table_name = $this->db->prefix . "emsfb_form";
 								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
@@ -640,18 +774,30 @@ class _Public {
 									}
 								});
 								$valobj =   empty($valobj) ? $it : array_merge((array)$valobj,$it);
+								//if($payment_getWay=="persiaPay")$valobj =array_merge($valobj,$result);
+								array_push($valobj, $result);
+								error_log(gettype($valobj));
 								}
 
-
+								error_log('valobj');
+								error_log(json_encode($valobj));
 								
 								$fs=json_encode($valobj);
 								$filtered = array_unique(array_merge($valobj,$vv), SORT_REGULAR);
-								$fs=json_encode($filtered);					
-								$fs=str_replace('"', '\\"', $fs);
+								$fs=[];
+								foreach ($filtered as $key => $v) {
+									# code...
+									error_log(json_encode($v));
+									array_push($fs,$v);
+									
+								}
+								$filtered=json_encode($fs);					
+								error_log($filtered);
+								$fs=str_replace('"', '\\"', $filtered);
 								$this->value = sanitize_text_field($fs);
 								$this->get_ip_address();					
 								$check=$this->update_message_db();								
-								//$check=	$this->insert_message_db();
+								
 								if(!empty($r)){
 									
 									//$setting =json_decode($r->setting);	
@@ -740,7 +886,7 @@ class _Public {
 								
 									$this->get_ip_address();
 									//$ip = $this->ip;
-									$check=	$this->insert_message_db(0);
+									$check=	$this->insert_message_db(0,false);
 									$state= get_user_by( 'email', $email);
 									if(gettype($state)=="object"){
 										$to = $email;								
@@ -879,7 +1025,7 @@ class _Public {
 							//error_log('subscribe2');
 							$this->get_ip_address();
 							//$ip = $this->ip;
-							$check=	$this->insert_message_db(0);
+							$check=	$this->insert_message_db(0,false);
 			
 							
 							if(!empty($r)){
@@ -906,7 +1052,7 @@ class _Public {
 						case "survey":
 							$this->get_ip_address();
 							//$ip = $this->ip;
-							$check=	$this->insert_message_db(0);
+							$check=	$this->insert_message_db(0,false);
 			
 							
 							if(!empty($r)){
@@ -968,12 +1114,13 @@ class _Public {
 		if(gettype($this->setting)=="string"){
 		$r=str_replace('\\', '', $this->setting);
 			 $setting =json_decode($r);
-			 $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
+			 //error_log($r);
+			 /* $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
 			if($secretKey!="null"){
 				$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
 				$captcha_success =json_decode($verify['body']);
 				$not_captcha=false;	 
-			}
+			} */
 		}
 		 $strR = json_encode($captcha_success);
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
@@ -1030,7 +1177,7 @@ class _Public {
 	public function insert_message_db($read,$uniqid){
 		//error_log($this->value);
 		if(isset($read)==false) $read=0;
-		if(isset($uniqid)==false) $uniqid= date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
+		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->name);
 		$this->db->insert($table_name, array(
@@ -1284,15 +1431,15 @@ class _Public {
 				$mapKey = isset($r->apiKeyMap) ? $r->apiKeyMap : "";
 				$paymentKey = isset($r->stripePKey) ? $r->stripePKey : "";
 					/*
-            AdnSPF == stripe payment
-            AdnOF == offline form
-            AdnPPF == persia payment
-            AdnATC == advance tracking code
-            AdnSS == sms service
-            AdnCPF == crypto payment
-            AdnESZ == zone picker
-            AdnSE == email service
-        	*/
+					AdnSPF == stripe payment
+					AdnOF == offline form
+					AdnPPF == persia payment
+					AdnATC == advance tracking code
+					AdnSS == sms service
+					AdnCPF == crypto payment
+					AdnESZ == zone picker
+					AdnSE == email service
+					*/
 				$addons = ['AdnSPF' => 0,
 				'AdnOF' => 0,
 				'AdnPPF' => 0,
@@ -1309,10 +1456,11 @@ class _Public {
 					$addons["AdnATC"]=$r->AdnATC;
 					$addons["AdnPPF"]=$r->AdnPPF;
 					$addons["AdnSS"]=$r->AdnSS;
-					$addons["AdnSPF"]=$r->AdnSPF;
+					$addons["AdnCPF"]=$r->AdnCPF;
 					$addons["AdnESZ"]=$r->AdnESZ;
 					$addons["AdnSE"]=$r->AdnSE;
 				}
+				error_log(json_encode($addons));
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				
@@ -1545,7 +1693,7 @@ class _Public {
 			$this->value = str_replace('"', '\\"', $val_);
 			//error_log($this->value );
 			$this->name = sanitize_text_field($_POST['name']);
-			$check=	$this->insert_message_db(2);
+			$check=	$this->insert_message_db(2,false);
 			//error_log(	$this->name);
 			//$response->transStat
 			//array_push($response->transStat ,array('id'=>$check));
@@ -1554,7 +1702,7 @@ class _Public {
 			wp_send_json_success($response, $_POST);
 
 		}else{
-			$response = array( 'success' => false  , 'm'=>__('Error Code:V01','easy-form-builder'));		
+			$response = array( 'success' => false  , 'm'=>__('Error Code:V02','easy-form-builder'));		
 			wp_send_json_success($response, $_POST);
 		}
 
@@ -1586,7 +1734,7 @@ class _Public {
 
 		if ($Sk=="null"){
 			
-				$m = __('Stripe', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$m = __('persiaPayment', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, $_POST);
 				die("secure!");
@@ -1607,7 +1755,7 @@ class _Public {
 		$paymentmethod = $fs_[0]['paymentmethod'];
 		$price_c =0;
 		$price_f=0;
-		$email ='';
+		$email ='no@email.com';
 		$des = ':پرداختی فرم' . $fs_[0]['formName'];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
@@ -1679,6 +1827,8 @@ class _Public {
 		}
 		$price_f = $price_f*10;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+		error_log('price_f');
+		error_log($price_f);
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
 			
@@ -1703,23 +1853,109 @@ class _Public {
 			});
 			
 			
-		/* zarinpal pay start*/
+			/* zarinpal pay start*/
 
-		$clientRefId =substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 10);
-		$TokenCode =$Sk;
-		$returnUrl =$url;
-		error_log($returnUrl);
-		error_log($Sk);
-		//$amount=1000;
-		$data = array(
-			'clientRefId'   => $clientRefId,
-			'payerIdentity' => $email,
-			'Amount'        => $price_f,
-			'Description'   => $des,
-			'returnUrl'     => $returnUrl
-		);
+			$clientRefId =substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 12);
+			$TokenCode =$Sk;
+			$returnUrl =$url;
+			error_log($returnUrl);
+			error_log($Sk);
+
+			//$amount=1000;
+			$data = array("merchant_id" => $TokenCode,
+			"amount" => $price_f,
+			"callback_url" => $returnUrl,
+			"description" =>  $des,
+			"metadata" => [ "email" =>  $email],
+			);
+			$jsonData = json_encode($data);
+	/* 		try{
 			
-		try{
+			
+				$ch = curl_init('https://api.zarinpal.com/pg/v4/payment/request.json');
+				curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen($jsonData)
+				));
+			
+				$result = curl_exec($ch);
+				$err = curl_error($ch);
+				$result = json_decode($result, true, JSON_PRETTY_PRINT);
+				curl_close($ch);
+			
+		
+				//$result['data']["authority"]
+				if ($err) {
+					$msg = 'کد خطا: CURL#' . $er;
+					$erro = 'در اتصال به درگاه مشکلی پیش آمد.';
+					return false;
+				} else {
+				if (empty($result['errors'])) {
+					if ($result['data']['code'] == 100) {
+
+						//header('Location: https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"]);
+						$auth = $result['data']["authority"];
+						//$filtered +=['auth'=>$auth];
+						$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+						error_log('val_');
+						error_log($val_);
+						$this->get_ip_address();
+						$this->value = str_replace('"', '\\"', $val_);
+						//error_log($this->value );
+						$this->name = sanitize_text_field($_POST['name']);
+						$check=	$this->insert_message_db(2,$clientRefId);
+						//$this->insert_temp_costumer($website,$paymentType,$product_price,'ZarinPal',$email,$name,$auth);
+						$response;
+						if(isset($check)==true){
+							$GoToIPG = 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"];
+							$response = array( 'success' => true  ,'trackingCode'=>$check, 're'=>'در حال انتقال به درگاه بانک' , 'url'=>$GoToIPG);	
+							
+						}else{
+							$response = array('success' => false, 'm' => 'DB Error 400-PP');
+						}
+						wp_send_json_success($response, $_POST);
+						
+					}
+					} else {
+					$erro ='Error Code: ' . $result['errors']['code'];
+					$msg = 'تراکنش ناموفق بود، شرح خطا: ' .  $result['errors']['message'];
+			
+					}
+				}
+			}catch(Exception $e){
+				$msg = 'تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
+				$response = array( 'success' => false  , 're'=>$msg);				
+			} */
+			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiaPay/zarinpal.php");
+			$persiaPay = new zarinPalEFB() ;
+			$response = $persiaPay->create_bill_zarinPal($jsonData);
+			if($response['success']==true){
+				$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+                    /* error_log('val_');
+                    error_log($val_); */
+                    $this->get_ip_address();
+                    $this->value = str_replace('"', '\\"', $val_);
+                    //error_log($this->value );
+                    $this->name = sanitize_text_field($_POST['name']);
+                    $check=	$this->insert_message_db(2,$clientRefId);
+					if(isset($check)!=true){
+                        $response = array('success' => false, 'm' => 'DB Error 400-PP');
+                    }
+			}
+			/* 		//payping
+			$data = array(
+				'clientRefId'   => $clientRefId,
+				'payerIdentity' => $email,
+				'Amount'        => $price_f,
+				'Description'   => $des,
+				'returnUrl'     => $returnUrl
+			);
+		
+			try{
 			$curl = curl_init();
 			curl_setopt_array($curl, array(
 				CURLOPT_URL => "https://api.payping.ir/v2/pay",
@@ -1760,7 +1996,7 @@ class _Public {
 					error_log("200");
 					if( isset( $response ) and $response != '' ){
 						$response = $response['code'];
-						/* ارسال به درگاه پرداخت با استفاده از کد ارجاع */
+						// ارسال به درگاه پرداخت با استفاده از کد ارجاع 
 						$GoToIPG = 'https://api.payping.ir/v2/pay/gotoipg/' . $response;
 
 
@@ -1783,22 +2019,17 @@ class _Public {
 				}
 					
 			}
-		}catch(Exception $e){
-			$msg = 'تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
-			$response = array( 'success' => false  , 're'=>$msg);				
-		}
-		
+			}catch(Exception $e){
+				$msg = 'تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
+				$response = array( 'success' => false  , 're'=>$msg);				
+			} */
+			
 			/* zarinpal pay end*/
-			$response;	
+			
 			//error_log($this->id);
 
 			//array_push($filtered,$ar);
-			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-			$this->get_ip_address();
-			$this->value = str_replace('"', '\\"', $val_);
-			//error_log($this->value );
-			$this->name = sanitize_text_field($_POST['name']);
-			$check=	$this->insert_message_db(2,$clientRefId);
+			
 			//error_log(	$this->name);
 			//$response->transStat
 			//array_push($response->transStat ,array('id'=>$check));

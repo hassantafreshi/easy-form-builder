@@ -20,7 +20,7 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, "", 30, "danger") }, 500);
+        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
@@ -147,6 +147,7 @@ function emsFormBuilder_show_content_message(id) {
   //console.log(valueJson_ws_messages[indx]);
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
+  console.log('emsFormBuilder_show_content_message');
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
   form_type_emsFormBuilder = formType;
@@ -182,13 +183,13 @@ function emsFormBuilder_show_content_message(id) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  jQuery('#replayM_emsFormBuilder').on('keypress', 
+/*   jQuery('#replayM_emsFormBuilder').on('keypress', 
   function (event) {
     console.log('replayM_emsFormBuilder',event.which)
       if (event.which == '13') {
           event.preventDefault();
       }
-  });
+  }); */
 
 }
 
@@ -267,8 +268,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s = false;
   for (const c of content) {
+    if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
     s = false;
-    let value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
+    console.log(c);
+    let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -325,14 +328,42 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
 
-    if (c.type == "payment" && c.paymentGateway == "stripe") {
-      m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
-      m += `<div class="efb mx-3 fs7 text-capitalize">
+    if (c.type == "payment") {
+      console.log(`c.type == "payment"`);
+      if(c.paymentGateway == "stripe"){
+
+        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
+            <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
             <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
             ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
             </div>`
+      }else {
+        console.log(c.paymentGateway);
+        /* 
+        'id_' =>"payment",
+										'name' => "peyment",
+										'amount' => "0",
+										'total' => $amount,
+										'type' => "peyment",
+										"paymentGateway"=>$payment_getWay,
+										"paymentCreated"=>date('Y-m-d H'),
+										"paymentmethod"=>'کارت',
+										"paymentIntent"=>sanitize_text_field($_POST['auth']),
+										"paymentCard"=>$result->data->card_pan,
+										"refId"=>$result->data->ref_id
+        */
+        m += ``
+        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
+            <p class="efb my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
+            <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
+            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
+            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
+            <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
+            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p>
+            </div>`
+      }
     }
   }
   m += '</div>';
@@ -365,8 +396,8 @@ function fun_ws_show_edit_form(id) {
 function fun_send_replayMessage_emsFormBuilder(id) {
   //پاسخ مدیر را ارسال می کند به سرور 
 
-
-  const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
+  let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
+  //const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
@@ -659,7 +690,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
         const date = Date();
         document.getElementById('replayM_emsFormBuilder').value = "";
-
+        messag=replaceContentMessageEfb(message);
         fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
         const chatHistory = document.getElementById("resp_efb");
         chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -675,7 +706,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
-
+  console.log('fun_emsFormBuilder__add_a_response_to_messages');
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
@@ -728,6 +759,21 @@ function fun_show_help__emsFormBuilder() {
     7: { title: efb_var.text.howWorkWithPanels, url: `${ws}/complete-guide-of-form-entries-and-mange-forms/` },
     8: { title: efb_var.text.howAddTrackingForm, url: `${ws}/how-to-add-the-confirmation-code-finder/` },
     9: { title: efb_var.text.howFindResponse, url: `${ws}/how-to-find-a-response-through-a-confirmation-code/` },
+  }
+
+  if(efb_var.language == "fa_IR"){
+    const ef = `https://easyformbuilder.ir/`
+    listOfHow_emsfb = {
+      1: { title: efb_var.text.howProV, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%d9%86%d8%b3%d8%ae%d9%87-%d9%88%db%8c%da%98%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
+      2: { title: efb_var.text.howConfigureEFB, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
+      3: { title: efb_var.text.howGetGooglereCAPTCHA, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%da%a9%d9%be%da%86%d8%a7-%da%af%d9%88%da%af%d9%84-%d8%b1%d8%a7-%d8%af%d8%b1%db%8c%d8%a7%d9%81%d8%aa-%d9%88-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81/` },
+      4: { title: efb_var.text.howActivateAlertEmail, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
+      5: { title: efb_var.text.howCreateAddForm, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/` },
+      6: { title: efb_var.text.howActivateTracking, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%da%a9%d8%af-%d9%be%db%8c%da%af%db%8c%d8%b1%db%8c-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
+      7: { title: efb_var.text.howWorkWithPanels, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d8%b1%d9%88%d8%b4-%d9%85%d8%af%db%8c%d8%b1%db%8c%d8%aa-%d9%81%d8%b1%d9%85-%d9%87%d8%a7%db%8c-%d9%be%d8%b1-%d8%b4%d8%af%d9%87%d9%be%d8%a7%d8%b3%d8%ae-%d9%87%d8%a7-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2/` },
+      8: { title: efb_var.text.howAddTrackingForm, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86%d8%8c-%d9%be%db%8c%d8%a7%d9%85%db%8c-%d8%b1%d8%a7-%d8%a8%d8%a7-%da%a9%d8%af-%d8%b1%d9%87/` },
+      9: { title: efb_var.text.howFindResponse, url: `${ws}/how-to-find-a-response-through-a-confirmation-code/` },
+    }
   }
 
 
@@ -1376,7 +1422,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   }
   let county = 0
   for (v of value) {
-
+  
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
@@ -1389,86 +1435,89 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      //console.log(c,content[c]);
-      if (content[c].type != "checkbox" && content[c].type != 'multiselect'
-        && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 
-        ) {
-
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-
-
-        value_col_index = rows[0].findIndex(x => x == content[c].name);
-
-        if (value_col_index == -1) {
-
-          value_col_index = rows[0].findIndex(x => x == 'null@EFB');
-          rows[0][parseInt(value_col_index)] = content[c].name;
-          if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
-        }
-
-        rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
-        if (content[c].type == 'payment') {
-          const vx = rows[0].findIndex(x => x == "TID");
-          rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
-        }else if(content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document'){
-          rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
-        }
-      } else if (content[c].type == 'multiselect' || content[c].type == 'payMultiselect') {
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-        //if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count[${i_count}]`);  rows[i_count][1] = v.track;}
-        value_col_index = rows[0].findIndex(x => x == content[c].name);
-        if (value_col_index == -1) {
-          value_col_index = rows[0].findIndex(x => x == 'null@EFB');
-          rows[0][parseInt(value_col_index)] = content[c].name;
-        }
-        if (content[c].value.search(/@efb!+/g) != -1) {
-          if (form_type_emsFormBuilder == "survey") {
-            const nOb = content[c].value.split("@efb!")
-            nOb.forEach(n => {
-              if (n != "") {
-                //console.log(`[${n}]`,nOb.length);
-                if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
-                  rows[parseInt(i_count)][parseInt(value_col_index)] = n;
-                } else {
-                  const r = rows.length
-                  const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
-                  rows = rows.concat(row);
-                  rows[parseInt(r)][parseInt(value_col_index)] = n;
-                  rows[parseInt(r)][0] = v.msg_id;
-                }
-              }
-            });
-          } else {
-            rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', " || ")
+      if(content[c].length>1){
+        console.log(c,content[c] ,content);
+        if (content[c].type != "checkbox" && content[c].type != 'multiselect'
+          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 
+          ) {
+  
+          if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+  
+  
+          value_col_index = rows[0].findIndex(x => x == content[c].name);
+  
+          if (value_col_index == -1) {
+  
+            value_col_index = rows[0].findIndex(x => x == 'null@EFB');
+            rows[0][parseInt(value_col_index)] = content[c].name;
+            if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
           }
-        } else {
-          rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', "");;
-        }
-        //content[c].value.replaceAll('@efb!' , " || ") ;
-      }  else {
-        //console.log('checkbox',c)
-        // if checkbox
-        if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
-
-        //new code test
-        const name = content[c].name;
-        value_col_index = rows[0].findIndex(x => x == name);
-        if (value_col_index != -1) {
-          //if checkbox title is exists
-          add_multi(c, content, value_col_index, v.msg_id)
-        } else {
-          //if checkbox title is Nexists
-          value_col_index = rows[0].findIndex(x => x == 'null@EFB');
-          rows[0][parseInt(value_col_index)] = name;
-          add_multi(c, content, value_col_index, v.msg_id)
-
-        }
-
-
-        //new code test
-
-      }//end else
-
+  
+          rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
+          if (content[c].type == 'payment') {
+            const vx = rows[0].findIndex(x => x == "TID");
+            rows[parseInt(i_count)][parseInt(vx)] = content[c].paymentIntent;
+          }else if(content[c].type == 'file' || content[c].type == 'media' || content[c].type == 'zip'  || content[c].type == 'image' || content[c].type == 'document'){
+            rows[parseInt(i_count)][parseInt(value_col_index)] =content[c].url;
+          }
+        } else if (content[c].type == 'multiselect' || content[c].type == 'payMultiselect') {
+          if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+          //if (rows[i_count][1] == "null@EFB" &&  rows[0][1] == efb_var.text.trackNo){console.log(`i_count[${i_count}]`);  rows[i_count][1] = v.track;}
+          value_col_index = rows[0].findIndex(x => x == content[c].name);
+          if (value_col_index == -1) {
+            value_col_index = rows[0].findIndex(x => x == 'null@EFB');
+            rows[0][parseInt(value_col_index)] = content[c].name;
+          }
+          if (content[c].value.search(/@efb!+/g) != -1) {
+            if (form_type_emsFormBuilder == "survey") {
+              const nOb = content[c].value.split("@efb!")
+              nOb.forEach(n => {
+                if (n != "") {
+                  //console.log(`[${n}]`,nOb.length);
+                  if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
+                    rows[parseInt(i_count)][parseInt(value_col_index)] = n;
+                  } else {
+                    const r = rows.length
+                    const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+                    rows = rows.concat(row);
+                    rows[parseInt(r)][parseInt(value_col_index)] = n;
+                    rows[parseInt(r)][0] = v.msg_id;
+                  }
+                }
+              });
+            } else {
+              rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', " || ")
+            }
+          } else {
+            rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', "");;
+          }
+          //content[c].value.replaceAll('@efb!' , " || ") ;
+        }  else {
+          //console.log('checkbox',c)
+          // if checkbox
+          if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
+  
+          //new code test
+          const name = content[c].name;
+          value_col_index = rows[0].findIndex(x => x == name);
+          if (value_col_index != -1) {
+            //if checkbox title is exists
+            add_multi(c, content, value_col_index, v.msg_id)
+          } else {
+            //if checkbox title is Nexists
+            value_col_index = rows[0].findIndex(x => x == 'null@EFB');
+            rows[0][parseInt(value_col_index)] = name;
+            add_multi(c, content, value_col_index, v.msg_id)
+  
+          }
+  
+  
+          //new code test
+  
+        }//end else
+  
+      }
+   
     }
 
 
@@ -1848,7 +1897,8 @@ function fun_add_email_template_efb(i) {
 }
 
 function funNproEmailTemp() {
-  ws = "https://whitestudio.team/";
+  ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
+  
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 

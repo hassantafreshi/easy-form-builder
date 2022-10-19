@@ -928,7 +928,7 @@ function creator_form_builder_Efb() {
     disable = ond;
     //thisElemantNotAvailable
   }
-
+console.log(efb_var.addons);
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
