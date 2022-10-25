@@ -33,7 +33,7 @@ efb_var_waitng = (time) => {
       formName_Efb = efb_var.text.form
       default_val_efb = efb_var.text.selectOption
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;
-      if(typeof(efb_var.addons)== "object") addons_emsFormBuilder =efb_var.addons
+      if(efb_var.hasOwnProperty('addons')  && typeof(efb_var.addons)== "object") addons_emsFormBuilder =efb_var.addons
       return;
     } else {
       time += 50;
@@ -1987,6 +1987,7 @@ function replaceContentMessageEfb(value){
   console.log(value);
   value = value.replaceAll(/(\\"|"\\)/g, '"');
   value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');
+  value = value.replace(/[\\]/g, '')
    value = value.replaceAll("@efb@sq#","'");
    value = value.replaceAll("@efb@vq#","`");
    value = value.replaceAll("@efb@dq#",`"`);

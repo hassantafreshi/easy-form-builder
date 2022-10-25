@@ -1076,9 +1076,13 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   for (const c of content) {
-    if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
+    let value ="<b></b>";
+    if(c.hasOwnProperty('value')){
+      c.value = replaceContentMessageEfb(c.value);
+      console.log(c.value);
+      value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
+    } 
     s = false;
-    let value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
