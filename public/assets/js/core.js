@@ -40,7 +40,7 @@ setTimeout(() => {
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
           const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
-          console.log(vs);
+          //console.log(vs);
           addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
 
@@ -668,7 +668,7 @@ function actionSendData_emsFormBuilder() {
     return;
   }
   
-  console.log('test');
+  //console.log('test');
   jQuery(function ($) {
 
     data = {
@@ -695,8 +695,7 @@ function actionSendData_emsFormBuilder() {
       };
     }
 
-    console.log("data");
-    console.log(data);
+
     $.ajax({
       type: "POST",
       async: false,
@@ -1043,7 +1042,7 @@ function emsFormBuilder_show_content_message(value, content) {
   <h5 class="efb modal-title efb"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
    <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
  </div>
-  <div class="efb 4555 modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
+  <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
     ${m} 
    </div>
    ${replayM}
@@ -1063,7 +1062,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
-  console.log('fun_emsFormBuilder_show_messages');
+  //console.log('fun_emsFormBuilder_show_messages');
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
   <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
@@ -1076,6 +1075,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   for (const c of content) {
+
     let value ="<b></b>";
     if(c.hasOwnProperty('value')){
       c.value = replaceContentMessageEfb(c.value);
@@ -1083,6 +1083,8 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
     } 
     s = false;
+  
+
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -1288,8 +1290,7 @@ function validation_before_send_emsFormBuilder() {
       }
     } else if (row.type != "@file@" && row.type != "payment") {
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
-      //console.log(valueJson_ws ,row)
-      console.log(indx);
+
       if(indx!=-1){
         if ( (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
         || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect")) {

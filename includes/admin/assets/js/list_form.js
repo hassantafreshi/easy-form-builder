@@ -1435,8 +1435,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      if(content[c].length>1){
-        console.log(c,content[c] ,content);
+      if(content[c].id_.length>1){
+        //console.log(c,content[c] ,content);
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
           && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 
           ) {
