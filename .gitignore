@@ -1,6 +1,7 @@
 .DS_Store
 .vscode
 .vscode/
+.vscode/*
 includes/vendor.zip
 vendor/stripe/stripe-php/VERSION
 vendor/stripe/stripe-php/README.md
@@ -16,3 +17,4 @@ vendor/stripe/stripe-php/.gitignore
 vendor/stripe/stripe-php/.editorconfig
 vendor/stripe/stripe-php/.coveralls.github-actions.yml
 easy-form-builder.zip
+temp/*

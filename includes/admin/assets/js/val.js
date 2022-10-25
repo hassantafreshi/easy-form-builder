@@ -40,18 +40,19 @@ const fields_efb = [
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
-  //{ name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' },
+  { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' },
 ]
 
 
 
 function show_setting_window_efb(idset) {
   //console.log('show_setting_window_efb');
-    if(document.getElementById('sideBoxEfb').classList.contains('show')){
-      sideMenuEfb(0);
-     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
-      return};
+  if(document.getElementById('sideBoxEfb').classList.contains('show')){
+    sideMenuEfb(0);
+    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+    return};
     //console.log('show_setting_window_efb',idset,valj_efb)
+    state_view_efb=1;
     document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
@@ -75,6 +76,10 @@ function show_setting_window_efb(idset) {
     const cardEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].dShowBg && valj_efb[0].dShowBg == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
+    </div>`;
+    const offLineEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].AfLnFrm && valj_efb[0].AfLnFrm == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label fs-6" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
@@ -181,7 +186,7 @@ function show_setting_window_efb(idset) {
       // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
        return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
-       <option value="payping" ${valj_efb[0].persiaPay=='payping' ? 'selected' :''}>پی پینگ</option>                                                            
+       <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
        <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>فرم ساز آسان</option>
        </select>`;
      } 
@@ -214,13 +219,13 @@ function show_setting_window_efb(idset) {
       <div class="efb  row">     
       <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${side} ${efb_var.text.align}</label>
         <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
-          <label class="efb  ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
+          <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
-          <span class="efb  border-right border border-light "></span>
-          <label class="efb  ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${center}','${side}')">
+          <span class="efb border-right border border-light "></span>
+          <label class="efb ntb btn-primary bi-align-center ${value == center ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${center}','${side}')">
             <input type="radio" name="options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="center">${efb_var.text.center}</label>
-          <span class="efb  border-right border border-light "></span>
-          <label class="efb  ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${right}','${side}')">
+          <span class="efb border-right border border-light "></span>
+          <label class="efb ntb btn-primary bi-align-end ${value == right ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${right}','${side}')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="right">${efb_var.text.right}</label>
         </div></div>`;
     }
@@ -813,6 +818,7 @@ function show_setting_window_efb(idset) {
           ${showSprosiEls}
           ${showformLoggedEls}
           ${cardEls}
+          ${offLineEls}
           ${adminFormEmailEls}
          
          
@@ -922,17 +928,26 @@ function creator_form_builder_Efb() {
     disable = ond;
     //thisElemantNotAvailable
   }
-
+console.log(efb_var.addons);
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
+    if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
+      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      dragab = false;
+    }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
+      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      dragab = false;
+    }
     els += `
     <div class="efb tag col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"` : ''}>
      ${ob.pro == true && pro_efb == false ? ` <a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
       <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
+    dragab = true;
+    disable = "disable";
   }
 
   let navs = [
@@ -976,7 +991,7 @@ function creator_form_builder_Efb() {
                   <a class="efb nav-link cat fs-6 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
                 </li>
                 <li class="efb col-3">
-                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advance}</a>
+                  <a class="efb nav-link cat fs-6 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
                 </li>
                 <hr class="efb hr">
             </ul>

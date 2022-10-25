@@ -169,13 +169,19 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
  function ui_dadfile_efb(indx, previewSate) {
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
-    //console.log(n,efb_var.text[n] )
+    let types = ""
+
+    filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
+    'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
+    'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
+    'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip'
+      }
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
     <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
         <i class="efb  bi-upload mx-2"></i>${efb_var.text.browseFile}
     </button>
-   <input type="file" hidden="" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
+   <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
   
   }
 
@@ -207,6 +213,7 @@ function viewfileEfb(id, indx) {
           </div>
     </div>`;
   
+    fun_addProgessiveEl_efb(id);
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       let fileReader = new FileReader();
       fileReader.onload = () => {
@@ -269,6 +276,7 @@ function removeFileEfb(id, indx) {
         }
       }
     }
+    fun_removeProgessiveEl_efb(id);
   }//end function
 
   
@@ -287,10 +295,10 @@ set_dadfile_fun_efb = (id, indx) => {
   
   
   create_dadfile_efb = (id, indx) => {
-    const dropAreaEfb = document.getElementById(`${id}_box`),
-      dragTextEfb = dropAreaEfb.querySelector("h6"),
-      dragbtntEfb = dropAreaEfb.querySelector("button"),
-      dragInptEfb = dropAreaEfb.querySelector("input");
+    let dropAreaEfb = document.getElementById(`${id}_box`);
+    let dragTextEfb = dropAreaEfb.querySelector("h6");
+    let  dragbtntEfb = dropAreaEfb.querySelector("button");
+    let dragInptEfb = dropAreaEfb.querySelector("input");
     dropAreaEfb.classList.remove("active");
     dragInptEfb.disabled = false;
     dragbtntEfb.onclick = () => {
@@ -536,4 +544,23 @@ function addMarker(position) {
       if (indx != -1) { sendBack_emsFormBuilder_pub.splice(indx, 1); }
     }
   }
+
   /* map section end */
+
+  fun_addProgessiveEl_efb=(id)=>{
+  let newEl = document.createElement('div');
+  const elId = `${id}-prG`;
+  newEl.setAttribute("id",elId)
+  newEl.className = "efb mt-3 mx-1"
+  document.getElementById("view-efb").append(newEl);
+  document.getElementById(elId).innerHTML = `<div class="efb progress" id="${id}-prA">
+  <div id="${id}-prB" class="efb  text-light text-center btn-pinkEfb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:1%;">
+        1%
+        </div>
+    </div>`;
+  }
+  
+  fun_removeProgessiveEl_efb=(id)=>{
+    document.getElementById(`${id}-prG`).remove();
+  }
+

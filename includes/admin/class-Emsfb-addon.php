@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 } // No direct access allow ;)
 
-class Create {
+class Addon {
 
 	public $setting_name;
 	public $options = array();
@@ -20,7 +20,8 @@ class Create {
 
 	protected $db;
 	public function __construct() {
-		$this->setting_name = 'Emsfb_create';
+		error_log('addon class');
+		$this->setting_name = 'Emsfb_addon';
 		global $wpdb;
 		$this->db = $wpdb;
 		$this->get_settings();
@@ -32,19 +33,32 @@ class Create {
 			update_option( $this->setting_name, array() );
 		}
 
-		add_action( 'admin_menu', array( $this, 'add_Create_menu' ), 11 );
-		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
+		add_action( 'admin_menu', array( $this, 'add_addon_menu' ), 11 );
+		/* add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
-		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
-		error_log('create class');
+		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator')); */
+		//add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
+		
 	}
 
-	public function add_Create_menu() {
-		add_submenu_page( 'Emsfb', __('Create', 'easy-form-builder' ), __('Create', 'easy-form-builder' ), 'Emsfb_create', 'Emsfb_create', array(
+	public function add_addon_menu() {
+		add_submenu_page( 'Emsfb', __('Add-ons', 'easy-form-builder' ),'<span style="color:#ff4b93">'. __('Add-ons', 'easy-form-builder' ) .'</span>', 'Emsfb_addon', 'Emsfb_addon', array(
 			$this,
 			'render_settings'
 		) );
+		
+		// پیدا کردن لیست تمام صفحه ها  و پست ها برای نمایش در تنظیمات افزونه با هدف اینکه کاربر صفحه ای که ترکینگ کد را وارد کرده است انتخاب کند
+		//$val = get_posts(1);
+		//$val = get_pages(1);
+		//error_log(json_encode($val));
+		//page => post_title = title , ID = id
+		//post => post_title = title , ID = id
+		//$id =2407;
+		//$val = get_permalink( $id );
+		//error_log(json_encode($val));
+		// لیست پست  و صفحه که شامل آی دی و عنوان می شود را به سمت کاربر بصورت جی سون پاس داده شود
+		// کاربر از لیست پاس داده شده یک صفحه که ترکینگ درونش وجود دارد را انتخاب می کند و آی دی  ذخیره می شود
+		// در هنگام ذخیره سازی چک می شود اگر ترکینگ کد فایندر ( شورت کدش ) در محتوا وجود داشته ذخیره سازی انجام شود در غیر اینصور پیام خطا برگرانده شود به کاربر در صفحه انتخاب شده ترکینگ کد فایندر پیدا نشد
 	}
 
 
@@ -65,44 +79,28 @@ class Create {
 		}
 	}
 
+
+
+
 	public function render_settings() {
+		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+
+		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+        wp_enqueue_script('whiteStudioAddone');
 	?>
 	<!-- new code ddd -->
-	<style>
-				.efb {font-family: 'Roboto', sans-serif!important;}
-			</style>
-	<div class="efb" id="sideMenuFEfb">
-		
-			
-			
-	</div>
-	<!-- end new code dd -->
-	<!--sideMenu--> <div class="efb sideMenuConEfb efbDW-0" id="sideMenuFEfb">
-				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
-				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
-				<span> </span>
-					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
-				</div>
-				<div class="efb  mx-3 sideMenu" id="sideMenuConEfb"></div>
-				</div></div>
-			<script>		
-				let bdy =document.getElementsByTagName('body');
-				bdy[0].classList.add("bg-color");
-				const sitekye_emsFormBuilder= ""
-			</script>
-			<div id="alert_efb" class="efb mx-5"></div>
-			<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
+	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
 									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
-					</div></div></div>
-            <div id="tab_container_efb">
+	</div></div></div>
+	<div id="tab_container_efb">
 			<div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb "></h3></div>	
         	</div>
-			<datalist id="color_list_efb">
-			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
-			</datalist>
+			<div id="alert_efb" class="efb mx-5"></div>
+	<!-- end new code dd -->
+	
 			
 		<?php
 
@@ -111,19 +109,11 @@ class Create {
 		$maps =false;
 		$efbFunction = new efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
-		$addons = ['AdnSPF' => 0,
-		'AdnOF' => 0,
-		'AdnPPF' => 0,
-		'AdnATC' => 0,
-		'AdnSS' => 0,
-		'AdnCPF' => 0,
-		'AdnESZ' => 0,
-		'AdnSE' => 0];
 		//v2 translate
 		
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+			
 			if (md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
@@ -136,7 +126,9 @@ class Create {
 					
 			}
 
-			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
+
+
+			/* if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
@@ -146,19 +138,7 @@ class Create {
 					}
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
-			}
-			if(isset($ac->AdnSPF)==true){
-				//$ac
-				
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnOF"]=$ac->AdnOF;
-				$addons["AdnATC"]=$ac->AdnATC;
-				$addons["AdnPPF"]=$ac->AdnPPF;
-				$addons["AdnSS"]=$ac->AdnSS;
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnESZ"]=$ac->AdnESZ;
-				$addons["AdnSE"]=$ac->AdnSE;
-			}
+			} */
 		}
 
 
@@ -171,8 +151,8 @@ class Create {
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
-		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js');
+		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		wp_enqueue_script('addsOnLocal-js'); */
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -184,19 +164,50 @@ class Create {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-		
+		/*
+            AdnSPF == stripe payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+        */
+		$addons = ['AdnSPF' => 0,
+		'AdnOF' => 0,
+		'AdnPPF' => 0,
+		'AdnATC' => 0,
+		'AdnSS' => 0,
+		'AdnCPF' => 0,
+		'AdnESZ' => 0,
+		'AdnSE' => 0];
+			
+
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
+			if(isset($ac->AdnSPF)==true){
+				//$ac
+				error_log($ac->AdnSPF);
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnOF"]=$ac->AdnOF;
+				$addons["AdnATC"]=$ac->AdnATC;
+				$addons["AdnPPF"]=$ac->AdnPPF;
+				$addons["AdnSS"]=$ac->AdnSS;
+				$addons["AdnSPF"]=$ac->AdnSPF;
+				$addons["AdnESZ"]=$ac->AdnESZ;
+				$addons["AdnSE"]=$ac->AdnSE;
+			}
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), null, true);
-		wp_enqueue_script('pay_js');
+		/* wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), null, true);
+		wp_enqueue_script('pay_js'); */
 
-		if("fa_IR"==get_locale()){
+	/* 	if("fa_IR"==get_locale()){
 			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), null, true);
 			wp_enqueue_script('persia_pay');
-		}
+		} */
 
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), null, true);
 		wp_enqueue_script('stripe_js');
@@ -204,7 +215,7 @@ class Create {
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
-			'check' => 1,
+			'check' => 2,
 			'pro' => $pro,
 			'rtl' => is_rtl() ,
 			'text' => $lang	,
@@ -215,7 +226,7 @@ class Create {
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale(),
-			"addons"=>$addons
+			"addson"=>$addons
 			
 		));
 
@@ -323,4 +334,4 @@ class Create {
 
 }
 
-new Create();
+new Addon();
