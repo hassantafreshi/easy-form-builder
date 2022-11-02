@@ -107,7 +107,7 @@ function Link_emsFormBuilder(state) {
      //AdnESZ == zone picker
       case 'AdnSE':
         //AdnSE == email service
-        console.log(state)
+        //console.log(state)
         link = 'https://whitestudio.team/addons';
         break;
     }
@@ -155,7 +155,7 @@ function Link_emsFormBuilder(state) {
      //AdnESZ == zone picker
       case 'AdnSE':
         //AdnSE == email service
-        console.log(state)
+        //console.log(state)
         link = 'https://easyformbuilder.ir/';
         break;
     }
@@ -804,6 +804,7 @@ window.onload = (() => {
 
 
 switch_color_efb = (color) => {
+  console.log(`switch_color_efb[${color}]`);
   let c;
   switch (color) {
     case '#0d6efd': c = "primary"; break;
@@ -1267,7 +1268,8 @@ let change_el_edit_Efb = (el) => {
         color = el.value;
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
-        clss = switch_color_efb(color);;
+        clss = switch_color_efb(color);
+        console.log(color ,clss);
         if (clss.includes('colorDEfb')) { addStyleColorBodyEfb(clss, color, "btn", indx); }
         if (indx != 0) {
           if (el.dataset.tag != "yesNo") {
@@ -1290,7 +1292,7 @@ let change_el_edit_Efb = (el) => {
         //console.log( valj_efb[indx]);
         if (clss.includes('colorDEfb')) {
           valj_efb[indx].style_btn_color ? valj_efb[indx].style_btn_color = color : Object.assign(valj_efb[indx], { style_btn_color: color });
-          addColorTolistEfb(color)
+          //addColorTolistEfb(color)
         }
 
         break;
@@ -1394,7 +1396,7 @@ let change_el_edit_Efb = (el) => {
             default:
               break;
           }
-          addColorTolistEfb(color)
+          //addColorTolistEfb(color)
         }
         break;
       case "selectBorderColorEl":
@@ -1419,7 +1421,7 @@ let change_el_edit_Efb = (el) => {
 
         if (c.includes('colorDEfb')) {
           valj_efb[indx].style_border_color ? valj_efb[indx].style_border_color = color : Object.assign(valj_efb[indx], { style_border_color: color });
-          addColorTolistEfb(color)
+          //addColorTolistEfb(color)
         }
         break;
       case "fontSizeEl":
@@ -1780,8 +1782,11 @@ const saveFormEfb = () => {
         box = `saveBox`
         icon = `bi-check2-circle`
         state = true;
-        localStorage.setItem('valj_efb', JSON.stringify(valj_efb));
-        localStorage.setItem("valueJson_ws_p", JSON.stringify(valj_efb))
+        let sav = JSON.stringify(valj_efb);
+        
+        //console.log(sav);
+        localStorage.setItem('valj_efb', sav);
+        localStorage.setItem("valueJson_ws_p", sav)
         formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb
         returnState = actionSendData_emsFormBuilder()
       } else if (proState == false) {

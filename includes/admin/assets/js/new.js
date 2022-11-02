@@ -1027,13 +1027,14 @@ function copyCodeEfb(id) {
 
 function validExtensions_efb_fun(type, fileType) {
   type= type.toLowerCase();
-  console.log(type);
+  //console.log(type);
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
-  'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip'
+  'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
+  'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime'
   }
-  return filetype_efb[type].includes(fileType);
+  return filetype_efb[type].includes(fileType) ;
 }
 
 
@@ -1736,7 +1737,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
   else if (type == "border") { v = `${tag}.${type}-${t}{border-color:${c}!important;}` }
   else if (type == "bg") { v = `.${type}-${t}{background-color:${c}!important;}` }
   else if (type == "btn") { v = `.${type}-${t}{background-color:${c}!important;}` }
-  //console.log(tag, valj_efb[id].type,v);
+  console.log(tag, valj_efb[id].type,v);
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
 }
 
@@ -1984,15 +1985,105 @@ function calPLenEfb(len) {
 
 
 function replaceContentMessageEfb(value){ 
-  console.log(value);
+  //console.log(value);
+  value = value.replace(/[\\]/g, '');
   value = value.replaceAll(/(\\"|"\\)/g, '"');
   value = value.replaceAll(/(\\\\n|\\\\r)/g, '<br>');
-  value = value.replace(/[\\]/g, '')
    value = value.replaceAll("@efb@sq#","'");
+  // value = value.replaceAll("@efb@bsq#","\\");
    value = value.replaceAll("@efb@vq#","`");
-   value = value.replaceAll("@efb@dq#",`"`);
+   value = value.replaceAll("@efb@dq#",`''`);
    value = value.replaceAll("@efb@nq#",`<br>`);
+   
   return value;
 
 }
+
+
+function fun_upload_file_emsFormBuilder(id, type) {
+  //v3.3.5 updated
+  //این تابع فایل را به سمت سرور ارسال می کند
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  files_emsFormBuilder[indx].state = 1;
+  files_emsFormBuilder[indx].type = type;
+  
+  let r = ""
+  //console.log('upload file',id);
+  
+  jQuery(function ($) {
+    //console.log(idn,indx);
+    var fd = new FormData();
+    var idn = '#' + id + '_'
+    var file = jQuery(document).find(idn);
+    var caption = jQuery(this).find(idn);
+    //console.log(file[0].files[0]);
+    var individual_file = file[0].files[0];
+    fd.append("file", individual_file);
+    var individual_capt = caption.val();
+    fd.append("caption", individual_capt);
+    fd.append('action', 'update_file_Emsfb');
+    fd.append('nonce', ajax_object_efm.nonce);
+    var idB ='#'+id+'-prB'
+    jQuery.ajax({
+      type: 'POST',
+      url: ajax_object_efm.ajax_url,
+      data: fd,
+      contentType: false,
+      processData: false,
+      xhr: function(){
+        //upload Progress
+          var xhr = $.ajaxSettings.xhr();
+          if (xhr.upload) {
+          xhr.upload.addEventListener('progress', function(event) {
+          var percent = 0;
+          var position = event.loaded || event.position;
+          var total = event.total;
+          if (event.lengthComputable)
+          {
+          percent = Math.ceil(position / total * 100);
+          }
+          //update progressbar
+          //console.log(percent);
+ 
+          
+          $(idB).css("width", + percent +"%");
+          $(idB).text(percent +"% = " + file[0].files[0].name);
+        
+          }, true);
+          }
+          return xhr;
+     
+        
+        },
+      success: function (response) {
+        //files_emsFormBuilder
+        if (response.data.success === true) {
+          r = response.data.file.url;
+          if (response.data.file.error) {
+            noti_message_efb("", response.data.file.error, 14, "danger");
+            return;
+          }
+          files_emsFormBuilder[indx].url = response.data.file.url;
+          files_emsFormBuilder[indx].state = 2;
+          files_emsFormBuilder[indx].id = idn;
+          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
+          fun_sendBack_emsFormBuilder(o[0]);
+           $(idB).css("width", + 100 +"%");
+          $(idB).text(100 +"% = " + file[0].files[0].name);
+
+          $("#"+id+"-prG").addClass("d-none");
+        } else {
+          //show message file type is not correct;        
+        }
+      }
+    });
+  });
+
+  return r;
+}
+
+
+
+
 

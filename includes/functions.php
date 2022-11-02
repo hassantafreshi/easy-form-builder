@@ -539,10 +539,11 @@ class efbFunction {
 			"trackCTAddon" => $state  &&  isset($ac->text->trackCTAddon) ? $ac->text->trackCDAddon : __('trackCTAddon','easy-form-builder'),				
 			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
-			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder then try againhank','easy-form-builder'),				
+			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder then try again','easy-form-builder'),				
 			"AfLnFrm" => $state  &&  isset($ac->text->AfLnFrm) ? $ac->text->AfLnFrm : __('Activation offline form mode','easy-form-builder'),				
 			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : __('Before activation this option, install','easy-form-builder'),				
 			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : __('Before creating a payment form you should install addon payment like Stripe Addon','easy-form-builder'),				
+			"allformat" => $state  &&  isset($ac->text->allformat) ? $ac->text->allformat : __('All formats','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 		];
 

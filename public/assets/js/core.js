@@ -1,4 +1,5 @@
 
+
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sendBack_emsFormBuilder_pub = [];
@@ -33,6 +34,7 @@ setTimeout(() => {
       poster_emsFormBuilder = ajax_object_efm.poster;
       //console.log(ajax_object_efm.state);
       efb_var = ajax_object_efm;
+      pro_efb = ajax_object_efm.pro == '1' ? true : false;
       localStorage.setItem('form_id', efb_var.id);
 
       if (ajax_object_efm.state != 'tracker') {
@@ -491,17 +493,25 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
+  //console.log(ob)
 if(ob.hasOwnProperty('value')){
   ob.value= ob.value.replaceAll("'", "@efb@sq#");
   ob.value= ob.value.replaceAll("`", "@efb@vq#");
   ob.value= ob.value.replaceAll(`"`, "@efb@dq#");
+  ob.value= ob.value.replaceAll(`\t`, " ");
+  ob.value= ob.value.replaceAll(`\b`, " ");
+  ob.value= ob.value.replaceAll(`\r`, "@efb@nq#");
+  ob.value= ob.value.replaceAll(`\n`, "@efb@nq#");
+  ob.value= ob.value.replaceAll(`\r`, " ");
 }
-console.log(ob.value)
-  if (sendBack_emsFormBuilder_pub.length) {
+  if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect")) {
+    //console.log(`index[${indx}]`);
+    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" )) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
+    }else if(indx != -1 && ob.value == "@file@" ){
+      sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
         //console.log(typeof ob.price);
@@ -519,7 +529,7 @@ console.log(ob.value)
   }
   localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   localStorage.setItem('formId', localStorage.getItem('form_id'))
-
+  //console.log(sendBack_emsFormBuilder_pub); 
   //console.log(sendBack_emsFormBuilder_pub);
 }
 /* function fun_multiSelectElemnets_emsFormBuilder(ob) { 
@@ -790,6 +800,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id) {
+  //console.log(id);
   let msgEl = document.getElementById(`${id}_-message`);
   //console.log(`id[${id}]`, msgEl);
   msgEl.innerHTML = "";
@@ -805,7 +816,7 @@ function valid_file_emsFormBuilder(id) {
   const i = `${id}_`;
   let message = "";
   const el = document.getElementById(i);
-
+  //console.log(i,el.files)
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
     const filetype = el.files[0].type.length > 1 ? el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".") - 1) * -1))
     //console.log(file,el.files[0].name,filetype);
@@ -824,9 +835,9 @@ function valid_file_emsFormBuilder(id) {
     rtrn = true;
   } else {
     if (el.files[0] && message.length < 2) message = el.files[0].size < fileSizeLimite_emsFormBuilder ? `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}` : ajax_object_efm.text.fileSizeIsTooLarge;
-    console.log('test');  
+    //console.log('test');  
     const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
-    console.log(newClass,typeof newClass,newClass!=false)
+    //console.log(newClass,typeof newClass,newClass!=false)
     newClass!=false ? msgEl.className=newClass:0;
     msgEl.innerHTML = message;
     if(!msgEl.classList.contains('show'))msgEl.classList.add('show');
@@ -849,87 +860,7 @@ function valid_file_emsFormBuilder(id) {
 
 
 
-function fun_upload_file_emsFormBuilder(id, type) {
-  //v3.3.5 updated
-  //این تابع فایل را به سمت سرور ارسال می کند
-  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
-  files_emsFormBuilder[indx].state = 1;
-  files_emsFormBuilder[indx].type = type;
-  
-  let r = ""
-  //console.log('upload file',id);
-  
-  jQuery(function ($) {
-    var fd = new FormData();
-    var idn = '#' + id + '_'
-    var file = jQuery(document).find(idn);
-    var caption = jQuery(this).find(idn);
-    console.log(file[0].files[0]);
-    var individual_file = file[0].files[0];
-    fd.append("file", individual_file);
-    var individual_capt = caption.val();
-    fd.append("caption", individual_capt);
-    fd.append('action', 'update_file_Emsfb');
-    fd.append('nonce', ajax_object_efm.nonce);
-    var idB ='#'+id+'-prB'
-    jQuery.ajax({
-      type: 'POST',
-      url: ajax_object_efm.ajax_url,
-      data: fd,
-      contentType: false,
-      processData: false,
-      xhr: function(){
-        //upload Progress
-          var xhr = $.ajaxSettings.xhr();
-          if (xhr.upload) {
-          xhr.upload.addEventListener('progress', function(event) {
-          var percent = 0;
-          var position = event.loaded || event.position;
-          var total = event.total;
-          if (event.lengthComputable)
-          {
-          percent = Math.ceil(position / total * 100);
-          }
-          //update progressbar
-          console.log(percent);
- 
-          
-          $(idB).css("width", + percent +"%");
-          $(idB).text(percent +"% = " + file[0].files[0].name);
-        
-          }, true);
-          }
-          return xhr;
-     
-        
-        },
-      success: function (response) {
-        //files_emsFormBuilder
-        if (response.data.success === true) {
-          r = response.data.file.url;
-          if (response.data.file.error) {
-            noti_message_efb("", response.data.file.error, 14, "danger");
-            return;
-          }
-          files_emsFormBuilder[indx].url = response.data.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          files_emsFormBuilder[indx].id = idn;
-          const ob = valueJson_ws.find(x => x.id_ === id);
-          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
-          fun_sendBack_emsFormBuilder(o[0]);
-           $(idB).css("width", + 100 +"%");
-          $(idB).text(100 +"% = " + file[0].files[0].name);
 
-          $("#"+id+"-prG").addClass("d-none");
-        } else {
-          //show message file type is not correct;        
-        }
-      }
-    });
-  });
-
-  return r;
-}
 
 
 function fun_tracking_show_emsFormBuilder() {
@@ -996,6 +927,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
             success: function (res) {
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+              //console.log(res);
               response_Valid_tracker_efb(res)
             },
             error: function () {
@@ -1016,18 +948,26 @@ function emsFormBuilder_show_content_message(value, content) {
   const msg_id = value.msg_id;
   const userIp = "XXXXXXXXX";
   const track = value.track;
-  const date = "XXXXXXXXXX";
-  console.log(value.content);
+  //console.log(value,content,typeof pro_els_efb);
+  const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
-  let m = fun_emsFormBuilder_show_messages(val, "user", track, date)
+  let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
+ 
+
   for (c of content) {
+    //console.log(c);
+    /* 
+     let val =replaceContentMessageEfb(c.content);
+    console.log(val);
+     */
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, date)}</div></div>`
+    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
   }
   //reply  message ui
-  let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-1" id="replay_section__emsFormBuilder">
+  let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder" class:'mx-1">${ajax_object_efm.text.reply}:</label>
-  <textarea class="efb  form-control border-d" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
+  <textarea class="efb form-control border-d" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
+  
   </div>
   <div class="efb col text-right row my-2 mx-1">
   <button type="submit" class="efb btn btn-r btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
@@ -1079,7 +1019,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     let value ="<b></b>";
     if(c.hasOwnProperty('value')){
       c.value = replaceContentMessageEfb(c.value);
-      console.log(c.value);
+      //console.log(c.value);
       value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
     } 
     s = false;
@@ -1092,7 +1032,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       //console.log($name,c.type ,"URL", c.url);
       if (c.type == "Image" || c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
-      } else if (c.type == "Document" || c.type == "document") {
+      } else if (c.type == "Document" || c.type == "document" ||  c.type == "allformat" ) {
         value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" >${ajax_object_efm.text.download}</a>`
       } else if (c.type == "Media" || c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
@@ -1188,15 +1128,20 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
-  const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : "Guest";
-  const ob = [{ name: 'Message', value: message, by: by }];
+  const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
+  //const ob = [{ name: 'Message', value: message, by: by }];
+ /* new attachment */
+ //console.log('message',message);
+  const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder}];
+  fun_sendBack_emsFormBuilder(ob[0])
+  /*end  new attachment */
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length < 1 || isHTML(message)) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
-    fun_send_replayMessage_ajax_emsFormBuilder(ob, id)
+    fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
   }
 
 
@@ -1455,6 +1400,11 @@ function response_Valid_tracker_efb(res) {
 
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
+    /* attachment reply */
+    setTimeout(() => {
+     if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
+    }, 50);
+     /* end attachment reply */
  /*    jQuery('#replayM_emsFormBuilder').on('keypress', 
     function (event) {
       console.log('replayM_emsFormBuilder',event.which)
@@ -1475,8 +1425,10 @@ function response_rMessage_id(res, message) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+     /* attachment reply */
+     if(document.getElementById('name_attach_efb')) document.getElementById('name_attach_efb').innerHTML =ajax_object_efm.text.file
+     /* end attachment reply */
     const date = Date();
-    messag=replaceContentMessageEfb(message);
     fun_emsFormBuilder__add_a_response_to_messages(message, res.data.by, 0, 0, date);
     const chatHistory = document.getElementById("resp_efb");
     chatHistory.scrollTop = chatHistory.scrollHeight;

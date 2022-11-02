@@ -171,10 +171,11 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     n = efb_var.text[n];
     let types = ""
 
-    filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
-    'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
+    filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
+    'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
-    'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip'
+    'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
+    'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime'
       }
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
@@ -191,9 +192,11 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
 function viewfileEfb(id, indx) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
+    //console.log(fileEfb);
     let icon = ``;
     switch (valj_efb[indx].file) {
       case 'document':
+      case 'allformat':
         icon = `bi-file-earmark-richtext`;
         break;
       case 'media':
@@ -213,8 +216,9 @@ function viewfileEfb(id, indx) {
           </div>
     </div>`;
   
-    fun_addProgessiveEl_efb(id);
+    fun_addProgessiveEl_efb(id ,0);
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
+      //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
       fileReader.onload = () => {
         let fileURL = fileReader.result;
@@ -229,9 +233,12 @@ function viewfileEfb(id, indx) {
           box.innerHTML = box_v;
         }
       }
+      //console.log('fileReader.readAsDataURL(fileEfb)');
       fileReader.readAsDataURL(fileEfb);
+      //console.log(fileReader);
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
+      
     } else {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[valj_efb[indx].file]}`;
       document.getElementById(`${id}_-message`).innerHTML = m;
@@ -239,6 +246,67 @@ function viewfileEfb(id, indx) {
       noti_message_efb('', m, 4, 'danger')
   
       document.getElementById(`${id}_box`).classList.remove("active");
+      //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
+      fileEfb = [];
+    }
+  }
+function viewfileReplyEfb(id, indx) {
+  //console.log(`fileEfb`,fileEfb)
+    let fileType = fileEfb.type;
+    const filename = fileEfb.name;
+/*     let icon = ``;
+    switch (valj_efb[indx].file) {
+      case 'document':
+      case 'allformat':
+        icon = `bi-file-earmark-richtext`;
+        break;
+      case 'media':
+        icon = `bi-file-earmark-play`;
+        break;
+      case 'zip':
+        icon = `bi-file-earmark-zip`;
+        break;
+  
+    } */
+  /*   let box_v = `<div class="efb ">
+    <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
+         aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
+         <div class="efb card efb">
+          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center"></i>
+          <span class="efb  text-muted">${fileEfb.name}</span>
+          </div>
+    </div>`; */
+  
+    
+    if (validExtensions_efb_fun('allformat',fileType)) {
+      fun_addProgessiveEl_efb('resp_file_efb' ,1);
+      let fileReader = new FileReader();
+      fileReader.onload = () => {
+        let fileURL = fileReader.result;
+       /*  const box = document.getElementById(`${id}_box`)
+        if (valj_efb[indx].file == "image") {
+          box.innerHTML = `<div class="efb ">
+              <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
+                   aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title=${efb_var.text.removeTheFile}"></button> 
+              <img src="${fileURL}" alt="image">
+              </div>`;
+        } else {
+          //box.innerHTML = box_v;
+        } */
+      }
+      fileReader.readAsDataURL(fileEfb);
+      /* document.getElementById(`${id}_-message`).innerHTML = "";
+      document.getElementById(`${id}_-message`).classList.remove('show') */
+      files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
+      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat');
+      document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
+    } else {
+      const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;
+      /* document.getElementById(`${id}_-message`).innerHTML = m;
+      if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show'); */
+      noti_message_efb('', m, 4, 'danger')
+  
+     /*  document.getElementById(`${id}_box`).classList.remove("active"); */
       //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
       fileEfb = [];
     }
@@ -305,6 +373,7 @@ set_dadfile_fun_efb = (id, indx) => {
       dragInptEfb.click();
     }
   
+  
     dragInptEfb.addEventListener("change", function () {
       fileEfb = this.files[0];
       dropAreaEfb.classList.add("active");
@@ -327,14 +396,41 @@ set_dadfile_fun_efb = (id, indx) => {
     });
   
     dropAreaEfb.addEventListener("drop", (event) => {
+      //console.log('============================================',id);
       event.preventDefault();
-  
       fileEfb = event.dataTransfer.files[0];
+      document.getElementById(`${id}_`).files=event.dataTransfer.files;
+      //console.log(`${id}_`,document.getElementById(`${id}_`).files);
+      dropAreaEfb.classList.add("active");
+      //console.log(event.dataTransfer.files);
       viewfileEfb(id, indx);
+      valid_file_emsFormBuilder(id)     
+    
     });
   
   
   }
+    /* attachment reply */
+    reply_attach_efb = (id, indx) => {
+     
+        const v= reply_upload_efb(id);
+        const lenV=(v.length/20)+10;
+        document.getElementById('replay_section__emsFormBuilder').innerHTML +=v  ;
+        setTimeout(() => {
+          let  dragbtntEfb = document.getElementById("attach_efb");
+          let dragInptEfb =  document.getElementById(`resp_file_efb_`);
+          if(pro_efb==true){
+          dragInptEfb.addEventListener("change", function () {
+            
+            fileEfb = this.files[0];
+            viewfileReplyEfb('resp_file_efb_', indx);
+          });
+        }
+        }, lenV);
+      }
+
+   
+    /*end  attachment reply */
 
 
   function renderCanvas_efb() {
@@ -547,20 +643,49 @@ function addMarker(position) {
 
   /* map section end */
 
-  fun_addProgessiveEl_efb=(id)=>{
+  fun_addProgessiveEl_efb=(id,state)=>{
   let newEl = document.createElement('div');
   const elId = `${id}-prG`;
   newEl.setAttribute("id",elId)
   newEl.className = "efb mt-3 mx-1"
-  document.getElementById("view-efb").append(newEl);
+    /* 
+    state ==0 load in form 
+    state ==1 load in response section
+    */
+    const elparent = state==0 ? "view-efb" : 'replay_section__emsFormBuilder';
+    if(document.getElementById(`${id}-prG`)==null){
+      document.getElementById(elparent).append(newEl);    
+    }
   document.getElementById(elId).innerHTML = `<div class="efb progress" id="${id}-prA">
   <div id="${id}-prB" class="efb  text-light text-center btn-pinkEfb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:1%;">
         1%
         </div>
     </div>`;
+  
   }
   
   fun_removeProgessiveEl_efb=(id)=>{
     document.getElementById(`${id}-prG`).remove();
   }
 
+
+
+  reply_upload_efb =(msg_id)=>{
+
+    if( pro_efb==true){
+      return `<div class="efb">
+      <div class="efb btn btn-light" id="attach_efb">
+      <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
+      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" class="d-none" >
+      </div>
+    </div>`
+    }else{
+      return `<div class="efb">
+      <div class="efb btn btn-light" id="attach_efb" onclick="pro_show_efb(1)">
+      <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
+        <a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
+      </div>
+    </div>`
+    }
+  
+}

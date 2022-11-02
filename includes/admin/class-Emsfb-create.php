@@ -302,6 +302,8 @@ class Create {
 			'form_email' => $this->email, 
 			'form_created_by' => $this->userId, 
 			'form_type'=>$this->formtype, 			
+			'form_create_date' => wp_date('Y-m-d H:i:s'), 
+						
 		));    $this->id_  = $this->db->insert_id; 
 		
 	}

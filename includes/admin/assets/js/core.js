@@ -3,6 +3,7 @@
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
 
+
 let exportView_emsFormBuilder = [];
 let stepsCountEfb;
 let sendBack_emsFormBuilder = [];
@@ -469,12 +470,46 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   // این تابع آبجکت ارسال به سرور مدیریت می کند  
-  if (sendBack_emsFormBuilder.length) {
+/*   if (sendBack_emsFormBuilder.length) {
     const indx = sendBack_emsFormBuilder.findIndex(x => x.id_ === ob.id_);
     indx == -1 ? sendBack_emsFormBuilder.push(ob) : sendBack_emsFormBuilder[indx] = ob;
   } else {
     sendBack_emsFormBuilder.push(ob);
+  } */
+  if(ob.hasOwnProperty('value')){
+  ob.value= ob.value.replaceAll("'", "@efb@sq#");
+  ob.value= ob.value.replaceAll("`", "@efb@vq#");
+  ob.value= ob.value.replaceAll(`"`, "@efb@dq#");
+  ob.value= ob.value.replaceAll(`\t`, " ");
+  ob.value= ob.value.replaceAll(`\b`, " ");
+  ob.value= ob.value.replaceAll(`\r`, "@efb@nq#");
+  ob.value= ob.value.replaceAll(`\n`, "@efb@nq#");
+  ob.value= ob.value.replaceAll(`\r`, " ");
   }
+  if (sendBack_emsFormBuilder_pub.length>0) {
+    let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+    //console.log(`index[${indx}]`);
+    if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" )) {
+      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
+      indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
+    }else if(indx != -1 && ob.value == "@file@" ){
+      sendBack_emsFormBuilder_pub[indx]=ob;
+    } else {
+      if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
+        //console.log(typeof ob.price);
+        if (typeof ob.price != "string") {
+          sendBack_emsFormBuilder_pub[indx].value = ob.value;
+        } else {
+          sendBack_emsFormBuilder_pub[indx].value = ob.value;
+          sendBack_emsFormBuilder_pub[indx].price = ob.price;
+        }
+      }
+    }
+
+  } else {
+    sendBack_emsFormBuilder_pub.push(ob);
+  }
+  sendBack_emsFormBuilder=sendBack_emsFormBuilder_pub;
 }
 function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
   let r = 0

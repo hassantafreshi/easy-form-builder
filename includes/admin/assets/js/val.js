@@ -343,6 +343,7 @@ function show_setting_window_efb(idset) {
           <option value="image" ${valj_efb[indx].file && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
           <option value="media" ${valj_efb[indx].file && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
           <option value="zip" ${valj_efb[indx].file && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
+          <option value="allformat" ${valj_efb[indx].file && valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
       </select>
       `
     const btnColorEls =() =>{
@@ -353,7 +354,7 @@ function show_setting_window_efb(idset) {
       addColorTolistEfb(hex);
       idset =  valj_efb[indx].type =="esign" ? idset+'-id' :idset;
       return `<label for="btnColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.buttonColor}</label>
-      <input type="color" id="btnColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="button" data-type="button"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="btnColorEl" list="color_list_efb" id="${idset}" >
+      <input type="color" id="btnColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="button" data-type="button"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="btnColorEl"  id="${idset}" >
       `
     } 
   
@@ -363,7 +364,7 @@ function show_setting_window_efb(idset) {
       const hex=ColorNameToHexEfbOfElEfb(color.slice(7),indx,'border') //slice text=5 bg=2 border=6 btn=3       
       addColorTolistEfb(hex);
       return `<label for="selectBorderColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${efb_var.text.borderColor}</label>
-      <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
+      <input type="color" id="selectBorderColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="border"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" >
       `
     }
     const hrefEls = () => {       
@@ -400,7 +401,7 @@ function show_setting_window_efb(idset) {
       }
       addColorTolistEfb(hex);
       return `<label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
-      <input type="color" id="selectColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl" list="color_list_efb" id="${idset}" >
+      <input type="color" id="selectColorEl" class="efb elEdit form-select efb border-d efb-rounded" data-id="${idset}" data-el="${forEl}" data-type="${f}"  data-tag="${valj_efb[indx].type}" value="${hex!=''?hex:'#fff000'}" name="selectColorEl"  id="${idset}" >
       `
     }
     const selectHeightEls = () => {
