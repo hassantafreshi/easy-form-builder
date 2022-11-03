@@ -1,4 +1,5 @@
 
+
 let sendBack_emsFormBuilder_pub = [];
 let valueJson_ws_form = [];
 let valueJson_ws_messages = [];
@@ -1248,7 +1249,31 @@ function fun_set_setting_emsFormBuilder() {
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = efb_var.text;
     const payToken = f('payToken_emsFormBuilder');
-    fun_send_setting_emsFormBuilder({ activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email, apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken });
+    let AdnSPF=0 ,AdnOF=0,AdnPPF=0,AdnATC=0,AdnSS=0,AdnCPF=0,AdnESZ=0,AdnSE=0,
+    AdnWHS=0, AdnPAP=0, AdnWSP=0,AdnSMF=0,AdnPLF=0,AdnMSF=0,AdnBEF=0
+    if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
+      AdnSPF=valueJson_ws_setting.AdnSPF;
+      AdnOF=valueJson_ws_setting.AdnOF;
+      AdnPPF=valueJson_ws_setting.AdnPPF;
+      AdnATC=valueJson_ws_setting.AdnATC;
+      AdnSS=valueJson_ws_setting.AdnSS;
+      AdnCPF=valueJson_ws_setting.AdnCPF;
+      AdnESZ=valueJson_ws_setting.AdnESZ;
+      AdnSE=valueJson_ws_setting.AdnSE;
+      AdnWHS=valueJson_ws_setting.AdnWHS;
+      AdnPAP=valueJson_ws_setting.AdnPAP;
+      AdnWSP=valueJson_ws_setting.AdnWSP;
+      AdnSMF=valueJson_ws_setting.AdnSMF;
+      AdnPLF=valueJson_ws_setting.AdnPLF;
+      AdnMSF=valueJson_ws_setting.AdnMSF;
+      AdnBEF=valueJson_ws_setting.AdnBEF;
+    }
+    fun_send_setting_emsFormBuilder(
+      { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
+         apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, 
+         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, 
+         AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
+         AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,AdnBEF:AdnBEF});
   }
 
   document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1434,7 +1459,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     for (c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      if(content[c].id_.length>1){
+      console.log(content);
+      if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
         //console.log(c,content[c] ,content);
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
           && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 

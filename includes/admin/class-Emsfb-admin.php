@@ -311,9 +311,18 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         $value      = $_POST['value'];
-        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE"];
+        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"];
 
         $dd =gettype(array_search($value, $allw));
         
@@ -383,6 +392,14 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         if(isset($ac->AdnSPF)==false){
 
@@ -395,6 +412,14 @@ class Admin {
             $ac->AdnCPF=0;
             $ac->AdnESZ=0;
             $ac->AdnSE=0;
+
+            $ac->AdnWHS=0;
+            $ac->AdnPAP=0;
+            $ac->AdnWSP=0;
+            $ac->AdnSMF=0;
+            $ac->AdnPLF=0;
+            $ac->AdnMSF=0;
+            $ac->AdnBEF=0;
         }
         $ac->{$value}=1;
         
@@ -457,6 +482,14 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         if(isset($ac->AdnSPF)==false){
 
@@ -469,6 +502,13 @@ class Admin {
             $ac->AdnCPF=0;
             $ac->AdnESZ=0;
             $ac->AdnSE=0;
+            $ac->AdnWHS=0;
+            $ac->AdnPAP=0;
+            $ac->AdnWSP=0;
+            $ac->AdnSMF=0;
+            $ac->AdnPLF=0;
+            $ac->AdnMSF=0;
+            $ac->AdnBEF=0;
         }
         $ac->{$value}=0;
         

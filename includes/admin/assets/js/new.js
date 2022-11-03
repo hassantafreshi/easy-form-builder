@@ -22,6 +22,7 @@ let current_s_efb = 1
 //let verifyCaptcha_efb =""
 let devlop_efb = false;
 let preview_efb = false;
+let lan_name_efb ='en';
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
 
@@ -33,6 +34,7 @@ efb_var_waitng = (time) => {
       formName_Efb = efb_var.text.form
       default_val_efb = efb_var.text.selectOption
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;
+      lan_name_efb =efb_var.language.slice(0,2);
       if(efb_var.hasOwnProperty('addons')  && typeof(efb_var.addons)== "object") addons_emsFormBuilder =efb_var.addons
       return;
     } else {
@@ -150,7 +152,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   let tagtype= tag;
   if (tag.includes("pay")){ 
     tagtype = tag.slice(3);
-    $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price">0</span><span id="${idin}-currency"></span></span>`;
+    $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">0</span></span>`;
   }
   console.log(tag,$price );
 
@@ -365,7 +367,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           optn += `<div class="efb  form-check " data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
           <label class="efb   ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
-          ${ pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency"></span></span>` :''}
+          ${ pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency" class="efb efb-crncy"></span></span>` :''}
           </div>`
         }//end for 
 
@@ -376,12 +378,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        <div class="efb  form-check" data-id="${op_1}" id="${op_1}-v">
        <input class="efb  emsFormBuilder_v form-check-input ${pay} ${valj_efb[iVJ].el_text_size} " type="${vtype}" name="${valj_efb[iVJ].parent}" value="${vtype}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
        <label class="efb   ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
-       ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_1}-price">${0}</span><span id="${op_1}-currency"></span></span>` :''}
+       ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_1}-price">${0}</span><span id="${op_1}-currency" class="efb efb-crncy"></span></span>` :''}
        </div>
        <div class="efb  form-check" data-id="${op_2}" id="${op_2}-v">
            <input class="efb  emsFormBuilder_v form-check-input ${pay}  ${valj_efb[iVJ].el_text_size} " type="${vtype}" name="${valj_efb[iVJ].parent}" value="${vtype}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
            <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
-           ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price">${0}</span><span id="${op_2}-currency"></span></span>` :''}
+           ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price">${0}</span><span id="${op_2}-currency" class="efb efb-crncy"></span></span>` :''}
        </div>`
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
         optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2);
@@ -546,7 +548,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         for (const i of optns_obj) {
           optn += `<tr class="efb  efblist ${valj_efb[indx_parent].el_text_color}  ${pay}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
           <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${i.value}</td>
-          ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency"></span></td>` :''}
+          ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency" class="efb efb-crncy"></span></td>` :''}
         </tr>  `
 
         }//end for 
@@ -555,15 +557,15 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optn = `
         <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.blue}</td>
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_3}-price">0</span><span id="${op_3}-currency"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_3}-price">0</span><span id="${op_3}-currency" class="efb efb-crncy"></span></td>` :''}
         </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.Red}</td>                  
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_4}-price">0</span><span id="${op_4}-currency"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_4}-price">0</span><span id="${op_4}-currency" class="efb efb-crncy"></span></td>` :''}
       </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.yellow}</td>
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_5}-price">0</span><span id="${op_5}-currency"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_5}-price">0</span><span id="${op_5}-currency" class="efb efb-crncy"></span></td>` :''}
       </tr>  
        `
         const id = `menu-${rndm}`;
@@ -1114,7 +1116,7 @@ function handle_navbtn_efb(steps, device) {
 
           if (current_s_efb == (steps_len_efb - 1)) {
             if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) jQuery("#next_efb").toggleClass('disabled');
-            var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+            var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
             jQuery("#next_efb").html(val);
           }
           //next_efb
@@ -1141,12 +1143,12 @@ function handle_navbtn_efb(steps, device) {
       var cs = current_s_efb;
 
       if (cs == 2) {
-        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         jQuery("#next_efb").toggleClass("d-none");
 
       } else if (cs == steps) {
-        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
+        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         if (sitekye_emsFormBuilder.length > 1 && valj_efb[0] == true) jQuery("#next_efb").removeClass('disabled');
       }

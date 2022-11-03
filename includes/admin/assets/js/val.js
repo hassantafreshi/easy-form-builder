@@ -17,7 +17,7 @@ const fields_efb = [
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
   { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
-  { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
+  //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
@@ -49,7 +49,7 @@ function show_setting_window_efb(idset) {
   //console.log('show_setting_window_efb');
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
-    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+    //document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.toggle('d-none');
     return};
     //console.log('show_setting_window_efb',idset,valj_efb)
     state_view_efb=1;

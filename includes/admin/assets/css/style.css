@@ -32,3 +32,11 @@ div#attach_efb {
     margin-top: -25px;
     margin-left: 5px;
 }
+
+.rtl .efb.footer-test {
+    margin: 0 4px 0 0;
+}
+
+.efb.footer-test {
+    margin: 0 0 0 4px;
+}

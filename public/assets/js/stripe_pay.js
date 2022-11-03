@@ -3,8 +3,7 @@ console.log('stripe pay loaded stripe_pay.js');
 fun_add_stripe_efb = () => {
     if (typeof document.getElementById('cardnoEfb') != "object") return;
     //console.log('fun_add_stripe_efb');
-    if (ajax_object_efm.hasOwnProperty('paymentKey')) {
-      if (efb_var.pro) noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
+    if (ajax_object_efm.hasOwnProperty('paymentKey')) {    
       if (ajax_object_efm.paymentKey == "null") {
         noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
         return;
@@ -231,6 +230,7 @@ fun_add_stripe_efb = () => {
               value: `${data.val}`
             }];
             efb_var.id = trackid;
+            localStorage.setItem('PayId',trackid);
             //console.log(id)
             //console.log(o)
             sendBack_emsFormBuilder_pub.push(o[0])
@@ -245,7 +245,9 @@ fun_add_stripe_efb = () => {
       })//end  btnStripeEfb
   
   
-    }// end if paymentKey
+    }else{
+      if (efb_var.pro) noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
+    }
   
   
   }//end fun_add_stripe_efb

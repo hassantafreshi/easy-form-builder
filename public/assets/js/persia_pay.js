@@ -109,19 +109,19 @@ console.log('val',val);
                 data: data,
                 success: function (res) {         
                   console.log(res.data) ;    
-      
+                  
                   if(res.data.success==true){
                        console.log(res.data);
                       document.getElementById('beforePay').classList.add('d-none');
                      // window.open(res.data.url ,'_self');
-                      localStorage.setItem('efbPersiaPayId',res.data.trackingCode);
-                      console.log(res.data.trackingCode);
+                      /* localStorage.setItem('efbPersiaPayId',res.data.trackingCode);
+                      console.log(res.data.trackingCode); */
                       PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
                       <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
                       console.log("res.data.id,efb_var.id")
                       console.log(res.data.id,efb_var.id)
                       efb_var.id= res.data.id;
-
+                      localStorage.setItem('PayId',res.data.id);
                      
                       //active next or send button !!
                       //disable button

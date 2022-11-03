@@ -685,26 +685,45 @@ function actionSendData_emsFormBuilder() {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
       name: formNameEfb,
-      id: efb_var.id,
+      id: localStorage.getItem('form_id'),
       valid: recaptcha_emsFormBuilder,
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce
     };
 
-    if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay"){
-      data = {
-        action: "get_form_Emsfb",
-        value: JSON.stringify(sendBack_emsFormBuilder_pub),
-        name: formNameEfb,
-        id: efb_var.id,
-        valid: recaptcha_emsFormBuilder,
-        type: form_type_emsFormBuilder,
-        nonce: efb_var.nonce,
-        payment: 'persiaPay',
-        auth:get_authority_efb
-      };
+    if(valj_efb[0].type=="payment" ){
+      if(valj_efb[0].getway=="persiaPay"){
+        data = {
+          action: "get_form_Emsfb",
+          value: JSON.stringify(sendBack_emsFormBuilder_pub),
+          name: formNameEfb,
+          payid: localStorage.getItem('PayId'),
+          id: localStorage.getItem('form_id'),
+          valid: recaptcha_emsFormBuilder,
+          type: form_type_emsFormBuilder,
+          nonce: efb_var.nonce,
+          payment: 'persiaPay',
+          auth:get_authority_efb
+        };
+      }else if(valj_efb[0].getway=="stripe"){
+        data = {
+          action: "get_form_Emsfb",
+          value: JSON.stringify(sendBack_emsFormBuilder_pub),
+          name: formNameEfb,
+          id: localStorage.getItem('form_id'),
+          payid: localStorage.getItem('PayId'),
+          valid: recaptcha_emsFormBuilder,
+          type: form_type_emsFormBuilder,
+          payment: 'stripe',
+          nonce: efb_var.nonce
+
+        };
+      }
+
+      
     }
 
+    console.log(data);
 
     $.ajax({
       type: "POST",
@@ -715,6 +734,7 @@ function actionSendData_emsFormBuilder() {
 
         if (localStorage.getItem("formId")) { localStorage.removeItem('formId'); }
         response_fill_form_efb(res)
+        //localStorage.removeItem('PayId');
       },
       error: function (res) {
         console.error(res);
