@@ -3,6 +3,7 @@
 .vscode/
 .vscode/*
 includes/vendor.zip
+vendor/*
 vendor/stripe/stripe-php/VERSION
 vendor/stripe/stripe-php/README.md
 vendor/stripe/stripe-php/phpstan.neon.dist
