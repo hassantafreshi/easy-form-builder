@@ -16,6 +16,7 @@ class Admin {
     public $ip;
     public $plugin_version;
     protected $db;
+    public $efbFunction;
 
     //private $wpdb;
     public function __construct() {
@@ -23,6 +24,7 @@ class Admin {
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
+        //$this->efbFunction = new efbFunction(); 
     }
 
     /**
@@ -71,8 +73,9 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل    
-            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                //فرم را بروز رسانی می کند
+            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //فرم را بروز رسانی می کند
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //فرم را بروز رسانی می کند
+            add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));               // بارگذاری فایل
             
         /*    add_action( 'save_post', function ( $post_ID,$post,$update )
            {
@@ -197,7 +200,7 @@ class Admin {
     }
 
     public function delete_form_id_public() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -227,7 +230,7 @@ class Admin {
         wp_send_json_success($response, $_POST);
     }
     public function delete_message_id_public() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -258,7 +261,7 @@ class Admin {
     }
 
     public function update_form_id_Emsfb() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","invalidRequire","nAllowedUseHtml","updated"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -294,8 +297,8 @@ class Admin {
         wp_send_json_success($response, $_POST);
     }
     public function add_addons_Emsfb() {
-        error_log('add_addons_Emsfb');
-        $efbFunction = new efbFunction();   
+        
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
@@ -308,15 +311,23 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         $value      = $_POST['value'];
-        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE"];
-        error_log('array_search');
-        error_log($value);
+        $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"];
+
         $dd =gettype(array_search($value, $allw));
-        error_log($dd);
+        
         if (check_ajax_referer('admin-nonce', 'nonce') != 1 || $dd!="integer") {
-            error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -337,16 +348,22 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-
+        error_log('================>value');
+        error_log(get_bloginfo('version'));
+        error_log($value);
+        error_log($value!="AdnOF");
        if($value!="AdnOF"){
 
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-            error_log('wp_remote_get');
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'' ;
-            error_log($u);
+            $vwp = get_bloginfo('version');
+            error_log($value);
+            error_log($server_name);
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+            error_log(`===============================json_decode(u)`);
+            error_log(json_decode($u));
             $request = wp_remote_get($u );
-            error_log(json_encode($request));
+            
             if( is_wp_error( $request ) ) {
 
                 $m = $lang["error403"];
@@ -356,8 +373,8 @@ class Admin {
             }
             
             $body = wp_remote_retrieve_body( $request );
-            error_log('body');
-            error_log($body);
+            /* error_log('body');
+            error_log($body); */
             $data = json_decode( $body );
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
@@ -367,7 +384,7 @@ class Admin {
             if($data->download==true){
                 error_log($data->link);
                 $url =$data->link;
-                $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
                 $this->fun_addon_new($url);
 
             }
@@ -381,6 +398,14 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         if(isset($ac->AdnSPF)==false){
 
@@ -393,12 +418,19 @@ class Admin {
             $ac->AdnCPF=0;
             $ac->AdnESZ=0;
             $ac->AdnSE=0;
+
+            $ac->AdnWHS=0;
+            $ac->AdnPAP=0;
+            $ac->AdnWSP=0;
+            $ac->AdnSMF=0;
+            $ac->AdnPLF=0;
+            $ac->AdnMSF=0;
+            $ac->AdnBEF=0;
         }
         $ac->{$value}=1;
         
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-        error_log($newAc);
         $newAc= str_replace('"', '\"', $newAc);   
               
         $this->db->insert(
@@ -406,19 +438,17 @@ class Admin {
             [
                 'setting' => $newAc,
                 'edit_by' => get_current_user_id(),
-                'date'    => current_time('mysql'),
+                'date'    => wp_date('Y-m-d H:i:s'),
                 'email'   => $ac->emailSupporter,
             ]
         );
         // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
         //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
-        error_log($value);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
     public function remove_addons_Emsfb() {
-        error_log('remove_addons_Emsfb');
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
@@ -458,6 +488,14 @@ class Admin {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
         if(isset($ac->AdnSPF)==false){
 
@@ -470,12 +508,18 @@ class Admin {
             $ac->AdnCPF=0;
             $ac->AdnESZ=0;
             $ac->AdnSE=0;
+            $ac->AdnWHS=0;
+            $ac->AdnPAP=0;
+            $ac->AdnWSP=0;
+            $ac->AdnSMF=0;
+            $ac->AdnPLF=0;
+            $ac->AdnMSF=0;
+            $ac->AdnBEF=0;
         }
         $ac->{$value}=0;
         
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
-        error_log($newAc);
         $newAc= str_replace('"', '\"', $newAc);   
               
         $this->db->insert(
@@ -483,19 +527,18 @@ class Admin {
             [
                 'setting' => $newAc,
                 'edit_by' => get_current_user_id(),
-                'date'    => current_time('mysql'),
+                'date'    => wp_date('Y-m-d H:i:s'),
                 'email'   => $ac->emailSupporter,
             ]
         );
         // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
         //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
-        error_log($value);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
 
     public function update_message_state_Emsfb() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh","updated"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -527,7 +570,7 @@ class Admin {
         $id = number_format($_POST['id']);
 
         $table_name = $this->db->prefix . "emsfb_msg_";
-        $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => current_time('mysql')], ['msg_id' => $id]);
+        $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
 
         $m =   $lang["updated"];
         $response = ['success' => true, 'r' =>"updated"];
@@ -535,7 +578,7 @@ class Admin {
     }
 
     public function get_form_id_Emsfb() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -564,7 +607,7 @@ class Admin {
    
 
     public function get_messages_id_Emsfb() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
 
@@ -591,7 +634,7 @@ class Admin {
     }
 
     public function get_all_response_id_Emsfb() {
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -633,7 +676,7 @@ class Admin {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
 
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $efbFunction->text_efb($text);
@@ -674,7 +717,8 @@ class Admin {
                 'content' => $m,
                 'msg_id'  => $id,
                 'rsp_by'  => get_current_user_id(),
-                'read_'   => 0
+                'read_'   => 0,
+                'date'    => wp_date('Y-m-d H:i:s')
 
             ]
         );
@@ -690,7 +734,7 @@ class Admin {
 
     public function set_setting_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
@@ -777,7 +821,7 @@ class Admin {
             [
                 'setting' => $setting,
                 'edit_by' => get_current_user_id(),
-                'date'    => current_time('mysql'),
+                'date'    => wp_date('Y-m-d H:i:s'),
                 'email'   => $email
             ]
         );
@@ -790,7 +834,7 @@ class Admin {
 
     public function get_ajax_track_admin() {
         //اطلاعات ردیف ترک را بر می گرداند
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["cCodeNFound","error403"];
         $lang= $efbFunction->text_efb($text);
@@ -823,7 +867,7 @@ class Admin {
 
     public function clear_garbeg_admin() {
         //پاک کردن فایل های اضافی
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
@@ -885,7 +929,7 @@ class Admin {
 
     public function check_email_server_admin() {
         //پاک کردن فایل های اضافی
-        $efbFunction = new efbFunction();   
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
@@ -934,7 +978,7 @@ class Admin {
                         [
                             'setting' => $newAc,
                             'edit_by' => get_current_user_id(),
-                            'date'    => current_time('mysql'),
+                            'date'    => wp_date('Y-m-d H:i:s'),
                             'email'   => $to,
                         ]
                     );
@@ -968,21 +1012,16 @@ class Admin {
   
 
         public function fun_addon_new($url){
-            error_log('fun_addon_new');
+
     
     
-            
+            error_log($url);
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
-            error_log($url);
             $r =download_url($url);
             if(is_wp_error($r)){
                 //show error message
-                error_log('error download');
-                error_log(json_encode($r));
             }else{
-                error_log('success download');
-                
                 $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
                 if(is_wp_error($r)){
                     error_log('error rename');
@@ -1021,6 +1060,51 @@ class Admin {
             error_log('fun_addon_new');
         }
        
+    public function file_upload_public(){
+		/* error_log('file_upload_public');
+		//$text = ['error403',"errorMRobot","errorFilePer"];
+		 $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;       
+		$text= $efbFunction->text_efb($text_); 
+		error_log('file_upload_public!');
+        //error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
+		if (check_ajax_referer('admin-nonce','nonce')!=1){
+			error_log('not valid nonce');
+			
+			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
+			wp_send_json_success($response,$_POST);
+			die();
+		} 
+        error_log('after nonce');*/
+		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
+		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+		 'text/plain' ,
+		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
+		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
+		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
+		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+		);
+		
+		if (in_array($_FILES['file']['type'], $arr_ext)) { 
+			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+			//error_log($_FILES["file"]["name"]);			
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			//error_log($name);
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
+			if(is_ssl()==true){
+				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+			}            
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
+			  wp_send_json_success($response,$_POST);
+		}else{
+			$response = array( 'success' => false  ,'error'=>"File Type Error"); 
+			wp_send_json_success($response,$_POST);
+			die('invalid file '.$_FILES['file']['type']);
+		}
+		
+		 
+	}//end function
 }
 
 new Admin();

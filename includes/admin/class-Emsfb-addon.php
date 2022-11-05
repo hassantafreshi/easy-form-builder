@@ -164,7 +164,7 @@ class Addon {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-		/*
+			/*
             AdnSPF == stripe payment
             AdnOF == offline form
             AdnPPF == persia payment
@@ -173,6 +173,14 @@ class Addon {
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
+
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
         */
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,

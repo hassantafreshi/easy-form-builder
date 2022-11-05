@@ -38,15 +38,15 @@ add_ui_persiaPay_efb=(rndm)=>{
           <div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i>پرداخت توسط <span Class="efb fs-6" id="efbPayBy">زرین پال</span></div>
         </div>
         <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb">
-          <span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1">0</span>
-          <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span>
+          <span  class="efb totalpayEfb d-flex justify-content-evenly mx-1 ir">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })}</span>
+          <!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span> -->
           <!-- <span class="efb  text-labelEfb one text-capitalize" id="chargeEfb">${efb_var.text.onetime}</span>-->
         </div>
       </div>
       <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
     </div>
     <div class="efb p-3 card w-100 d-none" id="afterPayefb">
-   
+    </div>
   ` 
   if(get_Status_efb=='OK'){
     r=`
@@ -109,19 +109,19 @@ console.log('val',val);
                 data: data,
                 success: function (res) {         
                   console.log(res.data) ;    
-      
+                  
                   if(res.data.success==true){
                        console.log(res.data);
                       document.getElementById('beforePay').classList.add('d-none');
                      // window.open(res.data.url ,'_self');
-                      localStorage.setItem('efbPersiaPayId',res.data.trackingCode);
-                      console.log(res.data.trackingCode);
+                      /* localStorage.setItem('efbPersiaPayId',res.data.trackingCode);
+                      console.log(res.data.trackingCode); */
                       PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
                       <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
                       console.log("res.data.id,efb_var.id")
                       console.log(res.data.id,efb_var.id)
                       efb_var.id= res.data.id;
-
+                      localStorage.setItem('PayId',res.data.id);
                      
                       //active next or send button !!
                       //disable button
