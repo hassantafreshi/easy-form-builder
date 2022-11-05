@@ -65,7 +65,7 @@ class efbFunction {
 			"enterAdminEmail" => $state ? $ac->text->enterAdminEmail : __('Enter Admin Email to receive email notification','easy-form-builder'),
 			"showTrackingCode" => $state ? $ac->text->showTrackingCode : __('Show Confirmation Code','easy-form-builder'),
 			"trackingCodeFinder" => $state ? $ac->text->trackingCodeFinder : __('Confirmation Code Finder','easy-form-builder'),
-			"cPShrtCdeTrckFndr" => $state ? $ac->text->cPShrtCdeTrckFndr : __('Copy and Paste below short-code of Confirmation Code finder in any page or post.','easy-form-builder'),
+			"copyAndPasteBelowShortCodeTrackingCodeFinder" => $state ? $ac->text->copyAndPasteBelowShortCodeTrackingCodeFinder : __('Copy and Paste below short-code of Confirmation Code finder in any page or post.','easy-form-builder'),
 			"save" => $state ? $ac->text->save : __('Save','easy-form-builder'),
 			"waiting" => $state ? $ac->text->waiting : __('Waiting','easy-form-builder'),
 			"saved" => $state ? $ac->text->saved : __('Saved','easy-form-builder'),
