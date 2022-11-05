@@ -348,14 +348,20 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-
+        error_log('================>value');
+        error_log(get_bloginfo('version'));
+        error_log($value);
+        error_log($value!="AdnOF");
        if($value!="AdnOF"){
 
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-            
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'' ;
-            
+            $vwp = get_bloginfo('version');
+            error_log($value);
+            error_log($server_name);
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+            error_log(`===============================json_decode(u)`);
+            error_log(json_decode($u));
             $request = wp_remote_get($u );
             
             if( is_wp_error( $request ) ) {
@@ -367,8 +373,8 @@ class Admin {
             }
             
             $body = wp_remote_retrieve_body( $request );
-            error_log('body');
-            error_log($body);
+            /* error_log('body');
+            error_log($body); */
             $data = json_decode( $body );
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
@@ -378,7 +384,7 @@ class Admin {
             if($data->download==true){
                 error_log($data->link);
                 $url =$data->link;
-                $url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
                 $this->fun_addon_new($url);
 
             }
@@ -1009,7 +1015,7 @@ class Admin {
 
     
     
-            
+            error_log($url);
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
             $r =download_url($url);

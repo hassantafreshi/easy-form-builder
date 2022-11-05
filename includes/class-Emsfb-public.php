@@ -1455,7 +1455,7 @@ class _Public {
 				$siteKey = isset($r->siteKey) ? $r->siteKey : "";
 				$mapKey = isset($r->apiKeyMap) ? $r->apiKeyMap : "";
 				$paymentKey = isset($r->stripePKey) ? $r->stripePKey : "";
-					/*
+				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
 					AdnPPF == persia payment
@@ -1464,7 +1464,15 @@ class _Public {
 					AdnCPF == crypto payment
 					AdnESZ == zone picker
 					AdnSE == email service
-					*/
+
+					AdnWHS == webhook
+					AdnPAP == paypal
+					AdnWSP == whitestudio pay
+					AdnSMF == smart form
+					AdnPLF == passwordless form
+					AdnMSF == membership form
+					AdnBEF == booking and event form
+				*/
 				$addons = ['AdnSPF' => 0,
 				'AdnOF' => 0,
 				'AdnPPF' => 0,
