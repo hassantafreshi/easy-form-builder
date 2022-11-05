@@ -4,10 +4,10 @@ function fun_total_pay_efb() {
     
     let total = 0;
     updateTotal = (i) => {
-      i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+     // i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       //totalpayEfb
       for (const l of document.querySelectorAll(".totalpayEfb")) {
-        l.innerHTML = i
+        l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
       }
     }
   

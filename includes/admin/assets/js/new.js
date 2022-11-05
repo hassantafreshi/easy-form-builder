@@ -22,7 +22,7 @@ let current_s_efb = 1
 //let verifyCaptcha_efb =""
 let devlop_efb = false;
 let preview_efb = false;
-let lan_name_efb ='en';
+let lan_name_emsFormBuilder ='en';
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
 
@@ -34,7 +34,7 @@ efb_var_waitng = (time) => {
       formName_Efb = efb_var.text.form
       default_val_efb = efb_var.text.selectOption
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;
-      lan_name_efb =efb_var.language.slice(0,2);
+      lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       if(efb_var.hasOwnProperty('addons')  && typeof(efb_var.addons)== "object") addons_emsFormBuilder =efb_var.addons
       return;
     } else {
@@ -150,9 +150,11 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   //console.log(tag);
   let $price =""
   let tagtype= tag;
+  const $pv = 0;
+  const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
   if (tag.includes("pay")){ 
     tagtype = tag.slice(3);
-    $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">0</span></span>`;
+    $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>`;
   }
   console.log(tag,$price );
 
@@ -362,28 +364,30 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         // if edit mode
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
         console.log(`pay[${pay}]`);
-      
+        const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
         for (const i of optns_obj) {
           optn += `<div class="efb  form-check " data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
           <label class="efb   ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>
-          ${ pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency" class="efb efb-crncy"></span></span>` :''}
+          ${ pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${i.id_}-price" class="efb efb-crrncy">${Number(i.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>` :''}
           </div>`
         }//end for 
 
       } else {
         const op_1 = Math.random().toString(36).substr(2, 9);
         const op_2 = Math.random().toString(36).substr(2, 9);
+        const pv=0;
+        const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
         optn = `
        <div class="efb  form-check" data-id="${op_1}" id="${op_1}-v">
        <input class="efb  emsFormBuilder_v form-check-input ${pay} ${valj_efb[iVJ].el_text_size} " type="${vtype}" name="${valj_efb[iVJ].parent}" value="${vtype}" id="${op_1}" data-id="${op_1}-id" data-op="${op_1}" ${previewSate != true ? 'disabled' : ''}>
        <label class="efb   ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${op_1}_lab">${efb_var.text.newOption} 1</label>
-       ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_1}-price">${0}</span><span id="${op_1}-currency" class="efb efb-crncy"></span></span>` :''}
+       ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_1}-price" class="efb efb-crrncy">${pv.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>` :''}
        </div>
        <div class="efb  form-check" data-id="${op_2}" id="${op_2}-v">
            <input class="efb  emsFormBuilder_v form-check-input ${pay}  ${valj_efb[iVJ].el_text_size} " type="${vtype}" name="${valj_efb[iVJ].parent}" value="${vtype}" id="${op_2}" data-id="${op_2}-id" data-op="${op_2}" ${previewSate != true ? 'disabled' : ''}>
            <label class="efb  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb "  id="${op_2}_lab">${efb_var.text.newOption} 2</label>
-           ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price">${0}</span><span id="${op_2}-currency" class="efb efb-crncy"></span></span>` :''}
+           ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price" class="efb efb-crrncy">${pv.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>` :''}
        </div>`
         optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
         optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2);
@@ -539,7 +543,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if (elementId == "multiselect") pay = "";
       dataTag = 'multiselect';
 
-
+      const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
       if (editState != false) {
         // if edit mode
         optn = `<!--opt-->`;
@@ -548,7 +552,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         for (const i of optns_obj) {
           optn += `<tr class="efb  efblist ${valj_efb[indx_parent].el_text_color}  ${pay}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
           <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${i.value}</td>
-          ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price">${i.price}</span><span id="${i.id_}-currency" class="efb efb-crncy"></span></td>` :''}
+          ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price" class="efb efb-crrncy">${Number(i.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
         </tr>  `
 
         }//end for 
@@ -557,15 +561,15 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optn = `
         <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.blue}" data-row="${op_3}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.blue}</td>
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_3}-price">0</span><span id="${op_3}-currency" class="efb efb-crncy"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_3}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
         </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.Red}" data-row="${op_4}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.Red}</td>                  
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_4}-price">0</span><span id="${op_4}-currency" class="efb efb-crncy"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_4}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
       </tr>
       <tr class="efb list  ${pay}" data-id="menu-${rndm}" data-name="${efb_var.text.yellow}" data-row="${op_5}" data-state="0" data-visible="1">
         <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-6">${efb_var.text.yellow}</td>
-        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_5}-price">0</span><span id="${op_5}-currency" class="efb efb-crncy"></span></td>` :''}
+        ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${op_5}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
       </tr>  
        `
         const id = `menu-${rndm}`;
@@ -665,8 +669,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
   }
+  console.log(`dataTag[${dataTag}] elementId[${elementId}] previewSate[${previewSate}]`);
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
+    console.log(`if dataTag[${dataTag}]`);
     const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay") ? true : false;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
@@ -774,6 +780,7 @@ const loadingShow_efb = (title) => {
 
 let fun_handle_buttons_efb = (state) => {
   //d-none
+  console.log(`fun_handle_buttons_efb state==>{${state}}`)
   setTimeout(() => {
 
     if (state == true && document.getElementById('f_btn_send_efb').classList.contains('d-block')) {
@@ -799,7 +806,7 @@ let fun_handle_buttons_efb = (state) => {
 
 let add_buttons_zone_efb = (state, id) => {
 
-  //console.log(`state==>{${state}}`)
+  console.log(`add_buttons_zone_efb state==>{${state}}`)
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
@@ -816,6 +823,7 @@ let add_buttons_zone_efb = (state, id) => {
   if (true) {
     let t = valj_efb.findIndex(x => x.type == "stripe");
      t = t==-1 ? valj_efb.findIndex(x => x.type == "persiaPay") : t;
+     console.log('add_buttons_zone_efb', t , valj_efb[t]);
     t = t != -1 ? valj_efb[t].step : 0;
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
@@ -1375,8 +1383,8 @@ function previewFormEfb(state) {
 
   try {
     valj_efb.forEach((value, index) => {
-      //console.log(valj_efb[index].type , valj_efb[index]);
-      if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
+      console.log(valj_efb[index].type , valj_efb[index]);
+      if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`

@@ -49,7 +49,7 @@ function show_setting_window_efb(idset) {
   //console.log('show_setting_window_efb');
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
-    //document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.toggle('d-none');
+    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
     return};
     //console.log('show_setting_window_efb',idset,valj_efb)
     state_view_efb=1;
@@ -187,7 +187,7 @@ function show_setting_window_efb(idset) {
        return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
        <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
-       <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>فرم ساز آسان</option>
+       <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>وایت استادیو</option>
        </select>`;
      } 
 

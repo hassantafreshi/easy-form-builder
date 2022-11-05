@@ -672,7 +672,7 @@ class _Public {
 										
 
 										
-										$amount = $amount*10;
+										$amount = $amount;
 									if(gettype($r)=="string" && $fs!=''){
 										$setting =str_replace('\\', '', $r);
 										$setting =json_decode($setting);
@@ -1850,7 +1850,7 @@ class _Public {
 			" try to enter invalid value like fee of the service of form at :".date("Y-m-d-h:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
-		$price_f = $price_f*10;
+		$price_f = $price_f;
 		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
 		error_log('price_f');
 		error_log($price_f);

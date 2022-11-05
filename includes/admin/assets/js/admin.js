@@ -1253,7 +1253,14 @@ let change_el_edit_Efb = (el) => {
       case "currencyTypeEl":
         //console.log('currencyTypeEl')
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
-        document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
+        //document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
+        for (const l of document.querySelectorAll(".totalpayEfb")) {
+         if(l.classList.contains('ir')==false) l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+        }
+        for (const l of document.querySelectorAll(".efb-crrncy")) {
+         l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+        }
+        
         //console.log(el.options[el.selectedIndex].value);
         break;
       case "fileTypeEl":
@@ -1585,7 +1592,7 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case 'paymentOption':
-        //console.log('paymentOption');     
+        console.error('=========================>paymentOption');     
         el.dataset.id;
         const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
 
@@ -1597,12 +1604,8 @@ let change_el_edit_Efb = (el) => {
           el.setAttribute('defaultValue', valj_efb[ipndx].price);
           console.log(`id[${valj_efb[ipndx].id_}-price] `);
           const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
-          //if(efb_var.language== "fa_IR") currency= valj_efb[0].currency
-          const lan = lan_name_efb;
-          let no = (valj_efb[ipndx].price);
-          no = no.toLocaleString(lan, { style: 'currency', currency: currency })
-          console.log(no, currency,lan);
-         // console.log(no.toLocaleString(lan, { style: 'currency', currency: currency}),lan,currency,no.toLocaleString('fa', { style: 'currency', currency: 'usd'}))
+          let no = Number(valj_efb[ipndx].price);
+          no = no.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })        
           document.getElementById(`${valj_efb[ipndx].id_}-price`).innerHTML=no;
         }
         break;
@@ -1959,7 +1962,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     //console.log(elementId);
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
-      id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb_form, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
+      id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
       label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
@@ -1999,16 +2002,16 @@ let sampleElpush_efb = (rndm, elementId) => {
 
   } else if (elementId == "html") {
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: elementId, value: '', amount: amount_el_efb_form, step: step_el_efb, pro: pro
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, value: '', amount: amount_el_efb, step: step_el_efb, pro: pro
     })
   } else if (elementId == "heading") {
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes: '', value: efb_var.text[elementId], amount: amount_el_efb_form, step: step_el_efb, el_text_size: 'display-4',
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes: '', value: efb_var.text[elementId], amount: amount_el_efb, step: step_el_efb, el_text_size: 'display-4',
       el_text_color: 'text-dark', el_align: 'justify-content-start', pro: pro
     })
   } else if (elementId == "link") {
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes: '', value: efb_var.text[elementId], amount: amount_el_efb_form, step: step_el_efb, el_text_size: 'fs-3',
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, classes: '', value: efb_var.text[elementId], amount: amount_el_efb, step: step_el_efb, el_text_size: 'fs-3',
       el_text_color: 'text-primary', el_align: 'justify-content-start', href: "https://whitestudio.team", pro: pro
     })
   } else if (elementId == "steps") {
@@ -2016,7 +2019,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     const stepName = efb_var.text[formName_Efb] != undefined ? efb_var.text[formName_Efb].toUpperCase() : efb_var.text.step;
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
-      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb_form, EfbVersion: 2, message: efb_var.text.sampleDescription,
+      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
       label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
@@ -2025,7 +2028,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
-      message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb_form, step: step_el_efb,
+      message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
       corner: 'efb-square', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'document',
       label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
@@ -2042,9 +2045,9 @@ let sampleElpush_efb = (rndm, elementId) => {
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
   console.log(`tayppee =>>>>>>>> ${tag}`);
   if (tag != undefined || (typeof tag=="string" && tag.includes("pay")==-1)) {
-    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb_form });
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
-    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb_form });
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });
   }
   //console.log(valj_efb)
 }
@@ -2246,7 +2249,7 @@ function show_delete_window_efb(idset) {
       //console.log(idset ,confirmBtn.dataset.id )
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
-      activeEl_efb_form = 0;
+      activeEl_efb = 0;
       myModal.hide()
     })
     //myModal.show();
@@ -2260,7 +2263,7 @@ function show_delete_window_efb(idset) {
 
       confirmBtn.addEventListener("click", () => {
 
-        activeEl_efb_form = 0;
+        activeEl_efb = 0;
         if (pro_efb == false) {
           step_el_efb = step_el_efb > 1 ? step_el_efb - 1 : 1;
         }
@@ -2451,8 +2454,12 @@ fun_efb_add_el = (t) => {
     let el = addNewElement(t, rndm, false, false);
     if(el!='null'){
       dropZoneEFB.innerHTML += el;
-      if (t == "mobile") {
-  
+      switch(t){
+        case 'mobile':
+          break;
+        case 'persiaPay':
+          funRefreshPricesEfb()
+          break
       }
     }
   }
@@ -2490,34 +2497,34 @@ googleMapsNOkEfb =()=>{
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
-  console.log(el.id , activeEl_efb_form , el.id.includes(activeEl_efb_form));
- if (el.id != activeEl_efb_form ) {
+  console.log(el.id , activeEl_efb , el.id.includes(activeEl_efb));
+ if (el.id != activeEl_efb ) {
  
     
-    if (activeEl_efb_form == 0) {
-      activeEl_efb_form = document.getElementById(el.id).dataset.id;
+    if (activeEl_efb == 0) {
+      activeEl_efb = document.getElementById(el.id).dataset.id;
 
     } else {
-      //console.log(activeEl_efb_form,activeEl_efb_form.slice(0,-3),document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.contains('d-none'))
+      //console.log(activeEl_efb,activeEl_efb.slice(0,-3),document.getElementById(`btnSetting-${activeEl_efb}`).classList.contains('d-none'))
 
-      document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.toggle('d-none');
+      document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
 
     }
-   // const ac = document.querySelector(`[data-id="${activeEl_efb_form}"]`);
+   // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
     const ac = document.querySelector(`.field-selected-efb`);
     if (ac) {
    // if (ac && state_view_efb==0) {
       console.log('ac', document.getElementById('sideMenuFEfb').className , document.getElementById('sideMenuFEfb').classList.contains('efbDW-0'));
-      // document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.add('d-none')
+      // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
      ac.classList.remove('field-selected-efb')
     }
     //state_view_efb=0
-    activeEl_efb_form = el.dataset.id
-    const eld = document.getElementById(`btnSetting-${activeEl_efb_form}`);
+    activeEl_efb = el.dataset.id
+    const eld = document.getElementById(`btnSetting-${activeEl_efb}`);
     if (eld.classList.contains('d-none')) eld.classList.remove('d-none');
 
-    // document.getElementById(`btnSetting-${activeEl_efb_form}`).classList.add('d-block')
-    document.querySelector(`[data-id="${activeEl_efb_form}"]`).classList.add('field-selected-efb')
+    // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-block')
+    document.querySelector(`[data-id="${activeEl_efb}"]`).classList.add('field-selected-efb')
 
 
   }
@@ -2582,7 +2589,7 @@ function emsFormBuilder_delete(id, type) {
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
     }
-    activeEl_efb_form = 0;
+    activeEl_efb = 0;
     myModal.hide()
   })
   //myModal.show();
@@ -2599,6 +2606,12 @@ addons_btn_state_efb=(id)=>{
 
 
 
+}
+
+funRefreshPricesEfb=()=>{
+  for (const l of document.querySelectorAll(".efb-crrncy")) {
+    l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+   }  
 }
 
 
