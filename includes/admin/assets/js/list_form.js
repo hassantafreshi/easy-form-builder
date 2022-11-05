@@ -924,7 +924,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
                                 </h5>
-                                <p class="efb ${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
+                                <p class="efb ${mxCSize}">${efb_var.text.cPShrtCdeTrckFndr}</p>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
                                         <div class="efb row efb col-12">
                                             <div class="efb  col-md-8">

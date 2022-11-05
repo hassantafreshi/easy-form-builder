@@ -501,7 +501,9 @@ function add_addons_emsFormBuilder() {
   console.log('addons_efb',addons_efb);
   for (let i of addons_efb) {
     if(i.state==true) {
-      value += createCardAddoneEfb(i)
+      const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
+                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required}
+      value += createCardAddoneEfb(v)
     }
   }
   let cardtitles = `<!-- card titles -->`;
