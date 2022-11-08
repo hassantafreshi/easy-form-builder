@@ -34,6 +34,7 @@ setTimeout(() => {
       poster_emsFormBuilder = ajax_object_efm.poster;
       //console.log(ajax_object_efm.state);
       efb_var = ajax_object_efm;
+      lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       localStorage.setItem('form_id', efb_var.id);
 

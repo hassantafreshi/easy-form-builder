@@ -544,7 +544,12 @@ class efbFunction {
 			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : __('Before activation this option, install','easy-form-builder'),				
 			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : __('Before creating a payment form you should install the addon payment like Stripe Addon','easy-form-builder'),				
 			"allformat" => $state  &&  isset($ac->text->allformat) ? $ac->text->allformat : __('All formats','easy-form-builder'),				
+			"AdnSST" => $state  &&  isset($ac->text->AdnSST) ? $ac->text->AdnSST : __('EFB SMS Addon','easy-form-builder'),				
+			"AdnSSD" => $state  &&  isset($ac->text->AdnSSD) ? $ac->text->AdnSSD : __('Send SMS messages from your forms by mobile input such as validating a mobile number or sending the confirmation code using the EFB SMS add-on, which allows you to send notifications by SMS service.','easy-form-builder'),				
+			"AdnATCT" => $state  &&  isset($ac->text->AdnATCT) ? $ac->text->AdnATCT : __('Advanced confirmation code Addon','easy-form-builder'),				
+			"AdnATCD" => $state  &&  isset($ac->text->AdnATCD) ? $ac->text->AdnATCD : __('Send a link of the confirmation code by Email or SMS to those who are users and/or admins which allows your user directly find out new responses.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
+			
 		];
 
 		//error_log(gettype($inp));

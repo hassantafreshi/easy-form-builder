@@ -73,8 +73,8 @@ class Admin {
             add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
             add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل    
-            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //فرم را بروز رسانی می کند
-            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //فرم را بروز رسانی می کند
+            add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //Add new addons
+            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //Remove a addon
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));               // بارگذاری فایل
             
         /*    add_action( 'save_post', function ( $post_ID,$post,$update )

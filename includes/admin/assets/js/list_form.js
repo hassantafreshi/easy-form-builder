@@ -268,6 +268,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   let s = false;
+  let currency ='usd';
   for (const c of content) {
     if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
     s = false;
@@ -327,12 +328,21 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       m += value;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
+       m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
+       console.log(c.type,c.type.includes('pay'))
+        if(c.type.includes('pay')&& c.id_!="payment") {
+          m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+        }
+        
+       
+       m+=`</p>`;
+      }
 
     if (c.type == "payment") {
       console.log(`c.type == "payment"`);
       if(c.paymentGateway == "stripe"){
-
+        currency = c.paymentcurrency;
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>

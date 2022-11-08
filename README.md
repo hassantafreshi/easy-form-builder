@@ -138,7 +138,7 @@ Thanks goes to these wonderful people
   <a href="https://github.com/ehssantafreshi"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a></td>
 <td>
-  <a href="/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush Samadi</strong></sub></a><br />
+  <a href="https://github.com/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush Samadi</strong></sub></a><br />
     <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a> 
 </td>
 
