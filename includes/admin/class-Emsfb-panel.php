@@ -17,7 +17,11 @@ class Panel_edit  {
 		
 		if ( is_admin() ) {
 			$rtl = is_rtl();
+			
 
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
+			wp_enqueue_script('efb-val-js'); 
+			
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -76,7 +80,8 @@ class Panel_edit  {
 				}
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
-			
+		
+
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js' );
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -93,11 +98,16 @@ class Panel_edit  {
 				"addons"=>$addons
 			));
 
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
-			wp_enqueue_script('efb-val-js'); 
+			
+
+			wp_register_script('jspdf-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jspdf.js');	
+			wp_enqueue_script('jspdf-js');
 
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js');
 			wp_enqueue_script('efb-pro-els');
+
+
+			
 
 		
 			if($pro==true){

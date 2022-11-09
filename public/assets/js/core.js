@@ -1026,15 +1026,21 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   //console.log('fun_emsFormBuilder_show_messages');
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-  <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
- ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
- <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
+  <div class="efb  form-check">
+  <div>
+      <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
+    ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
+    <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
+  </div>
+  <!-- <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}"></div> -->
+  </div>
  <hr>
  <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
 
  
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
+  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
 
     let value ="<b></b>";
@@ -1100,7 +1106,15 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       m += value;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
+       m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span>`
+       if(c.type.includes('pay')&& c.id_!="payment") {
+
+        m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+      }
+       m+=`</p>`;
+      }
+
 
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
@@ -1127,11 +1141,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         */
         m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
         m += `<div class="efb mx-3 fs7 text-capitalize">
-            <p class="efb my-0">${efb_var.text.amount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
+            <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
-            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p>
+           <!-- <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
+            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p> -->
             </div>`
       }
       
