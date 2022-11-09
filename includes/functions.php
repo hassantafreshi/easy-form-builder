@@ -156,7 +156,7 @@ class efbFunction {
 			"survey" => $state ? $ac->text->survey : __('Survey','easy-form-builder'),
 			"chart" => $state ? $ac->text->chart : __('Chart','easy-form-builder'),
 			"noComment" => $state ? $ac->text->noComment : __('No comment','easy-form-builder'),
-			"easyFormBuilder" => $state ? $ac->text->easyFormBuilder : __('Easy Form Builder','easy-form-builder'),
+			"easyFormBuilder" => $state ? $ac->text->easyFormBuilder : __('Easy Form Builder','easy-form-builder'),			
 			"byWhiteStudioTeam" => $state ? $ac->text->byWhiteStudioTeam : __('By WhiteStudio.team','easy-form-builder'),
 			"createForms" =>  $state ? $ac->text->createForms :  __('Create Forms','easy-form-builder'),
 			"tutorial" => $state ? $ac->text->tutorial : __('Tutorial','easy-form-builder'),

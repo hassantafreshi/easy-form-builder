@@ -2074,6 +2074,37 @@ function fun_upload_file_emsFormBuilder(id, type) {
   return r;
 }
 
+function generatePDF_EFB(id) 
+{
+  const fontStyle=`
+        <style>
+           html
+            {
+                font-family:    font-family: 'Roboto', sans-serif!important;
+                font-weight: 400 !important;            
+            }
+        </style>
+  `
+  const divPrint=document.getElementById(id);
+
+  let n_win=window.open('','Print-Window');
+  const div=` <div style="text-align:center">
+  <h2><a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
+  ${efb_var.pro!=0 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a></h2>`:''}
+</div>`
+  val =`<html style="direction:${efb_var.rtl==0?'ltr':'rtl'}"><head>${fontStyle}</head>
+  <body onload='window.print()'>
+  ${div}
+  ${divPrint.innerHTML}
+  </body></html>`;
+  
+  n_win.document.open();
+  n_win.document.write(val);
+  n_win.document.close();
+
+  //setTimeout(()=>{n_win.close();},10); 
+
+}
 
 
 

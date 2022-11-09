@@ -100,9 +100,6 @@ class Panel_edit  {
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
 			wp_enqueue_script('efb-val-js'); 
 
-			wp_register_script('jspdf-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jspdf.js');	
-			wp_enqueue_script('jspdf-js');
-
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js');
 			wp_enqueue_script('efb-pro-els');
 

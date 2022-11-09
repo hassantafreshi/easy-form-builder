@@ -266,7 +266,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
       <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
    </div>
-   <!-- <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB()"></div> -->
+   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
    </div>
   <hr>
   <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
@@ -863,7 +863,7 @@ function fun_show_setting__emsFormBuilder() {
       return `
       <div ${visible}>
       <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
-      <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('wiki')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
+      <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('AdnPPF')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
           <label class="efb form-label mx-2">توکن</label>
@@ -1944,21 +1944,6 @@ function funNproEmailTemp() {
 }
 
 
-/* function generatePDF_EFB() {
-  const v= document.getElementById("resp_efb").innerHTML;
-  const htm = `<html style="font-family: 'Arial', sans-serif !important;">${v}</html> `
-  var doc = new jsPDF();  //create jsPDF object
-   doc.fromHTML(htm, // page element which you want to print as PDF
-   15,
-   15, 
-   {
-     'width': 170  //set width
-   },
-  // {lang: lan_name_emsFormBuilder},
-   function(a) 
-    {
-     doc.save("easy_form_builder.pdf"); // save file name as HTML2PDF.pdf
-   });
- } */
+
 
 
