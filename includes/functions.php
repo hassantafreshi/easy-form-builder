@@ -736,5 +736,28 @@ class efbFunction {
 		return 0;
 	}//end function
 	
+	public function sanitize_obj_msg_efb ($valp){
+		foreach ($valp as $key => $val) {
+			$type = $val["type"];
+			foreach ($val as $k => $v) {
+				switch ($k) {
+					case 'value':					
+						$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;			
+					break;
+					case 'email':
+					case 'email_to':
+						$valp[$key][$k]=sanitize_email($v);
+					break;
+					case 'file':
+					case 'href':
+						$valp[$key][$k]=sanitize_url($v);
+				default:					
+					$valp[$key][$k]=sanitize_text_field($v);
+					break;
+				}
+			}
+		}
+		return $valp;
+	}//end function
 
 }

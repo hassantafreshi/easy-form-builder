@@ -19,8 +19,7 @@ class Panel_edit  {
 			$rtl = is_rtl();
 			
 
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
-			wp_enqueue_script('efb-val-js'); 
+		
 			
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
@@ -98,7 +97,8 @@ class Panel_edit  {
 				"addons"=>$addons
 			));
 
-			
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js');
+			wp_enqueue_script('efb-val-js'); 
 
 			wp_register_script('jspdf-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jspdf.js');	
 			wp_enqueue_script('jspdf-js');

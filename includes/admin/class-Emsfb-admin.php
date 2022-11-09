@@ -287,7 +287,12 @@ class Admin {
             die();
         }
         $id         = number_format($_POST['id']);
-        $value      = ($_POST['value']);
+
+        $valp =str_replace('\\', '', $_POST['value']);
+		$valp = json_decode($valp,true);
+		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
+        //$value      = ($_POST['value']); 
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "emsfb_form";
         //,`form_name` =>
