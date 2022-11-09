@@ -37,7 +37,7 @@ class Create {
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
-		error_log('create class');
+		//error_log('create class');
 	}
 
 	public function add_Create_menu() {
@@ -285,7 +285,7 @@ class Create {
 		$this->value=str_replace('"', '\\"', $valx);
 
 
-		error_log($this->value);
+		//error_log($this->value);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 

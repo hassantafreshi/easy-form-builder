@@ -20,7 +20,7 @@ class Addon {
 
 	protected $db;
 	public function __construct() {
-		error_log('addon class');
+		//error_log('addon class');
 		$this->setting_name = 'Emsfb_addon';
 		global $wpdb;
 		$this->db = $wpdb;

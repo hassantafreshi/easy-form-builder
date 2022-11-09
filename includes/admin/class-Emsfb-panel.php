@@ -285,7 +285,7 @@ class Panel_edit  {
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 					'ajax_value' => $value,
 					'language' => $lang,
-					'ajax_nonce'=>$this->nounce,
+					'nonce'=>wp_create_nonce("public-nonce"),
 					'user_name'=> wp_get_current_user()->display_name,
 					'user_ip'=> $ip,
 					'setting'=>$stng,
@@ -296,7 +296,7 @@ class Panel_edit  {
 					'pro'=>$pro									
 				));
 
-				;
+				error_log(wp_create_nonce("public-nonce"));
 					
 		}else{
 			echo "Easy Form Builder: You dont access this section";

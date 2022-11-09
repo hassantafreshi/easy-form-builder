@@ -335,7 +335,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
        m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
-       console.log(c.type,c.type.includes('pay'))
         if(c.type.includes('pay')&& c.id_!="payment") {
 
           m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
@@ -346,7 +345,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
 
     if (c.type == "payment") {
-      console.log(`c.type == "payment"`);
       if(c.paymentGateway == "stripe"){
         
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
@@ -357,7 +355,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
             ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
             </div>`
       }else {
-        console.log(c.paymentGateway);
         /* 
         'id_' =>"payment",
 										'name' => "peyment",
@@ -1475,7 +1472,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     for (c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      console.log(content);
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
         //console.log(c,content[c] ,content);
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'

@@ -718,13 +718,8 @@ class efbFunction {
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
-		error_log('================= response_to_user_by_msd_id');
-		error_log($data[0]["sendEmail"]);
-		error_log('=================  befor if');
-		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){
-			error_log('=================  in if');
+		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
 			foreach($user_res as $key=>$val){
-				error_log($user_res[$key]["id_"]);
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
 					$subject ="📮 ".$lang["youRecivedNewMessage"];

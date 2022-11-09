@@ -85,7 +85,6 @@ function pro_show_efb(state) {
  /*  console.log(state);
   console.log(message);
   console.log(body); */
-  console.log(efb_var.text.proVersion);
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
   const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   myModal.show()
@@ -144,7 +143,6 @@ const show_modal_efb = (body, title, icon, type) => {
 
 
 const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
-  console.log(idin, value, id_ob, tag, parentsID);
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
   let op = `<!-- option --!> 2`
   //console.log(tag);
@@ -156,7 +154,6 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
     tagtype = tag.slice(3);
     $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>`;
   }
-  console.log(tag,$price );
 
   if (fun_el_select_in_efb(tag)) {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="efb ${valj_efb[indxP].el_text_color} efb">${value}</option>`
@@ -363,10 +360,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       if (editState != false) {
         // if edit mode
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
-        console.log(`pay[${pay}]`);
         const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
         for (const i of optns_obj) {
-          console.log(i,currency,lan_name_emsFormBuilder);
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
           optn += `<div class="efb  form-check " data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}" ${previewSate != true ? 'disabled' : ''}>
@@ -635,11 +630,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ui =add_ui_stripe_efb(rndm,cl,sub);
         valj_efb[0].type = "payment";
       }else{
-        console.log(valj_efb);
         noti_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
-        console.log(valj_efb,l);
         return 'null';
       }
       break;
@@ -649,13 +642,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           valj_efb[0].type = "payment";
           dataTag = elementId;
           valj_efb[0].paymentmethod="charge"
-          console.log(rndm);
           ui =add_ui_persiaPay_efb(rndm);
         }else{
           noti_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
           const l = valj_efb.length -1;
           valj_efb.splice(l,1);
-          console.log(valj_efb,l);
           return 'null';
         }
       break;
@@ -671,10 +662,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
   }
-  console.log(`dataTag[${dataTag}] elementId[${elementId}] previewSate[${previewSate}]`);
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    console.log(`if dataTag[${dataTag}]`);
     const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay") ? true : false;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
@@ -782,7 +771,6 @@ const loadingShow_efb = (title) => {
 
 let fun_handle_buttons_efb = (state) => {
   //d-none
-  console.log(`fun_handle_buttons_efb state==>{${state}}`)
   setTimeout(() => {
 
     if (state == true && document.getElementById('f_btn_send_efb').classList.contains('d-block')) {
@@ -807,8 +795,6 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
-
-  console.log(`add_buttons_zone_efb state==>{${state}}`)
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
@@ -825,7 +811,6 @@ let add_buttons_zone_efb = (state, id) => {
   if (true) {
     let t = valj_efb.findIndex(x => x.type == "stripe");
      t = t==-1 ? valj_efb.findIndex(x => x.type == "persiaPay") : t;
-     console.log('add_buttons_zone_efb', t , valj_efb[t]);
     t = t != -1 ? valj_efb[t].step : 0;
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
@@ -1080,8 +1065,7 @@ function handle_navbtn_efb(steps, device) {
             jQuery("#prev_efb").addClass("d-none");
             jQuery("#next_efb").addClass("d-none");
             //send to server after validation 778899
-            send_data_efb();
-            console.log('send to server after validation');
+            send_data_efb();          
             document.getElementById('efbform').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
           }
 
@@ -1141,7 +1125,6 @@ function handle_navbtn_efb(steps, device) {
           //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
           //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
           if (document.getElementById('body_efb')) {
-            console.log('true');
             document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
           }
         }
@@ -1385,7 +1368,6 @@ function previewFormEfb(state) {
 
   try {
     valj_efb.forEach((value, index) => {
-      console.log(valj_efb[index].type , valj_efb[index]);
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1659,7 +1641,6 @@ function timeOutCaptcha() {
 fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' ? true : false }
 
 function fun_validation_efb() {
-  console.log('fun_validation_efb');
   let state = true;
   let idi = "null";
   for (let row in valj_efb) {
@@ -1749,7 +1730,6 @@ addStyleColorBodyEfb = (t, c, type, id) => {
   else if (type == "border") { v = `${tag}.${type}-${t}{border-color:${c}!important;}` }
   else if (type == "bg") { v = `.${type}-${t}{background-color:${c}!important;}` }
   else if (type == "btn") { v = `.${type}-${t}{background-color:${c}!important;}` }
-  console.log(tag, valj_efb[id].type,v);
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
 }
 
@@ -1874,9 +1854,7 @@ fun_offline_Efb = () => {
     }
   }
   const vvv= getUrlparams_efb.get('Authority');
-  console.log('get_authority_efb',`get_authority_efb[${typeof get_authority_efb}] [${typeof vvv}] `);
   if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){
-    console.log('before fun_disabled_all_pay_efb');
     fun_after_bankpay_persia_ui();
   }
 }
@@ -2035,6 +2013,7 @@ function fun_upload_file_emsFormBuilder(id, type) {
     fd.append("caption", individual_capt);
     fd.append('action', 'update_file_Emsfb');
     fd.append('nonce', ajax_object_efm.nonce);
+    console.log(`ajax_object_efm.nonce[${ajax_object_efm.nonce}]`);
     var idB ='#'+id+'-prB'
     jQuery.ajax({
       type: 'POST',

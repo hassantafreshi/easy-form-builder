@@ -93,10 +93,17 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
+        link += "https://whitestudio.team/document/offline-forms-addon/";
+        break;
       case 'AdnOF':
         //AdnOF == offline form
+        link = 'https://whitestudio.team/document/offline-forms-addon/';
+        //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
+        break;
       case 'AdnPPF':
         //AdnPPF == persia payment
+        link = 'https://whitestudio.team';
+        break;
       case 'AdnATC':
         // AdnATC == advance tracking code
       case 'AdnSS':
@@ -262,10 +269,8 @@ function actionSendAddons_efb(val) {
         value: val,
         nonce: efb_var.nonce
       };
-
-      console.log(data)
-    $.post(ajaxurl, data, function (res) {
-      console.log("res",res);
+      
+    $.post(ajaxurl, data, function (res) {      
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
@@ -302,9 +307,7 @@ function actionSendAddonsUn_efb(val) {
         nonce: efb_var.nonce
       };
 
-      console.log(data)
     $.post(ajaxurl, data, function (res) {
-      console.log("res",res);
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
@@ -376,9 +379,7 @@ createCardFormEfb = (i) => {
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
-  console.log(efb_var.addons);
-  if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
-  console.log('payment',i.tag,efb_var.addons.AdnSPF,efb_var.addons.AdnPPF)
+  if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"  
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
     const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
     btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
@@ -498,7 +499,6 @@ function add_dasboard_emsFormBuilder() {
 function add_addons_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
-  console.log('addons_efb',addons_efb);
   for (let i of addons_efb) {
     if(i.state==true) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
@@ -807,7 +807,6 @@ window.onload = (() => {
 
 
 switch_color_efb = (color) => {
-  console.log(`switch_color_efb[${color}]`);
   let c;
   switch (color) {
     case '#0d6efd': c = "primary"; break;
@@ -1037,7 +1036,6 @@ let change_el_edit_Efb = (el) => {
         case "offLineEl":
           if(efb_var.addons.AdnOF!=0){
             valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
-            console.log(el.id,valj_efb[0]);
           }else{
             el.checked=false;
             noti_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
@@ -1279,7 +1277,6 @@ let change_el_edit_Efb = (el) => {
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
         clss = switch_color_efb(color);
-        console.log(color ,clss);
         if (clss.includes('colorDEfb')) { addStyleColorBodyEfb(clss, color, "btn", indx); }
         if (indx != 0) {
           if (el.dataset.tag != "yesNo") {
@@ -1593,8 +1590,7 @@ let change_el_edit_Efb = (el) => {
           el.setAttribute('defaultValue', valj_efb[iindx].value);
         }
         break;
-      case 'paymentOption':
-        console.error('=========================>paymentOption');     
+      case 'paymentOption':   
         el.dataset.id;
         const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
 
@@ -1604,7 +1600,6 @@ let change_el_edit_Efb = (el) => {
           //console.log( valj_efb[ipndx])
           el.setAttribute('value', valj_efb[ipndx].price);
           el.setAttribute('defaultValue', valj_efb[ipndx].price);
-          console.log(`id[${valj_efb[ipndx].id_}-price] `);
           const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
           let no = Number(valj_efb[ipndx].price);
           no = no.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })        
@@ -2045,7 +2040,6 @@ let sampleElpush_efb = (rndm, elementId) => {
   //console.log(valj_efb);
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  console.log(`tayppee =>>>>>>>> ${tag}`);
   if (tag != undefined || (typeof tag=="string" && tag.includes("pay")==-1)) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
@@ -2499,7 +2493,6 @@ googleMapsNOkEfb =()=>{
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
-  console.log(el.id , activeEl_efb , el.id.includes(activeEl_efb));
  if (el.id != activeEl_efb ) {
  
     
@@ -2515,8 +2508,7 @@ function active_element_efb(el) {
    // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
     const ac = document.querySelector(`.field-selected-efb`);
     if (ac) {
-   // if (ac && state_view_efb==0) {
-      console.log('ac', document.getElementById('sideMenuFEfb').className , document.getElementById('sideMenuFEfb').classList.contains('efbDW-0'));
+   // if (ac && state_view_efb==0) {      
       // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
      ac.classList.remove('field-selected-efb')
     }
@@ -2550,7 +2542,6 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 /* move to pro_els.js */
 
 funBTNAddOnsEFB=(val,v_required)=>{
- console.log(val,v_required,efb_version);
 
  if(efb_version>=v_required){
    addons_btn_state_efb(val);
@@ -2562,16 +2553,11 @@ funBTNAddOnsEFB=(val,v_required)=>{
 }
 
 funBTNAddOnsUnEFB=(val)=>{
-  console.log('funBTNAddOnsUnEFB',val);
   emsFormBuilder_delete(val,'addon');
 }
 
 fun_confirm_remove_addon_emsFormBuilder=(val)=>{
-
-  console.log('fun_confirm_remove_addon_emsFormBuilder',val);
    actionSendAddonsUn_efb(val);
- 
- 
  }
 
 function emsFormBuilder_delete(id, type) {

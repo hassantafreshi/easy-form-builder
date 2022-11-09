@@ -142,11 +142,7 @@ class _Public {
 				else if(strpos($value , ',\"type\":\"persiaPay\",')){
 					$paymentType="zarinPal";}
 				else if(strpos($value , ',\"type\":\"zarinPal\",')){error_log('paymentType');$paymentType="zarinPal";}
-					
-					error_log('140 pub');
 					if($paymentType!="null" && $pro==true){
-						error_log('142 pub');
-						error_log($paymentType);
 						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), null, true);
 						wp_enqueue_script('pay_js');
 						if($paymentType=="stripe"){ 
@@ -157,13 +153,8 @@ class _Public {
 							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), null, true);
 							wp_enqueue_script('parsipay_js');
 							//pub key stripe
-							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';
-							
+							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 						}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
-							//error_log("payping");
-							error_log('151 pub');
-							error_log($paymentKey);
-
 							$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
 							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), null, true);
 							wp_enqueue_script('parsipay_js');
@@ -240,9 +231,6 @@ class _Public {
 				);
 
 			if($typeOfForm=="payment"){
-
-					error_log('paymentType');
-					error_log($paymentType);
 					$ar_core = array_merge($ar_core , array(
 						'paymentGateway' =>$paymentType,
 						'paymentKey' => $paymentKey
@@ -470,19 +458,11 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$rePage ="null";
-		$this->id = sanitize_text_field($_POST['id']);
-		error_log('this->id');
-		error_log($this->id);
-		error_log($type);
+		$this->id = sanitize_text_field($_POST['id']);;
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		error_log(json_encode($value_form));
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		//error_log(json_encode($fs));
-		//error_log($fs);
 		$this->id = sanitize_text_field($_POST['payid']);
-		error_log('payid');
-		error_log($this->id);
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
 		
@@ -610,64 +590,32 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "payment":	
-							error_log('===========payment');
-							error_log('===========id');
-							error_log(sanitize_text_field($_POST['payid']));
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$id = sanitize_text_field($_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
-							error_log("id");
-							error_log("payment_getWay");
-							error_log($id);
-							
-							
 							$payment_getWay =isset($_POST['payment']) ? sanitize_text_field($_POST['payment']) :'stripe';
-							
-							error_log($payment_getWay);
-							error_log('table_name');
-							error_log($table_name_);
-							error_log(gettype($id));
-							error_log($id);
 							if( strlen($id)<7 && $payment_getWay=="zarinPal"){
 								$response = array( 'success' => false , "m"=>"خطای داده های پرداختی ، صفحه را رفرش کنید"); 
 								wp_send_json_success($response,$_POST);
 								die();
 							}		
-							error_log('========================>befor select');
-							error_log('temp reg id');
-							error_log($_POST['payid']);
 							$value = $this->db->get_results( "SELECT content,form_id FROM `$table_name_` WHERE track = '$id' AND read_=2" );	
-							error_log(json_encode($this->db));
-							error_log(json_encode($value));
-						
-							error_log("value");
-							error_log(gettype($value));
 							$trackId= $id;
 							if($value!=null){
 								$vv=$value[0]->content;
 								$vv_ =str_replace('\\', '', $vv);
 								$vv = json_decode($vv_,true);
 								$fs =str_replace('\\', '', $this->value);
-								error_log("ffffs");
-								error_log($fs);
 								$valobj = json_decode($fs , true);
 								$filtered = array_filter($valobj, function($item) use ($vv) { 
 									if(strpos($item['type'], 'pay')===false){return $item;}					
 								});
-								error_log("vv_");
-								error_log($vv_);
-								error_log("fs");
-								error_log($fs);
 								$amount =0;
 								foreach ($vv as $k => $v) {
-									# code...
-									error_log(json_encode($v));
 									if(isset($v['price'])) $amount +=$v['price'];
-								}
-								error_log('===================> amount');
-								
+								}								
 								$result;
 								if($payment_getWay=="persiaPay"){
 									//zarinPal validation code
@@ -678,13 +626,7 @@ class _Public {
 									if(gettype($r)=="string" && $fs!=''){
 										$setting =str_replace('\\', '', $r);
 										$setting =json_decode($setting);
-										
-										error_log('amount');
-										error_log($amount);
 										$TokenCode = $setting->payToken;
-										error_log('TokenCode');
-										error_log($TokenCode);
-										//error_log($TokenCode);
 										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($_POST['auth']), "amount" => $amount);
 										$jsonData = json_encode($data);
 										$msg="ok";
@@ -770,11 +712,6 @@ class _Public {
 								$form_id = $value[0]->form_id;
 								$table_name = $this->db->prefix . "emsfb_form";
 								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
-							
-								/* error_log('======================>fs');
-								error_log($fs); */
-								error_log('form id');
-								error_log($form_id);
 								$fs = isset($fs[0]->form_structer) ? str_replace('\\', '', $fs[0]->form_structer) :'';
 								if($fs==''){
 									$response = array( 'success' => false  ,'m'=>'Error 406'); 
@@ -796,35 +733,23 @@ class _Public {
 								$valobj =   empty($valobj) ? $it : array_merge((array)$valobj,$it);								
 								//stripe edit					
 								if($payment_getWay=="persiaPay")array_push($valobj, $result);
-								error_log(gettype($valobj));
 								}
-
-								error_log('valobj');
-								error_log(json_encode($valobj));
 								
 								$fs=json_encode($valobj);
 								$filtered = array_unique(array_merge($valobj,$vv), SORT_REGULAR);
 								$fs=[];
 								foreach ($filtered as $key => $v) {
-									# code...
+									
 									//error_log(json_encode($v));
 									array_push($fs,$v);
 									
 								}
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
-								//json_decode				
-								error_log('filtered');
-								error_log($filtered);
-							
 								$fs=str_replace('"', '\\"', $filtered);
 								$this->value = sanitize_text_field($fs);
 								$this->get_ip_address();	
 								$this->id = sanitize_text_field($_POST['payid']);			
 								$check=$this->update_message_db();								
-								error_log('check!');
-								error_log(json_encode($check));
-								error_log('$r');
-								error_log($r);
 
 								if(!empty($r)){
 									
@@ -1197,7 +1122,7 @@ class _Public {
 	  public function fun_footer(){
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), null, true);
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.3.0')</script>";
+		return "<script>console.log('Easy Form Builder v3.4.0')</script>";
 	  }//end function
 
 
@@ -1498,7 +1423,7 @@ class _Public {
 					$addons["AdnESZ"]=$r->AdnESZ;
 					$addons["AdnSE"]=$r->AdnSE;
 				}
-				error_log(json_encode($addons));
+				//error_log(json_encode($addons));
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				
@@ -1864,9 +1789,7 @@ class _Public {
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f;
-		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
-		error_log('price_f');
-		error_log($price_f);
+		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];		
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
 			
@@ -1896,8 +1819,6 @@ class _Public {
 			$clientRefId =substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 12);
 			$TokenCode =$Sk;
 			$returnUrl =$url;
-			error_log($returnUrl);
-			error_log($Sk);
 
 			//$amount=1000;
 			$data = array("merchant_id" => $TokenCode,
@@ -1907,6 +1828,12 @@ class _Public {
 			"metadata" => [ "email" =>  $email],
 			);
 			$jsonData = json_encode($data);
+
+			if($price_f<5000){
+				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');		
+				wp_send_json_success($response, $_POST);
+				die();
+			}
 	/* 		try{
 			
 			
@@ -1971,20 +1898,26 @@ class _Public {
 
 			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
 			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
-			$persiaPay = new zarinPalEFB() ;
-			$response = $persiaPay->create_bill_zarinPal($jsonData);
-			if($response['success']==true){
-				$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-                    error_log('val_');
-                    error_log($val_);
-                    $this->get_ip_address();
-                    $this->value = str_replace('"', '\\"', $val_);
-                    //error_log($this->value );
-                    $this->name = sanitize_text_field($_POST['name']);
-                    $check=	$this->insert_message_db(2,$clientRefId);
-					if(isset($check)!=true){
-                        $response = array('success' => false, 'm' => 'DB Error 400-PP');
-                    }
+			$persiapay = new zarinPalEFB() ;
+			
+			if(gettype($persiapay)=="object"){
+				
+				$response = $persiapay->create_bill_zarinPal($jsonData);
+				/* print_r($jsonData);
+				print_r($response); */
+				if($response['success']==true){
+					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+						$this->get_ip_address();
+						$this->value = str_replace('"', '\\"', $val_);
+						//error_log($this->value );
+						$this->name = sanitize_text_field($_POST['name']);
+						$check=	$this->insert_message_db(2,$clientRefId);
+						if(isset($check)!=true){
+							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
+						}
+				}else{
+					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');		
+				}
 			}
 			/* 		//payping
 			$data = array(
@@ -2114,9 +2047,6 @@ class _Public {
 			//add pos function 
 			$pos =['','','',''];
 			if($item['type']!='option' && $item['type']!='step' && $item['type']!='link'  && $item['type']!='html'){
-				error_log($item['type']);
-				error_log($item['size']);
-				error_log($item['label_position']);
 				switch ($item['size']) {
 					case 100:
 					case '100':
@@ -2136,9 +2066,6 @@ class _Public {
 					  break;
 				  }
 				  if ($item['label_position'] == "up") {$pos[2] = 'col-md-12';$pos[3] = 'col-md-12';} else {$pos[0] = 'row px-0';}
-				error_log($pos[0]);
-				error_log($pos[1]);
-				error_log($pos[2]);
 				$desc = sprintf('<small id="%s-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb mx-4 %s  %s %s">%s </small>',$item['id_'] ,$item['message_align'],$item['message_text_color'],$item['message_text_size'],$item['message']);
 				
 				$required = $item['required']==true ? '*' : '';
@@ -2151,8 +2078,6 @@ class _Public {
 				return false;
 			}
 			
-			error_log($desc);
-			error_log($label);
 			$required = isset($item['required'])==true && $item['required']==true ? 'required' : '';
 			switch ($item['type']) {
 				case 'email':
@@ -2172,7 +2097,6 @@ class _Public {
 
 					$input = '<!--tags--><div class="efb %s col-sm-12 ttEfb show"  id="%s-f"><input type="%s" class="efb input-efb px-2  %s emsFormBuilder_v   %s  %s  %s  %s  %s efbField" data-id="%s-el" data-vid="%s" id="%s" placeholder="%s" %s>';					 
 					 $input = sprintf($input, $pos[3] ,$item['id_'] ,$item['type'], $classes, $item['classes'], $item['el_height'],$item['corner'], $item['el_text_color'],$required,$item['id_'],$item['id_'],$item['id_'],$item['placeholder'],$item['value']);
-					 error_log($input);
 					 $ui = " {$label} {$input} {$desc}</div></div>";
 					$dataTag = $item['type'];
 					break;
@@ -2184,7 +2108,7 @@ class _Public {
 						$dataTag = $item['type'];
 					break;
 				case 'maps';
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'file':					 
@@ -2194,40 +2118,38 @@ class _Public {
 						$dataTag = $item['type'];
 					break;
 				case "mobile":
-						# code...
+						
 						$input = sprintf('<div class="efb  %s col-sm-12 ttEfb show"  id="%s-f"> <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %s  %s %s %s %s %s efbField" data-id="%s-el" data-vid="%s" id="%s_" placeholder="%s" value = "%s" >',$pos[3], $item['id_'], $item['el_border_color'], $item['classes'], $item['el_height'], $item['corner'], 
 						$item['el_text_color'], $required, $item['id_'], $item['id_'], $item['id_'], $item['placeholder'], $item['value']);
 						$ui = " {$label} {$input} {$desc}</div></div>";  						 
 						$dataTag = $item['type'];
 					break;
 				case 'dadfile':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'checkbox':
 				case 'radio':
 				case 'payCheckbox':
 				case 'payRadio':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'switch':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'esign':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'rating':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case "step":
 						$step_no = $item['id_'];
 						$ui = $step_no == 1 ? '<fieldset data-step="step-'.$step_no.'-efb" class="efb my-2  steps-efb efb row ">': '<!-- fieldset!!! --> </fieldset><fieldset data-step="step-'.$step_no.'-efb"  class="efb my-2 steps-efb efb row d-none">';
-						# code...
-						error_log($ui);
 						// هدر 
 						//$first :  valj_efb[0]
 						//head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
@@ -2236,52 +2158,52 @@ class _Public {
 					break;
 				case 'select':
 				case 'paySelect':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'conturyList':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'stateProvince':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'multiselect':
 				case 'payMultiselect':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'html':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'yesNo':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'link':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'stripe':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case "persiaPay":
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'heading':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				case 'booking':
-						# code...
+						
 						$dataTag = $item['type'];
 					break;
 				default:
-					# code...
+					
 					break;
 			}
 			
@@ -2316,8 +2238,7 @@ class _Public {
 		
 		*/
 		//buttons
-		$step_no = intval($form_[0]["steps"]) +1;
-		error_log($step_no);
+		$step_no = intval($form_[0]["steps"]) +1;		
 		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
 		 $this->value .= '</fieldset>
 		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
