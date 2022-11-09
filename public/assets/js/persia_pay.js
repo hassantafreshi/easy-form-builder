@@ -113,7 +113,7 @@ console.log('val',val);
                   if(res.data.success==true){
                        console.log(res.data);
                       document.getElementById('beforePay').classList.add('d-none');
-                     // window.open(res.data.url ,'_self');
+                      window.open(res.data.url ,'_self');
                       /* localStorage.setItem('efbPersiaPayId',res.data.trackingCode);
                       console.log(res.data.trackingCode); */
                       PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>

@@ -259,15 +259,21 @@ function fun_emsFormBuilder_back() {
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-   <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
-   <p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
-  ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-  <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
+    <div class="efb  form-check">
+     <div>
+      <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
+      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
+      ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
+      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
+   </div>
+   <!-- <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB()"></div> -->
+   </div>
   <hr>
   <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   let s = false;
+  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
     if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
     s = false;
@@ -327,12 +333,22 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       m += value;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) m += `<p class="efb fs-6 my-0">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> </p> `
+    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
+       m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
+       console.log(c.type,c.type.includes('pay'))
+        if(c.type.includes('pay')&& c.id_!="payment") {
+
+          m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+        }
+        
+       
+       m+=`</p>`;
+      }
 
     if (c.type == "payment") {
       console.log(`c.type == "payment"`);
       if(c.paymentGateway == "stripe"){
-
+        
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
@@ -454,7 +470,7 @@ function fun_ws_show_list_messages(value) {
       let state = Number(v.read_);
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
-      rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}" >                    
+      rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
          <th scope="row" class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.track}</th>
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
@@ -1932,5 +1948,21 @@ function funNproEmailTemp() {
 }
 
 
+/* function generatePDF_EFB() {
+  const v= document.getElementById("resp_efb").innerHTML;
+  const htm = `<html style="font-family: 'Arial', sans-serif !important;">${v}</html> `
+  var doc = new jsPDF();  //create jsPDF object
+   doc.fromHTML(htm, // page element which you want to print as PDF
+   15,
+   15, 
+   {
+     'width': 170  //set width
+   },
+  // {lang: lan_name_emsFormBuilder},
+   function(a) 
+    {
+     doc.save("easy_form_builder.pdf"); // save file name as HTML2PDF.pdf
+   });
+ } */
 
 

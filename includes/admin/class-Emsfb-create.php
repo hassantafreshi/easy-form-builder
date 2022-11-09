@@ -273,8 +273,19 @@ class Create {
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		$this->value = $_POST['value'];
-		//error_log($this->value);
+		//$this->value = $_POST['value'];
+
+		/* error_log('post');
+		error_log($_POST['value']); */
+
+		$valp =str_replace('\\', '', $_POST['value']);
+		$valp = json_decode($valp,true);
+		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		$this->value=str_replace('"', '\\"', $valx);
+
+
+		error_log($this->value);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 
@@ -322,6 +333,9 @@ class Create {
         }
         return  $s;
     }//end fun
+
+
+
 
 }
 
