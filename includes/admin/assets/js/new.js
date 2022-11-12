@@ -156,7 +156,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   }
 
   if (fun_el_select_in_efb(tag)) {
-    op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="efb ${valj_efb[indxP].el_text_color} efb">${value}</option>`
+    op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="efb ${valj_efb[indxP].el_text_color} ${valj_efb[indxP].label_text_size} ${valj_efb[indxP].el_height}">${value}</option>`
   } else {
     op = `<div class="efb  form-check" id="${id_ob}-v">
     <input class="efb  form-check-input ${valj_efb[indxP].el_text_size}" type="${tagtype}" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
@@ -2106,6 +2106,12 @@ function generatePDF_EFB(id)
 
 }
 
+
+santize_string_efb=(str)=>{ 
+  console.log('in santize_string_efb');
+  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
+  return  str.replaceAll(regexp,'do not use HTML tags');
+}
 
 
 

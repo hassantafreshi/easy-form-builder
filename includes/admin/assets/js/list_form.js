@@ -196,6 +196,9 @@ function emsFormBuilder_show_content_message(id) {
 
 }
 
+
+
+
 // نمایش و عدم نمایش دکمه های صفحه اصلی
 function fun_backButton(state) {
   if (document.getElementById("more_emsFormBuilder").style.display == "block" && state == 1) {
@@ -1165,6 +1168,11 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
+
+    if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
+      console.log('santize_string_efb');
+      el.value = santize_string_efb(el.value);}
+      
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
@@ -1181,6 +1189,9 @@ function fun_set_setting_emsFormBuilder() {
   }
   const v = (id) => {
     const el = document.getElementById(id);
+    if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
+      console.log('santize_string_efb');
+      el.value = santize_string_efb(el.value);}
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
       if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
