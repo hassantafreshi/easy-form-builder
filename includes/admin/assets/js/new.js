@@ -2078,6 +2078,7 @@ function generatePDF_EFB(id)
   const fonts_name =[{loc:'am', font:'Noto Serif Ethiopic'},{loc:'ar', font:'Noto Sans Arabic'},{loc:'fa_IR', font:'Noto Sans Arabic'},{loc:'arq', font:'Alegreya Sans SC'},{loc:'az_TR', font:'Noto Sans'},{loc:'bn_BD', font:'Noto Sans Bengali'},{loc:'cs_CZ', font:'Signika'},{loc:'hat', font:'Tinos'},{loc:'he_IL', font:'Noto Sans Hebrew'},{loc:'hr', font:'Noto Sans'},{loc:'hy', font:'Noto Sans Armenian'},{loc:'id_ID', font:'Noto Sans'},{loc:'ja', font:'Noto Sans JP'},{loc:'ka_GE', font:'Noto Sans Georgian'},{loc:'km', font:'Noto Sans Khmer'},{loc:'ko_KR', font:'Noto Sans KR'},{loc:'lt_LT', font:'Noto Sans'},{loc:'ml_IN', font:'Noto Sans'},{loc:'ms_MY', font:'Noto Sans'},{loc:'ne_NP', font:'Noto Sans'},{loc:'ru_RU', font:'Noto Sans'},{loc:'sw', font:'Noto Sans'},{loc:'th', font:'Noto Sans Thai'},{loc:'ur', font:'Noto Nastaliq Urdu'},{loc:'uz_UZ', font:'Noto Sans'},{loc:'vi', font:'Noto Sans'},{loc:'zh_CN', font:'Noto Sans SC'},{loc:'zh_HK', font:'Noto Sans HK'},{loc:'zh_TW', font:'Noto Sans TC'}]
     
   const indx = fonts_name.findIndex(x=>x.loc==efb_var.language);
+  console.log(efb_var.language,indx);
   const fontname = indx!=-1 ? fonts_name[indx].font : 'Noto Sans';
   const fontStyle=`
         <link href="https://fonts.googleapis.com/css2?family=${fontname}" rel="stylesheet">
@@ -2093,18 +2094,23 @@ function generatePDF_EFB(id)
   let n_win=window.open('','Print-Window');
   const div=` <div style="text-align:center">
   <h2><a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
-  ${efb_var.pro!=0 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a></h2>`:''}
+  ${efb_var.pro!=1 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a></h2>`:''}
 </div>`
   val =`<html style="direction:${efb_var.rtl==0?'ltr':'rtl'}"><head>${fontStyle}</head>
-  <body onload='window.print()'>
+  <body onload='winprint()'>
+  <script>
+  function winprint(){setTimeout(()=>{window.print()},100);}
+  </script>
   ${div}
   ${divPrint.innerHTML}
   </body></html>`;
   
+
   n_win.document.open();
   n_win.document.write(val);
+  setTimeout(()=>{
   n_win.document.close();
-
+  },100);
   //setTimeout(()=>{n_win.close();},10); 
 
 }

@@ -391,7 +391,7 @@ createCardFormEfb = (i) => {
   }
   return `
   <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
+  ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   ${btn}
@@ -405,8 +405,8 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
- 
-  if (i.pro == true &&  efb_var.pro != true) {
+  console.log(i.pro,efb_var.pro)
+  if (i.pro == true &&  efb_var.pro != 1) {
     funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
@@ -420,7 +420,7 @@ createCardAddoneEfb = (i) => {
 
   return `
   <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
- 
+  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -507,7 +507,7 @@ function add_addons_emsFormBuilder() {
   for (let i of addons_efb) {
     if(i.state==true) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
-                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required}
+                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
     //AdnSPF
      if((efb_var.language!='fa_IR' && i.name!='AdnPPF') || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
