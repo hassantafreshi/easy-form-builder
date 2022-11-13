@@ -1032,7 +1032,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
     <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
   </div>
-  <!-- <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}"></div> -->
+  <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
   </div>
  <hr>
  <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;

@@ -34,9 +34,9 @@ div#attach_efb {
 }
 
 .rtl .efb.footer-test {
-    margin: 0 4px 0 0;
+    padding: 0 7px 0 0;
 }
 
 .efb.footer-test {
-    margin: 0 0 0 4px;
+    padding: 0 0 0 7px;
 }

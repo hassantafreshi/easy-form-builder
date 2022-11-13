@@ -93,10 +93,17 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
+        link += "https://whitestudio.team/document/offline-forms-addon/";
+        break;
       case 'AdnOF':
         //AdnOF == offline form
+        link = 'https://whitestudio.team/document/offline-forms-addon/';
+        //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
+        break;
       case 'AdnPPF':
         //AdnPPF == persia payment
+        link = 'https://whitestudio.team';
+        break;
       case 'AdnATC':
         // AdnATC == advance tracking code
       case 'AdnSS':
@@ -140,11 +147,16 @@ function Link_emsFormBuilder(state) {
         link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
       break;
       case 'AdnSPF':
+        link = 'https://easyformbuilder.ir/';
+        break;
         //AdnSPF == strip payment
       case 'AdnOF':
         //AdnOF == offline form
+        link = 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
       case 'AdnPPF':
         //AdnPPF == persia payment
+        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        break;
       case 'AdnATC':
         // AdnATC == advance tracking code
       case 'AdnSS':
@@ -262,10 +274,8 @@ function actionSendAddons_efb(val) {
         value: val,
         nonce: efb_var.nonce
       };
-
-      console.log(data)
-    $.post(ajaxurl, data, function (res) {
-      console.log("res",res);
+      
+    $.post(ajaxurl, data, function (res) {      
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
@@ -302,9 +312,7 @@ function actionSendAddonsUn_efb(val) {
         nonce: efb_var.nonce
       };
 
-      console.log(data)
     $.post(ajaxurl, data, function (res) {
-      console.log("res",res);
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
@@ -376,16 +384,14 @@ createCardFormEfb = (i) => {
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);
   let prw = `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger " onclick="fun_preview_before_efb('${i.id}' ,'local' ,${i.pro})"><i class="efb  bi-eye mx-1"></i>${efb_var.text.preview}</a>`;
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
-  console.log(efb_var.addons);
-  if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"
-  console.log('payment',i.tag,efb_var.addons.AdnSPF,efb_var.addons.AdnPPF)
+  if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"  
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
     const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
     btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
   }
   return `
   <div class="efb tag  col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
-  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
+  ${i.pro == true && efb_var.pro != 1 ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  <b>${efb_var.text.freefeatureNotiEmail}</b> </p></div>
   ${btn}
@@ -399,8 +405,8 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
- 
-  if (i.pro == true &&  efb_var.pro != true) {
+  console.log(i.pro,efb_var.pro)
+  if (i.pro == true &&  efb_var.pro != 1) {
     funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
@@ -414,7 +420,7 @@ createCardAddoneEfb = (i) => {
 
   return `
   <div class="efb tag mt-0 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
- 
+  ${i.pro == true && efb_var.pro != true ? funProEfb() : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
@@ -498,12 +504,12 @@ function add_dasboard_emsFormBuilder() {
 function add_addons_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
-  console.log('addons_efb',addons_efb);
   for (let i of addons_efb) {
     if(i.state==true) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
-                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required}
-      value += createCardAddoneEfb(v)
+                 'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
+    //AdnSPF
+     if((efb_var.language!='fa_IR' && i.name!='AdnPPF') || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
   }
   let cardtitles = `<!-- card titles -->`;
@@ -807,7 +813,6 @@ window.onload = (() => {
 
 
 switch_color_efb = (color) => {
-  console.log(`switch_color_efb[${color}]`);
   let c;
   switch (color) {
     case '#0d6efd': c = "primary"; break;
@@ -996,11 +1001,14 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
-  
+  //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
- 
+    if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
+      //console.log('santize_string_efb');
+      el.value = santize_string_efb(el.value);}
     switch (el.id) {
       case "labelEl":
+        
         valj_efb[indx].name = el.value;
         document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
         break;
@@ -1037,7 +1045,6 @@ let change_el_edit_Efb = (el) => {
         case "offLineEl":
           if(efb_var.addons.AdnOF!=0){
             valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
-            console.log(el.id,valj_efb[0]);
           }else{
             el.checked=false;
             noti_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
@@ -1279,7 +1286,6 @@ let change_el_edit_Efb = (el) => {
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
         clss = switch_color_efb(color);
-        console.log(color ,clss);
         if (clss.includes('colorDEfb')) { addStyleColorBodyEfb(clss, color, "btn", indx); }
         if (indx != 0) {
           if (el.dataset.tag != "yesNo") {
@@ -1310,7 +1316,7 @@ let change_el_edit_Efb = (el) => {
         color = el.value;
         c = switch_color_efb(color);
 
-        //console.log(color, c ,el.dataset,indx)
+        //console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
         }
@@ -1335,12 +1341,15 @@ let change_el_edit_Efb = (el) => {
           ((el.dataset.tag == "select" && el.dataset.el != "el")
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "payCheckbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "payRadio" && el.dataset.el != "el")
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
-            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox"
-              && el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList'))
+            || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
+                &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList'))
         ) {
+          //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
         } else if (el.dataset.tag == "form") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
@@ -1366,6 +1375,16 @@ let change_el_edit_Efb = (el) => {
           for (let obj of objOptions) {
             let optin = document.getElementById(`${obj.id_}_lab`);
             optin.className = colorTextChangerEfb(optin.className, "text-" + c)
+          }
+        } else if (el.dataset.tag == "payCheckbox" || el.dataset.tag == "payRadio") {
+          const objOptions = valj_efb.filter(obj => {
+            return obj.parent === valj_efb[indx].id_
+          })
+          for (let obj of objOptions) {
+            let optin = document.getElementById(`${obj.id_}_lab`);
+            let price = document.getElementById(`${obj.id_}-price`);
+            optin.className = colorTextChangerEfb(optin.className, "text-" + c);
+            price.className = colorTextChangerEfb(optin.className, "text-" + c);
           }
         } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
           const objOptions = valj_efb.filter(obj => {
@@ -1593,8 +1612,7 @@ let change_el_edit_Efb = (el) => {
           el.setAttribute('defaultValue', valj_efb[iindx].value);
         }
         break;
-      case 'paymentOption':
-        console.error('=========================>paymentOption');     
+      case 'paymentOption':   
         el.dataset.id;
         const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
 
@@ -1604,7 +1622,6 @@ let change_el_edit_Efb = (el) => {
           //console.log( valj_efb[ipndx])
           el.setAttribute('value', valj_efb[ipndx].price);
           el.setAttribute('defaultValue', valj_efb[ipndx].price);
-          console.log(`id[${valj_efb[ipndx].id_}-price] `);
           const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
           let no = Number(valj_efb[ipndx].price);
           no = no.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })        
@@ -2045,7 +2062,6 @@ let sampleElpush_efb = (rndm, elementId) => {
   //console.log(valj_efb);
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  console.log(`tayppee =>>>>>>>> ${tag}`);
   if (tag != undefined || (typeof tag=="string" && tag.includes("pay")==-1)) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
@@ -2460,6 +2476,7 @@ fun_efb_add_el = (t) => {
         case 'mobile':
           break;
         case 'persiaPay':
+        case 'stripe':
           funRefreshPricesEfb()
           break
       }
@@ -2499,7 +2516,6 @@ googleMapsNOkEfb =()=>{
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
-  console.log(el.id , activeEl_efb , el.id.includes(activeEl_efb));
  if (el.id != activeEl_efb ) {
  
     
@@ -2515,8 +2531,7 @@ function active_element_efb(el) {
    // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
     const ac = document.querySelector(`.field-selected-efb`);
     if (ac) {
-   // if (ac && state_view_efb==0) {
-      console.log('ac', document.getElementById('sideMenuFEfb').className , document.getElementById('sideMenuFEfb').classList.contains('efbDW-0'));
+   // if (ac && state_view_efb==0) {      
       // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
      ac.classList.remove('field-selected-efb')
     }
@@ -2550,7 +2565,6 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 /* move to pro_els.js */
 
 funBTNAddOnsEFB=(val,v_required)=>{
- console.log(val,v_required,efb_version);
 
  if(efb_version>=v_required){
    addons_btn_state_efb(val);
@@ -2562,16 +2576,11 @@ funBTNAddOnsEFB=(val,v_required)=>{
 }
 
 funBTNAddOnsUnEFB=(val)=>{
-  console.log('funBTNAddOnsUnEFB',val);
   emsFormBuilder_delete(val,'addon');
 }
 
 fun_confirm_remove_addon_emsFormBuilder=(val)=>{
-
-  console.log('fun_confirm_remove_addon_emsFormBuilder',val);
    actionSendAddonsUn_efb(val);
- 
- 
  }
 
 function emsFormBuilder_delete(id, type) {

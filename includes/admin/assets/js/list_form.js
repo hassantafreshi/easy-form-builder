@@ -140,7 +140,6 @@ function emsFormBuilder_show_content_message(id) {
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
   //valueJson_ws_messages[indx].content = ;
-  console.log('hereee!!!???');
   let content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
   
   //console.log(typeof content);
@@ -195,6 +194,9 @@ function emsFormBuilder_show_content_message(id) {
   });
 
 }
+
+
+
 
 // نمایش و عدم نمایش دکمه های صفحه اصلی
 function fun_backButton(state) {
@@ -266,7 +268,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
       <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
    </div>
-   <!-- <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB()"></div> -->
+   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
    </div>
   <hr>
   <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
@@ -335,7 +337,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
        m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
-       console.log(c.type,c.type.includes('pay'))
         if(c.type.includes('pay')&& c.id_!="payment") {
 
           m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
@@ -346,7 +347,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
 
     if (c.type == "payment") {
-      console.log(`c.type == "payment"`);
       if(c.paymentGateway == "stripe"){
         
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
@@ -357,7 +357,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
             ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
             </div>`
       }else {
-        console.log(c.paymentGateway);
         /* 
         'id_' =>"payment",
 										'name' => "peyment",
@@ -866,7 +865,7 @@ function fun_show_setting__emsFormBuilder() {
       return `
       <div ${visible}>
       <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
-      <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('wiki')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
+      <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('AdnPPF')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx- py-1 ${mxCSize4}">                                   
           <label class="efb form-label mx-2">توکن</label>
@@ -1168,6 +1167,11 @@ function fun_set_setting_emsFormBuilder() {
   fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
+
+    if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
+      //console.log('santize_string_efb');
+      el.value = santize_string_efb(el.value);}
+      
     let r = "NotFoundEl"
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
@@ -1184,6 +1188,9 @@ function fun_set_setting_emsFormBuilder() {
   }
   const v = (id) => {
     const el = document.getElementById(id);
+    if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
+      //console.log('santize_string_efb');
+      el.value = santize_string_efb(el.value);}
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
       if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
@@ -1475,7 +1482,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     for (c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
-      console.log(content);
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
         //console.log(c,content[c] ,content);
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
@@ -1948,21 +1954,6 @@ function funNproEmailTemp() {
 }
 
 
-/* function generatePDF_EFB() {
-  const v= document.getElementById("resp_efb").innerHTML;
-  const htm = `<html style="font-family: 'Arial', sans-serif !important;">${v}</html> `
-  var doc = new jsPDF();  //create jsPDF object
-   doc.fromHTML(htm, // page element which you want to print as PDF
-   15,
-   15, 
-   {
-     'width': 170  //set width
-   },
-  // {lang: lan_name_emsFormBuilder},
-   function(a) 
-    {
-     doc.save("easy_form_builder.pdf"); // save file name as HTML2PDF.pdf
-   });
- } */
+
 
 

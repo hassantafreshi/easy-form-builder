@@ -140,33 +140,33 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true);
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.4.0' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true);
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.4.0');
             wp_enqueue_style('Emsfb-style-css');
 
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true);
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.4.0');
             wp_enqueue_style('Emsfb-bootstrap');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true);
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.4.0');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true);
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.4.0');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
             wp_enqueue_style('Font_Roboto');
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.0');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), '', true);
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.4.0');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.4.0');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -353,20 +353,12 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        error_log('================>value');
-        error_log(get_bloginfo('version'));
-        error_log($value);
-        error_log($value!="AdnOF");
        if($value!="AdnOF"){
 
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
-            error_log($value);
-            error_log($server_name);
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-            error_log(`===============================json_decode(u)`);
-            error_log(json_decode($u));
             $request = wp_remote_get($u );
             
             if( is_wp_error( $request ) ) {
@@ -387,7 +379,6 @@ class Admin {
                 die();
             }
             if($data->download==true){
-                error_log($data->link);
                 $url =$data->link;
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
                 $this->fun_addon_new($url);
@@ -1017,10 +1008,6 @@ class Admin {
   
 
         public function fun_addon_new($url){
-
-    
-    
-            error_log($url);
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
             $r =download_url($url);
@@ -1031,7 +1018,7 @@ class Admin {
                 if(is_wp_error($r)){
                     error_log('error rename');
                 }else{
-                    error_log('success rename');
+                    //error_log('success rename');
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
                     WP_Filesystem();
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
@@ -1039,47 +1026,24 @@ class Admin {
                         error_log('error unzip');
                         error_log(json_encode($r));
                     }else{
-                        error_log('success unzip');
-                    }
-                 /* $zip = new ZipArchive;
-                    $res = $zip->open( ABSPATH .'wp-content/plugins/easy-form-builder/temp/temp.zip');
-                    if ($res === TRUE) {
-                    $zip->extractTo( ABSPATH . 'wp-content/plugins/easy-form-builder/temp');
-                    $zip->close();
-                    error_log('success unzip');
-                    } else {
-                    error_log('error unzip');
-                    } */
-                }
-                //$r
-                /* $s = unzip_file($r,WP_PLUGIN_DIR.'/easy-form-builder/images/');
-                if(is_wp_error($s)){
-                    //show error message
-                    error_log('error unzip');
-                    error_log(json_encode($s));
-                }else{
-                    error_log('success unzip');
-                    //$s
-                } */
+                        //error_log('success unzip');
+                    }    
+                }            
             }
-            error_log('fun_addon_new');
+            //error_log('fun_addon_new');
         }
        
     public function file_upload_public(){
-		/* error_log('file_upload_public');
-		//$text = ['error403',"errorMRobot","errorFilePer"];
-		 $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;       
-		$text= $efbFunction->text_efb($text_); 
-		error_log('file_upload_public!');
-        //error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
-		if (check_ajax_referer('admin-nonce','nonce')!=1){
+        error_log('file_upload_public');
+        error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
+		if (check_ajax_referer('public-nonce','nonce')!=1){
 			error_log('not valid nonce');
 			
 			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		} 
-        error_log('after nonce');*/
+        
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,
