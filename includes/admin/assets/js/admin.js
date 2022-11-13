@@ -1004,7 +1004,7 @@ let change_el_edit_Efb = (el) => {
   //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
-      console.log('santize_string_efb');
+      //console.log('santize_string_efb');
       el.value = santize_string_efb(el.value);}
     switch (el.id) {
       case "labelEl":
@@ -1316,7 +1316,7 @@ let change_el_edit_Efb = (el) => {
         color = el.value;
         c = switch_color_efb(color);
 
-        console.log(color, c ,el.dataset,el.dataset.tag)
+        //console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
         }
@@ -1349,7 +1349,7 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
                 &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList'))
         ) {
-          console.log('color');
+          //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
         } else if (el.dataset.tag == "form") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {

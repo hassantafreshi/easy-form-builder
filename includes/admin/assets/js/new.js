@@ -2111,7 +2111,7 @@ function generatePDF_EFB(id)
 
 
 santize_string_efb=(str)=>{ 
-  console.log('in santize_string_efb');
+  //console.log('in santize_string_efb');
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return  str.replaceAll(regexp,'do not use HTML tags');
 }

@@ -140,7 +140,6 @@ function emsFormBuilder_show_content_message(id) {
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
   //valueJson_ws_messages[indx].content = ;
-  console.log('hereee!!!???');
   let content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
   
   //console.log(typeof content);
@@ -1170,7 +1169,7 @@ function fun_set_setting_emsFormBuilder() {
     const el = document.getElementById(id)
 
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
-      console.log('santize_string_efb');
+      //console.log('santize_string_efb');
       el.value = santize_string_efb(el.value);}
       
     let r = "NotFoundEl"
@@ -1190,7 +1189,7 @@ function fun_set_setting_emsFormBuilder() {
   const v = (id) => {
     const el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
-      console.log('santize_string_efb');
+      //console.log('santize_string_efb');
       el.value = santize_string_efb(el.value);}
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
