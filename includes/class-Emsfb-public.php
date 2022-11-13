@@ -1549,8 +1549,8 @@ class _Public {
 				   'From:'.$from.'',
 				);
 			$to =get_option('admin_email');
-			$message="this message from Easy form builder, This IP:".$this->ip. 
-			" try to enter invalid value like fee of the service of form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
+			$message="This message from Easy form builder, This IP:".$this->ip. 
+			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f*100;
@@ -1784,8 +1784,8 @@ class _Public {
 				   'From:'.$from.'',
 				);
 			$to =get_option('admin_email');
-			$message="this message from Easy form builder, This IP:".$this->ip. 
-			" try to enter invalid value like fee of the service of form at :".date("Y-m-d-h:i:s",$t) ;
+			$message="This message from Easy form builder, This IP:".$this->ip. 
+			" try to enter invalid value like fee of the service of a form at :".date("Y-m-d-h:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
 		$price_f = $price_f;
@@ -1828,8 +1828,8 @@ class _Public {
 			"metadata" => [ "email" =>  $email],
 			);
 			$jsonData = json_encode($data);
-
-			if($price_f<5000){
+			//error_log($price_f);
+			if($price_f<4999){
 				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');		
 				wp_send_json_success($response, $_POST);
 				die();
@@ -1902,7 +1902,7 @@ class _Public {
 			
 			if(gettype($persiapay)=="object"){
 				
-				$response = $persiapay->create_bill_zarinPal($jsonData);
+				$response = $persiapay->create_bill_zarinPal($jsonData,$clientRefId);
 				/* print_r($jsonData);
 				print_r($response); */
 				if($response['success']==true){

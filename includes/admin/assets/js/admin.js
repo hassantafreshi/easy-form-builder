@@ -152,6 +152,7 @@ function Link_emsFormBuilder(state) {
         //AdnSPF == strip payment
       case 'AdnOF':
         //AdnOF == offline form
+        link = 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
       case 'AdnPPF':
         //AdnPPF == persia payment
         link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
@@ -507,7 +508,8 @@ function add_addons_emsFormBuilder() {
     if(i.state==true) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
                  'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required}
-      value += createCardAddoneEfb(v)
+    //AdnSPF
+     if((efb_var.language!='fa_IR' && i.name!='AdnPPF') || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
   }
   let cardtitles = `<!-- card titles -->`;
@@ -999,7 +1001,7 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
-    console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
+  //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       console.log('santize_string_efb');
@@ -2474,6 +2476,7 @@ fun_efb_add_el = (t) => {
         case 'mobile':
           break;
         case 'persiaPay':
+        case 'stripe':
           funRefreshPricesEfb()
           break
       }

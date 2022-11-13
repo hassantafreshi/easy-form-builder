@@ -126,6 +126,8 @@ How *Easy Form Builder* makes your life easier:
 
 - Submitting an Offline Forms
 
+- Download individual filled-out form (messages)
+
 
 
 
@@ -337,6 +339,13 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 3.4.0=
+ * Download individual form responses on pdf file by Easy Form Builder
+ * Added Addons options like payment forms, and offline forms in Easy Form Builder
+ * Improved payment forms options in Easy Form Builder
+ * Localization payment forms for Persia gateway bank system in Easy Form Builder
+ * Improved security of forms of Easy Form Builder
+ * Improved security of file upload forms of Easy Form Builder
 
 = 3.3.8 =
  * Improve UX of Easy Form Builder
