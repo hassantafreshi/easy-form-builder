@@ -1571,8 +1571,9 @@ function previewFormEfb(state) {
   // if (state != "show") myModal.show_efb();
   step_el_efb = valj_efb[0].steps;
   //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
- 
-  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='boolean' &&  valj_efb[0].AfLnFrm==true) ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() }
+  console.log(addons_emsFormBuilder,
+    valj_efb[0])
+  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() }
   //}, timeout) //nlogn
 }//end function v2
 
@@ -1856,7 +1857,7 @@ fun_offline_Efb = () => {
         break;
     }
   }
-  const vvv= getUrlparams_efb.get('Authority');
+ // const vvv= getUrlparams_efb.get('Authority');
   if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){
     fun_after_bankpay_persia_ui();
   }
@@ -2080,8 +2081,7 @@ function fun_upload_file_emsFormBuilder(id, type) {
 function generatePDF_EFB(id) 
 {
   const fonts_name =[{loc:'am', font:'Noto Serif Ethiopic'},{loc:'ar', font:'Noto Sans Arabic'},{loc:'fa_IR', font:'Noto Sans Arabic'},{loc:'arq', font:'Alegreya Sans SC'},{loc:'az_TR', font:'Noto Sans'},{loc:'bn_BD', font:'Noto Sans Bengali'},{loc:'cs_CZ', font:'Signika'},{loc:'hat', font:'Tinos'},{loc:'he_IL', font:'Noto Sans Hebrew'},{loc:'hr', font:'Noto Sans'},{loc:'hy', font:'Noto Sans Armenian'},{loc:'id_ID', font:'Noto Sans'},{loc:'ja', font:'Noto Sans JP'},{loc:'ka_GE', font:'Noto Sans Georgian'},{loc:'km', font:'Noto Sans Khmer'},{loc:'ko_KR', font:'Noto Sans KR'},{loc:'lt_LT', font:'Noto Sans'},{loc:'ml_IN', font:'Noto Sans'},{loc:'ms_MY', font:'Noto Sans'},{loc:'ne_NP', font:'Noto Sans'},{loc:'ru_RU', font:'Noto Sans'},{loc:'sw', font:'Noto Sans'},{loc:'th', font:'Noto Sans Thai'},{loc:'ur', font:'Noto Nastaliq Urdu'},{loc:'uz_UZ', font:'Noto Sans'},{loc:'vi', font:'Noto Sans'},{loc:'zh_CN', font:'Noto Sans SC'},{loc:'zh_HK', font:'Noto Sans HK'},{loc:'zh_TW', font:'Noto Sans TC'}]
-    
-  const indx = fonts_name.findIndex(x=>x.loc==efb_var.language);
+  const indx = fonts_name.findIndex(x=>x.loc==efb_var.wp_lan);
   console.log(efb_var.language,indx);
   const fontname = indx!=-1 ? fonts_name[indx].font : 'Noto Sans';
   const fontStyle=`

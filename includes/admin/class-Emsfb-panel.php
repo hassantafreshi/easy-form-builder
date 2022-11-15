@@ -94,7 +94,8 @@ class Panel_edit  {
 				'maps'=> $maps,
 				'bootstrap' =>$this->check_temp_is_bootstrap(),
 				"language"=> get_locale(),
-				"addons"=>$addons
+				"addons"=>$addons,
+				'wp_lan'=>get_locale()
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.4.1');

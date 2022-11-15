@@ -234,7 +234,8 @@ class Addon {
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale(),
-			"addson"=>$addons
+			"addson"=>$addons,
+			'wp_lan'=>get_locale()
 			
 		));
 

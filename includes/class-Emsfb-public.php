@@ -227,7 +227,8 @@ class _Public {
 				'poster'=> $poster,
 				'rtl' => is_rtl(),
 				'text' =>$text ,
-				'pro'=>$this->pro_efb
+				'pro'=>$this->pro_efb,
+				'wp_lan'=>get_locale()
 				);
 
 			if($typeOfForm=="payment"){
@@ -331,7 +332,8 @@ class _Public {
 			   'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
 			   'rtl' => is_rtl(),
 			   'text' =>$text,
-			   'pro'=>$this->pro_efb
+			   'pro'=>$this->pro_efb,
+			   'wp_lan'=>get_locale()
 		 ));  
 
 	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";	

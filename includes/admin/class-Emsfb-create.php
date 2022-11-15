@@ -215,7 +215,8 @@ class Create {
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale(),
-			"addons"=>$addons
+			"addons"=>$addons,
+			'wp_lan'=>get_locale()
 			
 		));
 
