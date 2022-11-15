@@ -86,8 +86,9 @@ function pro_show_efb(state) {
   console.log(message);
   console.log(body); */
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show()
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb()
+  state_modal_show_efb(1)
 }
 function move_show_efb() {
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb "></i></div>
@@ -95,8 +96,9 @@ function move_show_efb() {
    <img src="${efb_var.images.movebtn}" class="efb  img-fluid" alt="">
   </div>`
   show_modal_efb(body, '','bi-arrows-move', 'saveBox')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show()
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb()
+  state_modal_show_efb(1)
 }
 
 
@@ -115,9 +117,9 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     if (!document.getElementById('modalConfirmBtnEfb')) document.getElementById('settingModalEfb-sections').innerHTML += `
     <div class="efb  modal-footer" id="modal-footer-efb">
-      <button type="button" class="efb  btn btn-danger" data-bs-dismiss="modal" id="modalConfirmBtnEfb">
+      <a type="button" class="efb  btn btn-danger" data-bs-dismiss="modal"  id="modalConfirmBtnEfb">
           ${efb_var.text.yes}
-      </button> 
+      </a> 
     </div>`
     //settingModalEfb-sections
   } else if (type == "saveBox") {
@@ -1351,15 +1353,17 @@ function previewFormEfb(state) {
   if (state != "show" && state != "run") {
     if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
       show_modal_efb(`<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.formNotFound}</p></div>`, efb_var.text.previewForm, '', 'saveBox');
-      const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-      myModal.show();
+      //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+      //myModal.show_efb();
+      state_modal_show_efb(1)
       return;
     }
     if (state == "pc") {
       show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
 
-      const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-      myModal.show();
+      //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+      //myModal.show_efb();
+      state_modal_show_efb(1)
     }
   }
 
@@ -1564,7 +1568,7 @@ function previewFormEfb(state) {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
   }
-  // if (state != "show") myModal.show();
+  // if (state != "show") myModal.show_efb();
   step_el_efb = valj_efb[0].steps;
   //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
  

@@ -178,9 +178,9 @@ function emsFormBuilder_show_content_message(id) {
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
   setTimeout(() => { reply_attach_efb(msg_id)}, 10);
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show();
-
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb();
+  state_modal_show_efb(1)
   // fun_add_event_CloseMenu();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -571,8 +571,9 @@ function emsFormBuilder_messages(id) {
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
   show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show();
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb();
+  state_modal_show_efb(1)
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0) {
@@ -1217,8 +1218,9 @@ function fun_set_setting_emsFormBuilder() {
         if (st == 0) {
           ti = efb_var.text.error
           show_modal_efb(c, ti, '', 'saveBox');
-          const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-          myModal.show();
+          //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+          //myModal.show_efb();
+          state_modal_show_efb(1)
           return false;
         }
       } else if (id == "activeCode_emsFormBuilder") {
@@ -1702,8 +1704,9 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   // window.scrollTo({ top: 0, behavior: 'smooth' });
 
   show_modal_efb(body, efb_var.text.chart, "bi-pie-chart-fill", 'chart')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show()
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb()
+  state_modal_show_efb(1)
   /* Add div of charts */
   setTimeout(() => {
 
@@ -1863,8 +1866,9 @@ function email_template_efb(s) {
       ti = efb_var.text.preview;
     }
     show_modal_efb(c, ti, '', 'saveBox');
-    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-    myModal.show();
+    //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    //myModal.show_efb();
+    state_modal_show_efb(1)
   } else if (s == "h") {
     //show help
     //open link to document how create a email template
