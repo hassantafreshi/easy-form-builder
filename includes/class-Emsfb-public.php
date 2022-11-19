@@ -464,7 +464,7 @@ class _Public {
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		$this->id = sanitize_text_field($_POST['payid']);
+		$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
 		
@@ -2020,8 +2020,8 @@ class _Public {
 	public function fun_convert_form_structer($form_structure){
 		$form_ = str_replace('\\', '', $form_structure);;
 		$form_ = json_decode($form_, true);
-		$str = '<!--efb-->';
-		$this->name ='<!--efb head-->';
+		$str = '<!--efb.app-->';
+		$this->name ='<!--efb.app head-->';
 		//	$str = sprintf('<div class="efb-form-container">%s</div>',$form_[0]['type']);
 		$first = $form_[1];
 		array_filter($form_, function($item) use($first) { 
@@ -2043,9 +2043,9 @@ class _Public {
 				return false;
 			} */
 			$dataTag = '';
-			$desc ='<!--efb-->';
-			$label ='<!--efb-->';
-			$ui ='<!--efb-->';
+			$desc ='<!--efb.app-->';
+			$label ='<!--efb.app-->';
+			$ui ='<!--efb.app-->';
 			//add pos function 
 			$pos =['','','',''];
 			if($item['type']!='option' && $item['type']!='step' && $item['type']!='link'  && $item['type']!='html'){

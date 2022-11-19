@@ -49,3 +49,7 @@ div#attach_efb {
     position: relative;
     z-index: 10;
 }
+
+.efb.checklist {
+    min-width: 20%;
+}

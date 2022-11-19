@@ -428,7 +428,13 @@ function createStepsOfPublic() {
         const id_ = el.dataset.id
         const ob = valueJson_ws.find(x => x.id_ === id_);
         if (el.type == "text" || el.type == 'password' || el.type == "color" || el.type == "number" || el.type == "date" || el.type == "url" || el.type == "range" || el.type == "textarea") { value = el.value; }
-        else if (el.type == "radio" || el.type == "checkbox") { value = el.value; ob.name = document.getElementById(ob.parents).innerText }//ob.name = document.getElementById(ob.parents). 
+        else if (el.type == "radio" || el.type == "checkbox") { 
+          value = el.value; ob.name = document.getElementById(ob.parents).innerText ;
+         /*  console.log(el.dataset);
+          if(el.dataset.tag.includes("chl")){
+            console.log(el.dataset);
+          } */
+        }//ob.name = document.getElementById(ob.parents). 
         else if (el.type == "select-one") {
           value = el.value;
         } else if (el.type == "select-multiple") {

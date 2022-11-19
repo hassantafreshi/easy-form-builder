@@ -277,10 +277,12 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let s = false;
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
-    if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
+    if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
+    if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
     //console.log(c);
     let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
+    if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -1485,9 +1487,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
-        //console.log(c,content[c] ,content);
+        console.log(c,content[c] ,content[c].type == 'chlCheckBox');
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
-          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 
+          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect'
           ) {
   
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1501,6 +1503,14 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[0][parseInt(value_col_index)] = content[c].name;
             if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
           }
+
+          if(content[c].type == 'chlCheckBox'){
+            const r= parseInt(value_col_index)+1
+            rows[0][r] = 'qty';
+            rows[parseInt(i_count)][r] =content[c].qty;            
+          } 
+
+
   
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
           if (content[c].type == 'payment') {
@@ -1541,7 +1551,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', "");;
           }
           //content[c].value.replaceAll('@efb!' , " || ") ;
-        }  else {
+        } else {
           //console.log('checkbox',c)
           // if checkbox
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1590,7 +1600,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 //end
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
-  //console.log(items);
+  console.log(items);
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
@@ -1619,6 +1629,7 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 function convertToCSV_emsFormBuilder(objArray) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
+  console.log(objArray);
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
 
@@ -1639,6 +1650,7 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D

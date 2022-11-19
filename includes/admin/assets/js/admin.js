@@ -93,11 +93,11 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
-        link += "https://whitestudio.team/document/offline-forms-addon/";
+        link += "s/offline-forms-addon/";
         break;
       case 'AdnOF':
         //AdnOF == offline form
-        link = 'https://whitestudio.team/document/offline-forms-addon/';
+        link = 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
         //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
         break;
       case 'AdnPPF':
@@ -153,9 +153,11 @@ function Link_emsFormBuilder(state) {
       case 'AdnOF':
         //AdnOF == offline form
         link = 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
+        break;
       case 'AdnPPF':
         //AdnPPF == persia payment
         link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        break;
         break;
       case 'AdnATC':
         // AdnATC == advance tracking code
@@ -1643,6 +1645,14 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}_options`).dataset.min = vmsn
 
         break;
+        case "qtyPlcEl":
+          valj_efb[indx].pholder_chl_value = el.value;
+          console.log('qtyPlcEl',el.value, valj_efb[indx].pholder_chl_value,valj_efb[indx].id_)
+          for (let v of document.querySelectorAll(`[data-id='${valj_efb[indx].id_}']`)){
+            console.log(v);
+            v.placeholder = el.value;
+          }
+        break;
     }
 
   }, len_Valj * 10)
@@ -1968,6 +1978,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
+
     if (elementId == "stripe") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' });
       valj_efb[0].type = 'payment';
@@ -1998,6 +2009,11 @@ let sampleElpush_efb = (rndm, elementId) => {
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         maxSelect: 2,
         minSelect: 0
+      })
+    }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
+      //console.log(valj_efb.length)
+      Object.assign(valj_efb[(valj_efb.length) - 1], {
+        pholder_chl_value: efb_var.text.qty
       })
     }
 
@@ -2085,6 +2101,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  console.log(parentsID, idin, value, id_ob, tag)
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
@@ -2610,7 +2627,7 @@ funRefreshPricesEfb=()=>{
    }  
 }
 state_modal_show_efb=(i)=>{
-  console.log('state_modal_show_efb');
+  //console.log('state_modal_show_efb');
   const el = document.getElementById('settingModalEfb');
   function Respond(e) {if(e.target == el) state_modal_show_efb(0)}
    show =()=>{
