@@ -26,6 +26,8 @@ How *Easy Form Builder* makes your life easier:
 
 **General features of Easy Form Builder**
 
+- +30 field types for building forms
+
 - Simple drag and drop functionality
 
 - Build Multi step forms
@@ -61,6 +63,7 @@ How *Easy Form Builder* makes your life easier:
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
 - Easy form builder able you to build forms with smartphones, tablets, or other devices
+
 
 
 
@@ -564,6 +567,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
       YER (Yemen Rial)
       ZAR (South Africa Rand)
       ZMW (Zambian kwacha)
+      IRR (ریال ایران)
 = 2.3.22 =
 * Fixed issues
 
