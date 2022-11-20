@@ -339,6 +339,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 3.4.1=
+ * Improve UX of Easy Form Builder
+ * Fixed a bugs of offline forms addons
+
 = 3.4.0=
  * Download individual form responses on pdf file by Easy Form Builder
  * Added Addons options like payment forms, and offline forms in Easy Form Builder

@@ -1124,7 +1124,7 @@ class _Public {
 	  public function fun_footer(){
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.4.1');
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.4.0')</script>";
+		return "<script>console.log('Easy Form Builder v3.4.1')</script>";
 	  }//end function
 
 

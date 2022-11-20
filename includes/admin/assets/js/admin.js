@@ -212,7 +212,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.4.0> WhiteStudio.team');
+console.info('Easy Form Builder 3.4.1> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1647,9 +1647,9 @@ let change_el_edit_Efb = (el) => {
         break;
         case "qtyPlcEl":
           valj_efb[indx].pholder_chl_value = el.value;
-          console.log('qtyPlcEl',el.value, valj_efb[indx].pholder_chl_value,valj_efb[indx].id_)
+          //console.log('qtyPlcEl',el.value, valj_efb[indx].pholder_chl_value,valj_efb[indx].id_)
           for (let v of document.querySelectorAll(`[data-id='${valj_efb[indx].id_}']`)){
-            console.log(v);
+            //console.log(v);
             v.placeholder = el.value;
           }
         break;
@@ -2101,7 +2101,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  console.log(parentsID, idin, value, id_ob, tag)
+  //console.log(parentsID, idin, value, id_ob, tag)
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
@@ -2253,7 +2253,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset) {
-  console.log(idset);
+  //console.log(idset);
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
