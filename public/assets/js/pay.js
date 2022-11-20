@@ -27,13 +27,13 @@ function fun_total_pay_efb() {
     console.log('fun_disabled_all_pay_efb');
     if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
     for (let o of valj_efb) {
-      console.log(o.type.includes('pay'),o);
+      //console.log(o.type.includes('pay'),o);
       if (o.hasOwnProperty('price')==true || o.type.includes('pay')>0 && o.type.includes('payment')==false) {
-        console.log(o.hasOwnProperty('parent'));
+        //console.log(o.hasOwnProperty('parent'));
         if (o.hasOwnProperty('parent')) {
           const p = valj_efb.findIndex(x => x.id_ == o.parent);
           type = valj_efb[p].type;
-          console.log(o.parent,p,type);
+          //console.log(o.parent,p,type);
           let ov = document.querySelector(`[data-vid="${o.parent}"]`);
           ov.classList.remove('payefb');
           ov.classList.add('disabled');
@@ -43,10 +43,10 @@ function fun_total_pay_efb() {
             const ob = valj_efb.filter(obj => {
               return obj.parent === o.parent
             })
-            console.log(ob);
+            //console.log(ob);
             for (let o of ob) {
               ov = document.getElementById(o.id_);
-              console.log(ov);
+              //console.log(ov);
               ov.classList.add('disabled');
               ov.classList.remove('payefb');
               ov.disabled = true;
@@ -54,10 +54,10 @@ function fun_total_pay_efb() {
   
           }//end if multiselect 
         }else{
-          console.log(o.id_ , o,document.getElementById('xmnguttql_o'))
-          console.log("test",document.getElementById('efbform'))
+          /* console.log(o.id_ , o,document.getElementById('xmnguttql_o'))
+          console.log("test",document.getElementById('efbform')) */
           let ov = document.querySelector(`[data-vid="${o.id_}"]`);
-          console.log(ov)
+          //console.log(ov)
           ov.classList.add('disabled');        
           ov.disabled = true;
           ov.classList.remove('payefb');

@@ -1,5 +1,5 @@
-//multi step form wizard builder (core)
-//Create by: Hassan Tafreshi
+// Multi step form wizard builder (core)
+// Created by: Hassan Tafreshi
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
 
@@ -93,11 +93,11 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
-        link += "https://whitestudio.team/document/offline-forms-addon/";
+        link += "s/offline-forms-addon/";
         break;
       case 'AdnOF':
         //AdnOF == offline form
-        link = 'https://whitestudio.team/document/offline-forms-addon/';
+        link = 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
         //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
         break;
       case 'AdnPPF':
@@ -153,9 +153,11 @@ function Link_emsFormBuilder(state) {
       case 'AdnOF':
         //AdnOF == offline form
         link = 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
+        break;
       case 'AdnPPF':
         //AdnPPF == persia payment
         link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        break;
         break;
       case 'AdnATC':
         // AdnATC == advance tracking code
@@ -210,7 +212,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.4.0> WhiteStudio.team');
+console.info('Easy Form Builder 3.4.1> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -405,7 +407,6 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  console.log(i.pro,efb_var.pro)
   if (i.pro == true &&  efb_var.pro != 1) {
     funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
@@ -792,9 +793,10 @@ function head_introduce_efb(state) {
 fun_preview_before_efb = (i, s, pro) => {
 
   valj_efb = [];
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   show_modal_efb("", efb_var.text.preview, "bi-check2-circle", "saveLoadingBox")
-  myModal.show();
+  //myModal.show_efb();
+  state_modal_show_efb(1);
   if (s == "local") {
     create_form_by_type_emsfb(i, 'pre')
   }
@@ -937,33 +939,11 @@ const funSetCornerElEfb = (dataId, co) => {
 
 
 
-jQuery(function (jQuery) {
+/* jQuery(function (jQuery) {
   jQuery("#settingModalEfb").on('hidden.bs.modal', function () {
-    jQuery('#regTitle').empty().append(loadingShow_efb());
-    // document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb();
-    if (jQuery('#settingModalEfb_').hasClass('save-efb')) {
-      jQuery('#settingModalEfb_').removeClass('save-efb')
-
-
-    }
-    if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
-      //document.getElementById('dropZoneEFB').innerHTML = editFormEfb()
-      jQuery('#dropZoneEFB').empty().append(editFormEfb());
-      jQuery('#settingModalEfb_').removeClass('pre-efb');
-
-      //fub_shwBtns_efb()
-    } else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')) {
-      jQuery('#settingModalEfb_').removeClass('pre-form-efb');
-    }
-    if (jQuery('#modal-footer-efb')) {
-      jQuery('#modal-footer-efb').remove()
-    }
-
-    var val = loading_messge_efb();
-    if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
-
+    
   });
-});
+}); */
 
 
 
@@ -1342,12 +1322,13 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
             || (el.dataset.tag == "payCheckbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "chlCheckBox" && el.dataset.el != "el")
             || (el.dataset.tag == "payRadio" && el.dataset.el != "el")
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
-                &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList'))
+                &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' && el.dataset.tag != 'chlCheckBox'))
         ) {
           //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
@@ -1368,7 +1349,7 @@ let change_el_edit_Efb = (el) => {
 
           }
           //button_group_button_single_text
-        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
+        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio" || el.dataset.tag == "chlCheckBox") {
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
           })
@@ -1664,6 +1645,14 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}_options`).dataset.min = vmsn
 
         break;
+        case "qtyPlcEl":
+          valj_efb[indx].pholder_chl_value = el.value;
+          //console.log('qtyPlcEl',el.value, valj_efb[indx].pholder_chl_value,valj_efb[indx].id_)
+          for (let v of document.querySelectorAll(`[data-id='${valj_efb[indx].id_}']`)){
+            //console.log(v);
+            v.placeholder = el.value;
+          }
+        break;
     }
 
   }, len_Valj * 10)
@@ -1675,10 +1664,11 @@ function wating_sort_complate_efb(t) {
   const body = loading_messge_efb()
   show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
-  const myModal = new bootstrap.Modal(el, {});
-  myModal.backdrop = 'static';
-  myModal.show()
-  setTimeout(() => { myModal.hide() }, t)
+  //const myModal = new bootstrap.Modal(el, {});
+  //myModal.backdrop = 'static';
+ // myModal.show_efb()
+  state_modal_show_efb(1);
+  setTimeout(() => { state_modal_show_efb(0) }, t)
 }
 
 function create_form_efb() {
@@ -1769,7 +1759,7 @@ const saveFormEfb = () => {
 
     //console.log(`save[${valj_efb.length}]`);
     //settingModalEfb-body
-    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
     //console.log(valj_efb[0].type=="payment" &&  gateway==-1)
     let timeout = 1000;
@@ -1872,7 +1862,8 @@ const saveFormEfb = () => {
 
 
 
-      myModal.show();
+      //myModal.show_efb();
+      state_modal_show_efb(1);
     } catch (error) {
       //console.log(error);
       btnIcon = 'bi-bug'
@@ -1884,8 +1875,9 @@ const saveFormEfb = () => {
       <i class="efb  bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
     </div>
     `
-      show_modal_efb(body, efb_var.text.error, btnIcon, 'error')
-      myModal.show();
+      show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
+      state_modal_show_efb(1)
+      //myModal.show_efb();
     }
   }, 100)
 }//end function
@@ -1986,6 +1978,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
+
     if (elementId == "stripe") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' });
       valj_efb[0].type = 'payment';
@@ -2016,6 +2009,11 @@ let sampleElpush_efb = (rndm, elementId) => {
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         maxSelect: 2,
         minSelect: 0
+      })
+    }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
+      //console.log(valj_efb.length)
+      Object.assign(valj_efb[(valj_efb.length) - 1], {
+        pholder_chl_value: efb_var.text.qty
       })
     }
 
@@ -2103,6 +2101,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  //console.log(parentsID, idin, value, id_ob, tag)
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
@@ -2254,29 +2253,31 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset) {
+  //console.log(idset);
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
   if (is_step == false) {
-    myModal.show();
+   //myModal.show_efb();
+   state_modal_show_efb(1);
     confirmBtn.dataset.id = document.querySelector(`[data-id="${idset}"]`).id;
     confirmBtn.addEventListener("click", (e) => {
       //console.log(idset ,confirmBtn.dataset.id )
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
       activeEl_efb = 0;
-      myModal.hide()
+      state_modal_show_efb(0)
     })
-    //myModal.show();
+    //myModal.show_efb();
   } else if (is_step) {
     const el = document.getElementById(idset);
     if (el.dataset.id != 1) {
       // اگر استپ اول نباشد باید حذف شود و ردیف های بعد از شماره شان عوض شود به آخرین
-
-      myModal.show();
+      state_modal_show_efb(1)
+     // myModal.show_efb();
       confirmBtn.dataset.id = idset;
 
       confirmBtn.addEventListener("click", () => {
@@ -2289,7 +2290,7 @@ function show_delete_window_efb(idset) {
         valj_efb[0].steps = valj_efb[0].steps - 1
         obj_delete_row(idset, true)
         document.getElementById(confirmBtn.dataset.id).remove();
-        myModal.hide()
+        state_modal_show_efb(0)
 
       })
 
@@ -2587,10 +2588,11 @@ function emsFormBuilder_delete(id, type) {
   //v2
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
 
-  myModal.show();
+  //myModal.show_efb();
+  state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
     if(type=='form'){
     fun_confirm_remove_emsFormBuilder(Number(id))
@@ -2601,9 +2603,9 @@ function emsFormBuilder_delete(id, type) {
       fun_confirm_remove_addon_emsFormBuilder(id);
     }
     activeEl_efb = 0;
-    myModal.hide()
+    state_modal_show_efb(0)
   })
-  //myModal.show();
+  //myModal.show_efb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2623,6 +2625,57 @@ funRefreshPricesEfb=()=>{
   for (const l of document.querySelectorAll(".efb-crrncy")) {
     l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
    }  
+}
+state_modal_show_efb=(i)=>{
+  //console.log('state_modal_show_efb');
+  const el = document.getElementById('settingModalEfb');
+  function Respond(e) {if(e.target == el) state_modal_show_efb(0)}
+   show =()=>{
+   document.body.classList.add("modal-open")
+   el.classList.add('show'); 
+   el.style.cssText='display: block; padding-right: 0.400024px;';
+   el.setAttribute("aria-hidden",!0);
+   setTimeout(() => {
+    document.body.addEventListener("click",Respond);
+   }, 10);
+   
+  }
+   remove =()=>{
+   document.body.classList.remove("modal-open");
+   el.classList.remove('show');
+   el.style.cssText='';
+   el.removeAttribute("aria-hidden");
+   jQuery('#regTitle').empty().append(loadingShow_efb());
+    // document.getElementById(`settingModalEfb`).innerHTML=loadingShow_efb();
+    if (jQuery('#settingModalEfb_').hasClass('save-efb')) {
+      jQuery('#settingModalEfb_').removeClass('save-efb')
+
+
+    }
+    if (jQuery('#settingModalEfb_').hasClass('pre-efb')) {
+      //document.getElementById('dropZoneEFB').innerHTML = editFormEfb()
+      jQuery('#dropZoneEFB').empty().append(editFormEfb());
+      jQuery('#settingModalEfb_').removeClass('pre-efb');
+
+      //fub_shwBtns_efb()
+    } else if (jQuery('#settingModalEfb_').hasClass('pre-form-efb')) {
+      jQuery('#settingModalEfb_').removeClass('pre-form-efb');
+    }
+    if (jQuery('#modal-footer-efb')) {
+      jQuery('#modal-footer-efb').remove()
+    }
+
+    var val = loading_messge_efb();
+    if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
+
+   setTimeout(() => {
+    document.body.removeEventListener("click",Respond);
+   }, 10);
+  
+  }
+   i==1 ? show() : remove();
+
+   
 }
 
 

@@ -26,6 +26,8 @@ How *Easy Form Builder* makes your life easier:
 
 **General features of Easy Form Builder**
 
+- +30 field types for building forms
+
 - Simple drag and drop functionality
 
 - Build Multi step forms
@@ -61,6 +63,7 @@ How *Easy Form Builder* makes your life easier:
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
 - Easy form builder able you to build forms with smartphones, tablets, or other devices
+
 
 
 
@@ -339,6 +342,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+= 3.4.1=
+ * Improve UX of Easy Form Builder
+ * Fixed a bugs of offline forms addons
+
 = 3.4.0=
  * Download individual form responses on pdf file by Easy Form Builder
  * Added Addons options like payment forms, and offline forms in Easy Form Builder
@@ -560,6 +567,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
       YER (Yemen Rial)
       ZAR (South Africa Rand)
       ZMW (Zambian kwacha)
+      IRR (ریال ایران)
 = 2.3.22 =
 * Fixed issues
 

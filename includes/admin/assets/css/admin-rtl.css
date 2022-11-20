@@ -13,3 +13,13 @@ body {direction: rtl !important;}.wp-menu-name {/* direction: rtl;float:     rig
 .efb.ttiptext.show {
     width: fit-content!important;
 }
+
+.col-md-6 .efb.btn-edit-holder {
+    float: left!important;
+    margin-top: -40px;
+    margin-left: 2%!important;
+    margin-right: 31%!important;
+    margin-right: 37%;
+    position: relative;
+    z-index: 10;
+}

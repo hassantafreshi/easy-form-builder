@@ -178,9 +178,9 @@ function emsFormBuilder_show_content_message(id) {
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
   setTimeout(() => { reply_attach_efb(msg_id)}, 10);
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show();
-
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb();
+  state_modal_show_efb(1)
   // fun_add_event_CloseMenu();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -277,10 +277,12 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let s = false;
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
-    if(c.hasOwnProperty('value')) c.value = replaceContentMessageEfb(c.value)
+    if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
+    if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
     //console.log(c);
     let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
+    if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
@@ -571,8 +573,9 @@ function emsFormBuilder_messages(id) {
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
   show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show();
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb();
+  state_modal_show_efb(1)
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0) {
@@ -1217,8 +1220,9 @@ function fun_set_setting_emsFormBuilder() {
         if (st == 0) {
           ti = efb_var.text.error
           show_modal_efb(c, ti, '', 'saveBox');
-          const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-          myModal.show();
+          //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+          //myModal.show_efb();
+          state_modal_show_efb(1)
           return false;
         }
       } else if (id == "activeCode_emsFormBuilder") {
@@ -1452,7 +1456,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
   let i_count = -1;
   add_multi = (c, content, value_col_index, v) => {
-
     if (form_type_emsFormBuilder == "survey") {
       if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
         rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
@@ -1463,7 +1466,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
         rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
         rows[parseInt(r)][0] = v;
       }
-    } else {
+    }else if(content[c].type =="chlCheckBox"){ 
+        rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = `${content[c].value} : ${content[c].qty}` : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + `${content[c].value} : ${content[c].qty}`
+    }else {
       //tc rows[0][1] = efb_var.text.trackNo ;
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + content[c].value
     }
@@ -1474,7 +1479,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
-
+    let i_op_count =0
     let countMultiNo = [];
     let NoMulti = [];
 
@@ -1483,9 +1488,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
-        //console.log(c,content[c] ,content);
+        
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
-          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' 
+          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' && content[c].type != 'chlCheckBox'
           ) {
   
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1499,6 +1504,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[0][parseInt(value_col_index)] = content[c].name;
             if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
           }
+
   
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
           if (content[c].type == 'payment') {
@@ -1539,7 +1545,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value.replaceAll('@efb!', "");;
           }
           //content[c].value.replaceAll('@efb!' , " || ") ;
-        }  else {
+        } else {
           //console.log('checkbox',c)
           // if checkbox
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1557,6 +1563,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             add_multi(c, content, value_col_index, v.msg_id)
   
           }
+
+        
   
   
           //new code test
@@ -1588,7 +1596,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 //end
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
-  //console.log(items);
+  console.log(items);
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
@@ -1617,6 +1625,7 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 function convertToCSV_emsFormBuilder(objArray) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
+  console.log(objArray);
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
 
@@ -1637,6 +1646,7 @@ function convertToCSV_emsFormBuilder(objArray) {
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
+
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
@@ -1702,8 +1712,9 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   // window.scrollTo({ top: 0, behavior: 'smooth' });
 
   show_modal_efb(body, efb_var.text.chart, "bi-pie-chart-fill", 'chart')
-  const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  myModal.show()
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb()
+  state_modal_show_efb(1)
   /* Add div of charts */
   setTimeout(() => {
 
@@ -1863,8 +1874,9 @@ function email_template_efb(s) {
       ti = efb_var.text.preview;
     }
     show_modal_efb(c, ti, '', 'saveBox');
-    const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-    myModal.show();
+    //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    //myModal.show_efb();
+    state_modal_show_efb(1)
   } else if (s == "h") {
     //show help
     //open link to document how create a email template

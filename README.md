@@ -99,8 +99,10 @@ Features:
 - Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin (Available in pro version)
 - Added Link field on WordPress Easy Form builder (Available in pro version)
 - Added title field on Easy form builder (Available in pro version)
-- You can build forms with smartphones, tablets or other devices
-- Offline form
+- You can building forms by smartphones, tablets or other devices
+- Offline forms
+- Payment forms
+- +30 field types for building forms
 
 
 

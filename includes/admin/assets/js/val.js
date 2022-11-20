@@ -31,6 +31,8 @@ const fields_efb = [
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
+  { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
+  //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
@@ -122,6 +124,10 @@ function show_setting_window_efb(idset) {
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
     </div>`;
+
+
+    const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
+  
   
     const Nadvanced = `
       ${labelEls}
@@ -513,6 +519,8 @@ function show_setting_window_efb(idset) {
       case "payCheckbox":
       case "payRadio":
       case "paySelect":
+      case "chlCheckBox":
+      case "chlRadio":
       case "payMultiselect":
         const objOptions = valj_efb.filter(obj => {
           return obj.parent === el.id
@@ -549,6 +557,7 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
                 ${Nadvanced}
+                
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
                 <label for="optionListefb" class="efb  ">${efb_var.text.options} 
                 <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
@@ -562,6 +571,7 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3" id="optionListefb">
                  ${opetions}
                 </div>
+                ${qtyPlcEls}
                 <!--notAdvanced-->
   
                 <!--advanced-->
@@ -1056,7 +1066,6 @@ items_dd_efb = () => {
       start: function (event, ui) {
         ui.item.toggleClass("highlight");
         if (ui.item.hasClass('unsortable')) {
-          console.log('item is ------> unsortable');
           return;
         }
       },
