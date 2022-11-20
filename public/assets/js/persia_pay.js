@@ -13,7 +13,7 @@ console.log("persia_pay.js 3.4.0");
 pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;
-    console.log(gateWay);
+    //console.log(gateWay);
     if(gateWay=="zarinPal"){
       fun_pay_pp_efb();
     }else if(gateWay=="efb"){
@@ -69,15 +69,15 @@ function btnPersiaPayEfb(){
   btnEfb.classList.add('disabled')
   //console.log(ajax_object_efm.ajax_url);
 product = localStorage.getItem('pay_efb')==null ? 2 : localStorage.getItem('pay_efb');
-console.log(product);
+//console.log(product);
 let val=[];
 sendBack_emsFormBuilder_pub.forEach(row => {
   if(row.type.includes('pay')!=false){
-    console.log(row,row.type.includes('pay'));
+    //console.log(row,row.type.includes('pay'));
     val.push(row);
   }
 });
-console.log('val',val);
+//console.log('val',val);
           jQuery(function ($) {
               data = {
                 action: "pay_IRBank_payEfb",
@@ -95,16 +95,16 @@ console.log('val',val);
                 url: ajax_object_efm.ajax_url,
                 data: data,
                 success: function (res) {         
-                  console.log(res.data) ;    
+                  //console.log(res.data) ;    
                   
                   if(res.data.success==true){
-                       console.log(res.data);
+                       //console.log(res.data);
                       document.getElementById('beforePay').classList.add('d-none');
                       window.open(res.data.url ,'_self');
                       PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
                       <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-                      console.log("res.data.id,efb_var.id")
-                      console.log(res.data.id,efb_var.id)
+                      /* console.log("res.data.id,efb_var.id")
+                      console.log(res.data.id,efb_var.id) */
                       efb_var.id= res.data.id;
                       localStorage.setItem('PayId',res.data.id);
                   }else{                   
@@ -131,18 +131,13 @@ console.log('val',val);
 
 fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-  console.log(id);
-  console.log('fun_after_bankpay_persia_ui');
   efb_var.id=localStorage.getItem('efbPersiaPayId')
-  console.log('efb_var.id',efb_var.id)
   if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
     grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false) && document.getElementById(id)) 
     {
-      console.log('if fun_after_bankpay_persia_ui');
       document.getElementById(id).classList.remove('disabled')
     }
   fun_disabled_all_pay_efb()
-  console.log(`type data[${typeof data}]`);    
       let o = [{
         amount: 0,
         id_: "payment",

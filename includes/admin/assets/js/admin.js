@@ -407,7 +407,6 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  console.log(i.pro,efb_var.pro)
   if (i.pro == true &&  efb_var.pro != 1) {
     funNtn=`pro_show_efb(1)`;
     nameNtn = efb_var.text.pro;
@@ -1323,12 +1322,13 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
             || (el.dataset.tag == "payCheckbox" && el.dataset.el != "el")
+            || (el.dataset.tag == "chlCheckBox" && el.dataset.el != "el")
             || (el.dataset.tag == "payRadio" && el.dataset.el != "el")
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
-                &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList'))
+                &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' && el.dataset.tag != 'chlCheckBox'))
         ) {
           //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
@@ -1349,7 +1349,7 @@ let change_el_edit_Efb = (el) => {
 
           }
           //button_group_button_single_text
-        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio") {
+        } else if (el.dataset.tag == "checkbox" || el.dataset.tag == "radio" || el.dataset.tag == "chlCheckBox") {
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
           })
@@ -2641,7 +2641,7 @@ state_modal_show_efb=(i)=>{
    
   }
    remove =()=>{
-   document.body.classList.add("modal-open");
+   document.body.classList.remove("modal-open");
    el.classList.remove('show');
    el.style.cssText='';
    el.removeAttribute("aria-hidden");

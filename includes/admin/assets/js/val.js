@@ -32,7 +32,7 @@ const fields_efb = [
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
-  { name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
+  //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
@@ -1066,7 +1066,6 @@ items_dd_efb = () => {
       start: function (event, ui) {
         ui.item.toggleClass("highlight");
         if (ui.item.hasClass('unsortable')) {
-          console.log('item is ------> unsortable');
           return;
         }
       },

@@ -148,20 +148,19 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
   let op = `<!-- option --!> 2`
   //console.log(tag);
-  let $price ="<!--efb.app-->";
-  let $qst ='<!--efb.app-->';
+  let price ="<!--efb.app-->";
+  let qst ='<!--efb.app-->';
   let tagtype= tag;
   const $pv = 0;
   const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
-  if (tag.includes("pay")){ 
+  if (tag.includes("pay")!=false){ 
     tagtype = tag.slice(3);
-    $price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>`;
+    price =`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${idin}-price" class="efb efb-crrncy">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>`;
   }
-   if(tag.includes("chl")){
+   if(tag.includes("chl")!=false){
     tagtype = tag.slice(3);
-    $qst =`<input type="text" class="efb ${valj_efb[indxP].el_text_color}  ${valj_efb[indxP].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${idin}" data-vid="" id="${idin}_chl" placeholder="${valj_efb[indxP].pholder_chl_value}"  disabled>`
+    qst =`<input type="text" class="efb ${valj_efb[indxP].el_text_color}  ${valj_efb[indxP].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${idin}" data-vid="" id="${idin}_chl" placeholder="${valj_efb[indxP].pholder_chl_value}"  disabled>`
   }
-
 
   if (fun_el_select_in_efb(tag)) {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="efb ${valj_efb[indxP].el_text_color} ${valj_efb[indxP].label_text_size} ${valj_efb[indxP].el_height}">${value}</option>`
@@ -169,8 +168,8 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
     op = `<div class="efb  form-check" id="${id_ob}-v">
     <input class="efb  form-check-input ${valj_efb[indxP].el_text_size}" type="${tagtype}" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
     <label class="efb ${valj_efb[indxP].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[indxP].el_text_color} ${valj_efb[indxP].label_text_size} ${valj_efb[indxP].el_height} hStyleOpEfb " id="${idin}_lab" for="${idin}">${value}</label>
-    ${$qst}
-    ${$price}
+    ${qst}
+    ${price}
     </div>`
 
   }
@@ -282,7 +281,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const op_5 = Math.random().toString(36).substr(2, 9);
   let ui = ''
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox") ? elementId.slice(3).toLowerCase() : elementId;
-  console.log(vtype);
   let classes = ''
   switch (elementId) {
     case 'email':
@@ -383,8 +381,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           </div>`
         }//end for 
 
-      } else {
-        console.log(elementId.includes('chl'),elementId)
+      } else {        
         const op_1 = Math.random().toString(36).substr(2, 9);
         const op_2 = Math.random().toString(36).substr(2, 9);
         const pv=0;
@@ -1584,9 +1581,7 @@ function previewFormEfb(state) {
   }
   // if (state != "show") myModal.show_efb();
   step_el_efb = valj_efb[0].steps;
-  //console.log(`efb_var.id[${efb_var.id}]`,localStorage.getItem('formId'));
-  console.log(addons_emsFormBuilder,
-    valj_efb[0])
+ 
   if (localStorage.getItem('formId') == efb_var.id && state == 'run' && ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() }
   //}, timeout) //nlogn
 }//end function v2
@@ -1656,11 +1651,10 @@ function timeOutCaptcha() {
   noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha, 7, 'warning');
 }
 
-fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' || el == 'chlCheckBox' ? true : false }
+fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' ? true : false }
 
 function fun_validation_efb() {
   let state = true;
-  console.log('fun_validation_efb');
   let idi = "null";
   if(sendBack_emsFormBuilder_pub.length<1){
     noti_message_efb(efb_var.text.PleaseFillForm,'',12,'info')
@@ -1699,7 +1693,6 @@ function fun_validation_efb() {
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
 
         const v = sendBack_emsFormBuilder_pub[s].value.split("@efb!");
-        console.log(valj_efb[row].type, sendBack_emsFormBuilder_pub[s]);
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
           //console.log(efb_var.text);
@@ -1713,11 +1706,9 @@ function fun_validation_efb() {
       document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger"); */
     // sendBack_emsFormBuilder_pub[s].hasOwnProperty('qty') && sendBack_emsFormBuilder_pub[s].qty.length==""
       for(let em of sendBack_emsFormBuilder_pub){
-        console.log(em,valj_efb[row].id_)
         if(em.type=="chlCheckBox" && em.id_==valj_efb[row].id_ && em.qty.length=="")
         {
           const vd = em.id_ob+"_chl";
-          console.log(vd);
           document.getElementById(vd).classList.add('bg-danger');
           state = false;
           idi = valj_efb[row].id_;
@@ -1804,7 +1795,6 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 
 
 fun_offline_Efb = () => {
-  console.log('fun_offline_Efb');
   let el = '';
   const values = JSON.parse(localStorage.getItem('sendback'))
   for (let value of values) {
@@ -2063,7 +2053,6 @@ function fun_upload_file_emsFormBuilder(id, type) {
     fd.append("caption", individual_capt);
     fd.append('action', 'update_file_Emsfb');
     fd.append('nonce', ajax_object_efm.nonce);
-    console.log(`ajax_object_efm.nonce[${ajax_object_efm.nonce}]`);
     var idB ='#'+id+'-prB'
     jQuery.ajax({
       type: 'POST',
@@ -2128,7 +2117,6 @@ function generatePDF_EFB(id)
 {
   const fonts_name =[{loc:'am', font:'Noto Serif Ethiopic'},{loc:'ar', font:'Noto Sans Arabic'},{loc:'fa_IR', font:'Noto Sans Arabic'},{loc:'arq', font:'Alegreya Sans SC'},{loc:'az_TR', font:'Noto Sans'},{loc:'bn_BD', font:'Noto Sans Bengali'},{loc:'cs_CZ', font:'Signika'},{loc:'hat', font:'Tinos'},{loc:'he_IL', font:'Noto Sans Hebrew'},{loc:'hr', font:'Noto Sans'},{loc:'hy', font:'Noto Sans Armenian'},{loc:'id_ID', font:'Noto Sans'},{loc:'ja', font:'Noto Sans JP'},{loc:'ka_GE', font:'Noto Sans Georgian'},{loc:'km', font:'Noto Sans Khmer'},{loc:'ko_KR', font:'Noto Sans KR'},{loc:'lt_LT', font:'Noto Sans'},{loc:'ml_IN', font:'Noto Sans'},{loc:'ms_MY', font:'Noto Sans'},{loc:'ne_NP', font:'Noto Sans'},{loc:'ru_RU', font:'Noto Sans'},{loc:'sw', font:'Noto Sans'},{loc:'th', font:'Noto Sans Thai'},{loc:'ur', font:'Noto Nastaliq Urdu'},{loc:'uz_UZ', font:'Noto Sans'},{loc:'vi', font:'Noto Sans'},{loc:'zh_CN', font:'Noto Sans SC'},{loc:'zh_HK', font:'Noto Sans HK'},{loc:'zh_TW', font:'Noto Sans TC'}]
   const indx = fonts_name.findIndex(x=>x.loc==efb_var.wp_lan);
-  console.log(efb_var.language,indx);
   const fontname = indx!=-1 ? fonts_name[indx].font : 'Noto Sans';
   const fontStyle=`
         <link href="https://fonts.googleapis.com/css2?family=${fontname}" rel="stylesheet">

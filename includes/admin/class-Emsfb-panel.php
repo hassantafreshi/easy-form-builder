@@ -294,7 +294,7 @@ class Panel_edit  {
 					'pro'=>$pro									
 				));
 
-				error_log(wp_create_nonce("public-nonce"));
+				//error_log(wp_create_nonce("public-nonce"));
 					
 		}else{
 			echo "Easy Form Builder: You dont access this section";

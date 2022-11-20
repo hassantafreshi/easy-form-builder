@@ -549,7 +549,7 @@ class efbFunction {
 			"AdnATCT" => $state  &&  isset($ac->text->AdnATCT) ? $ac->text->AdnATCT : __('Advanced confirmation code Addon','easy-form-builder'),				
 			"AdnATCD" => $state  &&  isset($ac->text->AdnATCD) ? $ac->text->AdnATCD : __('Send a link of the confirmation code by Email or SMS to those who are users and/or admins which allows your user directly find out new responses.','easy-form-builder'),				
 			"chlCheckBox" => $state  &&  isset($ac->text->chlCheckBox) ? $ac->text->chlCheckBox : __('Box Checklist','easy-form-builder'),				
-			//"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
+			"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : __('Qty','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			

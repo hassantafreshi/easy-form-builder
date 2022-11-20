@@ -1456,7 +1456,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
   let i_count = -1;
   add_multi = (c, content, value_col_index, v) => {
-
     if (form_type_emsFormBuilder == "survey") {
       if (rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB") {
         rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
@@ -1467,7 +1466,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
         rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
         rows[parseInt(r)][0] = v;
       }
-    } else {
+    }else if(content[c].type =="chlCheckBox"){ 
+        rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = `${content[c].value} : ${content[c].qty}` : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + `${content[c].value} : ${content[c].qty}`
+    }else {
       //tc rows[0][1] = efb_var.text.trackNo ;
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + content[c].value
     }
@@ -1478,7 +1479,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
-
+    let i_op_count =0
     let countMultiNo = [];
     let NoMulti = [];
 
@@ -1487,9 +1488,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
-        console.log(c,content[c] ,content[c].type == 'chlCheckBox');
+        
         if (content[c].type != "checkbox" && content[c].type != 'multiselect'
-          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect'
+          && content[c].type != "payCheckbox" && content[c].type != 'payMultiselect' && content[c].type != 'chlCheckBox'
           ) {
   
           if (rows[i_count][0] == "null@EFB") rows[i_count][0] = v.msg_id;
@@ -1503,13 +1504,6 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[0][parseInt(value_col_index)] = content[c].name;
             if (content[c].type == 'payment') rows[0][parseInt(value_col_index) + 1] = "TID";
           }
-
-          if(content[c].type == 'chlCheckBox'){
-            const r= parseInt(value_col_index)+1
-            rows[0][r] = 'qty';
-            rows[parseInt(i_count)][r] =content[c].qty;            
-          } 
-
 
   
           rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
@@ -1569,6 +1563,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             add_multi(c, content, value_col_index, v.msg_id)
   
           }
+
+        
   
   
           //new code test

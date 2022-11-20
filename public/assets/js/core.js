@@ -307,7 +307,6 @@ function createStepsOfPublic() {
           break;
         case 'checkbox':
         case 'radio':
-            console.log(el);
             if(el.dataset.tag.includes("chl")!=false){
               const id = el.id +"_chl"
               document.getElementById(id).addEventListener("change", (e) => {
@@ -325,14 +324,10 @@ function createStepsOfPublic() {
         let value = ""
         const id_ = el.dataset.vid
         let state
-        console.log(el,ob);
         if(!ob){
           console.log('ob is null',el.id ,el.dataset.id)
           if(el.id.includes('chl')!=false){
-            //بر اساس vid
-            // در لیست پیدا کند
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
-            console.log(ob);
           }
         }
         switch (el.type) {
@@ -394,15 +389,12 @@ function createStepsOfPublic() {
             }
 
             if( el.checked == false && el.type =="checkbox") {
-              console.log(el.type,el.id);
               const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
               if(indx) sendBack_emsFormBuilder_pub.splice(indx,1);
              }
 
              const indx =valj_efb.findIndex(x=>x.id_ ==el.name);
-             console.log(valj_efb[indx].type.includes('chl'),valj_efb[indx]);
              if(indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == true){
-              console.log(indx);
                 if(el.type=="checkbox"){
                   const id = el.id +'_chl';
                   document.getElementById(id).disabled=false;
@@ -416,7 +408,6 @@ function createStepsOfPublic() {
                   document.getElementById(id).disabled=false;
                 } */
              }else if (indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == false){
-              console.log(indx, el.checked);
               const id = el.id +'_chl';
               document.getElementById(id).disabled=true;
               document.getElementById(id).value ="";
@@ -497,11 +488,9 @@ function createStepsOfPublic() {
 
         if (value != "" || value.length > 1) {
           const type = ob.type;
-          console.log(ob);
           const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
           //console.log(ob,id_ob);
           let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
-          console.log(o);
           if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);
             //console.log(el , valueJson_ws);
@@ -519,7 +508,6 @@ function createStepsOfPublic() {
               el.classList.remove('bg-danger');
               ob.qty=fun_text_forbiden_convert_efb(qty);
               o[0]="";
-              console.log(o[0]);
             }
            
             fun_sendBack_emsFormBuilder(o[0]);
@@ -789,8 +777,6 @@ function actionSendData_emsFormBuilder() {
 
       
     }
-
-    console.log(data);
 
     $.ajax({
       type: "POST",
