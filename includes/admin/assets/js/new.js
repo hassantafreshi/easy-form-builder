@@ -603,7 +603,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optionElpush_efb(rndm, `${efb_var.text.yellow}`, `${op_5}`, op_5);
 
       }
-
+      //console.log(`previewSate[${previewSate}]`);
       ui = ` 
       ${label}
       <!--multiselect-->      
@@ -902,9 +902,10 @@ const open_whiteStudio_efb = (state) => {
       break;
   }
 }else{
+  link = `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
   switch (state) {
     case 'mapErorr':
-      link += `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
+      link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
@@ -912,19 +913,16 @@ const open_whiteStudio_efb = (state) => {
       break;
     case 'publishForm':
       case 'notInput':
-      link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
+      link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
       break;
     case 'emptyStep':
-      link += `https://easyformbuilder.ir/%D8%AF%D8%A7%DA%A9%DB%8C%D9%88%D9%85%D9%86%D8%AA/%DA%86%DA%AF%D9%88%D9%86%D9%87-%D9%81%D8%B1%D9%85-%D8%AA%D9%88%D8%B3%D8%B7-%D9%81%D8%B1%D9%85-%D8%B3%D8%A7%D8%B2-%D8%A2%D8%B3%D8%A7%D9%86-%D8%AF%D8%B1-%D9%88%D8%B1%D8%AF%D9%BE%D8%B1%D8%B3-%D8%A8%D8%B3/`
+      link += `%DA%86%DA%AF%D9%88%D9%86%D9%87-%D9%81%D8%B1%D9%85-%D8%AA%D9%88%D8%B3%D8%B7-%D9%81%D8%B1%D9%85-%D8%B3%D8%A7%D8%B2-%D8%A2%D8%B3%D8%A7%D9%86-%D8%AF%D8%B1-%D9%88%D8%B1%D8%AF%D9%BE%D8%B1%D8%B3-%D8%A8%D8%B3/`
       break;
-/*     case 'notInput':
-      link += `?notInputExists`
-      break; */
     case 'pickupByUser':
-      link = `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
+      link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8%da%af%d8%b1-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d9%85%da%a9%d8%a7%d9%86%db%8c-%d9%85%d9%88%d9%82%d8%b9%db%8c%d8%aa-%d8%ac%d8%ba/`
       break;
     case 'paymentform':
-      link = `https://easyformbuilder.ir/documents/`
+      link += `%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/`
       break;
   }
 }
@@ -1147,10 +1145,13 @@ function handle_navbtn_efb(steps, device) {
           //disabled   
           if (valj_efb[0].type == "payment" && preview_efb != true)
           {
+  
+            
             let state= valj_efb.findIndex(x => x.type == "stripe");
             state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
             //console.log(state);
-            if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
+            //console.log(statePay)
+            if(valj_efb[state].step == current_s_efb && !localStorage.getItem('PayId')) { jQuery("#next_efb").addClass('disabled'); }
           }   
           //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
           //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
@@ -1360,7 +1361,7 @@ function noti_message_efb(title, message, sec, alert) {
 
 function previewFormEfb(state) {
   //v2
-  console.log(state)
+  //console.log(state)
   if (state != "run") {
     state_efb = "view";
     preview_efb = true;
@@ -1446,7 +1447,7 @@ function previewFormEfb(state) {
     ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb progress mx-5"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}
     `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
-  console.log(state ,idn , id);
+  //console.log(state ,idn , id);
   document.getElementById(id).classList.add(idn)
   content = `  
     <div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
@@ -1678,7 +1679,7 @@ fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvi
 function fun_validation_efb() {
   let state = true;
   let idi = "null";
-  console.log('fun_validation_efb');
+  //console.log('fun_validation_efb');
   /* if(sendBack_emsFormBuilder_pub.length<1){
     noti_message_efb(efb_var.text.PleaseFillForm,'',12,'info')
     return false;
@@ -1701,7 +1702,7 @@ function fun_validation_efb() {
       if (s == -1) {
         if (state == true) { state = false; idi = valj_efb[row].id_ }
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
-        console.log(`id [${id}]` ,valj_efb[row].type);
+        //console.log(`id [${id}]` ,valj_efb[row].type);
         let el =document.getElementById(`${valj_efb[row].id_}_-message`);
         el.innerHTML = efb_var.text.enterTheValueThisField;
         if(!el.classList.contains('show'))el.classList.add('show');
@@ -1912,7 +1913,7 @@ fun_offline_Efb = () => {
 
       break;
       case 'persiaPay':
-        console.log('stripe')
+        //console.log('stripe')
         
         break;
     }

@@ -24,7 +24,7 @@ function fun_total_pay_efb() {
 
   fun_disabled_all_pay_efb = () => {
     let type = '';
-    console.log('fun_disabled_all_pay_efb');
+    //console.log('fun_disabled_all_pay_efb');
     if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
     for (let o of valj_efb) {
       //console.log(o.type.includes('pay'),o);

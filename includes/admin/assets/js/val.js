@@ -1086,4 +1086,4 @@ items_dd_refresh_efb = () => {
 }
 
 console.log('load');
-  console. log(jQuery(). jquery);
+  

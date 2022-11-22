@@ -17,13 +17,13 @@ jQuery(function () {
 
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-    if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
+    /* if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
-        //localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        //setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
+        localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
+        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
-    }
+    } */
   }
   fun_emsFormBuilder_render_view(25); //778899
 });
@@ -781,17 +781,17 @@ function fun_show_help__emsFormBuilder() {
   }
 
   if(efb_var.language == "fa_IR"){
-    const ef = `https://easyformbuilder.ir/`
+    const ef = `https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`
     listOfHow_emsfb = {
-      1: { title: efb_var.text.howProV, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%d9%86%d8%b3%d8%ae%d9%87-%d9%88%db%8c%da%98%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
-      2: { title: efb_var.text.howConfigureEFB, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
-      3: { title: efb_var.text.howGetGooglereCAPTCHA, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%da%a9%d9%be%da%86%d8%a7-%da%af%d9%88%da%af%d9%84-%d8%b1%d8%a7-%d8%af%d8%b1%db%8c%d8%a7%d9%81%d8%aa-%d9%88-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81/` },
-      4: { title: efb_var.text.howActivateAlertEmail, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
-      5: { title: efb_var.text.howCreateAddForm, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/` },
-      6: { title: efb_var.text.howActivateTracking, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%da%a9%d8%af-%d9%be%db%8c%da%af%db%8c%d8%b1%db%8c-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
-      7: { title: efb_var.text.howWorkWithPanels, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d8%b1%d9%88%d8%b4-%d9%85%d8%af%db%8c%d8%b1%db%8c%d8%aa-%d9%81%d8%b1%d9%85-%d9%87%d8%a7%db%8c-%d9%be%d8%b1-%d8%b4%d8%af%d9%87%d9%be%d8%a7%d8%b3%d8%ae-%d9%87%d8%a7-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2/` },
-      8: { title: efb_var.text.howAddTrackingForm, url: `${ef}%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86%d8%8c-%d9%be%db%8c%d8%a7%d9%85%db%8c-%d8%b1%d8%a7-%d8%a8%d8%a7-%da%a9%d8%af-%d8%b1%d9%87/` },
-      9: { title: efb_var.text.howFindResponse, url: `${ws}/how-to-find-a-response-through-a-confirmation-code/` },
+      1: { title: efb_var.text.howProV, url: `${ef}%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%d9%86%d8%b3%d8%ae%d9%87-%d9%88%db%8c%da%98%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
+      2: { title: efb_var.text.howConfigureEFB, url: `${ef}%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
+      3: { title: efb_var.text.howGetGooglereCAPTCHA, url: `${ef}%da%86%da%af%d9%88%d9%86%d9%87-%da%a9%d9%be%da%86%d8%a7-%da%af%d9%88%da%af%d9%84-%d8%b1%d8%a7-%d8%af%d8%b1%db%8c%d8%a7%d9%81%d8%aa-%d9%88-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81/` },
+      4: { title: efb_var.text.howActivateAlertEmail, url: `${ef}%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/` },
+      5: { title: efb_var.text.howCreateAddForm, url: `${ef}%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/` },
+      6: { title: efb_var.text.howActivateTracking, url: `${ef}%d9%86%d8%ad%d9%88%d9%87-%d9%81%d8%b9%d8%a7%d9%84-%d8%b3%d8%a7%d8%b2%db%8c-%da%a9%d8%af-%d9%be%db%8c%da%af%db%8c%d8%b1%db%8c-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
+      7: { title: efb_var.text.howWorkWithPanels, url: `${ef}%d8%b1%d9%88%d8%b4-%d9%85%d8%af%db%8c%d8%b1%db%8c%d8%aa-%d9%81%d8%b1%d9%85-%d9%87%d8%a7%db%8c-%d9%be%d8%b1-%d8%b4%d8%af%d9%87%d9%be%d8%a7%d8%b3%d8%ae-%d9%87%d8%a7-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2/` },
+      8: { title: efb_var.text.howAddTrackingForm, url: `${ef}%d8%a7%d9%86%d8%aa%d8%b4%d8%a7%d8%b1-%db%8c%d8%a7%d8%a8%d9%86%d8%af%d9%87-%da%a9%d8%af-%d9%be%db%8c%da%af%db%8c%d8%b1%db%8c-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86/` },
+      9: { title: efb_var.text.howFindResponse, url: `${ef}%d9%be%db%8c%d8%af%d8%a7-%da%a9%d8%b1%d8%af%d9%86-%d9%be%db%8c%d8%a7%d9%85-%da%a9%d8%af-%d8%b1%d9%87%da%af%db%8c%d8%b1%db%8c-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d9%88%d8%b1/` },
     }
   }
 
@@ -816,7 +816,7 @@ function fun_show_help__emsFormBuilder() {
                   <p class="efb  card-text efb pb-3 fs-6">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('ws')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
+                  <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('price')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
                   <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
@@ -911,7 +911,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('ws')">${efb_var.text.clickHereGetActivateCode}</a>
+                                <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>
                                 <div class="efb card-body mx- py-1 ${mxCSize4}">
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
@@ -1473,16 +1473,12 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + content[c].value
     }
   }
-  let county = 0
+  //let county = 0
   for (v of value) {
   
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
-    let i_op_count =0
-    let countMultiNo = [];
-    let NoMulti = [];
-
 
     for (c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});

@@ -325,7 +325,7 @@ function createStepsOfPublic() {
         const id_ = el.dataset.vid
         let state
         if(!ob){
-          console.log('ob is null',el.id ,el.dataset.id)
+          //console.log('ob is null',el.id ,el.dataset.id)
           if(el.id.includes('chl')!=false){
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
           }
@@ -787,8 +787,7 @@ function actionSendData_emsFormBuilder() {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-
-        if (localStorage.getItem("formId")) { localStorage.removeItem('formId'); }
+        localStorage.clear();        
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },

@@ -107,7 +107,9 @@ class _Public {
 
 		$state="form";
 		//
-		if(strpos($value , '"type\":\"multiselect\"')){
+		error_log(json_decode(strpos($value , '"type\":\"multiselect\"')));
+		error_log(json_decode(strpos($value , '"type":"multiselect"')));
+		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.4.1');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 			
