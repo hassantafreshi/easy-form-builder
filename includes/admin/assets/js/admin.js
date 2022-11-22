@@ -10,6 +10,7 @@ let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.4;
+let wpbakery_emsFormBuilder =false;
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -79,6 +80,9 @@ function Link_emsFormBuilder(state) {
       case 'ws':
         link = 'https://whitestudio.team/';
         break;
+      case 'price':
+        link = 'https://whitestudio.team/#price';
+        break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
         break;
@@ -97,7 +101,12 @@ function Link_emsFormBuilder(state) {
         break;
       case 'AdnOF':
         //AdnOF == offline form
-        link = 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
+        link += 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
+       
+        break;
+      case 'wpbakery':
+        //AdnOF == offline form
+        link += 's/wpbakery-easy-form-builder-v34/';
         //link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
         break;
       case 'AdnPPF':
@@ -117,15 +126,17 @@ function Link_emsFormBuilder(state) {
         //console.log(state)
         link = 'https://whitestudio.team/addons';
         break;
+      
     }
   }else{
+    link =`https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
     switch (state) {
       case 'publishForm':
-        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
+        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
         break;
       case 'createSampleForm':
       case 'tutorial':
-        link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
         break;
       case 'stripe':
         //stripe
@@ -134,6 +145,9 @@ function Link_emsFormBuilder(state) {
       case 'ws':
         link = 'https://easyformbuilder.ir/';
         break;
+      case 'price':
+        link = 'https://easyformbuilder.ir/#price';
+        break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
         break;
@@ -141,24 +155,27 @@ function Link_emsFormBuilder(state) {
         link = `https://easyformbuilder.ir/documents/`;
         break;
       case 'EmailNoti':
-        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/";
+        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/";
         break;
       case 'redirectPage':
-        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        link = "%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
       break;
       case 'AdnSPF':
-        link = 'https://easyformbuilder.ir/';
+        link = 'https://easyformbuilder.ir/documents/';
         break;
         //AdnSPF == strip payment
       case 'AdnOF':
         //AdnOF == offline form
-        link = 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
+        link += '%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
         break;
       case 'AdnPPF':
         //AdnPPF == persia payment
-        link = "https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
         break;
-        break;
+        case 'wpbakery':
+          //AdnOF == offline form
+          link += '%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%db%8c%da%a9%d8%b1%db%8c-%d8%a7%d8%b3%d8%aa%d9%81/';
+          break;
       case 'AdnATC':
         // AdnATC == advance tracking code
       case 'AdnSS':
@@ -176,22 +193,25 @@ function Link_emsFormBuilder(state) {
     }
   }
 
-  //console.log(link);
+  console.log(link);
   window.open(link, "_blank");
 }
 
 
 function show_message_result_form_set_EFB(state, m) { //V2
+  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onClick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
      ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}`}
   </h4>
+  
   `;
   let content = ``
+   
   if (state != 0) {
-
     content = ` <h3 class="efb "><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
+    ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   <div id="alert"></div>
@@ -759,7 +779,7 @@ function head_introduce_efb(state) {
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
 
   let cont = ``;
-  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('ws')">
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
   ${efb_var.text.yFreeVEnPro}
@@ -2673,10 +2693,25 @@ state_modal_show_efb=(i)=>{
    }, 10);
   
   }
-   i==1 ? show() : remove();
-
-   
+   i==1 ? show() : remove();   
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  // your code here
+  setTimeout(() => {
+    const v = document.getElementById('adminmenuwrap').innerHTML;
+    /* console.log(v.includes('admin.php?page=vc-general'));
+    console.log(v.includes('admin.php?page=Emsfb')); */
+    wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
+    // local storage set besh
+    if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
+      localStorage.setItem('wpbakery_efb',true);
+      noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
+    }
+   
+  }, 1000);
+
+}, false);
 
 
 

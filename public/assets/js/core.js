@@ -307,7 +307,7 @@ function createStepsOfPublic() {
           break;
         case 'checkbox':
         case 'radio':
-            if(el.dataset.tag.includes("chl")!=false){
+            if(el.dataset.tag && el.dataset.tag.includes("chl")!=false){
               const id = el.id +"_chl"
               document.getElementById(id).addEventListener("change", (e) => {
                 console.log('qty');
@@ -325,7 +325,7 @@ function createStepsOfPublic() {
         const id_ = el.dataset.vid
         let state
         if(!ob){
-          console.log('ob is null',el.id ,el.dataset.id)
+          //console.log('ob is null',el.id ,el.dataset.id)
           if(el.id.includes('chl')!=false){
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
           }
@@ -341,8 +341,11 @@ function createStepsOfPublic() {
             if (value.length < len) {
               state = false;
               el.className = colorBorderChangerEfb(el.className, "border-danger");
-              document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
-              if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
+              
+              if(document.getElementById(`${el.id}-message`)){
+                document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
+                document.getElementById(`${el.id}-message`).classList.add('show');
+              }
               const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
               if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
             } else {
@@ -784,8 +787,7 @@ function actionSendData_emsFormBuilder() {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-
-        if (localStorage.getItem("formId")) { localStorage.removeItem('formId'); }
+        localStorage.clear();        
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },

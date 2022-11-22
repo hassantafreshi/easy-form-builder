@@ -1,11 +1,9 @@
 body {direction: rtl !important;}.wp-menu-name {/* direction: rtl;float:     right; */text-align: initial;}.search-form-control.efb {    padding-right: 40px!important;padding-left:0px!important;}input[type=file] {    padding: 3px 14px;}input[type="email"]:-moz-placeholder {    text-align: right;}input[type="email"]:-ms-input-placeholder {    text-align: right;}input[type="email"]::-webkit-input-placeholder {    text-align: right;}.btn-edit-holder {    float: left!important;margin-top: -40px;margin-left: 2%!important;margin-right: 62%!important;margin-right: 73%;position: relative;z-index: 10;}.search-icon.efb {    position: relative;    right: 45px;left: 0px!important;;}.description-logo.efb{float: right!important;}
 @media screen and (min-width: 1000px) {
-    .col-md-6 .efb.ttiptext.show {
-        margin: 0% 16%!important;
-     } 
+  
     
      .col-md-12 .efb.ttiptext.show {
-        margin:-1% 30% 0 0!important;
+        margin:-5% 8% 0 0!important;
     
     } 
   
@@ -22,4 +20,22 @@ body {direction: rtl !important;}.wp-menu-name {/* direction: rtl;float:     rig
     margin-right: 37%;
     position: relative;
     z-index: 10;
+}
+
+
+.efb.esign .ttiptext {
+    margin: -150px +9%;
+}
+.efb.yesNo .ttiptext {
+    margin: -30px -20%;
+}
+.efb.switch .ttiptext {
+    margin: -30px;
+}
+.efb.rating .ttiptext {
+    margin: -110px 85px;
+}
+
+.efb.col-md-6 .ttiptext {
+    margin: -26px 26px  0px 0px!important;
 }

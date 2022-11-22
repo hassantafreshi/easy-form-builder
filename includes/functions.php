@@ -551,6 +551,7 @@ class efbFunction {
 			"chlCheckBox" => $state  &&  isset($ac->text->chlCheckBox) ? $ac->text->chlCheckBox : __('Box Checklist','easy-form-builder'),				
 			"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : __('Qty','easy-form-builder'),				
+			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : __('Warning to WPBakery users for more information click here.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

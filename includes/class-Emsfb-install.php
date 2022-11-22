@@ -103,13 +103,13 @@ class Install {
 			
 					$it = list_files(get_template_directory());       
 					$s = false;
-					foreach($it as $path) {
+					/* foreach($it as $path) {
 						if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
 						{
 							$f = file_get_contents($path);
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
-					}
+					} */
 															
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
 						if($v==NULL && $s==true){
