@@ -105,10 +105,7 @@ class _Public {
 		$advanced = ["removeTheFile","heading" , "link" , "payMultiselect" , "paySelect" , "payRadio" , "payCheckbox" , "stripe" , "switch" , "rating" , "esign" , "maps" , "color" , "html" , "yesNo" , "stateProvince" , "conturyList" , "mobile" , "persiaPay"];
 		
 
-		$state="form";
-		//
-		error_log(json_decode(strpos($value , '"type\":\"multiselect\"')));
-		error_log(json_decode(strpos($value , '"type":"multiselect"')));
+		$state="form";		
 		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.4.1');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
@@ -143,7 +140,7 @@ class _Public {
 				if(strpos($value , ',\"type\":\"stripe\",')){$paymentType="stripe";}
 				else if(strpos($value , ',\"type\":\"persiaPay\",')){
 					$paymentType="zarinPal";}
-				else if(strpos($value , ',\"type\":\"zarinPal\",')){error_log('paymentType');$paymentType="zarinPal";}
+				else if(strpos($value , ',\"type\":\"zarinPal\",')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
 						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.4.1');
 						wp_enqueue_script('pay_js');
