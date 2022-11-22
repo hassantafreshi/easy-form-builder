@@ -10,6 +10,7 @@ let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.4;
+let wpbakery_emsFormBuilder =false;
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -182,16 +183,20 @@ function Link_emsFormBuilder(state) {
 
 
 function show_message_result_form_set_EFB(state, m) { //V2
+  const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
      ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}`}
   </h4>
+  
   `;
   let content = ``
+   
   if (state != 0) {
 
     content = ` <h3 class="efb "><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
+    ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
   <div id="alert"></div>
@@ -2673,10 +2678,25 @@ state_modal_show_efb=(i)=>{
    }, 10);
   
   }
-   i==1 ? show() : remove();
-
-   
+   i==1 ? show() : remove();   
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  // your code here
+  setTimeout(() => {
+    const v = document.getElementById('adminmenuwrap').innerHTML;
+    /* console.log(v.includes('admin.php?page=vc-general'));
+    console.log(v.includes('admin.php?page=Emsfb')); */
+    wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
+    // local storage set besh
+    if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
+      localStorage.setItem('wpbakery_efb',true);
+      noti_message_efb(`<a class="efb text-danger" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
+    }
+   
+  }, 1000);
+
+}, false);
 
 
 
