@@ -915,18 +915,6 @@ function sideMenuEfb(s) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  // your code here
-  //console.log('page loaded');
-  const els = document.getElementById('wpbody-content');
-  for (let i = 0; i < els.children.length; i++) {
-    // console.log(els.children[i].tagName , els.children[i].id);
-    if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && (els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
-      document.getElementById('wpbody-content').children[i].remove()
-    }
-  }
-}, false);
-
 
 const funSetCornerElEfb = (dataId, co) => {
   //efb-square
@@ -2697,19 +2685,29 @@ state_modal_show_efb=(i)=>{
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // your code here
+  const els = document.getElementById('wpbody-content');
+  for (let i = 0; i < els.children.length; i++) {
+    // console.log(els.children[i].tagName , els.children[i].id);
+    if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && (els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
+      document.getElementById('wpbody-content').children[i].remove()
+    }
+  }
   setTimeout(() => {
     const v = document.getElementById('adminmenuwrap').innerHTML;
-    /* console.log(v.includes('admin.php?page=vc-general'));
-    console.log(v.includes('admin.php?page=Emsfb')); */
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
-    // local storage set besh
     if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
       localStorage.setItem('wpbakery_efb',true);
       noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
     }
    
   }, 1000);
+
+  document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        fun_find_track_emsFormBuilder();
+        return false;
+      }});
 
 }, false);
 

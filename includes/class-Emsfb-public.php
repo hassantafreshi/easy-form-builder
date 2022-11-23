@@ -402,12 +402,12 @@ class _Public {
 	
 		if($bootstrap==false){
 			
-			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.1');
-			wp_enqueue_script('efb-bootstrap-min-js'); 
+			/* wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.1');
+			wp_enqueue_script('efb-bootstrap-min-js');  */
 	
 			
-			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.4.1');
-			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+			/* wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.4.1');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js');  */
 			
 			
 			wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.4.1');

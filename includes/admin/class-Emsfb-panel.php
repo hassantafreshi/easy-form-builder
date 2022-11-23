@@ -226,7 +226,7 @@ class Panel_edit  {
 							<div class="efb d-flex">
 								<form class="efb d-flex">
 									<i class="efb  bi-search search-icon"></i>
-									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["trackNo"]  ?>">
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["trackNo"]  ?>">
 									<a class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></a>
 								</form>
 								<div class="efb nav-icon efb mx-2">

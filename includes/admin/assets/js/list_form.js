@@ -187,9 +187,11 @@ function emsFormBuilder_show_content_message(id) {
 
   jQuery('#track_code_emsFormBuilder').on('keypress', 
   function (event) {
-    //console.log('track_code_emsFormBuilder',event.which)
+    console.log('track_code_emsFormBuilder',event.which)
       if (event.which == '13') {
           event.preventDefault();
+          console.log('functin run');
+          return;
       }
   });
 
