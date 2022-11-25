@@ -569,7 +569,7 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state){
-				error_log("to send_email_state[". $to ."]");
+				//error_log("to send_email_state[". $to ."]");
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = "n";
 			
@@ -592,8 +592,8 @@ class efbFunction {
 				
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
-					error_log("=================?state");
-					error_log($state);
+					//error_log("=================?state");
+					//error_log($state);
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
 				$mail="";
@@ -611,8 +611,8 @@ class efbFunction {
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-				   error_log('end function  send email');
-				   error_log($mailResult);
+				   //error_log('end function  send email');
+				   //error_log($mailResult);
 			   return $mailResult;
 		}
 
@@ -721,7 +721,7 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-		error_log('response_to_user_by_msd_id');
+		//error_log('response_to_user_by_msd_id');
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
 	 
@@ -733,16 +733,16 @@ class efbFunction {
 		$user_res = $data[0]->content;
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
-		error_log("user_res");
-		error_log($user_res);
+		//error_log("user_res");
+		//error_log($user_res);
 		$user_res = json_decode($user_res,true);
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
-		error_log(json_encode($data));
+		//error_log(json_encode($data));
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
-			error_log('if true [response_to_user_by_msd_id]');
+			//error_log('if true [response_to_user_by_msd_id]');
 			foreach($user_res as $key=>$val){
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
