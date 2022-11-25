@@ -252,9 +252,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-		//error_log('add_form_structure');
-	
-		
+
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -262,7 +260,7 @@ class Create {
 	//	error_log('get_current_user_id');
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
-
+  
 		if( empty($_POST['name']) || empty($_POST['value']) ){
 			$m =$lang["errorCheckInputs"];
 			$response = array( 'success' => false , "m"=>$m); 
@@ -276,17 +274,12 @@ class Create {
 		$this->email =  $email;
 		//$this->value = $_POST['value'];
 
-		/* error_log('post');
-		error_log($_POST['value']); */
-
 		$valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
 		$this->value=str_replace('"', '\\"', $valx);
 
-
-		//error_log($this->value);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 
@@ -305,8 +298,8 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		/* error_log('insert');
-		error_log(strlen($this->value)); */
+		error_log('insert_db');
+		error_log($this->value); 
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 

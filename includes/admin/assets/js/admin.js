@@ -236,9 +236,10 @@ console.info('Easy Form Builder 3.4.1> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
-  //console.log('actionSendData_emsFormBuilder');
+  console.log('actionSendData_emsFormBuilder');
   data = {};
   var name = formName_Efb
+  console.log(localStorage.getItem("valj_efb"));
   jQuery(function ($) {
 
 
@@ -1765,7 +1766,7 @@ const saveFormEfb = () => {
   setTimeout(() => {
 
 
-    //console.log(`save[${valj_efb.length}]`);
+    
     //settingModalEfb-body
     //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
     show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
@@ -2702,12 +2703,15 @@ document.addEventListener('DOMContentLoaded', function() {
    
   }, 1000);
 
-  document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        fun_find_track_emsFormBuilder();
-        return false;
-      }});
+  if(document.getElementById('track_code_emsFormBuilder')){
+    document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+          event.preventDefault();
+          fun_find_track_emsFormBuilder();
+          return false;
+        }});
+  }
+ 
 
 }, false);
 

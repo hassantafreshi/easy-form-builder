@@ -569,13 +569,10 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state){
-			
+				error_log("to send_email_state[". $to ."]");
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = "n";
-			   //error_log($mailResult);
-			   $id = get_current_user_id();
-			   $usr =get_user_by('id',$id);
-			   //error_log(json_encode($usr));
+			
 				$support="";
 				//error_log($to);
 				$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
@@ -588,16 +585,34 @@ class efbFunction {
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
-				$message = $this->email_template_efb($pro,$state,$cont);  
-				if($to!=$support && $state!="reportProblem") $mailResult = wp_mail( $to,$sub, $message, $headers );
-				//$mailResult = wp_mail( $support,$sub, $message, $headers);
+				$message = $this->email_template_efb($pro,$state,$cont); 	
+				if($to!=$support && $state!="reportProblem"){
+					 $mailResult =  wp_mail( $to,$sub, $message, $headers ) ;}
+				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
+				
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
-				 $cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:". $usr->user_email.
-				 " role:".$usr->roles[0]." name:".$usr->display_name."";                      
-				 $mailResult = wp_mail( $support,$state, $cont, $headers );
+					error_log("=================?state");
+					error_log($state);
+				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
+				$name ="";
+				$mail="";
+				$role ="";
+				if($id){
+					$usr = get_user_by('id',$id);
+					$mail= $usr->user_email;
+					$name = $usr->display_name;
+					$role = $usr->roles[0];
+				}	
+				
+				 $cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
+				 " role:".$role." name:".$name."";                      
+				 $mailResult = wp_mail( $support,$state, $cont, $headers ) ;
+				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
+				   error_log('end function  send email');
+				   error_log($mailResult);
 			   return $mailResult;
 		}
 
@@ -620,8 +635,9 @@ class efbFunction {
 		$title=$lang["newMessage"];
 		$message ="<h2>".$m."</h2>";
 		$blogName =get_bloginfo('name');
-		$user= get_user_by('id', 1);
-		$adminEmail = $user->user_email;
+		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
+		 
+		$adminEmail = $user!=false ? $user->user_email :'';
 		$blogURL= home_url();
 
 		//error_log('temo');
@@ -705,6 +721,7 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
+		error_log('response_to_user_by_msd_id');
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
 	 
@@ -716,13 +733,16 @@ class efbFunction {
 		$user_res = $data[0]->content;
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
-		//error_log($user_res);
+		error_log("user_res");
+		error_log($user_res);
 		$user_res = json_decode($user_res,true);
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
+		error_log(json_encode($data));
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
+			error_log('if true [response_to_user_by_msd_id]');
 			foreach($user_res as $key=>$val){
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
@@ -745,7 +765,7 @@ class efbFunction {
 					break;
 					case 'email':
 					case 'email_to':
-						$valp[$key][$k]=sanitize_email($v);
+						$valp[$key][$k]= $key!=0 && $k!="email_to" ?  sanitize_email($v): sanitize_text_field($v);
 					break;
 					case 'file':
 					case 'href':
