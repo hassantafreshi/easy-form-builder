@@ -573,7 +573,7 @@ class _Public {
 								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
 							} */
-							error_log('test bbb wp_send_json_success');
+							
 							
 							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
@@ -1141,7 +1141,7 @@ class _Public {
 
 
 	public function update_message_db(){
-		error_log($this->id);
+		//error_log($this->id);
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->ip);
 
@@ -1233,7 +1233,9 @@ class _Public {
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)=="string"){
+			$r =str_replace('\\', '', $r);
 			$setting =json_decode($r);
+			//error_log($setting->secretKey);
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
@@ -1276,7 +1278,8 @@ class _Public {
 				$valn= json_decode($valn,true);
 				$usr;
 				$email_fa = $valn[0]["email"];
-
+				//error_log("setting->emailSupporter");
+				//error_log($setting->emailSupporter);
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 				//error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
@@ -1301,9 +1304,9 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state){
-		error_log('send_email_Emsfb');
-		error_log($to);
-		error_log($state);
+		//error_log('send_email_Emsfb');
+		//error_log($to);
+		//error_log($state);
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -1346,7 +1349,7 @@ class _Public {
 		}   
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state);
-		error_log($check);
+		//error_log($check);
 	}
 
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
@@ -2210,7 +2213,7 @@ class _Public {
 		//s1 head
 		//s2 content new.js  1342
 		$str = '<div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">'.$str.'<form id="efbform">%s<div class="efb mt-1 px-2">%s</div> </form></div>';
-		error_log($str);
+		//error_log($str);
 		/* 
 		
 		 content += `
@@ -2286,8 +2289,8 @@ class _Public {
 		$setting =json_decode($r,true);;
 
 		
-		error_log($setting["emailSupporter"]);
-		error_log($setting["activeCode"]);
+		//error_log($setting["emailSupporter"]);
+		//error_log($setting["activeCode"]);
 		//$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 		$email = isset($setting["emailSupporter"]) ?$setting["emailSupporter"] :null  ;
 		$pro = isset($setting["activeCode"]) &&  strlen($setting["activeCode"])>5 ? $setting["activeCode"] :null ;
@@ -2308,13 +2311,13 @@ class _Public {
 				$msg_obj = json_decode($msg,true); //object of message
 				$fs_obj = json_decode($fs,true); // object of form_structer
 				//$this->id = $trackingCode;
-				error_log($trackingCode);
+				//error_log($trackingCode);
 			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );
 				
-				error_log($fs_obj[0]["trackingCode"]);
-				error_log(gettype($trackingCode));
+				//error_log($fs_obj[0]["trackingCode"]);
+				//error_log(gettype($trackingCode));
 				
-				error_log($fs_obj[0]["sendEmail"]);
+				//error_log($fs_obj[0]["sendEmail"]);
 				
 				$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro);
 				//error_log(json_encode($user_email));
@@ -2334,30 +2337,30 @@ class _Public {
 			});		
 			//trackingCode
 			if($user_email!="null"){
-				error_log("user email@@@@@");
-				error_log($fs_obj[0]["trackingCode"]);
-				error_log(json_encode($user_email));
+				//error_log("user email@@@@@");
+				//error_log($fs_obj[0]["trackingCode"]);
+				//error_log(json_encode($user_email));
 				if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				{	
 					
 					foreach($user_email as $key => $val){	
-						error_log($val['value']);
+						//error_log($val['value']);
 						$this->send_email_Emsfb($val['value'],$trackingCode,$pro,"notiToUserFormFilled_TrackingCode");
 					}						
 				}else{
 					foreach($user_email as $key => $val){	
-						error_log($val['value']);
+						//error_log($val['value']);
 						$this->send_email_Emsfb($val['value'],$trackingCode,$pro,"notiToUserFormFilled");
 					}						 
 				}
 			}
-			error_log("admin email");
-			error_log($admin_email);
+			//error_log("admin email");
+			//error_log($admin_email);
 			if($admin_email!=""){
 				$this->send_email_Emsfb($admin_email,$trackingCode,$pro,"newMessage");
 			}
-			error_log("admin email -> email");
-			error_log($email);
+			//error_log("admin email -> email");
+			//error_log($email);
 			$this->send_email_Emsfb($email,$trackingCode,$pro,"newMessage");
 		}
 	}
