@@ -9,7 +9,7 @@ fun_total_pay_persiaPay_efn=(total)=>{
     total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
 }
 
-console.log("persia_pay.js 3.4.0");
+console.log("persia_pay.js 3.4.2");
 pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;
@@ -61,7 +61,7 @@ add_ui_persiaPay_efb=(rndm)=>{
 
 
 function btnPersiaPayEfb(){
-  console.log("btnPersiaPayEfb");
+  //console.log("btnPersiaPayEfb");
   let btnEfb = document.getElementById('persiaPayEfb');
   btnEfb.innerHTML="لطفا صبر کنید";
   btnEfb.classList.add('disabled')
@@ -141,7 +141,7 @@ fun_after_bankpay_persia_ui =()=>{
       console.log('done!')
       document.getElementById(id).classList.remove('disabled');
      
-      console.log(document.getElementById(id));
+      //console.log(document.getElementById(id));
     }
   fun_disabled_all_pay_efb()
       let o = [{

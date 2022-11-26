@@ -1353,7 +1353,7 @@ function noti_message_efb(title, message, sec, alert) {
   }, sec);
 
   window.scrollTo({ top: document.getElementById('alert_efb').scrollHeight, behavior: 'smooth' });
-  jQuery('.alert').alert()
+  //jQuery('.alert').alert()
 }
 
 
@@ -1613,7 +1613,7 @@ function previewFormEfb(state) {
 
 function fun_prev_send() {
   jQuery(function () {
-    var stp = (valj_efb[0].steps) + 1;
+    var stp = Number(valj_efb[0].steps) + 1;
     var wtn = loading_messge_efb();
     jQuery('#efb-final-step').html(wtn);
     var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');

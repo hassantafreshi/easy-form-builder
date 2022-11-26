@@ -494,6 +494,7 @@ function createStepsOfPublic() {
           const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
           //console.log(ob,id_ob);
           let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
+          
           if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
             let q = valueJson_ws.find(x => x.id_ === el.id);
             //console.log(el , valueJson_ws);
@@ -515,6 +516,9 @@ function createStepsOfPublic() {
            
             fun_sendBack_emsFormBuilder(o[0]);
             //console.log(o[0]);
+          }else if (o[0].type=="email"){
+            //console.log('email type',o);
+            fun_sendBack_emsFormBuilder(o[0]);
           }else {
 
             fun_sendBack_emsFormBuilder(o[0]);
