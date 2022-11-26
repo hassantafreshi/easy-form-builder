@@ -319,7 +319,7 @@ function createStepsOfPublic() {
       }
       el.addEventListener("change", (e) => {
         // e.preventDefault();
-        console.log(el);
+        //console.log(el);
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
         let value = ""
         const id_ = el.dataset.vid
@@ -517,7 +517,7 @@ function createStepsOfPublic() {
             fun_sendBack_emsFormBuilder(o[0]);
             //console.log(o[0]);
           }else if (o[0].type=="email"){
-            console.log('email type',o);
+            //console.log('email type',o);
             fun_sendBack_emsFormBuilder(o[0]);
           }else {
 

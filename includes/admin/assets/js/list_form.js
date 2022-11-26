@@ -187,10 +187,10 @@ function emsFormBuilder_show_content_message(id) {
 
   jQuery('#track_code_emsFormBuilder').on('keypress', 
   function (event) {
-    console.log('track_code_emsFormBuilder',event.which)
+    //console.log('track_code_emsFormBuilder',event.which)
       if (event.which == '13') {
           event.preventDefault();
-          console.log('functin run');
+          //console.log('functin run');
           return;
       }
   });
@@ -1623,7 +1623,7 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
 
 function convertToCSV_emsFormBuilder(objArray) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
-  console.log(objArray);
+  //console.log(objArray);
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
 

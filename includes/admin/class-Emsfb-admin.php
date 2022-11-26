@@ -1036,10 +1036,10 @@ class Admin {
         }
        
     public function file_upload_public(){
-        error_log('file_upload_public');
-        error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
+        //error_log('file_upload_public');
+        //error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
 		if (check_ajax_referer('public-nonce','nonce')!=1){
-			error_log('not valid nonce');
+			error_log('file_upload_public[not valid nonce]');
 			
 			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
 			wp_send_json_success($response,$_POST);

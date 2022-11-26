@@ -193,7 +193,7 @@ function Link_emsFormBuilder(state) {
     }
   }
 
-  console.log(link);
+  //console.log(link);
   window.open(link, "_blank");
 }
 
@@ -236,10 +236,10 @@ console.info('Easy Form Builder 3.4.2> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
-  console.log('actionSendData_emsFormBuilder');
+  //console.log('actionSendData_emsFormBuilder');
   data = {};
   var name = formName_Efb
-  console.log(localStorage.getItem("valj_efb"));
+  //console.log(localStorage.getItem("valj_efb"));
   jQuery(function ($) {
 
 

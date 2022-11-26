@@ -562,10 +562,10 @@ class _Public {
 							$this->get_ip_address();
 							$ip = $this->ip;
 							$check=	$this->insert_message_db(3,false);
-							error_log('time is :');		
+							//error_log('time is :');		
 							$timed = time();									
 							$timed += 20;
-							error_log($timed);						
+							//error_log($timed);						
 							wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 
 							
 							
@@ -2282,7 +2282,7 @@ class _Public {
 	}
 
 	public function corn_email_new_message_recived_Emsfb(){
-		error_log('corn_email_new_message_recived_Emsfb');
+		//error_log('corn_email_new_message_recived_Emsfb');
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)!="string"){error_log('corn_email_new_message_recived_Emsfb->seting not added');return false;}
