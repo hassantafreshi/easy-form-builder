@@ -380,7 +380,7 @@ class _Public {
 			$setting =str_replace('\\', '', $this->setting);
 			$setting =json_decode($setting);
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			//error_log($setting->bootstrap);
+			//error_log($setting->activeCode);
 			$bootstrap =isset($setting->bootstrap) ?$setting->bootstrap: false ;
 			$googleCaptcha = strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
 			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}			
@@ -468,13 +468,15 @@ class _Public {
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
 		
-		if($type!="payment"){
+		//if($type!="payment"){
 			if($fs!=''){
 				$formObj=  json_decode($fs,true);
 				$email_fa = $formObj[0]["email"];
 				$trackingCode = $formObj[0]["trackingCode"];
 				$send_email_to_user_state =$formObj[0]["sendEmail"];			
-				$not_captcha=$formObj[0]["captcha"];
+				
+				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
+				
 				if($formObj[0]["thank_you"]=="rdrct"){
 					$rePage= $this->string_to_url($formObj[0]["rePage"]);
 				}
@@ -485,7 +487,7 @@ class _Public {
 				$response = array( 'success' => false  , 'm'=>$m); 
 				wp_send_json_success($response,$_POST);
 			}
-		}
+		//}
 
 
 	
@@ -773,8 +775,7 @@ class _Public {
 								die();
 							}
 							
-		
-					
+								
 							if(strlen($email_fa)>4){
 								//error_log($email_fa);
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage");
