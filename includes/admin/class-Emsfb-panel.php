@@ -80,7 +80,7 @@ class Panel_edit  {
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
 		
-
+			$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.4.2');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -95,7 +95,8 @@ class Panel_edit  {
 				'bootstrap' =>$this->check_temp_is_bootstrap(),
 				"language"=> get_locale(),
 				"addons"=>$addons,
-				'wp_lan'=>get_locale()
+				'wp_lan'=>get_locale(),
+				'location'=>$location
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.4.2');

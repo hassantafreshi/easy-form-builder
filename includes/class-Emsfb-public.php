@@ -20,7 +20,7 @@ class _Public {
 	public $text_;
 	public $pro_efb;
 	public $pub_stting;
-	
+	public $location;
 	public function __construct() {
 		
 
@@ -58,6 +58,8 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		$this->text_ = ["amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
 		
+
+	
 		//$this->corn_email_new_message_recived_Emsfb();
 	}
 
@@ -215,7 +217,7 @@ class _Public {
 				
 				
 		
-
+				$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
 				$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 				'ajax_value' =>$value,
 				'type' => $typeOfForm,
@@ -228,7 +230,8 @@ class _Public {
 				'rtl' => is_rtl(),
 				'text' =>$text ,
 				'pro'=>$this->pro_efb,
-				'wp_lan'=>get_locale()
+				'wp_lan'=>get_locale(),
+				'location'=> $location
 				);
 
 			if($typeOfForm=="payment"){
@@ -296,7 +299,7 @@ class _Public {
 
 				$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ; 
 				//translate v2
-				$text=["createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+				$text=["message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];				
 				$text= $efbFunction->text_efb($text) ;
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -321,7 +324,7 @@ class _Public {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
-		
+		$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -333,7 +336,8 @@ class _Public {
 			   'rtl' => is_rtl(),
 			   'text' =>$text,
 			   'pro'=>$this->pro_efb,
-			   'wp_lan'=>get_locale()
+			   'wp_lan'=>get_locale(),
+			   'location'=>$location
 		 ));  
 
 	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";	
@@ -557,10 +561,13 @@ class _Public {
 					if($item['id_']==$formObj[0]["email_to"]){return $item["value"];}					
 				});			
 			}
+							$ip = $this->ip=$this->get_ip_address();
+							error_log("ip");
+							error_log($ip);
+							//$this->location = $efbFunction->iplocation_efb($ip,1);
 					switch($type){
 						case "form":						
-							$this->get_ip_address();
-							$ip = $this->ip;
+							
 							$check=	$this->insert_message_db(3,false);
 							//error_log('time is :');		
 							$timed = time();									
@@ -582,9 +589,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 							
 						break;
-						case "payment":	
-							$this->get_ip_address();
-							$ip = $this->ip;
+						case "payment":								
 							$id = sanitize_text_field($_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -739,8 +744,7 @@ class _Public {
 								}
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
 								$fs=str_replace('"', '\\"', $filtered);
-								$this->value = sanitize_text_field($fs);
-								$this->get_ip_address();	
+								$this->value = sanitize_text_field($fs);									
 								$this->id = sanitize_text_field($_POST['payid']);			
 								$check=$this->update_message_db();								
 
@@ -829,7 +833,7 @@ class _Public {
 								//error_log($m);
 								if($email!="null"){
 								
-									$this->get_ip_address();
+									$this->ip= $this->get_ip_address();
 									//$ip = $this->ip;
 									$check=	$this->insert_message_db(0,false);
 									$state= get_user_by( 'email', $email);
@@ -968,8 +972,6 @@ class _Public {
 						break;
 						case "subscribe":
 							//error_log('subscribe2');
-							$this->get_ip_address();
-							//$ip = $this->ip;
 							$check=	$this->insert_message_db(3,false);
 			
 							
@@ -995,7 +997,6 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "survey":
-							$this->get_ip_address();
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(3,false);
 			
@@ -1080,7 +1081,9 @@ class _Public {
 				die();
 			}		
 			$id = sanitize_text_field($_POST['value']);
-			$this->get_ip_address();			
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
+			//$this->location = $this->efbFunction->iplocation_efb($ip,1);			
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );	
 			if($value!=null){
@@ -1122,11 +1125,12 @@ class _Public {
 
 
 	public function insert_message_db($read,$uniqid){
-		//error_log($this->value);
+		error_log($this->ip);
 		if(isset($read)==false) $read=0;
 		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->name);
+		
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -1151,13 +1155,17 @@ class _Public {
 		//,'read_' =>0  , 'ip'=>$this->ip
 	}
 
-	public function get_ip_address(){
-			if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+	public function get_ip_address() {
+        //source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
+        $ip='1.1.1.1';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {$ip = $_SERVER['REMOTE_ADDR'];}
-	 $this->ip = $ip;	 
-	 return $ip;
-	}//end function
+        $ip = strval($ip);
+        $check =strpos($ip,',');
+        if($check!=false){$ip = substr($ip,0,$check);}
+        return $ip;
+    }
 
 
 	public function file_upload_public(){
@@ -1204,7 +1212,7 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		//error_log($_POST['message']);
@@ -1247,15 +1255,25 @@ class _Public {
 				$m=sanitize_text_field($_POST['message']);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
+				$ip =$this->ip= $this->get_ip_address();
+				//$this->location = $efbFunction->iplocation_efb($ip,1);
+				//
+				$table_name = $this->db->prefix . "emsfb_msg_";
+				$value = $this->db->get_results( "SELECT track,form_id,read_ FROM `$table_name` WHERE msg_id = '$id'" );
+				error_log(json_decode($value[0]->read_));
+				if($value[0]->read_==4){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					wp_send_json_success($response,$_POST);
+					die();
+				}
 				$table_name = $this->db->prefix . "emsfb_rsp_";				
-				$ip =$this->get_ip_address();
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
 					'msg_id' => $id, 
 					'rsp_by' => get_current_user_id(), 
 					'read_' => 0,
-					'date'=>wp_date('Y-m-d H:i:s')
+					'date'=>wp_date('Y-m-d H:i:s'),
 					
 				));  
 
@@ -1270,8 +1288,7 @@ class _Public {
 					$by = $usr->user_nicename;
 					//error_log($by);
 				}
-				$table_name = $this->db->prefix . "emsfb_msg_";
-				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
+				
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
@@ -1539,8 +1556,8 @@ class _Public {
 			
 		}
 
+		$ip =$this->get_ip_address();
 		if($price_c != $price_f) {
-			$this->get_ip_address();
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
@@ -1586,7 +1603,7 @@ class _Public {
 					'name' => $description,
 					]);
 
-					 $ip =$this->get_ip_address();
+					 
 					//Create price for products				
 					$price= $stripe->prices->create([
 						'unit_amount' => $price_f,
@@ -1651,7 +1668,6 @@ class _Public {
 			}
 			//array_push($filtered,$ar);
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-			$this->get_ip_address();
 			$this->value = str_replace('"', '\\"', $val_);
 			//error_log($this->value );
 			$this->name = sanitize_text_field($_POST['name']);
@@ -1677,7 +1693,7 @@ class _Public {
                 nonce: ajax_cor_pay.nonce,
                 url :window.location.href
 		*/
-		
+	
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
 			//error_log('not valid nonce');
             $m = __('error', 'easy-form-builder') . ' 403';
@@ -1774,8 +1790,9 @@ class _Public {
 			
 		}
 
+		$this->ip= $this->get_ip_address();
+		$ip = $this->ip;
 		if($price_c != $price_f) {
-			$this->get_ip_address();
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
@@ -1906,7 +1923,7 @@ class _Public {
 				print_r($response); */
 				if($response['success']==true){
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-						$this->get_ip_address();
+						//$this->get_ip_address();
 						$this->value = str_replace('"', '\\"', $val_);
 						//error_log($this->value );
 						$this->name = sanitize_text_field($_POST['name']);

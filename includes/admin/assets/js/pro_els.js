@@ -671,21 +671,67 @@ function addMarker(position) {
 
 
   reply_upload_efb =(msg_id)=>{
-
+    
+ 
+    console.log(stock_state_efb);
+    let btnC = '<!--efb.app-->'
     if( pro_efb==true){
-      return `<div class="efb">
+       if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
+       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
+           ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
+      </button></div>`
+      return `<div class="efb form-check">
       <div class="efb btn btn-light" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
       <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" class="d-none" >
       </div>
+      ${btnC}
     </div>`
     }else{
-      return `<div class="efb">
-      <div class="efb btn btn-light" id="attach_efb" onclick="pro_show_efb(1)">
+      if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
+      <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} "id="respStateEfb">
+          <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
+          ${$pr}
+     </button></div>`;
+      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(1)"><i class="efb  bi-gem text-light" ></i></a>`;
+      //const cls = stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink";
+      return `<div class="efb form-check">
+      <div class="efb btn btn-light" id="attach_efb" >
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
-        <a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
+        ${$pr}
       </div>
+       ${btnC}
     </div>`
     }
   
+}
+
+
+function closed_resp_emsFormBuilder(msg_id){
+ 
+  console.log(`message status [${stock_state_efb}]`);
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo }</div></div>`
+  show_modal_efb(body, efb_var.text.close, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+
+  //myModal.show_efb();
+  state_modal_show_efb(1)
+  confirmBtn.addEventListener("click", (e) => {
+    console.log(msg_id);
+    //s= document.getElementById('respStateEfb').dataset.state;
+    console.log(`s===>[${stock_state_efb}]`);
+    close_resp_efb(msg_id,stock_state_efb);
+    activeEl_efb = 0;
+    state_modal_show_efb(0)
+
+  })
+  //myModal.show_efb();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+close_resp_efb=(id,s)=>{
+  const ob = s==1 ? [{id_:'message', name:'message', type:'opened', amount:0, value: efb_var.text.clsdrspo, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}] : [{id_:'message', name:'message', type:'closed', amount:0, value: efb_var.text.clsdrspn, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}]
+  sendBack_emsFormBuilder_pub= ob;
+  fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
 }

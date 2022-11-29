@@ -36,6 +36,7 @@ setTimeout(() => {
       efb_var = ajax_object_efm;
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
+      page_state_efb="public";
       localStorage.setItem('form_id', efb_var.id);
 
       if (ajax_object_efm.state != 'tracker') {
@@ -967,10 +968,10 @@ function fun_tracking_show_emsFormBuilder() {
 }
 
 function fun_vaid_tracker_check_emsFormBuilder() {
-  el = document.getElementById('trackingCodeEfb').value;
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
   document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
   document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+  el = document.getElementById('trackingCodeEfb').value;
   if (el.length < 5) {
     document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
     document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -1044,7 +1045,7 @@ function emsFormBuilder_show_content_message(value, content) {
   }
   //reply  message ui
   let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
-  <label for="replayM_emsFormBuilder" class:'mx-1">${ajax_object_efm.text.reply}:</label>
+  <label for="replayM_emsFormBuilder" class:'efb mx-1" id="label_replyM_efb">${ajax_object_efm.text.reply}:</label>
   <textarea class="efb form-control border-d" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
   
   </div>
@@ -1093,7 +1094,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
   </div>
  <hr>
- <h6 class="efb  text-dark my-2">${ajax_object_efm.text.response} </h6>`;;
+ `;;
 
  
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
@@ -1167,7 +1168,9 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
-       m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span>`
+       let title = c.name.toLowerCase();
+        title = efb_var.text[title]|| c.name ;
+       m += `<p class="efb fs-6 my-0 efb  form-check">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
        if(c.type.includes('pay')&& c.id_!="payment") {
 
         m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
@@ -1175,7 +1178,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
        m+=`</p>`;
       }
 
-
+     
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
         m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
@@ -1208,8 +1211,13 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
             <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p> -->
             </div>`
       }
-      
+    
+    }else if (c.type =="closed"){
+      stock_state_efb=true;
+    }else if (c.type =="opened"){
+      stock_state_efb=false;
     }
+    console.log(c.type,stock_state_efb);
   }
   m += '</div>';
   //console.log('m',m);
@@ -1219,9 +1227,9 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
 function fun_send_replayMessage_emsFormBuilder(id) {
   //پاسخ مدیر را ارسال می کند به سرور 
-  let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
+  let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   // +='disabled fas fa-spinner fa-pulse';
   const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
   //const ob = [{ name: 'Message', value: message, by: by }];
@@ -1251,6 +1259,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
+  console.log('dddddddddddddd');
   jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",
@@ -1501,6 +1510,7 @@ function response_Valid_tracker_efb(res) {
     /* attachment reply */
     setTimeout(() => {
      if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
+     state_rply_btn_efb(100)
     }, 50);
      /* end attachment reply */
  /*    jQuery('#replayM_emsFormBuilder').on('keypress', 

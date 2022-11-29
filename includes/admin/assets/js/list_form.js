@@ -7,6 +7,7 @@ let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
 let response_state_efb;
+
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
 jQuery(function () {
@@ -14,7 +15,7 @@ jQuery(function () {
   poster_emsFormBuilder = ajax_object_efm.poster
   response_state_efb = ajax_object_efm.response_state;
   pro_ws = ajax_object_efm.pro == '1' ? true : false;
-
+  page_state_efb="panel";
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
     /* if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
@@ -148,7 +149,7 @@ function emsFormBuilder_show_content_message(id) {
   //console.log(valueJson_ws_messages[indx]);
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
- // console.log('emsFormBuilder_show_content_message');
+  console.log('emsFormBuilder_show_content_message');
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
   form_type_emsFormBuilder = formType;
@@ -157,7 +158,7 @@ function emsFormBuilder_show_content_message(id) {
     if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
       r = `   
       <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
-        <label for="replayM_emsFormBuilder" class="efb form-label m-2">${efb_var.text.reply}:</label>
+        <label for="replayM_emsFormBuilder" class="efb form-label m-2" id="label_replyM_efb">${efb_var.text.reply}:</label>
         <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
       </div>
      <div class="efb col text-right row mx-1">
@@ -261,6 +262,7 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  console.log('fun_emsFormBuilder_show_messages',content);
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
     <div class="efb  form-check">
@@ -273,7 +275,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
    </div>
   <hr>
-  <h6 class="efb  text-dark my-2">${efb_var.text.response} </h6>`;
+  `;
   content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
   let list = []
   let s = false;
@@ -340,7 +342,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
-       m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
+        let title = c.name.toLowerCase();
+        title = efb_var.text[title]|| c.name ;
+        m += `<p class="efb fs-6 my-0 efb  form-check">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
+       //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         if(c.type.includes('pay')&& c.id_!="payment") {
 
           m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
@@ -384,9 +389,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
             <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p>
             </div>`
       }
+    }else if (c.type =="closed"){
+      stock_state_efb=true;
+    }else if (c.type =="opened"){
+      stock_state_efb=false;
     }
   }
   m += '</div>';
+
+ 
   return m;
 }
 
@@ -415,11 +426,11 @@ function fun_ws_show_edit_form(id) {
 
 function fun_send_replayMessage_emsFormBuilder(id) {
   //پاسخ مدیر را ارسال می کند به سرور 
+  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
+  document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
 
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   //const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
-  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
-  document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   // +='disabled fas fa-spinner fa-pulse';
   //const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}];
@@ -432,6 +443,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
+  
   fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
 
 
@@ -678,9 +690,14 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
+      console.log(res.data.ajax_value.length,res.data.ajax_value);
       if (res.success == true) {
         fun_ws_show_response(res.data.ajax_value);
       }
+      console.log(res.data.ajax_value);
+      state_rply_btn_efb(100)
+      //codeHere 778899 
+      //create and call a funcation for disable and anabled
     })
   });
 }
@@ -688,6 +705,7 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
 
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
+  console.log(message,id);
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     //noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
@@ -706,19 +724,31 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
-        // noti_message_efb(res.data.m, 7 , 'info')
-        document.getElementById('replayM_emsFormBuilder').innerHTML = "";
-        document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-        const date = Date();
-        document.getElementById('replayM_emsFormBuilder').value = "";
-        fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
-        const chatHistory = document.getElementById("resp_efb");
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        if(document.getElementById('replay_state__emsFormBuilder')){
+
+          document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
+          // noti_message_efb(res.data.m, 7 , 'info')
+          document.getElementById('replayM_emsFormBuilder').innerHTML = "";
+          document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+          const date = Date();
+          document.getElementById('replayM_emsFormBuilder').value = "";
+          fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
+          const chatHistory = document.getElementById("resp_efb");
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+        }else{
+          // res.data.m
+          noti_message_efb(res.data.m,'', 7 , 'info')
+        }
+        
+        
       } else {
         // noti_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
+        if(document.getElementById('replay_state__emsFormBuilder')){
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+        }else{
+          noti_message_efb(res.data.m,'', 12 , 'danger')
+        }
       }
     })
   });
@@ -727,7 +757,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
-  //console.log('fun_emsFormBuilder__add_a_response_to_messages');
+  console.log('fun_emsFormBuilder__add_a_response_to_messages');
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body

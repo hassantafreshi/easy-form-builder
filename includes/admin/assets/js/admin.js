@@ -312,12 +312,12 @@ function actionSendAddons_efb(val) {
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
-
+          console.log(res);
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+         noti_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     })

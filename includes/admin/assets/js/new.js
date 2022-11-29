@@ -23,6 +23,8 @@ let current_s_efb = 1
 let devlop_efb = false;
 let preview_efb = false;
 let lan_name_emsFormBuilder ='en';
+let stock_state_efb =false;
+let page_state_efb ="";
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
 
@@ -883,7 +885,7 @@ const open_whiteStudio_efb = (state) => {
       // چگونه کی گوگل مپ اضافه کنیم
       break;
     case 'pro':
-      link += `https://whitestudio.team/#price`
+      link = `https://whitestudio.team/#price`
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
@@ -2194,5 +2196,44 @@ santize_string_efb=(str)=>{
   return  str.replaceAll(regexp,'do not use HTML tags');
 }
 
+state_rply_btn_efb=(t)=>{
+   /* new code */
+    /*  end new code */
+    console.log('state_rply_btn_efb',stock_state_efb);
+   setTimeout(() => {
+     if(stock_state_efb==true){
+       let d= document.getElementById('respStateEfb');
+       if(d){
+          d.disabled=false;
+         d.classList.remove('btn-outline-pink');
+         d.classList.contains('btn-outline-pink') ? 0 : d.classList.remove('btn-outline-pink');
+         d.classList.contains('btn-outline-success') ? 0 : d.classList.add('btn-outline-success');
+         d.innerHTML =  efb_var.text.open;
+         d.dataset.state ="1";
+       }
+
+       document.getElementById("replayB_emsFormBuilder").remove();
+       console.log(document.getElementById("replayB_emsFormBuilder"));
+       document.getElementById("attach_efb").remove();
+       document.getElementById("replayM_emsFormBuilder").remove();
+       document.getElementById("label_replyM_efb").remove();
+       document.getElementById("replay_state__emsFormBuilder").innerHTML=`<h5 class="efb fs-4 my-3 text-center text-pinkEfb">${efb_var.text.clsdrspn}</h5>`
+
+      }else{
+        //XZ7CN48OKGV9
+        let d= document.getElementById('respStateEfb');
+        if(d){
+          d.disabled=false;
+          d.classList.contains('btn-outline-success') ? 0 : d.classList.remove('btn-outline-success');
+          d.classList.contains('btn-outline-pink') ? 0 : d.classList.add('btn-outline-pink');
+          d.innerHTML =  efb_var.text.close;
+          d.dataset.state ="0";
+         
+        }
+      }
+   }, t);
+   console.log('end fun new');
+   /*  end new code */
+}
 
 

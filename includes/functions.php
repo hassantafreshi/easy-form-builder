@@ -552,6 +552,11 @@ class efbFunction {
 			"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : __('Qty','easy-form-builder'),				
 			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : __('Warning to WPBakery users for more information click here.','easy-form-builder'),				
+			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : __('Are you sure to close the responses to this message?','easy-form-builder'),				
+			"clsdrspnsMo" => $state  &&  isset($ac->text->clsdrspnsMo) ? $ac->text->clsdrspnsMo : __('Are you sure to open the responses to this message?','easy-form-builder'),				
+			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
+			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
+			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -778,5 +783,39 @@ class efbFunction {
 		}
 		return $valp;
 	}//end function
+
+
+	public function get_geolocation() {		
+		  $ip = $this->get_ip_address();
+		  $this->iplocation_efb($ip,1);
+	  }
+
+	  public function get_ip_address() {        
+        $ip='1.1.1.1';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+        $ip = strval($ip);
+        $check =strpos($ip,',');
+        if($check!=false){$ip = substr($ip,0,$check);}
+        return $ip;
+    }
+
+	public function iplocation_efb($ip , $state){
+		$url = "https://api.iplocation.net/?ip=".$ip."";
+		$cURL = curl_init();
+
+		curl_setopt($cURL, CURLOPT_URL, $url);
+		curl_setopt($cURL, CURLOPT_HTTPGET, true);
+		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json',
+			'Accept: application/json',
+			'User-Agent: '.$_SERVER['HTTP_USER_AGENT']
+		));
+		$location = json_decode(curl_exec($cURL), true);  
+		
+		return $state==1 ? $location["country_code2"] :$location  ;
+	}
 
 }

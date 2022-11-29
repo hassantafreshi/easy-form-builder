@@ -201,6 +201,8 @@ class Create {
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.4.2');
 		wp_enqueue_script('stripe_js');
 
+
+		$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.4.2');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -216,7 +218,8 @@ class Create {
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
 			"language"=> get_locale(),
 			"addons"=>$addons,
-			'wp_lan'=>get_locale()
+			'wp_lan'=>get_locale(),
+			'location'=>$location
 			
 		));
 

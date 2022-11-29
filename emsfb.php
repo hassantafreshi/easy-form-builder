@@ -25,6 +25,10 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
     define("EMSFB_PLUGIN_DIRECTORY", plugin_dir_path(__FILE__));
 }
 
+if (!defined("EMSFB_PLUGIN_VERSION")) {
+    define("EMSFB_PLUGIN_VERSION", "3.4.2");
+}
+
 /** Constant pointing to the root directory URL of the plugin */
 if (!defined("EMSFB_PLUGIN_URL")) {
     define("EMSFB_PLUGIN_URL", plugin_dir_url(__FILE__));

@@ -95,7 +95,18 @@ class Admin {
                 }
             }, 10, 3 ); */
 
-           
+            //=>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<< 
+            //test code for create database adsone 
+            /* $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
+            if(file_exists($fl_ex)){
+                error_log('file exists');
+                $name ='smartzone';
+                $name ='\Emsfb\\'.$name;
+                require_once $fl_ex;
+                $t = new $name();
+                
+            }else{error_log('link not find: '.  $fl_ex);} */
+            //end test 
         } 
     }
 
@@ -264,7 +275,7 @@ class Admin {
 
     public function update_form_id_Emsfb() {
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
-        $text = ["error403","invalidRequire","nAllowedUseHtml","updated"];
+        $text = ["error403","invalidRequire","nAllowedUseHtml","updated","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             //error_log('not valid nonce');
@@ -306,7 +317,7 @@ class Admin {
     public function add_addons_Emsfb() {
         
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
-        $text = ["error403","done","invalidRequire"];
+        $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
         	/*
@@ -372,14 +383,22 @@ class Admin {
             }
             
             $body = wp_remote_retrieve_body( $request );
-            /* error_log('body');
-            error_log($body); */
             $data = json_decode( $body );
+
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, $_POST);
                 die();
             }
+
+            // Check version of EFB to Addons
+            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+                $m = $lang["upDMsg"];
+                $response = ['success' => false, "m" => $m];
+                wp_send_json_success($response, $_POST);
+                die();
+            }
+
             if($data->download==true){
                 $url =$data->link;
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
@@ -673,7 +692,7 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-
+        error_log('set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -704,9 +723,22 @@ class Admin {
         $id = number_format($_POST['id']);
         $m  = sanitize_text_field($_POST['message']);
 
-        $table_name = $this->db->prefix . "emsfb_rsp_";
         //echo $table_name;
-
+        error_log($m);
+        //"type\":\"closed\"
+        
+        $table_name = $this->db->prefix . "emsfb_msg_";
+        if(strpos($m , '"type\":\"closed\"')){
+            error_log('closed');
+            error_log( $id);
+            //$id
+            $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
+        }else if(strpos($m , '"type\":\"opened\"')){
+            error_log('opened');
+            $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);
+            error_log( $id);
+        }
+        $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
         $this->db->insert(
             $table_name,
@@ -991,9 +1023,13 @@ class Admin {
 
     public function get_ip_address() {
         //source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        $ip='1.1.1.1';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {$ip = $_SERVER['REMOTE_ADDR'];}
+        $ip = strval($ip);
+        $check =strpos($ip,',');
+        if($check!=false){$ip = substr($ip,0,$check);}
         return $ip;
     }
 
@@ -1012,6 +1048,9 @@ class Admin {
         public function fun_addon_new($url){
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
+            $name =substr($url,strrpos($url ,"/")+1,-4);
+            error_log('fun_addon_new');
+            error_log($name);
             $r =download_url($url);
             if(is_wp_error($r)){
                 //show error message
@@ -1031,6 +1070,17 @@ class Admin {
                         //error_log('success unzip');
                     }    
                 }            
+            }
+
+
+            //run install php of addons
+            $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
+                    
+            if(file_exists($fl_ex)){
+                error_log('file exists');            
+                $name ='\Emsfb\\'.$name;
+                require_once  $fl_ex;  
+                $t = new $name();      
             }
             //error_log('fun_addon_new');
         }
