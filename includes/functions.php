@@ -431,7 +431,7 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localize the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('The message was not sent! Please contact Admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template has used BootStrap framework >> Save','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template has used BootStrap framework >> Save <br> Please feel free to contact us on whitestudio.team website, if you experience any further problems.','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
@@ -804,14 +804,26 @@ class efbFunction {
 	public function iplocation_efb($ip , $state){
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
-
+		$userAgent ;
+		if(empty($_SERVER['HTTP_USER_AGENT'])){
+			error_log('empty user agent');
+			$userAgent = array(
+				'name' => 'unrecognized',
+				'version' => 'unknown',
+				'platform' => 'unrecognized',
+				'userAgent' => ''
+			);
+		}else{
+			error_log('not empty user agent');
+			$userAgent =$_SERVER['HTTP_USER_AGENT'];
+		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
 		curl_setopt($cURL, CURLOPT_HTTPGET, true);
 		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
 			'Accept: application/json',
-			'User-Agent: '.$_SERVER['HTTP_USER_AGENT']
+			'User-Agent: '.$userAgent
 		));
 		$location = json_decode(curl_exec($cURL), true);  
 		

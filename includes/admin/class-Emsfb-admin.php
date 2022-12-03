@@ -733,6 +733,7 @@ class Admin {
             error_log( $id);
             //$id
             $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
+            error_log($r);
         }else if(strpos($m , '"type\":\"opened\"')){
             error_log('opened');
             $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);

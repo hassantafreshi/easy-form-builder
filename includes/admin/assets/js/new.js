@@ -1948,7 +1948,7 @@ function funTnxEfb(val, title, message) {
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
-                   <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copy}
+                   <i class="efb fs-5 bi-clipboard-check mx-1"></i>${efb_var.text.copy}
                </button></div>`
   return `
                     <h4 class="efb  my-1">

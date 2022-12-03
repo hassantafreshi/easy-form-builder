@@ -18,13 +18,13 @@ jQuery(function () {
   page_state_efb="panel";
   if (ajax_object_efm.setting, ajax_object_efm.setting.length > 0) {
     valueJson_ws_setting = (JSON.parse(ajax_object_efm.setting[0].setting.replace(/[\\]/g, '')));
-    /* if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
+    if (valueJson_ws_setting.bootstrap == 0 && ajax_object_efm.bootstrap == 1) {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
         setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
-    } */
+    }
   }
   fun_emsFormBuilder_render_view(25); //778899
 });
@@ -483,6 +483,7 @@ function fun_ws_show_list_messages(value) {
   if (value.length > 0) {
     for (const v of value) {
       let state = Number(v.read_);
+      console.log(state);
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
@@ -490,7 +491,7 @@ function fun_ws_show_list_messages(value) {
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
             <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})" >
-             ${Number(state) != 1 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
+             ${Number(state) != 1 && Number(state) != 4 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="14" height="14" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
              <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id}" onClick="${pro_ws == true ? `emsFormBuilder_delete(${v.msg_id} ,'message')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}" ><i class="efb  bi-trash"></i> </a>
             </td>                               
             </tr>` ;
@@ -1194,12 +1195,13 @@ function fun_switch_saveSetting(i, id) {
 
 function fun_set_setting_emsFormBuilder() {
   // fun_state_loading_message_emsFormBuilder(1);
-  document.getElementById('save-stng-efb').classList.add('disabled');
+  let btn = document.getElementById('save-stng-efb');
+  btn.classList.add('disabled');
 
-  const nnrhtml = document.getElementById('save-stng-efb').innerHTML;
-  document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
-
-  fun_State_btn_set_setting_emsFormBuilder();
+  const nnrhtml = btn.innerHTML;
+  btn.innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  
+  //fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
     const el = document.getElementById(id)
 
@@ -1335,8 +1337,8 @@ function fun_set_setting_emsFormBuilder() {
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,AdnBEF:AdnBEF});
   }
 
-  document.getElementById('save-stng-efb').innerHTML = nnrhtml
-  document.getElementById('save-stng-efb').classList.remove('disabled');
+  /* document.getElementById('save-stng-efb').innerHTML = nnrhtml
+  document.getElementById('save-stng-efb').classList.remove('disabled'); */
 }
 
 function fun_State_btn_set_setting_emsFormBuilder() {
@@ -1398,7 +1400,9 @@ function fun_send_setting_emsFormBuilder(data) {
         time = 7;
       }
       //console.log(res)
-      noti_message_efb(t, m, time, lrt)
+      noti_message_efb(t, m, time, lrt);
+      document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
+     document.getElementById('save-stng-efb').classList.remove('disabled');
     })
   });
 }

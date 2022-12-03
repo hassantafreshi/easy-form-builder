@@ -79,10 +79,10 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		$this->public_scripts_and_css_head();
-		
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$row_id = array_pop($id);
 		$this->id = $row_id;
+		error_log($this->id);
 		$state="";
 		$pro=  $this->pro_efb;
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -216,7 +216,9 @@ class _Public {
 				
 				
 				
-		
+				//error_log($this->id);
+				$code = 'efb'.$this->id;
+				//error_log($code);
 				$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
 				$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 				'ajax_value' =>$value,
@@ -231,7 +233,9 @@ class _Public {
 				'text' =>$text ,
 				'pro'=>$this->pro_efb,
 				'wp_lan'=>get_locale(),
-				'location'=> $location
+				'location'=> $location,
+				'nonce_msg'=> wp_create_nonce($code),
+				
 				);
 
 			if($typeOfForm=="payment"){
@@ -325,6 +329,7 @@ class _Public {
 			}
 		}
 		$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
+		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -384,7 +389,10 @@ class _Public {
 			$setting =str_replace('\\', '', $this->setting);
 			$setting =json_decode($setting);
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			//error_log($setting->activeCode);
+			error_log("setting->activeCode");
+			error_log($setting->activeCode);
+			error_log($setting->bootstrap);
+			error_log("setting->activeCode");
 			$bootstrap =isset($setting->bootstrap) ?$setting->bootstrap: false ;
 			$googleCaptcha = strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
 			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}			
@@ -414,12 +422,11 @@ class _Public {
 			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.4.2');
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
-			
-			wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.4.2');
-			wp_enqueue_style('Emsfb-bootstrap-css');
-
+						
 		}
-				
+		
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.4.2');
+		wp_enqueue_style('Emsfb-bootstrap-css');
 		
 		
 
@@ -451,7 +458,18 @@ class _Public {
 		$text_ =['payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		if (check_ajax_referer('public-nonce','nonce')!=1){
+		$this->id = sanitize_text_field($_POST['id']);
+		$msgnonce = 'efb'.$this->id;
+		
+		// 
+		if (check_ajax_referer('public-nonce','nonce')==false){
+			//error_log('not valid nonce');	
+			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+
+		if (check_ajax_referer($msgnonce,'nonce_msg')==false){
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
@@ -464,7 +482,6 @@ class _Public {
 		$email=get_option('admin_email');
 		$setting;
 		$rePage ="null";
-		$this->id = sanitize_text_field($_POST['id']);;
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
@@ -1101,9 +1118,13 @@ class _Public {
 				}
 			}
 			$r = false;
+			$code = 'efb'.$this->id;
+			error_log($code);
+			$code =wp_create_nonce($code);
+			error_log($code);
 			if($value!=null){
 				$r=true;
-				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
+				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code); 
 			}else{
 				$response = array( 'success' => false  , "m" =>$lanText["cCodeNFound"]); 
 			}
@@ -1212,11 +1233,21 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		//error_log($_POST['message']);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
+			//error_log('not valid nonce');
+			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		error_log($_POST['nonce_msg']);
+		error_log($_POST['id']);
+		$by ="";
+		$msgnonce = 'efb'.$this->id;
+		if (check_ajax_referer($msgnonce,'nonce_msg')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
@@ -1315,7 +1346,8 @@ class _Public {
 				$response = array( 'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by); 										
 				wp_send_json_success($response,$_POST);	
 		}else{
-			$response = array( 'success' => false , "m"=>$this->lanText["MMessageNSendEr"] , "by"=>$by);
+			$m = $this->lanText["settingsNfound"] . '</br>' . $this->lanText["MMessageNSendEr"] ;
+			$response = array( 'success' => false , "m"=>$m, "by"=>$by);
 			wp_send_json_success($response,$_POST);	
 		}
 
