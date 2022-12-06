@@ -274,7 +274,7 @@ class efbFunction {
 			"duplicate" => $state ? $ac->text->duplicate : __('Duplicate','easy-form-builder'),
 			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in the Pro version','easy-form-builder'),
 			"mobilePreview" => $state ? $ac->text->mobilePreview : __('Mobile Preview','easy-form-builder'),
-			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out our form.','easy-form-builder'),
+			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out the form.','easy-form-builder'),
 			"finish" => $state ? $ac->text->finish : __('Finish','easy-form-builder'),
 			"dragAndDropA" => $state ? $ac->text->dragAndDropA : __('Drag & Drop the','easy-form-builder'),
 			"browseFile" => $state ? $ac->text->browseFile : __('Browse File','easy-form-builder'),
