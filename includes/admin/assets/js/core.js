@@ -303,6 +303,7 @@ function validateForm_emsFormBuilder_view() {
             break;
           case 'url':
             const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            
             if (check === null && input.classList.contains('require') == true) {
               valid = false;
               input.className += ' invalid';

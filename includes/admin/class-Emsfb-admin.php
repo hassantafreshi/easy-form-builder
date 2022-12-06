@@ -585,7 +585,7 @@ class Admin {
             }
         } */
         $id = number_format($_POST['id']);
-
+        
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
 
@@ -640,13 +640,16 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-
-        $id = number_format($_POST['id']);
+        $id = sanitize_text_field(($_POST['id']));
+        $code = 'efb'. $id;
+        
+        $code =wp_create_nonce($code);       
+        $id = number_format( $id);
        // error_log($_POST['form']);
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         //error_log(json_encode($value));
-        $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id];
+        $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
         wp_send_json_success($response, $_POST);
     }
 
@@ -695,7 +698,7 @@ class Admin {
         error_log('set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
-        $text = ["error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
+        $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $efbFunction->text_efb($text);
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -724,20 +727,91 @@ class Admin {
         $m  = sanitize_text_field($_POST['message']);
 
         //echo $table_name;
+        $m = str_replace("\\","",$m);	
         error_log($m);
+        $message =json_decode($m);
+				$valobj=[];
+				error_log(json_encode($message,JSON_UNESCAPED_UNICODE));
+				$stated=1;
+				foreach ($message as $k =>$f){
+					
+					$in_loop=true;
+				
+					if($stated==0){break;}					  
+						error_log($f->type);
+						error_log("stated:");
+						error_log($stated);
+						switch ($f->type) {											
+							case 'allformat':	
+								$d = $_SERVER['HTTP_HOST'];
+								//$p = strpos($item['url'],'http://'.$d);
+								//don't change value stated because always file is sending 
+								$stated=1;
+								if(isset($f->url) && strlen($f->url)>5 ){
+									$stated=0;
+									$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
+									$s = 0 ;
+									foreach ($ar as  $r) {
+										$c=strpos($f->url,$r);
+										if(gettype($c)!='boolean' && $c==0){
+											error_log("position: URL");
+											error_log(gettype(strpos($f->url,$r)));
+											error_log($f->url);
+											error_log("r");
+											error_log($r);
+											$s=1;
+										
+										}
+									}								
+										if($s==1 ){
+											$stated=1;
+											$f->url = sanitize_url($f->url);								
+											
+										}else{
+											error_log("not valid link");
+											$f->url="";											
+											$stated=0;
+										}
+								}
+									$in_loop=false;
+							break;													
+							default:
+								$stated=0;
+								if(isset($f->value) && $f->id_=="message"){
+									$stated=1;
+									$f->value = sanitize_text_field($f->value);
+								}
+								//$item['value'] =  'test';
+								error_log("--------------> default value");	
+								
+								$in_loop=false;
+							break;
+						}
+						if($stated==0){
+							$response = array( 'success' => false  , 'm'=>$lang["error405"]); 
+							wp_send_json_success($response,$_POST);
+						}
+						//&& $f['name']==$item['name']	
+						/* error_log("json_encode(item)");										
+						error_log(json_encode($item));	 */																											
+				//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
+				
+				}
+                $m = json_encode($message,JSON_UNESCAPED_UNICODE);
+				$m = str_replace('"', '\\"', $m);
         //"type\":\"closed\"
         
         $table_name = $this->db->prefix . "emsfb_msg_";
         if(strpos($m , '"type\":\"closed\"')){
-            error_log('closed');
-            error_log( $id);
+            /* error_log('closed');
+            error_log( $id); */
             //$id
             $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
-            error_log($r);
+            //error_log($r);
         }else if(strpos($m , '"type\":\"opened\"')){
-            error_log('opened');
+            //error_log('opened');
             $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);
-            error_log( $id);
+            //error_log( $id);
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
@@ -885,7 +959,11 @@ class Admin {
             error_log($value[0]->track); */
 
         if (count($value)>0) {
-            $response = ['success' => true, "ajax_value" => $value];
+            error_log(json_encode($value));
+            $code = 'efb'. $value[0]->msg_id;
+			error_log($value[0]->msg_id);
+			$code =wp_create_nonce($code);
+            $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
             $m = $lang["cCodeNFound"];
@@ -1050,8 +1128,8 @@ class Admin {
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
             $name =substr($url,strrpos($url ,"/")+1,-4);
-            error_log('fun_addon_new');
-            error_log($name);
+            /* error_log('fun_addon_new');
+            error_log($name); */
             $r =download_url($url);
             if(is_wp_error($r)){
                 //show error message
@@ -1085,18 +1163,54 @@ class Admin {
             }
             //error_log('fun_addon_new');
         }
-       
+        
     public function file_upload_public(){
-        //error_log('file_upload_public');
+        error_log('file_upload_public');
+        /* start new code */
+        error_log($_POST['id']);
+		error_log($_POST['nonce_msg']);
+		error_log($_POST['pl']);
+        $_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['pl']=sanitize_text_field($_POST['pl']);
+        $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
+        $vl=null;
+        if($_POST['pl']!="msg"){
+            $vl ='efb'. $_POST['id'];
+        }else{
+            $id = $_POST['id'];
+            $table_name = $this->db->prefix . "emsfb_form";
+            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            if($vl!=null){       
+                error_log('===========> row not null');       
+                error_log($vl);       
+                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') || strpos($vl , '"type":"dadfile"') || strpos($vl , '"type":"file"')){
+                    error_log('===========> file input exists');
+                    $vl ='efb'.$id;
+                    //'efb'.$this->id
+                }
+                /* $m = str_replace('\\', '', $vl);       
+                $vl = json_decode($m,true); */
+                //"type":"file"
+                //
+            }
+        
+        }
+        error_log('check_ajax_referer(vl,"nonce_msg")');
+        error_log(check_ajax_referer($vl,"nonce_msg"));
+       
+        /* end new code */
         //error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
-		if (check_ajax_referer('public-nonce','nonce')!=1){
-			error_log('file_upload_public[not valid nonce]');
+       // check_ajax_referer($msgnonce,'nonce_msg')
+        //$nonce_msg = $_POST['nonce_msg'];
+		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
+			//error_log('file_upload_public[not valid nonce]');
 			
 			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
 			wp_send_json_success($response,$_POST);
 			die();
 		} 
-        
+        /* end new code */
+        error_log($_FILES['file']['type']);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,
@@ -1107,6 +1221,8 @@ class Admin {
 		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
+
+      
 		
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری

@@ -1,6 +1,10 @@
 console.log('stripe pay loaded stripe_pay.js');
 
 fun_add_stripe_efb = () => {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
     if (typeof document.getElementById('cardnoEfb') != "object") return;
     //console.log('fun_add_stripe_efb');
     if (ajax_object_efm.hasOwnProperty('paymentKey')) {    

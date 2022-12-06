@@ -24,11 +24,12 @@
 	--bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 	--bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))
 }
-*,::after,::before {
+/* *, */
+.efb,.efb::after,.efb::before {
 	box-sizing: border-box
 }
 @media (prefers-reduced-motion:no-preference) {
-	:root {
+	:root.efb {
 		scroll-behavior: smooth 
 }
 }
@@ -3071,7 +3072,7 @@ textarea.efb.form-control-lg {
 	padding-right: .75rem;
 	padding-left: .75rem
 }
-.nav {
+.efb.nav {
 	display: flex;
 	flex-wrap: wrap;
 	padding-left: 0;
@@ -8376,4 +8377,8 @@ textarea.efb.form-control-lg {
 	.efb.d-print-none {
 		display: none !important 
 }
+}
+
+label input[type="radio"].efb{
+	visibility: hidden;
 }

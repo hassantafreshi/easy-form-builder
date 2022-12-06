@@ -513,6 +513,7 @@ class efbFunction {
 			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy form builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
+			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : __(' Please check your internet connection and try again.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
 			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : __('You have trouble with JQuery . Please contact to admin (Error code: JQ-500)','easy-form-builder'),
 			"basic" => $state  &&  isset($ac->text->basic) ? $ac->text->basic : __('Basic','easy-form-builder'),
@@ -787,7 +788,7 @@ class efbFunction {
 
 	public function get_geolocation() {		
 		  $ip = $this->get_ip_address();
-		  $this->iplocation_efb($ip,1);
+		 return $this->iplocation_efb($ip,1);
 	  }
 
 	  public function get_ip_address() {        
@@ -806,7 +807,7 @@ class efbFunction {
 		$cURL = curl_init();
 		$userAgent ;
 		if(empty($_SERVER['HTTP_USER_AGENT'])){
-			error_log('empty user agent');
+			//error_log('empty user agent');
 			$userAgent = array(
 				'name' => 'unrecognized',
 				'version' => 'unknown',
@@ -814,7 +815,7 @@ class efbFunction {
 				'userAgent' => ''
 			);
 		}else{
-			error_log('not empty user agent');
+			//error_log('not empty user agent');
 			$userAgent =$_SERVER['HTTP_USER_AGENT'];
 		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
@@ -825,9 +826,13 @@ class efbFunction {
 			'Accept: application/json',
 			'User-Agent: '.$userAgent
 		));
-		$location = json_decode(curl_exec($cURL), true);  
+		$location = json_decode(curl_exec($cURL), true); 
+		if(isset($location)){
+			return $state==1 ? $location["country_code2"] :$location  ;
+		}else{
+			return 0;
+		}
 		
-		return $state==1 ? $location["country_code2"] :$location  ;
 	}
 
 }

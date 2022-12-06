@@ -298,7 +298,7 @@ function viewfileReplyEfb(id, indx) {
       /* document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show') */
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
-      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat');
+      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;
@@ -656,11 +656,11 @@ function addMarker(position) {
     if(document.getElementById(`${id}-prG`)==null){
       document.getElementById(elparent).append(newEl);    
     }
-  document.getElementById(elId).innerHTML = `<div class="efb progress" id="${id}-prA">
+  document.getElementById(elId).innerHTML = `<div class="efb d-flex justify-content-center"><div class="efb progress w-100" id="${id}-prA">
   <div id="${id}-prB" class="efb  text-light text-center btn-pinkEfb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:1%;">
         1%
         </div>
-    </div>`;
+    </div></div>`;
   
   }
   
@@ -683,17 +683,17 @@ function addMarker(position) {
       return `<div class="efb form-check">
       <div class="efb btn btn-light" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
-      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" class="d-none" >
+      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" >
       </div>
       ${btnC}
     </div>`
     }else{
+      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(1)"><i class="efb  bi-gem text-light" ></i></a>`;
       if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} "id="respStateEfb">
-          <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
-          ${$pr}
+      <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
+      ${$pr}
      </button></div>`;
-      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(1)"><i class="efb  bi-gem text-light" ></i></a>`;
       //const cls = stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink";
       return `<div class="efb form-check">
       <div class="efb btn btn-light" id="attach_efb" >

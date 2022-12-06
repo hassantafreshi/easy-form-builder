@@ -319,6 +319,7 @@ function createStepsOfPublic() {
 
       }
       el.addEventListener("change", (e) => {
+        //778899
         // e.preventDefault();
         //console.log(el);
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
@@ -363,6 +364,7 @@ function createStepsOfPublic() {
             break;
           case 'url':
             const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            console.log(el.value ,che);
             if (che == null) {
               valid = false;
               el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -462,7 +464,8 @@ function createStepsOfPublic() {
             }
             break;
           case "file":
-            valid_file_emsFormBuilder(id_);
+            console.log('fileeeeeeeeeeeee!')
+            valid_file_emsFormBuilder(id_,'msg');
             //value= value ==true ? "true": "";
             break;
           case "hidden":
@@ -561,7 +564,8 @@ function createStepsOfPublic() {
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string'){return}
 if(ob.hasOwnProperty('value')){
-  ob.value=fun_text_forbiden_convert_efb(ob.value);
+  console.log(ob,typeof(ob.value));
+  if(ob.hasOwnProperty('value') && typeof(ob.value)!='number') ob.value=fun_text_forbiden_convert_efb(ob.value);
 }
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
@@ -882,7 +886,7 @@ function valid_phone_emsFormBuilder(el) {
 }
 
 
-function valid_file_emsFormBuilder(id) {
+function valid_file_emsFormBuilder(id,tp) {
   //console.log(id);
   let msgEl = document.getElementById(`${id}_-message`);
   //console.log(`id[${id}]`, msgEl);
@@ -913,7 +917,7 @@ function valid_file_emsFormBuilder(id) {
   if (check > 0) {
 
     msgEl.innerHTML = "";
-    fun_upload_file_emsFormBuilder(id, file);
+    fun_upload_file_emsFormBuilder(id, file,tp);
 
     rtrn = true;
   } else {
@@ -971,6 +975,10 @@ function fun_tracking_show_emsFormBuilder() {
 }
 
 function fun_vaid_tracker_check_emsFormBuilder() {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
   document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
   document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -991,6 +999,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
         return;
       }
       else {
+
+        
         //reCaptch verified
         recaptcha_emsFormBuilder = response;
         jQuery(function ($) {
@@ -1014,6 +1024,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
               response_Valid_tracker_efb(res)
               efb_var.nonce_msg = res.data.nonce_msg
               console.log(efb_var.nonce_msg, res.data.nonce_msg);
+              efb_var.msg_id = res.data.id
+              console.log(efb_var.msg_id, res.data.id);
             },
             error: function () {
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
@@ -1106,6 +1118,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   let list = []
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
+    console.log(c,content);
 
     let value ="<b></b>";
     if(c.hasOwnProperty('value')){
@@ -1117,12 +1130,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     } 
     s = false;
   
-
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
-      $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
-      //console.log($name,c.type ,"URL", c.url);
+      let name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
+     
       if (c.type == "Image" || c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" ||  c.type == "allformat" ) {
@@ -1148,11 +1160,22 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
     } else if (c.type == "esign") {
       //console.log(c.value);
+      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
+      title = efb_var.text[title]|| c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += value;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+
       //console.log(value);
-    } else if (c.type == "maps") {
+    } else if (c.type == "color") {
+      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
+      title = efb_var.text[title]|| c.name ;
+      s = true;
+      //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
+      value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+
+    }else if (c.type == "maps") {
 
       if (typeof (c.value) == "object") {
         s = true;
@@ -1164,19 +1187,21 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       }
     } else if (c.type == "rating") {
       s = true;
+      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
+      title = efb_var.text[title]|| c.name ;
       value = `<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
       for (let i = 0; i < parseInt(c.value); i++) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += value;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
-       let title = c.name.toLowerCase();
+      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
         title = efb_var.text[title]|| c.name ;
        m += `<p class="efb fs-6 my-0 efb  form-check">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
-       if(c.type.includes('pay')&& c.id_!="payment") {
+       if(c.hasOwnProperty('type') && c.type.includes('pay')&& c.id_!="payment") {
 
         m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
       }
@@ -1245,7 +1270,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   /*end  new attachment */
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length < 1 || isHTML(message)) {
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
@@ -1257,6 +1282,10 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     // noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')

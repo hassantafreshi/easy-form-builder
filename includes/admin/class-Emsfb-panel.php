@@ -246,7 +246,10 @@ class Panel_edit  {
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb "></h3></div></div>
+									<div class="efb modal-body row" id="settingModalEfb-body">
+										<div class="efb card-body text-center">
+											<div class="efb lds-hourglass"></div>
+											<h3 class="efb "></h3></div></div><!-- settingModalEfb-body-->
 					</div></div></div>
 
 					<div class="efb row mb-2">					
@@ -307,9 +310,9 @@ class Panel_edit  {
 		//error_log('get_not_read_message');
 		
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
-		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0" );
+		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
 
-		//error_log(json_encode($value));
+		error_log(json_encode($value));
 		return $value;
 	}
 	public function get_not_read_response(){

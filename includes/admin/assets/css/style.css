@@ -1349,7 +1349,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 /* option buttons (toggle button) */
 .opButtonEfb {
 	position: fixed;
-	top: -9999px;
+
 	bottom: 0px;
 }
 .stepNavEfb {
@@ -1532,7 +1532,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 	height: 16px;
 }
 /* jump css */
-@keyframes jump {
+/* @keyframes jump {
 	0% {
 		transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
 	}
@@ -1546,7 +1546,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 .jump {
 	transform-origin: 50% 50%;
 	animation: jump .5s linear alternate infinite;
-}
+} */
 .jump {
 	fill: #4636f1;
 }

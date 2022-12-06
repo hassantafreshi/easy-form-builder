@@ -236,6 +236,10 @@ console.info('Easy Form Builder 3.4.2> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   var name = formName_Efb
@@ -289,6 +293,10 @@ function actionSendData_emsFormBuilder() {
 
 }
 function actionSendAddons_efb(val) {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   jQuery(function ($) {
@@ -326,6 +334,10 @@ function actionSendAddons_efb(val) {
 
 }
 function actionSendAddonsUn_efb(val) {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   jQuery(function ($) {
@@ -1051,8 +1063,10 @@ let change_el_edit_Efb = (el) => {
         }
         postId = aId[valj_efb[indx].type]
         id = valj_efb[indx].id_
-        document.getElementById(`${id}${postId}`).classList.toggle('required');
-       
+        postId = document.getElementById(`${id}${postId}`)
+        if(postId) postId.classList.toggle('required');
+       /* console.log(`requiredEl::::::valj_efb[indx]`);
+       console.log(valj_efb[indx]) */;
         //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
@@ -1722,7 +1736,7 @@ function create_form_efb() {
 
   if (content.length > 10) content += `</div>`
   head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb progress mx-4"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}`
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
 
 
 
@@ -1940,6 +1954,7 @@ let editFormEfb = () => {
 function obj_resort_row(step) {
   // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
+  console.log(`obj_resort_row step[${step}]`);
   for (v of valj_efb) {
     if (v.step == step) {
       v.step = step;
@@ -2142,6 +2157,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 const sort_obj_el_efb_ = () => {
   // این تابع  مرتبط سازی المان ها را بر عهده دارد و آی دی و قدم آن را بعد از هر تغییر در ترتیب توسط کاربر مرتبط می کند
   // باید بعد بجز المان ها برای آبجکت هم اینجا را  اضافه کنید
+ 
   let amount = 0;
   let step = 0;
   let state = false;
@@ -2156,10 +2172,12 @@ const sort_obj_el_efb_ = () => {
     try {
       if (indx != -1) {
 
-        if (el.classList.contains('stepNavEfb')) {
+        if (el.classList.contains('stepNo')) {
           //اگر استپ بود
-          last_setp +=1;
+          console.log(el.tagName);
+     
           //step = el.dataset.step;
+          last_setp +=1;
           step = last_setp ;
           //el.dataset.amount=amount;
           valj_efb[indx].amount = amount;
@@ -2167,7 +2185,7 @@ const sort_obj_el_efb_ = () => {
 
 
         } else {
-
+         
           // if not a step
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
@@ -2188,7 +2206,7 @@ const sort_obj_el_efb_ = () => {
     } catch {
 
     }
-
+    console.log(`sort_obj_el_efb_ step[${step}]`)
   }
 
   if (len > 20) {
@@ -2211,7 +2229,7 @@ const sort_obj_el_efb = () => {
   let step = 0;
   let state = false;
   //console.error('------', valj_efb.length)
-
+  console.log(`sort_obj_el_efb step[${step}]`)
   for (const el of document.querySelectorAll(".efbField")) {
 
     if (el.classList.contains('stepNavEfb')) {
@@ -2693,7 +2711,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
   }
-  setTimeout(() => {
+  /* setTimeout(() => {
     const v = document.getElementById('adminmenuwrap').innerHTML;
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
     if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
@@ -2701,7 +2719,7 @@ document.addEventListener('DOMContentLoaded', function() {
       noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
     }
    
-  }, 1000);
+  }, 1000); */
 
   if(document.getElementById('track_code_emsFormBuilder')){
     document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {
