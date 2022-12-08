@@ -394,7 +394,7 @@ function createStepsOfPublic() {
 
 
   exportView_emsFormBuilder = exportView_emsFormBuilder.sort(function (a, b) {
-    return a.amount - b.amount;
+    return Number(a.amount) - Number(b.amount);
   })
   //add icons
   for (let i = 1; i <= stepsCountEfb; i++) {

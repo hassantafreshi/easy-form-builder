@@ -51,7 +51,7 @@ function fun_emsFormBuilder_render_view(x) {
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
    <td  class="efb" > 
-   <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<i class="efb  bi-chat-dots-fill text-primary"></i>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
+   <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
    <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
    <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
@@ -277,7 +277,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    </div>
   <hr>
   `;
-  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
+  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
   let list = []
   let s = false;
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
@@ -503,7 +503,7 @@ function fun_ws_show_list_messages(value) {
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
             <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})" >
-             ${Number(state) != 1 && Number(state) != 4 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb jump" width="20" height="20" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
+             ${Number(state) != 1 && Number(state) != 4 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb nmsgefb" width="20" height="20" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
              <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id}" onClick="${pro_ws == true ? `emsFormBuilder_delete(${v.msg_id} ,'message')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}" ><i class="efb  bi-trash"></i> </a>
             </td>                               
             </tr>` ;

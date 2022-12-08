@@ -217,6 +217,7 @@ function viewfileEfb(id, indx) {
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
+    console.log('fun_addProgessiveEl_efb');
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -251,7 +252,7 @@ function viewfileEfb(id, indx) {
     }
   }
 function viewfileReplyEfb(id, indx) {
-  //console.log(`fileEfb`,fileEfb)
+    console.log(`fileEfb`,fileEfb)
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
 /*     let icon = ``;

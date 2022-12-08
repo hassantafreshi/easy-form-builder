@@ -321,7 +321,7 @@ function createStepsOfPublic() {
       el.addEventListener("change", (e) => {
         //778899
         // e.preventDefault();
-        //console.log(el);
+       
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
         let value = ""
         const id_ = el.dataset.vid
@@ -332,6 +332,7 @@ function createStepsOfPublic() {
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
           }
         }
+        console.log(el,ob);
         switch (el.type) {
           case "text":
           case "color":
@@ -435,7 +436,7 @@ function createStepsOfPublic() {
               if (typeof v.price == "string") price = v.price;
             }
             break;
-            case "range":
+          case "range":
               value = el.value;
               
             document.getElementById(`${ob.id_}_-message`).classList.remove('show');
@@ -464,7 +465,8 @@ function createStepsOfPublic() {
             }
             break;
           case "file":
-            console.log('fileeeeeeeeeeeee!')
+
+             console.log('fileeeeeeeeeeeee!')
             valid_file_emsFormBuilder(id_,'msg');
             //value= value ==true ? "true": "";
             break;
@@ -485,6 +487,10 @@ function createStepsOfPublic() {
                 value += o + `,`;
               }
             }
+            break;
+            default:
+              console.log('default')
+              if(!ob) document.getElementById(`${ob.id_}_-message`).classList.remove('show');
             break;
         }
 
@@ -534,7 +540,7 @@ function createStepsOfPublic() {
 
     } else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
-        //console.log(el);
+        console.log("el========>542 ");
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
@@ -563,7 +569,10 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string'){return}
+  console.log(ob);
+  remove_ttmsg_efb(ob.id_)
 if(ob.hasOwnProperty('value')){
+
   console.log(ob,typeof(ob.value));
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number') ob.value=fun_text_forbiden_convert_efb(ob.value);
 }
@@ -640,7 +649,7 @@ if(ob.hasOwnProperty('value')){
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-      <div><i class="efb jump bi-exclamation-triangle-fill text-center"></i></div>
+      <div><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></div>
       <strong>${ajax_object_efm.text.alert} </strong>${val}
     </div>`
 }
@@ -666,7 +675,7 @@ function alarm_emsFormBuilder(val) {
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
     let str = ""
     currentTab_emsFormBuilder = 0;
-    document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="efb mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
+    document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="efb mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
     // faild form
@@ -677,7 +686,7 @@ function alarm_emsFormBuilder(val) {
         checkFile += 1;
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
         checkFile = -100;
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3 class="efb font-weight-bold">File Error</h3> <span class="efb font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3 class="efb font-weight-bold">File Error</h3> <span class="efb font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
          <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
         return;
 
@@ -701,7 +710,7 @@ function alarm_emsFormBuilder(val) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             checkFile = -100;
-            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center text-danger"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
                <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
             return;
 
@@ -887,9 +896,9 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
-  //console.log(id);
+  console.log(id,tp);
   let msgEl = document.getElementById(`${id}_-message`);
-  //console.log(`id[${id}]`, msgEl);
+  console.log(`id[${id}]`, msgEl);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
   let file = ''
@@ -903,20 +912,21 @@ function valid_file_emsFormBuilder(id,tp) {
   const i = `${id}_`;
   let message = "";
   const el = document.getElementById(i);
-  //console.log(i,el.files)
+  console.log(i,el.files)
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
     const filetype = el.files[0].type.length > 1 ? el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".") - 1) * -1))
-    //console.log(file,el.files[0].name,filetype);
     const r = validExtensions_efb_fun(file, filetype)
+    console.log(file,el.files[0].name,filetype,r);
     if (r == true) {
       check = +1;
       message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
     }
   }
-
+  console.log(`check==>[${check}]`);
   if (check > 0) {
-
+    console.log('check'+check)
     msgEl.innerHTML = "";
+    
     fun_upload_file_emsFormBuilder(id, file,tp);
 
     rtrn = true;
@@ -1114,7 +1124,9 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  `;;
 
  
-  content.sort((a, b) => (a.amount > b.amount) ? 1 : -1);
+ console.log(content);
+  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
+  console.log(content);
   let list = []
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
@@ -1398,7 +1410,7 @@ function validation_before_send_emsFormBuilder() {
   }
   require = require > fill ? 1 : 0;
   if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
-    document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
+    document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center text-danger fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted">${ajax_object_efm.text.error} ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
      <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
     //   console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
@@ -1532,7 +1544,7 @@ function response_fill_form_efb(res) {
     }
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
   } else {
-    if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb jump bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
+    if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center text-danger efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     }else{
       noti_message_efb(res.data.m,'',14,'warning');
@@ -1560,7 +1572,7 @@ function response_Valid_tracker_efb(res) {
     }); */
   } else {
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
-    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb jump  bi-exclamation-triangle-fill text-center text-danger efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center text-danger efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
@@ -1627,4 +1639,8 @@ fun_text_forbiden_convert_efb=(value)=>{
  value= value.replaceAll(`\n`, "@efb@nq#");
  value= value.replaceAll(`\r`, " ");
  return value;
+}
+
+remove_ttmsg_efb=(id)=>{
+  if(document.getElementById(`${id}_-message`))document.getElementById(`${id}_-message`).classList.remove('show');
 }

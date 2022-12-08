@@ -2243,7 +2243,7 @@ const sort_obj_el_efb = () => {
         const lastIndx = (valj_efb.length) - 1;
 
         valj_efb[indx].step = valj_efb[lastIndx].step
-        valj_efb[indx].amount = !valj_efb[lastIndx].amount ? 1 : (valj_efb[lastIndx].amount) + 1;
+        valj_efb[indx].amount = !valj_efb[lastIndx].amount ? 1 : Number(valj_efb[lastIndx].amount) + 1;
 
         //  el.remove();
         state = true;
@@ -2456,7 +2456,7 @@ const sort_obj_efb = () => {
   const len = valj_efb.length;
   let p = calPLenEfb(len)
   setTimeout(() => {
-    const valj_efb_ = valj_efb.sort((a, b) => (a.amount > b.amount) ? 1 : ((b.amount > a.amount) ? -1 : 0))
+    const valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
   }, ((len * p))
   );
 }

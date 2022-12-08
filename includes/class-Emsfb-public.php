@@ -450,7 +450,7 @@ class _Public {
 
 
 	  public function get_ajax_form_public(){
-		//error_log('get_ajax_form_public');
+		error_log('get_ajax_form_public');
 		$text_ =['payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
@@ -582,10 +582,19 @@ class _Public {
 										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
 											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
 												error_log("----------------fs['type']");
+												error_log($fr['value']);
+												error_log($item['value']);
 												$item['value']=$fr['value'];
 												error_log(json_encode($item));
 												$rt = $item;
 												$stated=1;
+												$t=strpos($item['type'],'pay');
+												if($t>=0){
+													error_log("price fr item");
+													error_log($fr['price']);
+													error_log($item['price']);
+													$item['price']=$fr['price'];
+												}
 												return;
 											}
 										});

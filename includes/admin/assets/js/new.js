@@ -427,9 +427,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'switch':
       ui = `
       ${label}
+      ${ttip}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show" id ="${rndm}-f">
       <div class="efb  form-check form-switch ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_height} mb-1" id="${rndm}-switch">
-        ${ttip}
         <input class="efb  emsFormBuilder_v efb-switch form-check-input efbField" type="checkbox" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''}>
       </div>
       <div class="efb  mb-3">${desc}</div>
@@ -441,17 +441,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'esign':
       ui = `
       ${label}
-      ${esign_el_pro_efb(previewSate, pos , rndm,iVJ,desc)}
       ${ttip}
+      ${esign_el_pro_efb(previewSate, pos , rndm,iVJ,desc)}
       `
       dataTag = elementId;
 
       break;
     case 'rating':
       ui = `
+      ${ttip}
       ${label}
       ${rating_el_pro_efb(previewSate, rndm,iVJ)}
-      ${ttip}
       <div class="efb  mb-3">${desc}</div>
         `
       dataTag = elementId;
@@ -640,8 +640,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       ui = `
       ${label}
-      ${yesNi_el_pro_efb(previewSate, rndm,iVJ)}
       ${ttip}
+      ${yesNi_el_pro_efb(previewSate, rndm,iVJ)}
         ${desc}`;
       break;
     case 'link':
@@ -669,7 +669,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       }
       break;
     case "persiaPay":
-      case "zarinPal":
+    case "zarinPal":
         if(  addons_emsFormBuilder.AdnPPF ==1 ){
           valj_efb[0].type = "payment";
           dataTag = elementId;
@@ -1523,6 +1523,7 @@ function previewFormEfb(state) {
             // const ob = valueJson_ws.find(x => x.id_ === el.dataset.code);
             const el = document.getElementById(`${v.id_}-sig-data`);
             const value = el.value;
+            document.getElementById(`${v.id_}_-message`).classList.remove('show');
             const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder }];
             fun_sendBack_emsFormBuilder(o[0]);
           }, false);
@@ -1608,7 +1609,10 @@ function previewFormEfb(state) {
   // if (state != "show") myModal.show_efb();
   step_el_efb = Number(valj_efb[0].steps);
  
-  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() }
+  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && 
+  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) 
+  ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() 
+  }
   //}, timeout) //nlogn
 }//end function v2
 
@@ -1692,7 +1696,7 @@ function fun_validation_efb() {
     console.log(valj_efb[row],s);
     //console.log(valj_efb[row].type , `row[${row}]`,  `req[${valj_efb[row].required}]` , `comper[${current_s_efb == valj_efb[row].step}] current_s_efb[${current_s_efb}] step[${valj_efb[row].step}]`  ,  valj_efb[row].type != "chlCheckBox" ,`state[${row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox"}]` );
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
-      
+      console.log(`row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox"`);
       //  let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
       //console.log(sendBack_emsFormBuilder_pub,s ,valj_efb[row].id_ )
       // console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
@@ -1701,13 +1705,15 @@ function fun_validation_efb() {
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
         //files_emsFormBuilder
         let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
-        s = r.state==0 ? -1 :1;
+        console.log(r)
+        s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
       }
+      console.log(valj_efb[row].type, s);
       if (s == -1) {
         if (state == true) { state = false; idi = valj_efb[row].id_ }
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
         //console.log(`id [${id}]` ,valj_efb[row].type);
-        let el =document.getElementById(`${valj_efb[row].id_}_-message`);
+        //let el =document.getElementById(`${valj_efb[row].id_}_-message`);
         el.innerHTML = efb_var.text.enterTheValueThisField;
         if(!el.classList.contains('show'))el.classList.add('show');
         
@@ -1721,14 +1727,14 @@ function fun_validation_efb() {
         el.classList.remove('show');
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
         console.log(row,s,sendBack_emsFormBuilder_pub[s]);
-        const v = sendBack_emsFormBuilder_pub[s].value.split("@efb!");
+        const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
           //console.log(efb_var.text);
           el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
           if(!el.classList.contains('show'))el.classList.add('show');
           if (state == true) { state = false; idi = valj_efb[row].id_ }
-        } 
+        }
       }
     }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
      /*  const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
@@ -2066,6 +2072,7 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
   }
   //v3.3.5 updated
   //این تابع فایل را به سمت سرور ارسال می کند
+  console.log(id,type,tp)
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;

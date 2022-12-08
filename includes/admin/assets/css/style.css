@@ -1547,9 +1547,19 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 	transform-origin: 50% 50%;
 	animation: jump .5s linear alternate infinite;
 } */
-.jump {
+/* .jump {
 	fill: #4636f1;
-}
+} */
+
+@keyframes nmsgefb {
+	0% { color: #d63384; }
+	50% { color: #6aa4fb; }
+	100% { color: #d63384; }
+  }
+ .nmsgefb{
+	transform-origin: 50% 50%;
+	animation:nmsgefb 1.5s alternate infinite;
+  }
 .efb.navbar {
 	z-index: 10;
 }
