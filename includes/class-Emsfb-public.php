@@ -602,7 +602,9 @@ class _Public {
 												$rt = $item;
 												$stated=1;
 												$t=strpos($item['type'],'pay');
-												if($t>=0){
+												error_log("==============>t");
+												error_log($t);
+												if($t!=false){
 													error_log("price fr item");
 													error_log($fr['price']);
 													error_log($item['price']);
@@ -2002,10 +2004,13 @@ class _Public {
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
-					}					
-						array_push($valobj,$fs_[$a]);
+					}				
+						
+						$fs_[$a]["name"] = $val_[$i]["name"];
+						$fs_[$a]["type"] = "option_payment";
 						error_log(" stripe json_encode(valobj)");
-						error_log(json_encode($valobj));
+					
+						array_push($valobj,$fs_[$a]);
 				}
 			}
 
@@ -2216,6 +2221,7 @@ class _Public {
 							break;
 						}
 					});
+					error_log("payed json_encode(filtered)");
 					error_log(json_encode($filtered));
 					if($filtered==false){
 						$m = __('error', 'easy-form-builder') . ' 405';
@@ -2224,9 +2230,9 @@ class _Public {
 					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
-					 array_push($valobj,$fs_[$a]);
-					 error_log("json_encode(valobj)");
-					 error_log(json_encode($valobj));
+					 
+					 error_log("json_encode(filtered)");
+					 error_log(json_encode($filtered));
 					 error_log(json_encode($fs_[$a]));
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
 					$rows = explode( ',', $iv["ids"] );					
@@ -2255,6 +2261,15 @@ class _Public {
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
 					}
+					//$k =array_search($fs_[$a]['parent'], array_column($fs_, 'id_'));
+					error_log("=====================?json_encode(fs_[a])");
+					//error_log(json_encode($fs_[$k]));
+					error_log(json_encode($fs_[$a]));
+					$fs_[$a]["name"] = $val_[$i]["name"];
+					$fs_[$a]["type"] = "option_payment";
+					error_log(json_encode($fs_[$a]));
+					//$fs_[$a]
+					array_push($valobj,$fs_[$a]);
 				}
 			}
 

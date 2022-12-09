@@ -1176,7 +1176,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"><br> ${value}</p>`;
 
       //console.log(value);
     } else if (c.type == "color") {
@@ -1185,7 +1185,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"><br> ${value}</p>`;
 
     }else if (c.type == "maps") {
 
@@ -1206,18 +1206,18 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7">${value}</p>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
         title = efb_var.text[title] || c.name ;
-       m += `<p class="efb fs-6 my-0 efb  form-check">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
+       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7"> ${value !== '<b>@file@</b>' ? value : ''}</p>`
        if(c.hasOwnProperty('type') && c.type.includes('pay')&& c.id_!="payment") {
 
         m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
       }
-       m+=`</p>`;
+       //m+=`</p>`;
       }
 
      

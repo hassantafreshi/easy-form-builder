@@ -321,7 +321,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"> ${value}</span>`;
 
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -329,7 +329,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"> ${value}</p>`;
 
     } else if (c.type == "maps") {
 
@@ -350,21 +350,22 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7"> ${value}</p>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         title = efb_var.text[title] || c.name ;
-        m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
-       //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
+        let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')&& c.id_!="payment") {
 
-          m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+          q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }
+        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+       //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
-       m+=`</p>`;
+      
       }
 
     if (c.type == "payment") {
@@ -496,6 +497,11 @@ function fun_ws_show_list_messages(value) {
     for (const v of value) {
       let state = Number(v.read_);
       console.log(state);
+      iconNotRead = `<div class="efb nmsgefb bi-envelope"></div>`;
+      if(state==2){
+         iconRead = 'bi-bag-x';
+         iconNotRead = `<div class="efb nmsgefb bi-bag-x"></div>`;
+      }
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
@@ -503,7 +509,7 @@ function fun_ws_show_list_messages(value) {
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
             <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})" >
-             ${Number(state) != 1 && Number(state) != 4 ? `<svg xmlns="http://www.w3.org/2000/svg" class="efb nmsgefb" width="20" height="20" fill="currentColor" class="efb bi bi-chat-fill" viewBox="0 0 16 16">${iconNotRead}</svg>` : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
+             ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
              <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id}" onClick="${pro_ws == true ? `emsFormBuilder_delete(${v.msg_id} ,'message')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}" ><i class="efb  bi-trash"></i> </a>
             </td>                               
             </tr>` ;
