@@ -1691,8 +1691,14 @@ fieldset.efb {
 	border-radius: .3rem;
 }
 #btn_send_efb.h-l-efb,#btn_send_efb.h-xl-efb,#btn_send_efb.h-xxl-efb,#btn_send_efb.h-xxxl-efb {
-	width: 93% !important;
+	width: 100% !important;
+	margin: 0px 20px 10px 29px;
 }
+
+.rtl #btn_send_efb{
+	margin: 0px 29px 10px 20px;
+}
+
 #img_recaptcha_perview_efb {
 	max-width: 300px;
 }
@@ -2266,12 +2272,12 @@ div#attach_efb {
 	margin-top: -25px;
 	margin-left: 5px;
 }
-.rtl .efb.footer-test {
+/* .rtl .efb.footer-test {
 	padding: 0 7px 0 0;
 }
 .efb.footer-test {
 	padding: 0 0 0 7px;
-}
+} */
 .col-md-6 .efb.btn-edit-holder {
 	float: right;
 	margin-top: -34px !important;

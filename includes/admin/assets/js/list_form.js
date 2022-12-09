@@ -318,14 +318,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 
     } else if (c.type == "esign") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title]|| c.name ;
+      title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value}</span>`;
 
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title]|| c.name ;
+      title = efb_var.text[title] || c.name ;
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
@@ -344,7 +344,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     } else if (c.type == "rating") {
       s = true;
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title]|| c.name ;
+      title = efb_var.text[title] || c.name ;
       value = `<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
       for (let i = 0; i < parseInt(c.value); i++) {
         value += `<i class="efb bi bi-star-fill"></i>`
@@ -355,7 +355,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-        title = efb_var.text[title]|| c.name ;
+        title = efb_var.text[title] || c.name ;
         m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}: <span class="efb m-1"><br> ${value !== '<b>@file@</b>' ? value : ''}</span>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         if(c.type.includes('pay')&& c.id_!="payment") {
@@ -451,7 +451,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   //console.log(isHTML)
   if (message.length < 1 || isHTML(message)) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill text-danger"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }

@@ -456,7 +456,15 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
 		$msgnonce = 'efb'.$this->id;
-		
+		error_log('get_ajax_form_public before');
+		error_log('$msgnonce');
+		error_log($msgnonce);
+		error_log(strval(wp_verify_nonce($msgnonce,'nonce_msg')));
+		error_log('nonce_msg');
+		error_log($_POST['nonce_msg']);
+		error_log('nonce');
+		error_log($_POST['nonce']);
+		error_log(strval(wp_verify_nonce('public-nonce','nonce')));
 		// 
 		if (check_ajax_referer('public-nonce','nonce')==false){
 			//error_log('not valid nonce');	
@@ -471,6 +479,7 @@ class _Public {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
+		
 
 		$r=  $this->get_setting_Emsfb('setting');
 		$pro = false;
@@ -481,7 +490,7 @@ class _Public {
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
+		
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
 		$this->value = sanitize_text_field($_POST['value']);
@@ -493,8 +502,12 @@ class _Public {
 				$email_fa = $formObj[0]["email"];
 				$trackingCode = $formObj[0]["trackingCode"];
 				$send_email_to_user_state =$formObj[0]["sendEmail"];			
+				//$type = $formObj[0]["type"];
 				
-				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
+				if($type!=$formObj[0]["type"]){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+					wp_send_json_success($response,$_POST);
+				}
 				
 				if($formObj[0]["thank_you"]=="rdrct"){
 					$rePage= $this->string_to_url($formObj[0]["rePage"]);
@@ -775,6 +788,8 @@ class _Public {
 					
 				}
 
+				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
+				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 					wp_send_json_success($response,$_POST);
@@ -1009,6 +1024,7 @@ class _Public {
 									//end zarinPal
 								}
 								$form_id = $value[0]->form_id;
+								
 								$table_name = $this->db->prefix . "emsfb_form";
 								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 								$fs = isset($fs[0]->form_structer) ? str_replace('\\', '', $fs[0]->form_structer) :'';
@@ -1119,6 +1135,8 @@ class _Public {
 							$creds['user_pass'] = esc_sql($password);
 							$creds['user_email'] = esc_sql($email);
 							$creds['role'] = 'subscriber';			
+							$creds['rich_editing '] = 'false';			
+							$creds['user_registered'] = wp_date('Y-m-d H:i:s');			
 							$state =wp_insert_user($creds);
 							$response;
 							//error_log(json_encode($state));							
@@ -1927,6 +1945,7 @@ class _Public {
 		$price_c =0;
 		$price_f=0;
 		$email ='';
+		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
@@ -1935,18 +1954,26 @@ class _Public {
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
+						error_log($iv["type"]);
 						switch ($iv["type"]) {
 							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
 							break;
 							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
 							break;
 							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_']; 								
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
 						}
 					});
+					error_log(json_encode($filtered));
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, $_POST);
+					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
@@ -1956,7 +1983,7 @@ class _Public {
 							if(isset($item['id_']))return $item['id_'] == $value ;
 						});
 						$iv = array_keys($filtered);
-						$a = isset( $iv[0])? $iv[0] :-1;
+						
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
@@ -1975,7 +2002,10 @@ class _Public {
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
-					}
+					}					
+						array_push($valobj,$fs_[$a]);
+						error_log(" stripe json_encode(valobj)");
+						error_log(json_encode($valobj));
 				}
 			}
 
@@ -2060,7 +2090,7 @@ class _Public {
 			}
 			
 
-			$filtered = array_filter($val_, function($item) { 
+			$filtered = array_filter($valobj, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
@@ -2093,6 +2123,8 @@ class _Public {
 				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
 			}
 			//array_push($filtered,$ar);
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
 			$this->value = str_replace('"', '\\"', $val_);
 			//error_log($this->value );
@@ -2161,6 +2193,7 @@ class _Public {
 		$price_f=0;
 		$email ='no@email.com';
 		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
@@ -2169,20 +2202,32 @@ class _Public {
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
+						error_log($iv["type"]);
 						switch ($iv["type"]) {
 							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
 							break;
 							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
 							break;
 							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_']; 								
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
 						}
 					});
+					error_log(json_encode($filtered));
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, $_POST);
+					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
+					 array_push($valobj,$fs_[$a]);
+					 error_log("json_encode(valobj)");
+					 error_log(json_encode($valobj));
+					 error_log(json_encode($fs_[$a]));
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
 					$rows = explode( ',', $iv["ids"] );					
 					foreach ($rows as $key => $value) {
@@ -2251,7 +2296,7 @@ class _Public {
 
 			
 
-			$filtered = array_filter($val_, function($item) { 
+			$filtered = array_filter($valobj, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
 			
