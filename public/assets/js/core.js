@@ -1176,7 +1176,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
       //console.log(value);
     } else if (c.type == "color") {
@@ -1185,7 +1185,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
     }else if (c.type == "maps") {
 
@@ -1206,17 +1206,18 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7">${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
         title = efb_var.text[title] || c.name ;
-       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7"> ${value !== '<b>@file@</b>' ? value : ''}</p>`
-       if(c.hasOwnProperty('type') && c.type.includes('pay')&& c.id_!="payment") {
+        let q =value !== '<b>@file@</b>' ? value : '';;
+        if(c.type.includes('pay')&& c.id_!="payment") {
 
-        m+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-      }
+          q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+        }
+        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m+=`</p>`;
       }
 

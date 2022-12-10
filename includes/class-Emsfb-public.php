@@ -516,19 +516,33 @@ class _Public {
 				/* form validation  */
 				$valobj =[] ;
 				$stated = 1;	
-				$rt;		
-				foreach ($formObj as $k =>$f){
+				$rt;	
+				error_log(json_encode($valo));
+				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;
+						error_log($key);
+						if($key<2) continue;
+						error_log("key=> value F");
+						error_log(json_encode($f));
 						if($stated==0){break;}
 						$it= array_filter($valo, function($item) use ($f,&$stated ,&$rt,$formObj,&$in_loop) { 
-						if($in_loop==false){
-							return;
-						}
-						if(isset($f['id_']) && isset($item['id_']) && $f['id_']==$item['id_'] ) {   
-							error_log($f['type']);
-							error_log("stated:");
-							error_log($stated);
+							if($in_loop==false){
+								return;
+							}
+							/* 
+							$los = 'Belgium';
+							$key = array_search($los, array_column($outs, 'Country'));
+							$result = $outs[$key]['Out_Count'];
+							 */
+							error_log("arra_filter: value item");
+							error_log(json_encode($item));
+							error_log("isset(item['id_']) && f['id_']==item['id_'] ");
+							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  $item['type']=="checkbox" && $f['id_']==$item['id_ob']  )) {   
+								error_log("f['type']");
+								error_log($f['type']);
+							
+							//error_log($stated);
 							switch ($f['type']) {					
 								case 'email':
 									$stated=0;
@@ -547,12 +561,7 @@ class _Public {
 									
 										$item['value'] = sanitize_text_field($item['value']);
 										$v = explode("-", $item['value']);							
-										//2022-12-06
-										/* 
-										[04-Dec-2022 19:51:23 UTC] 12
-										[04-Dec-2022 19:51:23 UTC] 03
-										[04-Dec-2022 19:51:23 UTC] 2022
-										*/
+
 										if(count($v)==3 && checkdate($v[1],$v[2],$v[0]) ){
 										//wp_checkdate
 											$stated=1;
@@ -581,11 +590,8 @@ class _Public {
 									$rt= $item;
 									$in_loop=false;
 									break;
-								case 'checkbox':
-								case 'radio':
-								case 'payCheckbox':
+								case 'radio':							
 								case 'payRadio':
-								case 'chlCheckBox':
 								case 'chlRadio':
 									$stated=0;
 									if(isset($item['value'])){
@@ -613,6 +619,52 @@ class _Public {
 												return;
 											}
 										});
+									}
+									$in_loop=false;
+									break;
+								case 'option':
+								/* case 'payCheckbox':
+								case 'chlCheckBox': */
+								error_log('type first condions->option:');
+								$t	= strtolower($item['type']);
+								error_log($t);
+								$t = strpos($t,'checkbox');
+								error_log($t);
+								
+								error_log(gettype($t)!='boolean');
+									if(gettype($t)!='boolean'){
+										error_log('if checkbBox');
+									}
+									$stated=0;
+									if(isset($item['value'])){
+										error_log('==========> if value');
+										$item['value'] = sanitize_text_field($item['value']);
+										error_log($item['value']);
+										error_log( $f['id_']);
+										error_log( $item['id_ob']);
+										//array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+											if(isset($f['id_']) && isset($item['id_ob']) && $f['id_']==$item['id_ob']){
+												error_log("----------------fs['type'] checkBox");
+												error_log(json_encode($f));
+												error_log(json_encode($item));
+												error_log($item['id_ob']);
+												error_log($f['id_']);
+												$item['value']=$f['value'];
+												error_log(json_encode($item));
+												$rt = $item;
+												$stated=1;
+												$t=strpos($item['type'],'pay');
+												error_log("==============>t");
+												error_log($t);
+												//gettype($t)!='boolean'
+												if(gettype($t)!='boolean'){
+													error_log("price fr item");
+													error_log($f['price']);
+													error_log($item['price']);
+													$item['price']=$f['price'];
+												}											
+											}
+										//});
 									}
 									$in_loop=false;
 									break;
@@ -761,7 +813,21 @@ class _Public {
 										$in_loop=false;
 								break;								
 								default:
+								
 									$stated=0;
+									error_log('-----------> defualt');
+									error_log($f['type']);
+									$t	= strtolower($item['type']);
+									error_log($t);
+									$t = strpos(strtolower($f['type']),'checkbox');
+									error_log($t);
+									error_log(gettype($t));
+									if(gettype($t)=="integer"){
+										$stated=1;
+										return;
+									}
+								
+								//error_log(gettype(strpos(strtolower($f['type']),'checkbox'))!='boolean');
 									if(isset($item['value'])){
 										$stated=1;
 										$item['value'] = sanitize_text_field($item['value']);
@@ -777,8 +843,8 @@ class _Public {
 							error_log(json_encode($item));	 */									
 																
 																	
-							error_log($stated);
-						}
+							//error_log($stated);
+							}
 					});
 					
 					if(isset($rt)){
@@ -789,7 +855,8 @@ class _Public {
 					//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
 					
 				}
-
+			/* 	//test return
+				return ; */
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
