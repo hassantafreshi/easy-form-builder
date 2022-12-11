@@ -1555,15 +1555,17 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'SingleTextEl':
         let iidd = ""
-        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+        
+        if (Number(valj_efb[0].steps)==1) {
           // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
-          iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
+          iidd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
           valj_efb[indx].button_single_text = el.value;
         } else {
           iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
           el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
         }
-        document.getElementById(iddd).innerHTML = el.value;
+     
+        document.getElementById(iidd).innerHTML = el.value;
 
         break;
       case 'iconEl':

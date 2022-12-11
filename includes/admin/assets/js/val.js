@@ -922,6 +922,8 @@ function creator_form_builder_Efb() {
       thank_you: 'msg',
       thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
     });
+
+    console.log(valj_efb);
     if (form_type_emsFormBuilder == "payment") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' })
     }

@@ -776,7 +776,15 @@ class efbFunction {
 					case 'file':
 					case 'href':
 						$valp[$key][$k]=sanitize_url($v);
-				default:					
+					break;
+					case 'thank_you_message':
+						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
+						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
+						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);
+						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
+						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
+;						break;
+					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
 					break;
 				}
