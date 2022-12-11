@@ -521,7 +521,7 @@ class _Public {
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;
-						error_log($key);
+						error_log("====================> foreach");
 						if($key<2) continue;
 						error_log("key=> value F");
 						error_log(json_encode($f));
@@ -535,10 +535,12 @@ class _Public {
 							$key = array_search($los, array_column($outs, 'Country'));
 							$result = $outs[$key]['Out_Count'];
 							 */
-							error_log("arra_filter: value item");
+							error_log("arra_filter: first=== item second f");
 							error_log(json_encode($item));
-							error_log("isset(item['id_']) && f['id_']==item['id_'] ");
-							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  $item['type']=="checkbox" && $f['id_']==$item['id_ob']  )) {   
+							error_log(json_encode($f));
+							//error_log("isset(item['id_']) && f['id_']==item['id_'] ");
+							$t =strpos(strtolower($item['type']),'checkbox');
+							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  gettype($t)=="integer" && $f['id_']==$item['id_ob']  )) {   
 								error_log("f['type']");
 								error_log($f['type']);
 							
@@ -625,10 +627,9 @@ class _Public {
 								case 'option':
 								/* case 'payCheckbox':
 								case 'chlCheckBox': */
-								error_log('type first condions->option:');
-								$t	= strtolower($item['type']);
-								error_log($t);
-								$t = strpos($t,'checkbox');
+								error_log('type first condions->option:');						
+								error_log($item['type']);						
+								$t = strpos(strtolower($item['type']),'checkbox');
 								error_log($t);
 								
 								error_log(gettype($t)!='boolean');
@@ -642,8 +643,11 @@ class _Public {
 										error_log($item['value']);
 										error_log( $f['id_']);
 										error_log( $item['id_ob']);
+										error_log( json_encode($item));
+										error_log( json_encode($f));
 										//array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
-											if(isset($f['id_']) && isset($item['id_ob']) && $f['id_']==$item['id_ob']){
+											if((isset($f['id_']) && isset($item['id_ob']) && $f['id_']==$item['id_ob'] )
+											||(isset($f['id_']) && isset($item['id_']) && $f['type']=="chlCheckBox"  && $f['id_']==$item['id_ob']) ){
 												error_log("----------------fs['type'] checkBox");
 												error_log(json_encode($f));
 												error_log(json_encode($item));
@@ -820,6 +824,7 @@ class _Public {
 									$t	= strtolower($item['type']);
 									error_log($t);
 									$t = strpos(strtolower($f['type']),'checkbox');
+									$b = strpos(strtolower($f['type']),'chlcheckbox');
 									error_log($t);
 									error_log(gettype($t));
 									if(gettype($t)=="integer"){
@@ -2176,21 +2181,21 @@ class _Public {
 				$amount = $price->unit_amount/100;
 				$payA =  $amount  . ' '. $price->currency;
 				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
-				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
 				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
 				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
-				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description ];
+				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description,'total'=>$amount ];
 				 $filtered=array_merge($filtered , array($ar)); 
 				 
 				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
 			}else{
 				$amount = $paymentIntent->amount/100;
 				$payA =  $amount  . ' '. $paymentIntent->currency;
-				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
 				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
-				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description ];
+				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
 				 $filtered=array_merge($filtered , array($ar)); 
 				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
 			}

@@ -416,7 +416,8 @@ set_dadfile_fun_efb = (id, indx) => {
      
         const v= reply_upload_efb(id);
         const lenV=(v.length/20)+10;
-        document.getElementById('replay_section__emsFormBuilder').innerHTML +=v  ;
+        let l = document.getElementById('replay_section__emsFormBuilder');
+        if(l)l.innerHTML +=v  ;
         setTimeout(() => {
           let  dragbtntEfb = document.getElementById("attach_efb");
           let dragInptEfb =  document.getElementById(`resp_file_efb_`);

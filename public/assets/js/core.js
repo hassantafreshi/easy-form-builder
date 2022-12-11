@@ -1209,7 +1209,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
+    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment"){
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
@@ -1224,8 +1224,10 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
      
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
-        m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
-        m += `<div class="efb mx-3 fs7 text-capitalize">
+        
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+        <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
+            <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
             <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
@@ -1245,8 +1247,9 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 										"paymentCard"=>$result->data->card_pan,
 										"refId"=>$result->data->ref_id
         */
-        m += `<p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>`
-        m += `<div class="efb mx-3 fs7 text-capitalize">
+     
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+            <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>

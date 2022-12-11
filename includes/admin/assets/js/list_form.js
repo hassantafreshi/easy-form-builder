@@ -281,6 +281,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s = false;
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
+  console.error(content[0].paymentcurrency,content);
   for (const c of content) {
     if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -353,11 +354,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if ((s == true && c.value == "@file@") || (s == false && c.value != "@file@")){
+    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
-        if(c.type.includes('pay')&& c.id_!="payment") {
+        if(c.type.includes('pay')) {
 
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }
@@ -373,6 +374,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         
         m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
+            <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
             <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
