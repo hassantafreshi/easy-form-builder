@@ -217,7 +217,7 @@ function viewfileEfb(id, indx) {
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
-    console.log('fun_addProgessiveEl_efb');
+    //console.log('fun_addProgessiveEl_efb');
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -252,7 +252,7 @@ function viewfileEfb(id, indx) {
     }
   }
 function viewfileReplyEfb(id, indx) {
-    console.log(`fileEfb`,fileEfb)
+    //console.log(`fileEfb`,fileEfb)
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
 /*     let icon = ``;
@@ -421,7 +421,7 @@ set_dadfile_fun_efb = (id, indx) => {
         setTimeout(() => {
           let  dragbtntEfb = document.getElementById("attach_efb");
           let dragInptEfb =  document.getElementById(`resp_file_efb_`);
-          if(pro_efb==true){
+          if(pro_efb==true && dragInptEfb){
           dragInptEfb.addEventListener("change", function () {
             
             fileEfb = this.files[0];
@@ -673,10 +673,7 @@ function addMarker(position) {
 
 
   reply_upload_efb =(msg_id)=>{
-    
- 
-    console.log(stock_state_efb);
-    let btnC = '<!--efb.app-->'
+      let btnC = '<!--efb.app-->'
     if( pro_efb==true){
        if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
@@ -710,8 +707,6 @@ function addMarker(position) {
 
 
 function closed_resp_emsFormBuilder(msg_id){
- 
-  console.log(`message status [${stock_state_efb}]`);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo }</div></div>`
   show_modal_efb(body, efb_var.text.close, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -720,9 +715,6 @@ function closed_resp_emsFormBuilder(msg_id){
   //myModal.show_efb();
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
-    console.log(msg_id);
-    //s= document.getElementById('respStateEfb').dataset.state;
-    console.log(`s===>[${stock_state_efb}]`);
     close_resp_efb(msg_id,stock_state_efb);
     activeEl_efb = 0;
     state_modal_show_efb(0)

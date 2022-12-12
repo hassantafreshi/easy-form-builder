@@ -762,6 +762,9 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
+		/* error_log('type sanitize');
+		error_log(gettype($valp)); */
+		//if(gettype($valp)=='string') 
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
@@ -778,12 +781,13 @@ class efbFunction {
 						$valp[$key][$k]=sanitize_url($v);
 					break;
 					case 'thank_you_message':
+						error_log(json_encode($valp[$key]));
 						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
 						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
 						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);
 						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
 						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
-;						break;
+					break;
 					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
 					break;

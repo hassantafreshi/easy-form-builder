@@ -43,7 +43,7 @@ function fun_emsFormBuilder_render_view(x) {
   fun_backButton(2);
 
   function creatRow(i, newM) {
-    console.log(i,newM);
+    //console.log(i,newM);
     return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
    <th scope="row" class="efb emsFormBuilder-tr" data-id="${i.form_id}" >
      [EMS_Form_Builder id=${Number(i.form_id)}]  
@@ -150,7 +150,7 @@ function emsFormBuilder_show_content_message(id) {
   //console.log(valueJson_ws_messages[indx]);
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
-  console.log('emsFormBuilder_show_content_message');
+  //console.log('emsFormBuilder_show_content_message');
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
   form_type_emsFormBuilder = formType;
@@ -263,7 +263,7 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-  console.log('fun_emsFormBuilder_show_messages',content);
+  //console.log('fun_emsFormBuilder_show_messages',content);
   if (by == 1) { by = 'Admin' } else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
     <div class="efb  form-check">
@@ -498,7 +498,7 @@ function fun_ws_show_list_messages(value) {
   if (value.length > 0) {
     for (const v of value) {
       let state = Number(v.read_);
-      console.log(state);
+      //console.log(state);
       iconNotRead = `<div class="efb nmsgefb bi-envelope"></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';
@@ -615,7 +615,7 @@ function emsFormBuilder_messages(id) {
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
-  console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
+  //console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
   show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
@@ -670,7 +670,7 @@ function fun_update_message_state_by_id(id) {
     noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  console.log("fun_update_message_state_by_id",id);
+  //console.log("fun_update_message_state_by_id",id);
   jQuery(function ($) {
     data = {
       action: "update_message_state_Emsfb",
@@ -714,13 +714,13 @@ function fun_get_messages_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res)
+      //console.log(res)
       if (res.success == true) {
         valueJson_ws_messages = res.data.ajax_value;
         efb_var.nonce_msg = res.data.nonce_msg
-          console.log(efb_var.nonce_msg, res.data.nonce_msg);
+          //console.log(efb_var.nonce_msg, res.data.nonce_msg);
           efb_var.msg_id = res.data.id
-          console.log(efb_var.msg_id, res.data.id);
+          //console.log(efb_var.msg_id, res.data.id);
         //console.log(valueJson_ws_messages);
         localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
         fun_ws_show_list_messages(valueJson_ws_messages)
@@ -742,11 +742,11 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
       id: id
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res.data.ajax_value.length,res.data.ajax_value);
+      //console.log(res.data.ajax_value.length,res.data.ajax_value);
       if (res.success == true) {
         fun_ws_show_response(res.data.ajax_value);
       }
-      console.log(res.data.ajax_value);
+      //console.log(res.data.ajax_value);
       state_rply_btn_efb(100)
       //codeHere 778899 
       //create and call a funcation for disable and anabled
@@ -761,7 +761,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  console.log(message,id);
+  //console.log(message,id);
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
     //noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
@@ -779,7 +779,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       message: JSON.stringify(message)
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res);
+      //console.log(res);
       if (res.success == true) {
         if(document.getElementById('replay_state__emsFormBuilder')){
 
@@ -814,7 +814,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //v2
-  console.log('fun_emsFormBuilder__add_a_response_to_messages');
+  //console.log('fun_emsFormBuilder__add_a_response_to_messages');
   const resp = fun_emsFormBuilder_show_messages(message, by, userIp, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
@@ -1495,13 +1495,13 @@ function fun_find_track_emsFormBuilder() {
       };
 
       $.post(ajax_object_efm.ajax_url, data, function (res) {
-        console.log(res);
+        //console.log(res);
         if (res.data.success == true) {
           valueJson_ws_messages = res.data.ajax_value;
           efb_var.nonce_msg = res.data.nonce_msg
-          console.log(efb_var.nonce_msg, res.data.nonce_msg);
+          //console.log(efb_var.nonce_msg, res.data.nonce_msg);
           efb_var.msg_id = res.data.id
-          console.log(efb_var.msg_id, res.data.id);
+          //console.log(efb_var.msg_id, res.data.id);
           localStorage.setItem('valueJson_ws_messages', JSON.stringify(valueJson_ws_messages));
           document.getElementById("more_emsFormBuilder").style.display = "none";
           fun_ws_show_list_messages(valueJson_ws_messages);

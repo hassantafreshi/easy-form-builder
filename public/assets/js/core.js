@@ -332,7 +332,6 @@ function createStepsOfPublic() {
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
           }
         }
-        console.log(el,ob);
         switch (el.type) {
           case "text":
           case "color":
@@ -365,7 +364,7 @@ function createStepsOfPublic() {
             break;
           case 'url':
             const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-            console.log(el.value ,che);
+            //console.log(el.value ,che);
             if (che == null) {
               valid = false;
               el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -540,7 +539,7 @@ function createStepsOfPublic() {
 
     } else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
-        console.log("el========>542 ");
+        //console.log("el========>542 ");
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
@@ -569,13 +568,8 @@ function createStepsOfPublic() {
 
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string'){return}
-  console.log(ob);
   remove_ttmsg_efb(ob.id_)
-if(ob.hasOwnProperty('value')){
-
-  console.log(ob,typeof(ob.value));
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number') ob.value=fun_text_forbiden_convert_efb(ob.value);
-}
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     //console.log(`index[${indx}]`);
@@ -710,7 +704,7 @@ function alarm_emsFormBuilder(val) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             checkFile = -100;
-            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3>File Error</h3> <span>${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4">File Error</h3> <span class="efb fs-6">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
                <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
             return;
 
@@ -754,7 +748,6 @@ function actionSendData_emsFormBuilder() {
     return;
   }
   
-  console.log(sendBack_emsFormBuilder_pub);
  
   jQuery(function ($) {
 
@@ -768,7 +761,6 @@ function actionSendData_emsFormBuilder() {
       nonce: efb_var.nonce,
       nonce_msg: efb_var.nonce_msg,
     };
-    console.log(valj_efb);
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
         data = {
@@ -802,7 +794,6 @@ function actionSendData_emsFormBuilder() {
 
       
     }
-    console.log(data);
     $.ajax({
       type: "POST",
       async: false,
@@ -897,9 +888,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
-  console.log(id,tp);
   let msgEl = document.getElementById(`${id}_-message`);
-  console.log(`id[${id}]`, msgEl);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
   let file = ''
@@ -913,19 +902,15 @@ function valid_file_emsFormBuilder(id,tp) {
   const i = `${id}_`;
   let message = "";
   const el = document.getElementById(i);
-  console.log(i,el.files)
   if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
     const filetype = el.files[0].type.length > 1 ? el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".") - 1) * -1))
     const r = validExtensions_efb_fun(file, filetype)
-    console.log(file,el.files[0].name,filetype,r);
     if (r == true) {
       check = +1;
       message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
     }
   }
-  console.log(`check==>[${check}]`);
   if (check > 0) {
-    console.log('check'+check)
     msgEl.innerHTML = "";
     
     fun_upload_file_emsFormBuilder(id, file,tp);
@@ -1031,12 +1016,9 @@ function fun_vaid_tracker_check_emsFormBuilder() {
             success: function (res) {
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-              console.log(res);
               response_Valid_tracker_efb(res)
               efb_var.nonce_msg = res.data.nonce_msg
-              console.log(efb_var.nonce_msg, res.data.nonce_msg);
               efb_var.msg_id = res.data.id
-              console.log(efb_var.msg_id, res.data.id);
             },
             error: function () {
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
@@ -1122,17 +1104,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
   </div>
  <hr>
- `;;
-
- 
- console.log(content);
+ `;
   content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
-  console.log(content);
   let list = []
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
-    console.log(c,content);
-
     let value ="<b></b>";
     if(c.hasOwnProperty('value')){
       c.value = replaceContentMessageEfb(c.value);
@@ -1264,7 +1240,6 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     }else if (c.type =="opened"){
       stock_state_efb=false;
     }
-    console.log(c.type,stock_state_efb);
   }
   m += '</div>';
   //console.log('m',m);
@@ -1310,7 +1285,6 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  console.log('dddddddddddddd',efb_var.nonce_msg);
   jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",
@@ -1464,7 +1438,7 @@ function Show_recovery_pass_efb() {
   let el = document.getElementById(`recoverySectionemsFormBuilder`);
   el.style.display = el.style.display == "none" ? "block" : "none";
 
-  document.getElementById('efb-final-step').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+  document.getElementById('recoverySectionemsFormBuilder').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 
   //btn_recovery_pass_efb
   //if data-id == 1 
@@ -1479,7 +1453,7 @@ function Show_recovery_pass_efb() {
     el.addEventListener("click", (e) => {
       form_type_emsFormBuilder = "recovery";
       formNameEfb = form_type_emsFormBuilder;
-      sendBack_emsFormBuilder_pub = { email: us.value };
+      sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true};
       document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
       actionSendData_emsFormBuilder()
     })
@@ -1498,10 +1472,10 @@ function Show_recovery_pass_efb() {
 
 function response_fill_form_efb(res) {
   if (res.data.success == true) {
-    localStorage.clear(); 
+     
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
-      <h3 class="efb ">${efb_var.text.sentSuccessfully}</h3>
+      <h3 class="efb fs-4">${efb_var.text.sentSuccessfully}</h3>
       <h3 class="efb">Please wait while redirected <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `      
       window.location.href = res.data.m;
@@ -1513,15 +1487,19 @@ function response_fill_form_efb(res) {
       case 'survey':
       case 'payment':
         document.getElementById('efb-final-step').innerHTML = funTnxEfb(res.data.track)
+        localStorage.clear();
         break;
       case 'subscribe':
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb fas fa-thumbs-up faa-bounce animated text-primary""></i></h1><h3 class='efb emsFormBuilder'>${ajax_object_efm.text.thankYou}</h1></br> <span>${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up text-primary""></i></h3><h3 class='efb emsFormBuilder fs-5'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        localStorage.clear();
         break;
-      case 'recovery':
       case 'register':
-        const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message : ajax_object_efm.text.checkYourEmail;
-        document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',m );
-        break;
+          const m = form_type_emsFormBuilder !='recovery' ? valj_efb[0].thank_you_message.thankYou: ajax_object_efm.text.checkYourEmail;
+          document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',m );
+          break;
+      case 'recovery':
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-envelope text-primary""></i></h3><h3 class='efb emsFormBuilder fs-5'>${res.data.m}</h3></br></br></h3>`;
+      break;
       case 'login':
 
 
@@ -1531,12 +1509,12 @@ function response_fill_form_efb(res) {
           location.reload();
         } else {
           //pro_w_emsFormBuilder = res.data.m.pro;
-          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb"></i></h3> <span> <br>${res.data.m.error}</span>
+          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb"></i></h3> <span class="efb fs-7"> <br>${res.data.m.error}</span>
            </br>
-           <a href="#" id="btn_Show_recovery_efb" class="efb   emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
-           <div class="efb p-5 " id="recoverySectionemsFormBuilder" style="display: none;">     
-              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v form-control h-d-efb efb-square" placeholder="Email" >
-              <a href="#" id="btn_recovery_pass_efb" class="efb btn btn-lg btn-block btn-pink mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
+           <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
+           <div class="efb py-5 px-2 container bg-light mb-3" id="recoverySectionemsFormBuilder" style="display: none;">     
+              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v  h-d-efb efb-square col-8" placeholder="Email" >
+              <a  id="btn_recovery_pass_efb" class=" efb btn h-d-efb btn-block btn-pinkEfb text-white mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
               `;
@@ -1544,6 +1522,7 @@ function response_fill_form_efb(res) {
         break;
       case "logout":
         location.reload();
+        localStorage.clear();
         break;
 
     }

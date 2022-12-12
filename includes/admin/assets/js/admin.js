@@ -210,7 +210,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   let content = ``
    
   if (state != 0) {
-    content = ` <h3 class="efb "><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
+    content = ` <h3 class="efb  fs-3"><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
     ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
@@ -226,13 +226,13 @@ function show_message_result_form_set_EFB(state, m) { //V2
   </a>
   `
   } else {
-    content = `<h3 class="efb ">${m}</h3>`
+    content = `<h3 class="efb  fs-3">${m}</h3>`
   }
 
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.4.2> WhiteStudio.team');
+console.info('Easy Form Builder 3.4.3> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -320,7 +320,7 @@ function actionSendAddons_efb(val) {
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
-          console.log(res);
+          //console.log(res);
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
          noti_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
@@ -684,7 +684,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
     //register v2
-    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": efb_var.text.createAcountDoneM, "email_temp": "", "sendEmail": false, "stateForm": false },
+    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "sendEmail": false, "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "besie", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
@@ -917,7 +917,7 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   if (s == 0) {
     el.classList.remove('show');
-    document.getElementById('sideMenuConEfb').innerHTML = `<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div>`
+    document.getElementById('sideMenuConEfb').innerHTML = `<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
     // jQuery("#sideBoxEfb").fadeIn('slow');
@@ -1956,7 +1956,7 @@ let editFormEfb = () => {
 function obj_resort_row(step) {
   // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
-  console.log(`obj_resort_row step[${step}]`);
+ // console.log(`obj_resort_row step[${step}]`);
   for (v of valj_efb) {
     if (v.step == step) {
       v.step = step;
@@ -2176,7 +2176,7 @@ const sort_obj_el_efb_ = () => {
 
         if (el.classList.contains('stepNo')) {
           //اگر استپ بود
-          console.log(el.tagName);
+          //console.log(el.tagName);
      
           //step = el.dataset.step;
           last_setp +=1;
@@ -2208,7 +2208,7 @@ const sort_obj_el_efb_ = () => {
     } catch {
 
     }
-    console.log(`sort_obj_el_efb_ step[${step}]`)
+    //console.log(`sort_obj_el_efb_ step[${step}]`)
   }
 
   if (len > 20) {
@@ -2231,7 +2231,7 @@ const sort_obj_el_efb = () => {
   let step = 0;
   let state = false;
   //console.error('------', valj_efb.length)
-  console.log(`sort_obj_el_efb step[${step}]`)
+  //console.log(`sort_obj_el_efb step[${step}]`)
   for (const el of document.querySelectorAll(".efbField")) {
 
     if (el.classList.contains('stepNavEfb')) {

@@ -151,21 +151,21 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.4.2' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.4.3' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.4.2');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.4.3');
             wp_enqueue_style('Emsfb-style-css');
 
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.4.2');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.4.3');
             wp_enqueue_style('Emsfb-bootstrap');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.4.2');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.4.3');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.4.2');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.4.3');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -173,13 +173,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.2');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.3');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.4.2');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.4.3');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.4.2');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.4.3');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -695,7 +695,7 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        error_log('set_replyMessage_id_Emsfb');
+        //error_log('set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -727,20 +727,15 @@ class Admin {
         $m  = sanitize_text_field($_POST['message']);
 
         //echo $table_name;
-        $m = str_replace("\\","",$m);	
-        error_log($m);
+        $m = str_replace("\\","",$m);	        
         $message =json_decode($m);
 				$valobj=[];
-				error_log(json_encode($message,JSON_UNESCAPED_UNICODE));
 				$stated=1;
 				foreach ($message as $k =>$f){
 					
 					$in_loop=true;
 				
 					if($stated==0){break;}					  
-						error_log($f->type);
-						error_log("stated:");
-						error_log($stated);
 						switch ($f->type) {											
 							case 'allformat':	
 								$d = $_SERVER['HTTP_HOST'];
@@ -753,22 +748,13 @@ class Admin {
 									$s = 0 ;
 									foreach ($ar as  $r) {
 										$c=strpos($f->url,$r);
-										if(gettype($c)!='boolean' && $c==0){
-											error_log("position: URL");
-											error_log(gettype(strpos($f->url,$r)));
-											error_log($f->url);
-											error_log("r");
-											error_log($r);
-											$s=1;
-										
-										}
+										if(gettype($c)!='boolean' && $c==0) $s=1;
+								
 									}								
 										if($s==1 ){
 											$stated=1;
-											$f->url = sanitize_url($f->url);								
-											
+											$f->url = sanitize_url($f->url);																			
 										}else{
-											error_log("not valid link");
 											$f->url="";											
 											$stated=0;
 										}
@@ -782,8 +768,6 @@ class Admin {
 									$f->value = sanitize_text_field($f->value);
 								}
 								//$item['value'] =  'test';
-								error_log("--------------> default value");	
-								
 								$in_loop=false;
 							break;
 						}
@@ -959,9 +943,7 @@ class Admin {
             error_log($value[0]->track); */
 
         if (count($value)>0) {
-            error_log(json_encode($value));
             $code = 'efb'. $value[0]->msg_id;
-			error_log($value[0]->msg_id);
 			$code =wp_create_nonce($code);
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
@@ -1155,8 +1137,7 @@ class Admin {
             //run install php of addons
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
                     
-            if(file_exists($fl_ex)){
-                error_log('file exists');            
+            if(file_exists($fl_ex)){         
                 $name ='\Emsfb\\'.$name;
                 require_once  $fl_ex;  
                 $t = new $name();      
@@ -1165,11 +1146,7 @@ class Admin {
         }
         
     public function file_upload_public(){
-        error_log('file_upload_public');
         /* start new code */
-        error_log($_POST['id']);
-		error_log($_POST['nonce_msg']);
-		error_log($_POST['pl']);
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
@@ -1180,11 +1157,8 @@ class Admin {
             $id = $_POST['id'];
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-            if($vl!=null){       
-                error_log('===========> row not null');       
-                error_log($vl);       
+            if($vl!=null){              
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') || strpos($vl , '"type":"dadfile"') || strpos($vl , '"type":"file"')){
-                    error_log('===========> file input exists');
                     $vl ='efb'.$id;
                     //'efb'.$this->id
                 }
@@ -1195,8 +1169,6 @@ class Admin {
             }
         
         }
-        error_log('check_ajax_referer(vl,"nonce_msg")');
-        error_log(check_ajax_referer($vl,"nonce_msg"));
        
         /* end new code */
         //error_log(json_decode(check_ajax_referer('public-nonce','nonce')));
@@ -1210,7 +1182,6 @@ class Admin {
 			die();
 		} 
         /* end new code */
-        error_log($_FILES['file']['type']);
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,

@@ -84,9 +84,6 @@ function pro_show_efb(state) {
       ${efb_var.text.activateProVersion}
     </button>
   </div>`
- /*  console.log(state);
-  console.log(message);
-  console.log(body); */
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb()
@@ -934,7 +931,7 @@ const open_whiteStudio_efb = (state) => {
 }
 
 const loading_messge_efb = () => {
-  return ` <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div>`
+  return ` <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
 }
 
 
@@ -1693,10 +1690,10 @@ function fun_validation_efb() {
   } */
   for (let row in valj_efb) {
     let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
-    console.log(valj_efb[row],s);
+    //console.log(valj_efb[row],s);
     //console.log(valj_efb[row].type , `row[${row}]`,  `req[${valj_efb[row].required}]` , `comper[${current_s_efb == valj_efb[row].step}] current_s_efb[${current_s_efb}] step[${valj_efb[row].step}]`  ,  valj_efb[row].type != "chlCheckBox" ,`state[${row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox"}]` );
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
-      console.log(`row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox"`);
+      //console.log(`row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox"`);
       //  let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
       //console.log(sendBack_emsFormBuilder_pub,s ,valj_efb[row].id_ )
       // console.log(`exist [${s}] row[${row}] id[${valj_efb[row].id_}] type[${valj_efb[row].type}] `,valj_efb[row] , sendBack_emsFormBuilder_pub[s])
@@ -1705,10 +1702,8 @@ function fun_validation_efb() {
       if (valj_efb[row].type=='file' || valj_efb[row].type=='dadfile'){
         //files_emsFormBuilder
         let r=files_emsFormBuilder.findIndex(x => x.id_ == valj_efb[row].id_);
-        console.log(r)
         s = files_emsFormBuilder[r].hasOwnProperty('state') && Number(files_emsFormBuilder[r].state)==0 || r==-1 ? -1 :1;
       }
-      console.log(valj_efb[row].type, s);
       if (s == -1) {
         if (state == true) { state = false; idi = valj_efb[row].id_ }
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
@@ -1726,7 +1721,7 @@ function fun_validation_efb() {
         el.innerHTML = "";
         el.classList.remove('show');
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
-        console.log(row,s,sendBack_emsFormBuilder_pub[s]);
+        //console.log(row,s,sendBack_emsFormBuilder_pub[s]);
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
         if ((valj_efb[row].type == "multiselect" || valj_efb[row].type == "payMultiselect") && (v.length - 1) < valj_efb[row].minSelect) {
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
@@ -1952,7 +1947,7 @@ function funTnxEfb(val, title, message) {
   const t = title ? title : done;
   const m = message ? message : thankYou;
   const trckCd = `
-  <div class="efb "><h5 class="efb mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-3"><h5 class="efb mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
@@ -1962,7 +1957,7 @@ function funTnxEfb(val, title, message) {
                     <h4 class="efb  my-1">
                         <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2" id="DoneIconEfb"></i>${t}
                     </h4>
-                    <h3 class="efb ">${m}</h3>
+                    <h3 class="efb fs-3">${m}</h3>
                    ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
   
   `
@@ -2072,16 +2067,16 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
   }
   //v3.3.5 updated
   //این تابع فایل را به سمت سرور ارسال می کند
-  console.log(id,type,tp)
+  //console.log(id,type,tp)
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
   //console.log('upload file',id);
-  console.log(tp , efb_var.nonce_msg);
+  //console.log(tp , efb_var.nonce_msg);
   const nonce_msg = efb_var.nonce_msg ;
   const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
-  console.log(tp)
+  //console.log(tp)
   jQuery(function ($) {
     //console.log(idn,indx);
     var fd = new FormData();
@@ -2218,7 +2213,7 @@ state_rply_btn_efb=(t)=>{
    /* new code */
     /*  end new code */
     if(pro_efb ==false){return};
-    console.log('state_rply_btn_efb',stock_state_efb);
+    //console.log('state_rply_btn_efb',stock_state_efb);
    setTimeout(() => {
      if(stock_state_efb==true){
        let d= document.getElementById('respStateEfb');
@@ -2232,7 +2227,7 @@ state_rply_btn_efb=(t)=>{
        }
 
        document.getElementById("replayB_emsFormBuilder").remove();
-       console.log(document.getElementById("replayB_emsFormBuilder"));
+       //console.log(document.getElementById("replayB_emsFormBuilder"));
        document.getElementById("attach_efb").remove();
        document.getElementById("replayM_emsFormBuilder").remove();
        document.getElementById("label_replyM_efb").remove();
@@ -2251,7 +2246,7 @@ state_rply_btn_efb=(t)=>{
         }
       }
    }, t);
-   console.log('end fun new');
+   //console.log('end fun new');
    /*  end new code */
 }
 

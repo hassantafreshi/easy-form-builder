@@ -923,7 +923,6 @@ function creator_form_builder_Efb() {
       thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
     });
 
-    console.log(valj_efb);
     if (form_type_emsFormBuilder == "payment") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' })
     }
@@ -989,7 +988,7 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="efb row">
       <!-- over page -->
-      <div id="overlay_efb" class="efb d-none"><div class="efb card-body text-center efb mt-5 pt-2"><div class="efb lds-hourglass efb text-white"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div></div>
+      <div id="overlay_efb" class="efb d-none"><div class="efb card-body text-center efb mt-5 pt-2"><div class="efb lds-hourglass efb text-white"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
       <!--end  over page -->
           <div class="efb  col-md-4" id="listElEfb">
           
@@ -1021,8 +1020,8 @@ function creator_form_builder_Efb() {
   <div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="efb modal-content efb " id="settingModalEfb-sections">
-                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb ">${efb_var.text.editField}</span></h5></div>
-                  <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div></div>
+                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
+                  <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
   `
