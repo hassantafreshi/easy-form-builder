@@ -1352,7 +1352,8 @@ function noti_message_efb(title, message, sec, alert) {
     document.getElementById('alert_efb').innerHTML = ""
   }, sec);
 
-  window.scrollTo({ top: document.getElementById('alert_efb').scrollHeight, behavior: 'smooth' });
+  window.scrollTo({ top: document.getElementById('alert_efb').scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
+  
   //jQuery('.alert').alert()
 }
 
@@ -2253,4 +2254,20 @@ state_rply_btn_efb=(t)=>{
 window.addEventListener('offline', (e) => { console.log('offline'); });
 window.addEventListener('online', (e) => { console.log('online'); });
 
+check_msg_ext_resp_efb=()=>{
+  jQuery('#replayM_emsFormBuilder').on('keypress', 
+    function (event) {
+      console.log('replayM_emsFormBuilder',event.which)
+      
+       if (jQuery('#replayB_emsFormBuilder').hasClass('disabled')) {
+        console.log('replayB_emsFormBuilder');
+        jQuery('#replayB_emsFormBuilder').removeClass('disabled');
+      }
+        if (event.which == '13') {
+            event.preventDefault();
+            
+        }
+        //replayB_emsFormBuilder
+    });
+}
 

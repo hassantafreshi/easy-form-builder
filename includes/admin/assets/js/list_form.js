@@ -159,12 +159,12 @@ function emsFormBuilder_show_content_message(id) {
     if (form_type_emsFormBuilder != 'subscribe' && form_type_emsFormBuilder != 'register' && form_type_emsFormBuilder != 'survey') {
       r = `   
       <div class="efb mb-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}"  id="replay_section__emsFormBuilder">
-        <label for="replayM_emsFormBuilder" class="efb form-label m-2" id="label_replyM_efb">${efb_var.text.reply}:</label>
+        <label for="replayM_emsFormBuilder" class="efb form-label m-2 fs-7" id="label_replyM_efb">${efb_var.text.reply}:</label>
         <textarea class="efb  form-control efb" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
       </div>
      <div class="efb col text-right row mx-1">
      <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
-     <p class="efb mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder"></p>
+     <p class="efb mx-2 my-1 text-pinkEfb fs-7" id="replay_state__emsFormBuilder"></p>
      </div></div>`;
     } else { r = '<!-- comment --!>'; }
     return r;
@@ -281,7 +281,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let list = []
   let s = false;
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
-  console.error(content[0].paymentcurrency,content);
+  //console.error(content[0].paymentcurrency,content);
   for (const c of content) {
     if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -453,8 +453,9 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   //console.log(isHTML)
   if (message.length < 1 || isHTML(message)) {
-    document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    
+    check_msg_ext_resp_efb();
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
@@ -781,6 +782,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       //console.log(res);
       if (res.success == true) {
+        
         if(document.getElementById('replay_state__emsFormBuilder')){
 
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
@@ -792,6 +794,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           fun_emsFormBuilder__add_a_response_to_messages(message, message[0].by, ajax_object_efm.user_ip, 0, date);
           const chatHistory = document.getElementById("resp_efb");
           chatHistory.scrollTop = chatHistory.scrollHeight;
+          sendBack_emsFormBuilder_pub=[];
         }else{
           // res.data.m
           noti_message_efb(res.data.m,'', 7 , 'info')

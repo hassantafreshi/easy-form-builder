@@ -781,7 +781,7 @@ class efbFunction {
 						$valp[$key][$k]=sanitize_url($v);
 					break;
 					case 'thank_you_message':
-						error_log(json_encode($valp[$key]));
+						//error_log(json_encode($valp[$key]));
 						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
 						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
 						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);

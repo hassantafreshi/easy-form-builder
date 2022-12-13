@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.4.3
+Stable tag: 			3.5.0
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			5.5 or higher
@@ -185,6 +185,10 @@ How *Easy Form Builder* makes your life easier:
 
 - *Secure File uploads*: Easy Form Builder has secure uploading file method  for **free**. 
 
+- *Open/Closed responses*: Responses(Tickets) can be marked as Open/Closed  from panel of Easy Form Builder.
+
+
+
 
 **Payment Forms Field of Easy Form Builder**
 
@@ -345,7 +349,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
-= 3.4.3=
+= 3.5.0=
 * Important security updated for form validation fill out
 * Important security updated for uploading files of forms or responses
 * Improved UX of Easy Form Builder

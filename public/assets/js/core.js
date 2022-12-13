@@ -1064,7 +1064,7 @@ function emsFormBuilder_show_content_message(value, content) {
   <!-- recaptcha  -->
   ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
-  <p class="efb mx-2 my-1 text-pinkEfb efb" id="replay_state__emsFormBuilder">  </p>
+  <p class="efb mx-2 my-1 text-pinkEfb efb fs-7" id="replay_state__emsFormBuilder">  </p>
   </div></div>
   `
   const body = `
@@ -1262,6 +1262,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   /*end  new attachment */
   let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
   if (message.length < 1 || isHTML(message)) {
+    check_msg_ext_resp_efb();
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
     //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
@@ -1302,7 +1303,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
-      success: function (res) { response_rMessage_id(res, message) },
+      success: function (res) { response_rMessage_id(res, message); sendBack_emsFormBuilder_pub=[]; },
       error: function () { response_rMessage_id({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }) }
 
     })
@@ -1548,13 +1549,7 @@ function response_Valid_tracker_efb(res) {
      state_rply_btn_efb(100)
     }, 50);
      /* end attachment reply */
- /*    jQuery('#replayM_emsFormBuilder').on('keypress', 
-    function (event) {
-      console.log('replayM_emsFormBuilder',event.which)
-        if (event.which == '13') {
-            event.preventDefault();
-        }
-    }); */
+    
   } else {
     noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
