@@ -210,7 +210,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   let content = ``
    
   if (state != 0) {
-    content = ` <h3 class="efb "><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
+    content = ` <h3 class="efb  fs-3"><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
     ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
@@ -226,16 +226,20 @@ function show_message_result_form_set_EFB(state, m) { //V2
   </a>
   `
   } else {
-    content = `<h3 class="efb ">${m}</h3>`
+    content = `<h3 class="efb  fs-3">${m}</h3>`
   }
 
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.4.2> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.0> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   var name = formName_Efb
@@ -289,6 +293,10 @@ function actionSendData_emsFormBuilder() {
 
 }
 function actionSendAddons_efb(val) {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   jQuery(function ($) {
@@ -312,12 +320,12 @@ function actionSendAddons_efb(val) {
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
-
+          //console.log(res);
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+         noti_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     })
@@ -326,6 +334,10 @@ function actionSendAddons_efb(val) {
 
 }
 function actionSendAddonsUn_efb(val) {
+  if (!navigator.onLine) {
+    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
   //console.log('actionSendData_emsFormBuilder');
   data = {};
   jQuery(function ($) {
@@ -672,7 +684,7 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
     //register v2
-    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": efb_var.text.createAcountDoneM, "email_temp": "", "sendEmail": false, "stateForm": false },
+    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "sendEmail": false, "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
     { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "besie", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
@@ -905,7 +917,7 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   if (s == 0) {
     el.classList.remove('show');
-    document.getElementById('sideMenuConEfb').innerHTML = `<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3></div>`
+    document.getElementById('sideMenuConEfb').innerHTML = `<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
     // jQuery("#sideBoxEfb").fadeIn('slow');
@@ -1051,8 +1063,10 @@ let change_el_edit_Efb = (el) => {
         }
         postId = aId[valj_efb[indx].type]
         id = valj_efb[indx].id_
-        document.getElementById(`${id}${postId}`).classList.toggle('required');
-       
+        postId = document.getElementById(`${id}${postId}`)
+        if(postId) postId.classList.toggle('required');
+       /* console.log(`requiredEl::::::valj_efb[indx]`);
+       console.log(valj_efb[indx]) */;
         //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
@@ -1541,15 +1555,17 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'SingleTextEl':
         let iidd = ""
-        if (el.dataset.side == "undefined" || el.dataset.side == "") {
+        
+        if (Number(valj_efb[0].steps)==1) {
           // iidd = indx !=0 ? `${valj_efb[indx].id_}_icon` : `button_group_icon` ;
-          iddd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
+          iidd = indx != 0 ? `${valj_efb[indx].id_}_button_single_text` : 'button_group_button_single_text';
           valj_efb[indx].button_single_text = el.value;
         } else {
           iidd = el.dataset.side == "Next" ? `button_group_Next_button_text` : `button_group_Previous_button_text`
           el.dataset.side == "Next" ? valj_efb[0].button_Next_text = el.value : valj_efb[0].button_Previous_text = el.value
         }
-        document.getElementById(iddd).innerHTML = el.value;
+     
+        document.getElementById(iidd).innerHTML = el.value;
 
         break;
       case 'iconEl':
@@ -1722,7 +1738,7 @@ function create_form_efb() {
 
   if (content.length > 10) content += `</div>`
   head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb progress mx-4"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div> <br> ` : ``}`
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div> <br> ` : ``}`
 
 
 
@@ -1940,6 +1956,7 @@ let editFormEfb = () => {
 function obj_resort_row(step) {
   // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
+ // console.log(`obj_resort_row step[${step}]`);
   for (v of valj_efb) {
     if (v.step == step) {
       v.step = step;
@@ -2142,6 +2159,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 const sort_obj_el_efb_ = () => {
   // این تابع  مرتبط سازی المان ها را بر عهده دارد و آی دی و قدم آن را بعد از هر تغییر در ترتیب توسط کاربر مرتبط می کند
   // باید بعد بجز المان ها برای آبجکت هم اینجا را  اضافه کنید
+ 
   let amount = 0;
   let step = 0;
   let state = false;
@@ -2156,10 +2174,12 @@ const sort_obj_el_efb_ = () => {
     try {
       if (indx != -1) {
 
-        if (el.classList.contains('stepNavEfb')) {
+        if (el.classList.contains('stepNo')) {
           //اگر استپ بود
-          last_setp +=1;
+          //console.log(el.tagName);
+     
           //step = el.dataset.step;
+          last_setp +=1;
           step = last_setp ;
           //el.dataset.amount=amount;
           valj_efb[indx].amount = amount;
@@ -2167,7 +2187,7 @@ const sort_obj_el_efb_ = () => {
 
 
         } else {
-
+         
           // if not a step
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
@@ -2188,7 +2208,7 @@ const sort_obj_el_efb_ = () => {
     } catch {
 
     }
-
+    //console.log(`sort_obj_el_efb_ step[${step}]`)
   }
 
   if (len > 20) {
@@ -2211,7 +2231,7 @@ const sort_obj_el_efb = () => {
   let step = 0;
   let state = false;
   //console.error('------', valj_efb.length)
-
+  //console.log(`sort_obj_el_efb step[${step}]`)
   for (const el of document.querySelectorAll(".efbField")) {
 
     if (el.classList.contains('stepNavEfb')) {
@@ -2225,7 +2245,7 @@ const sort_obj_el_efb = () => {
         const lastIndx = (valj_efb.length) - 1;
 
         valj_efb[indx].step = valj_efb[lastIndx].step
-        valj_efb[indx].amount = !valj_efb[lastIndx].amount ? 1 : (valj_efb[lastIndx].amount) + 1;
+        valj_efb[indx].amount = !valj_efb[lastIndx].amount ? 1 : Number(valj_efb[lastIndx].amount) + 1;
 
         //  el.remove();
         state = true;
@@ -2438,7 +2458,7 @@ const sort_obj_efb = () => {
   const len = valj_efb.length;
   let p = calPLenEfb(len)
   setTimeout(() => {
-    const valj_efb_ = valj_efb.sort((a, b) => (a.amount > b.amount) ? 1 : ((b.amount > a.amount) ? -1 : 0))
+    const valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
   }, ((len * p))
   );
 }
@@ -2693,7 +2713,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
   }
-  setTimeout(() => {
+  /* setTimeout(() => {
     const v = document.getElementById('adminmenuwrap').innerHTML;
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
     if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
@@ -2701,7 +2721,7 @@ document.addEventListener('DOMContentLoaded', function() {
       noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
     }
    
-  }, 1000);
+  }, 1000); */
 
   if(document.getElementById('track_code_emsFormBuilder')){
     document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {

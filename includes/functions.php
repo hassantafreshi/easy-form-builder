@@ -274,7 +274,7 @@ class efbFunction {
 			"duplicate" => $state ? $ac->text->duplicate : __('Duplicate','easy-form-builder'),
 			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in the Pro version','easy-form-builder'),
 			"mobilePreview" => $state ? $ac->text->mobilePreview : __('Mobile Preview','easy-form-builder'),
-			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out our form.','easy-form-builder'),
+			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out the form.','easy-form-builder'),
 			"finish" => $state ? $ac->text->finish : __('Finish','easy-form-builder'),
 			"dragAndDropA" => $state ? $ac->text->dragAndDropA : __('Drag & Drop the','easy-form-builder'),
 			"browseFile" => $state ? $ac->text->browseFile : __('Browse File','easy-form-builder'),
@@ -431,7 +431,7 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('Your activation code is not Correct!','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('You can localize the plugin in this path Panel >> Setting >> localization','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('The message was not sent! Please contact Admin, Settings Error','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template has used BootStrap framework >> Save','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('Your template base on Bootstrap so go to Panel >> Settings >> selected option:  My template has used BootStrap framework >> Save <br> Please feel free to contact us on whitestudio.team website, if you experience any further problems.','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
@@ -513,6 +513,7 @@ class efbFunction {
 			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy form builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection is lost.we have stored your information from your previous attempt to fill this form. You can send your information when you have connected to the internet.','easy-form-builder'),
+			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : __(' Please check your internet connection and try again.','easy-form-builder'),
 			"options" => $state  &&  isset($ac->text->options) ? $ac->text->options : __('Options','easy-form-builder'),
 			"eJQ500" => $state  &&  isset($ac->text->eJQ500) ? $ac->text->eJQ500 : __('You have trouble with JQuery . Please contact to admin (Error code: JQ-500)','easy-form-builder'),
 			"basic" => $state  &&  isset($ac->text->basic) ? $ac->text->basic : __('Basic','easy-form-builder'),
@@ -552,6 +553,11 @@ class efbFunction {
 			"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : __('Qty','easy-form-builder'),				
 			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : __('Warning to WPBakery users for more information click here.','easy-form-builder'),				
+			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : __('Are you sure to close the responses to this message?','easy-form-builder'),				
+			"clsdrspnsMo" => $state  &&  isset($ac->text->clsdrspnsMo) ? $ac->text->clsdrspnsMo : __('Are you sure to open the responses to this message?','easy-form-builder'),				
+			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
+			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
+			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -756,6 +762,9 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
+		/* error_log('type sanitize');
+		error_log(gettype($valp)); */
+		//if(gettype($valp)=='string') 
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
@@ -770,7 +779,16 @@ class efbFunction {
 					case 'file':
 					case 'href':
 						$valp[$key][$k]=sanitize_url($v);
-				default:					
+					break;
+					case 'thank_you_message':
+						//error_log(json_encode($valp[$key]));
+						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
+						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
+						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);
+						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
+						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
+					break;
+					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
 					break;
 				}
@@ -778,5 +796,55 @@ class efbFunction {
 		}
 		return $valp;
 	}//end function
+
+
+	public function get_geolocation() {		
+		  $ip = $this->get_ip_address();
+		 return $this->iplocation_efb($ip,1);
+	  }
+
+	  public function get_ip_address() {        
+        $ip='1.1.1.1';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {$ip = $_SERVER['REMOTE_ADDR'];}
+        $ip = strval($ip);
+        $check =strpos($ip,',');
+        if($check!=false){$ip = substr($ip,0,$check);}
+        return $ip;
+    }
+
+	public function iplocation_efb($ip , $state){
+		$url = "https://api.iplocation.net/?ip=".$ip."";
+		$cURL = curl_init();
+		$userAgent ;
+		if(empty($_SERVER['HTTP_USER_AGENT'])){
+			//error_log('empty user agent');
+			$userAgent = array(
+				'name' => 'unrecognized',
+				'version' => 'unknown',
+				'platform' => 'unrecognized',
+				'userAgent' => ''
+			);
+		}else{
+			//error_log('not empty user agent');
+			$userAgent =$_SERVER['HTTP_USER_AGENT'];
+		}
+		curl_setopt($cURL, CURLOPT_URL, $url);
+		curl_setopt($cURL, CURLOPT_HTTPGET, true);
+		curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json',
+			'Accept: application/json',
+			'User-Agent: '.$userAgent
+		));
+		$location = json_decode(curl_exec($cURL), true); 
+		if(isset($location)){
+			return $state==1 ? $location["country_code2"] :$location  ;
+		}else{
+			return 0;
+		}
+		
+	}
 
 }

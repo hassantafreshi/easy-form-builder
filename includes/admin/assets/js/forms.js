@@ -1,7 +1,22 @@
 
 const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-function textThankUEFB(){
-    return {"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.done,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" }
+function textThankUEFB(tp){
+    console.log(`tk is ${tp}`);
+    let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.done,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
+    if (!tp){
+        return tk;
+    }
+    switch (tp) {
+        case 'register':
+            tk.thankYou=efb_var.text.createAcountDoneM;
+            //console.log(tk);
+            return tk;
+            break;
+    
+        default:
+            return tk
+            break;
+    }
 }
 
 

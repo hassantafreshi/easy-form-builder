@@ -27,7 +27,7 @@ esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
     </canvas>
    ${previewSate == true ? `<input type="hidden" data-type="esign" data-vid='${rndm}' class="efb  emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">` : ``}
     <div class="efb  mx-1">${desc}</div>
-    <div class="efb  mb-3"><button type="button" class="efb  btn ${valj_efb[iVJ].corner} ${valj_efb[iVJ].button_color} efb-btn-lg mt-1" id="${rndm}_b" onClick="fun_clear_esign_efb('${rndm}')">  <i class="efb  ${valj_efb[iVJ].icon} mx-2 ${valj_efb[iVJ].icon_color != "default" ? valj_efb[iVJ].icon_color : ''} " id="${rndm}_icon"></i><span id="${rndm}_button_single_text" class="efb  text-white efb ">${valj_efb[iVJ].button_single_text}</span></button></div>
+    <div class="efb  mb-3"><button type="button" class="efb  btn ${valj_efb[iVJ].corner} ${valj_efb[iVJ].button_color} efb-btn-lg mt-1 fs-6" id="${rndm}_b" onClick="fun_clear_esign_efb('${rndm}')">  <i class="efb  ${valj_efb[iVJ].icon} mx-2 ${valj_efb[iVJ].icon_color != "default" ? valj_efb[iVJ].icon_color : ''} " id="${rndm}_icon"></i><span id="${rndm}_button_single_text" class="efb  text-white efb ">${valj_efb[iVJ].button_single_text}</span></button></div>
       `;
 }
 
@@ -178,9 +178,9 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime'
       }
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
-    <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1">${efb_var.text.dragAndDropA} ${n} </h6> <span>${efb_var.text.or}</span>
-    <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg" id="${valj_efb[indx].id_}_b">
-        <i class="efb  bi-upload mx-2"></i>${efb_var.text.browseFile}
+    <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1 fs-6">${efb_var.text.dragAndDropA} ${n} </h6> <span class="efb fs-7">${efb_var.text.or}</span>
+    <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b">
+        <i class="efb  bi-upload mx-2 fs-6"></i>${efb_var.text.browseFile}
     </button>
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''}>`
   
@@ -217,6 +217,7 @@ function viewfileEfb(id, indx) {
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
+    //console.log('fun_addProgessiveEl_efb');
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -251,7 +252,7 @@ function viewfileEfb(id, indx) {
     }
   }
 function viewfileReplyEfb(id, indx) {
-  //console.log(`fileEfb`,fileEfb)
+    //console.log(`fileEfb`,fileEfb)
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
 /*     let icon = ``;
@@ -298,7 +299,7 @@ function viewfileReplyEfb(id, indx) {
       /* document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show') */
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
-      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat');
+      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;
@@ -415,11 +416,12 @@ set_dadfile_fun_efb = (id, indx) => {
      
         const v= reply_upload_efb(id);
         const lenV=(v.length/20)+10;
-        document.getElementById('replay_section__emsFormBuilder').innerHTML +=v  ;
+        let l = document.getElementById('replay_section__emsFormBuilder');
+        if(l)l.innerHTML +=v  ;
         setTimeout(() => {
           let  dragbtntEfb = document.getElementById("attach_efb");
           let dragInptEfb =  document.getElementById(`resp_file_efb_`);
-          if(pro_efb==true){
+          if(pro_efb==true && dragInptEfb){
           dragInptEfb.addEventListener("change", function () {
             
             fileEfb = this.files[0];
@@ -656,11 +658,11 @@ function addMarker(position) {
     if(document.getElementById(`${id}-prG`)==null){
       document.getElementById(elparent).append(newEl);    
     }
-  document.getElementById(elId).innerHTML = `<div class="efb progress" id="${id}-prA">
+  document.getElementById(elId).innerHTML = `<div class="efb d-flex justify-content-center"><div class="efb progress w-100" id="${id}-prA">
   <div id="${id}-prB" class="efb  text-light text-center btn-pinkEfb progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:1%;">
         1%
         </div>
-    </div>`;
+    </div></div>`;
   
   }
   
@@ -671,21 +673,59 @@ function addMarker(position) {
 
 
   reply_upload_efb =(msg_id)=>{
-
+      let btnC = '<!--efb.app-->'
     if( pro_efb==true){
-      return `<div class="efb">
-      <div class="efb btn btn-light" id="attach_efb">
+       if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
+       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
+           ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
+      </button></div>`
+      return `<div class="efb form-check">
+      <div class="efb btn btn-light text-dark" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
-      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" class="d-none" >
+      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" >
       </div>
+      ${btnC}
     </div>`
     }else{
-      return `<div class="efb">
-      <div class="efb btn btn-light" id="attach_efb" onclick="pro_show_efb(1)">
+      const $pr = `<a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}" onclick="pro_show_efb(1)"><i class="efb  bi-gem text-light" ></i></a>`;
+      if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
+      <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} "id="respStateEfb">
+      <i class="efb  bi-x-lg mx-1 efb mobile-text">${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}</i>
+      ${$pr}
+     </button></div>`;
+      //const cls = stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink";
+      return `<div class="efb form-check">
+      <div class="efb btn btn-light text-dark" id="attach_efb" >
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
-        <a type="button" class="efb pro-v-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
+        ${$pr}
       </div>
+       ${btnC}
     </div>`
     }
   
+}
+
+
+function closed_resp_emsFormBuilder(msg_id){
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${stock_state_efb==false ? efb_var.text.clsdrspnsM : efb_var.text.clsdrspnsMo }</div></div>`
+  show_modal_efb(body, efb_var.text.close, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+
+  //myModal.show_efb();
+  state_modal_show_efb(1)
+  confirmBtn.addEventListener("click", (e) => {
+    close_resp_efb(msg_id,stock_state_efb);
+    activeEl_efb = 0;
+    state_modal_show_efb(0)
+
+  })
+  //myModal.show_efb();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+close_resp_efb=(id,s)=>{
+  const ob = s==1 ? [{id_:'message', name:'message', type:'opened', amount:0, value: efb_var.text.clsdrspo, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}] : [{id_:'message', name:'message', type:'closed', amount:0, value: efb_var.text.clsdrspn, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}]
+  sendBack_emsFormBuilder_pub= ob;
+  fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
 }

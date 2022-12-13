@@ -303,6 +303,7 @@ function validateForm_emsFormBuilder_view() {
             break;
           case 'url':
             const check = input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            
             if (check === null && input.classList.contains('require') == true) {
               valid = false;
               input.className += ' invalid';
@@ -393,7 +394,7 @@ function createStepsOfPublic() {
 
 
   exportView_emsFormBuilder = exportView_emsFormBuilder.sort(function (a, b) {
-    return a.amount - b.amount;
+    return Number(a.amount) - Number(b.amount);
   })
   //add icons
   for (let i = 1; i <= stepsCountEfb; i++) {
@@ -614,7 +615,7 @@ function endMessage_emsFormBuilder_view() {
 
     // faild form
   } else {
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3> ${efb_var.text.pleaseWaiting}<h3>`
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder "></h1> <h3 class="efb fs-3"> ${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
   }
 }

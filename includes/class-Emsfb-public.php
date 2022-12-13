@@ -20,7 +20,7 @@ class _Public {
 	public $text_;
 	public $pro_efb;
 	public $pub_stting;
-	
+	public $location;
 	public function __construct() {
 		
 
@@ -56,8 +56,10 @@ class _Public {
 		$this->efbFunction = new efbFunction();  
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) ); 
 		add_action('init',  array($this, 'hide_toolmenu'));
-		$this->text_ = ["amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+		$this->text_ = ["offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
 		
+
+	
 		//$this->corn_email_new_message_recived_Emsfb();
 	}
 
@@ -77,10 +79,10 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		$this->public_scripts_and_css_head();
-		
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$row_id = array_pop($id);
 		$this->id = $row_id;
+		//error_log($this->id);
 		$state="";
 		$pro=  $this->pro_efb;
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -108,11 +110,11 @@ class _Public {
 
 		$state="form";		
 		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.4.2');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.0');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 			
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.4.2' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.5.0' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		
 		}
@@ -143,20 +145,20 @@ class _Public {
 					$paymentType="zarinPal";}
 				else if(strpos($value , ',\"type\":\"zarinPal\",')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
-						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.4.2');
+						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.0');
 						wp_enqueue_script('pay_js');
 						if($paymentType=="stripe"){ 
 							
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 							wp_enqueue_script('stripe-js');
 
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.4.2');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.5.0');
 							wp_enqueue_script('parsipay_js');
 							//pub key stripe
 							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 						}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 							$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.4.2');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.5.0');
 							wp_enqueue_script('parsipay_js');
 						}
 				}
@@ -214,8 +216,10 @@ class _Public {
 				
 				
 				
-		
-
+				//error_log($this->id);
+				$code = 'efb'.$this->id;
+				//error_log($code);
+				$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
 				$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 				'ajax_value' =>$value,
 				'type' => $typeOfForm,
@@ -228,7 +232,10 @@ class _Public {
 				'rtl' => is_rtl(),
 				'text' =>$text ,
 				'pro'=>$this->pro_efb,
-				'wp_lan'=>get_locale()
+				'wp_lan'=>get_locale(),
+				'location'=> $location,
+				'nonce_msg'=> wp_create_nonce($code),
+				
 				);
 
 			if($typeOfForm=="payment"){
@@ -296,7 +303,7 @@ class _Public {
 
 				$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ; 
 				//translate v2
-				$text=["createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
+				$text=["offlineSend","message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];				
 				$text= $efbFunction->text_efb($text) ;
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -321,6 +328,7 @@ class _Public {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+		$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -333,7 +341,8 @@ class _Public {
 			   'rtl' => is_rtl(),
 			   'text' =>$text,
 			   'pro'=>$this->pro_efb,
-			   'wp_lan'=>get_locale()
+			   'wp_lan'=>get_locale(),
+			   'location'=>$location
 		 ));  
 
 	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";	
@@ -344,19 +353,19 @@ class _Public {
 
 	function public_scripts_and_css_head(){
 	
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.4.2');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.5.0');
 		wp_enqueue_style('Emsfb-style-css');
 
-		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.4.2');
+		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.5.0');
 		wp_enqueue_script('core_js');
 		
 
-		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.4.2');
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.5.0');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
 
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.4.2');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.5.0');
 		wp_enqueue_script('efb-main-js'); 		
 		
 
@@ -365,7 +374,7 @@ class _Public {
 		
 
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.4.2');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.5.0');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
@@ -379,8 +388,7 @@ class _Public {
 		if(gettype($this->setting)=="string"){
 			$setting =str_replace('\\', '', $this->setting);
 			$setting =json_decode($setting);
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			//error_log($setting->activeCode);
+			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);			
 			$bootstrap =isset($setting->bootstrap) ?$setting->bootstrap: false ;
 			$googleCaptcha = strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
 			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}			
@@ -397,25 +405,48 @@ class _Public {
 		//اگر پرو بود اگر پلاگین نصب بود 
 		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
 		if($this->pro_efb==1 ){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.4.2');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.0');
 			wp_enqueue_script('efb-pro-els'); 
 		}
 	
 		if($bootstrap==false){
 			
-			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.4.2');
+
+
+			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.0');
 			wp_enqueue_script('efb-bootstrap-min-js'); 
 	
 			
-			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.4.2');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.0');
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
-			
-			wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.4.2');
-			wp_enqueue_style('Emsfb-bootstrap-css');
+						
+		}else{
+			$it = get_template_directory();
+	/* 		error_log("json_encode(it)");
+			error_log(json_encode($it)); 
+			$it = list_files($it); 
+			error_log(json_encode($it));
+			$s = false;
+			$minb = true;
+			$bund = true;
+			foreach($it as $path) {
+				if (preg_match("/\bbootstrap.min.js+/i", $path)) $minb = false;
+				if (preg_match("/\bbootstrap.bundle.min.js+/i", $path)) $bund = false;				
+			}
+			if($minb){
+				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.0');
+				wp_enqueue_script('efb-bootstrap-min-js'); 
+			}
+			if($bund){
+				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.0');
+				wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
+			} */
 
 		}
-				
+		
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.5.0');
+		wp_enqueue_style('Emsfb-bootstrap-css');
 		
 		
 
@@ -447,47 +478,341 @@ class _Public {
 		$text_ =['payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		if (check_ajax_referer('public-nonce','nonce')!=1){
+		$this->id = sanitize_text_field($_POST['id']);
+		$msgnonce = 'efb'.$this->id;
+		//error_log('get_ajax_form_public before');
+		//error_log('$msgnonce');
+		//error_log($msgnonce);
+		//error_log(strval(wp_verify_nonce($msgnonce,'nonce_msg')));
+		// 
+		if (check_ajax_referer('public-nonce','nonce')==false){
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 
+		if (check_ajax_referer($msgnonce,'nonce_msg')==false){
+			//error_log('not valid nonce');	
+			$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		
+		//error_log('pass nonce');
 		$r=  $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
 		$email=get_option('admin_email');
 		$setting;
 		$rePage ="null";
-		$this->id = sanitize_text_field($_POST['id']);;
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
+		//error_log($fs);
+		
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
-		
-		//if($type!="payment"){
-			if($fs!=''){
+		$this->value = sanitize_text_field($_POST['value']);
+		//error_log($this->value);
+		$this->value =str_replace('\\', '', $this->value);
+		$valo = json_decode($this->value , true);
+		//error_log('after queri');
+		//error_log($valo['recovery']);
+		if($fs!=''){
 				$formObj=  json_decode($fs,true);
+				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
 				$email_fa = $formObj[0]["email"];
 				$trackingCode = $formObj[0]["trackingCode"];
 				$send_email_to_user_state =$formObj[0]["sendEmail"];			
+				//$type = $formObj[0]["type"];
 				
-				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
+				if($type!=$formObj[0]["type"]){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+					wp_send_json_success($response,$_POST);
+				}
 				
 				if($formObj[0]["thank_you"]=="rdrct"){
 					$rePage= $this->string_to_url($formObj[0]["rePage"]);
 				}
-				//error_log($rePage);
+				
+				/* form validation  */
+				$valobj =[] ;
+				$stated = 1;	
+				$rt;	
+				//error_log(json_encode($valo));
+				//error_log(json_encode($formObj));
+				foreach ($formObj as $key =>$f){
+						$rt =null;	
+						$in_loop=true;						
+						if($key<2) continue;
+						if($stated==0){break;}
+						$it= array_filter($valo, function($item) use ($f,&$stated ,&$rt,$formObj,&$in_loop) { 
+							if($in_loop==false){
+								return;
+							}
+							//error_log("isset(item['id_']) && f['id_']==item['id_'] ");
+							$t =strpos(strtolower($item['type']),'checkbox');
+							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  gettype($t)=="integer" && $f['id_']==$item['id_ob']  )) {   
+							
+							//error_log($stated);
+							switch ($f['type']) {					
+								case 'email':
+									$stated=0;
+									if(isset($item['value'])){
+										$stated=1;
+										$item['value'] = sanitize_email($item['value']);
+										$rt= $item;
+									}
+									$in_loop=false;
+									break;
+								case "date":
+									$stated=0;
+									if(isset($item['value'])){
+									
+										$item['value'] = sanitize_text_field($item['value']);
+										$v = explode("-", $item['value']);							
+
+										if(count($v)==3 && checkdate($v[1],$v[2],$v[0]) ){
+										//wp_checkdate
+											$stated=1;
+											$rt= $item;
+										} else {
+											$rt= "";
+											$stated=0;
+										}									
+									}
+
+									
+									
+									$in_loop=false;
+									break;
+								case 'url':
+								
+									$stated=0;
+									
+									if(isset($item['value'])){
+										$stated=1;
+										$item['value'] = sanitize_url($item['value']);
+									}
+									# code...
+									$rt= $item;
+									$in_loop=false;
+									break;
+								case 'radio':							
+								case 'payRadio':
+								case 'chlRadio':
+									$stated=0;
+									if(isset($item['value'])){
+										
+										$item['value'] = sanitize_text_field($item['value']);
+
+										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
+												$item['value']=$fr['value'];
+												$rt = $item;
+												$stated=1;
+												$t=strpos($item['type'],'pay');
+												if($t!=false){
+													$item['price']=$fr['price'];
+												}
+												return;
+											}
+										});
+									}
+									$in_loop=false;
+									break;
+								case 'option':					
+								$t = strpos(strtolower($item['type']),'checkbox');
+									if(gettype($t)!='boolean'){
+										error_log('if checkbBox');
+									}
+									$stated=0;
+									if(isset($item['value'])){
+										$item['value'] = sanitize_text_field($item['value']);
+										//array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+											if((isset($f['id_']) && isset($item['id_ob']) && $f['id_']==$item['id_ob'] )
+											||(isset($f['id_']) && isset($item['id_']) && $f['type']=="chlCheckBox"  && $f['id_']==$item['id_ob']) ){
+												$item['value']=$f['value'];
+												$rt = $item;
+												$stated=1;
+												$t=strpos($item['type'],'pay');
+												//gettype($t)!='boolean'
+												if(gettype($t)!='boolean'){
+													$item['price']=$f['price'];
+												}											
+											}
+										//});
+									}
+									$in_loop=false;
+									break;
+								case 'multiselect':
+									$stated=0;
+									if(isset($item['value'])){
+										
+										$item['value'] = sanitize_text_field($item['value']);
+										$rt=null;
+										$rs = explode("@efb!", $item['value']);
+										array_filter($formObj, function($fr) use($item,&$rt,$rs) { 
+											foreach ($rs as $k => $v) {
+												if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($v) && $fr['value']==$v &&  $fr['parent']==$item['id_']){
+													$rt== null ? $rt = $v.'@efb!' : $rt =$rt . $v.'@efb!';
+												}
+											}											
+											
+										});
+										if($rt!=null) $stated=1;
+										$item['value']=$rt;
+										$rt=$item;
+									}
+										$in_loop=false;
+									break;
+								case 'select':
+								case 'paySelect':
+								case 'stateProvince':
+								case 'conturyList':
+									// این بخش از نظر امنیتی تغییر کند
+									// find in the obj of forms  id_ == $item["id_ob"] return value;
+									$stated=0;
+									if(isset($item['value'])){
+										
+										$item['value'] = sanitize_text_field($item['value']);
+										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+											if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
+												$stated=1;
+												$item['value']=$fr['value'];
+												$rt = $item;
+												$in_loop=false;
+												return;
+											}
+										});
+									}
+								
+									
+									$in_loop=false;
+									break;
+								case 'sample':									
+									$rt= $item;
+									$in_loop=false;
+									break;
+								case 'file':	
+								case 'dadfile':	
+									$d = $_SERVER['HTTP_HOST'];
+									//$p = strpos($item['url'],'http://'.$d);
+									//don't change value stated because always file is sending 
+									
+									if(isset($item['url']) && strlen($item['url'])>5 ){
+										$stated=0;
+										$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
+										$s = 0 ;
+										foreach ($ar as  $r) {
+											$c=strpos($item['url'],$r);
+											if(gettype($c)!='boolean' && $c==0){
+											//if(strpos($item['url'],$r)==0){
+												$s=1;
+											}
+										}								
+											if($s==1 ){
+												$stated=1;
+												$item['url'] = sanitize_url($item['url']);								
+												$rt= $item;
+											}else{
+												$item= null;
+												$rt=null;
+												$stated=0;
+											}
+									}
+										$in_loop=false;
+								break;
+								case 'esign':
+										$stated=0;
+										if(isset($item['value']) && strpos($item['value'],'data:image/png;base64,')==0){ 
+											$stated=1;
+											$item['value'] = sanitize_text_field($item['value']);
+											$rt= $item;
+										}
+										$in_loop=false;
+								break;								
+								case 'color':
+										$stated=0;	
+										if(isset($item['value']) && strpos($item['value'],'#')==0 && strlen($item['value'])==7){ 
+										
+											$stated=1;
+											$item['value'] = sanitize_text_field($item['value']);
+											$rt= $item;
+										}
+										$in_loop=false;
+								break;								
+								case 'range':
+								case 'number':
+										$stated=0;	
+										if(isset($item['value']) && is_numeric($item['value'])){ 
+										
+											$stated=1;
+											$item['value'] = sanitize_text_field($item['value']);
+											$rt= $item;
+										}
+										$in_loop=false;
+								break;								
+								default:
+								
+									$stated=0;
+									$t	= strtolower($item['type']);
+									$t = strpos(strtolower($f['type']),'checkbox');
+									$b = strpos(strtolower($f['type']),'chlcheckbox');
+									if(gettype($t)=="integer"){
+										$stated=1;
+										return;
+									}
+								
+								//error_log(gettype(strpos(strtolower($f['type']),'checkbox'))!='boolean');
+									if(isset($item['value'])){
+										$stated=1;
+										$item['value'] = sanitize_text_field($item['value']);
+									}
+									//$item['value'] =  'test';
+									$rt= $item;
+									$in_loop=false;
+								break;
+							}
+							//&& $f['name']==$item['name']	
+							/* error_log("json_encode(item)");										
+							error_log(json_encode($item));	 */									
+																
+																	
+							//error_log($stated);
+							}
+					});
+					
+					if(isset($rt)){
+						array_push($valobj,$rt);
+					};	
+					//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
+					
+				}
+				/* 	//test return
+				return ; */
+				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
+				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
+				if($stated==0){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					wp_send_json_success($response,$_POST);
+				}
+
+					//error_log(json_encode($valobj,JSON_UNESCAPED_UNICODE))	;
+					$this->value = json_encode($valobj,JSON_UNESCAPED_UNICODE);
+					$this->value = str_replace('"', '\\"', $this->value);
+					//error_log("this->value");
+					//error_log($this->value);
+				//error_log($stated);
+				/*end form validation  */	
 				
 			}else if ($fs==''){
 				$m = "Error 404 ";
 				$response = array( 'success' => false  , 'm'=>$m); 
 				wp_send_json_success($response,$_POST);
 			}
-		//}
+		}
 
 
 	
@@ -546,21 +871,21 @@ class _Public {
 				wp_send_json_success($response,$_POST);
 				die();
 			}
-			$this->value = sanitize_text_field($_POST['value']);
+			
 			$this->name = sanitize_text_field($_POST['name']);
 			//error_log($this->value);
 			$this->id = sanitize_text_field($_POST['id']);		
-			$fs =str_replace('\\', '', $this->value);
-			$valobj = json_decode($fs , true);
+			
 			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 				$email_user = array_filter($valobj, function($item) use($formObj){ 
 					if($item['id_']==$formObj[0]["email_to"]){return $item["value"];}					
 				});			
 			}
+							$ip = $this->ip=$this->get_ip_address();						
+							//$this->location = $efbFunction->iplocation_efb($ip,1);
 					switch($type){
 						case "form":						
-							$this->get_ip_address();
-							$ip = $this->ip;
+							
 							$check=	$this->insert_message_db(3,false);
 							//error_log('time is :');		
 							$timed = time();									
@@ -582,9 +907,7 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 							
 						break;
-						case "payment":	
-							$this->get_ip_address();
-							$ip = $this->ip;
+						case "payment":								
 							$id = sanitize_text_field($_POST['payid']);
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -703,6 +1026,7 @@ class _Public {
 									//end zarinPal
 								}
 								$form_id = $value[0]->form_id;
+								
 								$table_name = $this->db->prefix . "emsfb_form";
 								$fs = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
 								$fs = isset($fs[0]->form_structer) ? str_replace('\\', '', $fs[0]->form_structer) :'';
@@ -739,8 +1063,7 @@ class _Public {
 								}
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
 								$fs=str_replace('"', '\\"', $filtered);
-								$this->value = sanitize_text_field($fs);
-								$this->get_ip_address();	
+								$this->value = sanitize_text_field($fs);									
 								$this->id = sanitize_text_field($_POST['payid']);			
 								$check=$this->update_message_db();								
 
@@ -790,7 +1113,7 @@ class _Public {
 							//unset($_SESSION["val_efb"]);
 						break;
 						case "register":
-							//error_log("register");
+							//error_log("---------------------->register");
 							$username ;
 							$password;
 							$email = 'null';
@@ -807,6 +1130,12 @@ class _Public {
 								}
 							}
 						
+							$r =$this->new_user_validate_efb($username,$email,$password);
+							//error_log($r);
+							if(gettype($r)=="string"){
+								$response = array( 'success' => false , 'm' =>$r); 
+								wp_send_json_success($response,$_POST);
+							}
 							
 							$this->value=json_encode($registerValues,JSON_UNESCAPED_UNICODE);
 							$creds = array();
@@ -814,6 +1143,8 @@ class _Public {
 							$creds['user_pass'] = esc_sql($password);
 							$creds['user_email'] = esc_sql($email);
 							$creds['role'] = 'subscriber';			
+							$creds['rich_editing '] = 'false';			
+							$creds['user_registered'] = wp_date('Y-m-d H:i:s');			
 							$state =wp_insert_user($creds);
 							$response;
 							//error_log(json_encode($state));							
@@ -825,23 +1156,22 @@ class _Public {
 									$m= $value[0];
 								}
 								$response = array( 'success' => false , 'm' =>$m); 
-							}else{
-								//error_log($m);
-								if($email!="null"){
-								
-									$this->get_ip_address();
+							}else{							
+								if($email!="null"){									
+									
+									$this->ip= $this->get_ip_address();
 									//$ip = $this->ip;
 									$check=	$this->insert_message_db(0,false);
-									$state= get_user_by( 'email', $email);
-									if(gettype($state)=="object"){
+									//$state= get_user_by( 'email', $email);
+									//if(gettype($state)=="object"){
 										$to = $email;								
-										if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null" ){
+										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
-											foreach($email_user as $key => $val){$this->send_email_Emsfb($val['value'],$ms,$pro,"register");}
+											$this->send_email_Emsfb($to,$ms,$pro,"register");
 											//$this->send_email_Emsfb($email_user,$ms,$pro,"register");
-									    }
+									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
-									}
+									//}
 								}
 								$response = array( 'success' => true , 'm' =>$m); 
 								if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
@@ -921,8 +1251,7 @@ class _Public {
 							$response = array( 'success' => true  );
 							wp_send_json_success($response,$_POST);
 						break;
-						case "recovery":
-							//error_log('recovery');
+						case "recovery":							
 							$m = str_replace("\\","",$this->value);
 							$userinfo = json_decode($m,true);
 							//email
@@ -948,7 +1277,7 @@ class _Public {
 									$to = $email;
 									$efb ='<p> '. $this->lanText["sentBy"] . home_url(). '</p>';
 									if($pro==false) $efb ='<p> '. __("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-									$subject ="". __("Password recovery")."";
+									$subject ="". __("Password recovery")."[".get_bloginfo('name')."]";
 									$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 									$message ='<!DOCTYPE html> <html> <body><h3>'.  __('New Password')  .':'.$newpass.'</h3>
 									<p> '.$efb. '</p>
@@ -959,17 +1288,16 @@ class _Public {
 									 '"Content-Type: text/html; charset=ISO-8859-1\r\n"',
 									 'From:'.$from.''
 									 );
+									 
 									$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 								}
 							}
-							$m=		$this->lanText["newPassM"];
+							$m=		$this->lanText["newPassM"];						
 							$response = array( 'success' => true , 'm' =>$m); 
 							wp_send_json_success($response,$_POST);
 						break;
 						case "subscribe":
 							//error_log('subscribe2');
-							$this->get_ip_address();
-							//$ip = $this->ip;
 							$check=	$this->insert_message_db(3,false);
 			
 							
@@ -995,7 +1323,6 @@ class _Public {
 							wp_send_json_success($response,$_POST);
 						break;
 						case "survey":
-							$this->get_ip_address();
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(3,false);
 			
@@ -1045,7 +1372,7 @@ class _Public {
 		}
 	  }//end function 
 
-	  public function get_ajax_track_public(){
+	  public function get_ajax_track_public(){		
 		$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
@@ -1053,7 +1380,7 @@ class _Public {
 			$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
-		}
+		}		
 		$response=$_POST['valid'];
 		$captcha_success =[];
 		$not_captcha=true;
@@ -1080,11 +1407,14 @@ class _Public {
 				die();
 			}		
 			$id = sanitize_text_field($_POST['value']);
-			$this->get_ip_address();			
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
+			//$this->location = $this->efbFunction->iplocation_efb($ip,1);			
 			$table_name = $this->db->prefix . "emsfb_msg_";
-			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );	
+			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );				
 			if($value!=null){
 				$id=$value[0]->msg_id;
+				$this->id =$id;
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT content,rsp_by,date FROM `$table_name` WHERE msg_id = '$id'" );
 				foreach($content as $key=>$val){					
@@ -1098,9 +1428,12 @@ class _Public {
 				}
 			}
 			$r = false;
+			$code = 'efb'.$this->id;
+			$code =wp_create_nonce($code);
+			//error_log($code);
 			if($value!=null){
 				$r=true;
-				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content); 
+				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id); 
 			}else{
 				$response = array( 'success' => false  , "m" =>$lanText["cCodeNFound"]); 
 			}
@@ -1114,19 +1447,20 @@ class _Public {
 
 
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.4.2');
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.5.0');
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.4.2')</script>";
+		return "<script>console.log('Easy Form Builder v3.5.0')</script>";
 	  }//end function
 
 
 
 	public function insert_message_db($read,$uniqid){
-		//error_log($this->value);
+		///error_log($this->ip);
 		if(isset($read)==false) $read=0;
 		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		//error_log($this->name);
+		
 		$this->db->insert($table_name, array(
 			'form_title_x' => $this->name, 
 			'content' => $this->value, 
@@ -1151,27 +1485,54 @@ class _Public {
 		//,'read_' =>0  , 'ip'=>$this->ip
 	}
 
-	public function get_ip_address(){
-			if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
+	public function get_ip_address() {
+        //source https://www.wpbeginner.com/wp-tutorials/how-to-display-a-users-ip-address-in-wordpress/
+        $ip='1.1.1.1';
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {$ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {$ip = $_SERVER['REMOTE_ADDR'];}
-	 $this->ip = $ip;	 
-	 return $ip;
-	}//end function
+        $ip = strval($ip);
+        $check =strpos($ip,',');
+        if($check!=false){$ip = substr($ip,0,$check);}
+        return $ip;
+    }
 
 
 	public function file_upload_public(){
-		//error_log('file_upload_public');
-		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		if (check_ajax_referer('public-nonce','nonce')!=1){
+		//error_log('file_upload_public');	
+        $_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['pl']=sanitize_text_field($_POST['pl']);
+        $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
+        $vl=null;
+        if($_POST['pl']!="msg"){
+            $vl ='efb'. $_POST['id'];
+        }else{
+            $id = $_POST['id'];
+            $table_name = $this->db->prefix . "emsfb_form";
+            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            if($vl!=null){              
+                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
+                    $vl ='efb'.$id;
+                    //'efb'.$this->id
+                }
+                /* $m = str_replace('\\', '', $vl);       
+                $vl = json_decode($m,true); */
+                //"type":"file"
+                //
+            }
+        
+        }
+		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
 			//error_log('not valid nonce');
 			
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
+	
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
 		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
 		 'text/plain' ,
@@ -1204,11 +1565,20 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		//error_log($_POST['message']);
 		if (check_ajax_referer('public-nonce','nonce')!=1){
+			//error_log('not valid nonce');
+			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+			wp_send_json_success($response,$_POST);
+			die();
+		}
+		$this->id =sanitize_text_field($_POST['id']);
+		$by ="";
+		$msgnonce = 'efb'.$this->id;
+		if (check_ajax_referer($msgnonce,'nonce_msg')!=1){
 			//error_log('not valid nonce');
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
@@ -1247,15 +1617,84 @@ class _Public {
 				$m=sanitize_text_field($_POST['message']);
 				$m = str_replace("\\","",$m);	
 				$message =json_decode($m);
+				$valobj=[];
+				$stated=1;
+				foreach ($message as $k =>$f){
+					
+					$in_loop=true;
+				
+					if($stated==0){break;}					  
+						switch ($f->type) {											
+							case 'allformat':	
+								$d = $_SERVER['HTTP_HOST'];
+								//$p = strpos($item['url'],'http://'.$d);
+								//don't change value stated because always file is sending 
+								$stated=1;
+								if(isset($f->url) && strlen($f->url)>5 ){
+									$stated=0;
+									$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
+									$s = 0 ;
+									foreach ($ar as  $r) {
+										$c=strpos($f->url,$r);
+										if(gettype($c)!='boolean' && $c==0){
+											$s=1;
+										
+										}
+									}								
+										if($s==1 ){
+											$stated=1;
+											$f->url = sanitize_url($f->url);								
+											
+										}else{
+											$f->url="";											
+											$stated=0;
+										}
+								}
+									$in_loop=false;
+							break;													
+							default:
+								$stated=0;
+								if(isset($f->value) && $f->id_=="message"){
+									$stated=1;
+									$f->value = sanitize_text_field($f->value);
+								}
+								//$item['value'] =  'test';
+								
+								$in_loop=false;
+							break;
+						}
+						if($stated==0){
+							$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+							wp_send_json_success($response,$_POST);
+						}
+						//&& $f['name']==$item['name']	
+						/* error_log("json_encode(item)");										
+						error_log(json_encode($item));	 */																											
+				//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
+				
+				}
+			
+				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
+				$m = str_replace('"', '\\"', $m);
+				$ip =$this->ip= $this->get_ip_address();
+				//$this->location = $efbFunction->iplocation_efb($ip,1);
+				//
+				$table_name = $this->db->prefix . "emsfb_msg_";
+				$value = $this->db->get_results( "SELECT track,form_id,read_ FROM `$table_name` WHERE msg_id = '$id'" );
+				//error_log(json_decode($value[0]->read_));
+				if($value[0]->read_==4){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					wp_send_json_success($response,$_POST);
+					die();
+				}
 				$table_name = $this->db->prefix . "emsfb_rsp_";				
-				$ip =$this->get_ip_address();
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
 					'msg_id' => $id, 
 					'rsp_by' => get_current_user_id(), 
 					'read_' => 0,
-					'date'=>wp_date('Y-m-d H:i:s')
+					'date'=>wp_date('Y-m-d H:i:s'),
 					
 				));  
 
@@ -1270,8 +1709,7 @@ class _Public {
 					$by = $usr->user_nicename;
 					//error_log($by);
 				}
-				$table_name = $this->db->prefix . "emsfb_msg_";
-				$value = $this->db->get_results( "SELECT track,form_id FROM `$table_name` WHERE msg_id = '$id'" );
+				
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
@@ -1298,16 +1736,14 @@ class _Public {
 				$response = array( 'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by); 										
 				wp_send_json_success($response,$_POST);	
 		}else{
-			$response = array( 'success' => false , "m"=>$this->lanText["MMessageNSendEr"] , "by"=>$by);
+			$m = $this->lanText["settingsNfound"] . '</br>' . $this->lanText["MMessageNSendEr"] ;
+			$response = array( 'success' => false , "m"=>$m, "by"=>$by);
 			wp_send_json_success($response,$_POST);	
 		}
 
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state){
-		//error_log('send_email_Emsfb');
-		//error_log($to);
-		//error_log($state);
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -1484,6 +1920,7 @@ class _Public {
 		$price_c =0;
 		$price_f=0;
 		$email ='';
+		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
@@ -1494,16 +1931,22 @@ class _Public {
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
 						switch ($iv["type"]) {
 							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
 							break;
 							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
 							break;
 							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_']; 								
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
 						}
 					});
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, $_POST);
+					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
@@ -1513,7 +1956,7 @@ class _Public {
 							if(isset($item['id_']))return $item['id_'] == $value ;
 						});
 						$iv = array_keys($filtered);
-						$a = isset( $iv[0])? $iv[0] :-1;
+						
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
@@ -1532,15 +1975,21 @@ class _Public {
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
-					}
+					}				
+						
+						$fs_[$a]["name"] = $val_[$i]["name"];
+						$fs_[$a]["type"] = "option_payment";
+
+					
+						array_push($valobj,$fs_[$a]);
 				}
 			}
 
 			
 		}
 
+		$ip =$this->get_ip_address();
 		if($price_c != $price_f) {
-			$this->get_ip_address();
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
@@ -1586,7 +2035,7 @@ class _Public {
 					'name' => $description,
 					]);
 
-					 $ip =$this->get_ip_address();
+					 
 					//Create price for products				
 					$price= $stripe->prices->create([
 						'unit_amount' => $price_f,
@@ -1617,7 +2066,7 @@ class _Public {
 			}
 			
 
-			$filtered = array_filter($val_, function($item) { 
+			$filtered = array_filter($valobj, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
@@ -1631,27 +2080,28 @@ class _Public {
 				$amount = $price->unit_amount/100;
 				$payA =  $amount  . ' '. $price->currency;
 				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
-				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
 				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
 				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
-				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description ];
+				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description,'total'=>$amount ];
 				 $filtered=array_merge($filtered , array($ar)); 
 				 
 				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
 			}else{
 				$amount = $paymentIntent->amount/100;
 				$payA =  $amount  . ' '. $paymentIntent->currency;
-				$ar = (object)['id_'=>'payment','amount'=>$amount,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
 				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
-				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description ];
+				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
 				 $filtered=array_merge($filtered , array($ar)); 
 				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
 			}
 			//array_push($filtered,$ar);
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
 			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-			$this->get_ip_address();
 			$this->value = str_replace('"', '\\"', $val_);
 			//error_log($this->value );
 			$this->name = sanitize_text_field($_POST['name']);
@@ -1677,7 +2127,7 @@ class _Public {
                 nonce: ajax_cor_pay.nonce,
                 url :window.location.href
 		*/
-		
+	
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
 			//error_log('not valid nonce');
             $m = __('error', 'easy-form-builder') . ' 403';
@@ -1719,6 +2169,7 @@ class _Public {
 		$price_f=0;
 		$email ='no@email.com';
 		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
@@ -1729,16 +2180,22 @@ class _Public {
 					$filtered = array_filter($fs_, function($item) use ($iv) { 
 						switch ($iv["type"]) {
 							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
 							break;
 							case 'payRadio':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
 							break;
 							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_']; 								
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
 						}
 					});
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, $_POST);
+					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
 				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
@@ -1768,14 +2225,20 @@ class _Public {
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
 					}
+					//$k =array_search($fs_[$a]['parent'], array_column($fs_, 'id_'));
+					$fs_[$a]["name"] = $val_[$i]["name"];
+					$fs_[$a]["type"] = "option_payment";
+					//$fs_[$a]
+					array_push($valobj,$fs_[$a]);
 				}
 			}
 
 			
 		}
 
+		$this->ip= $this->get_ip_address();
+		$ip = $this->ip;
 		if($price_c != $price_f) {
-			$this->get_ip_address();
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
@@ -1808,7 +2271,7 @@ class _Public {
 
 			
 
-			$filtered = array_filter($val_, function($item) { 
+			$filtered = array_filter($valobj, function($item) { 
 				if(isset($item['price']))	return $item; 								
 			});
 			
@@ -1906,7 +2369,7 @@ class _Public {
 				print_r($response); */
 				if($response['success']==true){
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-						$this->get_ip_address();
+						//$this->get_ip_address();
 						$this->value = str_replace('"', '\\"', $val_);
 						//error_log($this->value );
 						$this->name = sanitize_text_field($_POST['name']);
@@ -2364,6 +2827,32 @@ class _Public {
 			//error_log($email);
 			$this->send_email_Emsfb($email,$trackingCode,$pro,"newMessage");
 		}
+	}
+
+	public function new_user_validate_efb($username,$email,$password){
+		if(!is_email($email)){
+			return __("The Email Address Is Not Valid" , 'easy-form-builder');
+		}
+		 if(preg_match('/^[a-z0-9._]*$/',$username)!=true ){
+			return __("The Username Must Contain Only Letters, Numbers And Underscores." , 'easy-form-builder');
+		}else if(strlen($username)<3){
+			return __("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
+		}
+		 
+		if (strlen($password) <=  8) {
+			return __("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
+		}
+		elseif(!preg_match("#[0-9]+#",$password)) {
+			return __("The Password Must Contain At Least 1 Number!" , 'easy-form-builder');
+		}
+		elseif(!preg_match("#[A-Z]+#",$password)) {
+			return __("The Password Must Contain At Least 1 Capital Letter!" , 'easy-form-builder');
+		}
+		elseif(!preg_match("#[a-z]+#",$password)) {
+			return  __("The Password Must Contain At Least 1 Lowercase Letter!" , 'easy-form-builder');
+		}
+
+		return 0;
 	}
 
 
