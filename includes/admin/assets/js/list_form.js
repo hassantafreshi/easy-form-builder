@@ -500,7 +500,7 @@ function fun_ws_show_list_messages(value) {
     for (const v of value) {
       let state = Number(v.read_);
       //console.log(state);
-      iconNotRead = `<div class="efb nmsgefb bi-envelope"></div>`;
+      iconNotRead = `<div class="efb nmsgefb bi-envelope-fill"></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';
          iconNotRead = `<div class="efb nmsgefb bi-bag-x"></div>`;
