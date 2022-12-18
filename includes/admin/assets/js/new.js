@@ -41,7 +41,7 @@ efb_var_waitng = (time) => {
       return;
     } else {
       time += 50;
-      time != 30000 ? efb_var_waitng(time) : noti_message_efb(efb_var.text.error, "Please Hard Refresh", 60)
+      time != 30000 ? efb_var_waitng(time) : alert_message_efb(efb_var.text.error, "Please Hard Refresh", 60)
     }
   }, time)
 }
@@ -660,7 +660,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ui =add_ui_stripe_efb(rndm,cl,sub);
         valj_efb[0].type = "payment";
       }else{
-        noti_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
+        alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
         const l = valj_efb.length -1;
         valj_efb.splice(l,1);
         return 'null';
@@ -674,7 +674,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           valj_efb[0].paymentmethod="charge"
           ui =add_ui_persiaPay_efb(rndm);
         }else{
-          noti_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
+          alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
           const l = valj_efb.length -1;
           valj_efb.splice(l,1);
           return 'null';
@@ -1037,7 +1037,7 @@ function copyCodeEfb(id) {
   document.execCommand("copy");
 
   /* Alert the copied text */
-  noti_message_efb(efb_var.text.copiedClipboard, '', 4.7)
+  alert_message_efb(efb_var.text.copiedClipboard, '', 4.7)
 }
 
 /* function setAtrOfElefb(id, text, color, time) {
@@ -1320,7 +1320,7 @@ function ReadyElForViewEfb(content) {
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
 if (localStorage.getItem('count_view') >= 0 && localStorage.getItem('count_view') < 3 && typeof efb_var == "object" && efb_var.maps != "1") {
- // setTimeout(() => { noti_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
+ // setTimeout(() => { alert_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
 }
 
 
@@ -1336,7 +1336,7 @@ function alert_message_efb(title, message) {
 </div>
   `
 }
-function noti_message_efb(title, message, sec, alert) {
+function alert_message_efb(title, message, sec, alert) {
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
@@ -1358,6 +1358,27 @@ function noti_message_efb(title, message, sec, alert) {
   
   //jQuery('.alert').alert()
 }
+function noti_message_efb(message, alert ,id) {
+  //sec = sec * 1000
+  /* Alert the copied text */
+  alert = alert ? `alert-${alert}` : 'alert-info';
+  /* if (document.getElementById('alert_efb')==null){
+    //<div id='alert_efb' class='efb mx-5'></div>
+    document.getElementById('body_efb').innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
+  } */
+  let d = document.getElementById(id);
+  d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    <p class="efb my-0">${message}</p>    
+   
+  </div>`
+
+
+  //window.scrollTo({ top: d.scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
+  console.log('noti run run!')
+  //jQuery('.alert').alert()
+}
+
+
 
 
 
@@ -1411,7 +1432,7 @@ function previewFormEfb(state) {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
         head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5  ${value.label_text_color} ">${value.name}</strong></li>`
-        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb my-2  steps-efb efb row ">` : `<!-- fieldset!!! --> </fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
+        content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb my-2  steps-efb efb row ">` : `<!-- fieldset!!!? --><div id="step-${Number(step_no)-1}-efb-msg"></div></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].dShowBg && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
@@ -1432,10 +1453,13 @@ function previewFormEfb(state) {
            ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
            <!-- fieldset1 --> 
            ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
+           <div id="step-1-efb-msg"></div>
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
             ${loading_messge_efb()}                
-            <!-- fieldset2 --></fieldset>`
+            <!-- fieldset2 -->
+            <div id="step-2-efb-msg"></div>
+            </fieldset>`
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
   } catch (error) {
     console.error(`Preview of Pc Form has an Error`, error)
@@ -1677,7 +1701,7 @@ function timeOutCaptcha() {
   const id = valj_efb[0].steps > 1 ? 'next_efb' : 'btn_send_efb'
   document.getElementById(id).classList.add('disabled');
   // ajax_object_efm.text.errorVerifyingRecaptcha
-  noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha, 7, 'warning');
+  alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha, 7, 'warning');
 }
 
 fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' ? true : false }
@@ -1687,7 +1711,7 @@ function fun_validation_efb() {
   let idi = "null";
   //console.log('fun_validation_efb');
   /* if(sendBack_emsFormBuilder_pub.length<1){
-    noti_message_efb(efb_var.text.PleaseFillForm,'',12,'info')
+    alert_message_efb(efb_var.text.PleaseFillForm,'',12,'info')
     return false;
   } */
   for (let row in valj_efb) {
@@ -1751,7 +1775,7 @@ function fun_validation_efb() {
       
       
       if (state == false) { 
-          noti_message_efb(efb_var.text.enterTheValueThisField,'',10,'danger');
+          alert_message_efb(efb_var.text.enterTheValueThisField,'',10,'danger');
       }
      // console.log(vd ,state, idi);
     }
@@ -2064,7 +2088,7 @@ function replaceContentMessageEfb(value){
 
 function fun_upload_file_emsFormBuilder(id, type,tp) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //v3.3.5 updated
@@ -2133,7 +2157,7 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
         if (response.data.success === true) {
           r = response.data.file.url;
           if (response.data.file.error) {
-            noti_message_efb("", response.data.file.error, 14, "danger");
+            alert_message_efb("", response.data.file.error, 14, "danger");
             return;
           }
           files_emsFormBuilder[indx].url = response.data.file.url;
@@ -2272,3 +2296,9 @@ check_msg_ext_resp_efb=()=>{
     });
 }
 
+/* test code  */
+/* setTimeout(() => {
+  console.log('set time out run!')
+  noti_message_efb('this a test mesage for insure' , 'danger' , `step-${current_s_efb}-efb-msg` )
+}, 5000); */
+/* test code  */

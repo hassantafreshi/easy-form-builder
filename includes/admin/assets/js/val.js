@@ -935,7 +935,7 @@ function creator_form_builder_Efb() {
   let dragab = true;
   let disable = "disable";
   let formType = valj_efb[0].type
-  const ond = `onClick="noti_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
+  const ond = `onClick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
   if (formType == "login") {
     dragab = false;
     disable = ond;
@@ -947,10 +947,10 @@ function creator_form_builder_Efb() {
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
-      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
       dragab = false;
     }
     els += `

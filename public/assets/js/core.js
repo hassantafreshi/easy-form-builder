@@ -354,7 +354,7 @@ function createStepsOfPublic() {
               //console.log(value.search(`"`));
               if (value.search(`"`) != -1) {
                 el.value = value.replaceAll(`"`, '');
-                noti_message_efb(efb_var.text.error, `Don't use forbidden Character like: "`, 10, "danger");
+                alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: "`, 10, "danger");
               }
               el.className = colorBorderChangerEfb(el.className, "border-success");
              
@@ -950,14 +950,14 @@ function valid_file_emsFormBuilder(id,tp) {
 function fun_tracking_show_emsFormBuilder() {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
-                <div class="efb  card card-public row mb-3 " id="body_efb-track">
+                <div class="efb  card card-public row mb-3 pb-3" id="body_efb-track">
                     <h4 class="efb  title-holder  col-12 mt-4"><i class="efb  bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
-                <div class="efb  mb-5 row col-md-12">
+                <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
                         <div class="efb  col-12 text-center mx-2 row">
-                        <input type="text" class="efb  input-efb form-control border-d efb-rounded mb-4 text-labelEfb  h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
-                         <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+                        <input type="text" class="efb  input-efb form-control border-d efb-rounded text-labelEfb  h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
+                         <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white mb-1"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb fs-5  bi-search"></i> ${ajax_object_efm.text.search}  </button>
                         </div>
                     </div>
@@ -973,7 +973,7 @@ function fun_tracking_show_emsFormBuilder() {
 
 function fun_vaid_tracker_check_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
@@ -983,7 +983,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
   if (el.length < 5) {
     document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
     document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-    noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.trackingCodeIsNotValid, 117, 'danger')
+   // alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.trackingCodeIsNotValid, 117, 'danger')
+    noti_message_efb(ajax_object_efm.text.trackingCodeIsNotValid, 'danger' ,'body_efb-track')
     //document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(efb_var.text.trackingCodeIsNotValid)
   } else {
     if (currentTab_emsFormBuilder == 0) {
@@ -991,7 +992,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
       if (response == null) {
         //reCaptcha not verified
         // alert("no pass"); 
-        noti_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.checkedBoxIANotRobot, 117, 'danger')
+       // alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.checkedBoxIANotRobot, 117, 'danger')
+        noti_message_efb(ajax_object_efm.text.checkedBoxIANotRobot, 'danger' ,'body_efb-track')
         //document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(efb_var.text.checkedBoxIANotRobot);
         return;
       }
@@ -1265,7 +1267,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   if (message.length < 1 || isHTML(message)) {
     check_msg_ext_resp_efb();
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
-    //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
+    //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
     fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
@@ -1277,12 +1279,12 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
-    // noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
+    // alert_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
     document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
@@ -1534,7 +1536,7 @@ function response_fill_form_efb(res) {
     if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     }else{
-      noti_message_efb(res.data.m,'',14,'warning');
+      alert_message_efb(res.data.m,'',14,'warning');
     }
   }
 
@@ -1552,7 +1554,7 @@ function response_Valid_tracker_efb(res) {
      /* end attachment reply */
     
   } else {
-    noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
+    alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
@@ -1573,7 +1575,7 @@ function response_rMessage_id(res, message) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger">${res.data.m}</p>`;
-    noti_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
+    alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
 }

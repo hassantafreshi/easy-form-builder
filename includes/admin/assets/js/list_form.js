@@ -22,7 +22,7 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
+        setTimeout(() => { console.log('bootstrap'); alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
@@ -456,7 +456,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     
     check_msg_ext_resp_efb();
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
-    //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
+    //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
   
@@ -552,7 +552,7 @@ function fun_ws_show_list_messages(value) {
 
 function fun_delete_form_with_id_by_server(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -565,11 +565,11 @@ function fun_delete_form_with_id_by_server(id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.done, '', 3, 'info')
+          alert_message_efb(efb_var.text.done, '', 3, 'info')
         }, 3)
       } else {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.error, '', 3, 'danger')
+          alert_message_efb(efb_var.text.error, '', 3, 'danger')
         }, 3)
       }
     })
@@ -578,7 +578,7 @@ function fun_delete_form_with_id_by_server(id) {
 }
 function fun_delete_message_with_id_by_server(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -591,11 +591,11 @@ function fun_delete_message_with_id_by_server(id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.done, '', 3, 'info')
+          alert_message_efb(efb_var.text.done, '', 3, 'info')
         }, 3)
       } else {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.error, '', 3, 'danger')
+          alert_message_efb(efb_var.text.error, '', 3, 'danger')
         }, 3)
       }
     })
@@ -632,7 +632,7 @@ function fun_open_message_emsFormBuilder(msg_id, state) {
 
 function fun_get_form_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -668,7 +668,7 @@ function fun_get_form_by_id(id) {
 }
 function fun_update_message_state_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log("fun_update_message_state_by_id",id);
@@ -703,7 +703,7 @@ function fun_update_message_state_by_id(id) {
 }
 function fun_get_messages_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -732,7 +732,7 @@ function fun_get_messages_by_id(id) {
 }
 function fun_emsFormBuilder_get_all_response_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -759,13 +759,13 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log(message,id);
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
-    //noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
+    //alert_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
     document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
@@ -786,7 +786,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         if(document.getElementById('replay_state__emsFormBuilder')){
 
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
-          // noti_message_efb(res.data.m, 7 , 'info')
+          // alert_message_efb(res.data.m, 7 , 'info')
           document.getElementById('replayM_emsFormBuilder').innerHTML = "";
           document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
           const date = Date();
@@ -797,17 +797,17 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           sendBack_emsFormBuilder_pub=[];
         }else{
           // res.data.m
-          noti_message_efb(res.data.m,'', 7 , 'info')
+          alert_message_efb(res.data.m,'', 7 , 'info')
         }
         
         
       } else {
-        // noti_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
+        // alert_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
         if(document.getElementById('replay_state__emsFormBuilder')){
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
         }else{
-          noti_message_efb(res.data.m,'', 12 , 'danger')
+          alert_message_efb(res.data.m,'', 12 , 'danger')
         }
       }
     })
@@ -1244,7 +1244,7 @@ function fun_switch_saveSetting(i, id) {
   if (i == true) {
     idOfListsEfb.push(id);
     document.getElementById("save-stng-efb").classList.contains("disabled") == false ? document.getElementById("save-stng-efb").classList.add("disabled") : "";
-    noti_message_efb(`Forbidden characters: " \' \\ `, "", 5000, "danger");
+    alert_message_efb(`Forbidden characters: " \' \\ `, "", 5000, "danger");
   } else {
     const indx = idOfListsEfb.findIndex(x => x == id);
     if (indx != -1) idOfListsEfb.splice(indx, 1);
@@ -1425,7 +1425,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 function fun_send_setting_emsFormBuilder(data) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   data = JSON.stringify(data);
@@ -1463,7 +1463,7 @@ function fun_send_setting_emsFormBuilder(data) {
         time = 7;
       }
       //console.log(res)
-      noti_message_efb(t, m, time, lrt);
+      alert_message_efb(t, m, time, lrt);
       document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
      document.getElementById('save-stng-efb').classList.remove('disabled');
     })
@@ -1473,14 +1473,14 @@ function fun_send_setting_emsFormBuilder(data) {
 
 function fun_find_track_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //function find track code
   const el = document.getElementById("track_code_emsFormBuilder").value;
 
   if (el.length < -1) {
-    noti_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7, 'warning');
+    alert_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7, 'warning');
 
   } else {
     document.getElementById('track_code_emsFormBuilder').disabled = true;
@@ -1512,7 +1512,7 @@ function fun_find_track_emsFormBuilder() {
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue;
         } else {
-          noti_message_efb(efb_var.text.error, res.data.m, 4, 'warning');
+          alert_message_efb(efb_var.text.error, res.data.m, 4, 'warning');
           document.getElementById('track_code_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue
@@ -1526,7 +1526,7 @@ function fun_find_track_emsFormBuilder() {
 
 function clear_garbeg_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //  emsFormBuilder_popUp_loading()
@@ -1543,10 +1543,10 @@ function clear_garbeg_emsFormBuilder() {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
 
       if (res.data.success == true) {
-        noti_message_efb(efb_var.text.done, res.data.m, 4.7, 'info');
+        alert_message_efb(efb_var.text.done, res.data.m, 4.7, 'info');
         document.getElementById('clrUnfileEfbText').innerHTML = efb_var.text.clearUnnecessaryFiles;
       } else {
-        noti_message_efb(efb_var.text.error, res.data.m, 4.7, 'danger');
+        alert_message_efb(efb_var.text.error, res.data.m, 4.7, 'danger');
 
       }
     })
@@ -1900,7 +1900,7 @@ function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a hre
 
 function clickToCheckEmailServer() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   document.getElementById('clickToCheckEmailServer').classList.add('disabled')
@@ -1920,10 +1920,10 @@ function clickToCheckEmailServer() {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
 
         if (res.data.success == true) {
-          noti_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
         } else {
 
-          noti_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
+          alert_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
           document.getElementById("hostSupportSmtp_emsFormBuilder").checked = false;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
@@ -1932,7 +1932,7 @@ function clickToCheckEmailServer() {
     });
 
   } else {
-    noti_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
+    alert_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
     document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
     document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
   }

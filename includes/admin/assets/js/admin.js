@@ -129,7 +129,7 @@ function Link_emsFormBuilder(state) {
       
     }
   }else{
-    link =`https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
+    link =`https://easyformbuilder.ir/داکیومنت/`;
     switch (state) {
       case 'publishForm':
         link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
@@ -155,10 +155,10 @@ function Link_emsFormBuilder(state) {
         link = `https://easyformbuilder.ir/documents/`;
         break;
       case 'EmailNoti':
-        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/";
+        link += "چگونه-ایمیل-اطلاع-رسانی-را-در-فرم-ساز-آس/";
         break;
       case 'redirectPage':
-        link = "%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        link += "نحوه-ساخت-یک-صفحه-تشکر-در-افزونه-فرم-ساز/";
       break;
       case 'AdnSPF':
         link = 'https://easyformbuilder.ir/documents/';
@@ -237,7 +237,7 @@ console.info('Easy Form Builder 3.5.2> WhiteStudio.team');
 
 function actionSendData_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -294,7 +294,7 @@ function actionSendData_emsFormBuilder() {
 }
 function actionSendAddons_efb(val) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -310,22 +310,22 @@ function actionSendAddons_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          noti_message_efb(efb_var.text.done,'', 30,'info');
+          alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
           //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
           //console.log(res);
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, res.data.m, 30, "danger");
+         alert_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     })
@@ -335,7 +335,7 @@ function actionSendAddons_efb(val) {
 }
 function actionSendAddonsUn_efb(val) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -351,22 +351,22 @@ function actionSendAddonsUn_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          noti_message_efb(efb_var.text.done,'', 30,'info');
+          alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
           //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
 
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+         alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         }
       }
     })
@@ -421,7 +421,7 @@ createCardFormEfb = (i) => {
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"  
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
-    const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
+    const fn = `alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
     btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
   }
   return `
@@ -973,7 +973,7 @@ let change_el_edit_Efb = (el) => {
   //console.log(el.id , el.value)
   if (el.value.length > 0 && el.value.search(/(")+/g) != -1) {
     el.value = el.value.replaceAll(`"`, '');
-    noti_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
+    alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
   }
 
   if (lenV > 20) {
@@ -1027,15 +1027,15 @@ let change_el_edit_Efb = (el) => {
           }
           else {
             document.getElementById("adminFormEmailEl").value = "";
-            noti_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
+            alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
           }
         } else if (efb_var.smtp == '-1') {
           document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
+          alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
+          alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
 
@@ -1048,7 +1048,7 @@ let change_el_edit_Efb = (el) => {
             valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
           }else{
             el.checked=false;
-            noti_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
+            alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
             
           }
         break;
@@ -1077,7 +1077,7 @@ let change_el_edit_Efb = (el) => {
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("SendemailEl").checked = false;
-          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
+          alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
         break;
@@ -1111,11 +1111,11 @@ let change_el_edit_Efb = (el) => {
 
         } else if (valj_efb[0].type == "payment") {
           document.getElementById("captchaEl").checked = false;
-          noti_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
+          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;
-          noti_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
+          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
         break;
@@ -1236,7 +1236,7 @@ let change_el_edit_Efb = (el) => {
        }else{
         valj_efb[0].thank_you ='msg';
         valj_efb[0].rePage = '';
-        noti_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
+        alert_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
        }
         break;
       case "paymentGetWayEl":
@@ -2601,7 +2601,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
    actionSendAddons_efb(val)
  }else{
   //efb_var.text.upDMsg
-  noti_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
+  alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
  }
 }
 
@@ -2718,7 +2718,7 @@ document.addEventListener('DOMContentLoaded', function() {
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
     if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
       localStorage.setItem('wpbakery_efb',true);
-      noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
+      alert_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
     }
    
   }, 1000); */

@@ -245,7 +245,7 @@ function viewfileEfb(id, indx) {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[valj_efb[indx].file]}`;
       document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
-      noti_message_efb('', m, 4, 'danger')
+      alert_message_efb('', m, 4, 'danger')
   
       document.getElementById(`${id}_box`).classList.remove("active");
       //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
@@ -306,7 +306,7 @@ function viewfileReplyEfb(id, indx) {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;
       /* document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show'); */
-      noti_message_efb('', m, 4, 'danger')
+      alert_message_efb('', m, 4, 'danger')
   
      /*  document.getElementById(`${id}_box`).classList.remove("active"); */
       //  dragTextEfb.textContent = "Drag & Drop to Upload a File";
@@ -352,7 +352,7 @@ function removeFileEfb(id, indx) {
   
 function gm_authFailure() {
     const body = `<p class="efb fs-6 efb">${efb_var.text.aPIkeyGoogleMapsFeild} <a href="https://developers.google.com/maps/documentation/javascript/error-messages" target="blank">${efb_var.text.clickHere}</a> </p>`
-    noti_message_efb(efb_var.text.error, body, 15, 'danger')
+    alert_message_efb(efb_var.text.error, body, 15, 'danger')
   
   }
 
@@ -542,7 +542,7 @@ function initMap() {
     const zoom = idx != -1 && valj_efb[idx].zoom && valj_efb[idx].zoom != "" ? valj_efb[idx].zoom : 10;
     const location = { lat: lat, lng: lon };
     if(typeof google == "undefined"){
-      noti_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
+      alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
       return 0;
     }
     map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
