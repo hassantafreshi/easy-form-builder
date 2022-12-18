@@ -262,10 +262,10 @@ function show_setting_window_efb(idset) {
         <div class="efb  row">
         <label for="cornerEl" class="efb  mt-3 col-12 bi-bounding-box-circles">${efb_var.text.corners}</label>
         <div class="efb  btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">    
-          <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
+          <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="efb-rounded" >${efb_var.text.rounded}</label>
           <span class="efb  border-right border border-light "></span>
-          <label class="efb  ntb btn-primary bi-diamond ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
+          <label class="efb  ntb btn-primary bi-diamond ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>
         </div></div>`
     }
@@ -917,7 +917,7 @@ function creator_form_builder_Efb() {
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
-      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
+      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false,
       show_pro_bar: false, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,
       thank_you: 'msg',

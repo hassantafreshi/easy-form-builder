@@ -282,6 +282,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let ui = ''
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox") ? elementId.slice(3).toLowerCase() : elementId;
   let classes = ''
+  const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
   switch (elementId) {
     case 'email':
     case 'text':
@@ -301,7 +302,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       break;
@@ -323,7 +324,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        ${label}
         <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
           ${ttip}        
-          <input type="${elementId}" class="efb  input-efb px-2 pb-0 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
+          <input type="${elementId}" class="efb  input-efb px-2 pb-0 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" placeholder="${elementId}" ${previewSate != true ? 'disabled' : ''}>
           ${desc}`
       dataTag = elementId;
 
@@ -333,7 +334,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                 ${label}
                 <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
                 ${ttip}
-                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
+                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
                 ${desc}
             `
       dataTag = "textarea";
@@ -345,7 +346,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                 ${label}
                 <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
                 ${ttip}
-                <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+                <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
                 ${desc}
             `
       dataTag = "textarea";
@@ -516,7 +517,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb ${valj_efb[iVJ].classes} mx-0 ttEfb show"  id='${rndm}-f'  data-id="${rndm}-el" >
       ${ttip}
-      <select class="efb form-select efb emsFormBuilder_v ${pay}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+      <select class="efb form-select efb emsFormBuilder_v ${pay}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
       <option selected disabled>${efb_var.text.nothingSelected}</option>
       ${optn}
       </select>
@@ -532,7 +533,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${label}
         <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb ${valj_efb[iVJ].classes} mx-0 ttEfb show"  id='${rndm}-f'  data-id="${rndm}-el" >
         ${ttip}
-        <select class="efb form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+        <select class="efb form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
         <option selected disabled>${efb_var.text.nothingSelected}</option>
         ${optn}
         </select>
@@ -550,7 +551,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${label}
         <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 efb ${valj_efb[iVJ].classes} mx-0 ttEfb show"  id='${rndm}-f'  data-id="${rndm}-el" >
         ${ttip}
-        <select class="efb form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
+        <select class="efb form-select efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'disabled' : ''}>
         <option selected disabled>${efb_var.text.nothingSelected}</option>
         ${optn}
         </select>
@@ -608,7 +609,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <!--multiselect-->      
       <div class="efb ${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
         ${ttip}
-        <div class="efb efblist  mx-1  p-2 inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
+        <div class="efb efblist  mx-1  p-2 inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
         <i class="efb efblist iconDD bi-caret-down-fill text-primary ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].el_height}" id="iconDD-${rndm}" data-id="menu-${rndm}"></i>
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
@@ -844,14 +845,15 @@ let add_buttons_zone_efb = (state, id) => {
     t = t != -1 ? valj_efb[t].step : 0;
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
+  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const s = `
   <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${valj_efb[0].corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 ? `<i class="efb  ${valj_efb[0].icon != 'bi-undefined' ? `${valj_efb[0].icon} mx-2` : ''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 ? `<i class="efb  ${valj_efb[0].icon != 'bi-undefined' ? `${valj_efb[0].icon} mx-2` : ''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
-  <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${valj_efb[0].corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
-  <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${valj_efb[0].corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
+  <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
+  <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
   let c = `<div class="efb footer-test mx-0 mt-1 efb">`
@@ -1000,10 +1002,10 @@ function fun_renderform_Efb() {
           });
           setTimeout(() => {
             //const v = valj_efb.find(x=>x.id_==rndm);
+            const corner = v.hasOwnProperty('corner') ? v.corner: 'efb-square';
             const opd = document.querySelector(`[data-id='${v.id_}_options']`)
-            opd.className += ` efb ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
-          }, 350);
-          // document.querySelector(`[data-id='${v.id_}_options']`).className += `efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
+            opd.className += ` efb ${corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
+          }, 350);       
           break;
         case "rating":
 
@@ -1569,8 +1571,8 @@ function previewFormEfb(state) {
               const opd = document.querySelector(`[data-id='${v.id_}_options']`);
 
               if (opd != null) {
-
-                opd.className += ` efb emsFormBuilder_v  ${v.corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`;
+                const corner = v.hasOwnProperty('corner') ? v.corner: 'efb-square';
+                opd.className += ` efb emsFormBuilder_v  ${corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`;
 
                 opd.onclick = function getMultiSelectvalue() {
 
@@ -1585,8 +1587,7 @@ function previewFormEfb(state) {
               }
             }, len);
           }
-          mutlselect(len);
-          // document.querySelector(`[data-id='${v.id_}_options']`).className += `efb ${v.corner} ${v.el_border_color} ${v.el_text_size}`
+          mutlselect(len);          
           break;
         case "rating":
           break;
