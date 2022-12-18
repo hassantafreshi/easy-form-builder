@@ -210,7 +210,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   let content = ``
    
   if (state != 0) {
-    content = ` <h3 class="efb  fs-3"><b>${efb_var.text.goodJob}</b> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
+    content = ` <h3 class="efb"><b>${efb_var.text.goodJob}</b></br> ${state == 1 ? efb_var.text.formIsBuild : efb_var.text.formUpdatedDone}</h3>
     ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
@@ -226,13 +226,13 @@ function show_message_result_form_set_EFB(state, m) { //V2
   </a>
   `
   } else {
-    content = `<h3 class="efb  fs-3">${m}</h3>`
+    content = `<h3 class="efb">${m}</h3>`
   }
 
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.0> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.1> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -2063,7 +2063,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
       id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
-      label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
+      label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
 
@@ -2072,7 +2072,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
-      corner: 'efb-square', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'document',
+      corner: 'efb-square', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
       label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro

@@ -4136,7 +4136,7 @@ if ( !$.escapeSelector ) {
 }
 
 // Support: jQuery 3.4.x or older
-// These methods have been defined in jQuery 3.5.0.
+// These methods have been defined in jQuery 3.5.1.
 if ( !$.fn.even || !$.fn.odd ) {
 	$.fn.extend( {
 		even: function() {

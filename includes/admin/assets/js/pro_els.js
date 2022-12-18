@@ -682,7 +682,7 @@ function addMarker(position) {
       return `<div class="efb form-check">
       <div class="efb btn btn-light text-dark" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
-      <input type="file" id="resp_file_efb_" name="file" id="attach_upload_efb" data-id="${msg_id}" >
+      <input type="file" id="resp_file_efb_" name="file"  data-id="${msg_id}" >
       </div>
       ${btnC}
     </div>`
