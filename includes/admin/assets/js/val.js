@@ -345,12 +345,12 @@ function show_setting_window_efb(idset) {
     const fileTypeEls = `
           <label for="fileTypeEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.fileType}</label>
           <select  data-id="${idset}" class="efb  elEdit form-select border-d efb-rounded"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">                                            
-          <option value="document" ${valj_efb[indx].file && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
-          <option value="image" ${valj_efb[indx].file && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
-          <option value="media" ${valj_efb[indx].file && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
-          <option value="zip" ${valj_efb[indx].file && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
-          <option value="allformat" ${valj_efb[indx].file && valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
-      </select>
+          <option value="allformat" ${!valj_efb[indx].hasOwnProperty('file') || valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
+          <option value="document" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
+          <option value="image" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
+          <option value="media" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
+          <option value="zip" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
+          </select>
       `
     const btnColorEls =() =>{
       //console.log(indx,valj_efb[indx]);
@@ -641,11 +641,12 @@ function show_setting_window_efb(idset) {
         break;
       case "file":
       case "dadfile":
+        console.log(valj_efb[indx].file);
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
-        ${el.dataset.tag == 'dadfile' ?fileTypeEls:''}
+        ${el.dataset.tag == 'dadfile' ? fileTypeEls : '<!--efb.app-->'}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
        <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">

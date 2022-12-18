@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.0
+Stable tag: 			3.5.1
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			5.5 or higher
@@ -179,9 +179,9 @@ How *Easy Form Builder* makes your life easier:
 
 - *Link*: You can easily add links on your WP forms.
 
-- *Offline form*: the offline form feature saves or resumes forms before submission for **free*.
+- *Offline form*: the offline form feature saves or resumes forms before submission for **free**.
 
-- *Secure forms submitting*: Easy Form Builder is Secure online form builder, validation fields while a user filling form on browser client-side and after submitting  the form is validate again in server-side for **free*.
+- *Secure forms submitting*: Easy Form Builder is Secure online form builder, validation fields while a user filling form on browser client-side and after submitting  the form is validate again in server-side for **free**.
 
 - *Secure File uploads*: Easy Form Builder has secure uploading file method  for **free**. 
 
@@ -349,15 +349,16 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
-= 3.5.0=
-* Important security updated for form validation fill out
-* Important security updated for uploading files of forms or responses
+= 3.5.1 =
+= 3.5.0 =
+* Security updated for form validation fill out
+* Security updated for uploading files of forms or responses
 * Improved UX of Easy Form Builder
 
-= 3.4.2=
+= 3.4.2 =
 * Fixed issues of sending emails notification of submission forms
 
-= 3.4.1=
+= 3.4.1 =
  * Improve UX of Easy Form Builder
  * Fixed a bugs of offline forms addons
 

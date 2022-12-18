@@ -778,7 +778,7 @@ class efbFunction {
 					break;
 					case 'file':
 					case 'href':
-						$valp[$key][$k]=sanitize_url($v);
+						$valp[$key][$k]=$v;
 					break;
 					case 'thank_you_message':
 						//error_log(json_encode($valp[$key]));
