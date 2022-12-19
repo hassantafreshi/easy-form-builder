@@ -11,15 +11,15 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 @media screen and (min-width: 1000px) {
   
     
-     .col-md-12 .efb.ttiptext.show {
+    /*  .col-md-12 .efb.ttiptext.show {
         margin: -30px +92px 0 0!important;
     
-    } 
+    }  */
   
   }
-.efb.ttiptext.show {
+/* .efb.ttiptext.show {
     width: fit-content!important;
-}
+} */
 
 .col-md-6 .efb.btn-edit-holder {
     float: left!important;
@@ -32,7 +32,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 }
 
 
-.efb.esign .ttiptext {
+/* .efb.esign .ttiptext {
     margin: -150px +9%;
 }
 .efb.yesNo .ttiptext {
@@ -47,7 +47,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 
 .efb.col-md-6 .ttiptext {
     margin: -26px 26px  0px 0px!important;
-}
+} */
 
  .efb.form-check-inline .efb.form-check-input {
     float: right;

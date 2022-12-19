@@ -558,6 +558,7 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

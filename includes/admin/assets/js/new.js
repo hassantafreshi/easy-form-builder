@@ -79,10 +79,15 @@ function pro_show_efb(state) {
   if (typeof state != "string") message = state == 1 ? efb_var.text.proUnlockMsg : `${efb_var.text.ifYouNeedCreateMoreThan2Steps} ${efb_var.text.proVersion}`;
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
   <h5 class="efb  txt-center">${message}</h5>
-  <div class="efb  text-center"><button type="button" class="efb btn efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
-    <i class="efb  bi-gem mx-1"></i>
-      ${efb_var.text.activateProVersion}
-    </button>
+  <div class="efb row">
+  <div class="efb  col-md-6  text-center">
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr} </button>
+  </div>
+    <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
+      <i class="efb  bi-gem mx-1"></i>
+        ${efb_var.text.activateProVersion}
+      </button></div>
+    
   </div>`
   show_modal_efb(body, efb_var.text.proVersion, '', 'proBpx')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -273,7 +278,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let dataTag = 'text'
   const desc = `<small id="${rndm}-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb ${previewSate == true && pos[1] == 'col-md-4' || valj_efb[iVJ].message_align != "justify-content-start" ? `` : `mx-4`}  ${valj_efb[iVJ].message_align}  ${valj_efb[iVJ].message_text_color} ${ valj_efb[iVJ].hasOwnProperty('message_text_size') ? valj_efb[iVJ].message_text_size : ''} ">${valj_efb[iVJ].message} </small> `;
   const label = `<label for="${rndm}_" class="efb  ${previewSate == true ? pos[2] : `col-md-3`} col-sm-12 col-form-label ${valj_efb[iVJ].label_text_color} ${valj_efb[iVJ].label_align} ${valj_efb[iVJ].label_text_size != "default" ? valj_efb[iVJ].label_text_size : ''} " id="${rndm}_labG""><span id="${rndm}_lab" class="efb  ${valj_efb[iVJ].label_text_size}">${valj_efb[iVJ].name}</span><span class="efb  mx-1 text-danger" id="${rndm}_req">${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? '*' : ''}</span></label>`
-  const ttip = `<small id="${rndm}_-message" class="efb text-danger efb fs-7 ttiptext px-2  "></small>`
+  const ttip = `<small id="${rndm}_-message" class="efb text-danger py-1 fs-7 ttiptext px-2"></small>`
   const rndm_1 = Math.random().toString(36).substr(2, 9);
   const rndm_2 = Math.random().toString(36).substr(2, 9);
   const op_3 = Math.random().toString(36).substr(2, 9);

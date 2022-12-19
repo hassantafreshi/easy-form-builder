@@ -375,6 +375,7 @@ function createStepsOfPublic() {
               value = el.value;
              
               document.getElementById(`${el.id}-message`).classList.remove('show');
+              document.getElementById(`${ob.id_}_-message`).innerHTML="";
               el.className = colorBorderChangerEfb(el.className, "border-success");
             }
             break;
@@ -387,6 +388,7 @@ function createStepsOfPublic() {
             if (el.value.length > 1 || el.checked == true) {
              
               document.getElementById(`${ob.id_}_-message`).classList.remove('show');
+              document.getElementById(`${ob.id_}_-message`).innerHTML="";
             } else {
              
               document.getElementById(`${ob.id_}_-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
@@ -427,6 +429,7 @@ function createStepsOfPublic() {
             //console.log(el.options[el.selectedIndex].id);
            
             document.getElementById(`${ob.id_}_-message`).classList.remove('show');
+            document.getElementById(`${ob.id_}_-message`).innerHTML="";
             el.className = colorBorderChangerEfb(el.className, "border-success");
             if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
               let v = el.options[el.selectedIndex].id;
@@ -439,7 +442,7 @@ function createStepsOfPublic() {
               value = el.value;
               
             document.getElementById(`${ob.id_}_-message`).classList.remove('show');
-           
+            document.getElementById(`${ob.id_}_-message`).innerHTML="";
             
             break;
           case "email":
@@ -490,6 +493,7 @@ function createStepsOfPublic() {
             default:
               console.log('default')
               if(!ob) document.getElementById(`${ob.id_}_-message`).classList.remove('show');
+              document.getElementById(`${ob.id_}_-message`).innerHTML="";
             break;
         }
 
@@ -837,6 +841,7 @@ function valid_email_emsFormBuilder(el) {
     el.className = colorBorderChangerEfb(el.className, "border-success")
    
     document.getElementById(`${el.id}-message`).classList.remove('show');
+    document.getElementById(`${ob.id_}_-message`).innerHTML="";
   }
   // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
@@ -1625,5 +1630,8 @@ fun_text_forbiden_convert_efb=(value)=>{
 }
 
 remove_ttmsg_efb=(id)=>{
-  if(document.getElementById(`${id}_-message`))document.getElementById(`${id}_-message`).classList.remove('show');
+  if(document.getElementById(`${id}_-message`)){
+    document.getElementById(`${id}_-message`).classList.remove('show');
+    document.getElementById(`${id}_-message`).innerHTML="";
+  }
 }
