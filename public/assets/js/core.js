@@ -332,6 +332,7 @@ function createStepsOfPublic() {
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
           }
         }
+        let vd ;
         switch (el.type) {
           case "text":
           case "color":
@@ -343,10 +344,10 @@ function createStepsOfPublic() {
             if (value.length < len) {
               state = false;
               el.className = colorBorderChangerEfb(el.className, "border-danger");
-              
-              if(document.getElementById(`${el.id}-message`)){
-                document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
-                document.getElementById(`${el.id}-message`).classList.add('show');
+              vd = document.getElementById(`${el.id}-message`);
+              if(vd){
+                vd.innerHTML = ajax_object_efm.text.enterTheValueThisField;
+                vd.classList.add('show');
               }
               const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
               if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
@@ -358,8 +359,8 @@ function createStepsOfPublic() {
               }
               el.className = colorBorderChangerEfb(el.className, "border-success");
              
-              const vv= document.getElementById(`${el.id}-message`)
-              if(vv)vv.classList.remove('show');
+              vd= document.getElementById(`${el.id}-message`)
+              if(vd)vd.classList.remove('show');
             }
             break;
           case 'url':
@@ -367,15 +368,17 @@ function createStepsOfPublic() {
             //console.log(el.value ,che);
             if (che == null) {
               valid = false;
+              vd = document.getElementById(`${el.id}-message`)
               el.className = colorBorderChangerEfb(el.className, "border-danger");
-              document.getElementById(`${el.id}-message`).innerHTML = ajax_object_efm.text.enterValidURL;
-              if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
+              vd.innerHTML = ajax_object_efm.text.enterValidURL;
+              if(vd.classList.contains('show'))vd.classList.add('show');
             } else {
               valid = true;
               value = el.value;
-             
-              document.getElementById(`${el.id}-message`).classList.remove('show');
-              document.getElementById(`${ob.id_}_-message`).innerHTML="";
+             vd = document.getElementById(`${el.id}-message`)
+             console.log(el.id ,vd);
+             vd.classList.remove('show');
+             vd.innerHTML="";
               el.className = colorBorderChangerEfb(el.className, "border-success");
             }
             break;
@@ -384,15 +387,15 @@ function createStepsOfPublic() {
             value = el.value;
             
             if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
-            
+            vd =document.getElementById(`${ob.id_}_-message`)
             if (el.value.length > 1 || el.checked == true) {
              
-              document.getElementById(`${ob.id_}_-message`).classList.remove('show');
-              document.getElementById(`${ob.id_}_-message`).innerHTML="";
+              vd.classList.remove('show');
+              vd.innerHTML="";
             } else {
              
-              document.getElementById(`${ob.id_}_-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField;
-              if(document.getElementById(`${ob.id_}_-message`).classList.contains('show'))document.getElementById(`${ob.id_}_-message`).classList.add('show');
+              vd.innerHTML = ajax_object_efm.text.enterTheValueThisField;
+              if(vd.classList.contains('show'))vd.classList.add('show');
               
             }
 
@@ -427,9 +430,9 @@ function createStepsOfPublic() {
           case "select":
             value = el.value;
             //console.log(el.options[el.selectedIndex].id);
-           
-            document.getElementById(`${ob.id_}_-message`).classList.remove('show');
-            document.getElementById(`${ob.id_}_-message`).innerHTML="";
+            vd =document.getElementById(`${ob.id_}_-message`)
+            vd.classList.remove('show');
+            vd.innerHTML="";
             el.className = colorBorderChangerEfb(el.className, "border-success");
             if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
               let v = el.options[el.selectedIndex].id;
@@ -440,9 +443,9 @@ function createStepsOfPublic() {
             break;
           case "range":
               value = el.value;
-              
-            document.getElementById(`${ob.id_}_-message`).classList.remove('show');
-            document.getElementById(`${ob.id_}_-message`).innerHTML="";
+              vd = document.getElementById(`${ob.id_}_-message`);
+              vd.classList.remove('show');
+              vd.innerHTML="";
             
             break;
           case "email":
@@ -492,8 +495,9 @@ function createStepsOfPublic() {
             break;
             default:
               console.log('default')
-              if(!ob) document.getElementById(`${ob.id_}_-message`).classList.remove('show');
-              document.getElementById(`${ob.id_}_-message`).innerHTML="";
+              vd=document.getElementById(`${ob.id_}_-message`);
+              if(!ob) {vd.classList.remove('show');
+              vd.innerHTML="";}
             break;
         }
 
@@ -839,9 +843,8 @@ function valid_email_emsFormBuilder(el) {
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
-   
     document.getElementById(`${el.id}-message`).classList.remove('show');
-    document.getElementById(`${ob.id_}_-message`).innerHTML="";
+    document.getElementById(`${el.id}-message`).innerHTML="";
   }
   // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
@@ -897,6 +900,8 @@ function valid_file_emsFormBuilder(id,tp) {
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
+  console.log(document.getElementById(`${id}_`).classList);
+  document.getElementById(`${id}_`).classList.remove('border-danger');
   let file = ''
   if (true) {
     const f = valueJson_ws.find(x => x.id_ === id);

@@ -642,7 +642,6 @@ h5.efb {	font-size: 25px !important;
 	font-size: 135px !important; 
 } 
 .star-efb:not(:checked)>input {	position: fixed; 
-	top: -9999px !important; 
 	bottom: 0px; 
 } 
 .star-efb:not(:checked)>label {	float: right; 
