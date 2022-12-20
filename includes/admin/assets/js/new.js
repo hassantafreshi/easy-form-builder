@@ -1324,23 +1324,13 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-if (localStorage.getItem('count_view') >= 0 && localStorage.getItem('count_view') < 3 && typeof efb_var == "object" && efb_var.maps != "1") {
+/* if (localStorage.getItem('count_view') >= 0 && localStorage.getItem('count_view') < 3 && typeof efb_var == "object" && efb_var.maps != "1") {
  // setTimeout(() => { alert_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
-}
+} */
 
 
 
 
-function alert_message_efb(title, message) {
-  return `
-  <div class="efb alert alert-info alert-dismissible fade show" role="alert">
-  <strong>${title}</strong> ${message}
-  <button type="button" class="efb close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
-  `
-}
 function alert_message_efb(title, message, sec, alert) {
   sec = sec * 1000
   /* Alert the copied text */
@@ -1372,14 +1362,19 @@ function noti_message_efb(message, alert ,id) {
     document.getElementById('body_efb').innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   } */
   let d = document.getElementById(id);
-  d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+  if(document.getElementById('noti_content_efb')){
+    document.getElementById('noti_content_efb').remove()
+    
+  }
+    d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <p class="efb my-0">${message}</p>    
-   
   </div>`
+  
+ 
 
-
-  //window.scrollTo({ top: d.scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
-  console.log('noti run run!')
+  //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+  //window.scrollTo({ top: document.getElementById('noti_content_efb'), behavior: 'smooth' });
+  
   //jQuery('.alert').alert()
 }
 
@@ -1715,10 +1710,6 @@ function fun_validation_efb() {
   let state = true;
   let idi = "null";
   //console.log('fun_validation_efb');
-  /* if(sendBack_emsFormBuilder_pub.length<1){
-    alert_message_efb(efb_var.text.PleaseFillForm,'',12,'info')
-    return false;
-  } */
   for (let row in valj_efb) {
     let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
     //console.log(valj_efb[row],s);
@@ -1780,7 +1771,8 @@ function fun_validation_efb() {
       
       
       if (state == false) { 
-          alert_message_efb(efb_var.text.enterTheValueThisField,'',10,'danger');
+          //alert_message_efb(efb_var.text.enterTheValueThisField,'',10,'danger');
+          noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
       }
      // console.log(vd ,state, idi);
     }

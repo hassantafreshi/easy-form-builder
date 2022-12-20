@@ -355,7 +355,8 @@ function createStepsOfPublic() {
               //console.log(value.search(`"`));
               if (value.search(`"`) != -1) {
                 el.value = value.replaceAll(`"`, '');
-                alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: "`, 10, "danger");
+                //alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: "`, 10, "danger");
+                noti_message_efb(`Don't use forbidden Character like: "` , 'danger' , `step-${current_s_efb}-efb-msg` );
               }
               el.className = colorBorderChangerEfb(el.className, "border-success");
              
@@ -983,7 +984,8 @@ function fun_tracking_show_emsFormBuilder() {
 
 function fun_vaid_tracker_check_emsFormBuilder() {
   if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    //alert_message_efb('',efb_var.text.offlineSend, 17, 'danger');
+    noti_message_efb(efb_var.text.offlineSend , 'danger' , `body_efb-track` );      
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
@@ -1289,12 +1291,12 @@ function fun_send_replayMessage_emsFormBuilder(id) {
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+   // alert_message_efb('',efb_var.text.offlineSend, 17, 'danger');
+    noti_message_efb(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder` );       
     return;
   }
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
-    // alert_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
     document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
@@ -1564,8 +1566,7 @@ function response_Valid_tracker_efb(res) {
      /* end attachment reply */
     
   } else {
-    alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
-    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5">${ajax_object_efm.text.somethingWentWrongTryAgain} <br>${ajax_object_efm.text.error} ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
@@ -1585,7 +1586,7 @@ function response_rMessage_id(res, message) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger">${res.data.m}</p>`;
-    alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
+    //alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
 }

@@ -62,7 +62,8 @@ add_ui_persiaPay_efb=(rndm)=>{
 
 function btnPersiaPayEfb(){
   if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    
+    noti_message_efb(efb_var.text.offlineSend , 'danger' , `beforePay` );
     return;
   }
   //console.log("btnPersiaPayEfb");
