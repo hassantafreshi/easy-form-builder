@@ -26,7 +26,7 @@ class efbFunction {
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!=='null' && isset($ac->text) ? true : false ;		
+		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -559,6 +559,10 @@ class efbFunction {
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
 			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
+			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
+			"col" => $state  &&  isset($ac->text->col) ? $ac->text->cols : __('column','easy-form-builder'),				
+			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I want to localize Easy Form Builder','easy-form-builder'),				
+			"mlen" => $state  &&  isset($ac->text->mlen) ? $ac->text->mlen : __('Max length','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

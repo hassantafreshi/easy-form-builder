@@ -71,9 +71,12 @@ function show_setting_window_efb(idset) {
   
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
+
+    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlen}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${valj_efb[indx].required == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="requiredEl">${efb_var.text.required}</label>                                            
+    <label class="efb form-check-label fs-6 pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`;
     const cardEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].dShowBg && valj_efb[0].dShowBg == 1 ? 'checked' : ''}>
@@ -119,7 +122,12 @@ function show_setting_window_efb(idset) {
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.pleaseFillInRequiredFields}" id="thankYouMessagepleaseFillInRequiredFieldsEl" required value="${valj_efb[0].thank_you_message.pleaseFillInRequiredFields ? valj_efb[0].thank_you_message.pleaseFillInRequiredFields : efb_var.text.pleaseFillInRequiredFields}">`;
   
+    /* 778899 new atr */
+    const MessageReuired = `<div class="efb tnxmsg mt-1"><label for="MessageReuired" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
+
+    /* 778899 end new atr */
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
@@ -141,6 +149,13 @@ function show_setting_window_efb(idset) {
                             <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+                        </select>`;
+    const optnsStyleEls = `
+      <label for="optnsStyleEl" class="efb mt-3 bi-layout-split mx-2 efb">${efb_var.text.cols}</label>
+                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">                                            
+                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+                            <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+                            <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>                                                  
                         </select>`;
 
       const thankYouTypeEls = `
@@ -467,7 +482,8 @@ function show_setting_window_efb(idset) {
                 </button>
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                        <div class="efb  mb-3 px-3 row">                                            
+                        <div class="efb  mb-3 px-3 row">     
+                        ${mLenEls}                                       
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
@@ -526,6 +542,7 @@ function show_setting_window_efb(idset) {
           return obj.parent === el.id
         })
         let s = el.dataset.tag;
+        let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio"  ? true :false
         s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
@@ -536,7 +553,7 @@ function show_setting_window_efb(idset) {
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
           for (let ob of objOptions) {         
             opetions += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-          <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+          <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
           ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
           <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
             <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
@@ -552,7 +569,8 @@ function show_setting_window_efb(idset) {
         }
   
         //optionElpush_efb
-        
+        console.log(o_c);
+        console.log(optnsStyleEls);
         body = `
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
@@ -582,6 +600,7 @@ function show_setting_window_efb(idset) {
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">                                        
+                        ${o_c ? optnsStyleEls :''}
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
@@ -1013,7 +1032,7 @@ function creator_form_builder_Efb() {
        
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
-        <div class="efb text-muted fs-4 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
+        <div class="efb text-muted fs-5 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
         </div>
 
          </div></div></div></div>

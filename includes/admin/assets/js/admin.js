@@ -1017,6 +1017,11 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].message = el.value;
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
         break;
+      case "mLenEl":
+        valj_efb[indx].mlen = el.value;
+        console.log(el.value, valj_efb[indx].mlen);
+       // document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+        break;
       case "adminFormEmailEl":
         //console.log(efb_var.smtp);
         if (efb_var.smtp == "1") {
@@ -1194,6 +1199,36 @@ let change_el_edit_Efb = (el) => {
         const sizef = el.options[el.selectedIndex].value
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
+        break;
+      case "optnsStyleEl":
+        valj_efb[indx].op_style = el.options[el.selectedIndex].value;
+        console.log('optnsStyleEl',valj_efb[indx].id_)
+        c =document.getElementById(`${valj_efb[indx].id_}_options`);
+        if(valj_efb[indx].op_style!="1"){
+          if(!c.classList.contains('row')) c.className += ' row col-md-12';
+
+          //colMReplaceEfb    
+          clss = valj_efb[indx].op_style=="2" ? 'col-md-6' : 'col-md-4'
+          for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){            
+            v.className = colMdRemoveEfb(v.className);            
+            v.classList.add(clss)
+            
+          }
+        
+        }else{
+          if(c.classList.contains('row')){
+            console.log('classList.contains(row) exitst!');
+             c.classList.remove('row'); c.classList.remove('col-md-12')
+             for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){
+              v.className = colMdRemoveEfb(v.className);
+
+            }
+            }
+        }
+       /*  let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
+        const sizef = el.options[el.selectedIndex].value
+        fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
+        if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); } */
         break;
       case "thankYouTypeEl":
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
@@ -2127,15 +2162,15 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  //console.log(parentsID, idin, value, id_ob, tag)
+  
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
   //console.log(`form_type_emsFormBuilder:${form_type_emsFormBuilder}`);
   document.getElementById('optionListefb').innerHTML += `
-  <div id="${id_ob}-v" class="efb  col-md-12">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+  <div id="${id_ob}-v"  class="efb  col-md-12">
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
   ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
   <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
@@ -2587,6 +2622,7 @@ const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d
 const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
+const colMReplaceEfb = (classes,value) => { return classes.replace(/\bcol-md+-\d+/gi, value); }
 const headSizeEfb = (classes, value) => { return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }

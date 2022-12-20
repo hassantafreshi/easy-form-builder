@@ -931,6 +931,7 @@ function fun_show_setting__emsFormBuilder() {
   let bootstrap = false;
   let emailTemp = "null"
   let payToken="null";
+  let act_local_efb =false;
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -953,6 +954,10 @@ function fun_show_setting__emsFormBuilder() {
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
     payToken = f('payToken');
+    act_local_efb = f('act_local_efb');
+    console.log(`act_local_efb${act_local_efb}`);
+    act_local_efb= act_local_efb =='null'  || act_local_efb==false ? false :true
+    console.log(f('act_local_efb'));
   }
 
   let persianPayToken = () => {
@@ -978,6 +983,7 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
+  console.log(`act_local_efb[${act_local_efb}]`);
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb">
@@ -1122,7 +1128,13 @@ function fun_show_setting__emsFormBuilder() {
                                  <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
                                <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
-                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}">${textList} </div>                                
+                               <div class="efb card-body mx- py-1 mx-4">
+                           
+                                <input class="efb elEdit form-check-input efb fs-6" type="checkbox" onclick='act_local_efb_event(this);' id="act_local_efb" ${act_local_efb == true ? "checked" : ""}>
+                                <label class="efb form-check-label fs-7 efb m-2 " for="act_local_efb">${efb_var.text.ilclizeFfb}</label>                                            
+                               
+                                </div>
+                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}  ${act_local_efb == false ? "d-none" : ''}">${textList} </div>                                
                                 <!-- END Text Section -->
                             </div>
                         </div>
@@ -1277,7 +1289,7 @@ function fun_set_setting_emsFormBuilder() {
       }
       return el.value;
     } else if (el.type == "checkbox") {
-      //console.log(el.type , el.checked);
+      console.log(el.id ,el.type , el.checked);
       return el.checked;
     }
     return "NotFoundEl"
@@ -1365,9 +1377,10 @@ function fun_set_setting_emsFormBuilder() {
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
     smtp = f('hostSupportSmtp_emsFormBuilder');
+    act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
-    let text = efb_var.text;
+    let text = act_local_efb==true ? efb_var.text :'';
     const payToken = f('payToken_emsFormBuilder');
     let AdnSPF=0 ,AdnOF=0,AdnPPF=0,AdnATC=0,AdnSS=0,AdnCPF=0,AdnESZ=0,AdnSE=0,
     AdnWHS=0, AdnPAP=0, AdnWSP=0,AdnSMF=0,AdnPLF=0,AdnMSF=0,AdnBEF=0
@@ -1391,7 +1404,7 @@ function fun_set_setting_emsFormBuilder() {
     fun_send_setting_emsFormBuilder(
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, 
-         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, 
+         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,AdnBEF:AdnBEF});
   }
@@ -1424,6 +1437,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data) {
+  console.log(data);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2074,6 +2088,11 @@ function funNproEmailTemp() {
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
+}
+
+function act_local_efb_event(t){
+  console.log("Clicked, new value = " + t.checked);
+  t.checked==true ? document.getElementById('textList-efb').classList.remove('d-none'): document.getElementById('textList-efb').classList.add('d-none')
 }
 
 
