@@ -563,6 +563,9 @@ class efbFunction {
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->cols : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I want to localize Easy Form Builder','easy-form-builder'),				
 			"mlen" => $state  &&  isset($ac->text->mlen) ? $ac->text->mlen : __('Max length','easy-form-builder'),				
+			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
+			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
+			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

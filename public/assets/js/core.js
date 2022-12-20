@@ -321,7 +321,27 @@ function createStepsOfPublic() {
       el.addEventListener("change", (e) => {
         //778899
         // e.preventDefault();
-       
+       validate_len =()=>{
+             const len = el.hasAttribute('minLength') ? el.minLength : 2;
+              console.log(len , el.minLength);
+              if (value.length < len) {
+                state = false;
+                el.className = colorBorderChangerEfb(el.className, "border-danger");
+                vd = document.getElementById(`${el.id}-message`);
+                console.log(vd);
+                if(vd){
+                  console.log(ajax_object_efm.text.mmplen);
+                  let m = ajax_object_efm.text.mmplen.replace('NN',len);
+                  vd.innerHTML =m;
+                  console.log(m,vd.innerHTML);
+                  vd.classList.add('show');
+                }
+                const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
+                if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+                return 0;
+              }
+              return 1;
+       }
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
         let value = ""
         const id_ = el.dataset.vid
@@ -340,17 +360,26 @@ function createStepsOfPublic() {
           case "date":
           case "textarea":
             value = el.value;
-            const len = el.type == "textarea" ? 5 : el.type == "text" ? 2 : 1;
+            if(validate_len()==0){
+            return;
+            /* const len = el.hasOwnProperty('minLength') ? el.minLength : 2;
+            console.log(len , el.minLength);
             if (value.length < len) {
               state = false;
               el.className = colorBorderChangerEfb(el.className, "border-danger");
               vd = document.getElementById(`${el.id}-message`);
+              console.log(vd);
               if(vd){
-                vd.innerHTML = ajax_object_efm.text.enterTheValueThisField;
+                console.log(ajax_object_efm.text.mmplen);
+                let m = ajax_object_efm.text.mmplen.replace('NN',len);
+                vd.innerHTML =m;
+                console.log(m,vd.innerHTML);
                 vd.classList.add('show');
               }
               const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
               if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+              return;
+             */
             } else {
               //console.log(value.search(`"`));
               if (value.search(`"`) != -1) {
@@ -376,6 +405,7 @@ function createStepsOfPublic() {
             } else {
               valid = true;
               value = el.value;
+              
              vd = document.getElementById(`${el.id}-message`)
              console.log(el.id ,vd);
              vd.classList.remove('show');

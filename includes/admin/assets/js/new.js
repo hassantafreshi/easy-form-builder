@@ -290,6 +290,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox") ? elementId.slice(3).toLowerCase() : elementId;
   let classes = ''
   const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
+  let minlen;
   switch (elementId) {
     case 'email':
     case 'text':
@@ -304,12 +305,16 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'lastName':
 
       const type = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
+      let maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
+      maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
+      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
+      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${maxlen} ${minlen} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       break;
@@ -337,11 +342,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case "textarea":
+      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
+      console.log(minlen , valj_efb[iVJ].milen)  ;
+      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
-                <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
+                <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f' >
                 ${ttip}
-                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''}></textarea>
+                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''} ${minlen}></textarea>
                 ${desc}
             `
       dataTag = "textarea";

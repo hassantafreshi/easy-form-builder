@@ -1018,9 +1018,32 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
         break;
       case "mLenEl":
-        valj_efb[indx].mlen = el.value;
-        console.log(el.value, valj_efb[indx].mlen);
-       // document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+        if (Number(el.value)>524288){
+          el.value="";
+          alert_message_efb("",efb_var.text.mmlen,15,"warning")
+        }else{
+          valj_efb[indx].mlen = el.value;
+          console.log(el.value, valj_efb[indx].mlen);
+        }     
+        break;
+      case "miLenEl":
+        if( Number(el.value)==0 ||Number(el.value)==-1 ){
+          console.log(Number(el.value),'inside ==',valj_efb[indx].id_)
+          //pflm6h0n7_req
+          clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
+          console.log(`req=[${clss}]`,clss.length);
+          valj_efb[indx].required = clss.length!=0 ? 1 :0;
+          
+          valj_efb[indx].milen=0;
+        }else if (Number(el.value)>524288){
+          el.value="";
+          alert_message_efb("",efb_var.text.mmlen,15,"warning")
+          valj_efb[indx].milen=0;
+        }else{
+          valj_efb[indx].required=1;
+          valj_efb[indx].milen = el.value;
+          console.log(el.value, valj_efb[indx].milen);
+        }     
         break;
       case "adminFormEmailEl":
         //console.log(efb_var.smtp);

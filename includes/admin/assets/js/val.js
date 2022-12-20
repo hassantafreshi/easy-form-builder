@@ -74,6 +74,9 @@ function show_setting_window_efb(idset) {
 
     const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlen}</label>
     <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}">`
+    
+    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.milen}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${valj_efb[indx].required == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6 pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
@@ -483,12 +486,13 @@ function show_setting_window_efb(idset) {
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">     
-                        ${mLenEls}                                       
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
+                        ${el.dataset.tag != "textarea" ? mLenEls :''}                                       
+                        ${miLenEls}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}
