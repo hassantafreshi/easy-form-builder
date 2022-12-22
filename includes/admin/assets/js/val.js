@@ -35,7 +35,7 @@ const fields_efb = [
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
-  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
+ /*  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' }, */
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
@@ -78,47 +78,47 @@ function show_setting_window_efb(idset) {
     const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ?  efb_var.text.milen : efb_var.text.min}</label>
     <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6 pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`;
     const disabledEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="disabledEl" ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6 pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="disabledEl" ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
     </div>`;
     const hideLabelEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6 pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
     </div>`;
     const cardEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].hasOwnProperty("dShowBg") && Number(valj_efb[0].dShowBg) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="cardEl" ${valj_efb[0].hasOwnProperty("dShowBg") && Number(valj_efb[0].dShowBg) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
     </div>`;
     const offLineEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].hasOwnProperty("AfLnFrm") && Number(valj_efb[0].AfLnFrm) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="offLineEl" ${valj_efb[0].hasOwnProperty("AfLnFrm") && Number(valj_efb[0].AfLnFrm) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
     </div>`;
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const trackingCodeEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].hasOwnProperty("trackingCode") && Number(valj_efb[0].trackingCode) == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].hasOwnProperty("trackingCode") && Number(valj_efb[0].trackingCode) == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
     </div>`;
     const captchaEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="captchaEl" ${valj_efb[0].hasOwnProperty("captcha") && Number(valj_efb[0].captcha) == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="captchaEl" ${valj_efb[0].hasOwnProperty("captcha") && Number(valj_efb[0].captcha) == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
+    <label class="efb form-check-label for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
     </div>`;
     const showSIconsEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSIconsEl" ${valj_efb[0].hasOwnProperty("show_icon") && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSIconsEl" ${valj_efb[0].hasOwnProperty("show_icon") && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
     </div>`;
     const showSprosiEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].hasOwnProperty("show_pro_bar") && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSprosiEl" ${valj_efb[0].hasOwnProperty("show_pro_bar") && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;    
@@ -140,8 +140,8 @@ function show_setting_window_efb(idset) {
 
     /* 778899 end new atr */
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
     </div>`;
 
 
@@ -149,10 +149,10 @@ function show_setting_window_efb(idset) {
   
   
     const Nadvanced = `
-    ${hideLabelEls}
     ${labelEls}
-      ${desEls}
-      ${requireEls}`
+    ${hideLabelEls}
+    ${requireEls}
+    ${desEls}`
     const labelFontSizeEls = `
       <label for="labelFontSizeEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">                                            

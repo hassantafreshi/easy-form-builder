@@ -3,7 +3,7 @@
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
-
+console.log(`windows size[${window.matchMedia("(max-width: 480px)").matches}]`);
 let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
@@ -280,7 +280,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let dataTag = 'text'
   const desc = `<small id="${rndm}-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb ${previewSate == true && pos[1] == 'col-md-4' || valj_efb[iVJ].message_align != "justify-content-start" ? `` : `mx-4`}  ${valj_efb[iVJ].message_align}  ${valj_efb[iVJ].message_text_color} ${ valj_efb[iVJ].hasOwnProperty('message_text_size') ? valj_efb[iVJ].message_text_size : ''} ">${valj_efb[iVJ].message} </small> `;
   const label = `<label for="${rndm}_" class="efb  ${previewSate == true ? pos[2] : `col-md-3`} col-sm-12 col-form-label ${valj_efb[iVJ].hasOwnProperty('hflabel') && Number(valj_efb[iVJ].hflabel)==1 ? 'd-none' :''} ${valj_efb[iVJ].label_text_color} ${valj_efb[iVJ].label_align} ${valj_efb[iVJ].label_text_size != "default" ? valj_efb[iVJ].label_text_size : ''} " id="${rndm}_labG""><span id="${rndm}_lab" class="efb  ${valj_efb[iVJ].label_text_size}">${valj_efb[iVJ].name}</span><span class="efb  mx-1 text-danger" id="${rndm}_req">${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? '*' : ''}</span></label>`
-  const ttip = `<small id="${rndm}_-message" class="efb text-danger py-1 fs-7  ttiptext px-2"></small>`
+  const ttip = `<small id="${rndm}_-message" class="efb text-danger py-1 fs-7  ttiptext px-2"> ! </small>`
   const rndm_1 = Math.random().toString(36).substr(2, 9);
   const rndm_2 = Math.random().toString(36).substr(2, 9);
   const op_3 = Math.random().toString(36).substr(2, 9);
@@ -1741,6 +1741,10 @@ function timeOutCaptcha() {
 fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' ? true : false }
 
 function fun_validation_efb() {
+  let offsetw = document.getElementById('body_efb').offsetWidth;
+  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
+  console.log(offsetw);
+  console.log(offsetw,msg);
   let state = true;
   let idi = "null";
   console.log('fun_validation_efb');
@@ -1765,7 +1769,7 @@ function fun_validation_efb() {
         const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
         //console.log(`id [${id}]` ,valj_efb[row].type);
         //let el =document.getElementById(`${valj_efb[row].id_}_-message`);
-        el.innerHTML = efb_var.text.enterTheValueThisField;
+        el.innerHTML = msg;
         if(!el.classList.contains('show'))el.classList.add('show');
         
         console.log(id, document.getElementById(id));
@@ -1807,7 +1811,7 @@ function fun_validation_efb() {
       
       
       if (state == false) { 
-          //alert_message_efb(efb_var.text.enterTheValueThisField,'',10,'danger');
+          
           noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
       }
      // console.log(vd ,state, idi);

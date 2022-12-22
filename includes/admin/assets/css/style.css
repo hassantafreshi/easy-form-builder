@@ -1,5 +1,11 @@
 /* //Copyright 2021//Easy Form Builder//WhiteStudio.team//EFB.APP */.efb {	font-weight: 400 !important;
  }
+
+  /* test code */
+/*   #body_efb{
+	width: 350px!important;
+  } */
+
  #alert_content_efb {	position: absolute;
  	margin: 10% 15%;
  	z-index: 1070 !important;
@@ -470,9 +476,10 @@ h5.efb {	font-size: 25px !important;
  .text-colorDEfb {}
  .efb.btn-sm i {	font-size: 18px !important;
  }
- .efb.btn-edit-holder {	float: right;
+ .efb.btn-edit-holder {	
+	float: right;
  	margin-top: -34px !important;
- 	margin-left: 62%;
+ 	margin-left: 24%;
  	position: relative;
  	z-index: 10;
  }
@@ -1252,19 +1259,19 @@ img.right_circle-efb {	width: 58%;
  }
  .efb input[type=radio]:checked:before,.efb input[type=radio]:before,.efb input[type=checkbox]:checked:before,.efb input[type=checkbox]:before,.efb input[type=radio]:checked:after,.efb input[type=radio]:after,.efb input[type=checkbox]:checked:after,.efb input[type=checkbox]:after {	display: none !important;
  }
- .efb input[type=color].h-d-efb {	height: 40px;
+ .efb input[type=color].h-d-efb {	height: 40px!important;
  	width: 30%;
  }
- .efb input[type=color].h-l-efb {	height: 50px;
+ .efb input[type=color].h-l-efb {	height: 50px!important;
  	width: 30%;
  }
- .efb input[type=color].h-xl-efb {	height: 60px;
+ .efb input[type=color].h-xl-efb {	height: 60px!important;
  	width: 30%;
  }
- .efb input[type=color].h-xl-efb {	height: 70px;
+ .efb input[type=color].h-xl-efb {	height: 70px!important;
  	width: 30%;
  }
- .efb input[type=color].h-xxl-efb {	height: 80px;
+ .efb input[type=color].h-xxl-efb {	height: 80px!important;
  	width: 30%;
  }
  .efb input[type=color].h-xxxl-efb {	height: 90px;
@@ -1909,16 +1916,20 @@ div#attach_efb {	position: relative;
          .efb.col-md-12 .efb.ttiptext,
          .efb.col-md-6 .efb.ttiptext,
          .efb.col-md-8 .efb.ttiptext,
+         .efb.col-md-10 .efb.ttiptext,
          .efb.col-md-4 .efb.ttiptext {	margin: -30px 0px 0px 100px!important;font-size: 12px!important; };
     
      }
-.efb.def.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 50px}
-.efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext {	margin:-25px 0px 0px 70px}
-.efb.def.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 20;font-size: 12px!important; };
+.efb.esign .efb.ttiptext { margin: -25px 0px 0px 10px}
+.efb.yesNo.row  .ttiptext { margin: -25px 0px 0px 20px!important}
+.efb.yesNo  .ttiptext { margin: -35px 00px 0px 20px}
+/* .efb.esign.col-md-6 .efb.ttiptext {	margin:-25px 0px 0px 10px}
+.efb.esign.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 10px;font-size: 12px!important; }; */
 
-/* .efb.esign.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 100px}
-.efb.esign.col-md-6 .efb.ttiptext {	margin:-25px 0px 0px 70px}
-.efb.esign.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 40px;font-size: 12px!important; }; */
+.efb.def.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 50px}
+.efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext{	margin:-25px 0px 0px 50px}
+.efb.def.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 20px; };
+
  /*
  
  .efb.esign .ttiptext {	margin: -150px +9%;}
@@ -1928,7 +1939,7 @@ div#attach_efb {	position: relative;
 
   */
 
-
+ 
 
   
 

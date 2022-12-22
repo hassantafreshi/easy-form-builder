@@ -1118,13 +1118,13 @@ let change_el_edit_Efb = (el) => {
         clss=document.getElementById(`${el.dataset.id}_lab_g`);
         console.log(c,clss)
         if(c==1){
-          if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
+         //if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.add('d-none');
           console.log(valj_efb[indx].id_)
           funSetPosElEfb(valj_efb[indx].dataId,'up')
          
         }else{
-          if (clss.classList.contains('d-none'))clss.classList.remove('d-none')
+         //if (clss.classList.contains('d-none'))clss.classList.remove('d-none')
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.remove('d-none');
         }
         
