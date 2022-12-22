@@ -560,12 +560,17 @@ class efbFunction {
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
 			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
-			"col" => $state  &&  isset($ac->text->col) ? $ac->text->cols : __('column','easy-form-builder'),				
+			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I want to localize Easy Form Builder','easy-form-builder'),				
 			"mlen" => $state  &&  isset($ac->text->mlen) ? $ac->text->mlen : __('Max length','easy-form-builder'),				
 			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
 			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
 			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
+			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : __('Max','easy-form-builder'),				
+			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : __('Min','easy-form-builder'),				
+			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
+			"disabled" => $state  &&  isset($ac->text->disabled) ? $ac->text->disabled : __('Disabled','easy-form-builder'),				
+			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : __('Hide the label','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

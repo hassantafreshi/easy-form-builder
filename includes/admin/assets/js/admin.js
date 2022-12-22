@@ -1018,30 +1018,44 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
         break;
       case "mLenEl":
-        if (Number(el.value)>524288){
+        if (Number(el.value)>524288 && valj_efb[indx].type!="range"){
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
         }else{
           valj_efb[indx].mlen = el.value;
+          if(valj_efb[indx].hasOwnProperty("milen") && 
+          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
+            alert_message_efb("",efb_var.text.mxlmn,15,"warning")
+            delete  valj_efb[indx].mlen;
+            el.value=0;
+            break;
+          }
           console.log(el.value, valj_efb[indx].mlen);
         }     
         break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
-          console.log(Number(el.value),'inside ==',valj_efb[indx].id_)
+          console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
           //pflm6h0n7_req
           clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
           console.log(`req=[${clss}]`,clss.length);
           valj_efb[indx].required = clss.length!=0 ? 1 :0;
           
           valj_efb[indx].milen=0;
-        }else if (Number(el.value)>524288){
+        }else if (Number(el.value)>524288 && valj_efb[indx].type!="range" ){
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
           valj_efb[indx].milen=0;
         }else{
-          valj_efb[indx].required=1;
           valj_efb[indx].milen = el.value;
+          if(valj_efb[indx].hasOwnProperty("mlen") && 
+          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
+            alert_message_efb("",efb_var.text.mxlmn,15,"warning")
+            delete  valj_efb[indx].milen;
+            el.value=0;
+            break;
+          }
+          if(valj_efb[indx].type!="range")valj_efb[indx].required=1;
           console.log(el.value, valj_efb[indx].milen);
         }     
         break;
@@ -1097,6 +1111,23 @@ let change_el_edit_Efb = (el) => {
        console.log(valj_efb[indx]) */;
         //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
+        break;
+      case "hideLabelEl":
+        c = el.checked;
+        valj_efb[indx].hflabel = c;
+        clss=document.getElementById(`${el.dataset.id}_lab_g`);
+        console.log(c,clss)
+        if(c==1){
+          if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
+          document.getElementById(`${valj_efb[indx].id_}_labG`).classList.add('d-none');
+          console.log(valj_efb[indx].id_)
+          funSetPosElEfb(valj_efb[indx].dataId,'up')
+         
+        }else{
+          if (clss.classList.contains('d-none'))clss.classList.remove('d-none')
+          document.getElementById(`${valj_efb[indx].id_}_labG`).classList.remove('d-none');
+        }
+        
         break;
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1) {
@@ -1523,8 +1554,9 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(id).className = headSizeEfb(document.getElementById(id).className, el.options[el.selectedIndex].value)
         break;
       case "selectHeightEl":
-        //console.log(el);
-        indx = el.dataset.tag == 'form' || el.dataset.tag == 'survey' || el.dataset.tag == 'payment' || el.dataset.tag == 'login' || el.dataset.tag == 'register' || el.dataset.tag == 'subscribe' ? 0 : indx;
+        console.log(el.dataset.tag);
+        c= el.dataset.tag ;
+        indx = c== 'form' || c == 'survey' || c == 'payment' || c == 'login' || c == 'register' || c == 'subscribe' ? 0 : indx;
         valj_efb[indx].el_height = el.options[el.selectedIndex].value
         let fsize = 'fs-6';
         if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
@@ -1533,9 +1565,9 @@ let change_el_edit_Efb = (el) => {
         else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
         else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
 
-        if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+        if (c == "select" || c == 'stateProvince' || c == 'conturyList') {
           postId = `${valj_efb[indx].id_}_options`
-        } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
+        } else if (c == "radio" || c == "checkbox") {
           valj_efb[indx].label_text_size = fsize;
           const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
           setTimeout(() => {
@@ -1559,11 +1591,11 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`button_group_Previous_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
           document.getElementById(`button_group_Next_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
           break;
-        } else if (el.dataset.tag == "maps") {
+        } else if (c == "maps") {
           postId = `${valj_efb[indx].id_}-map`;
-        } else if (el.dataset.tag == "dadfile") {
+        } else if (c == "dadfile") {
           postId = `${valj_efb[indx].id_}_box`;
-        } else if (el.dataset.tag == "multiselect" || el.dataset.tag == "payMultiselect") {
+        } else if (c == "multiselect" || c == "payMultiselect") {
           //h-xxl-efb
           postId = `${valj_efb[indx].id_}_options`;
           let msel = document.getElementById(postId);
@@ -1572,7 +1604,7 @@ let change_el_edit_Efb = (el) => {
           iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
           msel.className = fontSizeChangerEfb(msel.className, fsize)
           valj_efb[indx].el_text_size = fsize
-        } else if (el.dataset.tag == "rating") {
+        } else if (c == "rating") {
           postId = valj_efb[indx].id_;
           setTimeout(() => {
             const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
@@ -1584,9 +1616,9 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`${postId}_star5`).className = newClass;
           }, 10);
           break;
-        } else if (el.dataset.tag == "switch") {
+        } else if (c == "switch") {
           postId = `${valj_efb[indx].id_}-switch`;
-        } else if (el.dataset.tag == "yesNo") {
+        } else if (c == "yesNo") {
           setTimeout(() => {
             postId = `${valj_efb[indx].id_}_b_1`;
             document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
@@ -1594,9 +1626,15 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
           }, 10);
           break;
-        } else if (el.dataset.tag == "link") {
+        } else if (c == "link") {
 
           postId = `${valj_efb[indx].id_}_`
+
+          document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
+          //console.log(fsize,postId , document.getElementById(postId));
+        }else if (c == "range") {
+          postId = `${valj_efb[indx].id_}-range`
+          console.log(postId);
 
           document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
           //console.log(fsize,postId , document.getElementById(postId));

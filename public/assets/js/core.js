@@ -323,7 +323,7 @@ function createStepsOfPublic() {
         // e.preventDefault();
        validate_len =()=>{
              const len = el.hasAttribute('minLength') ? el.minLength : 2;
-              console.log(len , el.minLength);
+              console.log(len.type , el.minLength);
               if (value.length < len) {
                 state = false;
                 el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -928,6 +928,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
+  console.log(id);
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
@@ -1442,7 +1443,7 @@ function validation_before_send_emsFormBuilder() {
     for (const v of valueJson_ws) {
       //dadfile
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
-        // console.log(v);
+         console.log(v);
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
       }

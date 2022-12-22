@@ -753,12 +753,24 @@ class _Public {
 								case 'number':
 										$stated=0;	
 										if(isset($item['value']) && is_numeric($item['value'])){ 
-										
+											
 											$stated=1;
 											$item['value'] = sanitize_text_field($item['value']);
 											$rt= $item;
 											$l=strlen($item['value']);
-											if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
+											error_log($item['value']);
+										/* 	error_log($f['milen']);
+											error_log($f['mlen']); */
+											error_log($f['type']);
+											error_log(strcmp($f['type'],"range"));
+											error_log( isset($f['milen']) && $f['milen']> $item['value'] );
+											error_log( isset($f['mlen']) && $f['mlen']< $item['value']);
+											if(strcmp($f['type'],"range")!==0 && ((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l))  ) {
+												error_log('NonTrange!');
+												$stated=0;}
+											else if(((isset($f['milen']) && $f['milen']> $item['value'])||( isset($f['mlen']) && $f['mlen']< $item['value'])) && strcmp($f['type'],"range")==0 ) {
+												error_log('range!');
+												$stated=0;}
 										}
 										$in_loop=false;
 								break;								

@@ -66,27 +66,35 @@ function show_setting_window_efb(idset) {
     
     if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
    
-    const labelEls = `<label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label>
-    <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}">`
+    const labelEls = `<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label>
+    <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}"></div>`
   
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
 
-    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlen}</label>
+    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ? efb_var.text.mlen :efb_var.text.max}</label>
     <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}">`
     
-    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.milen}</label>
+    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ?  efb_var.text.milen : efb_var.text.min}</label>
     <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${valj_efb[indx].required == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6 pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`;
+    const disabledEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="disabledEl" ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label fs-6 pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
+    </div>`;
+    const hideLabelEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label fs-6 pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
+    </div>`;
     const cardEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].dShowBg && valj_efb[0].dShowBg == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].hasOwnProperty("dShowBg") && Number(valj_efb[0].dShowBg) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
     </div>`;
     const offLineEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].AfLnFrm && valj_efb[0].AfLnFrm == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].hasOwnProperty("AfLnFrm") && Number(valj_efb[0].AfLnFrm) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
@@ -97,19 +105,19 @@ function show_setting_window_efb(idset) {
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const trackingCodeEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].trackingCode && valj_efb[0].trackingCode == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].hasOwnProperty("trackingCode") && Number(valj_efb[0].trackingCode) == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
     </div>`;
     const captchaEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="captchaEl" ${valj_efb[0].captcha && valj_efb[0].captcha == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="captchaEl" ${valj_efb[0].hasOwnProperty("captcha") && Number(valj_efb[0].captcha) == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
     </div>`;
     const showSIconsEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSIconsEl" ${valj_efb[0].show_icon && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSIconsEl" ${valj_efb[0].hasOwnProperty("show_icon") && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
     </div>`;
     const showSprosiEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].hasOwnProperty("show_pro_bar") && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
     <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
@@ -141,7 +149,8 @@ function show_setting_window_efb(idset) {
   
   
     const Nadvanced = `
-      ${labelEls}
+    ${hideLabelEls}
+    ${labelEls}
       ${desEls}
       ${requireEls}`
     const labelFontSizeEls = `
@@ -239,9 +248,10 @@ function show_setting_window_efb(idset) {
         value = valj_efb[indx].message_align;
         t = efb_var.text.description
       }
+      const lab = efb_var.text[side] || side;
       return `    
       <div class="efb  row">     
-      <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${side} ${efb_var.text.align}</label>
+      <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${lab} | ${efb_var.text.align}</label>
         <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
           <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
@@ -268,7 +278,7 @@ function show_setting_window_efb(idset) {
       `
     const valueEls = `
     <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
-      <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
+      <input type="${valj_efb[indx].type!="range" ? "text" :'number' }"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
       `
     const placeholderEls = `
       <label for="placeholderEl" class="efb  mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
@@ -491,8 +501,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
-                        ${el.dataset.tag != "textarea" ? mLenEls :''}                                       
-                        ${miLenEls}                                       
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "number" ? mLenEls :''}                                       
+                        ${el.dataset.tag != "number" ? miLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}
@@ -650,9 +660,12 @@ function show_setting_window_efb(idset) {
                 ${labelPostionEls}
                 ${ElementAlignEls('label')}
                 ${ElementAlignEls('description')}
+                ${el.dataset.tag == "range" ? mLenEls :''}                                       
+                ${el.dataset.tag == "range" ?miLenEls:''}   
+                ${el.dataset.tag == "range" ?valueEls:''}   
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
-                ${selectHeightEls()}
-                ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' ? '' : cornerEls('')}
+                ${el.dataset.tag != 'range' ? selectHeightEls() :''}
+                ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('')}
                 ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
                 ${el.dataset.tag == 'esign' ? iconEls('') : ''}
                 ${el.dataset.tag == 'esign' ? btnColorEls() : ''}
