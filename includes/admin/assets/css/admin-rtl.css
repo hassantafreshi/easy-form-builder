@@ -47,9 +47,9 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
      .efb.def.col-md-6 .efb.ttiptext, 
      .efb.def.col-md-4 .efb.ttiptext {	margin: -30px 70px 0px 0px!important;font-size: 12px!important; };
  }
-.efb.def.col-md-12 .efb.ttiptext { margin: -25px 100px 0px 0}
-.efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext {	margin:-25px 70px 0px 0px}
-.efb.def.col-md-4 .efb.ttiptext {	margin: -25px 40px 0px 0px;font-size: 12px!important; };
+.efb.def.col-md-12 .efb.ttiptext { margin: -25px 50px 0px 0}
+.efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext {	margin:-25px 50px 0px 0px}
+.efb.def.col-md-4 .efb.ttiptext {	margin: -25px 20px 0px 0px;font-size: 12px!important; };
 
 
 /* .efb.esign.col-md-12 .efb.ttiptext { margin: -25px 100px 0px 0px}
