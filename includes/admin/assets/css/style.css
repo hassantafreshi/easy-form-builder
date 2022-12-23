@@ -635,10 +635,14 @@ h5.efb {	font-size: 25px !important;
  #efb-dd {	margin-top: 18%;
  	margin-bottom: 18%;
  }
- /* new code */.star-efb {	direction: rtl;
+.star-efb {	direction: rtl;
  	height: auto;
- 	padding: 10px 0px !important;
+ 	
  }
+
+ .star-efb input {
+    display: none;
+}
  .efb.display-7 {	font-size: calc(1rem + 1vw);
  	font-weight: 200;
  	line-height: 1.0;
@@ -647,23 +651,39 @@ h5.efb {	font-size: 25px !important;
  	font-weight: 200;
  	line-height: 0.8;
  }
- .star-efb.h-d-efb {	font-size: 50px !important;
+ .efb.star.h-d-efb {	
+	font-size: 50px !important;
+	padding: 10px 0px !important;
  }
- .star-efb.h-l-efb {	height: auto;
+
+ .efb.star.h-l-efb {	height: auto;
  	font-size: 65px !important;
+	 padding: 10px 0px !important;
  }
- .star-efb.h-xl-efb {	height: auto;
+ .efb.star.h-xl-efb {	height: auto;
  	font-size: 90px !important;
+	 padding: 20px 0px !important;
  }
- .star-efb.h-xxl-efb {	height: auto;
+ .efb.star.h-xxl-efb {	height: auto;
  	font-size: 115px !important;
+	 padding: 20px 0px !important;
  }
- .star-efb.h-xxxl-efb {	height: auto;
+ .efb.star.h-xxxl-efb {	height: auto;
  	font-size: 135px !important;
+	 padding: 35px 0px !important;
+	 margin: -15px;
+ }
+ .star-efb.h-d-efb{
+ height: 10px;
  }
  .star-efb:not(:checked)>input {	position: fixed;
  	bottom: 0px;
  }
+
+ .efb-star.h-d-efb , .efb-star.h-l-efb  {
+	padding: 10px 0px !important;
+ }
+
  .star-efb:not(:checked)>label {	float: right;
  	width: 0.8em;
  	overflow: hidden;
@@ -916,15 +936,15 @@ textarea.h-xxl-efb {	min-height: 200px !important;
 textarea.h-xxxl-efb {	min-height: 250px !important;
  	font-size: 50px !important;
  }
- .maps-efb.h-l-efb,.sign-efb.h-l-efb {	height: 275px;
+ .maps-efb.h-l-efb,.sign-efb.h-l-efb {	height: 275px!important;
  }
- .dadFile-efb.h-l-efb {	height: 325px;
+ .dadFile-efb.h-l-efb {	height: 325px!important;
  }
- .maps-efb.h-xl-efb,.sign-efb.h-xl-efb,.dadFile-efb.h-xl-efb {	height: 350px;
+ .maps-efb.h-xl-efb,.sign-efb.h-xl-efb,.dadFile-efb.h-xl-efb {	height: 350px!important;
  }
- .maps-efb.h-xxl-efb,.sign-efb.h-xxl-efb,.dadFile-efb.h-xxl-efb {	height: 375px;
+ .maps-efb.h-xxl-efb,.sign-efb.h-xxl-efb,.dadFile-efb.h-xxl-efb {	height: 375px!important;
  }
- .maps-efb.h-xxxl-efb,.sign-efb.h-xxxl-efb,.dadFile-efb.h-xxxl-efb {	height: 400px;
+ .maps-efb.h-xxxl-efb,.sign-efb.h-xxxl-efb,.dadFile-efb.h-xxxl-efb {	height: 400px!important;
  }
  .efb-rounded {	border-radius: 25px !important;
  }
@@ -1015,30 +1035,35 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  }
  .efb-switch.form-check-input:checked::after {	content: none !important;
  }
- .form-switch.h-d-efb {	height: 1rem;
- 	width: calc(1rem + 0.75rem);
- 	border-radius: 1rem;
+ .form-switch.h-d-efb {	height: 19px!important;
+ 	width: calc(19px + 12px);;
+ 	border-radius: 19px;
  	margin-top: 15px !important;
  }
- .form-switch.h-l-efb {	height: 1.5rem;
- 	width: calc(2rem + 0.75rem);
- 	border-radius: 2rem;
- 	margin-top: 12px !important;
+ .form-switch.h-l-efb {height: 28px!important;
+    width: calc(38px + 12px);
+    border-radius: 38px;
+    margin-top: 12px !important;
+	margin-bottom: 12px!important;
  }
- .form-switch.h-xl-efb {	height: 2rem;
- 	width: calc(2.2rem + 0.75rem);
- 	border-radius: 3rem;
- 	margin-top: 10px !important;
+ .form-switch.h-xl-efb {	    height: 38px!important;
+    width: calc(42px + 12px);
+    border-radius: 57px;
+    margin-top: 10px !important;
+	margin-bottom: 12px!important;
  }
- .form-switch.h-xxl-efb {	height: 2.7rem;
- 	width: calc(3rem + 0.75rem);
- 	border-radius: 4rem;
- 	margin-top: 8px !important;
+ .form-switch.h-xxl-efb {	   
+	 height: 52px!important;
+    width: calc(76px + 12px);
+    border-radius: 95px;
+    margin-top: 3px !important;
+	margin-bottom: 12px!important;
  }
- .form-switch.h-xxxl-efb {	height: 3.5rem;
- 	width: calc(4rem + 0.75rem);
- 	border-radius: 5rem;
+ .form-switch.h-xxxl-efb {	height: 66px!important;
+ 	width: calc(76px + 12px);
+ 	border-radius: 95px;
  	margin-top: 3px !important;
+	margin-bottom: 12px!important;
  }
  /* end height */.noCode-efb {	height: fit-content;
  }
@@ -1313,6 +1338,8 @@ fieldset.efb {	background: transparent;
  }
  .btn-group-toggle.efb {	direction: ltr !important;
  }
+
+
  #button_group_efb {	position: absolute;
  	margin-bottom: 10px !important;
  }
@@ -1653,9 +1680,9 @@ span#chargeEfb.one {	width: fit-content!important;
  }
  .efb.btn-primary:before,.efb.btn:before {	background: inherit !important;
  }
+ .efb.btn-set{filter: invert(0.3)!important}
  
-td .efb.btn-delete {	margin: 0px 2px !important;
- }
+td .efb.btn-delete {	margin: 0px 2px !important;}
  
 a.efb.btn {	text-decoration: none;
  }

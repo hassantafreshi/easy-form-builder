@@ -802,7 +802,7 @@ class Admin {
         );
         $m        = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
-
+        //"rescl", "resop",
         $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
 
         $efbFunction->response_to_user_by_msd_id($id ,$pro);

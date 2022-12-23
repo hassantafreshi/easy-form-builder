@@ -178,7 +178,7 @@ class _Public {
 
 				$fs =str_replace('\\', '', $value_form[0]->form_structer);
 				
-				error_log($fs);
+				//error_log($fs);
 				$formObj= json_decode($fs,true);
 				if(($formObj[0]["stateForm"]==true || $formObj[0]["stateForm"]==1) &&  is_user_logged_in()==false ){
 					$typeOfForm="";
@@ -424,10 +424,10 @@ class _Public {
 						
 		}else{
 			$it = get_template_directory();
-	/* 		error_log("json_encode(it)");
-			error_log(json_encode($it)); 
+	/* 		
+
 			$it = list_files($it); 
-			error_log(json_encode($it));
+
 			$s = false;
 			$minb = true;
 			$bund = true;
@@ -758,18 +758,13 @@ class _Public {
 											$item['value'] = sanitize_text_field($item['value']);
 											$rt= $item;
 											$l=strlen($item['value']);
-											error_log($item['value']);
+											//error_log($item['value']);
 										/* 	error_log($f['milen']);
 											error_log($f['mlen']); */
-											error_log($f['type']);
-											error_log(strcmp($f['type'],"range"));
-											error_log( isset($f['milen']) && $f['milen']> $item['value'] );
-											error_log( isset($f['mlen']) && $f['mlen']< $item['value']);
-											if(strcmp($f['type'],"range")!==0 && ((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l))  ) {
-												error_log('NonTrange!');
+											
+											if(strcmp($f['type'],"range")!==0 && ((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l))  ) {												
 												$stated=0;}
 											else if(((isset($f['milen']) && $f['milen']> $item['value'])||( isset($f['mlen']) && $f['mlen']< $item['value'])) && strcmp($f['type'],"range")==0 ) {
-												error_log('range!');
 												$stated=0;}
 										}
 										$in_loop=false;

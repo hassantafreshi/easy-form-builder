@@ -571,6 +571,8 @@ class efbFunction {
 			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
 			"disabled" => $state  &&  isset($ac->text->disabled) ? $ac->text->disabled : __('Disabled','easy-form-builder'),				
 			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : __('Hide the label','easy-form-builder'),				
+			"resop" => $state  &&  isset($ac->text->resop) ? $ac->text->resop : __('The response(ticket) closed','easy-form-builder'),				
+			"rescl" => $state  &&  isset($ac->text->rescl) ? $ac->text->rescl : __('The response(ticket) opened','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

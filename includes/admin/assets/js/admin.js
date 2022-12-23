@@ -1219,6 +1219,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
+        console.log(postId);
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
         get_position_col_el(valj_efb[indx].dataId, true);
@@ -1429,7 +1430,10 @@ let change_el_edit_Efb = (el) => {
           valj_efb[indx].el_text_color = "text-" + c;
           postId = '_'
         }
-        if (el.dataset.tag != "form" &&
+        console.log(el.dataset.tag);
+        if (el.dataset.tag != "form" && el.dataset.tag != "payment" &&
+            el.dataset.tag != "login" && el.dataset.tag != "register" &&
+            el.dataset.tag != "survey" &&
           ((el.dataset.tag == "select" && el.dataset.el != "el")
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
@@ -1444,7 +1448,8 @@ let change_el_edit_Efb = (el) => {
         ) {
           //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
-        } else if (el.dataset.tag == "form") {
+        } else if (el.dataset.tag == "form"  || el.dataset.tag == "payment" ||
+        el.dataset.tag == "login" || el.dataset.tag == "register" || el.dataset.tag == "survey") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
             document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, "text-" + c)
             c == "colorDEf" ? document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color = "#" + color : 0
@@ -1554,9 +1559,9 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(id).className = headSizeEfb(document.getElementById(id).className, el.options[el.selectedIndex].value)
         break;
       case "selectHeightEl":
-        console.log(el.dataset.tag);
         c= el.dataset.tag ;
         indx = c== 'form' || c == 'survey' || c == 'payment' || c == 'login' || c == 'register' || c == 'subscribe' ? 0 : indx;
+        console.log(el.dataset.tag,c);
         valj_efb[indx].el_height = el.options[el.selectedIndex].value
         let fsize = 'fs-6';
         if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
@@ -1594,6 +1599,7 @@ let change_el_edit_Efb = (el) => {
         } else if (c == "maps") {
           postId = `${valj_efb[indx].id_}-map`;
         } else if (c == "dadfile") {
+
           postId = `${valj_efb[indx].id_}_box`;
         } else if (c == "multiselect" || c == "payMultiselect") {
           //h-xxl-efb
@@ -1643,8 +1649,9 @@ let change_el_edit_Efb = (el) => {
           postId = `${valj_efb[indx].id_}_`
         }
         setTimeout(() => {
-          //console.log(postId);
-          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+          c= document.getElementById(`${postId}`);
+          console.log(postId ,c);
+          c.className = inputHeightChangerEfb(c.className, valj_efb[indx].el_height)
         }, 10)
 
 
@@ -2378,7 +2385,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset) {
-  //console.log(idset);
+  console.log(idset);
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
@@ -2388,9 +2395,9 @@ function show_delete_window_efb(idset) {
   if (is_step == false) {
    //myModal.show_efb();
    state_modal_show_efb(1);
-    confirmBtn.dataset.id = document.querySelector(`[data-id="${idset}"]`).id;
+   confirmBtn.dataset.id =idset.slice(0,-3);
+   console.log(idset ,confirmBtn.dataset.id )
     confirmBtn.addEventListener("click", (e) => {
-      //console.log(idset ,confirmBtn.dataset.id )
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
       activeEl_efb = 0;

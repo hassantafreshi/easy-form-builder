@@ -465,8 +465,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       ${ttip}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show" id ="${rndm}-f">
-      <div class="efb  form-check form-switch ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_height} mb-1" id="${rndm}-switch">
-        <input class="efb  emsFormBuilder_v efb-switch form-check-input efbField" type="checkbox" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''}>
+      <div class="efb  form-check form-switch ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_height} " id="${rndm}-switch">
+        <input class="efb d-none emsFormBuilder_v efb-switch form-check-input efbField" type="checkbox" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''}>
       </div>
       <div class="efb  mb-3">${desc}</div>
       `
@@ -2027,11 +2027,12 @@ function funTnxEfb(val, title, message) {
 }
 
 let get_position_col_el = (dataId, state) => {
-  //console.log(dataId, state);
+  console.log(dataId, state);
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el_parent = document.getElementById(valj_efb[indx].id_);
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`)
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`)
+ // console.log(el_parent.className);
   let parent_col = ``;
   let label_col = `col-md-12`;
   let input_col = `col-md-12`;

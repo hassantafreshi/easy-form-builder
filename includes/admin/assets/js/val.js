@@ -35,7 +35,7 @@ const fields_efb = [
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
- /*  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' }, */
+  { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
@@ -68,6 +68,8 @@ function show_setting_window_efb(idset) {
    
     const labelEls = `<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label>
     <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}"></div>`
+    const idHidden = `
+    <!-- <input type="hide"  class="efb d-none" data-id="${idset}" data-hide="idhide" id="${valj_efb[indx].id_}" >-->`
   
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
@@ -149,6 +151,7 @@ function show_setting_window_efb(idset) {
   
   
     const Nadvanced = `
+    ${idHidden}
     ${labelEls}
     ${hideLabelEls}
     ${requireEls}
