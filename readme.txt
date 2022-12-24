@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.5
+Stable tag: 			3.5.6
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			5.5 or higher
@@ -130,6 +130,9 @@ How *Easy Form Builder* makes your life easier:
 - Submitting an Offline Forms
 
 - Download individual filled-out form (messages)
+
+- Slide Range Field for building Modern forms **for free**
+
 
 
 
@@ -349,6 +352,15 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.6= 
+* Improve Mobile view of forms
+* Added features of disabled labels of Fields
+* Improve Slide Range UI of forms
+
+
+=3.5.5=
+=3.5.4=
 =3.5.3=
 * Improve UX of Easy Form Builder
 
