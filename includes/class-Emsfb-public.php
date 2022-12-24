@@ -31,6 +31,8 @@ class _Public {
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public'));
+		add_action('wp_ajax_mail_send_submited_Emsfb', array( $this,'mail_send_form_submit'));
+		add_action('wp_ajax_nopriv_mail_send_submited_Emsfb', array( $this,'mail_send_form_submit'));
 		
 		add_action('wp_enqueue_scripts', array($this,'fun_footer'));
 		
@@ -472,7 +474,55 @@ class _Public {
 	  }
 
 
+	  public function mail_send_form_submit(){
+		//error_log('mail function after submit down');
+		$this->id = sanitize_text_field($_POST['id']);
+		$track = $this->id ;
+		$type = sanitize_text_field($_POST['type']); //two type msg/rsp
 
+		
+		if (check_ajax_referer($this->id,'nonce')==false){
+			$response = array( 'success' => false  , 'm'=>'error 403'); 
+			wp_send_json_success($response,$_POST);		
+		}
+
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
+		if(gettype($r)!="string"){error_log('mail_send_form_submit->seting not added');return false;}
+		$r = str_replace("\\","",$r);
+		$setting =json_decode($r,true);;
+
+		//$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
+		$email = isset($setting["emailSupporter"]) ?$setting["emailSupporter"] :null  ;
+		$pro = isset($setting["activeCode"]) &&  strlen($setting["activeCode"])>5 ? $setting["activeCode"] :null ;
+		$table_msgs = $this->db->prefix . "emsfb_msg_";
+		$table_forms = $this->db->prefix . "emsfb_form";
+		
+		//error_log(json_encode($value_msgs));
+		//$value_msgs = $this->db->get_results( "SELECT * FROM `$table_msgs` INNER JOIN $table_forms ON $table_msgs.form_id = $table_forms.form_id   WHERE $table_msgs.read_ = 3" );
+		$value_msgs = $this->db->get_results( "SELECT * FROM `$table_msgs` INNER JOIN $table_forms ON $table_msgs.form_id = $table_forms.form_id   WHERE $table_msgs.read_ = 3" );
+
+		//error_log(json_encode($value_msgs));
+		$trackingCode ="";
+		$admin_email ="";
+		$user_email ="null";
+		$fs;
+		foreach ($value_msgs as $key => $value) {
+				$trackingCode = $value->track;
+				$fs = str_replace("\\","",$value->form_structer);			
+				$msg = str_replace("\\","", $value->content);
+				$msg_obj = json_decode($msg,true); //object of message
+				$fs_obj = json_decode($fs,true); // object of form_structer
+				//$this->id = $trackingCode;
+				//error_log($trackingCode);
+			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );				
+				$admin_email = $fs_obj[0]["email"];
+				$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$track,$pro ,$admin_email);
+				
+			}
+				
+		$response = array( 'success' => true  , 'm'=>'mail ok'); 
+	  }
 
 	  public function get_ajax_form_public(){
 		//error_log('get_ajax_form_public');
@@ -908,7 +958,7 @@ class _Public {
 							$timed = time();									
 							$timed += 20;
 							//error_log($timed);						
-							wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 
+							//wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 
 							
 							
 		
@@ -919,7 +969,7 @@ class _Public {
 							} */
 							
 							
-							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip); 
+							$response = array( 'success' => true  ,'ID'=>$_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>wp_create_nonce($check)); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							wp_send_json_success($response,$_POST);
 							
@@ -1714,7 +1764,7 @@ class _Public {
 					'date'=>wp_date('Y-m-d H:i:s'),
 					
 				));  
-
+				$track = $value[0]->track;
 				//error_log($id);
 				$this->db->update($table_name,array('read_'=>0), array('msg_id' => $id) );
 				$by=$this->lanText["guest"];
@@ -1750,7 +1800,10 @@ class _Public {
 				}
 				//messageSent s78
 				
-				$response = array( 'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by); 										
+				$response = array( 
+				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
+				'track'=>$track,
+				'nonce_msg'=>wp_create_nonce($track)); 										
 				wp_send_json_success($response,$_POST);	
 		}else{
 			$m = $this->lanText["settingsNfound"] . '</br>' . $this->lanText["MMessageNSendEr"] ;
@@ -2800,7 +2853,7 @@ class _Public {
 				
 				//error_log($fs_obj[0]["sendEmail"]);
 				
-				$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro);
+				//$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro);
 				//error_log(json_encode($user_email));
 				
 				
@@ -2809,40 +2862,34 @@ class _Public {
 	}
 
 
-	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro){
+	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email){
+		
 		if($fs_obj[0]["sendEmail"]==true || $fs_obj[0]["sendEmail"]=="true"){
-			$admin_email = $fs_obj[0]["email"];
 			$user_email="null";
 			$user_email = array_filter($msg_obj, function($item) use($fs_obj){ 
 				if($item['id_']==$fs_obj[0]["email_to"]){error_log(json_encode($item["value"]));return $item["value"];}					
 			});		
-			//trackingCode
 			if($user_email!="null"){
-				//error_log("user email@@@@@");
-				//error_log($fs_obj[0]["trackingCode"]);
-				//error_log(json_encode($user_email));
 				if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				{	
 					
 					foreach($user_email as $key => $val){	
-						//error_log($val['value']);
 						$this->send_email_Emsfb($val['value'],$trackingCode,$pro,"notiToUserFormFilled_TrackingCode");
 					}						
 				}else{
 					foreach($user_email as $key => $val){	
-						//error_log($val['value']);
 						$this->send_email_Emsfb($val['value'],$trackingCode,$pro,"notiToUserFormFilled");
 					}						 
 				}
 			}
-			//error_log("admin email");
-			//error_log($admin_email);
-			if($admin_email!=""){
+			if(isset($admin_email)==true){
+				/* error_log("form  admin->email");
+				error_log($admin_email); */
 				$this->send_email_Emsfb($admin_email,$trackingCode,$pro,"newMessage");
 			}
-			//error_log("admin email -> email");
-			//error_log($email);
-			$this->send_email_Emsfb($email,$trackingCode,$pro,"newMessage");
+			/* error_log("admin email -> email");
+			error_log($email); */
+			if($email!=null)$this->send_email_Emsfb($email,$trackingCode,$pro,"newMessage");
 		}
 	}
 

@@ -668,7 +668,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
+			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>

@@ -1366,6 +1366,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 }
 
 
+
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
   //message,res.data.by,0,0,date
   const resp = fun_emsFormBuilder_show_messages(message, by, track, date);
@@ -1526,8 +1527,9 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
+  console.log(res);
   if (res.data.success == true) {
-     
+    fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
       <h3 class="efb fs-4">${efb_var.text.sentSuccessfully}</h3>
@@ -1612,6 +1614,7 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
+  console.log(res);
   if (res.success == true && res.data.success == true) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;

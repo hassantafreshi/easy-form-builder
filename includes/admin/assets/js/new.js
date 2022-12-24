@@ -2340,3 +2340,29 @@ check_msg_ext_resp_efb=()=>{
   noti_message_efb('this a test mesage for insure' , 'danger' , `step-${current_s_efb}-efb-msg` )
 }, 5000); */
 /* test code  */
+
+
+function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
+  console.log('fun_send_mail_ajax_emsFormBuilder',id,nonce,type);
+   jQuery(function ($) {
+     data = {
+       action: "mail_send_submited_Emsfb",
+       type: "POST",
+       id: id,
+       
+       type: type,
+       nonce:nonce
+ 
+     };
+     $.ajax({
+       type: "POST",
+       async: false,
+       url: ajax_object_efm.ajax_url,
+       data: data,
+       success: function (res) { console.log(res) },
+       error: function () { console.log('error'); }
+ 
+     })
+ 
+   });
+ }
