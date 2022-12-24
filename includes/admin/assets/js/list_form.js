@@ -22,7 +22,7 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        setTimeout(() => { console.log('bootstrap'); noti_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
+        setTimeout(() => { console.log('bootstrap'); alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
@@ -456,7 +456,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     
     check_msg_ext_resp_efb();
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
-    //noti_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
+    //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
   
@@ -552,7 +552,7 @@ function fun_ws_show_list_messages(value) {
 
 function fun_delete_form_with_id_by_server(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -565,11 +565,11 @@ function fun_delete_form_with_id_by_server(id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.done, '', 3, 'info')
+          alert_message_efb(efb_var.text.done, '', 3, 'info')
         }, 3)
       } else {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.error, '', 3, 'danger')
+          alert_message_efb(efb_var.text.error, '', 3, 'danger')
         }, 3)
       }
     })
@@ -578,7 +578,7 @@ function fun_delete_form_with_id_by_server(id) {
 }
 function fun_delete_message_with_id_by_server(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -591,11 +591,11 @@ function fun_delete_message_with_id_by_server(id) {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.done, '', 3, 'info')
+          alert_message_efb(efb_var.text.done, '', 3, 'info')
         }, 3)
       } else {
         setTimeout(() => {
-          noti_message_efb(efb_var.text.error, '', 3, 'danger')
+          alert_message_efb(efb_var.text.error, '', 3, 'danger')
         }, 3)
       }
     })
@@ -632,7 +632,7 @@ function fun_open_message_emsFormBuilder(msg_id, state) {
 
 function fun_get_form_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -668,7 +668,7 @@ function fun_get_form_by_id(id) {
 }
 function fun_update_message_state_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log("fun_update_message_state_by_id",id);
@@ -703,7 +703,7 @@ function fun_update_message_state_by_id(id) {
 }
 function fun_get_messages_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -732,7 +732,7 @@ function fun_get_messages_by_id(id) {
 }
 function fun_emsFormBuilder_get_all_response_by_id(id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   jQuery(function ($) {
@@ -759,13 +759,13 @@ function fun_emsFormBuilder_get_all_response_by_id(id) {
 
 function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log(message,id);
   if (message.length < 1) {
     document.getElementById('replay_state__emsFormBuilder').innerHTML = efb_var.text.enterYourMessage;
-    //noti_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
+    //alert_message_efb(fb_var.text.enterYourMessage, 5 , 'warning')
     document.getElementById('replayM_emsFormBuilder').innerHTML = "";
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
@@ -780,13 +780,13 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       message: JSON.stringify(message)
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      //console.log(res);
+      console.log(res);
       if (res.success == true) {
         
         if(document.getElementById('replay_state__emsFormBuilder')){
 
           document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
-          // noti_message_efb(res.data.m, 7 , 'info')
+          // alert_message_efb(res.data.m, 7 , 'info')
           document.getElementById('replayM_emsFormBuilder').innerHTML = "";
           document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
           const date = Date();
@@ -797,17 +797,17 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
           sendBack_emsFormBuilder_pub=[];
         }else{
           // res.data.m
-          noti_message_efb(res.data.m,'', 7 , 'info')
+          alert_message_efb(res.data.m,'', 7 , 'info')
         }
         
         
       } else {
-        // noti_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
+        // alert_message_efb(efb_var.text.error,res.data.m, 7 , 'danger')
         if(document.getElementById('replay_state__emsFormBuilder')){
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
         }else{
-          noti_message_efb(res.data.m,'', 12 , 'danger')
+          alert_message_efb(res.data.m,'', 12 , 'danger')
         }
       }
     })
@@ -931,6 +931,7 @@ function fun_show_setting__emsFormBuilder() {
   let bootstrap = false;
   let emailTemp = "null"
   let payToken="null";
+  let act_local_efb =false;
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -953,6 +954,10 @@ function fun_show_setting__emsFormBuilder() {
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
     payToken = f('payToken');
+    act_local_efb = f('act_local_efb');
+    console.log(`act_local_efb${act_local_efb}`);
+    act_local_efb= act_local_efb =='null'  || act_local_efb==false ? false :true
+    console.log(f('act_local_efb'));
   }
 
   let persianPayToken = () => {
@@ -978,6 +983,7 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
+  console.log(`act_local_efb[${act_local_efb}]`);
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb">
@@ -1122,7 +1128,13 @@ function fun_show_setting__emsFormBuilder() {
                                  <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
                                </h5>
                                <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
-                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}">${textList} </div>                                
+                               <div class="efb card-body mx- py-1 mx-4">
+                           
+                                <input class="efb elEdit form-check-input efb fs-6" type="checkbox" onclick='act_local_efb_event(this);' id="act_local_efb" ${act_local_efb == true ? "checked" : ""}>
+                                <label class="efb form-check-label fs-7 efb m-2 " for="act_local_efb">${efb_var.text.ilclizeFfb}</label>                                            
+                               
+                                </div>
+                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}  ${act_local_efb == false ? "d-none" : ''}">${textList} </div>                                
                                 <!-- END Text Section -->
                             </div>
                         </div>
@@ -1244,7 +1256,7 @@ function fun_switch_saveSetting(i, id) {
   if (i == true) {
     idOfListsEfb.push(id);
     document.getElementById("save-stng-efb").classList.contains("disabled") == false ? document.getElementById("save-stng-efb").classList.add("disabled") : "";
-    noti_message_efb(`Forbidden characters: " \' \\ `, "", 5000, "danger");
+    alert_message_efb(`Forbidden characters: " \' \\ `, "", 5000, "danger");
   } else {
     const indx = idOfListsEfb.findIndex(x => x == id);
     if (indx != -1) idOfListsEfb.splice(indx, 1);
@@ -1277,7 +1289,7 @@ function fun_set_setting_emsFormBuilder() {
       }
       return el.value;
     } else if (el.type == "checkbox") {
-      //console.log(el.type , el.checked);
+      console.log(el.id ,el.type , el.checked);
       return el.checked;
     }
     return "NotFoundEl"
@@ -1365,9 +1377,10 @@ function fun_set_setting_emsFormBuilder() {
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
     smtp = f('hostSupportSmtp_emsFormBuilder');
+    act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
-    let text = efb_var.text;
+    let text = act_local_efb==true ? efb_var.text :'';
     const payToken = f('payToken_emsFormBuilder');
     let AdnSPF=0 ,AdnOF=0,AdnPPF=0,AdnATC=0,AdnSS=0,AdnCPF=0,AdnESZ=0,AdnSE=0,
     AdnWHS=0, AdnPAP=0, AdnWSP=0,AdnSMF=0,AdnPLF=0,AdnMSF=0,AdnBEF=0
@@ -1391,7 +1404,7 @@ function fun_set_setting_emsFormBuilder() {
     fun_send_setting_emsFormBuilder(
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, 
-         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, 
+         stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ,
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,AdnBEF:AdnBEF});
   }
@@ -1424,8 +1437,9 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data) {
+  console.log(data);
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   data = JSON.stringify(data);
@@ -1463,7 +1477,7 @@ function fun_send_setting_emsFormBuilder(data) {
         time = 7;
       }
       //console.log(res)
-      noti_message_efb(t, m, time, lrt);
+      alert_message_efb(t, m, time, lrt);
       document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
      document.getElementById('save-stng-efb').classList.remove('disabled');
     })
@@ -1473,14 +1487,14 @@ function fun_send_setting_emsFormBuilder(data) {
 
 function fun_find_track_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //function find track code
   const el = document.getElementById("track_code_emsFormBuilder").value;
 
   if (el.length < -1) {
-    noti_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7, 'warning');
+    alert_message_efb(efb_var.text.error, efb_var.text.trackingCodeIsNotValid, 7, 'warning');
 
   } else {
     document.getElementById('track_code_emsFormBuilder').disabled = true;
@@ -1512,7 +1526,7 @@ function fun_find_track_emsFormBuilder() {
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue;
         } else {
-          noti_message_efb(efb_var.text.error, res.data.m, 4, 'warning');
+          alert_message_efb(efb_var.text.error, res.data.m, 4, 'warning');
           document.getElementById('track_code_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').disabled = false;
           document.getElementById('track_code_btn_emsFormBuilder').innerHTML = btnValue
@@ -1526,7 +1540,7 @@ function fun_find_track_emsFormBuilder() {
 
 function clear_garbeg_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //  emsFormBuilder_popUp_loading()
@@ -1543,10 +1557,10 @@ function clear_garbeg_emsFormBuilder() {
     $.post(ajax_object_efm.ajax_url, data, function (res) {
 
       if (res.data.success == true) {
-        noti_message_efb(efb_var.text.done, res.data.m, 4.7, 'info');
+        alert_message_efb(efb_var.text.done, res.data.m, 4.7, 'info');
         document.getElementById('clrUnfileEfbText').innerHTML = efb_var.text.clearUnnecessaryFiles;
       } else {
-        noti_message_efb(efb_var.text.error, res.data.m, 4.7, 'danger');
+        alert_message_efb(efb_var.text.error, res.data.m, 4.7, 'danger');
 
       }
     })
@@ -1900,7 +1914,7 @@ function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a hre
 
 function clickToCheckEmailServer() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   document.getElementById('clickToCheckEmailServer').classList.add('disabled')
@@ -1920,10 +1934,10 @@ function clickToCheckEmailServer() {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
 
         if (res.data.success == true) {
-          noti_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
         } else {
 
-          noti_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
+          alert_message_efb(efb_var.text.error, efb_var.text.PleaseMTPNotWork, 30, 'warning');
           document.getElementById("hostSupportSmtp_emsFormBuilder").checked = false;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
@@ -1932,7 +1946,7 @@ function clickToCheckEmailServer() {
     });
 
   } else {
-    noti_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
+    alert_message_efb(efb_var.text.error, efb_var.text.enterAdminEmail, 10, 'warning');
     document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
     document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
   }
@@ -2074,6 +2088,11 @@ function funNproEmailTemp() {
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
   <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
+}
+
+function act_local_efb_event(t){
+  console.log("Clicked, new value = " + t.checked);
+  t.checked==true ? document.getElementById('textList-efb').classList.remove('d-none'): document.getElementById('textList-efb').classList.add('d-none')
 }
 
 

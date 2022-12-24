@@ -905,7 +905,7 @@ textarea.efb.form-control {
 }
 
 .efb.form-check {
-  display: block;
+  display: flex;
   min-height: 1.5rem;
   padding-left: 1.5em;
   margin-bottom: .125rem

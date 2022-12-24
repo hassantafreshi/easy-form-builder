@@ -129,7 +129,7 @@ function Link_emsFormBuilder(state) {
       
     }
   }else{
-    link =`https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/`;
+    link =`https://easyformbuilder.ir/داکیومنت/`;
     switch (state) {
       case 'publishForm':
         link += "%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%aa%d9%88%d8%b3%d8%b7-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%d8%b3/";
@@ -155,10 +155,10 @@ function Link_emsFormBuilder(state) {
         link = `https://easyformbuilder.ir/documents/`;
         break;
       case 'EmailNoti':
-        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%a7%db%8c%d9%85%db%8c%d9%84-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%af%d8%b1-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3/";
+        link += "چگونه-ایمیل-اطلاع-رسانی-را-در-فرم-ساز-آس/";
         break;
       case 'redirectPage':
-        link = "%d9%86%d8%ad%d9%88%d9%87-%d8%b3%d8%a7%d8%ae%d8%aa-%db%8c%da%a9-%d8%b5%d9%81%d8%ad%d9%87-%d8%aa%d8%b4%da%a9%d8%b1-%d8%af%d8%b1-%d8%a7%d9%81%d8%b2%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
+        link += "نحوه-ساخت-یک-صفحه-تشکر-در-افزونه-فرم-ساز/";
       break;
       case 'AdnSPF':
         link = 'https://easyformbuilder.ir/documents/';
@@ -232,12 +232,12 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.1> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.6> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -294,7 +294,7 @@ function actionSendData_emsFormBuilder() {
 }
 function actionSendAddons_efb(val) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -310,22 +310,22 @@ function actionSendAddons_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          noti_message_efb(efb_var.text.done,'', 30,'info');
+          alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
           //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
           //console.log(res);
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, res.data.m, 30, "danger");
+         alert_message_efb(efb_var.text.error, res.data.m, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-2`, 30, "danger");
         }
       }
     })
@@ -335,7 +335,7 @@ function actionSendAddons_efb(val) {
 }
 function actionSendAddonsUn_efb(val) {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //console.log('actionSendData_emsFormBuilder');
@@ -351,22 +351,22 @@ function actionSendAddonsUn_efb(val) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
           //show_message_result_form_set_EFB(1, res.data.value)
-          noti_message_efb(efb_var.text.done,'', 30,'info');
+          alert_message_efb(efb_var.text.done,'', 30,'info');
           location.reload();
         } else {
           alert(res, "error")
           //show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
 
         }
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
 
          // show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
-         noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+         alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         } else {
           //show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
-          noti_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
+          alert_message_efb(efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`, 30, "danger");
         }
       }
     })
@@ -421,7 +421,7 @@ createCardFormEfb = (i) => {
   let btn = `<button type="button" id="${i.id}" class="efb float-end btn mb-1 efb btn-primary btn-lg float-end emsFormBuilder btn-r efbCreateNewForm"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></button>`;
   if (i.id == "form" || i.id == "payment") prw = "<!--not preview-->"  
   if(i.tag.search("payment")!=-1 && ( efb_var.addons.AdnSPF==0 && efb_var.addons.AdnPPF==0) ) {
-    const fn = `noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
+    const fn = `alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')`
     btn = `<a class="efb float-end btn mb-1 efb btn-primary btn-lg float-end  btn-r" onClick="${fn}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.create}</b></a>`
   }
   return `
@@ -649,12 +649,12 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "contact") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
-    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.contactUs, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "2jpzt59do", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.contactusForm, "icon": "bi-chat-right-fill", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-muted", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "uoghulv7f", "dataId": "uoghulv7f-id", "type": "text", "placeholder": efb_var.text.firstName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.firstName, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "xzdeosw2q", "dataId": "xzdeosw2q-id", "type": "text", "placeholder": efb_var.text.lastName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.lastName, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "2jpzt59do", "dataId": "2jpzt59do-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 6, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "dvgl7nfn0", "dataId": "dvgl7nfn0-id", "type": "textarea", "placeholder": efb_var.text.enterYourMessage, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 7, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
+    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.contactUs, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "2jpzt59do", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.contactusForm, "icon": "bi-chat-right-fill", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-muted", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "uoghulv7f", "dataId": "uoghulv7f-id", "type": "text", "placeholder": efb_var.text.firstName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.firstName, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "xzdeosw2q", "dataId": "xzdeosw2q-id", "type": "text", "placeholder": efb_var.text.lastName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.lastName, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "2jpzt59do", "dataId": "2jpzt59do-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 6, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "dvgl7nfn0", "dataId": "dvgl7nfn0-id", "type": "textarea", "placeholder": efb_var.text.enterYourMessage, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 7, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "contactTemplate") {
@@ -684,35 +684,35 @@ function create_form_by_type_emsfb(id, s) {
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
     //register v2
-    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "sendEmail": false, "stateForm": false },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "besie", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
+    json = [{ "type": "register", "steps": 1, "formName": efb_var.text.register, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.register, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "emailRegisterEFB", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message":textThankUEFB('register'), "email_temp": "", "sendEmail": false, "stateForm": false },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.registerForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "usernameRegisterEFB", "dataId": "usernameRegisterEFB-id", "type": "text", "placeholder": efb_var.text.username, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.username, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "besie",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     valj_efb = json;
     localStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "login") {
     // login v2
     form_type_emsFormBuilder = "login";
-    json = [{ "type": "login", "steps": 1, "formName": efb_var.text.login, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.login, "button_color": "btn-darkb", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.loginForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-dark", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "emaillogin", "dataId": "emaillogin-id", "type": "text", "placeholder": efb_var.text.emailOrUsername, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.emailOrUsername, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "passwordlogin", "dataId": "passwordlogin-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
+    json = [{ "type": "login", "steps": 1, "formName": efb_var.text.login, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.login, "button_color": "btn-darkb", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": efb_var.text.loginForm, "icon": "bi-box-arrow-in-right", "step": 1, "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-dark", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "emaillogin", "dataId": "emaillogin-id", "type": "text", "placeholder": efb_var.text.emailOrUsername, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.emailOrUsername, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "passwordlogin", "dataId": "passwordlogin-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     valj_efb = json;
 
     localStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "support") {
     // support v2
     form_type_emsFormBuilder = "form";
-    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.support, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Support", "icon": "bi-ui-checks-grid", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-dark", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "rhglopgi8", "dataId": "rhglopgi8-id", "type": "select", "placeholder": "Select", "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": "How can we help you?", "required": true, "amount": 2, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    const json = [{ "type": "form", "steps": 1, "formName": efb_var.text.support, "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Support", "icon": "bi-ui-checks-grid", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-dark", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "rhglopgi8", "dataId": "rhglopgi8-id", "type": "select", "placeholder": "Select", "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": "How can we help you?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": "Accounting & Sell question", "id_op": "n470h48lg", "step": "1", "amount": 3 },
     { "id_": "b2xssuo2w", "dataId": "b2xssuo2w-id", "parent": "rhglopgi8", "type": "option", "value": "Technical & support question", "id_op": "zu7f5aeob", "step": "1", "amount": 4 },
     { "id_": "jv1l79ir1", "dataId": "jv1l79ir1-id", "parent": "rhglopgi8", "type": "option", "value": "General question", "id_op": "jv1l79ir1", "step": "1", "amount": 5 },
-    { "id_": "59c0hfpyo", "dataId": "59c0hfpyo-id", "type": "text", "placeholder": efb_var.text.subject, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.subject, "required": 0, "amount": 6, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "qas87uoct", "dataId": "qas87uoct-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 10, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-    { "id_": "cqwh8eobv", "dataId": "cqwh8eobv-id", "type": "textarea", "placeholder": efb_var.text.message, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 8, "step": 2, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
+    { "id_": "59c0hfpyo", "dataId": "59c0hfpyo-id", "type": "text", "placeholder": efb_var.text.subject, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.subject, "required": 0, "amount": 6, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "qas87uoct", "dataId": "qas87uoct-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 10, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "cqwh8eobv", "dataId": "cqwh8eobv-id", "type": "textarea", "placeholder": efb_var.text.message, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 8, "step": 2,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "supportTicketForm") {
@@ -737,25 +737,25 @@ function create_form_by_type_emsfb(id, s) {
     // if subscription has clicked add Json of contact and go to step 3
     form_type_emsFormBuilder = "subscribe";
     const json =
-      [{ "type": "subscribe", "steps": 1, "formName": efb_var.text.subscribe, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.subscribe, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "82i3wedt1", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false, "dShowBg": true },
-      { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "", "icon": "bi-check2-square", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-      { "id_": "janf5eutd", "dataId": "janf5eutd-id", "type": "text", "placeholder": efb_var.text.name, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.name, "required": true, "amount": 3, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
-      { "id_": "82i3wedt1", "dataId": "82i3wedt1-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 5, "step": 1, "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
+      [{ "type": "subscribe", "steps": 1, "formName": efb_var.text.subscribe, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.subscribe, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-d-efb", "email_to": "82i3wedt1", "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false, "dShowBg": true },
+      { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "", "icon": "bi-check2-square", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+      { "id_": "janf5eutd", "dataId": "janf5eutd-id", "type": "text", "placeholder": efb_var.text.name, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.name, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+      { "id_": "82i3wedt1", "dataId": "82i3wedt1-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     localStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id == "survey") {
     console.log("survey !!!!!!!!!!!!!!");
     form_type_emsFormBuilder = "survey";
-    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single", "corner": "efb-square", "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
-    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5", "message_text_size": "default", "el_text_size": "fs-5", "file": "document", "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
-    { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": "Select", "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "up", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false },
+    { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
+    { "id_": "6af03cgwb", "dataId": "6af03cgwb-id", "type": "select", "placeholder": "Select", "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": "what is your favorite food ?", "required": true, "amount": 2, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pasta", "id_op": "n9r68xhl1", "step": "1", "amount": 3 },
     { "id_": "wxgt1tvri", "dataId": "wxgt1tvri-id", "parent": "6af03cgwb", "type": "option", "value": "Pizza", "id_op": "khp0a798x", "step": "1", "amount": 4 },
     { "id_": "6x1lv1ufx", "dataId": "6x1lv1ufx-id", "parent": "6af03cgwb", "type": "option", "value": "Fish and seafood", "id_op": "6x1lv1ufx", "step": "1", "amount": 5 },
     { "id_": "yythlx4tt", "dataId": "yythlx4tt-id", "parent": "6af03cgwb", "type": "option", "value": "Vegetables", "id_op": "yythlx4tt", "step": "1", "amount": 6 },
-    { "id_": "fe4q562zo", "dataId": "fe4q562zo-id", "type": "checkbox", "placeholder": "Check Box", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Lnaguage", "required": 0, "amount": 7, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
+    { "id_": "fe4q562zo", "dataId": "fe4q562zo-id", "type": "checkbox", "placeholder": "Check Box", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Lnaguage", "required": 0, "amount": 7, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "khd2i7ubz", "dataId": "khd2i7ubz-id", "parent": "fe4q562zo", "type": "option", "value": "English", "id_op": "khd2i7ubz", "step": "1", "amount": 8 }, { "id_": "93hao0zca", "dataId": "93hao0zca-id", "parent": "fe4q562zo", "type": "option", "value": "French", "id_op": "93hao0zca", "step": "1", "amount": 9 }, { "id_": "75bcbj6s1", "dataId": "75bcbj6s1-id", "parent": "fe4q562zo", "type": "option", "value": "German", "id_op": "75bcbj6s1", "step": "1", "amount": 10 }, { "id_": "lh1csq8mw", "dataId": "lh1csq8mw-id", "parent": "fe4q562zo", "type": "option", "value": "Russian", "id_op": "lh1csq8mw", "step": "1", "amount": 11 }, 
-    { "id_": "5gopt8r6b", "dataId": "5gopt8r6b-id", "parent": "fe4q562zo", "type": "option", "value": "Portuguese", "id_op": "5gopt8r6b", "step": "1", "amount": 12 }, { "id_": "v57zhziyi", "dataId": "v57zhziyi-id", "parent": "fe4q562zo", "type": "option", "value": "Hindi", "id_op": "v57zhziyi", "step": "1", "amount": 13 }, { "id_": "16suwyx5m", "dataId": "16suwyx5m-id", "type": "radio", "placeholder": "Radio Button", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Gender", "required": 0, "amount": 14, "step": "1", "corner": "efb-square", "label_text_size": "fs-6", "label_position": "beside", "message_text_size": "default", "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }, { "id_": "ha0sfnwbp", "dataId": "ha0sfnwbp-id", "parent": "16suwyx5m", "type": "option", "value": "Male", "id_op": "ha0sfnwbp", "step": "1", "amount": 15 }, { "id_": "w3jpyg24h", "dataId": "w3jpyg24h-id", "parent": "16suwyx5m", "type": "option", "value": "Female", "id_op": "w3jpyg24h", "step": "1", "amount": 16 }, { "id_": "in4xa2y0f", "dataId": "in4xa2y0f-id", "parent": "16suwyx5m", "type": "option", "value": "Non-binary", "id_op": "in4xa2y0f", "step": "1", "amount": 17 }, { "id_": "1028hto5a", "dataId": "1028hto5a-id", "parent": "16suwyx5m", "type": "option", "value": "Transgender", "id_op": "1028hto5a", "step": "1", "amount": 18 }, { "id_": "rz3vkawya", "dataId": "rz3vkawya-id", "parent": "16suwyx5m", "type": "option", "value": "Intersex", "id_op": "rz3vkawya", "step": "1", "amount": 19 }, { "id_": "2oezrrpny", "dataId": "2oezrrpny-id", "parent": "16suwyx5m", "type": "option", "value": "I prefer not to say", "id_op": "2oezrrpny", "step": "1", "amount": 20 }];
+    { "id_": "5gopt8r6b", "dataId": "5gopt8r6b-id", "parent": "fe4q562zo", "type": "option", "value": "Portuguese", "id_op": "5gopt8r6b", "step": "1", "amount": 12 }, { "id_": "v57zhziyi", "dataId": "v57zhziyi-id", "parent": "fe4q562zo", "type": "option", "value": "Hindi", "id_op": "v57zhziyi", "step": "1", "amount": 13 }, { "id_": "16suwyx5m", "dataId": "16suwyx5m-id", "type": "radio", "placeholder": "Radio Button", "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": "Gender", "required": 0, "amount": 14, "step": "1",  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }, { "id_": "ha0sfnwbp", "dataId": "ha0sfnwbp-id", "parent": "16suwyx5m", "type": "option", "value": "Male", "id_op": "ha0sfnwbp", "step": "1", "amount": 15 }, { "id_": "w3jpyg24h", "dataId": "w3jpyg24h-id", "parent": "16suwyx5m", "type": "option", "value": "Female", "id_op": "w3jpyg24h", "step": "1", "amount": 16 }, { "id_": "in4xa2y0f", "dataId": "in4xa2y0f-id", "parent": "16suwyx5m", "type": "option", "value": "Non-binary", "id_op": "in4xa2y0f", "step": "1", "amount": 17 }, { "id_": "1028hto5a", "dataId": "1028hto5a-id", "parent": "16suwyx5m", "type": "option", "value": "Transgender", "id_op": "1028hto5a", "step": "1", "amount": 18 }, { "id_": "rz3vkawya", "dataId": "rz3vkawya-id", "parent": "16suwyx5m", "type": "option", "value": "Intersex", "id_op": "rz3vkawya", "step": "1", "amount": 19 }, { "id_": "2oezrrpny", "dataId": "2oezrrpny-id", "parent": "16suwyx5m", "type": "option", "value": "I prefer not to say", "id_op": "2oezrrpny", "step": "1", "amount": 20 }];
     valueJson_ws_p = json;
     valj_efb = json;
     localStorage.setItem('valj_efb', JSON.stringify(json))
@@ -973,7 +973,7 @@ let change_el_edit_Efb = (el) => {
   //console.log(el.id , el.value)
   if (el.value.length > 0 && el.value.search(/(")+/g) != -1) {
     el.value = el.value.replaceAll(`"`, '');
-    noti_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
+    alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
   }
 
   if (lenV > 20) {
@@ -1017,6 +1017,48 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].message = el.value;
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
         break;
+      case "mLenEl":
+        if (Number(el.value)>524288 && valj_efb[indx].type!="range"){
+          el.value="";
+          alert_message_efb("",efb_var.text.mmlen,15,"warning")
+        }else{
+          valj_efb[indx].mlen = el.value;
+          if(valj_efb[indx].hasOwnProperty("milen") && 
+          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
+            alert_message_efb("",efb_var.text.mxlmn,15,"warning")
+            delete  valj_efb[indx].mlen;
+            el.value=0;
+            break;
+          }
+          console.log(el.value, valj_efb[indx].mlen);
+        }     
+        break;
+      case "miLenEl":
+        if( Number(el.value)==0 ||Number(el.value)==-1 ){
+          console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
+          //pflm6h0n7_req
+          clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
+          console.log(`req=[${clss}]`,clss.length);
+          valj_efb[indx].required = clss.length!=0 ? 1 :0;
+          
+          valj_efb[indx].milen=0;
+        }else if (Number(el.value)>524288 && valj_efb[indx].type!="range" ){
+          el.value="";
+          alert_message_efb("",efb_var.text.mmlen,15,"warning")
+          valj_efb[indx].milen=0;
+        }else{
+          valj_efb[indx].milen = el.value;
+          if(valj_efb[indx].hasOwnProperty("mlen") && 
+          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
+            alert_message_efb("",efb_var.text.mxlmn,15,"warning")
+            delete  valj_efb[indx].milen;
+            el.value=0;
+            break;
+          }
+          if(valj_efb[indx].type!="range")valj_efb[indx].required=1;
+          console.log(el.value, valj_efb[indx].milen);
+        }     
+        break;
       case "adminFormEmailEl":
         //console.log(efb_var.smtp);
         if (efb_var.smtp == "1") {
@@ -1027,15 +1069,15 @@ let change_el_edit_Efb = (el) => {
           }
           else {
             document.getElementById("adminFormEmailEl").value = "";
-            noti_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
+            alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
           }
         } else if (efb_var.smtp == '-1') {
           document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
+          alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("adminFormEmailEl").value = "";
-          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
+          alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
 
@@ -1048,7 +1090,7 @@ let change_el_edit_Efb = (el) => {
             valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
           }else{
             el.checked=false;
-            noti_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
+            alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
             
           }
         break;
@@ -1070,6 +1112,23 @@ let change_el_edit_Efb = (el) => {
         //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
+      case "hideLabelEl":
+        c = el.checked;
+        valj_efb[indx].hflabel = c;
+        clss=document.getElementById(`${el.dataset.id}_lab_g`);
+        console.log(c,clss)
+        if(c==1){
+         //if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
+          document.getElementById(`${valj_efb[indx].id_}_labG`).classList.add('d-none');
+          console.log(valj_efb[indx].id_)
+          funSetPosElEfb(valj_efb[indx].dataId,'up')
+         
+        }else{
+         //if (clss.classList.contains('d-none'))clss.classList.remove('d-none')
+          document.getElementById(`${valj_efb[indx].id_}_labG`).classList.remove('d-none');
+        }
+        
+        break;
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1) {
           valj_efb[0].sendEmail = el.checked
@@ -1077,7 +1136,7 @@ let change_el_edit_Efb = (el) => {
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("SendemailEl").checked = false;
-          noti_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
+          alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
         break;
@@ -1111,11 +1170,11 @@ let change_el_edit_Efb = (el) => {
 
         } else if (valj_efb[0].type == "payment") {
           document.getElementById("captchaEl").checked = false;
-          noti_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
+          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;
-          noti_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
+          alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
         break;
@@ -1160,6 +1219,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
+        console.log(postId);
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
         get_position_col_el(valj_efb[indx].dataId, true);
@@ -1194,6 +1254,36 @@ let change_el_edit_Efb = (el) => {
         const sizef = el.options[el.selectedIndex].value
         fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
         if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); }
+        break;
+      case "optnsStyleEl":
+        valj_efb[indx].op_style = el.options[el.selectedIndex].value;
+        console.log('optnsStyleEl',valj_efb[indx].id_)
+        c =document.getElementById(`${valj_efb[indx].id_}_options`);
+        if(valj_efb[indx].op_style!="1"){
+          if(!c.classList.contains('row')) c.className += ' row col-md-12';
+
+          //colMReplaceEfb    
+          clss = valj_efb[indx].op_style=="2" ? 'col-md-6' : 'col-md-4'
+          for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){            
+            v.className = colMdRemoveEfb(v.className);            
+            v.classList.add(clss)
+            
+          }
+        
+        }else{
+          if(c.classList.contains('row')){
+            console.log('classList.contains(row) exitst!');
+             c.classList.remove('row'); c.classList.remove('col-md-12')
+             for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){
+              v.className = colMdRemoveEfb(v.className);
+
+            }
+            }
+        }
+       /*  let fontleb = document.getElementById(`${valj_efb[indx].id_}_lab`);
+        const sizef = el.options[el.selectedIndex].value
+        fontleb.className = fontSizeChangerEfb(fontleb.className, sizef)
+        if (el.dataset.tag == "step") { let iconTag = document.getElementById(`${valj_efb[indx].id_}_icon`); iconTag.className = fontSizeChangerEfb(iconTag.className, sizef); } */
         break;
       case "thankYouTypeEl":
         valj_efb[0].thank_you = el.options[el.selectedIndex].value;
@@ -1236,7 +1326,7 @@ let change_el_edit_Efb = (el) => {
        }else{
         valj_efb[0].thank_you ='msg';
         valj_efb[0].rePage = '';
-        noti_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
+        alert_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
        }
         break;
       case "paymentGetWayEl":
@@ -1340,7 +1430,10 @@ let change_el_edit_Efb = (el) => {
           valj_efb[indx].el_text_color = "text-" + c;
           postId = '_'
         }
-        if (el.dataset.tag != "form" &&
+        console.log(el.dataset.tag);
+        if (el.dataset.tag != "form" && el.dataset.tag != "payment" &&
+            el.dataset.tag != "login" && el.dataset.tag != "register" &&
+            el.dataset.tag != "survey" &&
           ((el.dataset.tag == "select" && el.dataset.el != "el")
             || (el.dataset.tag == "radio" && el.dataset.el != "el")
             || (el.dataset.tag == "checkbox" && el.dataset.el != "el")
@@ -1355,7 +1448,8 @@ let change_el_edit_Efb = (el) => {
         ) {
           //console.log('color');
           document.getElementById(`${valj_efb[indx].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[indx].id_}${postId}`).className, "text-" + c)
-        } else if (el.dataset.tag == "form") {
+        } else if (el.dataset.tag == "form"  || el.dataset.tag == "payment" ||
+        el.dataset.tag == "login" || el.dataset.tag == "register" || el.dataset.tag == "survey") {
           if (el.dataset.el != "icon" && el.dataset.el != "el") {
             document.getElementById(`${valj_efb[0].id_}${postId}`).className = colorTextChangerEfb(document.getElementById(`${valj_efb[0].id_}${postId}`).className, "text-" + c)
             c == "colorDEf" ? document.getElementById(`${valj_efb[indx].id_}${postId}`).style.color = "#" + color : 0
@@ -1465,8 +1559,9 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(id).className = headSizeEfb(document.getElementById(id).className, el.options[el.selectedIndex].value)
         break;
       case "selectHeightEl":
-        //console.log(el);
-        indx = el.dataset.tag == 'form' || el.dataset.tag == 'survey' || el.dataset.tag == 'payment' || el.dataset.tag == 'login' || el.dataset.tag == 'register' || el.dataset.tag == 'subscribe' ? 0 : indx;
+        c= el.dataset.tag ;
+        indx = c== 'form' || c == 'survey' || c == 'payment' || c == 'login' || c == 'register' || c == 'subscribe' ? 0 : indx;
+        console.log(el.dataset.tag,c);
         valj_efb[indx].el_height = el.options[el.selectedIndex].value
         let fsize = 'fs-6';
         if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
@@ -1475,9 +1570,9 @@ let change_el_edit_Efb = (el) => {
         else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
         else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
 
-        if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+        if (c == "select" || c == 'stateProvince' || c == 'conturyList') {
           postId = `${valj_efb[indx].id_}_options`
-        } else if (el.dataset.tag == "radio" || el.dataset.tag == "checkbox") {
+        } else if (c == "radio" || c == "checkbox") {
           valj_efb[indx].label_text_size = fsize;
           const objOptions = valj_efb.filter(obj => { return obj.parent === valj_efb[indx].id_ })
           setTimeout(() => {
@@ -1501,11 +1596,12 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`button_group_Previous_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Previous_icon`).className, el.options[el.selectedIndex].value)
           document.getElementById(`button_group_Next_icon`).className = inputHeightChangerEfb(document.getElementById(`button_group_Next_icon`).className, el.options[el.selectedIndex].value)
           break;
-        } else if (el.dataset.tag == "maps") {
+        } else if (c == "maps") {
           postId = `${valj_efb[indx].id_}-map`;
-        } else if (el.dataset.tag == "dadfile") {
+        } else if (c == "dadfile") {
+
           postId = `${valj_efb[indx].id_}_box`;
-        } else if (el.dataset.tag == "multiselect" || el.dataset.tag == "payMultiselect") {
+        } else if (c == "multiselect" || c == "payMultiselect") {
           //h-xxl-efb
           postId = `${valj_efb[indx].id_}_options`;
           let msel = document.getElementById(postId);
@@ -1514,7 +1610,7 @@ let change_el_edit_Efb = (el) => {
           iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
           msel.className = fontSizeChangerEfb(msel.className, fsize)
           valj_efb[indx].el_text_size = fsize
-        } else if (el.dataset.tag == "rating") {
+        } else if (c == "rating") {
           postId = valj_efb[indx].id_;
           setTimeout(() => {
             const newClass = inputHeightChangerEfb(document.getElementById(`${postId}_star1`).className, valj_efb[indx].el_height);
@@ -1526,9 +1622,9 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`${postId}_star5`).className = newClass;
           }, 10);
           break;
-        } else if (el.dataset.tag == "switch") {
+        } else if (c == "switch") {
           postId = `${valj_efb[indx].id_}-switch`;
-        } else if (el.dataset.tag == "yesNo") {
+        } else if (c == "yesNo") {
           setTimeout(() => {
             postId = `${valj_efb[indx].id_}_b_1`;
             document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
@@ -1536,9 +1632,15 @@ let change_el_edit_Efb = (el) => {
             document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
           }, 10);
           break;
-        } else if (el.dataset.tag == "link") {
+        } else if (c == "link") {
 
           postId = `${valj_efb[indx].id_}_`
+
+          document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
+          //console.log(fsize,postId , document.getElementById(postId));
+        }else if (c == "range") {
+          postId = `${valj_efb[indx].id_}-range`
+          console.log(postId);
 
           document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
           //console.log(fsize,postId , document.getElementById(postId));
@@ -1547,8 +1649,9 @@ let change_el_edit_Efb = (el) => {
           postId = `${valj_efb[indx].id_}_`
         }
         setTimeout(() => {
-          //console.log(postId);
-          document.getElementById(`${postId}`).className = inputHeightChangerEfb(document.getElementById(`${postId}`).className, valj_efb[indx].el_height)
+          c= document.getElementById(`${postId}`);
+          console.log(postId ,c);
+          c.className = inputHeightChangerEfb(c.className, valj_efb[indx].el_height)
         }, 10)
 
 
@@ -1999,8 +2102,8 @@ let sampleElpush_efb = (rndm, elementId) => {
     //console.log(elementId);
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
-      id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb, corner: 'efb-square', label_text_size: 'fs-6',
-      label_position: 'beside', message_text_size: 'default', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
+      id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
+      label_position: 'beside', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
@@ -2063,7 +2166,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
       id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
-      label_text_size: 'fs-5', message_text_size: 'default', el_text_size: 'fs-5', label_text_color: 'text-darkb',
+      label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
     });
 
@@ -2072,7 +2175,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
-      corner: 'efb-square', label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
+       label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
       label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro
@@ -2127,15 +2230,15 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  //console.log(parentsID, idin, value, id_ob, tag)
+  
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
   //console.log(`form_type_emsFormBuilder:${form_type_emsFormBuilder}`);
   document.getElementById('optionListefb').innerHTML += `
-  <div id="${id_ob}-v" class="efb  col-md-12">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+  <div id="${id_ob}-v"  class="efb  col-md-12">
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
   ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
   <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
@@ -2282,7 +2385,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset) {
-  //console.log(idset);
+  console.log(idset);
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
@@ -2292,9 +2395,9 @@ function show_delete_window_efb(idset) {
   if (is_step == false) {
    //myModal.show_efb();
    state_modal_show_efb(1);
-    confirmBtn.dataset.id = document.querySelector(`[data-id="${idset}"]`).id;
+   confirmBtn.dataset.id =idset.slice(0,-3);
+   console.log(idset ,confirmBtn.dataset.id )
     confirmBtn.addEventListener("click", (e) => {
-      //console.log(idset ,confirmBtn.dataset.id )
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
       activeEl_efb = 0;
@@ -2587,6 +2690,7 @@ const inputHeightChangerEfb = (classes, value) => { return classes.replace(/(h-d
 const fontSizeChangerEfb = (classes, value) => { return classes.replace(/\bfs+-\d+/gi, `${value}`); }
 const colChangerEfb = (classes, value) => { return classes.replace(/\bcol-\d+|\bcol-\w+-\d+/, `${value}`); }
 const colMdRemoveEfb = (classes) => { return classes.replace(/\bcol-md+-\d+/gi, ``); }
+const colMReplaceEfb = (classes,value) => { return classes.replace(/\bcol-md+-\d+/gi, value); }
 const headSizeEfb = (classes, value) => { return classes.replace(/\bdisplay+-\d+/gi, `${value}`); }
 const colSmChangerEfb = (classes, value) => { return classes.replace(/\bcol-sm+-\d+/, `${value}`); }
 const iconChangerEfb = (classes, value) => { return classes.replace(/(\bbi-+[\w\-]+|bXXX)/g, `${value}`); }
@@ -2601,7 +2705,7 @@ funBTNAddOnsEFB=(val,v_required)=>{
    actionSendAddons_efb(val)
  }else{
   //efb_var.text.upDMsg
-  noti_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
+  alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
  }
 }
 
@@ -2718,7 +2822,7 @@ document.addEventListener('DOMContentLoaded', function() {
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
     if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
       localStorage.setItem('wpbakery_efb',true);
-      noti_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
+      alert_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
     }
    
   }, 1000); */

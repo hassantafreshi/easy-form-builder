@@ -101,8 +101,7 @@ class Install {
 					require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 					dbDelta( $sql );
 			
-					/* $it = list_files(get_template_directory());       
-					$s = false; */
+					/* $it = list_files(get_template_directory());       */
 					/* foreach($it as $path) {
 						if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
 						{
@@ -110,7 +109,8 @@ class Install {
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
 					} */
-															
+					
+						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
 						if($v==NULL && $s==true){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';

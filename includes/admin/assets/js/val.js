@@ -66,45 +66,61 @@ function show_setting_window_efb(idset) {
     
     if (indx == 0 && idset != "formSet") el = document.getElementById(`f_btn_send_efb`);
    
-    const labelEls = `<label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label>
-    <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}">`
+    const labelEls = `<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label>
+    <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}"></div>`
+    const idHidden = `
+    <!-- <input type="hide"  class="efb d-none" data-id="${idset}" data-hide="idhide" id="${valj_efb[indx].id_}" >-->`
   
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
+
+    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ? efb_var.text.mlen :efb_var.text.max}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}">`
+    
+    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ?  efb_var.text.milen : efb_var.text.min}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="requiredEl" ${valj_efb[indx].required == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="requiredEl">${efb_var.text.required}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
+    </div>`;
+    const disabledEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="disabledEl" ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
+    </div>`;
+    const hideLabelEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
     </div>`;
     const cardEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="cardEl" ${valj_efb[0].dShowBg && valj_efb[0].dShowBg == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="cardEl" ${valj_efb[0].hasOwnProperty("dShowBg") && Number(valj_efb[0].dShowBg) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
     </div>`;
     const offLineEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="offLineEl" ${valj_efb[0].AfLnFrm && valj_efb[0].AfLnFrm == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="offLineEl" ${valj_efb[0].hasOwnProperty("AfLnFrm") && Number(valj_efb[0].AfLnFrm) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
     </div>`;
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const trackingCodeEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].trackingCode && valj_efb[0].trackingCode == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].hasOwnProperty("trackingCode") && Number(valj_efb[0].trackingCode) == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
     </div>`;
     const captchaEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="captchaEl" ${valj_efb[0].captcha && valj_efb[0].captcha == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="captchaEl" ${valj_efb[0].hasOwnProperty("captcha") && Number(valj_efb[0].captcha) == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
+    <label class="efb form-check-label for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
     </div>`;
     const showSIconsEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSIconsEl" ${valj_efb[0].show_icon && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSIconsEl" ${valj_efb[0].hasOwnProperty("show_icon") && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
     </div>`;
     const showSprosiEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showSprosiEl" ${valj_efb[0].show_pro_bar && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSprosiEl" ${valj_efb[0].hasOwnProperty("show_pro_bar") && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;    
@@ -119,10 +135,15 @@ function show_setting_window_efb(idset) {
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.pleaseFillInRequiredFields}" id="thankYouMessagepleaseFillInRequiredFieldsEl" required value="${valj_efb[0].thank_you_message.pleaseFillInRequiredFields ? valj_efb[0].thank_you_message.pleaseFillInRequiredFields : efb_var.text.pleaseFillInRequiredFields}">`;
   
+    /* 778899 new atr */
+    const MessageReuired = `<div class="efb tnxmsg mt-1"><label for="MessageReuired" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
+    <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
+
+    /* 778899 end new atr */
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-6" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label fs-6" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
     </div>`;
 
 
@@ -130,9 +151,11 @@ function show_setting_window_efb(idset) {
   
   
     const Nadvanced = `
-      ${labelEls}
-      ${desEls}
-      ${requireEls}`
+    ${idHidden}
+    ${labelEls}
+    ${hideLabelEls}
+    ${requireEls}
+    ${desEls}`
     const labelFontSizeEls = `
       <label for="labelFontSizeEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
                         <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">                                            
@@ -141,6 +164,13 @@ function show_setting_window_efb(idset) {
                             <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>                      
                             <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>                      
                             <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>                      
+                        </select>`;
+    const optnsStyleEls = `
+      <label for="optnsStyleEl" class="efb mt-3 bi-layout-split mx-2 efb">${efb_var.text.cols}</label>
+                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">                                            
+                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+                            <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+                            <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>                                                  
                         </select>`;
 
       const thankYouTypeEls = `
@@ -221,9 +251,10 @@ function show_setting_window_efb(idset) {
         value = valj_efb[indx].message_align;
         t = efb_var.text.description
       }
+      const lab = efb_var.text[side] || side;
       return `    
       <div class="efb  row">     
-      <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${side} ${efb_var.text.align}</label>
+      <label for="labelPostionEl" class="efb  mt-3 col-12 bi-align-center mx-2">${lab} | ${efb_var.text.align}</label>
         <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="ElementAlignEl">    
           <label class="efb ntb btn-primary bi-align-start ${value == left ? `active` : ''}" onClick="funSetAlignElEfb('${idset}','${left}','${side}')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="labelPostionEl" value="left" >${efb_var.text.left}</label>
@@ -250,7 +281,7 @@ function show_setting_window_efb(idset) {
       `
     const valueEls = `
     <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
-      <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
+      <input type="${valj_efb[indx].type!="range" ? "text" :'number' }"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
       `
     const placeholderEls = `
       <label for="placeholderEl" class="efb  mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
@@ -262,10 +293,10 @@ function show_setting_window_efb(idset) {
         <div class="efb  row">
         <label for="cornerEl" class="efb  mt-3 col-12 bi-bounding-box-circles">${efb_var.text.corners}</label>
         <div class="efb  btn-group col-12  btn-group-toggle" data-toggle="buttons" data-side="${side}" data-id="${idset}-set" data-tag="${valj_efb[indx].type}" id="cornerEl">    
-          <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
+          <label class="efb  ntb  btn-primary bi-app ${valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-rounded' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-rounded')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="cornerEl" value="efb-rounded" >${efb_var.text.rounded}</label>
           <span class="efb  border-right border border-light "></span>
-          <label class="efb  ntb btn-primary bi-diamond ${valj_efb[indx].corner && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
+          <label class="efb  ntb btn-primary bi-diamond ${!valj_efb[indx].hasOwnProperty('corner') && valj_efb[indx].corner == 'efb-square' ? `active` : ''}" onClick="funSetCornerElEfb('${idset}','efb-square')">
             <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="cornerEl" value="efb-square"> ${efb_var.text.square}</label>
         </div></div>`
     }
@@ -467,12 +498,14 @@ function show_setting_window_efb(idset) {
                 </button>
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                        <div class="efb  mb-3 px-3 row">                                            
+                        <div class="efb  mb-3 px-3 row">     
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "number" ? mLenEls :''}                                       
+                        ${el.dataset.tag != "number" ? miLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}
@@ -526,6 +559,7 @@ function show_setting_window_efb(idset) {
           return obj.parent === el.id
         })
         let s = el.dataset.tag;
+        let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio"  ? true :false
         s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
@@ -536,7 +570,7 @@ function show_setting_window_efb(idset) {
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
           for (let ob of objOptions) {         
             opetions += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-          <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+          <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
           ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
           <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
             <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
@@ -552,7 +586,8 @@ function show_setting_window_efb(idset) {
         }
   
         //optionElpush_efb
-        
+        console.log(o_c);
+        console.log(optnsStyleEls);
         body = `
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
@@ -582,6 +617,7 @@ function show_setting_window_efb(idset) {
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">                                        
+                        ${o_c ? optnsStyleEls :''}
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
@@ -627,9 +663,12 @@ function show_setting_window_efb(idset) {
                 ${labelPostionEls}
                 ${ElementAlignEls('label')}
                 ${ElementAlignEls('description')}
+                ${el.dataset.tag == "range" ? mLenEls :''}                                       
+                ${el.dataset.tag == "range" ?miLenEls:''}   
+                ${el.dataset.tag == "range" ?valueEls:''}   
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
-                ${selectHeightEls()}
-                ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' ? '' : cornerEls('')}
+                ${el.dataset.tag != 'range' ? selectHeightEls() :''}
+                ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('')}
                 ${/* el.dataset.tag == 'esign' ? selectColorEls('icon') : '' */ ''}
                 ${el.dataset.tag == 'esign' ? iconEls('') : ''}
                 ${el.dataset.tag == 'esign' ? btnColorEls() : ''}
@@ -917,7 +956,7 @@ function creator_form_builder_Efb() {
     valj_efb.push({
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: 'btn-primary', icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
-      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single', corner: 'efb-square', label_text_color: 'text-light',
+      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: 'text-light',
       el_text_color: 'text-light', message_text_color: 'text-muted', icon_color: 'text-light', el_height: 'h-d-efb', email_to: false, show_icon: false,
       show_pro_bar: false, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,
       thank_you: 'msg',
@@ -935,7 +974,7 @@ function creator_form_builder_Efb() {
   let dragab = true;
   let disable = "disable";
   let formType = valj_efb[0].type
-  const ond = `onClick="noti_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
+  const ond = `onClick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
   if (formType == "login") {
     dragab = false;
     disable = ond;
@@ -947,10 +986,10 @@ function creator_form_builder_Efb() {
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
-      disable = `onClick="noti_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
       dragab = false;
     }
     els += `
@@ -1013,7 +1052,7 @@ function creator_form_builder_Efb() {
        
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
-        <div class="efb text-muted fs-4 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
+        <div class="efb text-muted fs-5 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
         </div>
 
          </div></div></div></div>

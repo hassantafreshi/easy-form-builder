@@ -26,7 +26,7 @@ class efbFunction {
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
-		$state= $ac!=='null' && isset($ac->text) ? true : false ;		
+		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;		
 		$lang = [
 			
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
@@ -558,6 +558,21 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
+			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
+			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
+			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I want to localize Easy Form Builder','easy-form-builder'),				
+			"mlen" => $state  &&  isset($ac->text->mlen) ? $ac->text->mlen : __('Max length','easy-form-builder'),				
+			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
+			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
+			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
+			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : __('Max','easy-form-builder'),				
+			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : __('Min','easy-form-builder'),				
+			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
+			"disabled" => $state  &&  isset($ac->text->disabled) ? $ac->text->disabled : __('Disabled','easy-form-builder'),				
+			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : __('Hide the label','easy-form-builder'),				
+			"resop" => $state  &&  isset($ac->text->resop) ? $ac->text->resop : __('The response(ticket) closed','easy-form-builder'),				
+			"rescl" => $state  &&  isset($ac->text->rescl) ? $ac->text->rescl : __('The response(ticket) opened','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -653,7 +668,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
+			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){			
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>

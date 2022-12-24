@@ -9,7 +9,7 @@ fun_total_pay_persiaPay_efn=(total)=>{
     total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
 }
 
-console.log("persia_pay.js 3.5.1");
+console.log("persia_pay.js 3.5.6");
 pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;
@@ -62,7 +62,8 @@ add_ui_persiaPay_efb=(rndm)=>{
 
 function btnPersiaPayEfb(){
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    
+    noti_message_efb(efb_var.text.offlineSend , 'danger' , `beforePay` );
     return;
   }
   //console.log("btnPersiaPayEfb");

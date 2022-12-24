@@ -2,14 +2,14 @@ console.log('stripe pay loaded stripe_pay.js');
 
 fun_add_stripe_efb = () => {
   if (!navigator.onLine) {
-    noti_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
     if (typeof document.getElementById('cardnoEfb') != "object") return;
     //console.log('fun_add_stripe_efb');
     if (ajax_object_efm.hasOwnProperty('paymentKey')) {    
       if (ajax_object_efm.paymentKey == "null") {
-        noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
+        alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
         return;
       }
       const stripe = Stripe(ajax_object_efm.paymentKey, { locale: 'auto' })
@@ -81,7 +81,7 @@ fun_add_stripe_efb = () => {
         const v = fun_pay_valid_price();
         //console.log(v)
         if (v == false) {
-          noti_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
+          alert_message_efb(efb_var.text.error, efb_var.text.emptyCartM, 10, 'warning')
           btnStripeEfb.innerHTML = efb_var.text.payNow;
           btnStripeEfb.classList.remove('disabled');
           return false;
@@ -114,7 +114,7 @@ fun_add_stripe_efb = () => {
                   } else {
   
                     btnStripeEfb.innerHTML = efb_var.text.error;
-                    noti_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
+                    alert_message_efb(efb_var.text.error, res.data.m, 60, 'danger')
                   }
   
                 },
@@ -123,7 +123,7 @@ fun_add_stripe_efb = () => {
                   btnStripeEfb.classList.remove('disabled');
                   const m = `<p class="efb h4">${efb_var.text.error}${res.status}</p> ${res.statusText} </br> ${res.responseText}`
   
-                  noti_message_efb('Stripe', m, 120, 'danger')
+                  alert_message_efb('Stripe', m, 120, 'danger')
                   btnStripeEfb.innerHTML = efb_var.text.payNow;
   
                 }
@@ -170,7 +170,7 @@ fun_add_stripe_efb = () => {
                       btnStripeEfb.classList.remove('disabled');
                       const m = `<p class="efb h4">${efb_var.text.error}${res.status}</p> ${res.statusText} </br> ${res.responseText}`
   
-                      noti_message_efb('Stripe', m, 120, 'danger')
+                      alert_message_efb('Stripe', m, 120, 'danger')
                       btnStripeEfb.innerHTML = efb_var.text.payNow;
   
                     }
@@ -190,7 +190,7 @@ fun_add_stripe_efb = () => {
             stsStripeEfb.innerHTML = `
                 <strong>${efb_var.text.error}  </string> ${transStat.error.message}
                 `
-            noti_message_efb(efb_var.text.error, transStat.error.message, 10, 'warning')
+            alert_message_efb(efb_var.text.error, transStat.error.message, 10, 'warning')
             btnStripeEfb.classList.remove('disabled');
             btnStripeEfb.innerHTML = efb_var.text.payNow
           }
@@ -250,7 +250,7 @@ fun_add_stripe_efb = () => {
   
   
     }else{
-      if (efb_var.pro) noti_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
+      if (efb_var.pro) alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
     }
   
   
