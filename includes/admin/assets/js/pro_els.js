@@ -171,7 +171,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
     let types = ""
-
+  console.log(valj_efb[indx]);
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
@@ -505,7 +505,7 @@ function fun_clear_esign_efb(id) {
 
   
   function yesNoGetEFB(v, id,idl) {
-    console.log(idl);
+    //console.log(idl);
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
       let iv = idl.slice(0,-4)
       //console.log(v ,`[${idl.slice(-4)}]`, `[${idl.slice(-4)!='_b_2'}]`)

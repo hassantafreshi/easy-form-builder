@@ -3,7 +3,6 @@
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
-console.log(`windows size[${window.matchMedia("(max-width: 480px)").matches}]`);
 let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
@@ -170,7 +169,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
     op = `<option value="${value}" id="${idin}" data-id="${idin}-id"  data-op="${idin}" class="efb ${valj_efb[indxP].el_text_color} ${valj_efb[indxP].label_text_size} ${valj_efb[indxP].el_height}">${value}</option>`
   } else {
     let col = valj_efb[indxP].hasOwnProperty('op_style') && Number(valj_efb[indxP].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[indxP].op_style )) :''
-    console.log(col, valj_efb[indxP],Number(valj_efb[indxP].op_style ))
+    //console.log(col, valj_efb[indxP],Number(valj_efb[indxP].op_style ))
     op = `<div class="efb  form-check ${col}" data-parent="${parentsID}"  id="${id_ob}-v">
     <input class="efb  form-check-input ${valj_efb[indxP].el_text_size}" type="${tagtype}" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
     <label class="efb ${valj_efb[indxP].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[indxP].el_text_color} ${valj_efb[indxP].label_text_size} ${valj_efb[indxP].el_height} hStyleOpEfb " id="${idin}_lab" for="${idin}">${value}</label>
@@ -333,7 +332,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show  "  id='${rndm}-f'>
           ${ttip}
           <div class="efb slider m-0 p-2  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height}  ${valj_efb[iVJ].el_text_color}" id='${rndm}-range'>
-          <input type="${elementId}"  class="efb input-efb px-2 mb-0 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" oninput="${rndm}_rv.innerText = this.value"  ${valj_efb[iVJ].value.length > 0 ? `value ="${temp}"` : ''} min="${minlen}" max="${maxlen}" ${previewSate != true ? 'disabled' : ''}>
+          <input type="${elementId}"  class="efb input-efb px-2 mb-0 emsFormBuilder_v  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" oninput="fun_show_val_range_efb('${rndm}')"  ${valj_efb[iVJ].value.length > 0 ? `value ="${temp}"` : ''} min="${minlen}" max="${maxlen}" ${previewSate != true ? 'disabled' : ''}>
           <p id="${rndm}_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">${temp||0}</p>
           </div>
           ${desc}`
@@ -364,13 +363,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
-      console.log(minlen , valj_efb[iVJ].milen)  ;
+      //console.log(minlen , valj_efb[iVJ].milen)  ;
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
                 <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f' >
                 ${ttip}
-                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''} ${minlen}></textarea>
+                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'disabled' : ''} ${minlen}>${valj_efb[iVJ].value}</textarea>
                 ${desc}
             `
       dataTag = "textarea";
@@ -415,7 +414,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         // if edit mode
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
         const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
-        console.log(`col options[${col}]`);
+        //console.log(`col options[${col}]`);
         for (const i of optns_obj) {
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
           optn += `<div class="efb  form-check ${col}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
@@ -774,7 +773,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     if (elementId == "steps" && pro_efb == false && Number(step_el_efb) == 3) {
       amount_el_efb = Number(amount_el_efb) - 1;
       step_el_efb = 2;
-      console.log('stepppp !!! ')
+      //console.log('stepppp !!! ')
       valj_efb[0].steps = 2
     } else {
       valj_efb[0].steps = step_el_efb;
@@ -1076,7 +1075,7 @@ function copyCodeEfb(id) {
   document.execCommand("copy");
 
   /* Alert the copied text */
-  alert_message_efb(efb_var.text.copiedClipboard, '', 4.7)
+  alert_message_efb(efb_var.text.copiedClipboard, '', 6)
 }
 
 /* function setAtrOfElefb(id, text, color, time) {
@@ -1479,6 +1478,14 @@ function previewFormEfb(state) {
       } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
         content += addNewElement(value.type, value.id_, true, true);
         if (value.type == "html") content += "<!--testHTML-->"
+       
+        
+      }
+      //add value to sendBack_emsFormBuilder_pub
+      if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
+        || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
+         // console.log(`type[${value.type}] value[${value.value}]`);
+       if(fun_sendBack_emsFormBuilder) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }
     })
 
@@ -1743,11 +1750,8 @@ fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvi
 function fun_validation_efb() {
   let offsetw = document.getElementById('body_efb').offsetWidth;
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
-  console.log(offsetw);
-  console.log(offsetw,msg);
   let state = true;
   let idi = "null";
-  console.log('fun_validation_efb');
   for (let row in valj_efb) {
     let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
     //console.log(valj_efb[row],s);
@@ -1771,10 +1775,7 @@ function fun_validation_efb() {
         //let el =document.getElementById(`${valj_efb[row].id_}_-message`);
         el.innerHTML = msg;
         if(!el.classList.contains('show'))el.classList.add('show');
-        
-        console.log(id, document.getElementById(id));
         if (type_validate_efb(valj_efb[row].type) == true) {
-          console.log(valj_efb[row].type);
           document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");}
       } else {
         // console.log('success')
@@ -2027,7 +2028,6 @@ function funTnxEfb(val, title, message) {
 }
 
 let get_position_col_el = (dataId, state) => {
-  console.log(dataId, state);
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el_parent = document.getElementById(valj_efb[indx].id_);
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`)
@@ -2319,11 +2319,9 @@ window.addEventListener('online', (e) => { console.log('online'); });
 
 check_msg_ext_resp_efb=()=>{
   jQuery('#replayM_emsFormBuilder').on('keypress', 
-    function (event) {
-      console.log('replayM_emsFormBuilder',event.which)
-      
+    function (event) {      
        if (jQuery('#replayB_emsFormBuilder').hasClass('disabled')) {
-        console.log('replayB_emsFormBuilder');
+        //console.log('replayB_emsFormBuilder');
         jQuery('#replayB_emsFormBuilder').removeClass('disabled');
       }
         if (event.which == '13') {
@@ -2343,7 +2341,6 @@ check_msg_ext_resp_efb=()=>{
 
 
 function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
-  console.log('fun_send_mail_ajax_emsFormBuilder',id,nonce,type);
    jQuery(function ($) {
      data = {
        action: "mail_send_submited_Emsfb",
@@ -2365,4 +2362,9 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
      })
  
    });
+ }
+
+ function fun_show_val_range_efb(id ){
+  document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
+  console.log(document.getElementById(id+'_').value);
  }

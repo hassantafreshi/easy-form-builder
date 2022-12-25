@@ -254,7 +254,7 @@ class Panel_edit  {
 					<div class="efb row mb-2">					
 					<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
 					</div>
-					<div class="efb row" id ="content-efb">
+					<div class="efb row m-0 p-0" id ="content-efb">
 				 	<div class="efb card-body text-center my-5"><div class="efb lds-hourglass"></div> <h3 class="efb fs-3"><?=  $lang["loading"] ?></h3></div>
 					 		
 					

@@ -476,6 +476,7 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
+  console.log('fun_sendBack_emsFormBuilder');
   // این تابع آبجکت ارسال به سرور مدیریت می کند  
 /*   if (sendBack_emsFormBuilder.length) {
     const indx = sendBack_emsFormBuilder.findIndex(x => x.id_ === ob.id_);

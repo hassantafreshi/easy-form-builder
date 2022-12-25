@@ -791,6 +791,7 @@ class _Public {
 								break;								
 								case 'color':
 										$stated=0;	
+										$l=strlen($item['value']);
 										if(isset($item['value']) && strpos($item['value'],'#')==0 && $l==7){ 
 										
 											$stated=1;
@@ -2863,7 +2864,8 @@ class _Public {
 
 
 	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email){
-		
+		/* error_log('fun_send_email_noti_efb');
+		error_log($fs_obj[0]["sendEmail"]); */
 		if($fs_obj[0]["sendEmail"]==true || $fs_obj[0]["sendEmail"]=="true"){
 			$user_email="null";
 			$user_email = array_filter($msg_obj, function($item) use($fs_obj){ 

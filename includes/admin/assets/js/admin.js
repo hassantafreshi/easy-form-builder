@@ -1030,15 +1030,15 @@ let change_el_edit_Efb = (el) => {
             el.value=0;
             break;
           }
-          console.log(el.value, valj_efb[indx].mlen);
+          //console.log(el.value, valj_efb[indx].mlen);
         }     
         break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
-          console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
+          //console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
           //pflm6h0n7_req
           clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
-          console.log(`req=[${clss}]`,clss.length);
+          //console.log(`req=[${clss}]`,clss.length);
           valj_efb[indx].required = clss.length!=0 ? 1 :0;
           
           valj_efb[indx].milen=0;
@@ -1056,7 +1056,7 @@ let change_el_edit_Efb = (el) => {
             break;
           }
           if(valj_efb[indx].type!="range")valj_efb[indx].required=1;
-          console.log(el.value, valj_efb[indx].milen);
+          //console.log(el.value, valj_efb[indx].milen);
         }     
         break;
       case "adminFormEmailEl":
@@ -1065,11 +1065,13 @@ let change_el_edit_Efb = (el) => {
           if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
           {
             valj_efb[0].email = el.value;
+            valj_efb[0].sendEmail=true;
             return true;
           }
           else {
+            if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
             document.getElementById("adminFormEmailEl").value = "";
-            alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
+            valj_efb[0].email="";
           }
         } else if (efb_var.smtp == '-1') {
           document.getElementById("adminFormEmailEl").value = "";
@@ -1079,7 +1081,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById("adminFormEmailEl").value = "";
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
-
+        valj_efb[0].sendEmail=false;
 
         break;
       case "cardEl":
@@ -1116,7 +1118,7 @@ let change_el_edit_Efb = (el) => {
         c = el.checked;
         valj_efb[indx].hflabel = c;
         clss=document.getElementById(`${el.dataset.id}_lab_g`);
-        console.log(c,clss)
+        //console.log(c,clss)
         if(c==1){
          //if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.add('d-none');
@@ -1131,11 +1133,13 @@ let change_el_edit_Efb = (el) => {
         break;
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1) {
-          valj_efb[0].sendEmail = el.checked
-          valj_efb[0].email_to = el.dataset.id.replace('-id', '');
+          //valj_efb[0].sendEmail = el.checked
+          valj_efb[0].email_to = el.checked ?  el.dataset.id.replace('-id', '') :''
+          
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("SendemailEl").checked = false;
+          
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
 
@@ -1219,7 +1223,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
-        console.log(postId);
+        //console.log(postId);
         const op = el.options[el.selectedIndex].value;
         valj_efb[indx].size = op;
         get_position_col_el(valj_efb[indx].dataId, true);
@@ -1257,7 +1261,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "optnsStyleEl":
         valj_efb[indx].op_style = el.options[el.selectedIndex].value;
-        console.log('optnsStyleEl',valj_efb[indx].id_)
+        //console.log('optnsStyleEl',valj_efb[indx].id_)
         c =document.getElementById(`${valj_efb[indx].id_}_options`);
         if(valj_efb[indx].op_style!="1"){
           if(!c.classList.contains('row')) c.className += ' row col-md-12';
@@ -1272,7 +1276,7 @@ let change_el_edit_Efb = (el) => {
         
         }else{
           if(c.classList.contains('row')){
-            console.log('classList.contains(row) exitst!');
+            //console.log('classList.contains(row) exitst!');
              c.classList.remove('row'); c.classList.remove('col-md-12')
              for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){
               v.className = colMdRemoveEfb(v.className);
@@ -1430,7 +1434,7 @@ let change_el_edit_Efb = (el) => {
           valj_efb[indx].el_text_color = "text-" + c;
           postId = '_'
         }
-        console.log(el.dataset.tag);
+        //console.log(el.dataset.tag);
         if (el.dataset.tag != "form" && el.dataset.tag != "payment" &&
             el.dataset.tag != "login" && el.dataset.tag != "register" &&
             el.dataset.tag != "survey" &&
@@ -1561,7 +1565,7 @@ let change_el_edit_Efb = (el) => {
       case "selectHeightEl":
         c= el.dataset.tag ;
         indx = c== 'form' || c == 'survey' || c == 'payment' || c == 'login' || c == 'register' || c == 'subscribe' ? 0 : indx;
-        console.log(el.dataset.tag,c);
+        //console.log(el.dataset.tag,c);
         valj_efb[indx].el_height = el.options[el.selectedIndex].value
         let fsize = 'fs-6';
         if (valj_efb[indx].el_height == 'h-l-efb') { fsize = 'fs-5'; }
@@ -1640,7 +1644,7 @@ let change_el_edit_Efb = (el) => {
           //console.log(fsize,postId , document.getElementById(postId));
         }else if (c == "range") {
           postId = `${valj_efb[indx].id_}-range`
-          console.log(postId);
+          //console.log(postId);
 
           document.getElementById(postId).className = fontSizeChangerEfb(document.getElementById(postId).className, fsize);
           //console.log(fsize,postId , document.getElementById(postId));
@@ -1650,7 +1654,7 @@ let change_el_edit_Efb = (el) => {
         }
         setTimeout(() => {
           c= document.getElementById(`${postId}`);
-          console.log(postId ,c);
+          //console.log(postId ,c);
           c.className = inputHeightChangerEfb(c.className, valj_efb[indx].el_height)
         }, 10)
 
@@ -2173,7 +2177,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   } else {
 
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'document', size: 100,
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
        label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
       label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
@@ -2181,6 +2185,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
+      //console.log (valj_efb[(valj_efb.length) - 1])
       Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color: "text-pinkEfb", button_color: 'btn-primary' })
       //icon_color: 'default'
     }
@@ -2385,7 +2390,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset) {
-  console.log(idset);
+  //console.log(idset);
   // این تابع المان را از صفحه پاک می کند
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
@@ -2396,7 +2401,7 @@ function show_delete_window_efb(idset) {
    //myModal.show_efb();
    state_modal_show_efb(1);
    confirmBtn.dataset.id =idset.slice(0,-3);
-   console.log(idset ,confirmBtn.dataset.id )
+   //console.log(idset ,confirmBtn.dataset.id )
     confirmBtn.addEventListener("click", (e) => {
       document.getElementById(confirmBtn.dataset.id).remove();
       obj_delete_row(idset, false, confirmBtn.dataset.id);
@@ -2838,7 +2843,6 @@ document.addEventListener('DOMContentLoaded', function() {
  
 
 }, false);
-
 
 
 
