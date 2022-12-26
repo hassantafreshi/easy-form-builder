@@ -678,7 +678,7 @@ function show_setting_window_efb(idset) {
         break;
       case "file":
       case "dadfile":
-        console.log(valj_efb[indx].file);
+        //console.log(valj_efb[indx].file);
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->

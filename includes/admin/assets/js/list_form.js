@@ -785,7 +785,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       message: JSON.stringify(message)
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res);
+      //console.log(res);
       if (res.success == true) {
         
         if(document.getElementById('replay_state__emsFormBuilder')){

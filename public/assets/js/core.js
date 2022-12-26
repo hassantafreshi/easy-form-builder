@@ -419,7 +419,7 @@ function createStepsOfPublic() {
             break;
           case "checkbox":
           case "radio":
-            console.log(422);
+            //console.log(422);
             value = el.value;
             
             if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
@@ -439,7 +439,7 @@ function createStepsOfPublic() {
               const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
               
               if(indx!=-1) {
-                console.log(`id[${el.id}] indx[${indx} ]`, sendBack_emsFormBuilder_pub[indx]);
+                //console.log(`id[${el.id}] indx[${indx} ]`, sendBack_emsFormBuilder_pub[indx]);
                 sendBack_emsFormBuilder_pub.splice(indx,1);
                 return ;
               }
@@ -465,7 +465,7 @@ function createStepsOfPublic() {
               document.getElementById(id).value ="";
              }
 
-             console.log(sendBack_emsFormBuilder_pub);
+             //console.log(sendBack_emsFormBuilder_pub);
             break;
           case "select-one":
           case "select":
