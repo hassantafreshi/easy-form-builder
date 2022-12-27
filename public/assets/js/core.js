@@ -330,11 +330,13 @@ function createStepsOfPublic() {
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd = document.getElementById(`${el.id}-message`);
           let m = ajax_object_efm.text.mmplen.replace('NN',len);
-          const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+          let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
                 //console.log(vd);
                 if(vd){
                   //console.log(ajax_object_efm.text.mmplen);
-               
+                  if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                    vd.classList.add('unpx');                
+                  }
                   vd.innerHTML =msg;
                   //console.log(m,vd.innerHTML);
                   vd.classList.add('show');
@@ -879,6 +881,9 @@ function valid_email_emsFormBuilder(el) {
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
@@ -903,6 +908,9 @@ function valid_password_emsFormBuilder(el) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
     return false;
@@ -929,6 +937,9 @@ function valid_phone_emsFormBuilder(el) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
   }
