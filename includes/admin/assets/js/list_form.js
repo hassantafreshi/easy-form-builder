@@ -100,6 +100,7 @@ function fun_emsFormBuilder_render_view(x) {
         <tbody class="efb">${rows}</tbody>
     </table>
  </div>
+ ${efb_powered_by()}
  `
 
   } else {
@@ -280,6 +281,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
   let list = []
   let s = false;
+  let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   //console.error(content[0].paymentcurrency,content);
   for (const c of content) {
@@ -359,8 +361,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
-
+          console.log(currency ,c)
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
+        }else if(c.type.includes('checkbox')){
+          //checboxs.push
         }
         m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
@@ -543,6 +547,7 @@ function fun_ws_show_list_messages(value) {
     </tbody>
     </table>
     </div>
+     ${efb_powered_by()}
     `;
   if (form_type_emsFormBuilder != 'login') fun_export_rows_for_Subscribe_emsFormBuilder(value);
 
@@ -780,7 +785,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       message: JSON.stringify(message)
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res);
+      //console.log(res);
       if (res.success == true) {
         
         if(document.getElementById('replay_state__emsFormBuilder')){
@@ -912,9 +917,13 @@ function fun_show_help__emsFormBuilder() {
                   <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
+  ${efb_powered_by()}
  `;
 
 }
+
+
+
 function fun_show_setting__emsFormBuilder() {
 
   let activeCode = 'null';
@@ -955,9 +964,9 @@ function fun_show_setting__emsFormBuilder() {
     emailTemp = f('emailTemp');
     payToken = f('payToken');
     act_local_efb = f('act_local_efb');
-    console.log(`act_local_efb${act_local_efb}`);
+    //console.log(`act_local_efb${act_local_efb}`);
     act_local_efb= act_local_efb =='null'  || act_local_efb==false ? false :true
-    console.log(f('act_local_efb'));
+    //console.log(f('act_local_efb'));
   }
 
   let persianPayToken = () => {
@@ -983,7 +992,7 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
-  console.log(`act_local_efb[${act_local_efb}]`);
+  //console.log(`act_local_efb[${act_local_efb}]`);
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb">
@@ -1232,7 +1241,8 @@ function fun_show_setting__emsFormBuilder() {
                         </button>                  
                 </div>
             </div>
-        </div>
+            </div>
+            ${efb_powered_by()}
 `
 
   for (const el of document.querySelectorAll(`.sen`)) {
@@ -1289,7 +1299,7 @@ function fun_set_setting_emsFormBuilder() {
       }
       return el.value;
     } else if (el.type == "checkbox") {
-      console.log(el.id ,el.type , el.checked);
+      //console.log(el.id ,el.type , el.checked);
       return el.checked;
     }
     return "NotFoundEl"
@@ -1437,7 +1447,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data) {
-  console.log(data);
+  //console.log(data);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -1717,7 +1727,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 //end
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
-  console.log(items);
+  //console.log(items);
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
@@ -2082,7 +2092,7 @@ function fun_add_email_template_efb(i) {
 }
 
 function funNproEmailTemp() {
-  ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
+ const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
   
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
@@ -2094,6 +2104,9 @@ function act_local_efb_event(t){
   console.log("Clicked, new value = " + t.checked);
   t.checked==true ? document.getElementById('textList-efb').classList.remove('d-none'): document.getElementById('textList-efb').classList.add('d-none')
 }
+
+
+
 
 
 

@@ -30,7 +30,7 @@ const fields_efb = [
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
-  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
+ /*  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' }, */
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
@@ -586,8 +586,6 @@ function show_setting_window_efb(idset) {
         }
   
         //optionElpush_efb
-        console.log(o_c);
-        console.log(optnsStyleEls);
         body = `
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
@@ -680,7 +678,7 @@ function show_setting_window_efb(idset) {
         break;
       case "file":
       case "dadfile":
-        console.log(valj_efb[indx].file);
+        //console.log(valj_efb[indx].file);
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -1018,7 +1016,7 @@ function creator_form_builder_Efb() {
   }
 
   document.getElementById(`content-efb`).innerHTML = `
-  <div class="efb ${mobile_view_efb ? 'my-2 mx-1' : 'm-5'}" id="pCreatorEfb" >
+  <div class="efb ${mobile_view_efb ? 'my-2 mx-1' : 'my-2 mx-0'}" id="pCreatorEfb" >
   <div id="panel_efb">
       <nav class="efb navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
           <div class="efb container-fluid">
@@ -1064,6 +1062,7 @@ function creator_form_builder_Efb() {
                   <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
+  ${efb_powered_by()}
   `
   create_dargAndDrop_el();
   items_dd_efb();
@@ -1126,5 +1125,10 @@ items_dd_refresh_efb = () => {
   })
 }
 
-console.log('load');
+efb_powered_by=()=>{
+  const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
+  return `<div class="efb fs-8 p-0  m-0 text-muted btn" id="wpfooter"><a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">Easy Form Builder</a> Powered by <a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank" class="efb nounderline">WordPress</a>, <a href="https://getbootstrap.com/" target="_blank" class="efb nounderline">Bootstrap</a> and Bootstrap Icon. Created by <a href="${ws}" target="_blank" class="efb nounderline">Whitestudio.team</a></div>`;
+}
+
+
   

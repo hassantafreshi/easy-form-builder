@@ -312,7 +312,7 @@ function createStepsOfPublic() {
               const id = el.id +"_chl"
               document.getElementById(id).addEventListener("change", (e) => {
                 console.log('qty');
-                console.log(document.getElementById(id).value);
+                //console.log(document.getElementById(id).value);
               })
             }
           break;
@@ -324,19 +324,21 @@ function createStepsOfPublic() {
        validate_len =()=>{
         let offsetw = document.getElementById('body_efb').offsetWidth;
         const len = el.hasAttribute('minLength') ? el.minLength : 2;
-        console.log(len.type , el.minLength);
+        //console.log(len.type , el.minLength);
         if (value.length < len) {
           state = false;
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd = document.getElementById(`${el.id}-message`);
           let m = ajax_object_efm.text.mmplen.replace('NN',len);
-          const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-                console.log(vd);
+          let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+                //console.log(vd);
                 if(vd){
-                  console.log(ajax_object_efm.text.mmplen);
-               
+                  //console.log(ajax_object_efm.text.mmplen);
+                  if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                    vd.classList.add('unpx');                
+                  }
                   vd.innerHTML =msg;
-                  console.log(m,vd.innerHTML);
+                  //console.log(m,vd.innerHTML);
                   vd.classList.add('show');
                 }
                 const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -362,6 +364,7 @@ function createStepsOfPublic() {
           case "number":
           case "date":
           case "textarea":
+            console.log(el.value);
             value = el.value;
             if(validate_len()==0){
             return;
@@ -410,7 +413,7 @@ function createStepsOfPublic() {
               value = el.value;
               
              vd = document.getElementById(`${el.id}-message`)
-             console.log(el.id ,vd);
+             //console.log(el.id ,vd);
              vd.classList.remove('show');
              vd.innerHTML="";
               el.className = colorBorderChangerEfb(el.className, "border-success");
@@ -418,6 +421,7 @@ function createStepsOfPublic() {
             break;
           case "checkbox":
           case "radio":
+            //console.log(422);
             value = el.value;
             
             if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
@@ -435,7 +439,12 @@ function createStepsOfPublic() {
 
             if( el.checked == false && el.type =="checkbox") {
               const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
-              if(indx) sendBack_emsFormBuilder_pub.splice(indx,1);
+              
+              if(indx!=-1) {
+                //console.log(`id[${el.id}] indx[${indx} ]`, sendBack_emsFormBuilder_pub[indx]);
+                sendBack_emsFormBuilder_pub.splice(indx,1);
+                return ;
+              }
              }
 
              const indx =valj_efb.findIndex(x=>x.id_ ==el.name);
@@ -458,7 +467,7 @@ function createStepsOfPublic() {
               document.getElementById(id).value ="";
              }
 
-             
+             //console.log(sendBack_emsFormBuilder_pub);
             break;
           case "select-one":
           case "select":
@@ -505,7 +514,7 @@ function createStepsOfPublic() {
             break;
           case "file":
 
-             console.log('fileeeeeeeeeeeee!')
+             //console.log('fileeeeeeeeeeeee!')
             valid_file_emsFormBuilder(id_,'msg');
             //value= value ==true ? "true": "";
             break;
@@ -528,7 +537,7 @@ function createStepsOfPublic() {
             }
             break;
             default:
-              console.log('default')
+              //console.log('default')
               vd=document.getElementById(`${ob.id_}_-message`);
               if(!ob) {vd.classList.remove('show');
               vd.innerHTML="";}
@@ -872,6 +881,9 @@ function valid_email_emsFormBuilder(el) {
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
@@ -896,6 +908,9 @@ function valid_password_emsFormBuilder(el) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
     return false;
@@ -922,6 +937,9 @@ function valid_phone_emsFormBuilder(el) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+    }
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show'))document.getElementById(`${el.id}-message`).classList.add('show');
   }
@@ -940,7 +958,7 @@ function valid_file_emsFormBuilder(id,tp) {
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
-  console.log(document.getElementById(`${id}_`).classList);
+  //console.log(document.getElementById(`${id}_`).classList);
   document.getElementById(`${id}_`).classList.remove('border-danger');
   let file = ''
   if (true) {
@@ -1452,7 +1470,7 @@ function validation_before_send_emsFormBuilder() {
     for (const v of valueJson_ws) {
       //dadfile
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
-         console.log(v);
+         //console.log(v);
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
       }
@@ -1527,7 +1545,7 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
+  //console.log(res);
   if (res.data.success == true) {
     fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
@@ -1614,7 +1632,7 @@ function response_Valid_tracker_efb(res) {
 }
 
 function response_rMessage_id(res, message) {
-  console.log(res);
+  //console.log(res);
   if (res.success == true && res.data.success == true) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
