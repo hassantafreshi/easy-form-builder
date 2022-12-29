@@ -812,6 +812,7 @@ function actionSendData_emsFormBuilder() {
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce,
       nonce_msg: efb_var.nonce_msg,
+      url:document.URL
     };
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
@@ -827,6 +828,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'persiaPay',
           auth:get_authority_efb,
           nonce_msg: efb_var.nonce_msg,
+          url:document.URL
         };
       }else if(valj_efb[0].getway=="stripe"){
         data = {
@@ -840,6 +842,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'stripe',
           nonce: efb_var.nonce,
           nonce_msg: efb_var.nonce_msg,
+          url:document.URL
 
         };
       }
@@ -1019,7 +1022,7 @@ function fun_tracking_show_emsFormBuilder() {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
                 <div class="efb  card card-public row mb-3 pb-3" id="body_efb-track">
-                    <h4 class="efb  title-holder  col-12 mt-4"><i class="efb  bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                    <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
@@ -1141,7 +1144,7 @@ function emsFormBuilder_show_content_message(value, content) {
   `
   const body = `
   <div class="efb modal-header efb">
-  <h5 class="efb modal-title efb"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
+  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
    <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
  </div>
   <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
@@ -1165,6 +1168,8 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   //console.log('fun_emsFormBuilder_show_messages');
+  if(content[0].type=="w_link")content.shift();
+  
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
   <div class="efb  form-check">
@@ -1626,7 +1631,7 @@ function response_Valid_tracker_efb(res) {
     
   } else {
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=document.URL" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
 }

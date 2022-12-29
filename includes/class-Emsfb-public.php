@@ -21,6 +21,7 @@ class _Public {
 	public $pro_efb;
 	public $pub_stting;
 	public $location;
+	public $url;
 	public function __construct() {
 		
 
@@ -60,8 +61,15 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		$this->text_ = ["required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
 		
+		/* $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+		$url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; */
+		
+	/* 	global $wp;
+		error_log(json_encode(home_url()));
 
-	
+		$current_url = home_url( add_query_arg( array(), $wp->request ) ); */
+		
+		//error_log($url);
 		//$this->corn_email_new_message_recived_Emsfb();
 	}
 
@@ -525,7 +533,8 @@ class _Public {
 	  }
 
 	  public function get_ajax_form_public(){
-		//error_log('get_ajax_form_public');
+		error_log('get_ajax_form_public');
+		
 		$text_ =['payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
@@ -540,14 +549,12 @@ class _Public {
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
-			die();
 		}
 
 		if (check_ajax_referer($msgnonce,'nonce_msg')==false){
 			//error_log('not valid nonce');	
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 			wp_send_json_success($response,$_POST);
-			die();
 		}
 		
 		//error_log('pass nonce');
@@ -589,10 +596,41 @@ class _Public {
 				
 				/* form validation  */
 				$valobj =[] ;
-				$stated = 1;	
+				$stated = 0;	
 				$rt;	
+
+				$url = sanitize_text_field($_POST['url']);
+				//$d = $_SERVER['HTTP_HOST'];
+				//$p = strpos($item['url'],'http://'.$d);
+				//don't change value stated because always file is sending 
+				
+				if(isset($_POST['url']) && strlen($_POST['url'])>5 ){
+					
+					$ar = ['http://wwww.'.$_SERVER['HTTP_HOST'] , 'https://wwww.'.$_SERVER['HTTP_HOST'] ,'http://'.$_SERVER['HTTP_HOST'], 'https://'.$_SERVER['HTTP_HOST']];
+					
+					foreach ($ar as  $r) {
+						$c=strpos($_POST['url'],$r);
+						if(gettype($c)!='boolean' && $c==0){
+						//if(strpos($item['url'],$r)==0){
+							$stated=1;
+						}
+					}
+					if($stated==1){
+						$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+						array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
+						error_log(json_encode($valobj));
+					}
+				}
+
+				if($stated==0){
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+					wp_send_json_success($response,$_POST);
+				}
+				
+				
 				//error_log(json_encode($valo));
 				//error_log(json_encode($formObj));
+				$stated = 1;
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;						
@@ -605,7 +643,7 @@ class _Public {
 							//error_log("isset(item['id_']) && f['id_']==item['id_'] ");
 							$t =strpos(strtolower($item['type']),'checkbox');
 							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  gettype($t)=="integer" && $f['id_']==$item['id_ob']  )) {   
-							
+							error_log($f['type']);
 							//error_log($stated);
 							switch ($f['type']) {					
 								case 'email':
@@ -858,6 +896,8 @@ class _Public {
 					//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
 					
 				}
+				
+
 				/* 	//test return
 				return ; */
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;

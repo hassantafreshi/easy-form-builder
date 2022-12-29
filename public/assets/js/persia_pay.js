@@ -93,7 +93,7 @@ function btnPersiaPayEfb(){
                     product:product,
                     name:formNameEfb,
                     nonce: ajax_object_efm.nonce,
-                    url :window.location.href
+                    url :document.URL
                   };
                   //console.log(res);
                   $.ajax({
@@ -164,8 +164,8 @@ fun_after_bankpay_persia_ui =()=>{
 
 
 change_url_back_persia_pay_efb=()=>{
-  const indx = window.location.href.indexOf('?');
-  if(indx!=-1)history.pushState({'page_id': 1},`${document.title} Done!`, window.location.href.slice(0,indx));
+  const indx = document.URL.indexOf('?');
+  if(indx!=-1)history.pushState({'page_id': 1},`${document.title} Done!`, document.URL.slice(0,indx));
 }
 
 if(get_Status_efb=="NOK"){
