@@ -1,6 +1,8 @@
 console.log('pay.js');
+
+
 function fun_total_pay_efb() {
-    //console.log('fun_total_pay_efb');
+    console.log('fun_total_pay_efb');
     
     let total = 0;
     updateTotal = (i) => {

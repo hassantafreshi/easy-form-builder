@@ -894,7 +894,7 @@ let add_buttons_zone_efb = (state, id) => {
   <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
-  let c = `<div class="efb footer-test mx-0 mt-1 efb">`
+  let c = `<div class="efb footer-test efb">`
   if (id != "dropZoneEFB") {
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
@@ -1518,7 +1518,7 @@ function previewFormEfb(state) {
   //console.log(state ,idn , id);
   document.getElementById(id).classList.add(idn)
   content = `  
-    <div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
+    <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
 
     ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 efb">${valj_efb[1].message}</p>` : ``}
     
@@ -2373,3 +2373,5 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
   console.log(document.getElementById(id+'_').value);
  }
+
+

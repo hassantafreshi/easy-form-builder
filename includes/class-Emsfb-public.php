@@ -88,8 +88,18 @@ class _Public {
 	}
 
 	public function EFB_Form_Builder($id){
+		
+		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
+		if($state_form!='not' && strlen($state_form)>7){
+			error_log('load track');
+			$this->id =-1;
+			
+			return $this->EMS_Form_Builder_track();
+		}
+		error_log('conti');
 		$this->public_scripts_and_css_head();
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
+
 		$row_id = array_pop($id);
 		$this->id = $row_id;
 		//error_log($this->id);
@@ -109,7 +119,7 @@ class _Public {
 		} */
 		$typeOfForm =$value_form[0]->form_type;
 		$value = $value_form[0]->form_structer;
-
+		//error_log($typeOfForm);
 		$lang = get_locale();
 		if ( strlen( $lang ) > 0 ) {
 		$lang = explode( '_', $lang )[0];
@@ -148,15 +158,17 @@ class _Public {
 				$setting =str_replace('\\', '', $r);
 				$setting =json_decode($setting);
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+				//error_log($value);
 				if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
-				
-				if(strpos($value , ',\"type\":\"stripe\",')){$paymentType="stripe";}
-				else if(strpos($value , ',\"type\":\"persiaPay\",')){
+				//"type":"stripe"
+				if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
+				else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
 					$paymentType="zarinPal";}
-				else if(strpos($value , ',\"type\":\"zarinPal\",')){$paymentType="zarinPal";}
+				else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
 						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.7');
 						wp_enqueue_script('pay_js');
+						//error_log($paymentType);
 						if($paymentType=="stripe"){ 
 							
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
@@ -355,8 +367,8 @@ class _Public {
 			   'wp_lan'=>get_locale(),
 			   'location'=>$location
 		 ));  
-
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'></div>";	
+		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
+	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
 		return $content; 
 
 	}
@@ -496,6 +508,7 @@ class _Public {
 
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
+		$this->setting =$r;
 		if(gettype($r)!="string"){error_log('mail_send_form_submit->seting not added');return false;}
 		$r = str_replace("\\","",$r);
 		$setting =json_decode($r,true);;
@@ -617,8 +630,7 @@ class _Public {
 					}
 					if($stated==1){
 						$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-						array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
-						error_log(json_encode($valobj));
+						
 					}
 				}
 
@@ -640,9 +652,11 @@ class _Public {
 							if($in_loop==false){
 								return;
 							}
-							//error_log("isset(item['id_']) && f['id_']==item['id_'] ");
+							//error_log($f['type']);
 							$t =strpos(strtolower($item['type']),'checkbox');
-							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] ||  gettype($t)=="integer" && $f['id_']==$item['id_ob']  )) {   
+							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] 
+							||  gettype($t)=="integer" && $f['id_']==$item['id_ob'])
+							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')) {   
 							error_log($f['type']);
 							//error_log($stated);
 							switch ($f['type']) {					
@@ -789,6 +803,21 @@ class _Public {
 									$rt= $item;
 									$in_loop=false;
 									break;
+								case 'persiaPay':									
+								case 'persiapay':									
+								case 'payment':		
+									error_log('===========payment');
+									if($formObj[0]["type"]=='payment'){
+										$item['amount'] = sanitize_text_field($item['amount']);					
+										$item['id_'] = sanitize_text_field($item['id_']);					
+										$item['name'] = sanitize_text_field($item['name']);					
+										$rt= $item;
+										$in_loop=false;
+										$stated=1;
+									}else{
+										$stated=0;
+									}
+									break;
 								case 'file':	
 								case 'dadfile':	
 									$d = $_SERVER['HTTP_HOST'];
@@ -896,7 +925,8 @@ class _Public {
 					//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
 					
 				}
-				
+				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
+				error_log(json_encode($valobj));
 
 				/* 	//test return
 				return ; */
@@ -930,6 +960,7 @@ class _Public {
 		if(true){
 			
 			$captcha_success="null";
+			$r= $this->setting ;
 			if(gettype($r)=="string" && $fs!=''){
 				$setting =str_replace('\\', '', $r);
 				$setting =json_decode($setting);
@@ -1049,6 +1080,8 @@ class _Public {
 										$amount = $amount;
 									if(gettype($r)=="string" && $fs!=''){
 										$setting =str_replace('\\', '', $r);
+										error_log('setting' );
+										error_log($setting );
 										$setting =json_decode($setting);
 										$TokenCode = $setting->payToken;
 										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($_POST['auth']), "amount" => $amount);
@@ -1169,8 +1202,10 @@ class _Public {
 									array_push($fs,$v);
 									
 								}
+								array_push($fs,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
 								$fs=str_replace('"', '\\"', $filtered);
+								error_log($fs);
 								$this->value = sanitize_text_field($fs);									
 								$this->id = sanitize_text_field($_POST['payid']);			
 								$check=$this->update_message_db();								
@@ -2472,7 +2507,7 @@ class _Public {
 			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
 			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
-			
+			$check;
 			if(gettype($persiapay)=="object"){
 				
 				$response = $persiapay->create_bill_zarinPal($jsonData,$clientRefId);
@@ -2492,6 +2527,7 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');		
 				}
 			}
+			error_log($check);
 			/* 		//payping
 			$data = array(
 				'clientRefId'   => $clientRefId,
