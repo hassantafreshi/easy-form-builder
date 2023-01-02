@@ -2346,6 +2346,7 @@ check_msg_ext_resp_efb=()=>{
 
 
 function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
+  console.log(`fun_send_mail_ajax_emsFormBuilder id[${id}] nonce[${nonce}]`);
    jQuery(function ($) {
      data = {
        action: "mail_send_submited_Emsfb",

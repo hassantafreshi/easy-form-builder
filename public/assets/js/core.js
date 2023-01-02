@@ -880,7 +880,7 @@ function actionSendData_emsFormBuilder() {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-               
+               console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1330,7 +1330,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
         
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize  p-2 my-1">
         <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
@@ -1353,7 +1353,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 										"refId"=>$result->data->ref_id
         */
      
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize p-2 my-1">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>

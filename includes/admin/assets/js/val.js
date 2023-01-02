@@ -1063,7 +1063,7 @@ function creator_form_builder_Efb() {
                   <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
-  ${efb_powered_by()}
+  
   `
   create_dargAndDrop_el();
   items_dd_efb();

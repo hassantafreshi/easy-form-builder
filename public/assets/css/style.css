@@ -747,7 +747,7 @@ progress.efb {
 }
 
 
-.form-text {
+.efb.form-text {
   margin-top: .25rem;
   font-size: .875em;
   color: #6c757d
