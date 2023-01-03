@@ -1,5 +1,6 @@
 
-const getUrlback_efb = window.location.search;
+const getUrlback_efb = location.search;
+
 const getUrlparams_efb = new URLSearchParams(getUrlback_efb);
 const get_authority_efb = getUrlparams_efb.get('Authority');
 const get_Status_efb = getUrlparams_efb.get('Status');
@@ -93,7 +94,7 @@ function btnPersiaPayEfb(){
                     product:product,
                     name:formNameEfb,
                     nonce: ajax_object_efm.nonce,
-                    url :window.location.href
+                    url :document.URL
                   };
                   //console.log(res);
                   $.ajax({
@@ -157,16 +158,13 @@ fun_after_bankpay_persia_ui =()=>{
         paymenauthority: get_authority_efb,
         paymentcurrency: "IRR",
         payment_method: 'card',
-        type: "persiapat",
+        type: "persiapay",
       }];
       sendBack_emsFormBuilder_pub.push(o[0])
 }
 
 
-change_url_back_persia_pay_efb=()=>{
-  const indx = window.location.href.indexOf('?');
-  if(indx!=-1)history.pushState({'page_id': 1},`${document.title} Done!`, window.location.href.slice(0,indx));
-}
+
 
 if(get_Status_efb=="NOK"){
   change_url_back_persia_pay_efb();

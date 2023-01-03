@@ -646,8 +646,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <!--multiselect-->      
       <div class="efb ${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
         ${ttip}
-        <div class="efb efblist  mx-1  p-2 inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" >${efb_var.text.selectOption}</div>
-        <i class="efb efblist iconDD bi-caret-down-fill text-primary ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].el_height}" id="iconDD-${rndm}" data-id="menu-${rndm}"></i>
+        <div class="efb efblist  mx-1  inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
+      
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
          <thead class="efb efblist">
@@ -828,7 +828,7 @@ const loadingShow_efb = (title) => {
   return `<div class="efb modal-dialog modal-dialog-centered efb"  id="settingModalEfb_" >
  <div class="efb modal-content efb " id="settingModalEfb-sections">
      <div class="efb modal-header efb">
-         <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
+         <h5 class="efb modal-title fs-5" ><i class="efb bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
      </div>
      <div class="efb modal-body efb" id="settingModalEfb-body">
          ${loading_messge_efb()}
@@ -894,7 +894,7 @@ let add_buttons_zone_efb = (state, id) => {
   <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
-  let c = `<div class="efb footer-test mx-0 mt-1 efb">`
+  let c = `<div class="efb footer-test efb">`
   if (id != "dropZoneEFB") {
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
@@ -1518,7 +1518,7 @@ function previewFormEfb(state) {
   //console.log(state ,idn , id);
   document.getElementById(id).classList.add(idn)
   content = `  
-    <div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">
+    <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
 
     ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-1">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 efb">${valj_efb[1].message}</p>` : ``}
     
@@ -1895,6 +1895,7 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 fun_offline_Efb = () => {
   let el = '';
   const values = JSON.parse(localStorage.getItem('sendback'))
+  //sendBack_emsFormBuilder_pub.push({id:'w_link',name:'w_link',type:'file',value:window.location.href});
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
 
@@ -2015,17 +2016,17 @@ function funTnxEfb(val, title, message) {
   const t = title ? title : done;
   const m = message ? message : thankYou;
   const trckCd = `
-  <div class="efb fs-3"><h5 class="efb mt-3 efb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb fs-5 bi-clipboard-check mx-1"></i>${efb_var.text.copy}
                </button></div>`
   return `
-                    <h4 class="efb  my-1">
-                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2" id="DoneIconEfb"></i>${t}
+                    <h4 class="efb  my-1 fs-2">
+                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2" id="DoneIconEfb"></i>${t}
                     </h4>
-                    <h3 class="efb fs-3">${m}</h3>
+                    <h3 class="efb fs-4">${m}</h3>
                    ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
   
   `
@@ -2345,6 +2346,7 @@ check_msg_ext_resp_efb=()=>{
 
 
 function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
+  console.log(`fun_send_mail_ajax_emsFormBuilder id[${id}] nonce[${nonce}]`);
    jQuery(function ($) {
      data = {
        action: "mail_send_submited_Emsfb",
@@ -2372,3 +2374,5 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
   console.log(document.getElementById(id+'_').value);
  }
+
+

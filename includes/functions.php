@@ -573,6 +573,7 @@ class efbFunction {
 			"hflabel" => $state  &&  isset($ac->text->hflabel) ? $ac->text->hflabel : __('Hide the label','easy-form-builder'),				
 			"resop" => $state  &&  isset($ac->text->resop) ? $ac->text->resop : __('The response(ticket) closed','easy-form-builder'),				
 			"rescl" => $state  &&  isset($ac->text->rescl) ? $ac->text->rescl : __('The response(ticket) opened','easy-form-builder'),				
+			"clcdetls" => $state  &&  isset($ac->text->clcdetls) ? $ac->text->clcdetls : __('Click here for more details','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -589,7 +590,9 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state($to ,$sub ,$cont,$pro,$state){
+	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
+		error_log('send_email_state');
+		//error_log($link);
 				//error_log("to send_email_state[". $to ."]");
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = "n";
@@ -606,7 +609,7 @@ class efbFunction {
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				   
-				$message = $this->email_template_efb($pro,$state,$cont); 	
+				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
 				if($to!=$support && $state!="reportProblem"){
 					 $mailResult =  wp_mail( $to,$sub, $message, $headers ) ;}
 				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
@@ -632,15 +635,20 @@ class efbFunction {
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-				   //error_log('end function  send email');
-				   //error_log($mailResult);
+				   error_log('end function  send email');
+				   error_log($mailResult);
 			   return $mailResult;
 		}
 
-	public function email_template_efb($pro, $state, $m){	
+	public function email_template_efb($pro, $state, $m,$link){	
+		//error_log('email_template_efb');
+		//error_log($link);
+		/* 
+		error_log($cont); */
 		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
-		$text = ["getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
+		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
+		error_log(json_encode($text));
         $lang= $this->text_efb($text);				
 		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
 		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
@@ -665,14 +673,19 @@ class efbFunction {
 		//error_log($temp);
 		if($state=="testMailServer"){
 			$title=$lang["goodJob"];
+			$l ="https://whitestudio.team/";
+			 if(get_locale()=="fa_IR") $l="https://easyformbuilder.ir/"  ;
 			$message ="<h2>"
 			.  $lang["proUnlockMsg"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='https://whitestudio.team/?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: #ffffff;'>".$lang["getProVersion"]."</a></button>";
-		}elseif($state=="newMessage"){			
+			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+		}elseif($state=="newMessage"){	
+			//w_link;
+			error_log($lang['clcdetls']);
+			$link = strlen($link)>5 ? $link.'?track='.$m : home_url();
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
-			<button><a href='".home_url()."' target='_blank' style='color: black;'>".get_bloginfo('name')."</a></button>
+			<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>
 			";
 		}else{
 
@@ -685,6 +698,7 @@ class efbFunction {
 			$d =  "rtl" ;
 			$align ="right";
 		}
+		//error_log($message);
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
@@ -719,7 +733,7 @@ class efbFunction {
 		       
 				$val =  $temp;
 			}
-			
+			//error_log($val);
 			return $val;
 	}
 
@@ -757,6 +771,10 @@ class efbFunction {
 		//error_log("user_res");
 		//error_log($user_res);
 		$user_res = json_decode($user_res,true);
+		$lst = end($user_res);
+		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+		//error_log(`lini`);
+		//error_log($link_w);
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		//error_log(json_encode($data));
@@ -768,7 +786,7 @@ class efbFunction {
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
 					$subject ="📮 ".$lang["youRecivedNewMessage"];
-					$this->send_email_state($email ,$subject ,$trackingCode,$pro,"newMessage");
+					$this->send_email_state($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w);
 					return 1;
 				}
 			}

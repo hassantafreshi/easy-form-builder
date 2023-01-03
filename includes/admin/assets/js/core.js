@@ -198,7 +198,7 @@ function ShowTab_emsFormBuilder_view(n) {
   if (x[n] == undefined) { return };
   if (x[n]) {
     x[n].style.display = "block";
-    x[n].classList.add("fadeIn");
+    x[n].classList.add("fadeInEFB");
   }
   if (document.getElementById("emsFormBuilder-text-prevBtn-view")) {
     if (n == 0 && (n[0] == undefined || n[0])) {

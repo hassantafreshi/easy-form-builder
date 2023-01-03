@@ -152,6 +152,7 @@ function emsFormBuilder_show_content_message(id) {
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   //console.log('emsFormBuilder_show_content_message');
+  
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
   //reply  message ui
   form_type_emsFormBuilder = formType;
@@ -264,6 +265,8 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  if(content[(content.length)- 1].type=="w_link")content.pop();
+  
   //console.log('fun_emsFormBuilder_show_messages',content);
   if (by == 1) { by = 'Admin' } else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -288,7 +291,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
-    //console.log(c);
+    console.log(c.type ,c);
     let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
@@ -354,14 +357,28 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       value += "</div>";
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      console.log(checboxs.includes(c.id_))
+    } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
+      s = true;
+      console.log(361 ,checboxs.includes(c.id_));
+      let vc ='null';
+      checboxs.push(c.id_);
+      for(let op of content){
+        console.log(op.id_ , c.id_);
+        if(op.type=="checkbox" && op.id_ == c.id_){
+          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
+        }
+      }
+      console.log(vc);
+      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment"){
+    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
-          console.log(currency ,c)
+          //console.log(currency ,c)
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
           //checboxs.push

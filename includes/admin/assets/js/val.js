@@ -14,19 +14,20 @@ const fields_efb = [
   { name: efb_var.text.radiobutton, icon: 'bi-record-circle', id: 'radio', pro: false, tag:'basic all' },
   { name: efb_var.text.select, icon: 'bi-check2', id: 'select', pro: false , tag:'basic all'},
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false, tag:'advance all' }, 
+  { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false, tag:'basic all' },
+  // { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true, tag:'advance all' },
+
+  { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
+  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
+  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
+  { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
+  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
   //{ name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
-  { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
-  { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
-  { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false, tag:'basic all' },
- // { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true, tag:'advance all' },
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
-  { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
-  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
-  { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
@@ -75,10 +76,10 @@ function show_setting_window_efb(idset) {
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
 
     const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ? efb_var.text.mlen :efb_var.text.max}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}">`
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">`
     
     const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ?  efb_var.text.milen : efb_var.text.min}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}">`
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}" min="0">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
@@ -1062,7 +1063,7 @@ function creator_form_builder_Efb() {
                   <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
   </div></div></div>
   </div></div>
-  ${efb_powered_by()}
+  
   `
   create_dargAndDrop_el();
   items_dd_efb();

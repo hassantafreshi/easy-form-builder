@@ -197,15 +197,17 @@ fun_add_stripe_efb = () => {
           else {
             const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
             //console.log(transStat);
+            console.log(data , data.paymentcurrency);
             if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
               grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
             fun_disabled_all_pay_efb()
             // efb_var.id = data.uid;  
-            //console.log(data , data.paymentcurrency);
             val = `            
                 
                 <p class="efb  text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${data.paymentIntent}</p>
-                <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : ${data.amount} ${data.paymentcurrency.toUpperCase()}</p>
+                <!-- <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : ${data.total} ${data.paymentcurrency.toUpperCase()}</p>-->
+                <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : 
+                ${Number(data.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: data.paymentcurrency })}</p>
                 <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.ddate}</b>: ${data.paymentCreated}</p>
                 `;
             if (valj_efb[0].paymentmethod != "charge") {

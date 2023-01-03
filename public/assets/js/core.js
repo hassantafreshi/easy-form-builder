@@ -321,6 +321,7 @@ function createStepsOfPublic() {
       el.addEventListener("change", (e) => {
         //778899
         // e.preventDefault();
+        
        validate_len =()=>{
         let offsetw = document.getElementById('body_efb').offsetWidth;
         const len = el.hasAttribute('minLength') ? el.minLength : 2;
@@ -347,15 +348,24 @@ function createStepsOfPublic() {
               }
               return 1;
        }
+       // console.log('click');
         let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
         let value = ""
         const id_ = el.dataset.vid
         let state
+       // console.log('click',ob);
         if(!ob){
+          console.log(ob);
           //console.log('ob is null',el.id ,el.dataset.id)
           if(el.id.includes('chl')!=false){
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
+         
+           
           }
+    /*       if (ob.type=="payCheckbox") {  
+            fun_total_pay_efb()
+          } */
+         // console.log('click 362');
         }
         let vd ;
         switch (el.type) {
@@ -441,8 +451,9 @@ function createStepsOfPublic() {
               const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
               
               if(indx!=-1) {
-                //console.log(`id[${el.id}] indx[${indx} ]`, sendBack_emsFormBuilder_pub[indx]);
                 sendBack_emsFormBuilder_pub.splice(indx,1);
+                if(ob.type=="payCheckbox")fun_total_pay_efb();
+                
                 return ;
               }
              }
@@ -543,21 +554,22 @@ function createStepsOfPublic() {
               vd.innerHTML="";}
             break;
         }
+        console.log('click 550');
 
 
 
 
-
-
+        console.log(el.type);
         if (value != "" || value.length > 1) {
           const type = ob.type;
           const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
           //console.log(ob,id_ob);
           let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
           
+          console.log(el ,value , valj_efb[0].type ,el.classList );
           if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
+            console.log('payment');
             let q = valueJson_ws.find(x => x.id_ === el.id);
-            //console.log(el , valueJson_ws);
             const p = price.length > 0 ? { price: price } : { price: q.price }
             Object.assign(o[0], p)
             //console.log(q ,p,o[0]);
@@ -588,9 +600,22 @@ function createStepsOfPublic() {
 
       });
 
-    } else if (el.type == "submit") {
+    }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
+          
+         
+      console.log('payment uncheck');
+      /* let q = valueJson_ws.find(x => x.id_ === el.id);
+      const p = price.length > 0 ? { price: price } : { price: q.price }
+      Object.assign(o[0], p) */
+      //console.log(q ,p,o[0]);
+      fun_sendBack_emsFormBuilder(o[0]);
+      fun_total_pay_efb()
+
+
+
+  }  else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
-        //console.log("el========>542 ");
+        console.log("el========>542 ");
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
@@ -812,6 +837,7 @@ function actionSendData_emsFormBuilder() {
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce,
       nonce_msg: efb_var.nonce_msg,
+      url:document.URL
     };
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
@@ -827,6 +853,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'persiaPay',
           auth:get_authority_efb,
           nonce_msg: efb_var.nonce_msg,
+          url:document.URL
         };
       }else if(valj_efb[0].getway=="stripe"){
         data = {
@@ -840,6 +867,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'stripe',
           nonce: efb_var.nonce,
           nonce_msg: efb_var.nonce_msg,
+          url:document.URL
 
         };
       }
@@ -852,7 +880,7 @@ function actionSendData_emsFormBuilder() {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-               
+               console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1016,15 +1044,21 @@ function valid_file_emsFormBuilder(id,tp) {
 
 
 function fun_tracking_show_emsFormBuilder() {
+  const time = pro_efb==true ? 10 :3500;
+  const getUrlparams = new URLSearchParams(location.search);
+  let get_track = getUrlparams.get('track');
+  if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
+  console.log(get_track);
+setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
                 <div class="efb  card card-public row mb-3 pb-3" id="body_efb-track">
-                    <h4 class="efb  title-holder  col-12 mt-4"><i class="efb  bi-check2-square title-icon mx-1"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
+                    <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
                         <div class="efb  col-12 text-center mx-2 row">
-                        <input type="text" class="efb  input-efb form-control border-d efb-rounded text-labelEfb  h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb">
+                        <input type="text" class="efb input-efb form-control border-d efb-rounded text-labelEfb h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
                          <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white mb-1"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb fs-5  bi-search"></i> ${ajax_object_efm.text.search}  </button>
                         </div>
@@ -1037,6 +1071,12 @@ function fun_tracking_show_emsFormBuilder() {
         </div>
         <div id="alert_efb" class="efb mx-5"></div>
 `
+}, time);
+
+}
+
+function fun_get_tracking_code(){
+
 }
 
 function fun_vaid_tracker_check_emsFormBuilder() {
@@ -1141,7 +1181,7 @@ function emsFormBuilder_show_content_message(value, content) {
   `
   const body = `
   <div class="efb modal-header efb">
-  <h5 class="efb modal-title efb"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
+  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
    <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
  </div>
   <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
@@ -1165,6 +1205,8 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   //console.log('fun_emsFormBuilder_show_messages');
+  if(content[(content.length)- 1].type=="w_link")content.pop();
+  
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
   <div class="efb  form-check">
@@ -1179,6 +1221,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
  `;
   content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
   let list = []
+  let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
     let value ="<b></b>";
@@ -1256,9 +1299,22 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       }
       value += "</div>";
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
+    }else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
+      s = true;
+      console.log(361 ,checboxs.includes(c.id_));
+      let vc ='null';
+      checboxs.push(c.id_);
+      for(let op of content){
+        console.log(op.id_ , c.id_);
+        if(op.type=="checkbox" && op.id_ == c.id_){
+          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
+        }
+      }
+      console.log(vc);
+      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment"){
+    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
@@ -1274,7 +1330,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe"){
         
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize  p-2 my-1">
         <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
             <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
@@ -1297,7 +1353,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 										"refId"=>$result->data->ref_id
         */
      
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize">
+        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize p-2 my-1">
             <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
             <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
             <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
@@ -1626,7 +1682,7 @@ function response_Valid_tracker_efb(res) {
     
   } else {
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=window.location.href" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=document.URL" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
 }
@@ -1700,4 +1756,9 @@ remove_ttmsg_efb=(id)=>{
     document.getElementById(`${id}_-message`).classList.remove('show');
     document.getElementById(`${id}_-message`).innerHTML="";
   }
+}
+
+change_url_back_persia_pay_efb=()=>{
+  const indx = document.URL.indexOf('?');
+  if(indx!=-1)history.pushState({'page_id': 1},`${document.title} !`, document.URL.slice(0,indx));
 }

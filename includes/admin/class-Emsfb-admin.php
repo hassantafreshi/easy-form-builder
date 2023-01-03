@@ -1040,7 +1040,7 @@ class Admin {
             }
         }
         
-        $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer");
+        $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer" , home_url());
                 if($check==true){           
                     $newAc["activeCode"] = isset($ac->activeCode) ? $ac->activeCode :'';
                     $newAc["siteKey"] = isset($ac->siteKey)? $ac->siteKey :"";
