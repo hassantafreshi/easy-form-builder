@@ -291,7 +291,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
-    console.log(c.type ,c);
+    //console.log(c.type ,c);
     let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
     if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
@@ -357,19 +357,19 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       value += "</div>";
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
-      console.log(checboxs.includes(c.id_))
+      //console.log(checboxs.includes(c.id_))
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
-      console.log(361 ,checboxs.includes(c.id_));
+      //console.log(361 ,checboxs.includes(c.id_));
       let vc ='null';
       checboxs.push(c.id_);
       for(let op of content){
-        console.log(op.id_ , c.id_);
+        //console.log(op.id_ , c.id_);
         if(op.type=="checkbox" && op.id_ == c.id_){
           vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
         }
       }
-      console.log(vc);
+      //console.log(vc);
       m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };

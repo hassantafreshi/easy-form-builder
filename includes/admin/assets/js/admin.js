@@ -232,7 +232,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.7> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.8> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1109,8 +1109,7 @@ let change_el_edit_Efb = (el) => {
         id = valj_efb[indx].id_
         postId = document.getElementById(`${id}${postId}`)
         if(postId) postId.classList.toggle('required');
-       /* console.log(`requiredEl::::::valj_efb[indx]`);
-       console.log(valj_efb[indx]) */;
+      
         //state_view_efb=0;
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
@@ -1122,7 +1121,7 @@ let change_el_edit_Efb = (el) => {
         if(c==1){
          //if (!clss.classList.contains('d-none'))clss.classList.add('d-none');
           document.getElementById(`${valj_efb[indx].id_}_labG`).classList.add('d-none');
-          console.log(valj_efb[indx].id_)
+          //console.log(valj_efb[indx].id_)
           funSetPosElEfb(valj_efb[indx].dataId,'up')
          
         }else{

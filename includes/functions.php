@@ -592,6 +592,7 @@ class efbFunction {
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
 		error_log('send_email_state');
+		error_log($to);
 		//error_log($link);
 				//error_log("to send_email_state[". $to ."]");
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
@@ -634,9 +635,7 @@ class efbFunction {
 				 $mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
-				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-				   error_log('end function  send email');
-				   error_log($mailResult);
+				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 			   return $mailResult;
 		}
 

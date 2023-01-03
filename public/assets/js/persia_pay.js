@@ -10,7 +10,7 @@ fun_total_pay_persiaPay_efn=(total)=>{
     total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
 }
 
-console.log("persia_pay.js 3.5.7");
+console.log("persia_pay.js 3.5.8");
 pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;

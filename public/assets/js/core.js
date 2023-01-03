@@ -355,7 +355,7 @@ function createStepsOfPublic() {
         let state
        // console.log('click',ob);
         if(!ob){
-          console.log(ob);
+          //console.log(ob);
           //console.log('ob is null',el.id ,el.dataset.id)
           if(el.id.includes('chl')!=false){
             ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
@@ -374,7 +374,7 @@ function createStepsOfPublic() {
           case "number":
           case "date":
           case "textarea":
-            console.log(el.value);
+            //console.log(el.value);
             value = el.value;
             if(validate_len()==0){
             return;
@@ -554,21 +554,12 @@ function createStepsOfPublic() {
               vd.innerHTML="";}
             break;
         }
-        console.log('click 550');
-
-
-
-
-        console.log(el.type);
         if (value != "" || value.length > 1) {
           const type = ob.type;
           const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
           //console.log(ob,id_ob);
           let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
-          
-          console.log(el ,value , valj_efb[0].type ,el.classList );
           if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-            console.log('payment');
             let q = valueJson_ws.find(x => x.id_ === el.id);
             const p = price.length > 0 ? { price: price } : { price: q.price }
             Object.assign(o[0], p)
@@ -602,8 +593,6 @@ function createStepsOfPublic() {
 
     }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
           
-         
-      console.log('payment uncheck');
       /* let q = valueJson_ws.find(x => x.id_ === el.id);
       const p = price.length > 0 ? { price: price } : { price: q.price }
       Object.assign(o[0], p) */
@@ -615,7 +604,6 @@ function createStepsOfPublic() {
 
   }  else if (el.type == "submit") {
       el.addEventListener("click", (e) => {
-        console.log("el========>542 ");
         const id_ = el.dataset.vid
         const ob = valueJson_ws.find(x => x.id_ === id_);
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
@@ -880,7 +868,6 @@ function actionSendData_emsFormBuilder() {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-               console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1048,7 +1035,6 @@ function fun_tracking_show_emsFormBuilder() {
   const getUrlparams = new URLSearchParams(location.search);
   let get_track = getUrlparams.get('track');
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
-  console.log(get_track);
 setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
@@ -1157,11 +1143,6 @@ function emsFormBuilder_show_content_message(value, content) {
  
 
   for (c of content) {
-    //console.log(c);
-    /* 
-     let val =replaceContentMessageEfb(c.content);
-    console.log(val);
-     */
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
   }
@@ -1301,16 +1282,13 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
     }else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
-      console.log(361 ,checboxs.includes(c.id_));
       let vc ='null';
       checboxs.push(c.id_);
       for(let op of content){
-        console.log(op.id_ , c.id_);
         if(op.type=="checkbox" && op.id_ == c.id_){
           vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
         }
       }
-      console.log(vc);
       m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
