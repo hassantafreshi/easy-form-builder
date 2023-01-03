@@ -1748,7 +1748,7 @@ function timeOutCaptcha() {
 fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvince' || el == 'select' || el == 'multiselect' || el == 'paySelect' || el == 'payMultiselect' ? true : false }
 
 function fun_validation_efb() {
-  console.log('fun_validate')
+  //console.log('fun_validate')
   let offsetw = document.getElementById('body_efb').offsetWidth;
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
@@ -2346,7 +2346,7 @@ check_msg_ext_resp_efb=()=>{
 
 
 function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
-  console.log(`fun_send_mail_ajax_emsFormBuilder id[${id}] nonce[${nonce}]`);
+  //console.log(`fun_send_mail_ajax_emsFormBuilder id[${id}] nonce[${nonce}]`);
    jQuery(function ($) {
      data = {
        action: "mail_send_submited_Emsfb",
@@ -2372,7 +2372,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
  function fun_show_val_range_efb(id ){
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
-  console.log(document.getElementById(id+'_').value);
+  //console.log(document.getElementById(id+'_').value);
  }
 
 
