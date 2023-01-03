@@ -2,7 +2,7 @@ console.log('pay.js');
 
 
 function fun_total_pay_efb() {
-    console.log('fun_total_pay_efb');
+   // console.log('fun_total_pay_efb');
     
     let total = 0;
     updateTotal = (i) => {
@@ -56,8 +56,6 @@ function fun_total_pay_efb() {
   
           }//end if multiselect 
         }else{
-          /* console.log(o.id_ , o,document.getElementById('xmnguttql_o'))
-          console.log("test",document.getElementById('efbform')) */
           let ov = document.querySelector(`[data-vid="${o.id_}"]`);
           //console.log(ov)
           ov.classList.add('disabled');        

@@ -431,10 +431,6 @@ function createStepsOfPublic() {
         if (el.type == "text" || el.type == 'password' || el.type == "color" || el.type == "number" || el.type == "date" || el.type == "url" || el.type == "range" || el.type == "textarea") { value = el.value; }
         else if (el.type == "radio" || el.type == "checkbox") { 
           value = el.value; ob.name = document.getElementById(ob.parents).innerText ;
-         /*  console.log(el.dataset);
-          if(el.dataset.tag.includes("chl")){
-            console.log(el.dataset);
-          } */
         }//ob.name = document.getElementById(ob.parents). 
         else if (el.type == "select-one") {
           value = el.value;
@@ -476,7 +472,7 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
-  console.log('fun_sendBack_emsFormBuilder');
+  //console.log('fun_sendBack_emsFormBuilder');
   // این تابع آبجکت ارسال به سرور مدیریت می کند  
 /*   if (sendBack_emsFormBuilder.length) {
     const indx = sendBack_emsFormBuilder.findIndex(x => x.id_ === ob.id_);

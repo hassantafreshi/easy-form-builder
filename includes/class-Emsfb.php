@@ -82,14 +82,6 @@ class Emsfb {
     }
 
 
-/*     private function test_fun($slug){
-        error_log($slug['name']);
-        error_log($slug['id']);
-        return $slug['id'];
-       // return $fs;
-    
-      
-    }  */
     public function checkDbchange(){
         global $wpdb;
         $test_tabale = $wpdb->prefix . "Emsfb_form";

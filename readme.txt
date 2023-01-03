@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.7
+Stable tag: 			3.5.8
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			5.5 or higher
@@ -284,6 +284,9 @@ Taking payments to form with integration Stripe Just Enter the Public and Secret
 **Thank you page(Redirect page)**
 The redirect page option on Easy Form Builder is like thank you page and will have redirected after completing the form on your landing page or an URL.
 
+**Notification link of filled form**
+The feature of sending a link in the e-mail notification of filled forms or responses enables you to communicate with users on the site and send or receive new responses(messages) from users. This free feature allows you to present the messages or responses on the site to users. This feature will increase the impression of your site because it will increase the dwell time of your page.
+
  
 **Notice**: If your template is base on bootstrap then go to “Easy Form Builder” → “Settings” → checked “My template has used BootStrap framework” → Save
 
@@ -352,6 +355,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+=3.5.8= 
+* Added features of notification link of filled form in emails
+* Improve UX of Easy Form Builder
 =3.5.7= 
 =3.5.6= 
 * Improve Mobile view of forms
