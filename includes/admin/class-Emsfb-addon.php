@@ -314,8 +314,6 @@ class Addon {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		/* error_log('insert');
-		error_log(strlen($this->value)); */
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 

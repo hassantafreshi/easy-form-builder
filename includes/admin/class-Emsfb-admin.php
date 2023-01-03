@@ -79,15 +79,11 @@ class Admin {
             
         /*    add_action( 'save_post', function ( $post_ID,$post,$update )
            {
-            error_log(json_encode($post));
             //https://developer.wordpress.org/reference/hooks/field_no_prefix_save_pre/
            }, 10, 3 ); */
 
           /*  add_action( 'transition_post_status', function ( $new_status, $old_status, $post )
             {
-                error_log(json_encode($post));
-                error_log(json_encode($new_status));
-                error_log(json_encode($old_status));
                 if( 'publish' == $new_status && 'publish' == $old_status && $post->post_type == 'my_post_type' ) {
 
                     //DO SOMETHING IF A POST IN POST TYPE IS EDITED

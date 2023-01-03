@@ -59,18 +59,7 @@ class _Public {
 		$this->efbFunction = new efbFunction();  
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) ); 
 		add_action('init',  array($this, 'hide_toolmenu'));
-		$this->text_ = ["clcdetls","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];
-		
-		/* $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-		$url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; */
-		
-	/* 	global $wp;
-		error_log(json_encode(home_url()));
-
-		$current_url = home_url( add_query_arg( array(), $wp->request ) ); */
-		
-		//error_log($url);
-		//$this->corn_email_new_message_recived_Emsfb();
+		$this->text_ = ["clcdetls","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank"];		
 	}
 
 
@@ -98,15 +87,15 @@ class _Public {
 		
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
 		$typeOfForm =$value_form[0]->form_type;
-		error_log($typeOfForm);
+		//error_log($typeOfForm);
 		if($state_form!='not' && strlen($state_form)>7 
 		&& ($typeOfForm!="register" || $typeOfForm!="login")){
-			error_log('load track');
+			//error_log('load track');
 			$this->id =-1;
 			
 			return $this->EMS_Form_Builder_track();
 		}
-		error_log('conti');
+		//error_log('conti');
 		$this->public_scripts_and_css_head();
 		
 		//error_log($this->id);
@@ -502,7 +491,7 @@ class _Public {
 
 
 	  public function mail_send_form_submit(){
-		error_log('mail function after submit down');
+		//error_log('mail function after submit down');
 		$this->id = sanitize_text_field($_POST['id']);
 		$track = $this->id ;
 		$type = sanitize_text_field($_POST['type']); //two type msg/rsp
@@ -516,7 +505,7 @@ class _Public {
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		$this->setting =$r;
-		if(gettype($r)!="string"){error_log('mail_send_form_submit->seting not added');return false;}
+		if(gettype($r)!="string"){return false;}
 		$r = str_replace("\\","",$r);
 		$setting =json_decode($r,true);;
 
@@ -546,7 +535,7 @@ class _Public {
 			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );				
 				$admin_email = $fs_obj[0]["email"];
 				$w_ = end($msg_obj) ;
-				error_log(json_encode($w_));
+				//error_log(json_encode($w_));
 				$link = $w_['type']=="w_link" ? $w_['value'] :'null';
 				$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$track,$pro ,$admin_email,$link);
 				
@@ -556,7 +545,7 @@ class _Public {
 	  }
 
 	  public function get_ajax_form_public(){
-		error_log('get_ajax_form_public');
+		//error_log('get_ajax_form_public');
 		
 		$text_ =["clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
@@ -666,8 +655,7 @@ class _Public {
 							$t =strpos(strtolower($item['type']),'checkbox');
 							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] 
 							||  gettype($t)=="integer" && $f['id_']==$item['id_ob'])
-							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')) {   
-							error_log($f['type']);
+							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')) {   							
 							//error_log($stated);
 							switch ($f['type']) {					
 								case 'email':
@@ -816,7 +804,6 @@ class _Public {
 								case 'persiaPay':									
 								case 'persiapay':									
 								case 'payment':		
-									error_log('===========payment');
 									if($formObj[0]["type"]=='payment'){
 										$item['amount'] = sanitize_text_field($item['amount']);					
 										$item['id_'] = sanitize_text_field($item['id_']);					
@@ -885,11 +872,7 @@ class _Public {
 											$stated=1;
 											$item['value'] = sanitize_text_field($item['value']);
 											$rt= $item;
-											$l=strlen($item['value']);
-											//error_log($item['value']);
-										/* 	error_log($f['milen']);
-											error_log($f['mlen']); */
-											
+											$l=strlen($item['value']);											
 											if(strcmp($f['type'],"range")!==0 && ((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l))  ) {												
 												$stated=0;}
 											else if(((isset($f['milen']) && $f['milen']> $item['value'])||( isset($f['mlen']) && $f['mlen']< $item['value'])) && strcmp($f['type'],"range")==0 ) {
@@ -920,23 +903,17 @@ class _Public {
 									$in_loop=false;
 								break;
 							}
-							//&& $f['name']==$item['name']	
-							/* error_log("json_encode(item)");										
-							error_log(json_encode($item));	 */									
-																
-																	
-							//error_log($stated);
 							}
 					});
 					
 					if(isset($rt)){
 						array_push($valobj,$rt);
 					};	
-					//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
+				
 					
 				}
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
-				error_log(json_encode($valobj));
+
 				
 			
 				/* 	//test return
@@ -1082,8 +1059,6 @@ class _Public {
 										$amount = $amount;
 									if(gettype($r)=="string" && $fs!=''){
 										$setting =str_replace('\\', '', $r);
-										error_log('setting' );
-										error_log($setting );
 										$setting =json_decode($setting);
 										$TokenCode = $setting->payToken;
 										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($_POST['auth']), "amount" => $amount);
@@ -1207,7 +1182,6 @@ class _Public {
 								array_push($fs,array('type'=>'w_link' , 'id_'=>'w_link' , 'id'=>'w_link','value'=>$url,'amount'=>-1));
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
 								$fs=str_replace('"', '\\"', $filtered);
-								error_log($fs);
 								$this->value = sanitize_text_field($fs);									
 								$this->id = sanitize_text_field($_POST['payid']);			
 								$check=$this->update_message_db();								
@@ -1220,24 +1194,16 @@ class _Public {
 									//error_log($setting->emailSupporter);
 										$email = $setting->emailSupporter;
 									}
-									error_log("==============>trackId");
-									error_log($trackId);
-									error_log("track:[".$trackingCode."]");
-								
 									$this->send_email_Emsfb($email,$trackId,$pro,"newMessage",$url);
 									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email_user!="null"){
 										if($trackingCode=="true"||$trackingCode==true)
 										{
 											foreach($email_user as $key => $val){	
-												error_log("==============>trackId 1229");
-												error_log($trackId);
 												$this->send_email_Emsfb($val['value'],$trackId,$pro,"notiToUserFormFilled_TrackingCode",$url);
 											}
 										//$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled_TrackingCode");
 										}else{
 											foreach($email_user as $key => $val){
-												error_log("==============>trackId 1238");
-											error_log($trackId);	
 												$this->send_email_Emsfb($val['value'],$trackId,$pro,"notiToUserFormFilled",$url);
 											}
 										 //$this->send_email_Emsfb($email_user,$trackId,$pro,"notiToUserFormFilled");
@@ -1820,11 +1786,6 @@ class _Public {
 							$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 							wp_send_json_success($response,$_POST);
 						}
-						//&& $f['name']==$item['name']	
-						/* error_log("json_encode(item)");										
-						error_log(json_encode($item));	 */																											
-				//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
-				
 				}
 			
 				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
@@ -1871,19 +1832,12 @@ class _Public {
 				$usr;
 				$email_fa = $valn[0]["email"];
 				$lst = end($valn);
-				error_log('lst tyoe');
-				error_log($lst['type']);
 			 	$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-				//error_log("setting->emailSupporter");
-				//error_log($setting->emailSupporter);
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-				//error_log($setting->emailSupporter);
 					$email = $setting->emailSupporter;
 				}
 				
 				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage",$link_w);}
-
-				//error_log($email_fa);
 				if(strlen($email_fa)>4){
 					
 					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage",$link_w);
@@ -1904,10 +1858,6 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state,$link){
-		error_log('public send_email_emsfb');
-		error_log($link);
-		error_log($track);
-		error_log($to);
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
@@ -2546,8 +2496,7 @@ class _Public {
 				}else{
 					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');		
 				}
-			}
-			error_log($check);
+			}			
 			/* 		//payping
 			$data = array(
 				'clientRefId'   => $clientRefId,
@@ -2911,8 +2860,7 @@ class _Public {
 		return $rePage;
 	}
 
-	public function corn_email_new_message_recived_Emsfb(){
-		error_log('corn_email_new_message_recived_Emsfb');
+	public function corn_email_new_message_recived_Emsfb(){		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)!="string"){error_log('corn_email_new_message_recived_Emsfb->seting not added');return false;}
@@ -2960,11 +2908,6 @@ class _Public {
 
 
 	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email,$link){
-		error_log('fun_send_email_noti_efb');
-		error_log($fs_obj[0]["sendEmail"]);
-		error_log($link);
-		error_log($trackingCode);
-		error_log($email);
 		if($fs_obj[0]["sendEmail"]==true || $fs_obj[0]["sendEmail"]=="true"){
 			$user_email="null";
 			$user_email = array_filter($msg_obj, function($item) use($fs_obj){ 

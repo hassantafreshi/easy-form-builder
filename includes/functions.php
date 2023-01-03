@@ -591,8 +591,6 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-		error_log('send_email_state');
-		error_log($to);
 		//error_log($link);
 				//error_log("to send_email_state[". $to ."]");
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
@@ -647,7 +645,6 @@ class efbFunction {
 		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
 		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
-		error_log(json_encode($text));
         $lang= $this->text_efb($text);				
 		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
 		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
@@ -680,7 +677,6 @@ class efbFunction {
 			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){	
 			//w_link;
-			error_log($lang['clcdetls']);
 			$link = strlen($link)>5 ? $link.'?track='.$m : home_url();
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
@@ -794,9 +790,6 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
-		/* error_log('type sanitize');
-		error_log(gettype($valp)); */
-		//if(gettype($valp)=='string') 
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
