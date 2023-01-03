@@ -5,18 +5,16 @@ Donate link: 			https://whitestudio.team/donate-easy-form-builder/
 Stable tag: 			3.5.7
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
-Requires PHP:			5.5 or higher
+Requires PHP:			7.1 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
 Easy Form Builder is a user-friendly plugin to help you create powerful forms. With Easy Form Builder, creating professional forms of any kind becomes a breeze - no coding skills required Via a visual user interface 
 
 == Description ==
-**Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
+**Easy Form Builder** is a user-friendly form creator that allows you to create professional multistep forms within minutes.
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
-
-
 
 You don’t need any coding skills to use Easy Form Builder. Simply drag and drop your layouts to easily create unlimited custom multi-step forms. A unique Confirmation code ( tracking ID) allows you to connect any submission to an individual request.
 

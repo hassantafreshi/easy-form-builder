@@ -1973,7 +1973,7 @@ class _Public {
 				die("secure!");
 		}
 
-        include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+        //include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"); // TODO: Terrible location to load vendors. I moved it to root.
         //error_log('payment');
         //error_log($_POST['id']);
 		$this->id = sanitize_text_field($_POST['id']);

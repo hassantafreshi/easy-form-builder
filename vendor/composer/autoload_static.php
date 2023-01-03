@@ -6,17 +6,21 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit701e905f5ccf3d2d7b07acac81e0c5e1
 {
+    public static $files = array (
+        '3917c79c5052b270641b5a200963dbc2' => __DIR__ . '/..' . '/kint-php/kint/init.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        'K' => 
         array (
-            'Stripe\\' => 7,
+            'Kint\\' => 5,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Stripe\\' => 
+        'Kint\\' => 
         array (
-            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
+            0 => __DIR__ . '/..' . '/kint-php/kint/src',
         ),
     );
 

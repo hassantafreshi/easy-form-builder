@@ -1,0 +1,15 @@
+{
+  "name":              "vendor_name/easy-form-builder",
+  "description":       "description",
+  "minimum-stability": "stable",
+  "license":           "proprietary",
+  "authors":           [
+    {
+      "name":  "",
+      "email": ""
+    }
+  ],
+  "require-dev":       {
+    "kint-php/kint": "^5"
+  }
+}
