@@ -1468,34 +1468,38 @@ tr.efblist {	display: block;
  .efblist.inplist.h-d-efb {	font-size: 17px !important;
  	padding-left: 8px !important;
  	padding-right: 8px !important;
+	 padding-top: 8px!important;
  	min-height: 40px;
  	max-height: 42px;
  }
  .mobile .efblist.inplist.h-d-efb {	font-size: 17px !important;
  }
  .efblist.inplist.h-l-efb {	font-size: 25px !important;
- 	padding-left: 40px !important;
- 	padding-right: 40px !important;
+ 	padding-left: 10px !important;
+ 	padding-right: 10px !important;
+	 padding-top: 8px!important;
  	min-height: 50px;
  	max-height: 50px;
  }
  .efblist.inplist.h-xl-efb {	font-size: 30px !important;
- 	min-height: 60px;
- 	max-height: 60px;
- 	padding-left: 42px !important;
- 	padding-right: 42px !important;
+ 	min-height: 65px;
+ 	max-height: 65px;
+	 padding-top: 15px!important;
+ 	padding-left: 10px !important;
+ 	padding-right: 10px !important;
  }
  .efblist.inplist.h-xxl-efb {	font-size: 35px !important;
- 	padding-left: 50px !important;
- 	padding-right: 50px !important;
- 	padding-top: 14px !important;
+ 	padding-left: 10px !important;
+ 	padding-right: 10px !important;
+ 	padding-top: 20px !important;
  	min-height: 80px;
  	max-height: 80px;
  }
  .efblist.inplist.h-xxxl-efb {	font-size: 40px !important;
- 	padding-left: 60px !important;
- 	padding-right: 60px !important;
- 	padding-top: 14px !important;
+ 	padding-left: 10px !important;
+ 	padding-right: 10px !important;
+	
+ 	padding-top: 25px !important;
  	min-height: 90px;
  	max-height: 90px;
  }
