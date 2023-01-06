@@ -232,7 +232,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.8> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.9> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1608,9 +1608,9 @@ let change_el_edit_Efb = (el) => {
           //h-xxl-efb
           postId = `${valj_efb[indx].id_}_options`;
           let msel = document.getElementById(postId);
-          const iconDD = document.getElementById(`iconDD-${valj_efb[indx].id_}`)
+          //const iconDD = document.getElementById(`iconDD-${valj_efb[indx].id_}`)
           msel.className.match(/h-+\w+-efb/g) ? msel.className = inputHeightChangerEfb(msel.className, valj_efb[indx].el_height) : msel.classList.add(valj_efb[indx].el_height)
-          iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
+         // iconDD.className.match(/h-+\w+-efb/g) ? iconDD.className = inputHeightChangerEfb(iconDD.className, valj_efb[indx].el_height) : iconDD.classList.add(valj_efb[indx].el_height)
           msel.className = fontSizeChangerEfb(msel.className, fsize)
           valj_efb[indx].el_text_size = fsize
         } else if (c == "rating") {
