@@ -1968,9 +1968,9 @@ div#attach_efb {	position: relative;
 /* .efb.esign.col-md-6 .efb.ttiptext {	margin:-25px 0px 0px 10px}
 .efb.esign.col-md-4 .efb.ttiptext {	margin: -25px 0px 0px 10px;font-size: 12px!important; }; */
 
-.efb.def.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 50px}
-.efb.def.col-md-6 .tx.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext{	margin:-25px 0px 0px 50px}
-.efb.def.col-md-4 .tx.ttiptext {	margin: -25px 0px 0px 20px; };
+.efb.def.col-md-12 .efb.ttiptext { margin: -25px 0px 0px 50px!important}
+.efb.def.col-md-6 .tx.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext{	margin:-25px 0px 0px 50px!important}
+.efb.def.col-md-4 .tx.ttiptext {	margin: -25px 0px 0px 20px!important };
 
 
 

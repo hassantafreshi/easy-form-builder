@@ -1368,21 +1368,25 @@ function alert_message_efb(title, message, sec, alert) {
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
+  const id = document.getElementById('body_efb') ?'body_efb' : 'alert_efb';
+  //console.log(id);
   if (document.getElementById('alert_efb')==null){
     //<div id='alert_efb' class='efb mx-5'></div>
-    document.getElementById('body_efb').innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
+    document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
   document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <p>${message}</p>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
   </div>`
+  document.getElementById(id).scrollIntoView({behavior: 'smooth'}, true);
   setTimeout(function () {
     jQuery('.alert_efb').hide();
     document.getElementById('alert_efb').innerHTML = ""
   }, sec);
 
-  window.scrollTo({ top: document.getElementById('alert_efb').scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
+ // window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
+  //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
   
   //jQuery('.alert').alert()
 }
@@ -2374,5 +2378,4 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
   //console.log(document.getElementById(id+'_').value);
  }
-
 
