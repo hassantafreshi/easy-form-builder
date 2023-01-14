@@ -1066,6 +1066,7 @@ function creator_form_builder_Efb() {
   </div></div>
   
   `
+  console.log('[before]create_dargAndDrop_el');
   create_dargAndDrop_el();
   items_dd_efb();
 }

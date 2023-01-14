@@ -1385,7 +1385,7 @@ input[type=radio].efb.fs-2.form-check-input input[type=checkbox].efb.fs-2.form-c
  }
  
 div#recaptcha_efb {	position: absolute;
- 	margin-bottom: 69px !important;
+ 	/* margin-bottom: 69px !important; */
  }
  
 input#EditOption,input.elEdit {	padding: 0px 5px;

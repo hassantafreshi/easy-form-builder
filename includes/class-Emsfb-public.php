@@ -86,14 +86,16 @@ class _Public {
 		$this->id = $row_id;
 		
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
-		$typeOfForm =$value_form[0]->form_type;
-		//error_log($typeOfForm);
-		if($state_form!='not' && strlen($state_form)>7 
-		&& ($typeOfForm!="register" || $typeOfForm!="login")){
-			//error_log('load track');
-			$this->id =-1;
-			
-			return $this->EMS_Form_Builder_track();
+		if($value_form!=null){
+			$typeOfForm =$value_form[0]->form_type;
+			//error_log($typeOfForm);
+			if($state_form!='not' && strlen($state_form)>7 
+			&& ($typeOfForm!="register" || $typeOfForm!="login")){
+				//error_log('load track');
+				$this->id =-1;
+				
+				return $this->EMS_Form_Builder_track();
+			}
 		}
 		//error_log('conti');
 		$this->public_scripts_and_css_head();

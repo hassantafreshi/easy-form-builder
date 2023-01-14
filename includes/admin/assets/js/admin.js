@@ -2202,26 +2202,37 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
 }
 
 function create_dargAndDrop_el() {
-
+  console.log('create_dargAndDrop_el');
   const dropZoneEFB = document.getElementById("dropZoneEFB");
-  dropZoneEFB.addEventListener("dragover", (e) => {
-    e.preventDefault();
-  });
-  for (const el of document.querySelectorAll(".draggable-efb")) {
 
-    el.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", el.id)
+  dropZoneEFB.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  });
+  for (const el_efb of document.querySelectorAll(".draggable-efb")) {
+    console.log(`added =>.draggable-efb[el.id]`)
+
+    el_efb.addEventListener("dragstart", (event) => {     
+      console.log(event);
+      console.log(`create_dargAndDrop_el[dragstart][${el_efb.id}]`)
+      event.dataTransfer.setData("text/plain", el_efb.id)
 
     });
 
+    el_efb.addEventListener("click", (event) => {   
+     console.log('clicked');
+      if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
+        console.log('trued');
+        fun_efb_add_el(el_efb.id);}
+      });
   }
-  dropZoneEFB.addEventListener("drop", (e) => {
+  dropZoneEFB.addEventListener("drop", (event) => {
     // Add new element to dropZoneEFB
-    e.preventDefault();
-    if (e.dataTransfer.getData("text/plain") !== "step" && e.dataTransfer.getData("text/plain") != null && e.dataTransfer.getData("text/plain") != "") {
+    console.log('drop');
+    event.preventDefault();
+    if (event.dataTransfer.getData("text/plain") !== "step" && event.dataTransfer.getData("text/plain") != null && event.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
-      const t = e.dataTransfer.getData("text/plain");
-      //console.log(t);
+      const t = event.dataTransfer.getData("text/plain");
+      console.log(t);
 
       fun_efb_add_el(t);
     }
@@ -2230,6 +2241,8 @@ function create_dargAndDrop_el() {
 
     //enableDragSort('dropZoneEFB');
   }); // end drogZone
+
+  
 
 }
 
@@ -2587,7 +2600,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-
+  console.log('fun_efb_add_el');
   const rndm = Math.random().toString(36).substr(2, 9);
 
   //console.log(t);
