@@ -319,6 +319,7 @@ function createStepsOfPublic() {
 
       }
       el.addEventListener("change", (e) => {
+        console.log('change');
         //778899
         // e.preventDefault();
         

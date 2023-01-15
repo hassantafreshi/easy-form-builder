@@ -31,7 +31,7 @@ const fields_efb = [
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
- /*  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' }, */
+  { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
@@ -43,7 +43,10 @@ const fields_efb = [
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
-
+/*   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
+  { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
+  { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
+ */
 ]
 
 
@@ -140,7 +143,10 @@ function show_setting_window_efb(idset) {
     const MessageReuired = `<div class="efb tnxmsg mt-1"><label for="MessageReuired" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
-
+    const textEls=(id , name ,el_type,value ,attr) =>{
+      console.log(id , name ,el_type,value);
+      return`<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="textEl" class="efb form-label mt-2 mb-1 efb">${name}<span class="efb  mx-1 efb text-danger">*</span></label>
+    <input type="${el_type}"  data-id="${idset}" data-atr="${attr}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  data-id="${id}" id="textEl" required value="${value}"></div>`}
     /* 778899 end new atr */
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
@@ -643,6 +649,7 @@ function show_setting_window_efb(idset) {
       case "esign":
       case "rating":
       case "switch":
+        console.log(valj_efb[indx]);
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -654,7 +661,9 @@ function show_setting_window_efb(idset) {
         </button>
         </div>
         <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">                                            
+                <div class="efb  mb-3 px-3 row">      
+                ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on'):''}   
+                ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off'):''}                                         
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
@@ -665,6 +674,8 @@ function show_setting_window_efb(idset) {
                 ${ElementAlignEls('description')}
                 ${el.dataset.tag == "range" ? mLenEls :''}                                       
                 ${el.dataset.tag == "range" ?miLenEls:''}   
+                ${el.dataset.tag == "range" ?valueEls:''}   
+               
                 ${el.dataset.tag == "range" ?valueEls:''}   
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag != 'range' ? selectHeightEls() :''}

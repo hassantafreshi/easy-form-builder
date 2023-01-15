@@ -730,6 +730,25 @@ class _Public {
 									}
 									$in_loop=false;
 									break;
+								case 'switch':
+									$stated=0;
+									if(isset($item['value'])){
+										
+										$item['value'] = sanitize_text_field($item['value']);
+
+										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+											if(isset($fr['id_']) && isset($item['id_']) && $fr['id_']==$item['id_']){
+												error_log(json_encode($fr));
+												error_log(json_encode($item));
+												$item['value']= $item['value']=='1' ?   $fr['on'] : $fr['off'];
+												$rt = $item;
+												$stated=1;											
+												return;
+											}
+										});
+									}
+									$in_loop=false;
+									break;
 								case 'option':					
 									$t = strpos(strtolower($item['type']),'checkbox');
 									if(gettype($t)!='boolean'){

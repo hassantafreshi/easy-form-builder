@@ -1032,7 +1032,8 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  .h-xxxl-efb:-ms-input-placeholder {	font-size: 49px !important;
  	font-weight: 400 !important;
  }
- /* switch height */.efb-switch {	height: inherit !important;
+ /* 
+.efb-switch {	height: inherit !important;
  	background-repeat: no-repeat !important;
  }
  .efb-switch.form-check-input:checked::before {	content: none !important;
@@ -1068,7 +1069,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  	border-radius: 95px;
  	margin-top: 3px !important;
 	margin-bottom: 12px!important;
- }
+ } */
  /* end height */.noCode-efb {	height: fit-content;
  }
  /* html elemetns *//* option buttons (toggle button) */.opButtonEfb {	position: fixed;
@@ -1983,3 +1984,250 @@ div#attach_efb {	position: relative;
  .efb.rating .ttiptext {	margin: -110px 85px;}
 
   */
+
+  /* switch start */
+  .efb.btn-toggle {
+	margin: 0 4rem;
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 1.5rem;
+	width: 3rem;
+	border-radius: 1.5rem;
+	color: #6b7381;
+	background: #bdc1c8;
+  }
+  .efb.btn-toggle:focus,
+  .efb.btn-toggle.focus,
+  .efb.btn-toggle:focus.active,
+  .efb.btn-toggle.focus.active {
+	outline: none;
+  }
+  
+  
+  .efb.btn-toggle > .handle {
+	position: absolute;
+	top: 0.1875rem;
+	left: 0.1875rem;
+	width: 1.125rem;
+	height: 1.125rem;
+	border-radius: 1.125rem;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.active > .handle {
+	left: 1.6875rem;
+	transition: left 0.25s;
+  }
+  
+  
+  /*start h-xxxl-efb toggle  */
+  .efb.btn-toggle.h-xxxl-efb {
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 90px!important;
+	width: 200px;
+	border-radius: 90px;
+  }
+  
+  .efb.btn-toggle.h-xxxl-efb > .handle {
+	position: absolute;
+	top: 7px;
+	left: 7px;
+	width: 75px;
+	height: 75px;
+	border-radius: 75px;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-xxxl-efb.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.h-xxxl-efb.active > .handle {
+	left: 118px;
+	transition: left 0.25s;
+  }
+  
+  
+  /*End h-xxxl-efb toggle  */
+  
+  
+  
+  /*start h-xxl-efb toggle  */
+  .efb.btn-toggle.h-xxl-efb {
+	margin: 0 150px;
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 70px!important;
+	width: 150px;
+	border-radius: 70px;
+  }
+  
+  .efb.btn-toggle.h-xxl-efb > .handle {
+	position: absolute;
+	top: 7px;
+	left: 7px;
+	width: 57px;
+	height: 57px;
+	border-radius: 57px;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-xxl-efb.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.h-xxl-efb.active > .handle {
+	left: 90px;
+	transition: left 0.25s;
+  }
+  
+  
+  /*End h-xxl-efb toggle  */
+  
+  
+  /*start h-xl-efb toggle  */
+  .efb.btn-toggle.h-xl-efb {
+	margin: 0 100px;
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 50px!important;
+	width: 100px;
+	border-radius: 50px;
+  }
+  
+  .efb.btn-toggle.h-xl-efb > .handle {
+	position: absolute;
+	top: 7px;
+	left: 7px;
+	width: 38px;
+	height: 38px;
+	border-radius: 38px;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-xl-efb.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.h-xl-efb.active > .handle {
+	left: 57px;
+	transition: left 0.25s;
+  }
+  
+  
+  /*End h-xl-efb toggle  */
+  
+  /*start h-l-efb toggle  */
+  .efb.btn-toggle.h-l-efb {
+	margin: 0 80px;
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 40px!important;
+	width: 80px;
+	border-radius: 40px;
+  }
+  .efb.btn-toggle.h-l-efb:focus,
+  .efb.btn-toggle.h-l-efb.focus,
+  .efb.btn-toggle.h-l-efb:focus.active,
+  .efb.btn-toggle.h-l-efb.focus.active {
+	outline: none;
+  }
+  .efb.btn-toggle.h-l-efb:before,
+  .efb.btn-toggle.h-l-efb:after {
+	line-height: 40px;
+	width: 80px;
+	text-align: center;
+	font-weight: 600;
+	font-size: 20px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	position: absolute;
+	bottom: 0;
+	transition: opacity 0.25s;
+  }
+  .efb.btn-toggle.h-l-efb:before {
+  /*   content: 'Off'; */
+	left: -80px;
+  }
+  .efb.btn-toggle.h-l-efb:after {
+  /*   content: 'On'; */
+	right: -80px;
+	opacity: 0.5;
+  }
+  .efb.btn-toggle.h-l-efb > .handle {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 30px;
+	height: 30px!important;
+	border-radius: 30px;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-l-efb.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.h-l-efb.active > .handle {
+	left: 45px;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-l-efb.active:before {
+	opacity: 0.5;
+  }
+  .efb.btn-toggle.h-l-efb.active:after {
+	opacity: 1;
+  }
+  
+  /*End h-l-efb toggle  */
+  
+  
+  
+  /*start h-d-efb toggle  */
+  .efb.btn-toggle.h-d-efb {
+	margin: 0 60px;
+	padding: 0;
+	position: relative;
+	border: none;
+	height: 28px!important;
+	width: 60px;
+	border-radius: 28px;
+  }
+  
+  .efb.btn-toggle.h-d-efb > .handle {
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 22px;
+	height: 22px;
+	border-radius: 22px;
+	background: #fff;
+	transition: left 0.25s;
+  }
+  .efb.btn-toggle.h-d-efb.active {
+	transition: background-color 0.25s;
+  }
+  .efb.btn-toggle.h-d-efb.active > .handle {
+	left: 35px;
+	transition: left 0.25s;
+  }
+  
+  .efb.btn-toggle{
+	margin: 0 2%!important;
+  }
+  
+  .efb.btn-toggle{
+	color: #fff;
+	  background-color: #9290a7!important;
+	  border-color: #9290a7!important;
+  }
+  .efb.btn-toggle.active {
+	background-color: #4636f1 !important;
+    background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
+  } 
+  /* switch end */

@@ -460,13 +460,24 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case 'switch':
+      valj_efb[iVJ].on =  valj_efb[iVJ].hasOwnProperty('on') ? valj_efb[iVJ].on :efb_var.text.on
+      valj_efb[iVJ].off =  valj_efb[iVJ].hasOwnProperty('off') ? valj_efb[iVJ].off :efb_var.text.off
       ui = `
       ${label}
       ${ttip}
-      <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show" id ="${rndm}-f">
+      <div class="efb ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show" id ="${rndm}-f">
+      <label class="efb fs-6" id="${rndm}_off">${valj_efb[iVJ].off}</label>
+      <button type="button"  data-state="off" class="efb btn ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_height}  btn-toggle" data-toggle="button" aria-pressed="false" autocomplete="off" data-vid='${rndm}' onClick="fun_switch_efb(this)" data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''}>
+        <div class="efb handle"></div>
+      </button>
+      <label class="efb fs-6" id="${rndm}_on">${valj_efb[iVJ].on}</label>
+      
+    
+
+   <!--   <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show" id ="${rndm}-f">
       <div class="efb  form-check form-switch ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_height} " id="${rndm}-switch">
         <input class="efb d-none emsFormBuilder_v efb-switch form-check-input efbField" type="checkbox" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_" ${previewSate != true ? 'disabled' : ''}>
-      </div>
+      </div> -->
       <div class="efb  mb-3">${desc}</div>
       `
       dataTag = elementId;
@@ -725,6 +736,114 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'booking':
       dataTag = elementId;
       break;
+    case 'pointr10':
+      console.log('pointr5')
+      //pointer10_el_pro_efb
+      temp=pointer10_el_pro_efb(previewSate, classes,iVJ);
+      console.log(temp);
+      ui = `
+      ${label}
+      <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
+        ${ttip}
+        ${temp}
+        ${desc}`
+      dataTag = elementId;
+      break;
+    case 'pointr5':
+      console.log('pointr5')
+      //pointer10_el_pro_efb
+      temp=pointer5_el_pro_efb(previewSate, classes,iVJ);
+      console.log(temp);
+      ui = `
+      ${label}
+      <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
+        ${ttip}
+        ${temp}
+        ${desc}`
+      dataTag = elementId;
+      break;
+      case 'table_matrix':
+        console.log('case table_matrix');
+        //  case 'payCheckbox':
+        //case 'payRadio':
+        //case 'chlCheckBox':
+        //case 'chlRadio':
+        // const rndm_a = Math.random().toString(36).substr(2, 9);
+        type_field_efb = elementId;
+        dataTag = elementId;
+        col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style) != 1 ? 'col-md-' + (12 / Number(valj_efb[iVJ].op_style)) : ''
+        if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox") pay = "";
+  
+        if (editState != false) {
+          // if edit mode
+          optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
+  
+          //console.log(`col options[${col}]`);
+          for (const i of optns_obj) {
+            prc = i.hasOwnProperty('price') ? Number(i.price) : 0;
+            optn += `
+            
+            <div class="efb  form-check ${col} row my-1" data-id="${i.id_}" data-parent="${i.parent}" id="${i.id_}-v">
+              <div class="efb my-2  col-md-8 fs-6  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${i.id_}_lab">${i.value}</div>
+              <div class="efb col-md-4  d-flex justify-content-center " id="${i.id_}" > 
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="2"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="3"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="4"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="5"  data-id="${i.id_}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <input type="hidden" class="efb emsFormBuilder_v" data-vid="${i.id_}" data-parent="${i.parent} data-type="rating"  id="${i.id_}-point-rating" >
+              </div>                                            
+          </div>
+          <!-- end r_matrix -->
+            `
+          }//end for 
+  
+  
+  
+        } else {
+          const op_1 = Math.random().toString(36).substr(2, 9);
+          const op_2 = Math.random().toString(36).substr(2, 9);
+          const pv = 0;
+  
+          optn = `
+          <div class="efb   col-sm-12 row my-1" data-id="${op_1}" data-parent="${rndm}" id="${op_1}-v">
+              <div class="efb my-2 col-md-8 fs-6 ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${op_1}_lab">${efb_var.text.newSubject}</div>
+              <div class="efb col-md-4 d-flex justify-content-center " id="${op_1}" > 
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="2"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="3"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="4"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="5"  data-id="${op_1}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <input type="hidden" data-vid="${op_1}" data-parent="${rndm} data-type="rating"  id="${op_1}-point-rating" >
+              </div>                                            
+          </div>
+          <div class="efb   col-sm-12 row my-1" data-id="${op_2}" data-parent="${rndm}" id="${op_2}-v">
+              <div class="efb my-2 col-md-8 fs-6 ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${op_2}_lab">${efb_var.text.newSubject}</div>
+              <div class="efb col-md-4  d-flex justify-content-center " id="${op_2}" > 
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="2"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="3"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="4"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="5"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+                  <input type="hidden" data-vid="${op_2}" data-parent="${rndm} data-type="rating"  id="${op_2}-point-rating" >
+              </div>                                            
+          </div>`
+          r_matrix_push_efb(rndm, efb_var.text.newSubject, op_1, op_1);
+          r_matrix_push_efb(rndm, efb_var.text.newSubject, op_2, op_2);
+        }
+        ui = `
+        <!-- table matrix -->
+        ${label}
+          <div class="efb  ${pos[3]} col-sm-12 mx-0 ttEfb show"   data-id="${rndm}-el" id='${rndm}-f'>
+            ${ttip}
+            <div class="efb  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${col != '' ? 'row col-md-12' : ''}" id="${rndm}_options">
+              ${optn}
+            </div>
+            <div class="efb  mb-3">${desc}</div>
+          <!-- end table matrix -->
+          `
+  
+        break;
 
 
 
@@ -911,6 +1030,7 @@ const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); 
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
+const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, `${value}`); }
 
 
 const open_whiteStudio_efb = (state) => {

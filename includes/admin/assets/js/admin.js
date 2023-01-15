@@ -1033,6 +1033,13 @@ let change_el_edit_Efb = (el) => {
           //console.log(el.value, valj_efb[indx].mlen);
         }     
         break;
+      case "textEl":
+        //console.log(el.dataset.atr,el.value);
+        valj_efb[indx][el.dataset.atr] =el.value;
+        c =  valj_efb[indx].id_ +"_"+el.dataset.atr
+        //console.log(el.dataset,c)
+        document.getElementById(c).innerHTML=el.value;
+        break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
           //console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
@@ -1626,7 +1633,10 @@ let change_el_edit_Efb = (el) => {
           }, 10);
           break;
         } else if (c == "switch") {
-          postId = `${valj_efb[indx].id_}-switch`;
+          postId = `${valj_efb[indx].id_}_`;
+          //fsize
+          document.getElementById(`${valj_efb[indx].id_}_off`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_off`).className, fsize);
+          document.getElementById(`${valj_efb[indx].id_}_on`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_on`).className, fsize);
         } else if (c == "yesNo") {
           setTimeout(() => {
             postId = `${valj_efb[indx].id_}_b_1`;
@@ -2824,6 +2834,24 @@ state_modal_show_efb=(i)=>{
   
   }
    i==1 ? show() : remove();   
+}
+
+
+function add_r_matrix_edit_pro_efb(parent, tag, len) {
+  const p = calPLenEfb(len)
+  len = len < 50 ? 200 : (len + Math.log(len)) * p
+  const id_ob = Math.random().toString(36).substr(2, 9);
+  //console.log(`'=======>add_r_matrix_edit_pro_efb tag[${tag}]'`);
+  r_matrix_push_efb(parent, efb_var.text.newOption, id_ob, id_ob, tag);
+  setTimeout(() => {
+    add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
+  }, len);
+
+}
+
+let r_matrix_push_efb = (parent, value, rndm, op) => {
+
+  valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `r_matrix`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
