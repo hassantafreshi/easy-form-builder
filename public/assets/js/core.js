@@ -319,6 +319,7 @@ function createStepsOfPublic() {
 
       }
       el.addEventListener("change", (e) => {
+        //console.log('change');
         //778899
         // e.preventDefault();
         
@@ -1358,6 +1359,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
+  message=santize_string_efb(message);
   // +='disabled fas fa-spinner fa-pulse';
   const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
   //const ob = [{ name: 'Message', value: message, by: by }];
@@ -1366,10 +1368,10 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder}];
   fun_sendBack_emsFormBuilder(ob[0])
   /*end  new attachment */
-  let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
-  if (message.length < 1 || isHTML(message)) {
+  /* let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i); */
+  if (message.length < 1 ) {
     check_msg_ext_resp_efb();
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-6"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.pleaseEnterVaildValue}</h6>`;
     //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
@@ -1739,4 +1741,10 @@ remove_ttmsg_efb=(id)=>{
 change_url_back_persia_pay_efb=()=>{
   const indx = document.URL.indexOf('?');
   if(indx!=-1)history.pushState({'page_id': 1},`${document.title} !`, document.URL.slice(0,indx));
+}
+
+santize_string_efb = (str) => {
+  //console.log('in santize_string_efb');
+  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
+  return str.replaceAll(regexp, '');
 }

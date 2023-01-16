@@ -35,9 +35,6 @@ class Panel_edit  {
 			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
 			$lang = $efbFunction->text_efb(1);
-			
-			/* error_log(gettype($ac));
-			error_log($ac->activeCode); */
 			$smtp =false;
 			$captcha =false;
 			$maps=false;
@@ -49,7 +46,9 @@ class Panel_edit  {
 			'AdnSS' => 0,
 			'AdnCPF' => 0,
 			'AdnESZ' => 0,
-			'AdnSE' => 0];
+			'AdnSE' => 0,
+			'AdnPDP'=>0,
+			'AdnADP'=>0];
 
 			if(gettype($ac)!="string" && isset($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
@@ -76,12 +75,14 @@ class Panel_edit  {
 					$addons["AdnSPF"]=$ac->AdnSPF;
 					$addons["AdnESZ"]=$ac->AdnESZ;
 					$addons["AdnSE"]=$ac->AdnSE;
+					$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 				}
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
 		
 			$location =$pro==true  ? $efbFunction->get_geolocation() :'';
-			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.9');
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.10');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -99,10 +100,10 @@ class Panel_edit  {
 				'location'=>$location
 			));
 
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.9');
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.10');
 			wp_enqueue_script('efb-val-js'); 
 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.9');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.10');
 			wp_enqueue_script('efb-pro-els');
 
 
@@ -134,32 +135,32 @@ class Panel_edit  {
 				wp_enqueue_script('googleMaps-js');
 			}
 
-			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.9');
+			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.10');
 			wp_enqueue_script('pay_js');
 	
 			if("fa_IR"==get_locale()){
-				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.9');
+				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.10');
 				wp_enqueue_script('persia_pay');
 			}
 	
-			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.9');
+			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.10');
 			wp_enqueue_script('stripe_js');
 			
-			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.9' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.10' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0));
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.9');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.10');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
-			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.9');
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.10');
 			wp_enqueue_script('efb-main-js'); 
 			
 				/* new code v4 */
 			
-				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.9');	
+				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.10');	
 				wp_enqueue_script('jquery-ui');
-				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.9');	
+				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.10');	
 				wp_enqueue_script('jquery-dd'); 
 				/*end new code v4 */
 
@@ -280,7 +281,7 @@ class Panel_edit  {
 
 
 
-			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.9');
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.10');
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -299,7 +300,7 @@ class Panel_edit  {
 
 				//error_log(wp_create_nonce("public-nonce"));
 					//smart zone test
-					//$this->test_smart_zone();
+					/* $this->test_smart_zone(); */
 		}else{
 			echo "Easy Form Builder: You dont access this section";
 		}

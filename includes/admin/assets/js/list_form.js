@@ -464,19 +464,20 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   //پاسخ مدیر را ارسال می کند به سرور 
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
-
+  
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
+  message=santize_string_efb(message);
   //const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
   // +='disabled fas fa-spinner fa-pulse';
   //const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}];
   fun_sendBack_emsFormBuilder(ob[0])
-  let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
-  //console.log(isHTML)
-  if (message.length < 1 || isHTML(message)) {
+  /* let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
+   console.log(isHTML(message),message.length ) */
+  if (message.length < 1) {
     
     check_msg_ext_resp_efb();
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}${efb_var.text.youCantUseHTMLTagOrBlank}</h6>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}: ${efb_var.text.pleaseEnterVaildValue}</h6>`;
     //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
@@ -2118,10 +2119,16 @@ function funNproEmailTemp() {
 }
 
 function act_local_efb_event(t){
-  console.log("Clicked, new value = " + t.checked);
+  //console.log("Clicked, new value = " + t.checked);
   t.checked==true ? document.getElementById('textList-efb').classList.remove('d-none'): document.getElementById('textList-efb').classList.add('d-none')
 }
 
+santize_string_efb = (str) => {
+  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
+  str=str.replaceAll(regexp, '');
+  //console.log('in santize_string_efb',str);
+  return str.replaceAll(regexp, '');
+}
 
 
 

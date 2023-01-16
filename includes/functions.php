@@ -574,6 +574,16 @@ class efbFunction {
 			"resop" => $state  &&  isset($ac->text->resop) ? $ac->text->resop : __('The response(ticket) closed','easy-form-builder'),				
 			"rescl" => $state  &&  isset($ac->text->rescl) ? $ac->text->rescl : __('The response(ticket) opened','easy-form-builder'),				
 			"clcdetls" => $state  &&  isset($ac->text->clcdetls) ? $ac->text->clcdetls : __('Click here for more details','easy-form-builder'),				
+			"lson" => $state  &&  isset($ac->text->lson) ? $ac->text->lson : __('Label of the ON status','easy-form-builder'),				
+			"lsoff" => $state  &&  isset($ac->text->lsoff) ? $ac->text->lsoff : __('Label of the OFF status','easy-form-builder'),				
+			"pr5" => $state  &&  isset($ac->text->pr5) ? $ac->text->pr5 : __('5 Point Scale','easy-form-builder'),				
+			"nps_" => $state  &&  isset($ac->text->nps_) ? $ac->text->nps_ : __('Net Promoter Score','easy-form-builder'),				
+			"nps_tm" => $state  &&  isset($ac->text->nps_tm) ? $ac->text->nps_tm : __('NPS Table Matrix','easy-form-builder'),				
+			"pointr10" => $state  &&  isset($ac->text->pointr10) ? $ac->text->pointr10 : __('Net Promoter Score','easy-form-builder'),				
+			"pointr5" => $state  &&  isset($ac->text->pointr5) ? $ac->text->pointr5 : __('5 Point Scale','easy-form-builder'),				
+			"table_matrix" => $state  &&  isset($ac->text->table_matrix) ? $ac->text->table_matrix : __('NPS Table Matrix','easy-form-builder'),				
+			"pdate" => $state  &&  isset($ac->text->pdate) ? $ac->text->pdate : __('Jalali Date','easy-form-builder'),				
+			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : __('Hejri Date','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

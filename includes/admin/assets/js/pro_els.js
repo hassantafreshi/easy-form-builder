@@ -48,6 +48,34 @@ rating_el_pro_efb =(previewSate, rndm,iVJ)=>{
       <input type="hidden" data-vid="${rndm}" data-type="rating" class="efb emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-stared" >`
 }
 
+
+pointer10_el_pro_efb = (previewSate, classes,iVJ)=>{
+  return ` <div class="efb  NPS d-flex justify-content-right " id="${valj_efb[iVJ].id_}" >     
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="0"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)">0</div>                            
+  <div class="efb emsFormBuilder_v rating${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 1</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="2"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 2</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="3"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 3</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="4"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 4</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="5"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 5</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="6"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 6</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="7"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 7</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="8"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 8</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="9"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)">9</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="10"  data-id="${valj_efb[iVJ].id_}" onclick="fun_nps_rating(this)">10</div>
+  
+  <input type="hidden" data-vid="${valj_efb[iVJ].id_}" data-type="rating"  id="${valj_efb[iVJ].id_}-nps-rating" >
+  </div> `
+}
+pointer5_el_pro_efb = (previewSate, classes,iVJ)=>{
+  return `   <div class="efb d-flex justify-content-right " id="${valj_efb[iVJ].id_}"> 
+  <div class="efb btn btn-secondary emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} text-white mx-1 ${previewSate != true ? 'disabled' : ''}" data-point="1" data-id="${valj_efb[iVJ].id_}" onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+  <div class="efb btn btn-secondary emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} text-white mx-1 ${previewSate != true ? 'disabled' : ''}" data-point="2" data-id="${valj_efb[iVJ].id_}" onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+  <div class="efb btn btn-secondary emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} text-white mx-1 ${previewSate != true ? 'disabled' : ''}" data-point="3" data-id="${valj_efb[iVJ].id_}" onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+  <div class="efb btn btn-secondary emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} text-white mx-1 ${previewSate != true ? 'disabled' : ''}" data-point="4" data-id="${valj_efb[iVJ].id_}" onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+  <div class="efb btn btn-secondary emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} text-white mx-1 ${previewSate != true ? 'disabled' : ''}" data-point="5" data-id="${valj_efb[iVJ].id_}" onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>
+  <input type="hidden" data-vid="${valj_efb[iVJ].id_}" data-type="rating" id="${valj_efb[iVJ].id_}-point-rating">
+  </div> `
+}
 countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
     let optn ='<!--countreies-->'
     if (editState != false) {
@@ -737,4 +765,99 @@ close_resp_efb=(id,s)=>{
   const ob = s==1 ? [{id_:'message', name:'message', type:'opened', amount:0, value: efb_var.text.clsdrspo, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}] : [{id_:'message', name:'message', type:'closed', amount:0, value: efb_var.text.clsdrspn, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}]
   sendBack_emsFormBuilder_pub= ob;
   fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
+}
+
+
+
+function fun_point_rating(el) {
+  const id = el.dataset.id;
+
+  for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
+      //console.log(l);
+      if (Number(l.dataset.point) <= Number(el.dataset.point)) {
+          /* l.classList.remove('btn-secondary');
+          l.classList.add('btn-darkb'); */
+          l.className = btnChangerEfb(l.className, 'btn-darkb');
+      } else {
+          l.className = btnChangerEfb(l.className, 'btn-secondary');
+      }
+  }
+  document.getElementById(id + '-point-rating').value = el.dataset.point;
+  //console.log(document.getElementById(id + '-point-rating').value)
+  //console.log(state_efb);
+  if(state_efb=='run'){
+      const v = valj_efb.find(x=>x.id_ ==id);
+      //console.log(`id[${id}]`,v);
+      
+      if(v.type=="r_matrix"){
+          const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+      //console.log(o);
+      fun_sendBack_emsFormBuilder(o[0]);
+          const l = valj_efb.filter(obj => {
+              return obj.parent == v.parent
+            })
+          const p = valj_efb.find(x=>x.id_ ==v.parent);
+          //console.log(l,p);
+          if(p.required==true){
+              setTimeout(() => {
+                  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+                  const o_r = sendBack_emsFormBuilder_pub.filter(obj => {
+                      return obj.parent == v.parent
+                    })
+                  //console.log(`added`,o_r,l.length,o_r.length);
+                  if(l.length==o_r.length){
+                     //console.log('equal')
+                  }
+              }, 500);
+              
+          }
+      }else{
+      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+      //console.log(o);
+      fun_sendBack_emsFormBuilder(o[0]);
+      }
+  }
+
+}
+function fun_nps_rating(el) {
+  const id = el.dataset.id;
+  el.className = btnChangerEfb(el.className, 'btn-darkb');
+
+  for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
+      //console.log(l);
+      if (Number(l.dataset.point) != Number(el.dataset.point)) {
+
+          l.className = btnChangerEfb(l.className, 'btn-outline-secondary');
+      }
+  }
+  document.getElementById(id + '-nps-rating').value = el.dataset.point;
+  if(state_efb=='run'){
+      const v = valj_efb.find(x=>x.id_ ==id);
+      //console.log(`id[${id}] v[${v}]`);
+      const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
+      //console.log(o);
+      fun_sendBack_emsFormBuilder(o[0]);
+     
+
+      /* vd = document.getElementById(`${ob.id_}_-message`)
+          vd.classList.remove('show'); */
+  }
+
+}
+
+function fun_switch_efb(el){
+  //console.log(el);
+  if(state_efb!='run'){ return}
+  const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
+  setTimeout(() => {
+          //console.log(`id[${id}] v[${v}]`);
+          let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
+          //console.log(el.classList ,el.classList.contains('active'));
+          if(el.classList.contains('active')==false){
+            o[0].value="0";
+          }
+          //console.log(`o value  [${o[0].value}]`,o[0]);
+          fun_sendBack_emsFormBuilder(o[0]);
+  }, 100);
+
 }

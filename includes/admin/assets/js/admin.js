@@ -232,7 +232,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.9> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.10> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1033,6 +1033,13 @@ let change_el_edit_Efb = (el) => {
           //console.log(el.value, valj_efb[indx].mlen);
         }     
         break;
+      case "textEl":
+        //console.log(el.dataset.atr,el.value);
+        valj_efb[indx][el.dataset.atr] =el.value;
+        c =  valj_efb[indx].id_ +"_"+el.dataset.atr
+        //console.log(el.dataset,c)
+        document.getElementById(c).innerHTML=el.value;
+        break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
           //console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
@@ -1626,7 +1633,10 @@ let change_el_edit_Efb = (el) => {
           }, 10);
           break;
         } else if (c == "switch") {
-          postId = `${valj_efb[indx].id_}-switch`;
+          postId = `${valj_efb[indx].id_}_`;
+          //fsize
+          document.getElementById(`${valj_efb[indx].id_}_off`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_off`).className, fsize);
+          document.getElementById(`${valj_efb[indx].id_}_on`).className = fontSizeChangerEfb(document.getElementById(`${valj_efb[indx].id_}_on`).className, fsize);
         } else if (c == "yesNo") {
           setTimeout(() => {
             postId = `${valj_efb[indx].id_}_b_1`;
@@ -2025,6 +2035,7 @@ let editFormEfb = () => {
   setTimeout(() => {
     dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
+      console.log('preview');
       try {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
@@ -2202,25 +2213,36 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
 }
 
 function create_dargAndDrop_el() {
-
+  //console.log('create_dargAndDrop_el');
   const dropZoneEFB = document.getElementById("dropZoneEFB");
-  dropZoneEFB.addEventListener("dragover", (e) => {
-    e.preventDefault();
-  });
-  for (const el of document.querySelectorAll(".draggable-efb")) {
 
-    el.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", el.id)
+  dropZoneEFB.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  });
+  for (const el_efb of document.querySelectorAll(".draggable-efb")) {
+    //console.log(`added =>.draggable-efb[el.id]`)
+
+    el_efb.addEventListener("dragstart", (event) => {     
+      //console.log(event);
+      //console.log(`create_dargAndDrop_el[dragstart][${el_efb.id}]`)
+      event.dataTransfer.setData("text/plain", el_efb.id)
 
     });
 
+    el_efb.addEventListener("click", (event) => {   
+     //console.log('clicked');
+      if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
+        //console.log('trued');
+        fun_efb_add_el(el_efb.id);}
+      });
   }
-  dropZoneEFB.addEventListener("drop", (e) => {
+  dropZoneEFB.addEventListener("drop", (event) => {
     // Add new element to dropZoneEFB
-    e.preventDefault();
-    if (e.dataTransfer.getData("text/plain") !== "step" && e.dataTransfer.getData("text/plain") != null && e.dataTransfer.getData("text/plain") != "") {
+    //console.log('drop');
+    event.preventDefault();
+    if (event.dataTransfer.getData("text/plain") !== "step" && event.dataTransfer.getData("text/plain") != null && event.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
-      const t = e.dataTransfer.getData("text/plain");
+      const t = event.dataTransfer.getData("text/plain");
       //console.log(t);
 
       fun_efb_add_el(t);
@@ -2230,6 +2252,8 @@ function create_dargAndDrop_el() {
 
     //enableDragSort('dropZoneEFB');
   }); // end drogZone
+
+  
 
 }
 
@@ -2587,7 +2611,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-
+  //console.log('fun_efb_add_el');
   const rndm = Math.random().toString(36).substr(2, 9);
 
   //console.log(t);
@@ -2811,6 +2835,24 @@ state_modal_show_efb=(i)=>{
   
   }
    i==1 ? show() : remove();   
+}
+
+
+function add_r_matrix_edit_pro_efb(parent, tag, len) {
+  const p = calPLenEfb(len)
+  len = len < 50 ? 200 : (len + Math.log(len)) * p
+  const id_ob = Math.random().toString(36).substr(2, 9);
+  //console.log(`'=======>add_r_matrix_edit_pro_efb tag[${tag}]'`);
+  r_matrix_push_efb(parent, efb_var.text.newOption, id_ob, id_ob, tag);
+  setTimeout(() => {
+    add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
+  }, len);
+
+}
+
+let r_matrix_push_efb = (parent, value, rndm, op) => {
+
+  valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `r_matrix`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
