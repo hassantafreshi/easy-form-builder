@@ -582,6 +582,8 @@ class efbFunction {
 			"pointr10" => $state  &&  isset($ac->text->pointr10) ? $ac->text->pointr10 : __('Net Promoter Score','easy-form-builder'),				
 			"pointr5" => $state  &&  isset($ac->text->pointr5) ? $ac->text->pointr5 : __('5 Point Scale','easy-form-builder'),				
 			"table_matrix" => $state  &&  isset($ac->text->table_matrix) ? $ac->text->table_matrix : __('NPS Table Matrix','easy-form-builder'),				
+			"pdate" => $state  &&  isset($ac->text->pdate) ? $ac->text->pdate : __('Jalali Date','easy-form-builder'),				
+			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : __('Hejri Date','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

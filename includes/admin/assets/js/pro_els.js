@@ -846,17 +846,17 @@ function fun_nps_rating(el) {
 }
 
 function fun_switch_efb(el){
-  console.log(el);
+  //console.log(el);
   if(state_efb!='run'){ return}
   const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
   setTimeout(() => {
           //console.log(`id[${id}] v[${v}]`);
           let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
-          console.log(el.classList ,el.classList.contains('active'));
+          //console.log(el.classList ,el.classList.contains('active'));
           if(el.classList.contains('active')==false){
             o[0].value="0";
           }
-          console.log(`o value  [${o[0].value}]`,o[0]);
+          //console.log(`o value  [${o[0].value}]`,o[0]);
           fun_sendBack_emsFormBuilder(o[0]);
   }, 100);
 

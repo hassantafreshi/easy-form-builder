@@ -232,7 +232,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.9> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.10> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -2035,6 +2035,7 @@ let editFormEfb = () => {
   setTimeout(() => {
     dropZoneEFB.innerHTML = "<!-- edit efb -->"
     for (let v in valj_efb) {
+      console.log('preview');
       try {
         if (valj_efb[v].type != "option") {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
@@ -2212,37 +2213,37 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
 }
 
 function create_dargAndDrop_el() {
-  console.log('create_dargAndDrop_el');
+  //console.log('create_dargAndDrop_el');
   const dropZoneEFB = document.getElementById("dropZoneEFB");
 
   dropZoneEFB.addEventListener("dragover", (event) => {
     event.preventDefault();
   });
   for (const el_efb of document.querySelectorAll(".draggable-efb")) {
-    console.log(`added =>.draggable-efb[el.id]`)
+    //console.log(`added =>.draggable-efb[el.id]`)
 
     el_efb.addEventListener("dragstart", (event) => {     
-      console.log(event);
-      console.log(`create_dargAndDrop_el[dragstart][${el_efb.id}]`)
+      //console.log(event);
+      //console.log(`create_dargAndDrop_el[dragstart][${el_efb.id}]`)
       event.dataTransfer.setData("text/plain", el_efb.id)
 
     });
 
     el_efb.addEventListener("click", (event) => {   
-     console.log('clicked');
+     //console.log('clicked');
       if( document.body.classList.contains('mobile')==false && (el_efb.getAttribute('draggable')==true ||el_efb.getAttribute('draggable')=="true") ){
-        console.log('trued');
+        //console.log('trued');
         fun_efb_add_el(el_efb.id);}
       });
   }
   dropZoneEFB.addEventListener("drop", (event) => {
     // Add new element to dropZoneEFB
-    console.log('drop');
+    //console.log('drop');
     event.preventDefault();
     if (event.dataTransfer.getData("text/plain") !== "step" && event.dataTransfer.getData("text/plain") != null && event.dataTransfer.getData("text/plain") != "") {
       const rndm = Math.random().toString(36).substr(2, 9);
       const t = event.dataTransfer.getData("text/plain");
-      console.log(t);
+      //console.log(t);
 
       fun_efb_add_el(t);
     }
@@ -2610,7 +2611,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-  console.log('fun_efb_add_el');
+  //console.log('fun_efb_add_el');
   const rndm = Math.random().toString(36).substr(2, 9);
 
   //console.log(t);

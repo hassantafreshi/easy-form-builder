@@ -128,11 +128,11 @@ class _Public {
 
 		$state="form";		
 		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.9');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.10');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 			
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.5.9' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.5.10' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		
 		}
@@ -164,7 +164,7 @@ class _Public {
 					$paymentType="zarinPal";}
 				else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
-						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.9');
+						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.10');
 						wp_enqueue_script('pay_js');
 						//error_log($paymentType);
 						if($paymentType=="stripe"){ 
@@ -172,13 +172,13 @@ class _Public {
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 							wp_enqueue_script('stripe-js');
 
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.5.9');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.5.10');
 							wp_enqueue_script('parsipay_js');
 							//pub key stripe
 							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 						}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 							$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.5.9');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.5.10');
 							wp_enqueue_script('parsipay_js');
 						}
 				}
@@ -374,19 +374,19 @@ class _Public {
 
 	function public_scripts_and_css_head(){
 	
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.5.9');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.5.10');
 		wp_enqueue_style('Emsfb-style-css');
 
-		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.5.9');
+		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.5.10');
 		wp_enqueue_script('core_js');
 		
 
-		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.5.9');
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.5.10');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
 
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.5.9');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.5.10');
 		wp_enqueue_script('efb-main-js'); 		
 		
 
@@ -395,7 +395,7 @@ class _Public {
 		
 
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.5.9');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.5.10');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
@@ -426,7 +426,7 @@ class _Public {
 		//اگر پرو بود اگر پلاگین نصب بود 
 		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
 		if($this->pro_efb==1 ){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.9');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.10');
 			wp_enqueue_script('efb-pro-els'); 
 		}
 	
@@ -434,11 +434,11 @@ class _Public {
 			
 
 
-			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.9');
+			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.10');
 			wp_enqueue_script('efb-bootstrap-min-js'); 
 	
 			
-			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.9');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.10');
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
 						
@@ -456,17 +456,17 @@ class _Public {
 				if (preg_match("/\bbootstrap.bundle.min.js+/i", $path)) $bund = false;				
 			}
 			if($minb){
-				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.9');
+				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.10');
 				wp_enqueue_script('efb-bootstrap-min-js'); 
 			}
 			if($bund){
-				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.9');
+				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.10');
 				wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			} */
 
 		}
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.5.9');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.5.10');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 		
 		
@@ -737,9 +737,7 @@ class _Public {
 										$item['value'] = sanitize_text_field($item['value']);
 
 										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
-											if(isset($fr['id_']) && isset($item['id_']) && $fr['id_']==$item['id_']){
-												error_log(json_encode($fr));
-												error_log(json_encode($item));
+											if(isset($fr['id_']) && isset($item['id_']) && $fr['id_']==$item['id_']){											
 												$item['value']= $item['value']=='1' ?   $fr['on'] : $fr['off'];
 												$rt = $item;
 												$stated=1;											
@@ -1239,9 +1237,6 @@ class _Public {
 							
 								
 							if(strlen($email_fa)>4){
-								//error_log($email_fa);
-								error_log("==============>trackId 1254");
-											error_log($trackId);
 								$this->send_email_Emsfb($email_fa,$trackId,$pro,"newMessage",$url);
 								
 							}
@@ -1587,7 +1582,7 @@ class _Public {
 
 
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.5.9');
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.5.10');
 		wp_enqueue_script('jquery');
 		return "<script>console.log('Easy Form Builder v3.5.9')</script>";
 	  }//end function
@@ -1982,7 +1977,10 @@ class _Public {
 				'AdnSS' => 0,
 				'AdnCPF' => 0,
 				'AdnESZ' => 0,
-				'AdnSE' => 0];
+				'AdnSE' => 0,
+				'AdnPDP'=>0,
+				'AdnADP'=>0
+				];
 				if(isset($r->AdnSPF)==true){
 					//$ac
 
@@ -1994,6 +1992,8 @@ class _Public {
 					$addons["AdnCPF"]=$r->AdnCPF;
 					$addons["AdnESZ"]=$r->AdnESZ;
 					$addons["AdnSE"]=$r->AdnSE;
+					$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 				}
 				//error_log(json_encode($addons));
 				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
@@ -2854,7 +2854,7 @@ class _Public {
 
 	
 /* 	function modify_jquery_login_efb() {
-		//this function added jquery vesrion 3.5.9 for multiselect
+		//this function added jquery vesrion 3.5.10 for multiselect
 		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
 			error_log('login!');
 			wp_deregister_script('jquery');

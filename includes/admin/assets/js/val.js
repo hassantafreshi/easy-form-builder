@@ -21,6 +21,8 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
+ /*  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'basic all' },
+  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
   { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
@@ -43,6 +45,7 @@ const fields_efb = [
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
+
 /*   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
@@ -144,7 +147,7 @@ function show_setting_window_efb(idset) {
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
     const textEls=(id , name ,el_type,value ,attr) =>{
-      console.log(id , name ,el_type,value);
+      //console.log(id , name ,el_type,value);
       return`<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="textEl" class="efb form-label mt-2 mb-1 efb">${name}<span class="efb  mx-1 efb text-danger">*</span></label>
     <input type="${el_type}"  data-id="${idset}" data-atr="${attr}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  data-id="${id}" id="textEl" required value="${value}"></div>`}
     /* 778899 end new atr */
@@ -649,7 +652,7 @@ function show_setting_window_efb(idset) {
       case "esign":
       case "rating":
       case "switch":
-        console.log(valj_efb[indx]);
+        //console.log(valj_efb[indx]);
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->

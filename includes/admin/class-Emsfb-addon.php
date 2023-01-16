@@ -146,9 +146,9 @@ class Addon {
 
 			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.9');	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.10');	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.9');	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.10');	
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
@@ -169,13 +169,15 @@ class Addon {
             AdnSPF == stripe payment
             AdnOF == offline form
             AdnPPF == persia payment
+			AdnPDP == persia data picker
+			AdnADP == arabic data picker
             AdnATC == advance tracking code
             AdnSS == sms service
             AdnCPF == crypto payment
             AdnESZ == zone picker
             AdnSE == email service
 
-             AdnWHS == webhook
+            AdnWHS == webhook
             AdnPAP == paypal
             AdnWSP == whitestudio pay
             AdnSMF == smart form
@@ -190,7 +192,10 @@ class Addon {
 		'AdnSS' => 0,
 		'AdnCPF' => 0,
 		'AdnESZ' => 0,
-		'AdnSE' => 0];
+		'AdnSE' => 0,
+		'AdnPDP'=>0,
+		'AdnADP'=>0
+		];
 			
 
 		if(gettype($ac)!="string"){
@@ -207,6 +212,8 @@ class Addon {
 				$addons["AdnSPF"]=$ac->AdnSPF;
 				$addons["AdnESZ"]=$ac->AdnESZ;
 				$addons["AdnSE"]=$ac->AdnSE;
+				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 			}
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
@@ -218,10 +225,10 @@ class Addon {
 			wp_enqueue_script('persia_pay');
 		} */
 
-		/* wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.9');
+		/* wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.10');
 		wp_enqueue_script('stripe_js'); */
 
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.9');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.10');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
@@ -240,24 +247,24 @@ class Addon {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.9');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.10');
 		wp_enqueue_script('efb-val-js'); 
 		
-		/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.9');
+		/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.10');
 		wp_enqueue_script('efb-pro-els');  */
 		
-		/* wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.9');
+		/* wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.10');
 		wp_enqueue_script('efb-forms-js'); */
 
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.9');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.10');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.9');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.10');
 		wp_enqueue_script('efb-main-js'); 
 
-		/* wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.9');
+		/* wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.10');
 		wp_enqueue_script('efb-bootstrap-select-js');  */
 
 		
