@@ -210,7 +210,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   newElement = ``;
   // console.log(valj_efb[indexVJ]);
   //for(let q in  valj_efb[indexVJ]){
-  if (previewSate == false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, indexVJ); })
+  if (previewSate == false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) => {fun_addStyle_costumize_efb(val.toString(), key, indexVJ); })
   if (step_el_efb == 1) {
     let state = false;
 
@@ -330,6 +330,23 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
         <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="نمونه: 1-7-1401"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+        ${desc}`
+      dataTag = elementId;
+      
+      break;
+    case 'ardate':
+
+      console.log('added [ardate]');
+     /*  maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
+      maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
+      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
+      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``; */
+      classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
+      ui = `
+      ${label}
+      <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
+        ${ttip}
+        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="نمونه: 1-7-1401"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       
@@ -931,6 +948,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 /* new d&D */
 
 const funSetPosElEfb = (dataId, position) => {
+  console.log('funSetPosElEfb');
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
@@ -1821,7 +1839,8 @@ function previewFormEfb(state) {
 
   if (true){
     //778899
-    load_style_persian_data_picker_efb();
+    //load_style_persian_data_picker_efb();
+    load_hijir_data_picker_efb()
   }
   //}, timeout) //nlogn
 }//end function v2
@@ -2179,6 +2198,7 @@ function funTnxEfb(val, title, message) {
 }
 
 let get_position_col_el = (dataId, state) => {
+  console.log(`get_position_col_el[${dataId}] state[${state}]`);
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el_parent = document.getElementById(valj_efb[indx].id_);
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`)

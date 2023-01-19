@@ -167,6 +167,7 @@ class Panel_edit  {
 			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
 
+			
 
 
 			
@@ -300,7 +301,7 @@ class Panel_edit  {
 
 				//error_log(wp_create_nonce("public-nonce"));
 					//smart zone test
-					/* $this->test_smart_zone(); */
+					//$this->test_smart_zone();
 		}else{
 			echo "Easy Form Builder: You dont access this section";
 		}
