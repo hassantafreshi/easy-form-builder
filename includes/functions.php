@@ -588,7 +588,7 @@ class efbFunction {
 			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),	
 			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),	
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : __('warning','easy-form-builder'),	
-			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('datetimelocal','easy-form-builder'),				
+			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('date & time','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -855,6 +855,7 @@ class efbFunction {
     }
 
 	public function iplocation_efb($ip , $state){
+		error_log('iplocation_efb');
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
 		$userAgent ;
@@ -879,6 +880,7 @@ class efbFunction {
 			'User-Agent: '.$userAgent
 		));
 		$location = json_decode(curl_exec($cURL), true); 
+		error_log(json_encode($location));
 		if(isset($location)){
 			return $state==1 ? $location["country_code2"] :$location  ;
 		}else{

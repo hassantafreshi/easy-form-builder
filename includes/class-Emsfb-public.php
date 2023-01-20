@@ -249,7 +249,8 @@ class _Public {
 				//error_log($this->id);
 				$code = 'efb'.$this->id;
 				//error_log($code);
-				$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
+				//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
+				$location = '';
 				$ar_core = array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 				'ajax_value' =>$value,
 				'type' => $typeOfForm,
@@ -358,7 +359,8 @@ class _Public {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
-		$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
+		$//location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
+		$location = '';
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
