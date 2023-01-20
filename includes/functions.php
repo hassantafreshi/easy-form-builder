@@ -502,7 +502,7 @@ class efbFunction {
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('You can not add reCAPTCHA on PAYMENT FORMS','easy-form-builder'),
-			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service is able to send emails. Please check your email and if you received the email with this subject: Email server [Easy Form Builder], so checked the option: I confirm This Host support SMTP than save','easy-form-builder'),
+			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service is able to send emails. Please check your email box (or spam) and if you received the email with this subject: Email server [Easy Form Builder], so checked the option: I confirm This Host support SMTP then save','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : __('I confirm This Host support SMTP','easy-form-builder'),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : __('Interval','easy-form-builder'),
 			"nextBillingD" => $state  &&  isset($ac->text->nextBillingD) ? $ac->text->nextBillingD : __('Next Billing Date','easy-form-builder'),
@@ -584,6 +584,11 @@ class efbFunction {
 			"table_matrix" => $state  &&  isset($ac->text->table_matrix) ? $ac->text->table_matrix : __('NPS Table Matrix','easy-form-builder'),				
 			"pdate" => $state  &&  isset($ac->text->pdate) ? $ac->text->pdate : __('Jalali Date','easy-form-builder'),				
 			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : __('Hijri Date','easy-form-builder'),				
+			"iaddon" => $state  &&  isset($ac->text->iaddon) ? $ac->text->iaddon : __('Install the addon','easy-form-builder'),				
+			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),	
+			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),	
+			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : __('warning','easy-form-builder'),	
+			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('datetimelocal','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

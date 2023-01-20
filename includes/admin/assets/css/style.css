@@ -1565,6 +1565,8 @@ thead.efb.efblist,.efb.searchSection {	position: sticky;
  
 div#sideBoxEfb {	height: 100vh;
  	position: fixed;
+	 -webkit-box-shadow: 9px 8px 8px rgb(84 131 207 / 36%) !important;
+	 -moz-box-shadow:  9px 8px 8px rgb(84 131 207 / 36%) !important;
  }
  .mobile div#sideBoxEfb {	height: 100vh;
  	width: 70%}
@@ -2231,3 +2233,28 @@ div#attach_efb {	position: relative;
     background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
   } 
   /* switch end */
+
+  
+.efb.btn-toggle.h-s-efb {
+	margin: 0 60px;
+    padding: 0;
+    position: relative;
+    border: none;
+    height: 17px!important;
+    width: 34px;
+    border-radius: 28px;
+}
+.efb.btn-toggle.h-s-efb.active > .handle {
+    left: 19px;
+    transition: left 0.25s;
+}
+.efb.btn-toggle.h-s-efb > .handle {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 22px;
+    background: #fff;
+    transition: left 0.25s;
+}

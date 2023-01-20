@@ -78,6 +78,16 @@ class Panel_edit  {
 					$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 				}
+
+				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ; 	
+				}
+				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
+
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
 		
@@ -191,7 +201,7 @@ class Panel_edit  {
 				.efb {font-family: 'Roboto', sans-serif!important;}
 			</style>
 			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
-			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 "  id="sideBoxEfb">
+			<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
@@ -214,15 +224,15 @@ class Panel_edit  {
 						</button>
 						<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
 							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="efb nav-item"><a class="efb nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
+								<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
 								<li class="efb nav-item">
-									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
+									<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
 								</li>
 								<li class="efb nav-item">
 									<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
 								</li>
 								<li class="efb nav-item">
-									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
+									<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
 								</li>
 							</ul>
 							<div class="efb d-flex">

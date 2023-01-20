@@ -302,6 +302,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'number':
     case 'firstName':
     case 'lastName':
+    case 'datetime-local':
 
       const type = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
@@ -329,7 +330,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="نمونه: 1-7-1401"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+        <input type="text"   class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       
@@ -346,7 +347,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="نمونه: 1-7-1401"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+        <input type="text"   class="efb hijri-picker input-efb px-2 mb-0 emsFormBuilder_v ${classes} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
         ${desc}`
       dataTag = elementId;
       
@@ -883,8 +884,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
   }
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
-  if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) {
-    const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay" || dataTag == "chlRadio" || dataTag == "chlCheckBox" || dataTag =="dadfile") ? true : false;
+  if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) 
+    {
+    //const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay" || dataTag == "chlRadio" || dataTag == "chlCheckBox" || dataTag =="dadfile") ? true : false;
+    const pro_el = valj_efb[iVJ].pro;
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
@@ -918,9 +921,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
     ${previewSate == false  ? ` </setion><!--endTag EFB-->` :''}
      <!--endTag EFB-->
-
-    `
-    //console.log(previewSate != true && pro_efb == false && pro_el ? proActiv : 'Not pro');
+    `;
 
   } else if (dataTag == 'step' && previewSate != true) {
     if (elementId == "steps" && pro_efb == false && Number(step_el_efb) == 3) {
@@ -1259,12 +1260,12 @@ function validExtensions_efb_fun(type, fileType) {
 
 
 
-
+var steps_len_efb 
 function handle_navbtn_efb(steps, device) {
   var next_s_efb, prev_s_efb; //fieldsets
   var opacity_efb;
 
-  var steps_len_efb = Number(steps) + 1;
+   steps_len_efb = Number(steps) + 1;
   current_s_efb = 1
   setProgressBar_efb(current_s_efb, steps_len_efb);
   if (steps > 1) {
@@ -1278,11 +1279,14 @@ function handle_navbtn_efb(steps, device) {
     if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
 
     jQuery("#next_efb").click(function () {
+      console.log(`next vp clicked!`);
       var cp = current_s_efb + 1
       var state = true
       if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
-
       setTimeout(function () {
+        var url = new URL(window.location);
+        url.searchParams.set('stepNo', cp);
+        history.pushState("EFBsteps",null,url);
         if (state = true) {
           if (cp == steps_len_efb) {
             jQuery("#prev_efb").addClass("d-none");
@@ -1359,7 +1363,63 @@ function handle_navbtn_efb(steps, device) {
     });
 
     jQuery("#prev_efb").click(function () {
-      var cs = current_s_efb;
+      prev_btn_efb();
+    });
+
+
+
+  } else {
+    //One Step section
+
+
+    jQuery("#btn_send_efb").click(function () {
+      var state = true
+      if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
+
+      setTimeout(function () {
+        if (state = true) {
+          jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
+          jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
+          jQuery("#btn_send_efb").toggleClass("d-none");
+          var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
+          next_s_efb = current_s.next();
+          next_s_efb.show();
+          current_s.animate({ opacity_efb: 0 }, {
+            step: function (now) {
+              // for making fielset appear animation
+              opacity_efb = 1 - now;
+
+              current_s.css({
+                'display': 'none',
+                'position': 'relative'
+              });
+              next_s_efb.css({ 'opacity_efb': opacity_efb });
+            },
+            duration: 500
+          });
+          current_s_efb += 1;
+          setProgressBar_efb(current_s_efb, steps_len_efb);
+
+          send_data_efb();
+          //send to server after validation
+
+        }
+
+        if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+      }, 200);
+    })
+  }
+
+
+
+  jQuery(".submit").click(function () {
+    return false;
+  })
+
+};
+
+function prev_btn_efb(){
+  var cs = current_s_efb;
 
       if (cs == 2) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
@@ -1416,59 +1476,7 @@ function handle_navbtn_efb(steps, device) {
         jQuery("#next_efb").toggleClass("d-none");
       }
       if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-    });
-
-
-
-  } else {
-    //One Step section
-
-
-    jQuery("#btn_send_efb").click(function () {
-      var state = true
-      if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
-
-      setTimeout(function () {
-        if (state = true) {
-          jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
-          jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
-          jQuery("#btn_send_efb").toggleClass("d-none");
-          var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-          next_s_efb = current_s.next();
-          next_s_efb.show();
-          current_s.animate({ opacity_efb: 0 }, {
-            step: function (now) {
-              // for making fielset appear animation
-              opacity_efb = 1 - now;
-
-              current_s.css({
-                'display': 'none',
-                'position': 'relative'
-              });
-              next_s_efb.css({ 'opacity_efb': opacity_efb });
-            },
-            duration: 500
-          });
-          current_s_efb += 1;
-          setProgressBar_efb(current_s_efb, steps_len_efb);
-
-          send_data_efb();
-          //send to server after validation
-
-        }
-
-        if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-      }, 200);
-    })
-  }
-
-
-
-  jQuery(".submit").click(function () {
-    return false;
-  })
-
-};
+}
 
 
 function setProgressBar_efb(curStep, steps_len_efb) {
@@ -1721,9 +1729,10 @@ function previewFormEfb(state) {
       if (ajax_object_efm.paymentGateway == "stripe") fun_add_stripe_efb();
     }
   }
-
+  let ttype ='text'
   try {
     const len = valj_efb.length;
+    
     valj_efb.forEach((v, i) => {
       switch (v.type) {
         case "maps":
@@ -1818,6 +1827,12 @@ function previewFormEfb(state) {
         case "dadfile":
           set_dadfile_fun_efb(v.id_, i)
           break;
+        case 'ardate':
+        case 'pdate':
+          
+          ttype= v.type
+          break;
+
 
       }
     })
@@ -1837,10 +1852,28 @@ function previewFormEfb(state) {
   ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() 
   }
 
-  if (true){
+  console.log(`check state of t ============> ${ttype}`);
+  if (ttype=='ardate'){
     //778899
-    //load_style_persian_data_picker_efb();
-    load_hijir_data_picker_efb()
+    if(typeof  load_hijir_data_picker_efb=="function"){ 
+      console.log('=======================>arabic');
+      load_hijir_data_picker_efb()
+    }else{
+      setTimeout(() => {
+        alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonAD, 20 , 'info')        
+      }, 1000);
+    }
+  }else if(ttype=='pdate'){
+    if(typeof load_style_persian_data_picker_efb =="function"){ 
+     console.log('=======================>persian');
+    load_style_persian_data_picker_efb();
+  }else{
+    setTimeout(() => {
+      alert_message_efb(efb_var.text.iaddon, efb_var.text.IMAddonPD, 20 , 'info');        
+    }, 1000);
+
+  }
+    
   }
   //}, timeout) //nlogn
 }//end function v2
@@ -2540,6 +2573,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
   //console.log(document.getElementById(id+'_').value);
  }
+
 
 
 

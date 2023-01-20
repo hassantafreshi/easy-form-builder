@@ -21,7 +21,11 @@ jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
-  if (state_check_ws_p==1) { add_dasboard_emsFormBuilder(); 
+  //historyload 1
+  
+  if (state_check_ws_p==1) {
+    history.replaceState("templates",null,'?page=Emsfb_create'); 
+    add_dasboard_emsFormBuilder(); 
   }else if(state_check_ws_p==2){
     timeout=500;
     
@@ -482,7 +486,9 @@ const boxs_efb = [
 ]//supportTicketF
 let tag_efb=[];
 function add_dasboard_emsFormBuilder() {
+  
   //v2
+ // history.pushState(null,null,'?page=Emsfb_create&state=forms-template')
   let value = `<!-- boxs -->`;
   for (let i of boxs_efb) {
 
@@ -635,6 +641,7 @@ function create_form_by_type_emsfb(id, s) {
   //console.log(id,s);
   //v2
   //console.log(id);
+  history.pushState("create",null,'?page=Emsfb_create&state=forms-create');
   localStorage.removeItem('valj_efb');
   if (s != "pre") {
     document.getElementById('header-efb').innerHTML = ``;
@@ -1002,7 +1009,7 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
-  //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
+  console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       //console.log('santize_string_efb');
@@ -1012,6 +1019,7 @@ let change_el_edit_Efb = (el) => {
         
         valj_efb[indx].name = el.value;
         document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
+        
         break;
       case "desEl":
         valj_efb[indx].message = el.value;
@@ -1092,11 +1100,11 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "cardEl":
-        valj_efb[0].dShowBg ? valj_efb[0].dShowBg = el.checked : Object.assign(valj_efb[0], { dShowBg: el.checked });
+        valj_efb[0].dShowBg ? valj_efb[0].dShowBg =  el.classList.contains('active') : Object.assign(valj_efb[0], { dShowBg:  el.classList.contains('active') });
         break;
         case "offLineEl":
-          if(efb_var.addons.AdnOF!=0){
-            valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.checked : Object.assign(valj_efb[0], { AfLnFrm: el.checked });
+          if(efb_var.addons.AdnOF!=0 ){
+            valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.classList.contains('active') : Object.assign(valj_efb[0], { AfLnFrm: el.classList.contains('active') });
           }else{
             el.checked=false;
             alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
@@ -1104,9 +1112,9 @@ let change_el_edit_Efb = (el) => {
           }
         break;
       case "requiredEl":
-        valj_efb[indx].required = el.checked;
+        valj_efb[indx].required = el.classList.contains('active')==true ? 1 :0;
 
-        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = el.checked == true ? '*' : '';
+        document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML = valj_efb[indx].required  == true ? '*' : '';
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
@@ -1121,8 +1129,9 @@ let change_el_edit_Efb = (el) => {
         //postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
         break;
       case "hideLabelEl":
-        c = el.checked;
+        c = el.classList.contains('active')==true ? 1 :0;
         valj_efb[indx].hflabel = c;
+        console.log('==============>hideLabelEl' ,valj_efb[indx].hflabel);
         clss=document.getElementById(`${el.dataset.id}_lab_g`);
         //console.log(c,clss)
         if(c==1){
@@ -1138,9 +1147,9 @@ let change_el_edit_Efb = (el) => {
         
         break;
       case "SendemailEl":
-        if (efb_var.smtp == "true" || efb_var.smtp == 1) {
+        if (efb_var.smtp == "true" || efb_var.smtp == 1 ) {
           //valj_efb[0].sendEmail = el.checked
-          valj_efb[0].email_to = el.checked ?  el.dataset.id.replace('-id', '') :''
+          valj_efb[0].email_to = el.classList.contains('active')==true ?  el.dataset.id.replace('-id', '') :''
           
         } else {
           // trackingCodeEl.checked=false;
@@ -1154,7 +1163,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].formName = el.value
         break;
       case "trackingCodeEl":
-        valj_efb[0].trackingCode = el.checked;
+        valj_efb[0].trackingCode =  el.classList.contains('active');
 
         break;
       case "thankYouMessageDoneEl":
@@ -1175,8 +1184,9 @@ let change_el_edit_Efb = (el) => {
       case "captchaEl":
 
         if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
-          valj_efb[0].captcha = el.checked
-          el.checked == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
+          console.log(`captcha!!!`,el.classList)
+          valj_efb[0].captcha = el.classList.contains('active')
+          if(document.getElementById('recaptcha_efb'))el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
         } else if (valj_efb[0].type == "payment") {
           document.getElementById("captchaEl").checked = false;
@@ -1189,13 +1199,13 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "showSIconsEl":
-        valj_efb[0].show_icon = el.checked
+        valj_efb[0].show_icon =  el.classList.contains('active')
         break;
       case "showSprosiEl":
-        valj_efb[0].show_pro_bar = el.checked
+        valj_efb[0].show_pro_bar = el.classList.contains('active')
         break;
       case "showformLoggedEl":
-        valj_efb[0].stateForm = el.checked == true ? 1 : 0
+        valj_efb[0].stateForm = el.classList.contains('active')
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
@@ -2092,10 +2102,11 @@ function obj_resort_row(step) {
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  //console.log(elementId);
+  console.log(elementId);
   const testb = valj_efb.length;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-  let pro = false;
+  p=()=>{const l =fields_efb.find(x=>x.id == elementId);  return l && l.hasOwnProperty('pro')? l.pro :0} ;
+  let pro = p();
   let size = 100;
   
   let type = elementId;
@@ -2888,4 +2899,78 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 
+
+
+function fun_switch_form_efb(el){
+  change_el_edit_Efb(el);
+  //console.log(el);
+/*   if(state_efb!='run'){ return}
+  const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
+  setTimeout(() => {
+          //console.log(`id[${id}] v[${v}]`);
+          let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
+          //console.log(el.classList ,el.classList.contains('active'));
+          if(el.classList.contains('active')==false){
+            o[0].value="0";
+          }
+          //console.log(`o value  [${o[0].value}]`,o[0]);
+          fun_sendBack_emsFormBuilder(o[0]);
+  }, 100); */
+
+}
+
+window.addEventListener("popstate",e=>{
+  console.log(e.state);
+  const getUrlparams = new URLSearchParams(location.search);
+  let v =g_page = getUrlparams.get('page');
+
+  switch(e.state){
+    case 'templates':
+      add_dasboard_emsFormBuilder();
+    break;
+    case 'create':
+      add_dasboard_emsFormBuilder();
+    break;
+    case 'panel':
+      fun_emsFormBuilder_render_view(25);
+      fun_hande_active_page_emsFormBuilder(1);
+    break;
+    case 'setting':
+      fun_show_setting__emsFormBuilder();      
+      fun_backButton(0);
+      fun_hande_active_page_emsFormBuilder(2);
+      break;
+    case 'help':      
+      fun_show_help__emsFormBuilder();
+      fun_hande_active_page_emsFormBuilder(4);
+      break;
+    case 'search':
+      v = localStorage.getItem("search_efb");
+      console.log(`searchi =>${v}`)
+      search_trackingcode_fun_efb(v)
+      break;
+    case 'show-message':
+      v = getUrlparams.get('id');
+      g_page = getUrlparams.get('form_type');
+      console.log(`show-message id[${v}] form_type[${g_page}]`);
+      efb_var.msg_id =v;
+      form_type_emsFormBuilder = g_page;
+      // history.pushState("show-message",null,`page=Emsfb&state=show-messages&id=${id}&form_type=${row.form_type}`);
+      fun_get_messages_by_id(Number(v));
+      /* setTimeout(() => {
+        emsFormBuilder_waiting_response();
+        fun_backButton(0);
+      }, 20); */
+      
+      fun_hande_active_page_emsFormBuilder(1);
+    break;
+    case "edit-form":
+      v = getUrlparams.get('id');
+      fun_get_form_by_id(Number(v));
+      fun_backButton();
+      fun_hande_active_page_emsFormBuilder(1);
+    break;
+
+  }
+})
 

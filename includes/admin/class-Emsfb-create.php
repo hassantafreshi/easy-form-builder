@@ -78,7 +78,7 @@ class Create {
 	</div>
 	<!-- end new code dd -->
 	<!--sideMenu--> <div class="efb sideMenuConEfb efbDW-0" id="sideMenuFEfb">
-				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
+				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
@@ -164,9 +164,22 @@ class Create {
 				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 			}
 		}
-					/* 
-				 include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-				   $persianDatePicker = new persianDatePicker()  */; 
+
+				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ; 	
+				}
+				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
+		/* 		include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+				$arabicDatePicker = new arabicDatePickerEfb() ;  */
+
+				/* include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+				$persianDatePicker = new persianDatePickerEFB() ; */ 
+					
+
 
 			/* new code v4 */
 			
@@ -176,8 +189,8 @@ class Create {
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
-		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js');
+	/* 	wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		wp_enqueue_script('addsOnLocal-js'); */
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',

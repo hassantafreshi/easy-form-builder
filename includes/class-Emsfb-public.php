@@ -182,6 +182,15 @@ class _Public {
 							wp_enqueue_script('parsipay_js');
 						}
 				}
+
+				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ; 	
+				}
+				if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
 		
 		
 		
