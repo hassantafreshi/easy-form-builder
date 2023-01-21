@@ -1286,7 +1286,7 @@ function handle_navbtn_efb(steps, device) {
       setTimeout(function () {
         var url = new URL(window.location);
         url.searchParams.set('stepNo', cp);
-        history.pushState("EFBsteps",null,url);
+        history.pushState("EFBstep-"+cp,null,url);
         if (state = true) {
           if (cp == steps_len_efb) {
             jQuery("#prev_efb").addClass("d-none");
@@ -1426,7 +1426,7 @@ function prev_btn_efb(){
         jQuery("#next_efb").html(val);
         jQuery("#next_efb").toggleClass("d-none");
 
-      } else if (cs == steps) {
+      } else if (cs == valj_efb[0].steps) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         if (sitekye_emsFormBuilder.length > 1 && valj_efb[0] == true) jQuery("#next_efb").removeClass('disabled');

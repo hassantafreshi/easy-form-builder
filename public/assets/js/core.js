@@ -98,7 +98,7 @@ setTimeout(() => {
 function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
   url.searchParams.set('stepNo', 1);
-  history.replaceState("EFBsteps",null,url); 
+  history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valj_efb = valueJson_ws
@@ -1755,31 +1755,8 @@ santize_string_efb = (str) => {
 
 
 window.addEventListener("popstate",e=>{
+  if (e.state.search('EFBstep-') ==-1) return 
+    console.log( `stepNo[${e.state.slice(8)}] current_s_Efb[${current_s_efb}]`);
+    Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');;
 
-  if (preview_efb == false){
-    console.log(e, e.state );
-  const getUrlparams = new URLSearchParams(location.search);
-  let v =g_page =""
-    
-  switch(e.state){
-    case 'EFBsteps':
-      console.log('next_efb!');
-      v = getUrlparams.get('stepNo');
-     // current_s_efb
-      console.log(`stepNo[${v}] current holder[${current_s_efb}]`);
-     /*  if(current_s_efb>v){
-        prev_btn_efb();
-      }else{
-        jQuery("#next_efb").trigger('click');
-        //current_s_efb+=1;
-      } */
-/*  */
-
-      //if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
-
-    //  prev_btn_efb();
-    //  add_dasboard_emsFormBuilder();
-    break;
-  }
-  }
- })//end event
+ })//end event backward public

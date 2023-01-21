@@ -1188,10 +1188,8 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  	float: left;
  	position: relative;
  }
- .efb.step-w-1 {	width: 50%;
- }
- .efb.step-w-2 {	width: 33%;
- }
+ .efb.step-w-0, .efb.step-w-1 {	width: 50%;}
+ .efb.step-w-2 {	width: 33%;}
  .efb.step-w-3 {	width: 25%;
  }
  .efb.step-w-4 {	width: 20%;
@@ -1199,6 +1197,9 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
  .efb.step-w-5 {	width: 16%;
  }
  .efb.step-w-6 {	width: 13%;
+ }
+
+ .efb.step-w-7 {	width: 13%;
  }
  #steps-efb li:before {	width: 50px;
  	height: 50px;
