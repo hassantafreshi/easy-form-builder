@@ -9,7 +9,7 @@ let exportJson_ws = [];
 let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
-const efb_version =3.4;
+const efb_version =3.5;
 let wpbakery_emsFormBuilder =false;
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
@@ -545,7 +545,9 @@ function add_addons_emsFormBuilder() {
   //v2
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
-    if(i.state==true) {
+    //778899 addonTest => change below 
+   if(i.state==true) {
+    //if(i.state==true || i.state==false) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
                  'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
     //AdnSPF
@@ -619,6 +621,7 @@ function FunfindCardAddonEFB() {
   let cards = [];
   const v = document.getElementById('findCardFormEFB').value.toLowerCase();
   document.getElementById('listFormCardsEFB').innerHTML = ''
+ 
   for (let row of addons_efb) {
     if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
   }
@@ -641,7 +644,7 @@ function create_form_by_type_emsfb(id, s) {
   //console.log(id,s);
   //v2
   //console.log(id);
-  history.pushState("create",null,'?page=Emsfb_create&state=forms-create');
+ 
   localStorage.removeItem('valj_efb');
   if (s != "pre") {
     document.getElementById('header-efb').innerHTML = ``;
@@ -2740,13 +2743,34 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 /* move to pro_els.js */
 
 funBTNAddOnsEFB=(val,v_required)=>{
-
+  let check_ar_pr=(val)=>{
+    console.log(val)
+    if (val!="AdnPDP" && val!="AdnADP"){ return true;
+    }else if((val=="AdnADP" && efb_var.addson.hasOwnProperty('AdnPDP') && efb_var.addson.AdnPDP) 
+    || (val=="AdnPDP" && efb_var.addson.hasOwnProperty('AdnADP') && efb_var.addson.AdnADP)
+    ){
+            return false;
+    }
+    return true;
+  }
+  console.log(efb_version);
  if(efb_version>=v_required){
-   addons_btn_state_efb(val);
-   actionSendAddons_efb(val)
+  if(check_ar_pr(val)==true){
+    addons_btn_state_efb(val);
+    actionSendAddons_efb(val);
+  }else{
+    console.log('mPAdateW');
+    alert_message_efb(efb_var.text.error, efb_var.text.mPAdateW,45,'warning');
+    
+    
+  }
  }else{
   //efb_var.text.upDMsg
+  console.log('upDMsg');
   alert_message_efb(efb_var.text.error, efb_var.text.upDMsg,30,'warning');
+  setTimeout(() => {
+    location.reload();
+  }, 3000);
  }
 }
 

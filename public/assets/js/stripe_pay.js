@@ -183,6 +183,7 @@ fun_add_stripe_efb = () => {
   
         }
   
+        
         fun_trans_efb = (transStat, data, trackid) => {
           /*             console.log(trackid);
                       console.log(data); */

@@ -535,8 +535,7 @@ class efbFunction {
 			"stripeDAddon" => $state  &&  isset($ac->text->stripeDAddon) ? $ac->text->stripeDAddon : __('Stripe addon of Easy Form Builder authorizes you to attach your WordPress site with Stripe to organize payments, donations, and online orders.','easy-form-builder'),				
 			"offlineTAddon" => $state  &&  isset($ac->text->offlineTAddon) ? $ac->text->offlineTAddon : __('Offline Forms Addon','easy-form-builder'),				
 			"offlineDAddon" => $state  &&  isset($ac->text->offlineDAddon) ? $ac->text->offlineDAddon : __('Offline Forms Addon of Easy Form Builder authorize your users to save their progress in an offline situation while filling in your forms.','easy-form-builder'),				
-			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('Persia Payment Addon','easy-form-builder'),				
-			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('Persia payment addon of Easy Form Builder authorizes you to attach your site with Persia payment to organize payments, donations, and online orders.','easy-form-builder'),				
+			
 			"trackCTAddon" => $state  &&  isset($ac->text->trackCTAddon) ? $ac->text->trackCDAddon : __('trackCTAddon','easy-form-builder'),				
 			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
@@ -589,6 +588,21 @@ class efbFunction {
 			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),	
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : __('warning','easy-form-builder'),	
 			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('date & time','easy-form-builder'),				
+			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : __('Active the file upload Button in response box','easy-form-builder'),				
+			"scaptcha" => $state  &&  isset($ac->text->scaptcha) ? $ac->text->scaptcha : __('Active Google reCAPTCHA in response box','easy-form-builder'),				
+			"sdlbtn" => $state  &&  isset($ac->text->sdlbtn) ? $ac->text->sdlbtn : __('Active the download button in response box','easy-form-builder'),				
+			"sips" => $state  &&  isset($ac->text->sips) ? $ac->text->sips : __('Show IP\'s of users in response box','easy-form-builder'),				
+			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('Persia Payment Addon','easy-form-builder'),				
+			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('Persia payment addon of Easy Form Builder authorizes you to attach your site with Persia payment to organize payments, donations, and online orders.','easy-form-builder'),				
+
+			"datePTAddon" => $state  &&  isset($ac->text->datePTAddon) ? $ac->text->datePTAddon : __('Jalali date Addon','easy-form-builder'),				
+			"datePDAddon" => $state  &&  isset($ac->text->datePDAddon) ? $ac->text->datePDAddon : __('Jalali date addon able you to add Jalali date field in forms and create any kind of form with the Shamsi date field.','easy-form-builder'),				
+			"dateATAddon" => $state  &&  isset($ac->text->dateATAddon) ? $ac->text->dateATAddon : __('Hijri date Addon','easy-form-builder'),				
+			"dateADAddon" => $state  &&  isset($ac->text->dateADAddon) ? $ac->text->dateADAddon : __('Hijri date addon able you to add Jalali date field in forms and create any kind of form with the Hijri date field.','easy-form-builder'),				
+			"smsTAddon" => $state  &&  isset($ac->text->smsTAddon) ? $ac->text->smsTAddon : __('SMS service Addon','easy-form-builder'),				
+			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('SMS service Addon able you to send notification SMS when you or customers receive new messages or responses.','easy-form-builder'),				
+			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please Install Hiji or Jalali date addon, You cannot Install both of them','easy-form-builder'),				
+			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

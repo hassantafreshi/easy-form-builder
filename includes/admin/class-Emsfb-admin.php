@@ -322,10 +322,12 @@ class Admin {
             AdnPLF == passwordless form
             AdnMSF == membership form
             AdnBEF == booking and event form
+            'AdnPDP'=>0,
+			'AdnADP'=>0
         */
         $value      = $_POST['value'];
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
 
         $dd =gettype(array_search($value, $allw));
         
@@ -334,22 +336,20 @@ class Admin {
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
-            die("secure!");
+           
         }
 
         if (empty($_POST['value']) ) {
             $m = $lang["invalidRequire"];
             $response = ['success' => false, "m" => $m];
-
             wp_send_json_success($response, $_POST);
-            die();
+         
         }
 
         if ($this->isScript($_POST['value'])) {        
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
-            die();
         }
        if($value!="AdnOF"){
 
@@ -357,7 +357,7 @@ class Admin {
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-            $request = wp_remote_get($u );
+            $request = wp_remote_get($u);
             
             if( is_wp_error( $request ) ) {
 

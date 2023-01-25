@@ -359,7 +359,7 @@ class _Public {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
-		$//location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
+		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		$location = '';
 		
 		wp_localize_script( 'core_js', 'ajax_object_efm',
@@ -1963,6 +1963,9 @@ class _Public {
 				$siteKey = isset($r->siteKey) ? $r->siteKey : "";
 				$mapKey = isset($r->apiKeyMap) ? $r->apiKeyMap : "";
 				$paymentKey = isset($r->stripePKey) ? $r->stripePKey : "";
+				$scaptcha = isset($r->scaptcha) ? $r->scaptcha : false;
+				$dsupfile = isset($r->dsupfile) ? $r->dsupfile : false;
+				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2007,7 +2010,10 @@ class _Public {
 					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 				}
 				//error_log(json_encode($addons));
-				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
+				//$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
+
+				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,
+				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				
 			}else{

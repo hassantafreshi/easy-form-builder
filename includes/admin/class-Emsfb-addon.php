@@ -214,6 +214,7 @@ class Addon {
 				$addons["AdnSE"]=$ac->AdnSE;
 				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
+			
 			}
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 

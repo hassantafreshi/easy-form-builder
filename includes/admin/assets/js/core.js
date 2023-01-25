@@ -15,6 +15,7 @@ let valueJson_ws = [];
 let demo_emsFormBuilder = false;
 let validate_edit_mode_emsFormBuilder = false;
 let test_view__emsFormBuilder = true
+const getUrlparams_efb = new URLSearchParams(location.search);
 
 jQuery(function () {
   if (typeof ajax_object_efm_core != undefined) {

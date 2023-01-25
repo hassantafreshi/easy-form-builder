@@ -17,6 +17,7 @@ let poster_emsFormBuilder = '';
 const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
+let setting_emsFormBuilder=[];
 let valueJson_ws = []
 let motus_efb = {};
 let g_timeout_efb = 100
@@ -38,12 +39,13 @@ setTimeout(() => {
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
       localStorage.setItem('form_id', efb_var.id);
-
+      setting_emsFormBuilder=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       if (ajax_object_efm.state != 'tracker') {
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
-          const vs = JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
+          const vs = setting_emsFormBuilder
+        
           //console.log(vs);
           addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
