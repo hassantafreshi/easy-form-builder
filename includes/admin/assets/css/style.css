@@ -2259,3 +2259,5 @@ div#attach_efb {	position: relative;
     background: #fff;
     transition: left 0.25s;
 }
+
+#body_tracker_emsFormBuilder .alert-danger{position: initial!important;}

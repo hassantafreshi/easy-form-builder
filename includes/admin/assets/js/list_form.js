@@ -870,11 +870,12 @@ function fun_ws_show_response(value) {
 }
 
 
-function fun_show_content_page_emsFormBuilder(state,el) {
-  console.log(el);
+function fun_show_content_page_emsFormBuilder(state) {
+ // console.log(el);
   if (state == "forms") {
-    window.location.reload();
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
+    history.pushState("setting",null,'?page=Emsfb');
+    window.location.reload();
   } else if (state == "setting" || state == "reload-setting") {
     history.pushState("setting",null,'?page=Emsfb&state=setting');
     fun_show_setting__emsFormBuilder();
@@ -885,7 +886,11 @@ function fun_show_content_page_emsFormBuilder(state,el) {
     history.pushState("help",null,'?page=Emsfb&state=help');
     fun_show_help__emsFormBuilder();
     state = 4
-  }
+  }else if (state=='search'){
+    history.pushState("search",null,'?page=Emsfb&state=search');
+    document.getElementById("track_code_emsFormBuilder").value =localStorage.getItem('search_efb');
+    fun_find_track_emsFormBuilder();
+    }
   fun_hande_active_page_emsFormBuilder(state);
 }
 

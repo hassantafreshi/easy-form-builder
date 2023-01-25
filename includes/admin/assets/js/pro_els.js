@@ -716,7 +716,8 @@ function addMarker(position) {
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
            ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
       </button></div>`
-      return `<div class="efb form-check">
+      if(setting_emsFormBuilder.hasOwnProperty('dsupfile')  && setting_emsFormBuilder.dsupfile==false) return '';
+      return  `<div class="efb form-check">
       <div class="efb btn btn-light text-dark" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
       <input type="file" id="resp_file_efb_" name="file"  data-id="${msg_id}" >

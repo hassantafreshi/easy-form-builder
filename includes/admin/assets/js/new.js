@@ -2329,6 +2329,7 @@ function replaceContentMessageEfb(value){
 
 
 function fun_upload_file_emsFormBuilder(id, type,tp) {
+  console.log(id, type,tp);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2441,14 +2442,27 @@ function generatePDF_EFB(id)
           img{width: 200px;}
           img.emoji{ width: 40px;}
           p {margin: 0px;}
+
+          #watermark {
+            margin: 0% 24%;
+            font-size: 28px;
+            position: absolute;
+            color: #a8bde085;
+            transform: rotate(-45deg);
+            align-items: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+        }
         </style>
   `
   const divPrint=document.getElementById(id);
 
   let n_win=window.open('','Print-Window');
+  const text=`<a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
+  ${efb_var.pro!=1 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a>`:''}`;
   const div=` <div style="text-align:center">
-  <h2><a href="${window.location.origin}" target="_blank">${window.location.hostname}</a></h2>
-  ${efb_var.pro!=1 ?`<h2>${efb_var.text.createdBy} <a href="https://whitestudio.team" target="_blank">${efb_var.text.easyFormBuilder}</a></h2>`:''}
+  <h2>${text}</h2>
 </div>`
   val =`<html style="direction:${efb_var.rtl==0?'ltr':'rtl'}"><head>${fontStyle}</head>
   <title>${window.location.hostname}</title>
@@ -2457,7 +2471,9 @@ function generatePDF_EFB(id)
   function winprint(){setTimeout(()=>{window.print()},100);}
   </script>
   ${div}
+
   ${divPrint.innerHTML}
+     
   </body></html>`;
   
 

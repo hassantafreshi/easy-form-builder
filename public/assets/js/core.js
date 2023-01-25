@@ -44,7 +44,7 @@ setTimeout(() => {
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
-          const vs = setting_emsFormBuilder
+          const vs = setting_emsFormBuilder;
         
           //console.log(vs);
           addons_emsFormBuilder = vs.addons;
@@ -1040,28 +1040,37 @@ function fun_tracking_show_emsFormBuilder() {
   const getUrlparams = new URLSearchParams(location.search);
   let get_track = getUrlparams.get('track');
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
+  console.log(setting_emsFormBuilder.scaptcha ,setting_emsFormBuilder.siteKey, setting_emsFormBuilder, setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : `not`);
 setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
-                <div class="efb  card card-public row mb-3 pb-3" id="body_efb-track">
+                <div class="efb  card card-public row mb-3 pb-3 px-1" id="body_efb-track">
                     <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
                         <div class="efb  col-12 text-center mx-2 row">
                         <input type="text" class="efb input-efb form-control border-d efb-rounded text-labelEfb h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
-                         <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white mb-1"  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
+                         <!-- recaptcha  -->
+                         ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                         
+                         <!-- recaptcha end  -->
+                         <button type="submit" class="efb fs-5  btn btn-pinkEfb col-12 text-white mb-1 "  id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb fs-5  bi-search"></i> ${ajax_object_efm.text.search}  </button>
                         </div>
                     </div>
                 </div>
-                <!-- recaptcha  -->
-                ${sitekye_emsFormBuilder ? `<div class="efb  row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
-                <!-- recaptcha end  -->
+                
             <!-- efb -->            
         </div>
         <div id="alert_efb" class="efb mx-5"></div>
 `
+  if(setting_emsFormBuilder.scaptcha==true ){
+    sitekye_emsFormBuilder=setting_emsFormBuilder.siteKey;
+    loadCaptcha_efb();
+  }
+  
+ 
 }, time);
 
 }
@@ -1090,12 +1099,14 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     if (currentTab_emsFormBuilder == 0) {
       const response = sitekye_emsFormBuilder ? grecaptcha.getResponse() || null : 'not';
       if (response == null) {
+        document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+        document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
         //reCaptcha not verified
         // alert("no pass"); 
        // alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.checkedBoxIANotRobot, 117, 'danger')
         noti_message_efb(ajax_object_efm.text.checkedBoxIANotRobot, 'danger' ,'body_efb-track')
         //document.getElementById('emsFormBuilder-message-area-track').innerHTML=alarm_emsFormBuilder(efb_var.text.checkedBoxIANotRobot);
-        return;
+       
       }
       else {
 
@@ -1192,7 +1203,7 @@ function emsFormBuilder_show_content_message(value, content) {
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   //console.log('fun_emsFormBuilder_show_messages');
   if(content[(content.length)- 1].type=="w_link")content.pop();
-  
+  const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
   <div class="efb  form-check">
@@ -1201,7 +1212,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
     <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
   </div>
-  <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
+    ${dl}
   </div>
  <hr>
  `;
@@ -1379,6 +1390,11 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
+    /* if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
+      for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
+      // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
+    } */
+    console.log(sendBack_emsFormBuilder_pub);
     fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
   }
 
@@ -1666,7 +1682,7 @@ function response_Valid_tracker_efb(res) {
     
   } else {
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5" onclick="window.location.href=document.URL" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onClick="(() => { console.log('test button clicked'); location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
 }
@@ -1694,13 +1710,13 @@ function response_rMessage_id(res, message) {
 
 
 function loadCaptcha_efb() {
-
+  console.log('loadCaptcha_efb')
   if (!window.grecaptcha || !window.grecaptcha.render) {
     setTimeout(() => {
       this.loadCaptcha_efb();
     }, 500);
   } else {
-    if (valj_efb[0].steps == 1) { document.getElementById('btn_send_efb').classList.toggle('disabled'); }
+    if (valj_efb.length!=0  && valj_efb[0].steps == 1)  document.getElementById('btn_send_efb').classList.toggle('disabled'); 
     grecaptcha.render('gRecaptcha', {
       'sitekey': sitekye_emsFormBuilder
     });
