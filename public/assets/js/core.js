@@ -17,7 +17,7 @@ let poster_emsFormBuilder = '';
 const fileSizeLimite_emsFormBuilder = 8300000;
 let select_options_emsFormBuilder = [];
 let form_type_emsFormBuilder = 'form';
-let setting_emsFormBuilder=[];
+
 let valueJson_ws = []
 let motus_efb = {};
 let g_timeout_efb = 100
@@ -328,10 +328,13 @@ function createStepsOfPublic() {
         // e.preventDefault();
         
        validate_len =()=>{
+        console.log('validate_len');
         let offsetw = document.getElementById('body_efb').offsetWidth;
-        const len = el.hasAttribute('minLength') ? el.minLength : 2;
+        const mi=()=> {return  el.type!="number" ? 2 :0}
+     
+        let len = el.hasAttribute('minLength') ? el.minLength :mi();
         //console.log(len.type , el.minLength);
-        if (value.length < len) {
+        if (value.length < len && el.type!="number") {
           state = false;
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd = document.getElementById(`${el.id}-message`);
@@ -350,7 +353,70 @@ function createStepsOfPublic() {
                 const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
                 if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
                 return 0;
-              }
+        }else if(value < len && el.type=="number"){
+          state = false;
+          el.className = colorBorderChangerEfb(el.className, "border-danger");
+          vd = document.getElementById(`${el.id}-message`);
+          let m = ajax_object_efm.text.mcplen.replace('NN',len);
+          let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+                //console.log(vd);
+                if(vd){
+                  //console.log(ajax_object_efm.text.mmplen);
+                  if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                    vd.classList.add('unpx');                
+                  }
+                  vd.innerHTML =msg;
+                  //console.log(m,vd.innerHTML);
+                  vd.classList.add('show');
+                }
+                const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
+                if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+                return 0;
+        }
+      //  const mx=()=> {return  l.type!="number" ? 0 :0}
+         len = el.hasAttribute('maxLength') ? el.maxLength :0;
+         console.log(len ,ajax_object_efm.text.mxcplen)
+         if(len==0) return 1;
+
+        if (value.length > len && el.type!="number") {
+          state = false;
+          el.className = colorBorderChangerEfb(el.className, "border-danger");
+          vd = document.getElementById(`${el.id}-message`);
+          let m = ajax_object_efm.text.mmxplen.replace('NN',len);
+          let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+                //console.log(vd);
+                if(vd){
+                  //console.log(ajax_object_efm.text.mmplen);
+                  if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                    vd.classList.add('unpx');                
+                  }
+                  vd.innerHTML =msg;
+                  //console.log(m,vd.innerHTML);
+                  vd.classList.add('show');
+                }
+                const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
+                if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+                return 0;
+        }else if(value > len && el.type=="number"){
+          state = false;
+          el.className = colorBorderChangerEfb(el.className, "border-danger");
+          vd = document.getElementById(`${el.id}-message`);
+          let m = ajax_object_efm.text.mxcplen.replace('NN',len);
+          let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+                //console.log(vd);
+                if(vd){
+                  //console.log(ajax_object_efm.text.mmplen);
+                  if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                    vd.classList.add('unpx');                
+                  }
+                  vd.innerHTML =msg;
+                  //console.log(m,vd.innerHTML);
+                  vd.classList.add('show');
+                }
+                const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
+                if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+                return 0;
+        }
               return 1;
        }
        // console.log('click');
@@ -830,7 +896,7 @@ function actionSendData_emsFormBuilder() {
       type: form_type_emsFormBuilder,
       nonce: efb_var.nonce,
       nonce_msg: efb_var.nonce_msg,
-      url:document.URL
+      url:location.href.split('?')[0]
     };
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
@@ -846,7 +912,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'persiaPay',
           auth:get_authority_efb,
           nonce_msg: efb_var.nonce_msg,
-          url:document.URL
+          url:location.href.split('?')[0]
         };
       }else if(valj_efb[0].getway=="stripe"){
         data = {
@@ -860,7 +926,7 @@ function actionSendData_emsFormBuilder() {
           payment: 'stripe',
           nonce: efb_var.nonce,
           nonce_msg: efb_var.nonce_msg,
-          url:document.URL
+          url:location.href.split('?')[0]
 
         };
       }

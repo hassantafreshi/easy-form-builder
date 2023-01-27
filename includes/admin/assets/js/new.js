@@ -24,6 +24,8 @@ let preview_efb = false;
 let lan_name_emsFormBuilder ='en';
 let stock_state_efb =false;
 let page_state_efb ="";
+let setting_emsFormBuilder=[];
+const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
 
@@ -1652,7 +1654,7 @@ function previewFormEfb(state) {
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
-       if(fun_sendBack_emsFormBuilder && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
+       if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }
     })
 
@@ -2329,7 +2331,7 @@ function replaceContentMessageEfb(value){
 
 
 function fun_upload_file_emsFormBuilder(id, type,tp) {
-  console.log(id, type,tp);
+  console.log(id, type,`tp[${tp}]`);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2345,7 +2347,7 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
   //console.log(tp , efb_var.nonce_msg);
   const nonce_msg = efb_var.nonce_msg ;
   const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
-  //console.log(tp)
+  console.log(tp)
   jQuery(function ($) {
     //console.log(idn,indx);
     var fd = new FormData();
@@ -2363,7 +2365,8 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
     fd.append('pl', tp);
     fd.append('nonce_msg', nonce_msg);
     
-    var idB ='#'+id+'-prB'
+    var idB ='#'+id+'-prB';
+    console.log(fd);
     jQuery.ajax({
       type: 'POST',
       url: ajax_object_efm.ajax_url,
@@ -2408,6 +2411,7 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
           files_emsFormBuilder[indx].id = idn;
           const ob = valueJson_ws.find(x => x.id_ === id) || 0;
           const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
+          console.log(o);
           fun_sendBack_emsFormBuilder(o[0]);
            $(idB).css("width", + 100 +"%");
           $(idB).text(100 +"% = " + file[0].files[0].name);

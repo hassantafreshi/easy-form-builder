@@ -1,9 +1,9 @@
 
 const getUrlback_efb = location.search;
 
-const getUrlparams_efb = new URLSearchParams(getUrlback_efb);
-const get_authority_efb = getUrlparams_efb.get('Authority');
-const get_Status_efb = getUrlparams_efb.get('Status');
+const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
+const get_authority_efb = getUrlparam_efb.get('Authority');
+const get_Status_efb = getUrlparam_efb.get('Status');
 
 fun_total_pay_persiaPay_efn=(total)=>{
     //console.log('fun_total_pay_persiaPay_efn');

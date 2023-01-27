@@ -34,7 +34,7 @@ jQuery(function () {
    history.replaceState("panel",null,'?page=Emsfb'); 
  }else{
 
-  console.log('before fun_show_content_page_emsFormBuilder');
+  console.log('before fun_show_content_page_emsFormBuilder',state);
   fun_show_content_page_emsFormBuilder(state)
  }
 });
@@ -890,7 +890,11 @@ function fun_show_content_page_emsFormBuilder(state) {
     history.pushState("search",null,'?page=Emsfb&state=search');
     document.getElementById("track_code_emsFormBuilder").value =localStorage.getItem('search_efb');
     fun_find_track_emsFormBuilder();
-    }
+  }else if(state=="show-messages"){
+    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
+    history.pushState("setting",null,'?page=Emsfb');
+    window.location.reload();
+  }
   fun_hande_active_page_emsFormBuilder(state);
 }
 
@@ -1007,7 +1011,7 @@ function fun_show_setting__emsFormBuilder() {
 
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     console.log(f('scaptcha'),scaptcha)
-    activeDlBtn = f('activeDlBtn')=='null' ? false :f('activeDlBtn');
+    activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
 

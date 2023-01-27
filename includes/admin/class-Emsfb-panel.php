@@ -108,7 +108,8 @@ class Panel_edit  {
 				"language"=> get_locale(),
 				"addons"=>$addons,
 				'wp_lan'=>get_locale(),
-				'location'=>$location
+				'location'=>$location,
+				'setting'=>$ac
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.12');

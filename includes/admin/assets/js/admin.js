@@ -19,6 +19,7 @@ if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_w
 
 jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
+  setting_emsFormBuilder=efb_var.setting;
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
   //historyload 1
@@ -542,6 +543,7 @@ function add_dasboard_emsFormBuilder() {
 
 }
 function add_addons_emsFormBuilder() {
+  console.log('add_addons_emsFormBuilder');
   //v2
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
@@ -1287,7 +1289,7 @@ let change_el_edit_Efb = (el) => {
 
           //colMReplaceEfb    
           clss = valj_efb[indx].op_style=="2" ? 'col-md-6' : 'col-md-4'
-          for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){            
+          for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'].form-check`)){            
             v.className = colMdRemoveEfb(v.className);            
             v.classList.add(clss)
             
@@ -1297,7 +1299,7 @@ let change_el_edit_Efb = (el) => {
           if(c.classList.contains('row')){
             //console.log('classList.contains(row) exitst!');
              c.classList.remove('row'); c.classList.remove('col-md-12')
-             for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'], .form-check`)){
+             for (let v of document.querySelectorAll(`[data-parent='${valj_efb[indx].id_}'].form-check`)){
               v.className = colMdRemoveEfb(v.className);
 
             }
@@ -1835,7 +1837,7 @@ function create_form_efb() {
     valj_efb.forEach((value, index) => {
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
-        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5 ${value.label_text_color} ">${value.name}</strong></li>`
+        head += `<li id="${value.id_}" data-step="icon-s-${step_no}-efb"class="efb  ${valj_efb[0].steps <= 11 ? `step-w-${valj_efb[0].steps}` : `step-w-11`} ${value.icon_color} ${value.icon}   ${value.step == 1 ? 'active' : ''}" ><strong class="efb  fs-5 ${value.label_text_color} ">${value.name}</strong></li>`
         content += step_no == 1 ? `<fieldset data-step="step-${step_no}-efb" class="efb  mt-1 mb-2 steps-efb row">` : `<!-- fieldsetFOrm!!! --></fieldset><fieldset data-step="step-${step_no}-efb"  class="efb my-2 steps-efb efb row d-none">`
 
         if (valj_efb[0].show_icon == false) { }

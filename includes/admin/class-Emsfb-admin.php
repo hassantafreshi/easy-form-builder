@@ -1131,11 +1131,14 @@ class Admin {
         }
         
     public function file_upload_public(){
+        error_log("admin file_upload_public");
         /* start new code */
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;
+        error_log($_POST['pl']);
+        error_log($_POST['id']);
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{

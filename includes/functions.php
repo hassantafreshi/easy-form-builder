@@ -383,8 +383,8 @@ class efbFunction {
 			"entrTrkngNo" => $state ? $ac->text->entrTrkngNo : __('Enter the Confirmation Code','easy-form-builder'),
 			"search" => $state ? $ac->text->search : __('Search','easy-form-builder'),
 			"enterThePhones" => $state ? $ac->text->enterThePhones : __('Enter The Phone No','easy-form-builder'),
-			"conturyList" => $state ? $ac->text->conturyList : __('Countries list','easy-form-builder'),
-			"stateProvince" => $state ? $ac->text->stateProvince : __('States/ Provinces','easy-form-builder'),
+			"conturyList" => $state ? $ac->text->conturyList : __('Countries Drop-down','easy-form-builder'),
+			"stateProvince" => $state ? $ac->text->stateProvince : __('State/Prov Drop-down','easy-form-builder'),
 			"thankYouMessage" => $state ? $ac->text->thankYouMessage : __('Thank you message','easy-form-builder'),
 			"newMessage" => $state ? $ac->text->newMessage : __('New message!', 'easy-form-builder'),
 			"newMessageReceived" => $state ? $ac->text->newMessageReceived : __('A New Message has been Received.', 'easy-form-builder'),
@@ -565,6 +565,9 @@ class efbFunction {
 			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
 			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
 			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
+			"mcplen" => $state  &&  isset($ac->text->mcplen) ? $ac->text->mcplen : __('Please enter a number greater than or equal to NN','easy-form-builder'),				
+			"mmxplen" => $state  &&  isset($ac->text->mmxplen) ? $ac->text->mmxplen : __('Please Enter A maximum of NN Characters For This Field','easy-form-builder'),				
+			"mxcplen" => $state  &&  isset($ac->text->mxcplen) ? $ac->text->mxcplen : __('Please enter a number less than or equal to NN','easy-form-builder'),				
 			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : __('Max','easy-form-builder'),				
 			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : __('Min','easy-form-builder'),				
 			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
@@ -603,6 +606,7 @@ class efbFunction {
 			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('SMS service Addon able you to send notification SMS when you or customers receive new messages or responses.','easy-form-builder'),				
 			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please Install Hiji or Jalali date addon, You cannot Install both of them','easy-form-builder'),				
 			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
+			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -869,7 +873,7 @@ class efbFunction {
     }
 
 	public function iplocation_efb($ip , $state){
-		error_log('iplocation_efb');
+		//error_log('iplocation_efb');
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
 		$userAgent ;
@@ -894,7 +898,7 @@ class efbFunction {
 			'User-Agent: '.$userAgent
 		));
 		$location = json_decode(curl_exec($cURL), true); 
-		error_log(json_encode($location));
+		//error_log(json_encode($location));
 		if(isset($location)){
 			return $state==1 ? $location["country_code2"] :$location  ;
 		}else{
