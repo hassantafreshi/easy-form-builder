@@ -332,8 +332,8 @@ function createStepsOfPublic() {
         let offsetw = document.getElementById('body_efb').offsetWidth;
         const mi=()=> {return  el.type!="number" ? 2 :0}
      
-        let len = el.hasAttribute('minlength')  ? el.minlength :mi();
-        //console.log(len.type , el.minLength);
+        let len = el.hasAttribute('minlength')  ? el.minLength :mi();
+        console.log(el.minLength , value < len  , el.type,el.id);
         if (value.length < len && el.type!="number") {
           state = false;
           el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -374,9 +374,9 @@ function createStepsOfPublic() {
                 return 0;
         }
       //  const mx=()=> {return  l.type!="number" ? 0 :0}
-         len =  el.hasAttribute('maxlength') ? el.maxlength :0;
-         console.log(`must max len[${len}] el.maxLength[${el.maxlength}]`,ajax_object_efm.text.mxcplen)
+         len =  el.hasAttribute('maxlength') ? el.maxLength :0;
          if(len==0) return 1;
+         console.log(`must max len[${len}] el.maxLength[${el.maxLength}]`,ajax_object_efm.text.mxcplen,el)
 
         if (value.length > len && el.type!="number") {
           state = false;
@@ -884,7 +884,7 @@ function actionSendData_emsFormBuilder() {
     return;
   }
   
- 
+ console.log(`url==========>${location.href.split('?')[0]}`);
   jQuery(function ($) {
 
     data = {
