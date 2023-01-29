@@ -332,7 +332,7 @@ function createStepsOfPublic() {
         let offsetw = document.getElementById('body_efb').offsetWidth;
         const mi=()=> {return  el.type!="number" ? 2 :0}
      
-        let len = el.hasAttribute('minLength') ? el.minLength :mi();
+        let len = el.hasAttribute('minlength')  ? el.minlength :mi();
         //console.log(len.type , el.minLength);
         if (value.length < len && el.type!="number") {
           state = false;
@@ -374,8 +374,8 @@ function createStepsOfPublic() {
                 return 0;
         }
       //  const mx=()=> {return  l.type!="number" ? 0 :0}
-         len = el.hasAttribute('maxLength') ? el.maxLength :0;
-         console.log(len ,ajax_object_efm.text.mxcplen)
+         len =  el.hasAttribute('maxlength') ? el.maxlength :0;
+         console.log(`must max len[${len}] el.maxLength[${el.maxlength}]`,ajax_object_efm.text.mxcplen)
          if(len==0) return 1;
 
         if (value.length > len && el.type!="number") {

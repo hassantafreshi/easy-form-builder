@@ -607,6 +607,8 @@ class efbFunction {
 			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please Install Hiji or Jalali date addon, You cannot Install both of them','easy-form-builder'),				
 			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
 			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
+			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
+			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

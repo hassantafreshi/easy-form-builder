@@ -561,9 +561,9 @@ class _Public {
 	  }
 
 	  public function get_ajax_form_public(){
-		//error_log('get_ajax_form_public');
+		error_log('get_ajax_form_public');
 		
-		$text_ =["clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
@@ -575,6 +575,7 @@ class _Public {
 		// 
 		if (check_ajax_referer('public-nonce','nonce')==false){
 			//error_log('not valid nonce');	
+		
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 		}
@@ -585,7 +586,7 @@ class _Public {
 			wp_send_json_success($response,$_POST);
 		}
 		
-		//error_log('pass nonce');
+		error_log('pass nonce');
 		$r=  $this->get_setting_Emsfb('setting');
 		$pro = false;
 		$type =sanitize_text_field($_POST['type']);
@@ -603,7 +604,7 @@ class _Public {
 		//error_log($this->value);
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
-		//error_log('after queri');
+		error_log('after queri');
 		//error_log($valo['recovery']);
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
@@ -657,13 +658,14 @@ class _Public {
 				
 				//error_log(json_encode($valo));
 				//error_log(json_encode($formObj));
+				$mr=$this->lanText["error405"];
 				$stated = 1;
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;						
 						if($key<2) continue;
 						if($stated==0){break;}
-						$it= array_filter($valo, function($item) use ($f,&$stated ,&$rt,$formObj,&$in_loop) { 
+						$it= array_filter($valo, function($item) use ($f,&$stated ,&$rt,$formObj,&$in_loop,&$mr) { 
 							if($in_loop==false){
 								return;
 							}
@@ -673,7 +675,9 @@ class _Public {
 							||  gettype($t)=="integer" && $f['id_']==$item['id_ob'])
 							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')) {   							
 							//error_log($stated);
-							switch ($f['type']) {					
+							error_log($f['type']);					
+							error_log($f['id_']);					
+							switch ($f['type']) {
 								case 'email':
 									$stated=0;
 									if(isset($item['value'])){
@@ -914,7 +918,7 @@ class _Public {
 										$in_loop=false;
 								break;								
 								default:
-								
+										error_log('========>default');
 									$stated=0;
 									$t	= strtolower($item['type']);
 									$t = strpos(strtolower($f['type']),'checkbox');
@@ -923,14 +927,31 @@ class _Public {
 										$stated=1;
 										return;
 									}
-								
+									error_log($item['value']);
 								//error_log(gettype(strpos(strtolower($f['type']),'checkbox'))!='boolean');
 									if(isset($item['value'])){
+										error_log('======>if item');
 										$stated=1;
 										$item['value'] = sanitize_text_field($item['value']);
-										$l=strlen($item['value']);										
-										if((isset($f['milen']) && $f['milen']> $l) ||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
+										$l=strlen($item['value']);	
+										/* new code */
+										if(isset($f['milen'])!=true  &&   isset($f['mlen'])!=true){	$stated=1;	}						
+										else if((isset($f['milen'])==true && $f['milen']>0 && $f['milen']> $l)) {											
+											$mr = $this->lanText["ptrnMmm"];
+											$mr =str_replace('XXX', $f['name'], $mr );
+											$mr =str_replace('NN', $f['mlen'], $mr );											
+											$stated=0;
+										}
+										else if( isset($f['mlen'])==true && $f['mlen']>0   && $f['mlen']< $l) {
+											//error_log("isset(f['mlen'])");	
+											$mr = $this->lanText["ptrnMmm"];							
+											$mr =str_replace('NN', $f['mlen'], $mr );
+											$mr =str_replace('XXX', $f['name'], $mr );
+											$stated=0;}
 									}
+									error_log('======>stated');
+									error_log($mr);
+									error_log($stated);
 									//$item['value'] =  'test';
 									$rt= $item;
 									$in_loop=false;
@@ -954,7 +975,8 @@ class _Public {
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
-					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					error_log($mr);
+					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$_POST);
 				}
 
