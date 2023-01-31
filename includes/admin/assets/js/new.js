@@ -2595,5 +2595,12 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
  }
 
 
+ santize_string_efb = (str) => {
+  console.log('in santize_string_efb',str);
+  if(str==undefined || str==null) return null;
+  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
+  return str.replaceAll(regexp, '');
+}
+
 
 

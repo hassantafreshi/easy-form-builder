@@ -35,6 +35,14 @@ setTimeout(() => {
       poster_emsFormBuilder = ajax_object_efm.poster;
       //console.log(ajax_object_efm.state);
       efb_var = ajax_object_efm;
+     
+      if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+        console.log('new version!',efb_var.v_efb)
+        setTimeout(() => {
+          localStorage.setItem('v_efb',efb_var.v_efb);
+          location.reload(true);          
+        }, 3000);
+      }
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
@@ -893,7 +901,7 @@ function actionSendData_emsFormBuilder() {
       name: formNameEfb,
       id: localStorage.getItem('form_id'),
       valid: recaptcha_emsFormBuilder,
-      type: form_type_emsFormBuilder,
+      type: valj_efb[0].type,
       nonce: efb_var.nonce,
       nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0]
@@ -1104,7 +1112,7 @@ function valid_file_emsFormBuilder(id,tp) {
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :3500;
   const getUrlparams = new URLSearchParams(location.search);
-  let get_track = getUrlparams.get('track');
+  let get_track = getUrlparams.get('track') ?santize_string_efb(getUrlparams.get('track')) : null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   console.log(setting_emsFormBuilder.scaptcha ,setting_emsFormBuilder.siteKey, setting_emsFormBuilder, setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : `not`);
 setTimeout(() => {
@@ -1829,11 +1837,7 @@ change_url_back_persia_pay_efb=()=>{
   if(indx!=-1)history.pushState({'page_id': 1},`${document.title} !`, document.URL.slice(0,indx));
 }
 
-santize_string_efb = (str) => {
-  //console.log('in santize_string_efb');
-  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
-  return str.replaceAll(regexp, '');
-}
+
 
 
 
@@ -1844,3 +1848,5 @@ window.addEventListener("popstate",e=>{
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');;
 
  })//end event backward public
+
+

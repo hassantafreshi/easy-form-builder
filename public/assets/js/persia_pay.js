@@ -2,15 +2,15 @@
 const getUrlback_efb = location.search;
 
 const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
-const get_authority_efb = getUrlparam_efb.get('Authority');
-const get_Status_efb = getUrlparam_efb.get('Status');
+const get_authority_efb = getUrlparam_efb.get('Authority') ? santize_string_efb(getUrlparam_efb.get('Authority')) :null;
+const get_Status_efb = getUrlparam_efb.get('Status') ? santize_string_efb(getUrlparam_efb.get('Status')) : null;
 
 fun_total_pay_persiaPay_efn=(total)=>{
     //console.log('fun_total_pay_persiaPay_efn');
     total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
 }
 
-console.log("persia_pay.js 3.5.14");
+console.log("persia_pay.js 3.5.15");
 pay_persia_efb=()=>{
     //console.log('pay_persia_efb');
     const gateWay = valj_efb[0].persiaPay;

@@ -27,7 +27,7 @@ jQuery(function () {
     }
   }
   let g =new URLSearchParams(location.search)
-  const state = g.get('state');
+  const state =santize_string_efb(g.get('state'));
   console.log(g,state);
  if(state==null){
    fun_emsFormBuilder_render_view(25); //778899
@@ -894,6 +894,12 @@ function fun_show_content_page_emsFormBuilder(state) {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
     window.location.reload();
+  }else if(state=="edit-form"){
+   const v =santize_string_efb(getUrlparams_efb.get('id'));
+      console.log(v);
+      fun_get_form_by_id(Number(v));
+      fun_backButton();
+      fun_hande_active_page_emsFormBuilder(1);
   }
   fun_hande_active_page_emsFormBuilder(state);
 }
@@ -2238,12 +2244,12 @@ function act_local_efb_event(t){
   }, 80);
 }
 
-santize_string_efb = (str) => {
+/* santize_string_efb = (str) => {
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   str=str.replaceAll(regexp, '');
   //console.log('in santize_string_efb',str);
   return str.replaceAll(regexp, '');
-}
+} */
 
 function efb_check_el_pro(el){
   console.log(el ,pro_ws);

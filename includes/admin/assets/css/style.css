@@ -850,7 +850,7 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  }
  .btn-pro-efb.efb {	height: 30px;
  	width: auto;
- 	background-color: #ffbf00ab;
+ 	background-color: #f3b80791!important;
  	border-radius: 4%;
  	font-size: 20px;
  	padding: 0;
@@ -858,7 +858,7 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  .pro-version-efb {	position: absolute;
  	height: 30px;
  	width: 30px;
- 	background-color: #f3b807;
+ 	background-color: #f3b80791;
  	border-radius: 50%;
  	font-size: 20px !important;
  	display: flex;
@@ -2263,3 +2263,8 @@ div#attach_efb {	position: relative;
 }
 
 #body_tracker_emsFormBuilder .alert-danger{position: initial!important;}
+
+
+#body_tracker_emsFormBuilder b {
+    width: 100%;
+}

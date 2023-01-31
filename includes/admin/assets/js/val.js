@@ -21,8 +21,8 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
-  //{ name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'basic all' },
- // { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'basic all' },
+  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'basic all' },
+  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'basic all' },
   /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
@@ -1021,37 +1021,39 @@ function creator_form_builder_Efb() {
   let dragab = true;
   let disable = "disable";
   let formType = valj_efb[0].type
-  /* testcode remove it */
-  efb_var.addons.AdnPDP=1
-  efb_var.addons.AdnADP=1
-  /* testcode remove it  end*/
+
   const ond = `onClick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
   if (formType == "login") {
     dragab = false;
     disable = ond;
     //thisElemantNotAvailable
   }
+  console.log(efb_var.addons.AdnPDP);
   if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
+      console.log(`ob.id=="stripe"`);
       disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
+      console.log(`ob.id=="persiaPay"`);
       disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
-    }else if (ob.id=="pdate" && efb_var.addons.hasOwnProperty('AdnPDP') && efb_var.addons.AdnPDP !=1){
+    }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
+      console.log(`ob.id=="pdate"`);
       disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
       dragab = false;
-    }else if (ob.id=="ardate" && efb_var.addons.hasOwnProperty('AdnADP') && efb_var.addons.AdnADP !=1){
+    }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
+      console.log(`ob.id=="ardate"`);
       disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
       dragab = false;
     }
     els += `
     <div class="efb tag col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"` : ''}>
-     ${ob.pro == true && pro_efb == false ? ` <a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
+     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
       <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `

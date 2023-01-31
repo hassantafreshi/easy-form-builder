@@ -9,7 +9,7 @@ let exportJson_ws = [];
 let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
-const efb_version =3.5;
+const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
@@ -20,6 +20,10 @@ if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_w
 jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
+  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+    localStorage.setItem('v_efb',efb_var.v_efb);
+    location.reload(true);
+  }
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
   //historyload 1
@@ -237,7 +241,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.14> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.15> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -2605,11 +2609,16 @@ let handleDrop = (item) => {
 const sort_obj_efb = () => {
 
   const len = valj_efb.length;
+  console.log(valj_efb);
   let p = calPLenEfb(len)
+  //let =valj_efb_
   setTimeout(() => {
-    const valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
+   const  valj_efb_ = valj_efb.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : ((Number(b.amount) > Number(a.amount)) ? -1 : 0))
+     valj_efb= valj_efb_;
+     console.log(valj_efb_);
   }, ((len * p))
   );
+  console.log(valj_efb);
 }
 
 
@@ -2948,7 +2957,7 @@ function fun_switch_form_efb(el){
 window.addEventListener("popstate",e=>{
   console.log(e.state);
   const getUrlparams = new URLSearchParams(location.search);
-  let v =g_page = getUrlparams.get('page');
+  let v =g_page =getUrlparams.get('page') ? santize_string_efb(getUrlparams.get('page')) :"";
 
   switch(e.state){
     case 'templates':
@@ -2976,7 +2985,7 @@ window.addEventListener("popstate",e=>{
       search_trackingcode_fun_efb(v)
       break;
     case 'show-message':
-      v = getUrlparams.get('id');
+      v = santize_string_efb(getUrlparams.get('id'));
       g_page = getUrlparams.get('form_type');
       console.log(`show-message id[${v}] form_type[${g_page}]`);
       efb_var.msg_id =v;
@@ -2991,7 +3000,9 @@ window.addEventListener("popstate",e=>{
       fun_hande_active_page_emsFormBuilder(1);
     break;
     case "edit-form":
-      v = getUrlparams.get('id');
+      console.log('edit-form')
+      v =santize_string_efb(getUrlparams.get('id'));
+      console.log(v);
       fun_get_form_by_id(Number(v));
       fun_backButton();
       fun_hande_active_page_emsFormBuilder(1);
