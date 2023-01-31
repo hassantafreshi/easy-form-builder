@@ -38,10 +38,10 @@ setTimeout(() => {
      
       if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
         console.log('new version!',efb_var.v_efb)
-        setTimeout(() => {
+        //setTimeout(() => {
           localStorage.setItem('v_efb',efb_var.v_efb);
           location.reload(true);          
-        }, 3000);
+       // }, 3000);
       }
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;

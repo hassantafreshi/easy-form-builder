@@ -548,8 +548,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
-                        ${el.dataset.tag != "textarea"  ? mLenEls :''}                                       
-                        ${ miLenEls}                                       
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? mLenEls :''}                                       
+                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? miLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}

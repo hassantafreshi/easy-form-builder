@@ -1370,7 +1370,7 @@ fieldset.efb {	background: transparent;
  }
  
 input[type=radio].efb.fs-6.form-check-input,input[type=checkbox].efb.fs-6.form-check-input {	height: 25px !important;
- 	margin: 1px !important;
+ 	
  }
  
 input[type=radio].efb.fs-4.form-check-input,input[type=checkbox].efb.fs-4.form-check-input {	min-width: 30px !important;
