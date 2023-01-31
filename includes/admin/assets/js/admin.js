@@ -302,6 +302,7 @@ function actionSendData_emsFormBuilder() {
 
 }
 function actionSendAddons_efb(val) {
+  console.log(val)
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -311,7 +312,7 @@ function actionSendAddons_efb(val) {
   jQuery(function ($) {
       data = {
         action: "add_addons_Emsfb",
-        value: val,
+        value: santize_string_efb(val),
         nonce: efb_var.nonce
       };
       
@@ -443,6 +444,7 @@ createCardFormEfb = (i) => {
   </div></div></div>`
 }
 createCardAddoneEfb = (i) => {
+  console.log(i);
   tag_efb =tag_efb.concat(i.tag.split(' ')).filter((item, i, ar) => ar.indexOf(item) === i);;
   //console.log(tag_efb);
   let funNtn =   `funBTNAddOnsEFB('${i.name}','${i.v_required}')`;
@@ -454,7 +456,7 @@ createCardAddoneEfb = (i) => {
     nameNtn = efb_var.text.pro;
     iconNtn ='bi-gem';
     colorNtn = 'btn-warning';
-  }else if (efb_var.addson[i.name]== 1 ){
+  }else if (efb_var.setting[i.name]== 1 ){
     funNtn=`funBTNAddOnsUnEFB('${i.name}')`;
     nameNtn = efb_var.text.remove;
     iconNtn ='';
@@ -1158,8 +1160,9 @@ let change_el_edit_Efb = (el) => {
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1 ) {
           //valj_efb[0].sendEmail = el.checked
-          valj_efb[0].email_to = el.classList.contains('active')==true ?  el.dataset.id.replace('-id', '') :''
-          
+
+          valj_efb[0].email_to = el.classList.contains('active')==true ?  1:0;
+          console.log(valj_efb[0].email_to);
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("SendemailEl").checked = false;
@@ -2756,10 +2759,11 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 funBTNAddOnsEFB=(val,v_required)=>{
   let check_ar_pr=(val)=>{
     console.log(val)
-    if (val!="AdnPDP" && val!="AdnADP"){ return true;
-    }else if((val=="AdnADP" && efb_var.addson.hasOwnProperty('AdnPDP') && efb_var.addson.AdnPDP) 
-    || (val=="AdnPDP" && efb_var.addson.hasOwnProperty('AdnADP') && efb_var.addson.AdnADP)
-    ){
+    if (val!="AdnPDP" && val!="AdnADP"){ 
+        return true;
+    }else if((val=="AdnADP" &&  efb_var.setting.hasOwnProperty('AdnPDP')==true && efb_var.setting.AdnPDP==true) 
+    || (val=="AdnPDP" && efb_var.setting.hasOwnProperty('AdnADP')==true && efb_var.setting.AdnADP==true)){
+      console.log('returl Adn date null');
             return false;
     }
     return true;

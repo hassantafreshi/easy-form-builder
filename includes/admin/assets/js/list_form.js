@@ -992,6 +992,7 @@ function fun_show_setting__emsFormBuilder() {
   let emailTemp = "null"
   let payToken="null";
   let act_local_efb =scaptcha =false;
+  let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -1000,7 +1001,7 @@ function fun_show_setting__emsFormBuilder() {
       valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
     }
     const f = (name) => { 
-      if (valueJson_ws_setting.hasOwnProperty(name)==true) { console.log(name);return valueJson_ws_setting[name] } else { return 'null' } }
+      console.log(valueJson_ws_setting.hasOwnProperty(name));  if (valueJson_ws_setting.hasOwnProperty(name)==true) { console.log(name);return valueJson_ws_setting[name] } else { return 'null' } }
     if (valueJson_ws_setting.text) text = valueJson_ws_setting.text
     // console.log(valueJson_ws_setting, valueJson_ws_setting.text);
     activeCode = f('activeCode');
@@ -1011,7 +1012,7 @@ function fun_show_setting__emsFormBuilder() {
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
     stripePKey = f(`stripePKey`);
-    smtp = f('smtp') == 'null' ? false : true;
+    smtp = f('smtp') == 'null' ? false : f('smtp');
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
 

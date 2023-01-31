@@ -874,6 +874,9 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  	text-align: center;
  	display: block;
  }
+ .efb.bi-gem.pro{
+	background: -webkit-linear-gradient(#f3b807, #bb2d3b);
+ }
  /* proversion */.zindex-10-efb {	z-index: 10;
  }
  .efb.zindex-100 {	z-index: 100;

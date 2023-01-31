@@ -151,23 +151,28 @@ class _Public {
 
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
+		error_log($typeOfForm);
 		if($typeOfForm=="payment"){
+			error_log('typeOfForm==payment');
 			$r = $this->setting;
+			error_log($r);
 			if(gettype($r)=="string"){
 				$setting =str_replace('\\', '', $r);
 				$setting =json_decode($setting);
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-				//error_log($value);
+				error_log("==========================>value");
+				error_log($value);
 				if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 				//"type":"stripe"
 				if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
 				else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
-					$paymentType="zarinPal";}
+					$paymentType="zarinPal";
+				}
 				else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
 						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.15');
 						wp_enqueue_script('pay_js');
-						//error_log($paymentType);
+						error_log($paymentType);
 						if($paymentType=="stripe"){ 
 							
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
@@ -184,21 +189,21 @@ class _Public {
 						}
 				}
 
-				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
-					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-					$persianDatePicker = new persianDatePickerEFB() ; 	
-				}
-				if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
-					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-					$arabicDatePicker = new arabicDatePickerEfb() ; 
-				}
-		
-		
-		
-			}
+			
+			}//end if payment
+			
 		
 		}
-
+		error_log($value);
+		if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
+			error_log('pdate<<<<<<<');
+			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+			$persianDatePicker = new persianDatePickerEFB() ; 	
+		}
+		if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
+			include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+			$arabicDatePicker = new arabicDatePickerEfb() ; 
+		}//end if custom date
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 

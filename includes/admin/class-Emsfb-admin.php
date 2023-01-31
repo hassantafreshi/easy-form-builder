@@ -325,7 +325,8 @@ class Admin {
             'AdnPDP'=>0,
 			'AdnADP'=>0
         */
-        $value      = $_POST['value'];
+        error_log($_POST['value']);
+        $value      =sanitize_text_field($_POST['value']);
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
 
@@ -430,7 +431,7 @@ class Admin {
             $ac->AdnBEF=0;
         }
         $ac->{$value}=1;
-        
+        error_log($value);
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
         $newAc= str_replace('"', '\"', $newAc);   
