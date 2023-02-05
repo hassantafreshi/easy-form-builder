@@ -21,19 +21,20 @@ let form_type_emsFormBuilder = 'form';
 let valueJson_ws = []
 let motus_efb = {};
 let g_timeout_efb = 100
+let price_efb ="";
 if (ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
-//console.log("Easy Form Builder");
+
 setTimeout(() => {
   (function () {
 
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
       poster_emsFormBuilder = ajax_object_efm.poster;
-      //console.log(ajax_object_efm.state);
+      
       efb_var = ajax_object_efm;
      
       if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
@@ -54,7 +55,7 @@ setTimeout(() => {
           form_type_emsFormBuilder = ajax_object_efm.type;
           const vs = setting_emsFormBuilder;
         
-          //console.log(vs);
+          
           addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
 
@@ -72,7 +73,7 @@ setTimeout(() => {
         if (ajax_object_efm.state == 'form') {
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
         } else if (ajax_object_efm.state == 'tracker') {
-          //console.log(`ajax_object_efm.state`,ajax_object_efm.state);
+          
           fun_tracking_show_emsFormBuilder()
         } else if (ajax_object_efm.state == 'settingError') {
 
@@ -203,7 +204,7 @@ function fun_render_view_efb(val, check) {
 } */
 
 /* function validateForm_emsFormBuilder_view() {
-  //console.log("valudation");
+  
   let x, y, i, valid = true, NotValidCount = 0;
   x = document.getElementsByClassName("emsFormBuilder-tab-view");
   y = x[currentTab_emsFormBuilder].querySelectorAll(".require");
@@ -323,7 +324,7 @@ function createStepsOfPublic() {
             if(el.dataset.tag && el.dataset.tag.includes("chl")!=false){
               const id = el.id +"_chl"
               document.getElementById(id).addEventListener("change", (e) => {
-                console.log('qty');
+                
                 //console.log(document.getElementById(id).value);
               })
             }
@@ -331,7 +332,7 @@ function createStepsOfPublic() {
 
       }
       el.addEventListener("change", (e) => {
-        console.log('change');
+        
         //778899
         // e.preventDefault();
         
@@ -341,7 +342,7 @@ function createStepsOfPublic() {
 
 
       if(el.type=="text" &&  el.classList.contains("hijri-picker")){
-        console.log("inside if");
+        
           $("#"+el.id).on('dp.change', function (arg) {
 
             if (!arg.date) {
@@ -359,7 +360,7 @@ function createStepsOfPublic() {
       /* let q = valueJson_ws.find(x => x.id_ === el.id);
       const p = price.length > 0 ? { price: price } : { price: q.price }
       Object.assign(o[0], p) */
-      //console.log(q ,p,o[0]);
+      
       fun_sendBack_emsFormBuilder(o[0]);
       fun_total_pay_efb()
 
@@ -372,10 +373,10 @@ function createStepsOfPublic() {
         let o = [{ id_: id_, name: ob.name, id_ob: el.id, amount: ob.amount, type: el.type, value: el.value, session: sessionPub_emsFormBuilder }];
         if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
           let q = valueJson_ws.find(x => x.id_ === el.id);
-          //console.log(el , valueJson_ws);
-          const p = price.length > 0 ? { price: price } : { price: q.price }
+          
+          const p = price_efb.length > 0 ? { price: price } : { price: q.price }
           Object.assign(o[0], p)
-          //console.log(q ,p,o[0]);
+          
 
           //console.log(ob,id_ob)
           fun_sendBack_emsFormBuilder(o[0]);
@@ -393,28 +394,28 @@ function createStepsOfPublic() {
 //end function createStepsOfPublic
 
 function handle_change_event_efb(el){
-  console.log(el);
+  
   validate_len =()=>{
-    console.log('validate_len');
+    
     let offsetw = document.getElementById('body_efb').offsetWidth;
     const mi=()=> {return  el.type!="number" ? 2 :0}
  
     let len = el.hasAttribute('minlength')  ? el.minLength :mi();
-    console.log(el.minLength , value < len  , el.type,el.id);
+    
     if (value.length < len && el.type!="number") {
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
       let m = ajax_object_efm.text.mmplen.replace('NN',len);
       let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            //console.log(vd);
+            
             if(vd){
-              //console.log(ajax_object_efm.text.mmplen);
+              
               if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                 vd.classList.add('unpx');                
               }
               vd.innerHTML =msg;
-              //console.log(m,vd.innerHTML);
+              
               vd.classList.add('show');
             }
             const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -426,14 +427,14 @@ function handle_change_event_efb(el){
       vd = document.getElementById(`${el.id}-message`);
       let m = ajax_object_efm.text.mcplen.replace('NN',len);
       let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            //console.log(vd);
+            
             if(vd){
-              //console.log(ajax_object_efm.text.mmplen);
+              
               if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                 vd.classList.add('unpx');                
               }
               vd.innerHTML =msg;
-              //console.log(m,vd.innerHTML);
+              
               vd.classList.add('show');
             }
             const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -451,14 +452,14 @@ function handle_change_event_efb(el){
       vd = document.getElementById(`${el.id}-message`);
       let m = ajax_object_efm.text.mmxplen.replace('NN',len);
       let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            //console.log(vd);
+            
             if(vd){
-              //console.log(ajax_object_efm.text.mmplen);
+              
               if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                 vd.classList.add('unpx');                
               }
               vd.innerHTML =msg;
-              //console.log(m,vd.innerHTML);
+              
               vd.classList.add('show');
             }
             const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -470,14 +471,14 @@ function handle_change_event_efb(el){
       vd = document.getElementById(`${el.id}-message`);
       let m = ajax_object_efm.text.mxcplen.replace('NN',len);
       let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            //console.log(vd);
+            
             if(vd){
-              //console.log(ajax_object_efm.text.mmplen);
+              
               if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
                 vd.classList.add('unpx');                
               }
               vd.innerHTML =msg;
-              //console.log(m,vd.innerHTML);
+              
               vd.classList.add('show');
             }
             const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -486,14 +487,14 @@ function handle_change_event_efb(el){
     }
           return 1;
    }
-   console.log('click',el);
+   
     let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
     let state
-   // console.log('click',ob);
+   
     if(!ob){
-      //console.log(ob);
+      
       //console.log('ob is null',el.id ,el.dataset.id)
       if(el.id.includes('chl')!=false){
         ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
@@ -503,7 +504,7 @@ function handle_change_event_efb(el){
 /*       if (ob.type=="payCheckbox") {  
         fun_total_pay_efb()
       } */
-     // console.log('click 362');
+     
     }
     let vd ;
     switch (el.type) {
@@ -512,22 +513,22 @@ function handle_change_event_efb(el){
       case "number":
       case "date":
       case "textarea":
-        //console.log(el.value);
+        
         value = el.value;
         if(validate_len()==0){
         return;
         /* const len = el.hasOwnProperty('minLength') ? el.minLength : 2;
-        console.log(len , el.minLength);
+        
         if (value.length < len) {
           state = false;
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd = document.getElementById(`${el.id}-message`);
-          console.log(vd);
+          
           if(vd){
-            console.log(ajax_object_efm.text.mmplen);
+            
             let m = ajax_object_efm.text.mmplen.replace('NN',len);
             vd.innerHTML =m;
-            console.log(m,vd.innerHTML);
+            
             vd.classList.add('show');
           }
           const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
@@ -549,7 +550,7 @@ function handle_change_event_efb(el){
         break;
       case 'url':
         const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-        //console.log(el.value ,che);
+        
         if (che == null) {
           valid = false;
           vd = document.getElementById(`${el.id}-message`)
@@ -561,7 +562,7 @@ function handle_change_event_efb(el){
           value = el.value;
           
          vd = document.getElementById(`${el.id}-message`)
-         //console.log(el.id ,vd);
+         
          vd.classList.remove('show');
          vd.innerHTML="";
           el.className = colorBorderChangerEfb(el.className, "border-success");
@@ -569,7 +570,7 @@ function handle_change_event_efb(el){
         break;
       case "checkbox":
       case "radio":
-        //console.log(422);
+        
         value = el.value;
         
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
@@ -605,7 +606,7 @@ function handle_change_event_efb(el){
            /*  else if(el.type="radio"){
               const id = el.id +'_chl';
               for(let i of document.querySelectorAll(`[data-vid='${el.dataset.vid}']`)){
-                console.log(i);
+                
                 i.disabled=true;
               }
               document.getElementById(id).disabled=false;
@@ -616,12 +617,12 @@ function handle_change_event_efb(el){
           document.getElementById(id).value ="";
          }
 
-         //console.log(sendBack_emsFormBuilder_pub);
+         
         break;
       case "select-one":
       case "select":
         value = el.value;
-        //console.log(el.options[el.selectedIndex].id);
+        
         vd =document.getElementById(`${ob.id_}_-message`)
         vd.classList.remove('show');
         vd.innerHTML="";
@@ -629,8 +630,8 @@ function handle_change_event_efb(el){
         if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
           let v = el.options[el.selectedIndex].id;
           v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
-          //console.log(v);
-          if (typeof v.price == "string") price = v.price;
+          
+          if (typeof v.price == "string") price_efb = v.price;
         }
         break;
       case "range":
@@ -655,7 +656,7 @@ function handle_change_event_efb(el){
       case "select-multiple":
         const parents = el.name;
         if (el.classList.contains('multiple-emsFormBuilder') == true) {
-          //  console.log(el.children);
+          
           for (let i = 0; i < el.children.length; i++) {
             value += el.children[i].value + ",";
           }
@@ -695,13 +696,14 @@ function handle_change_event_efb(el){
     if (value != "" || value.length > 1) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
-      //console.log(ob,id_ob);
+      
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
       if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
         let q = valueJson_ws.find(x => x.id_ === el.id);
-        const p = price.length > 0 ? { price: price } : { price: q.price }
+        
+        const p = price_efb.length > 0 ? { price: price } : { price: q.price }
         Object.assign(o[0], p)
-        //console.log(q ,p,o[0]);
+        
         fun_sendBack_emsFormBuilder(o[0]);
         fun_total_pay_efb()
       }else if(type.includes('chl')){
@@ -716,9 +718,9 @@ function handle_change_event_efb(el){
         }
        
         fun_sendBack_emsFormBuilder(o[0]);
-        //console.log(o[0]);
+        
       }else if (o[0].type=="email"){
-        //console.log('email type',o);
+        
         fun_sendBack_emsFormBuilder(o[0]);
       }else {
 
@@ -733,7 +735,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number') ob.value=fun_text_forbiden_convert_efb(ob.value);
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-    //console.log(`index[${indx}]`);
+    
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" || sendBack_emsFormBuilder_pub[indx].type == "chlCheckBox")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
@@ -745,7 +747,7 @@ function fun_sendBack_emsFormBuilder(ob) {
       sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
-        //console.log(typeof ob.price);
+        
         if (typeof ob.price != "string") {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
         } else {
@@ -760,8 +762,8 @@ function fun_sendBack_emsFormBuilder(ob) {
   }
   localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   localStorage.setItem('formId', localStorage.getItem('form_id'))
-  //console.log(sendBack_emsFormBuilder_pub); 
-  //console.log(sendBack_emsFormBuilder_pub);
+   
+  
 }
 /* function fun_multiSelectElemnets_emsFormBuilder(ob) { 
   // این تابع آبجکت ارسال به سرور مدیریت می کند
@@ -903,7 +905,7 @@ function actionSendData_emsFormBuilder() {
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length > 1 && valueJson_ws[0].hasOwnProperty('captcha') == true && valueJson_ws[0].captcha == true && typeof grecaptcha == "object" ? grecaptcha.getResponse() : "";
-  //console.log(sendBack_emsFormBuilder_pub,recaptcha_emsFormBuilder,efb_var.id);
+  
   //valueJson_ws[0].captcha==true &&  typeof grecaptcha =="object"  ? document.getElementById('gRecaptcha').classList.add('d-none'):'';
   if (!navigator.onLine) {
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
@@ -1099,7 +1101,7 @@ function valid_file_emsFormBuilder(id,tp) {
     rtrn = true;
   } else {
     if (el.files[0] && message.length < 2) message = el.files[0].size < fileSizeLimite_emsFormBuilder ? `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}` : ajax_object_efm.text.fileSizeIsTooLarge;
-    //console.log('test');  
+      
     const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
     //console.log(newClass,typeof newClass,newClass!=false)
     newClass!=false ? msgEl.className=newClass:0;
@@ -1130,9 +1132,9 @@ function valid_file_emsFormBuilder(id,tp) {
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :3500;
   const getUrlparams = new URLSearchParams(location.search);
-  let get_track = getUrlparams.get('track') ?santize_string_efb(getUrlparams.get('track')) : null;
+  let get_track = getUrlparams.get('track') ?sanitize_text_efb(getUrlparams.get('track')) : null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
-  console.log(setting_emsFormBuilder.scaptcha ,setting_emsFormBuilder.siteKey, setting_emsFormBuilder, setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : `not`);
+  
 setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
@@ -1142,7 +1144,7 @@ setTimeout(() => {
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
                         <div class="efb  col-12 text-center mx-2 row">
-                        <input type="text" class="efb input-efb form-control border-d efb-rounded text-labelEfb h-l-efb" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
+                        <input type="text" class="efb input-efb form-control border-d efb-rounded text-labelEfb h-l-efb mb-2" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
                          <!-- recaptcha  -->
                          ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
                          
@@ -1226,7 +1228,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
               efb_var.nonce_msg = res.data.nonce_msg
               efb_var.msg_id = res.data.id
             },
-            error: function () {
+            error: function (res) {
+              
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
               response_Valid_tracker_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } })
@@ -1244,7 +1247,7 @@ function emsFormBuilder_show_content_message(value, content) {
   const msg_id = value.msg_id;
   const userIp = "XXXXXXXXX";
   const track = value.track;
-  //console.log(value,content,typeof pro_els_efb);
+  
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
@@ -1293,7 +1296,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
-  //console.log('fun_emsFormBuilder_show_messages');
+  
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
@@ -1317,7 +1320,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if(c.hasOwnProperty('value')){
       c.value = replaceContentMessageEfb(c.value);
       if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
-      //console.log(c.value);
+      
       value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
       if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
     } 
@@ -1352,14 +1355,14 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       }
 
     } else if (c.type == "esign") {
-      //console.log(c.value);
+      
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
-      //console.log(value);
+      
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
@@ -1456,7 +1459,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     }
   }
   m += '</div>';
-  //console.log('m',m);
+  
   return m;
 }
 
@@ -1466,12 +1469,12 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
-  message=santize_string_efb(message);
+  message=sanitize_text_efb(message);
   // +='disabled fas fa-spinner fa-pulse';
   const by = ajax_object_efm.user_name.length > 1 ? ajax_object_efm.user_name : efb_var.text.guest;
   //const ob = [{ name: 'Message', value: message, by: by }];
  /* new attachment */
- //console.log('message',message);
+ 
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: by , session: sessionPub_emsFormBuilder}];
   fun_sendBack_emsFormBuilder(ob[0])
   /*end  new attachment */
@@ -1486,7 +1489,7 @@ function fun_send_replayMessage_emsFormBuilder(id) {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
     } */
-    console.log(sendBack_emsFormBuilder_pub);
+    
     fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
   }
 
@@ -1524,7 +1527,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) { response_rMessage_id(res, message); sendBack_emsFormBuilder_pub=[]; },
-      error: function () { response_rMessage_id({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }) }
+      error: function (res) {console.log(res); response_rMessage_id({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }) }
 
     })
 
@@ -1573,7 +1576,7 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
-    //console.log(row);
+    
     count[0] += 1;
     if (row.value == "@file@") {
 
@@ -1618,7 +1621,7 @@ function validation_before_send_emsFormBuilder() {
     for (const v of valueJson_ws) {
       //dadfile
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
-         //console.log(v);
+         
         (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
       }
@@ -1647,7 +1650,7 @@ function emsFormBuilder_logout() {
   ajax_object_efm.type = "logout";
   sendBack_emsFormBuilder_pub = { logout: true };
   recaptcha_emsFormBuilder = '';
-  // console.log('emsFormBuilder_logout');
+  
 
   actionSendData_emsFormBuilder();
 }
@@ -1693,13 +1696,14 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(`return tracking[${res.data.track==null ? 'null' :res.data.track}]`);
+  //pWRedirect
+  
   if (res.data.success == true) {
    if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
       <h3 class="efb fs-4">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb">Please wait while redirected <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `      
       window.location.href = res.data.m;
       return ;
@@ -1774,13 +1778,13 @@ function response_Valid_tracker_efb(res) {
     
   } else {
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onClick="(() => { console.log('test button clicked'); location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
+     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onClick="(() => {  location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
 
   }
 }
 
 function response_rMessage_id(res, message) {
-  //console.log(res);
+  
   if (res.success == true && res.data.success == true) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;

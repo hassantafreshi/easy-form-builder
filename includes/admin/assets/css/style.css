@@ -874,9 +874,9 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  	text-align: center;
  	display: block;
  }
- .efb.bi-gem.pro{
-	background: -webkit-linear-gradient(#f3b807, #bb2d3b);
- }
+/*  .efb.bi-gem.pro{
+	color: -webkit-linear-gradient(#f3b807, #bb2d3b);
+ } */
  /* proversion */.zindex-10-efb {	z-index: 10;
  }
  .efb.zindex-100 {	z-index: 100;
@@ -1370,6 +1370,7 @@ fieldset.efb {	background: transparent;
  }
  
 input[type=radio].efb.fs-6.form-check-input,input[type=checkbox].efb.fs-6.form-check-input {	height: 25px !important;
+	margin: 0.1%;
  	
  }
  
@@ -2270,4 +2271,9 @@ div#attach_efb {	position: relative;
 
 #body_tracker_emsFormBuilder b {
     width: 100%;
+}
+
+
+div#gRecaptcha {
+    margin: 7px -42px!important;
 }

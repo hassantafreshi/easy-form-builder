@@ -21,8 +21,8 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
-  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'basic all' },
-  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'basic all' },
+  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
+  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
@@ -57,7 +57,7 @@ const fields_efb = [
 
 
 function show_setting_window_efb(idset) {
-  //console.log('show_setting_window_efb');
+  
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -67,7 +67,7 @@ function show_setting_window_efb(idset) {
     document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
-     //console.log('body',body);
+     
     let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
     let body = ``;
     //const bodySetting = document.getElementById("settingModalEfb-body");
@@ -127,7 +127,7 @@ function show_setting_window_efb(idset) {
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
-    <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[0].hasOwnProperty('email_to') && Number(valj_efb[0].email_to) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[0].hasOwnProperty('email_to') && valj_efb[0].email_to == valj_efb[indx].id_ ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
@@ -176,7 +176,7 @@ function show_setting_window_efb(idset) {
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
     const textEls=(id , name ,el_type,value ,attr) =>{
-      //console.log(id , name ,el_type,value);
+      
       return`<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="textEl" class="efb form-label mt-2 mb-1 efb">${name}<span class="efb  mx-1 efb text-danger">*</span></label>
     <input type="${el_type}"  data-id="${idset}" data-atr="${attr}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  data-id="${id}" id="textEl" required value="${value}"></div>`}
     /* 778899 end new atr */
@@ -232,7 +232,7 @@ function show_setting_window_efb(idset) {
       </select>`;
     } 
     const paymentMethodEls =()=>{
-     // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+     
       return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
       <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
@@ -260,7 +260,7 @@ function show_setting_window_efb(idset) {
     }
 
     const paymentPersianPayEls =()=>{
-      // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+      
        return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
        <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
@@ -345,7 +345,7 @@ function show_setting_window_efb(idset) {
       let icon = "";
       let t = ""
       let iset ="";
-      //console.log(`valj_efb`,valj_efb);
+      
       if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
       else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
       else if ( side =='tnx') {
@@ -426,7 +426,7 @@ function show_setting_window_efb(idset) {
           </select>
       `
     const btnColorEls =() =>{
-      //console.log(indx,valj_efb[indx]);
+      
       color = valj_efb[indx].button_color;
       //console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
       const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') //slice text=5 bg=2 border=6 btn=3    
@@ -484,7 +484,7 @@ function show_setting_window_efb(idset) {
       `
     }
     const selectHeightEls = () => {
-      //console.log(indx,valj_efb[indx].el_height ,valj_efb[indx].el_height );
+      
       return `
         <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
         <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            
@@ -517,7 +517,7 @@ function show_setting_window_efb(idset) {
     <label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
-  //console.log(el.dataset);
+  
    
     switch (el.dataset.tag) {
       case 'email':
@@ -685,7 +685,7 @@ function show_setting_window_efb(idset) {
       case "esign":
       case "rating":
       case "switch":
-        //console.log(valj_efb[indx]);
+        
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -727,7 +727,7 @@ function show_setting_window_efb(idset) {
         break;
       case "file":
       case "dadfile":
-        //console.log(valj_efb[indx].file);
+        
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -876,7 +876,7 @@ function show_setting_window_efb(idset) {
         `
         break;
       case "buttonNav":
-        //console.log("buttonNav");
+        
         let content = ` 
         ${SingleTextEls('')}
         ${iconEls('')}
@@ -970,7 +970,7 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    //console.log('body',body);
+    
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
     for (const el of document.querySelectorAll(`.elEdit`)) {
@@ -1028,26 +1028,26 @@ function creator_form_builder_Efb() {
     disable = ond;
     //thisElemantNotAvailable
   }
-  console.log(efb_var.addons.AdnPDP);
+  
   if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-      console.log(`ob.id=="stripe"`);
+      
       disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
-      console.log(`ob.id=="persiaPay"`);
+      
       disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
-      console.log(`ob.id=="pdate"`);
+      
       disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
       dragab = false;
     }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
-      console.log(`ob.id=="ardate"`);
+      
       disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
       dragab = false;
     }
@@ -1125,7 +1125,7 @@ function creator_form_builder_Efb() {
   </div></div>
   
   `
-  console.log('[before]create_dargAndDrop_el');
+  
   create_dargAndDrop_el();
   items_dd_efb();
 }

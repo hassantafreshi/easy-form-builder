@@ -627,13 +627,13 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-		//error_log($link);
-				//error_log("to send_email_state[". $to ."]");
+		
+				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = "n";
 			
 				$support="";
-				//error_log($to);
+				
 				$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
 				foreach($a as $i){$support .=chr($i);}
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -651,8 +651,8 @@ class efbFunction {
 				
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
-					//error_log("=================?state");
-					//error_log($state);
+					
+					
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
 				$mail="";
@@ -674,10 +674,10 @@ class efbFunction {
 		}
 
 	public function email_template_efb($pro, $state, $m,$link){	
-		//error_log('email_template_efb');
-		//error_log($link);
+		
+		
 		/* 
-		error_log($cont); */
+		 */
 		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
 		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
@@ -701,8 +701,8 @@ class efbFunction {
 		$adminEmail = $user!=false ? $user->user_email :'';
 		$blogURL= home_url();
 
-		//error_log('temo');
-		//error_log($temp);
+		
+		
 		if($state=="testMailServer"){
 			$title=$lang["goodJob"];
 			$l ="https://whitestudio.team/";
@@ -729,7 +729,7 @@ class efbFunction {
 			$d =  "rtl" ;
 			$align ="right";
 		}
-		//error_log($message);
+		
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
@@ -764,7 +764,7 @@ class efbFunction {
 		       
 				$val =  $temp;
 			}
-			//error_log($val);
+			
 			return $val;
 	}
 
@@ -787,32 +787,32 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-		//error_log('response_to_user_by_msd_id');
+		
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
 	 
 		$email="null";
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
-		//error_log("json_encode(user_data)");
+		
 		$form_id = $data[0]->form_id;
 		$user_res = $data[0]->content;
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
-		//error_log("user_res");
-		//error_log($user_res);
+		
+		
 		$user_res = json_decode($user_res,true);
 		$lst = end($user_res);
 		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-		//error_log(`lini`);
-		//error_log($link_w);
+		
+		
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		//error_log(json_encode($data));
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
-			//error_log('if true [response_to_user_by_msd_id]');
+			
 			foreach($user_res as $key=>$val){
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
@@ -876,12 +876,12 @@ class efbFunction {
     }
 
 	public function iplocation_efb($ip , $state){
-		//error_log('iplocation_efb');
+		
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
 		$userAgent ;
 		if(empty($_SERVER['HTTP_USER_AGENT'])){
-			//error_log('empty user agent');
+			
 			$userAgent = array(
 				'name' => 'unrecognized',
 				'version' => 'unknown',
@@ -889,7 +889,7 @@ class efbFunction {
 				'userAgent' => ''
 			);
 		}else{
-			//error_log('not empty user agent');
+			
 			$userAgent =$_SERVER['HTTP_USER_AGENT'];
 		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
