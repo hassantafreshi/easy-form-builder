@@ -6,15 +6,15 @@ const get_authority_efb = getUrlparam_efb.get('Authority') ? santize_string_efb(
 const get_Status_efb = getUrlparam_efb.get('Status') ? santize_string_efb(getUrlparam_efb.get('Status')) : null;
 
 fun_total_pay_persiaPay_efn=(total)=>{
-    //console.log('fun_total_pay_persiaPay_efn');
+    
     total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
 }
 
-console.log("persia_pay.js 3.5.15");
+
 pay_persia_efb=()=>{
-    //console.log('pay_persia_efb');
+    
     const gateWay = valj_efb[0].persiaPay;
-    //console.log(gateWay);
+    
     if(gateWay=="zarinPal"){
       fun_pay_pp_efb();
     }else if(gateWay=="efb"){
@@ -67,16 +67,16 @@ function btnPersiaPayEfb(){
     noti_message_efb(efb_var.text.offlineSend , 'danger' , `beforePay` );
     return;
   }
-  //console.log("btnPersiaPayEfb");
+  
   let btnEfb = document.getElementById('persiaPayEfb');
   btnEfb.innerHTML="لطفا صبر کنید";
   btnEfb.classList.add('disabled')
   let PaymentState = document.getElementById('afterPayefb');
 
   
-  //console.log(ajax_object_efm.ajax_url);
+  
   product = localStorage.getItem('pay_efb')==null ? 2 : localStorage.getItem('pay_efb');
-  //console.log(product);
+  
   setTimeout(() => {
     let val=[];
     sendBack_emsFormBuilder_pub.forEach(row => {
@@ -85,7 +85,7 @@ function btnPersiaPayEfb(){
         val.push(row);
       }
     });
-    //console.log('val',val);
+    
               jQuery(function ($) {
                   data = {
                     action: "pay_IRBank_payEfb",
@@ -96,7 +96,7 @@ function btnPersiaPayEfb(){
                     nonce: ajax_object_efm.nonce,
                     url :document.URL
                   };
-                  //console.log(res);
+                  
                   $.ajax({
                     type: "POST",
                     async: false,
@@ -106,7 +106,7 @@ function btnPersiaPayEfb(){
                       //console.log(res.data) ;    
                       
                       if(res.data.success==true){
-                          //console.log(res.data);
+                          
                           document.getElementById('beforePay').classList.add('d-none');
                           window.open(res.data.url ,'_self');
                           PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>

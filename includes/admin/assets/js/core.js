@@ -277,7 +277,7 @@ function validateForm_emsFormBuilder_view() {
     for (const input of x[currentTab_emsFormBuilder].querySelectorAll(".require , .validation")) {
       //require
       const req = input.classList.contains('require');
-      //console.log(input);
+      
       if (input.tagName == "INPUT") {
         if (input.value == "" && input.classList.contains('require')) {
           input.className += " invalid"; valid = false;
@@ -473,7 +473,7 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
-  //console.log('fun_sendBack_emsFormBuilder');
+  
   // این تابع آبجکت ارسال به سرور مدیریت می کند  
 /*   if (sendBack_emsFormBuilder.length) {
     const indx = sendBack_emsFormBuilder.findIndex(x => x.id_ === ob.id_);
@@ -493,7 +493,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   }
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
-    //console.log(`index[${indx}]`);
+    
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" )) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
@@ -501,7 +501,7 @@ function fun_sendBack_emsFormBuilder(ob) {
       sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
-        //console.log(typeof ob.price);
+        
         if (typeof ob.price != "string") {
           sendBack_emsFormBuilder_pub[indx].value = ob.value;
         } else {

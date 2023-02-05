@@ -14,14 +14,14 @@ class webhook {
      */
     public function __construct() {
 
-     /*    error_log('construct webhook');
+     /*    
         $this->web_hooks(); */
     }
 
   
 
     public function web_hooks(){
-       /*  error_log('webook');
+       /*  
         add_action('rest_api_init',  @function(){
     
           
@@ -34,8 +34,8 @@ class webhook {
 
 
     function test_fun($slug){
-        error_log($slug['name']);
-        error_log($slug['id']);
+        
+        
         return $slug['id'];
        // return $fs;
     

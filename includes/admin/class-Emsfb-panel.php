@@ -56,7 +56,7 @@ class Panel_edit  {
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
 				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-					//error_log($ac->apiKeyMap);		
+							
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					
@@ -143,7 +143,7 @@ class Panel_edit  {
 					if ( strlen( $lng ) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
-				//error_log($lang);
+				
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
 			}
@@ -322,7 +322,7 @@ class Panel_edit  {
 
 	
 	public function get_not_read_message(){
-		//error_log('get_not_read_message');
+		
 		
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
@@ -354,7 +354,7 @@ class Panel_edit  {
                 }
             } 
         }
-		//error_log($s);
+		
         return  $s;
     }//end fun
 
@@ -365,13 +365,13 @@ class Panel_edit  {
             //test code for create database adsone 
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
-                error_log('file exists');
+                
                 $name ='smartzone';
                 $name ='\Emsfb\\'.$name;
                 require_once $fl_ex;
                 $t = new $name();
                 
-            }else{error_log('link not find: '.  $fl_ex);}
+            }else{}
             //end test 
 			
 	}

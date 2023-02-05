@@ -1,4 +1,4 @@
-console.log('stripe pay loaded stripe_pay.js');
+
 
 fun_add_stripe_efb = () => {
   if (!navigator.onLine) {
@@ -6,14 +6,14 @@ fun_add_stripe_efb = () => {
     return;
   }
     if (typeof document.getElementById('cardnoEfb') != "object") return;
-    //console.log('fun_add_stripe_efb');
+    
     if (ajax_object_efm.hasOwnProperty('paymentKey')) {    
       if (ajax_object_efm.paymentKey == "null") {
         alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: Payment->Stripe`, 100, 'danger');
         return;
       }
       const stripe = Stripe(ajax_object_efm.paymentKey, { locale: 'auto' })
-      //console.log(stripe);
+      
       const elsStripeStyleEfb = {
         base: {
           iconColor: '#6c757d',
@@ -67,7 +67,7 @@ fun_add_stripe_efb = () => {
   
         if (e.complete) {
           //btnStripeEfb.disabled = false 
-          //console.log(btnStripeEfb.classList);
+          
           btnStripeEfb.classList.remove('disabled');
   
         }
@@ -76,8 +76,8 @@ fun_add_stripe_efb = () => {
       btnStripeEfb.addEventListener('click', () => {
         btnStripeEfb.classList.add('disabled');
         btnStripeEfb.innerHTML = efb_var.text.pleaseWaiting;
-        //console.log('click');
-        //console.log(ajax_object_efm.ajax_url);
+        
+        
         const v = fun_pay_valid_price();
         //console.log(v)
         if (v == false) {
@@ -96,7 +96,7 @@ fun_add_stripe_efb = () => {
                 id: efb_var.id,
                 nonce: ajax_object_efm.nonce,
               };
-              //console.log(data);
+              
               $.ajax({
                 type: "POST",
                 async: false,
@@ -134,7 +134,7 @@ fun_add_stripe_efb = () => {
               if (transStat.error) {
                 stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
               } else {
-                //console.log(transStat);
+                
                 jQuery(function ($) {
                   data = {
                     action: "pay_stripe_sub_efb",
@@ -144,7 +144,7 @@ fun_add_stripe_efb = () => {
                     nonce: ajax_object_efm.nonce,
                     token: transStat.token.id
                   };
-                  //console.log(data);
+                  
                   $.ajax({
                     type: "POST",
                     async: false,
@@ -185,8 +185,8 @@ fun_add_stripe_efb = () => {
   
         
         fun_trans_efb = (transStat, data, trackid) => {
-          /*             console.log(trackid);
-                      console.log(data); */
+          /*             
+                       */
           if (transStat.error) {
             stsStripeEfb.innerHTML = `
                 <strong>${efb_var.text.error}  </string> ${transStat.error.message}
@@ -197,8 +197,8 @@ fun_add_stripe_efb = () => {
           }
           else {
             const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-            //console.log(transStat);
-            console.log(data , data.paymentcurrency);
+            
+            
             if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
               grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
             fun_disabled_all_pay_efb()
@@ -216,7 +216,7 @@ fun_add_stripe_efb = () => {
                    <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.interval}</b>: ${data.interval}</p>
                    <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.nextBillingD}</b> : ${data.nextDate}</p>`
             }
-            //console.log(res.data ,efb_var.id);
+            
             stsStripeEfb.innerHTML = `
                 <h3 class="efb  text-darkb p-0 m-0 mt-1 text-center"><i class="efb bi-check2-circle"></i> ${efb_var.text.successPayment}</h3>
                 <p class="efb  text-muted p-0  m-0 mb-2 text-center">${data.description}</p>
@@ -310,7 +310,7 @@ fun_pay_valid_price = () => {
     if (o.hasOwnProperty('price')) price += parseFloat(o.price)
   }
   s = price > 0 ? true : false;
-  //console.log(s,price);
+  
 
   return s;
 }

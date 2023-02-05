@@ -37,7 +37,7 @@ class Create {
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
-		//error_log('create class');
+		
 	}
 
 	public function add_Create_menu() {
@@ -142,7 +142,7 @@ class Create {
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
-				//error_log($lng);
+				
 					if ( strlen($lng) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
@@ -282,7 +282,7 @@ class Create {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	error_log('get_current_user_id');
+	//	
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
   
@@ -312,7 +312,7 @@ class Create {
 			die();
 		}
 
-		//error_log('$this->insert_db();');
+		
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
@@ -323,8 +323,8 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		//error_log('insert_db');
-		//error_log($this->value); 
+		
+		 
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 

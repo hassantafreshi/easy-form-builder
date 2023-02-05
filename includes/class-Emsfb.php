@@ -105,12 +105,12 @@ class Emsfb {
     public static  function email_send(){
 		$message=__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
 		$usr=get_userdata(1);
-		//error_log("email");
+		
 		$users = get_super_admins();
 		foreach ($users as $key => $value) {
 			$user =get_user_by('login',$value);
 			$to = $usr ->data->user_email;
-			//error_log($to);
+			
 			$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 			$headers = array(
 				'MIME-Version: 1.0\r\n',
