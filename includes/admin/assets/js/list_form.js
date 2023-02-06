@@ -27,8 +27,8 @@ jQuery(function () {
     }
   }
   let g =new URLSearchParams(location.search)
-  const state =g.get('state') ? sanitize_text_efb(g.get('state')):null;
-  
+  console.log("get'state'")
+  const state = g.get('state') !=null ? sanitize_text_efb(g.get('state')) : null;
  if(state==null){
    fun_emsFormBuilder_render_view(25); //778899
    history.replaceState("panel",null,'?page=Emsfb'); 
@@ -487,8 +487,6 @@ function fun_send_replayMessage_emsFormBuilder(id) {
   //const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}];
   fun_sendBack_emsFormBuilder(ob[0])
-  /* let isHTML = RegExp.prototype.test.bind(/(<([^>]+)>)/i);
-   console.log(isHTML(message),message.length ) */
   if (message.length < 1) {
     
     check_msg_ext_resp_efb();
@@ -883,14 +881,15 @@ function fun_show_content_page_emsFormBuilder(state) {
     fun_show_setting__emsFormBuilder();
     fun_backButton(0);
     state = 2
-    if(getUrlparams_efb.get('save')=='ok') alert_message_efb("", efb_var.text.saved, 7, "info");  
+    const s = sanitize_text_efb(getUrlparams_efb.get('save'));
+    if(s=='ok') alert_message_efb("", efb_var.text.saved, 7, "info");  
   } else if (state == "help") {
     history.pushState("help",null,'?page=Emsfb&state=help');
     fun_show_help__emsFormBuilder();
     state = 4
   }else if (state=='search'){
     history.pushState("search",null,'?page=Emsfb&state=search');
-    document.getElementById("track_code_emsFormBuilder").value =localStorage.getItem('search_efb');
+    document.getElementById("track_code_emsFormBuilder").value =sanitize_text_efb(localStorage.getItem('search_efb'));
     fun_find_track_emsFormBuilder();
   }else if(state=="show-messages"){
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
@@ -1003,7 +1002,7 @@ function fun_show_setting__emsFormBuilder() {
       valueJson_ws_setting = (JSON.parse(valueJson_ws_setting.replace(/[\\]/g, '')));
     }
     const f = (name) => { 
-      console.log(valueJson_ws_setting.hasOwnProperty(name));  if (valueJson_ws_setting.hasOwnProperty(name)==true) { return valueJson_ws_setting[name] } else { return 'null' } }
+      if (valueJson_ws_setting.hasOwnProperty(name)==true) { return valueJson_ws_setting[name] } else { return 'null' } }
     if (valueJson_ws_setting.text) text = valueJson_ws_setting.text
     
     activeCode = f('activeCode');
@@ -1019,13 +1018,13 @@ function fun_show_setting__emsFormBuilder() {
     emailTemp = f('emailTemp');
 
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
-    console.log(f('scaptcha'),scaptcha)
+    //console.log(f('scaptcha'),scaptcha)
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
 
     
-    console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
+    //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
     payToken = f('payToken');
     act_local_efb = f('act_local_efb');
     
@@ -1412,7 +1411,7 @@ function fun_set_setting_emsFormBuilder() {
       
       return el.checked;
     }else if (el.type == "button"){
-      console.log(el.classList.contains)
+      //console.log(el.classList.contains)
       return el.classList.contains('active')
     }
     return "NotFoundEl"
@@ -2247,12 +2246,7 @@ function act_local_efb_event(t){
   }, 80);
 }
 
-/* santize_string_efb = (str) => {
-  const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
-  str=str.replaceAll(regexp, '');
-  
-  return str.replaceAll(regexp, '');
-} */
+
 
 function efb_check_el_pro(el){
   

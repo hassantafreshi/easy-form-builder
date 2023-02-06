@@ -2,8 +2,8 @@
 const getUrlback_efb = location.search;
 
 const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
-const get_authority_efb = getUrlparam_efb.get('Authority') ? santize_string_efb(getUrlparam_efb.get('Authority')) :null;
-const get_Status_efb = getUrlparam_efb.get('Status') ? santize_string_efb(getUrlparam_efb.get('Status')) : null;
+const get_authority_efb = getUrlparam_efb.get('Authority');
+const get_Status_efb =  getUrlparam_efb.get('Status');
 
 fun_total_pay_persiaPay_efn=(total)=>{
     
@@ -40,7 +40,7 @@ add_ui_persiaPay_efb=(rndm)=>{
           <!-- <span class="efb  text-labelEfb one text-capitalize" id="chargeEfb">${efb_var.text.onetime}</span>-->
         </div>
       </div>
-      <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
+      <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
     </div>
     <div class="efb p-3 card w-100 d-none" id="afterPayefb">
     </div>
@@ -75,7 +75,7 @@ function btnPersiaPayEfb(){
 
   
   
-  product = localStorage.getItem('pay_efb')==null ? 2 : localStorage.getItem('pay_efb');
+  product = localStorage.getItem('pay_efb')==null ? 2 : sanitize_text_efb(localStorage.getItem('pay_efb'));
   
   setTimeout(() => {
     let val=[];
@@ -111,8 +111,6 @@ function btnPersiaPayEfb(){
                           window.open(res.data.url ,'_self');
                           PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
                           <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-                          /* console.log("res.data.id,efb_var.id")
-                          console.log(res.data.id,efb_var.id) */
                           efb_var.id= res.data.id;
                           localStorage.setItem('PayId',res.data.id);
                       }else{                   
@@ -140,7 +138,7 @@ function btnPersiaPayEfb(){
 
 fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-  efb_var.id=localStorage.getItem('efbPersiaPayId')
+  efb_var.id=sanitize_text_efb(localStorage.getItem('efbPersiaPayId'))
     //console.log(id,document.getElementById(id))
   if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
     {

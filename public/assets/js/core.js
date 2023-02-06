@@ -513,8 +513,8 @@ function handle_change_event_efb(el){
       case "number":
       case "date":
       case "textarea":
-        
-        value = el.value;
+        const outp = el.type =="textarea" ?true : false
+        value = sanitize_text_efb(el.value,outp);
         if(validate_len()==0){
         return;
         /* const len = el.hasOwnProperty('minLength') ? el.minLength : 2;
@@ -571,7 +571,7 @@ function handle_change_event_efb(el){
       case "checkbox":
       case "radio":
         
-        value = el.value;
+        value = sanitize_text_efb(el.value);
         
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
@@ -621,7 +621,7 @@ function handle_change_event_efb(el){
         break;
       case "select-one":
       case "select":
-        value = el.value;
+        value = sanitize_text_efb(el.value);
         
         vd =document.getElementById(`${ob.id_}_-message`)
         vd.classList.remove('show');
@@ -635,7 +635,7 @@ function handle_change_event_efb(el){
         }
         break;
       case "range":
-          value = el.value;
+          value = sanitize_text_efb(el.value);
           vd = document.getElementById(`${ob.id_}_-message`);
           vd.classList.remove('show');
           vd.innerHTML="";
@@ -643,15 +643,15 @@ function handle_change_event_efb(el){
         break;
       case "email":
         state = valid_email_emsFormBuilder(el);
-        value = state == true ? el.value : '';
+        value = state == true ? sanitize_text_efb(el.value) : '';
         break;
       case "tel":
         state = valid_phone_emsFormBuilder(el);
-        value = state == true ? el.value : '';
+        value = state == true ? sanitize_text_efb(el.value) : '';
         break;
       case "password":
         state = valid_password_emsFormBuilder(el);
-        value = state == true ? el.value : '';
+        value = state == true ? sanitize_text_efb(el.value) : '';
         break;
       case "select-multiple":
         const parents = el.name;
@@ -669,6 +669,7 @@ function handle_change_event_efb(el){
         //value= value ==true ? "true": "";
         break;
       case "hidden":
+        value = sanitize_text_efb(el.value);
         break;
       case undefined:
         //select_options_emsFormBuilder            
@@ -912,7 +913,7 @@ function actionSendData_emsFormBuilder() {
     return;
   }
   
- console.log(`url==========>${location.href.split('?')[0]}`,valj_efb);
+ //console.log(`url==========>${location.href.split('?')[0]}`,valj_efb);
   jQuery(function ($) {
     form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
     data = {
@@ -1132,7 +1133,7 @@ function valid_file_emsFormBuilder(id,tp) {
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :3500;
   const getUrlparams = new URLSearchParams(location.search);
-  let get_track = getUrlparams.get('track') ?sanitize_text_efb(getUrlparams.get('track')) : null;
+  let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   
 setTimeout(() => {
@@ -1806,7 +1807,7 @@ function response_rMessage_id(res, message) {
 
 
 function loadCaptcha_efb() {
-  console.log('loadCaptcha_efb')
+  console.error('loadCaptcha_efb is loaded')
   if (!window.grecaptcha || !window.grecaptcha.render) {
     setTimeout(() => {
       this.loadCaptcha_efb();
@@ -1866,7 +1867,7 @@ change_url_back_persia_pay_efb=()=>{
 
 window.addEventListener("popstate",e=>{
   if (e.state.search('EFBstep-') ==-1) return 
-    console.log( `stepNo[${e.state.slice(8)}] current_s_Efb[${current_s_efb}]`);
+    //console.log( `stepNo[${e.state.slice(8)}] current_s_Efb[${current_s_efb}]`);
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');
 
  })//end event backward public

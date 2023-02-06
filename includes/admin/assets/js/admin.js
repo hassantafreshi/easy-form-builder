@@ -241,7 +241,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.15> WhiteStudio.team');
+console.info('Easy Form Builder 3.5.18> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -302,13 +302,13 @@ function actionSendData_emsFormBuilder() {
 
 }
 function actionSendAddons_efb(val) {
-  console.log(val)
+  //console.log(val)
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   
-  const snd =val? sanitize_text_efb(val) : null;
+  const snd =val
   if (snd==null) return  valNotFound_efb()
   data = {};
   jQuery(function ($) {
@@ -676,7 +676,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "2jpzt59do", "dataId": "2jpzt59do-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 6, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "dvgl7nfn0", "dataId": "dvgl7nfn0-id", "type": "textarea", "placeholder": efb_var.text.enterYourMessage, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 7, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     localStorage.setItem('valj_efb', JSON.stringify(json))
-    console.log(JSON.stringify(json));
+    //console.log(JSON.stringify(json));
     valj_efb = json;
   } else if (id === "contactTemplate") {
     //contactUs v2
@@ -1029,7 +1029,7 @@ let change_el_edit_Efb = (el) => {
   setTimeout(() => {
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
-      el.value = el.value? sanitize_text_efb(el.value) :null;}
+      el.value = sanitize_text_efb(el.value);}
       if (el.value==null) return  valNotFound_efb()
 
     switch (el.id) {
@@ -1182,7 +1182,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].formName = el.value
         break;
       case "trackingCodeEl":
-        valj_efb[0].trackingCode =  el.classList.contains('active');
+        valj_efb[0].trackingCode =  el.classList.contains('active') ? true : false;
 
         break;
       case "thankYouMessageDoneEl":
@@ -1203,8 +1203,8 @@ let change_el_edit_Efb = (el) => {
       case "captchaEl":
 
         if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
-          console.log(`captcha!!!`,el.classList)
-          valj_efb[0].captcha = el.classList.contains('active')
+          //console.log(`captcha!!!`,el.classList)
+          valj_efb[0].captcha = el.classList.contains('active')==true ? true : false
           if(document.getElementById('recaptcha_efb'))el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
         } else if (valj_efb[0].type == "payment") {
@@ -1218,13 +1218,14 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case "showSIconsEl":
-        valj_efb[0].show_icon =  el.classList.contains('active')
+        valj_efb[0].show_icon =  el.classList.contains('active')==true ? true : false
         break;
       case "showSprosiEl":
-        valj_efb[0].show_pro_bar = el.classList.contains('active')
+        valj_efb[0].show_pro_bar = el.classList.contains('active')==true ? true : false
         break;
       case "showformLoggedEl":
-        valj_efb[0].stateForm = el.classList.contains('active')
+        console.log(`showformLoggedEl[${valj_efb[0].stateForm}]`);
+        valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
@@ -2121,7 +2122,7 @@ function obj_resort_row(step) {
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
+  //console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
   
   const testb = valj_efb.length;
   amount_el_efb = amount_el_efb ?amount_el_efb: (valj_efb[testb-1].amount +1);
@@ -2771,7 +2772,7 @@ const isNumericEfb = (value) => { return /^\d+$/.test(value); }
 
 funBTNAddOnsEFB=(val,v_required)=>{
   let check_ar_pr=(val)=>{
-    console.log(val)
+    //console.log(val)
     if (val!="AdnPDP" && val!="AdnADP"){ 
         return true;
     }else if((val=="AdnADP" &&  efb_var.setting.hasOwnProperty('AdnPDP')==true && efb_var.setting.AdnPDP==true) 
@@ -3001,13 +3002,13 @@ window.addEventListener("popstate",e=>{
       if(v==null){
         
       }
-      console.log(`searchi =>${v}`)
+      //console.log(`searchi =>${v}`)
       search_trackingcode_fun_efb(v)
       break;
     case 'show-message':
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
       if (v==null) console.error('get[id] not found!');
-      g_page = getUrlparams.get('form_type');
+      g_page = sanitize_text_efb(getUrlparams.get('form_type'));
       
       efb_var.msg_id =v;
       form_type_emsFormBuilder = g_page;
@@ -3021,7 +3022,7 @@ window.addEventListener("popstate",e=>{
       fun_hande_active_page_emsFormBuilder(1);
     break;
     case "edit-form":
-      console.log('edit-form')
+      //console.log('edit-form')
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
       if (v==null) console.error('get[id] not found!');
       
