@@ -713,7 +713,7 @@ class efbFunction {
 			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){	
 			//w_link;
-			$link = strlen($link)>5 ? $link.'?track='.$m : home_url();
+			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 			$message ="<h2>".$lang["newMessageReceived"]."</h2>
 			<p>". $lang["trackingCode"].": ".$m." </p>
 			<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>

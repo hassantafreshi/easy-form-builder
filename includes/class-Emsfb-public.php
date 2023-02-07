@@ -79,6 +79,12 @@ class _Public {
 	public function EFB_Form_Builder($id){
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
+		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
+		//error_log($_GET['user']);
+		error_log(is_user_logged_in());
+		if($admin_form==true && is_user_logged_in()==false){
+			return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+		}
 		$table_name = $this->db->prefix . "emsfb_form";
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 
@@ -1872,13 +1878,20 @@ class _Public {
 				//$this->location = $efbFunction->iplocation_efb($ip,1);
 				//
 				$table_name = $this->db->prefix . "emsfb_msg_";
-				$value = $this->db->get_results( "SELECT track,form_id,read_ FROM `$table_name` WHERE msg_id = '$id'" );
-				//error_log(json_decode($value[0]->read_));
+				$value = $this->db->get_results( "SELECT track,form_id,read_,content FROM `$table_name` WHERE msg_id = '$id'" );				
 				if($value[0]->read_==4){
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 					wp_send_json_success($response,$_POST);
 					die();
 				}
+				$valn =str_replace('\\', '', $value[0]->content);
+				//error_log($vv_);
+				$msg_obj = json_decode($valn,true);
+				$vv_="";
+				$lst = end($msg_obj);
+				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+			   //error_log("=============>link_w ");
+			   //error_log($link_w );
 				$table_name = $this->db->prefix . "emsfb_rsp_";				
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
@@ -1893,32 +1906,69 @@ class _Public {
 				
 				$this->db->update($table_name,array('read_'=>0), array('msg_id' => $id) );
 				$by=$this->lanText["guest"];
+				$email_usr ="";
 
 				//error_log(json_encode(wp_get_current_user()));
 				
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
 					$usr= wp_get_current_user();
 					$by = $usr->user_nicename;
+					$email_usr = $usr->user_email;
 					
 				}
 				
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
+				
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
+				
 				$valn =str_replace('\\', '', $vald[0]->form_structer);
 				$valn= json_decode($valn,true);
 				$usr;
 				$email_fa = $valn[0]["email"];
-				$lst = end($valn);
-			 	$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 					$email = $setting->emailSupporter;
 				}
 				
-				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage",$link_w);}
-				if(strlen($email_fa)>4){
-					
-					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage",$link_w);
+				if($email!= null  && gettype($email)=="string" && $email != $email_usr) {
+					$link = $link_w. "?user=admin";
+					error_log($link);
+					$this->send_email_Emsfb($email,$track,$pro,"newMessage",$link);
+				}
+				if(strlen($email_fa)>4 && $email_usr!=$email_fa){
+					$link = $link_w. "?user=admin";
+					error_log($link);
+					$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
+				}
+				//error_log("===============>email of filled");
+				//error_log($email_usr);
+				//error_log("===============>email_fa");
+				//error_log($email_fa);
+				//error_log("===============>email");
+				//error_log($email);
+				if($email == $email_usr || $email_usr==$email_fa){
+					error_log('==============> ارسال پاسخ به کاربری که فرم را پر کرده است');
+					//error_log($value[0]->content);
+
+					$id =$valn[0]["email_to"];
+					//error_log($id);
+					//error_log($valn[0]["email_to"]);
+					if(isset($id)){
+						//error_log("================>id");
+
+						/* $email_fa = array_filter($msg_obj, function($item) use($id){ 
+							if(isset($item['id_']) && $item['id_']==$id){return $item["value"]["value"];}					
+						});	 */
+						foreach ($msg_obj as $key => $value) {
+							if(isset($value['id_']) && $value['id_']==$id){
+								$email_fa= $value["value"];
+								break;
+							}
+						}
+						//error_log(json_encode($email_fa));
+						if($email_fa!="") $this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link_w);
+					}
 				}
 				//messageSent s78
 				
@@ -1936,9 +1986,18 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state,$link){
+		
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
+		//$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
+		if(strlen($link)>5){
+
+			$link_w =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+		}else{
+			$link_w = home_url();
+		}
+		//error_log($to);
+		//error_log($link_w);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		//error_log(json_encode($this->lanText));
 				$cont = $track;
@@ -1979,6 +2038,7 @@ class _Public {
 			$cont=$message;
 		}   
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		//error_log($link);
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
 		
 	}
@@ -2998,6 +3058,8 @@ class _Public {
 
 	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email,$link){
 		//if($fs_obj[0]["sendEmail"]==true || $fs_obj[0]["sendEmail"]=="true"){
+			//error_log($admin_email);
+			//error_log($email);
 			$user_email="null";
 			$user_email = array_filter($msg_obj, function($item) use($fs_obj){ 
 				if(isset($item['id_']) && $item['id_']==$fs_obj[0]["email_to"]){return $item["value"];}					
@@ -3015,9 +3077,11 @@ class _Public {
 					}						 
 				}
 			}
+			$link = $link. "?user=admin";
 			if(isset($admin_email)==true){
 				/* 
 				 */
+				
 				$this->send_email_Emsfb($admin_email,$trackingCode,$pro,"newMessage",$link);
 			}
 			/* 

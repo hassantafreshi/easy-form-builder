@@ -2583,8 +2583,8 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
        async: false,
        url: ajax_object_efm.ajax_url,
        data: data,
-       success: function (res) { console.error(res) },
-       error: function () { console.error('error'); }
+       success: function (res) {},
+       error: function (res) { console.error(res); }
  
      })
  
