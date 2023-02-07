@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.10
+Stable tag: 			3.5.18
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			7.4 or higher
@@ -190,6 +190,10 @@ How *Easy Form Builder* makes your life easier:
 
 - *Open/Closed responses*: Responses(Tickets) can be marked as Open/Closed  from panel of Easy Form Builder.
 
+- *Hijri Date Picker* : by Hijri or Arabic date Picker you can create Arabic or Islamic date form.
+
+- *Jalali Date Picker* : by Shamsi date Picker you can create Persian or Jalali date form.
+
 
 
 
@@ -355,6 +359,37 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.18=
+
+* Improved UX of Easy Form Builder
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues
+
+=3.5.17=
+=3.5.16=
+
+* Improve UX of Easy Form Builder
+* Fixed issues
+* Added Jalali date Input for create Persian date form
+* Added Hijri date  input for create Arabic or Islamic date form
+
+
+=3.5.13=
+
+* Improve UX of Easy Form Builder
+
+=3.5.12=
+* Improved UX of Easy Form Builder
+* Improved UI of Easy Form Builder 
+* Fixed issues of UI Easy Form Builder
+* Added backward features for forms and Easy Form Builder Plugin.
+
+=3.5.11=
+* Fixed issues of loading time of Easy Form Builder
+
 =3.5.10=
 * Improved UX of Easy Form Builder
 * Fixed issues of UI Easy Form Builder

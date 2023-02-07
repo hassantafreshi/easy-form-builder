@@ -1,8 +1,8 @@
-console.log('pay.js');
+
 
 
 function fun_total_pay_efb() {
-   // console.log('fun_total_pay_efb');
+   
     
     let total = 0;
     updateTotal = (i) => {
@@ -26,7 +26,7 @@ function fun_total_pay_efb() {
 
   fun_disabled_all_pay_efb = () => {
     let type = '';
-    //console.log('fun_disabled_all_pay_efb');
+    
     if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
     for (let o of valj_efb) {
       //console.log(o.type.includes('pay'),o);
@@ -35,7 +35,7 @@ function fun_total_pay_efb() {
         if (o.hasOwnProperty('parent')) {
           const p = valj_efb.findIndex(x => x.id_ == o.parent);
           type = valj_efb[p].type;
-          //console.log(o.parent,p,type);
+          
           let ov = document.querySelector(`[data-vid="${o.parent}"]`);
           ov.classList.remove('payefb');
           ov.classList.add('disabled');
@@ -45,10 +45,10 @@ function fun_total_pay_efb() {
             const ob = valj_efb.filter(obj => {
               return obj.parent === o.parent
             })
-            //console.log(ob);
+            
             for (let o of ob) {
               ov = document.getElementById(o.id_);
-              //console.log(ov);
+              
               ov.classList.add('disabled');
               ov.classList.remove('payefb');
               ov.disabled = true;

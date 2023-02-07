@@ -37,7 +37,7 @@ class Create {
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
-		//error_log('create class');
+		
 	}
 
 	public function add_Create_menu() {
@@ -78,7 +78,7 @@ class Create {
 	</div>
 	<!-- end new code dd -->
 	<!--sideMenu--> <div class="efb sideMenuConEfb efbDW-0" id="sideMenuFEfb">
-				<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
+				<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 pb-5" id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu text-danger" id="BtnCSideEfb" onClick="sideMenuEfb(0)"><i class="efb bi-x-lg" ></i></a>
@@ -142,7 +142,7 @@ class Create {
 				$k= $ac->apiKeyMap;
 				$maps=true;
 				$lng = strval(get_locale());
-				//error_log($lng);
+				
 					if ( strlen($lng) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
@@ -161,18 +161,31 @@ class Create {
 				$addons["AdnESZ"]=$ac->AdnESZ;
 				$addons["AdnSE"]=$ac->AdnSE;
 				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
+				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 			}
 		}
-					/* 
-				 include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-				   $persianDatePicker = new persianDatePicker()  */; 
+
+				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ; 	
+				}
+				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
+		/* 		include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+				$arabicDatePicker = new arabicDatePickerEfb() ;  */
+
+				/* include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+				$persianDatePicker = new persianDatePickerEFB() ; */ 
+					
+
 
 			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.10');	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.18');	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.10');	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.18');	
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
@@ -196,20 +209,21 @@ class Create {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.10');
+		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.18');
 		wp_enqueue_script('pay_js');
 
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.10');
+			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.18');
 			wp_enqueue_script('persia_pay');
 		}
 
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.10');
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.18');
 		wp_enqueue_script('stripe_js');
 
 
-		$location =$pro==true  ? $efbFunction->get_geolocation() :'';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.10');
+		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+		$location ='';
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.18');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -225,27 +239,29 @@ class Create {
 			"language"=> get_locale(),
 			"addons"=>$addons,
 			'wp_lan'=>get_locale(),
-			'location'=>$location
+			'location'=>$location,
+			'v_efb'=>EMSFB_PLUGIN_VERSION,
+			'setting'=>$ac,
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.10');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.18');
 		wp_enqueue_script('efb-val-js'); 
 		
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.10');
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.18');
 		wp_enqueue_script('efb-pro-els'); 
 		
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.10');
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.18');
 		wp_enqueue_script('efb-forms-js');
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.10');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.18');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.10');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.18');
 		wp_enqueue_script('efb-main-js'); 
 
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.10');
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.18');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
 
 		
@@ -266,7 +282,7 @@ class Create {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	error_log('get_current_user_id');
+	//	
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
   
@@ -296,7 +312,7 @@ class Create {
 			die();
 		}
 
-		//error_log('$this->insert_db();');
+		
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
@@ -307,8 +323,8 @@ class Create {
 
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
-		//error_log('insert_db');
-		//error_log($this->value); 
+		
+		 
 		$table_name = $this->db->prefix . "emsfb_form";
 		$r =$this->db->insert($table_name, array(
 			'form_name' => $this->name, 

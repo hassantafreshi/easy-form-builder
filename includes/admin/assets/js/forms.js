@@ -1,7 +1,7 @@
 
 const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
 function textThankUEFB(tp){
-    //console.log(`tk is ${tp}`);
+    
     let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.done,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
     if (!tp){
         return tk;
@@ -9,7 +9,7 @@ function textThankUEFB(tp){
     switch (tp) {
         case 'register':
             tk.thankYou=efb_var.text.createAcountDoneM;
-            //console.log(tk);
+            
             return tk;
             break;
     
@@ -35,7 +35,7 @@ function private_contact_us_template_efb(){
 function support_ticket_form_efb(){
     return[{"type":"form","steps":1,"formName":efb_var.text.supportTicketF,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-muted","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.supportForm,"icon":"bi-headset","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
-    {"id_":"n62","dataId":"n62-id","type":"radio","placeholder":"Radio","value":"","size":"80","message":"","id":"","classes":"","name":"What can we help you ?","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
+    {"id_":"n62","dataId":"n62-id","type":"radio","placeholder":"Radio","value":"","size":"80","message":"","id":"","classes":"","name":"How can we help you ?","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},
     {"id_":"miqrmbf8p","dataId":"miqrmbf8p-id","parent":"n62","type":"option","value":"General question","id_op":"miqrmbf8p","step":"1","amount":3},
     {"id_":"0obwhq5rx","dataId":"0obwhq5rx-id","parent":"n62","type":"option","value":"Feature request","id_op":"0obwhq5rx","step":"1","amount":4},
     {"id_":"54eijyzzk","dataId":"54eijyzzk-id","parent":"n62","type":"option","value":"Bug report","id_op":"54eijyzzk","step":"1","amount":5},
@@ -74,6 +74,7 @@ function multiple_step_ontact_us_template_efb(){
 
 function contact_us_template_efb(){
     //Contact us Template
+   
 return    [{"type":"form","steps":1,"formName":efb_var.text.contactusTemplate,"email":"","trackingCode":false,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-primary","icon":"bi-box-arrow-up","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
 {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":"Contact us form","icon":"bi-ui-checks-grid","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},
 {"id_":"r0n6slwb5","dataId":"r0n6slwb5-id","type":"text","placeholder":"Full Name","value":"","size":"100","message":"","id":"","classes":"","name":"Name","required":true,"amount":2,"step":"1","label_text_size":"fs-6","label_position":"up","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""},

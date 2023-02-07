@@ -56,7 +56,7 @@ class Panel_edit  {
 				if(isset($ac->siteKey)){$captcha="true";}	
 				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
 				if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-					//error_log($ac->apiKeyMap);		
+							
 					$k= $ac->apiKeyMap;
 					$maps =true;
 					$lng = strval(get_locale());					
@@ -76,13 +76,24 @@ class Panel_edit  {
 					$addons["AdnESZ"]=$ac->AdnESZ;
 					$addons["AdnSE"]=$ac->AdnSE;
 					$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
+					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 				}
+
+				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					$persianDatePicker = new persianDatePickerEFB() ; 	
+				}
+				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
+					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
+
 			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
 			
 		
-			$location =$pro==true  ? $efbFunction->get_geolocation() :'';
-			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.10');
+			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+			$location ='';
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.18');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -97,13 +108,15 @@ class Panel_edit  {
 				"language"=> get_locale(),
 				"addons"=>$addons,
 				'wp_lan'=>get_locale(),
-				'location'=>$location
+				'location'=>$location,
+				'setting'=>$ac,
+				'v_efb'=>EMSFB_PLUGIN_VERSION
 			));
 
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.10');
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.18');
 			wp_enqueue_script('efb-val-js'); 
 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.10');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.18');
 			wp_enqueue_script('efb-pro-els');
 
 
@@ -130,43 +143,44 @@ class Panel_edit  {
 					if ( strlen( $lng ) > 0 ) {
 					$lng = explode( '_', $lng )[0];
 					}
-				//error_log($lang);
+				
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
 			}
 
-			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.10');
+			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.18');
 			wp_enqueue_script('pay_js');
 	
 			if("fa_IR"==get_locale()){
-				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.10');
+				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.18');
 				wp_enqueue_script('persia_pay');
 			}
 	
-			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.10');
+			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.18');
 			wp_enqueue_script('stripe_js');
 			
-			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.10' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.18' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0));
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.10');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.18');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
-			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.10');
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.18');
 			wp_enqueue_script('efb-main-js'); 
 			
 				/* new code v4 */
 			
-				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.10');	
+				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.18');	
 				wp_enqueue_script('jquery-ui');
-				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.10');	
+				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.18');	
 				wp_enqueue_script('jquery-dd'); 
 				/*end new code v4 */
 
 			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
 
+			
 
 
 			
@@ -190,7 +204,7 @@ class Panel_edit  {
 				.efb {font-family: 'Roboto', sans-serif!important;}
 			</style>
 			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
-			<div class="efb side-menu-efb bg-light bg-gradient border border-secondary text-dark fade efbDW-0 "  id="sideBoxEfb">
+			<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
 				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
 				<span> </span>
 					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
@@ -213,15 +227,15 @@ class Panel_edit  {
 						</button>
 						<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
 							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="efb nav-item"><a class="efb nav-link efb active" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
+								<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
 								<li class="efb nav-item">
-									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
+									<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
 								</li>
 								<li class="efb nav-item">
 									<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
 								</li>
 								<li class="efb nav-item">
-									<a class="efb nav-link efb" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
+									<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
 								</li>
 							</ul>
 							<div class="efb d-flex">
@@ -281,7 +295,7 @@ class Panel_edit  {
 
 
 
-			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.10');
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.18');
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
@@ -300,7 +314,7 @@ class Panel_edit  {
 
 				//error_log(wp_create_nonce("public-nonce"));
 					//smart zone test
-					/* $this->test_smart_zone(); */
+					//$this->test_smart_zone();
 		}else{
 			echo "Easy Form Builder: You dont access this section";
 		}
@@ -308,7 +322,7 @@ class Panel_edit  {
 
 	
 	public function get_not_read_message(){
-		//error_log('get_not_read_message');
+		
 		
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
@@ -340,7 +354,7 @@ class Panel_edit  {
                 }
             } 
         }
-		//error_log($s);
+		
         return  $s;
     }//end fun
 
@@ -351,13 +365,13 @@ class Panel_edit  {
             //test code for create database adsone 
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
-                error_log('file exists');
+                
                 $name ='smartzone';
                 $name ='\Emsfb\\'.$name;
                 require_once $fl_ex;
                 $t = new $name();
                 
-            }else{error_log('link not find: '.  $fl_ex);}
+            }else{}
             //end test 
 			
 	}

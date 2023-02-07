@@ -199,7 +199,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
     let types = ""
-  //console.log(valj_efb[indx]);
+  
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
@@ -221,7 +221,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
 function viewfileEfb(id, indx) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
-    //console.log(fileEfb);
+    
     let icon = ``;
     switch (valj_efb[indx].file) {
       case 'document':
@@ -246,7 +246,7 @@ function viewfileEfb(id, indx) {
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
-    //console.log('fun_addProgessiveEl_efb');
+    
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -265,7 +265,7 @@ function viewfileEfb(id, indx) {
       }
       //console.log('fileReader.readAsDataURL(fileEfb)');
       fileReader.readAsDataURL(fileEfb);
-      //console.log(fileReader);
+      
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
       
@@ -426,13 +426,13 @@ set_dadfile_fun_efb = (id, indx) => {
     });
   
     dropAreaEfb.addEventListener("drop", (event) => {
-      //console.log('============================================',id);
+      
       event.preventDefault();
       fileEfb = event.dataTransfer.files[0];
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
       //console.log(`${id}_`,document.getElementById(`${id}_`).files);
       dropAreaEfb.classList.add("active");
-      //console.log(event.dataTransfer.files);
+      
       viewfileEfb(id, indx);
       valid_file_emsFormBuilder(id)     
     
@@ -533,7 +533,7 @@ function fun_clear_esign_efb(id) {
 
   
   function yesNoGetEFB(v, id,idl) {
-    //console.log(idl);
+    
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
       let iv = idl.slice(0,-4)
       //console.log(v ,`[${idl.slice(-4)}]`, `[${idl.slice(-4)!='_b_2'}]`)
@@ -716,7 +716,8 @@ function addMarker(position) {
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
            ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
       </button></div>`
-      return `<div class="efb form-check">
+      if(setting_emsFormBuilder.hasOwnProperty('dsupfile')  && setting_emsFormBuilder.dsupfile==false && efb_var.hasOwnProperty('setting')==false) return '';
+      return  `<div class="efb form-check">
       <div class="efb btn btn-light text-dark" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
       <input type="file" id="resp_file_efb_" name="file"  data-id="${msg_id}" >
@@ -773,7 +774,7 @@ function fun_point_rating(el) {
   const id = el.dataset.id;
 
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
-      //console.log(l);
+      
       if (Number(l.dataset.point) <= Number(el.dataset.point)) {
           /* l.classList.remove('btn-secondary');
           l.classList.add('btn-darkb'); */
@@ -784,27 +785,27 @@ function fun_point_rating(el) {
   }
   document.getElementById(id + '-point-rating').value = el.dataset.point;
   //console.log(document.getElementById(id + '-point-rating').value)
-  //console.log(state_efb);
+  
   if(state_efb=='run'){
       const v = valj_efb.find(x=>x.id_ ==id);
-      //console.log(`id[${id}]`,v);
+      
       
       if(v.type=="r_matrix"){
           const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      //console.log(o);
+      
       fun_sendBack_emsFormBuilder(o[0]);
           const l = valj_efb.filter(obj => {
               return obj.parent == v.parent
             })
           const p = valj_efb.find(x=>x.id_ ==v.parent);
-          //console.log(l,p);
+          
           if(p.required==true){
               setTimeout(() => {
-                  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+                  
                   const o_r = sendBack_emsFormBuilder_pub.filter(obj => {
                       return obj.parent == v.parent
                     })
-                  //console.log(`added`,o_r,l.length,o_r.length);
+                  
                   if(l.length==o_r.length){
                      //console.log('equal')
                   }
@@ -813,7 +814,7 @@ function fun_point_rating(el) {
           }
       }else{
       const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      //console.log(o);
+      
       fun_sendBack_emsFormBuilder(o[0]);
       }
   }
@@ -824,7 +825,7 @@ function fun_nps_rating(el) {
   el.className = btnChangerEfb(el.className, 'btn-darkb');
 
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
-      //console.log(l);
+      
       if (Number(l.dataset.point) != Number(el.dataset.point)) {
 
           l.className = btnChangerEfb(l.className, 'btn-outline-secondary');
@@ -833,9 +834,9 @@ function fun_nps_rating(el) {
   document.getElementById(id + '-nps-rating').value = el.dataset.point;
   if(state_efb=='run'){
       const v = valj_efb.find(x=>x.id_ ==id);
-      //console.log(`id[${id}] v[${v}]`);
+      
       const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      //console.log(o);
+      
       fun_sendBack_emsFormBuilder(o[0]);
      
 
@@ -846,17 +847,17 @@ function fun_nps_rating(el) {
 }
 
 function fun_switch_efb(el){
-  //console.log(el);
+  
   if(state_efb!='run'){ return}
   const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
   setTimeout(() => {
-          //console.log(`id[${id}] v[${v}]`);
+          
           let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
           //console.log(el.classList ,el.classList.contains('active'));
           if(el.classList.contains('active')==false){
             o[0].value="0";
           }
-          //console.log(`o value  [${o[0].value}]`,o[0]);
+          
           fun_sendBack_emsFormBuilder(o[0]);
   }, 100);
 

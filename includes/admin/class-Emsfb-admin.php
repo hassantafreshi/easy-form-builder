@@ -136,21 +136,21 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.10' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.18' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.10');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.18');
             wp_enqueue_style('Emsfb-style-css');
 
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.10');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.18');
             wp_enqueue_style('Emsfb-bootstrap');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.10');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.18');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.10');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.18');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -158,13 +158,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.10');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.18');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.10');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.18');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.10');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.18');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -202,7 +202,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
@@ -232,7 +232,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
@@ -263,7 +263,7 @@ class Admin {
         $text = ["error403","invalidRequire","nAllowedUseHtml","updated","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -322,10 +322,13 @@ class Admin {
             AdnPLF == passwordless form
             AdnMSF == membership form
             AdnBEF == booking and event form
+            'AdnPDP'=>0,
+			'AdnADP'=>0
         */
-        $value      = $_POST['value'];
+        
+        $value      =sanitize_text_field($_POST['value']);
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
-                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"];
+                 "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
 
         $dd =gettype(array_search($value, $allw));
         
@@ -334,22 +337,20 @@ class Admin {
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
-            die("secure!");
+           
         }
 
         if (empty($_POST['value']) ) {
             $m = $lang["invalidRequire"];
             $response = ['success' => false, "m" => $m];
-
             wp_send_json_success($response, $_POST);
-            die();
+         
         }
 
         if ($this->isScript($_POST['value'])) {        
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
-            die();
         }
        if($value!="AdnOF"){
 
@@ -357,14 +358,14 @@ class Admin {
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-            $request = wp_remote_get($u );
+            $request = wp_remote_get($u);
             
             if( is_wp_error( $request ) ) {
 
                 $m = $lang["error403"];
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
-                die();
+               
             }
             
             $body = wp_remote_retrieve_body( $request );
@@ -373,7 +374,7 @@ class Admin {
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, $_POST);
-                die();
+               
             }
 
             // Check version of EFB to Addons
@@ -381,7 +382,7 @@ class Admin {
                 $m = $lang["upDMsg"];
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
-                die();
+                
             }
 
             if($data->download==true){
@@ -455,7 +456,7 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -584,7 +585,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -630,7 +631,7 @@ class Admin {
         
         $code =wp_create_nonce($code);       
         $id = number_format( $id);
-       // error_log($_POST['form']);
+       
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
         //error_log(json_encode($value));
@@ -643,7 +644,7 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');           
+                       
             $m =   $lang["error403"];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -680,14 +681,14 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        //error_log('set_replyMessage_id_Emsfb');
+        
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $efbFunction->text_efb($text);
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');            
+                        
             $response = ['success' => false, 'm' => $lang["error403"]];
             wp_send_json_success($response, $_POST);
             die("secure!");
@@ -761,9 +762,9 @@ class Admin {
 							wp_send_json_success($response,$_POST);
 						}
 						//&& $f['name']==$item['name']	
-						/* error_log("json_encode(item)");										
+						/* 										
 						error_log(json_encode($item));	 */																											
-				//empty($valobj) ? error_log('valobj empty') : error_log('valobj NOT empty');	
+				//empty($valobj) ? error_log('valobj empty') : 	
 				
 				}
                 $m = json_encode($message,JSON_UNESCAPED_UNICODE);
@@ -772,15 +773,15 @@ class Admin {
         
         $table_name = $this->db->prefix . "emsfb_msg_";
         if(strpos($m , '"type\":\"closed\"')){
-            /* error_log('closed');
-            error_log( $id); */
+            /* 
+             */
             //$id
             $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
-            //error_log($r);
+            
         }else if(strpos($m , '"type\":\"opened\"')){
-            //error_log('opened');
+            
             $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);
-            //error_log( $id);
+            
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
@@ -841,7 +842,7 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
         $em_st=false;
-        //error_log( $_POST['message']);
+        
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
                 $m[$key] = sanitize_text_field($value);
@@ -861,7 +862,7 @@ class Admin {
               
             }
              else if($key == "emailTemp"){
-               // error_log($key);
+               
                 //error_log(strlen($value));
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
                     $m = $lang["addSCEmailM"];
@@ -913,19 +914,19 @@ class Admin {
         $text = ["cCodeNFound","error403"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        //error_log('get_track_id_Emsfb');
+        
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $id         = sanitize_text_field($_POST['value']);
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE track = '$id'");
-        /* 	error_log('get_ajax_track_admin');
-            error_log($value[0]->track); */
+        /* 	
+             */
 
         if (count($value)>0) {
             $code = 'efb'. $value[0]->msg_id;
@@ -948,7 +949,7 @@ class Admin {
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            //error_log('not valid nonce');
+            
             $m = $lang["error403"];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
@@ -956,7 +957,7 @@ class Admin {
         }
 
 
-        //error_log('clear_garbeg_admin');
+        
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT content FROM `$table_name`");
@@ -970,8 +971,8 @@ class Admin {
                     foreach ($row as $key => $val) {
                         //error_log(json_encode($val));
                         if ($key == "url" && $val != "" && gettype($val) == 'string') {
-                            /* error_log($key);
-                            error_log($val); */
+                            /* 
+                             */
                             array_push($urlsDB, $val);
                         }
                     }
@@ -981,7 +982,7 @@ class Admin {
         }
         //error_log(json_encode($urlsDB));
         $upload_dir = wp_upload_dir();
-        //error_log($upload_dir['basedir']);
+        
         //$arrayFiles=[] ;
         $files    = list_files($upload_dir['basedir']);
         $urlDBStr = json_encode($urlsDB);
@@ -1095,17 +1096,17 @@ class Admin {
             //http://easyformbuilder.ir/videos/how-create-add-form-Easy-Form-Builder-version-3.mp4
             //$url = 'https://easyformbuilder.ir/source/files/zip/stripe.zip';
             $name =substr($url,strrpos($url ,"/")+1,-4);
-            /* error_log('fun_addon_new');
-            error_log($name); */
+            /* 
+             */
             $r =download_url($url);
             if(is_wp_error($r)){
                 //show error message
             }else{
                 $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
                 if(is_wp_error($r)){
-                    error_log('error rename');
+                    
                 }else{
-                    //error_log('success rename');
+                    
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
                     WP_Filesystem();
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
@@ -1113,7 +1114,7 @@ class Admin {
                         error_log('error unzip');
                         error_log(json_encode($r));
                     }else{
-                        //error_log('success unzip');
+                        
                     }    
                 }            
             }
@@ -1127,15 +1128,18 @@ class Admin {
                 require_once  $fl_ex;  
                 $t = new $name();      
             }
-            //error_log('fun_addon_new');
+            
         }
         
     public function file_upload_public(){
+        
         /* start new code */
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;
+        
+        
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1160,7 +1164,7 @@ class Admin {
        // check_ajax_referer($msgnonce,'nonce_msg')
         //$nonce_msg = $_POST['nonce_msg'];
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
-			//error_log('file_upload_public[not valid nonce]');
+			
 			
 			$response = array( 'success' => false  , 'm'=>"403 Forbidden Error"); 
 			wp_send_json_success($response,$_POST);
@@ -1182,9 +1186,9 @@ class Admin {
 		
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
-			//error_log($_FILES["file"]["name"]);			
+						
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
-			//error_log($name);
+			
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);

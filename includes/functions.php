@@ -383,8 +383,8 @@ class efbFunction {
 			"entrTrkngNo" => $state ? $ac->text->entrTrkngNo : __('Enter the Confirmation Code','easy-form-builder'),
 			"search" => $state ? $ac->text->search : __('Search','easy-form-builder'),
 			"enterThePhones" => $state ? $ac->text->enterThePhones : __('Enter The Phone No','easy-form-builder'),
-			"conturyList" => $state ? $ac->text->conturyList : __('Countries list','easy-form-builder'),
-			"stateProvince" => $state ? $ac->text->stateProvince : __('States/ Provinces','easy-form-builder'),
+			"conturyList" => $state ? $ac->text->conturyList : __('Countries Drop-down','easy-form-builder'),
+			"stateProvince" => $state ? $ac->text->stateProvince : __('State/Prov Drop-down','easy-form-builder'),
 			"thankYouMessage" => $state ? $ac->text->thankYouMessage : __('Thank you message','easy-form-builder'),
 			"newMessage" => $state ? $ac->text->newMessage : __('New message!', 'easy-form-builder'),
 			"newMessageReceived" => $state ? $ac->text->newMessageReceived : __('A New Message has been Received.', 'easy-form-builder'),
@@ -502,7 +502,7 @@ class efbFunction {
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('You can not add reCAPTCHA on PAYMENT FORMS','easy-form-builder'),
-			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service is able to send emails. Please check your email and if you received the email with this subject: Email server [Easy Form Builder], so checked the option: I confirm This Host support SMTP than save','easy-form-builder'),
+			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm your service is able to send emails. Please check your email box (or spam) and if you received the email with this subject: Email server [Easy Form Builder], so checked the option: I confirm This Host support SMTP then save','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : __('I confirm This Host support SMTP','easy-form-builder'),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : __('Interval','easy-form-builder'),
 			"nextBillingD" => $state  &&  isset($ac->text->nextBillingD) ? $ac->text->nextBillingD : __('Next Billing Date','easy-form-builder'),
@@ -535,8 +535,7 @@ class efbFunction {
 			"stripeDAddon" => $state  &&  isset($ac->text->stripeDAddon) ? $ac->text->stripeDAddon : __('Stripe addon of Easy Form Builder authorizes you to attach your WordPress site with Stripe to organize payments, donations, and online orders.','easy-form-builder'),				
 			"offlineTAddon" => $state  &&  isset($ac->text->offlineTAddon) ? $ac->text->offlineTAddon : __('Offline Forms Addon','easy-form-builder'),				
 			"offlineDAddon" => $state  &&  isset($ac->text->offlineDAddon) ? $ac->text->offlineDAddon : __('Offline Forms Addon of Easy Form Builder authorize your users to save their progress in an offline situation while filling in your forms.','easy-form-builder'),				
-			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('Persia Payment Addon','easy-form-builder'),				
-			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('Persia payment addon of Easy Form Builder authorizes you to attach your site with Persia payment to organize payments, donations, and online orders.','easy-form-builder'),				
+			
 			"trackCTAddon" => $state  &&  isset($ac->text->trackCTAddon) ? $ac->text->trackCDAddon : __('trackCTAddon','easy-form-builder'),				
 			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
@@ -566,6 +565,9 @@ class efbFunction {
 			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
 			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
 			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
+			"mcplen" => $state  &&  isset($ac->text->mcplen) ? $ac->text->mcplen : __('Please enter a number greater than or equal to NN','easy-form-builder'),				
+			"mmxplen" => $state  &&  isset($ac->text->mmxplen) ? $ac->text->mmxplen : __('Please Enter A maximum of NN Characters For This Field','easy-form-builder'),				
+			"mxcplen" => $state  &&  isset($ac->text->mxcplen) ? $ac->text->mxcplen : __('Please enter a number less than or equal to NN','easy-form-builder'),				
 			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : __('Max','easy-form-builder'),				
 			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : __('Min','easy-form-builder'),				
 			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
@@ -583,7 +585,31 @@ class efbFunction {
 			"pointr5" => $state  &&  isset($ac->text->pointr5) ? $ac->text->pointr5 : __('5 Point Scale','easy-form-builder'),				
 			"table_matrix" => $state  &&  isset($ac->text->table_matrix) ? $ac->text->table_matrix : __('NPS Table Matrix','easy-form-builder'),				
 			"pdate" => $state  &&  isset($ac->text->pdate) ? $ac->text->pdate : __('Jalali Date','easy-form-builder'),				
-			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : __('Hejri Date','easy-form-builder'),				
+			"ardate" => $state  &&  isset($ac->text->ardate) ? $ac->text->ardate : __('Hijri Date','easy-form-builder'),				
+			"iaddon" => $state  &&  isset($ac->text->iaddon) ? $ac->text->iaddon : __('Install the addon','easy-form-builder'),				
+			"IMAddonPD" => $state  &&  isset($ac->text->IMAddonPD) ? $ac->text->IMAddonPD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Jalili date addons','easy-form-builder'),	
+			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),	
+			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : __('warning','easy-form-builder'),	
+			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('date & time','easy-form-builder'),				
+			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : __('Active the file upload Button in response box','easy-form-builder'),				
+			"scaptcha" => $state  &&  isset($ac->text->scaptcha) ? $ac->text->scaptcha : __('Active Google reCAPTCHA in response box','easy-form-builder'),				
+			"sdlbtn" => $state  &&  isset($ac->text->sdlbtn) ? $ac->text->sdlbtn : __('Active the download button in response box','easy-form-builder'),				
+			"sips" => $state  &&  isset($ac->text->sips) ? $ac->text->sips : __('Show IP\'s of users in response box','easy-form-builder'),				
+			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('Persia Payment Addon','easy-form-builder'),				
+			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('Persia payment addon of Easy Form Builder authorizes you to attach your site with Persia payment to organize payments, donations, and online orders.','easy-form-builder'),				
+
+			"datePTAddon" => $state  &&  isset($ac->text->datePTAddon) ? $ac->text->datePTAddon : __('Jalali date Addon','easy-form-builder'),				
+			"datePDAddon" => $state  &&  isset($ac->text->datePDAddon) ? $ac->text->datePDAddon : __('Jalali date addon able you to add Jalali date field in forms and create any kind of form with the Shamsi date field.','easy-form-builder'),				
+			"dateATAddon" => $state  &&  isset($ac->text->dateATAddon) ? $ac->text->dateATAddon : __('Hijri date Addon','easy-form-builder'),				
+			"dateADAddon" => $state  &&  isset($ac->text->dateADAddon) ? $ac->text->dateADAddon : __('Hijri date addon able you to add Hijri date field in forms and create any kind of form with the Hijri date field.','easy-form-builder'),				
+			"smsTAddon" => $state  &&  isset($ac->text->smsTAddon) ? $ac->text->smsTAddon : __('SMS service Addon','easy-form-builder'),				
+			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('SMS service Addon able you to send notification SMS when you or customers receive new messages or responses.','easy-form-builder'),				
+			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please Install Hiji or Jalali date addon, You cannot Install both of them','easy-form-builder'),				
+			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
+			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
+			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
+			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
+			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -601,13 +627,13 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-		//error_log($link);
-				//error_log("to send_email_state[". $to ."]");
+		
+				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   $mailResult = "n";
 			
 				$support="";
-				//error_log($to);
+				
 				$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
 				foreach($a as $i){$support .=chr($i);}
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -625,8 +651,8 @@ class efbFunction {
 				
 				if($state=="reportProblem" || $state =="testMailServer" )
 				{
-					//error_log("=================?state");
-					//error_log($state);
+					
+					
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
 				$mail="";
@@ -648,10 +674,10 @@ class efbFunction {
 		}
 
 	public function email_template_efb($pro, $state, $m,$link){	
-		//error_log('email_template_efb');
-		//error_log($link);
+		
+		
 		/* 
-		error_log($cont); */
+		 */
 		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
 		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
@@ -675,8 +701,8 @@ class efbFunction {
 		$adminEmail = $user!=false ? $user->user_email :'';
 		$blogURL= home_url();
 
-		//error_log('temo');
-		//error_log($temp);
+		
+		
 		if($state=="testMailServer"){
 			$title=$lang["goodJob"];
 			$l ="https://whitestudio.team/";
@@ -703,7 +729,7 @@ class efbFunction {
 			$d =  "rtl" ;
 			$align ="right";
 		}
-		//error_log($message);
+		
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
@@ -738,7 +764,7 @@ class efbFunction {
 		       
 				$val =  $temp;
 			}
-			//error_log($val);
+			
 			return $val;
 	}
 
@@ -761,32 +787,32 @@ class efbFunction {
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
-		//error_log('response_to_user_by_msd_id');
+		
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
 	 
 		$email="null";
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");
-		//error_log("json_encode(user_data)");
+		
 		$form_id = $data[0]->form_id;
 		$user_res = $data[0]->content;
 		$trackingCode = $data[0]->track;
 		$user_res  = str_replace('\\', '', $user_res);
-		//error_log("user_res");
-		//error_log($user_res);
+		
+		
 		$user_res = json_decode($user_res,true);
 		$lst = end($user_res);
 		$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-		//error_log(`lini`);
-		//error_log($link_w);
+		
+		
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
 		//error_log(json_encode($data));
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
-			//error_log('if true [response_to_user_by_msd_id]');
+			
 			foreach($user_res as $key=>$val){
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
@@ -850,11 +876,12 @@ class efbFunction {
     }
 
 	public function iplocation_efb($ip , $state){
+		
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
 		$userAgent ;
 		if(empty($_SERVER['HTTP_USER_AGENT'])){
-			//error_log('empty user agent');
+			
 			$userAgent = array(
 				'name' => 'unrecognized',
 				'version' => 'unknown',
@@ -862,7 +889,7 @@ class efbFunction {
 				'userAgent' => ''
 			);
 		}else{
-			//error_log('not empty user agent');
+			
 			$userAgent =$_SERVER['HTTP_USER_AGENT'];
 		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
@@ -874,6 +901,7 @@ class efbFunction {
 			'User-Agent: '.$userAgent
 		));
 		$location = json_decode(curl_exec($cURL), true); 
+		//error_log(json_encode($location));
 		if(isset($location)){
 			return $state==1 ? $location["country_code2"] :$location  ;
 		}else{

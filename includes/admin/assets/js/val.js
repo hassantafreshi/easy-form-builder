@@ -21,8 +21,9 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
- /*  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'basic all' },
-  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'basic all' }, */
+  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
+  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
+  /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
   { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
@@ -41,10 +42,11 @@ const fields_efb = [
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
+  
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
-  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
+ /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'html', pro: true, tag:'advance all' }, */
 
 /*   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
@@ -55,7 +57,7 @@ const fields_efb = [
 
 
 function show_setting_window_efb(idset) {
-  //console.log('show_setting_window_efb');
+  
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -65,7 +67,7 @@ function show_setting_window_efb(idset) {
     document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
-     //console.log('body',body);
+     
     let el = idset != "formSet" ? document.querySelector(`[data-id="${idset}"]`) : { dataset: { id: 'formSet', tag: 'formSet' } }
     let body = ``;
     //const bodySetting = document.getElementById("settingModalEfb-body");
@@ -81,53 +83,80 @@ function show_setting_window_efb(idset) {
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
 
-    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ? efb_var.text.mlen :efb_var.text.max}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.mlen}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">`
+    const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">`
     
-    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" ?  efb_var.text.milen : efb_var.text.min}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.milen}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}" min="0">`
+    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number"  ?  efb_var.text.milen : efb_var.text.min}</label>
+    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number"  ?  efb_var.text.milen : efb_var.text.min}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}" min="0">`
     const requireEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
+    <button type="button" id="requiredEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`;
+  /*   const requireEls = `<div class="efb mx-1 my-3 efb">
+    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
+    <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
+    </div>`; */
     const disabledEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="disabledEl" ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'checked' : ''}>
+    <button type="button" id="disabledEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >    
     <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
     </div>`;
-    const hideLabelEls = `<div class="efb mx-1 my-3 efb">
+   /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label pt-1" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
-    </div>`;
+    </div>`; */
+    const hideLabelEls = `<div class="efb mx-1 my-3 efb">
+    <button type="button" id="hideLabelEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+        <div class="efb handle"></div>
+      </button>
+   <!-- <input  data-id="${idset}" class="efb elEdit form-check-input fs-7 " type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'checked' : ''}> -->
+    <label class="efb form-check-label" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
+    </div>`; 
     const cardEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="cardEl" ${valj_efb[0].hasOwnProperty("dShowBg") && Number(valj_efb[0].dShowBg) == 1 ? 'checked' : ''}>
+    <button type="button" id="cardEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('dShowBg') && Number(valj_efb[indx].dShowBg) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
     <label class="efb form-check-label pt-1" for="cardEl">${efb_var.text.dNotShowBg}</label>                                            
     </div>`;
     const offLineEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="offLineEl" ${valj_efb[0].hasOwnProperty("AfLnFrm") && Number(valj_efb[0].AfLnFrm) == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
+    <button type="button" id="offLineEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('AfLnFrm') && Number(valj_efb[indx].AfLnFrm) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="offLineEl">${efb_var.text.AfLnFrm}</label>                                            
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="SendemailEl" ${valj_efb[0].email_to && valj_efb[0].email_to == valj_efb[indx].id_ ? 'checked' : ''}>
+    <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[0].hasOwnProperty('email_to') && valj_efb[0].email_to == valj_efb[indx].id_ ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
     <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
     </div>`;
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
-    const trackingCodeEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="trackingCodeEl" ${valj_efb[0].hasOwnProperty("trackingCode") && Number(valj_efb[0].trackingCode) == 1 || valj_efb[0].trackingCode == true ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
+    const trackingCodeEls = `<div class="efb mx-1 my-3 efb">    
+    <button type="button" id="trackingCodeEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('trackingCode') && Number(valj_efb[indx].trackingCode) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="trackingCodeEl">${efb_var.text.activeTrackingCode}</label>                                            
     </div>`;
     const captchaEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="captchaEl" ${valj_efb[0].hasOwnProperty("captcha") && Number(valj_efb[0].captcha) == 1 || valj_efb[0].captcha == true ? 'checked' : ''}>
-    <label class="efb form-check-label for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
+    <button type="button" id="captchaEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('captcha') && Number(valj_efb[indx].captcha) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="captchaEl">${efb_var.text.addGooglereCAPTCHAtoForm}</label>                                            
     </div>`;
     const showSIconsEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSIconsEl" ${valj_efb[0].hasOwnProperty("show_icon") && valj_efb[0].show_icon == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
+    <button type="button" id="showSIconsEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('show_icon') && Number(valj_efb[indx].show_icon) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="showSIconsEl">${efb_var.text.dontShowIconsStepsName}</label>                                            
     </div>`;
     const showSprosiEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showSprosiEl" ${valj_efb[0].hasOwnProperty("show_pro_bar") && valj_efb[0].show_pro_bar == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
+    <button type="button" id="showSprosiEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('show_pro_bar') && Number(valj_efb[indx].show_pro_bar) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="showSprosiEl">${efb_var.text.dontShowProgressBar}</label>                                            
     </div>`;
     let disable =valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? '' : 'disabled';
     const m_tankYouMessage = valj_efb[0].type!="register" ? efb_var.text.thankYouMessage:efb_var.text.createAcountDoneM;    
@@ -147,17 +176,19 @@ function show_setting_window_efb(idset) {
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`;
    
     const textEls=(id , name ,el_type,value ,attr) =>{
-      //console.log(id , name ,el_type,value);
+      
       return`<div id="${idset}_lab_g" class="efb m-0 p-0"><label for="textEl" class="efb form-label mt-2 mb-1 efb">${name}<span class="efb  mx-1 efb text-danger">*</span></label>
     <input type="${el_type}"  data-id="${idset}" data-atr="${attr}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  data-id="${id}" id="textEl" required value="${value}"></div>`}
     /* 778899 end new atr */
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
-    <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="showformLoggedEl" ${valj_efb[0].stateForm && valj_efb[0].stateForm == 1 ? 'checked' : ''}>
-    <label class="efb form-check-label pt-1" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
+    <button type="button" id="showformLoggedEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('stateForm') && Number(valj_efb[indx].stateForm) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label" for="showformLoggedEl">${efb_var.text.showTheFormTologgedUsers}</label>                                            
     </div>`;
 
 
-    const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
+    const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
   
   
     const Nadvanced = `
@@ -184,7 +215,7 @@ function show_setting_window_efb(idset) {
                         </select>`;
 
       const thankYouTypeEls = `
-      <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-2 efb">${efb_var.text.landingTnx}</label>
+      <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-0 mb-2 fs-6 form-text border-secondary  border-bottom text-secondary">${efb_var.text.landingTnx}</label>
                         <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d efb-rounded"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">                                            
                         <option value="rdrct" ${ valj_efb[0].thank_you == 'rdrct' ? `selected` : ''}>${efb_var.text.redirectPage}</option>                            
                         <option value="msg" ${ valj_efb[0].thank_you == 'msg' ? `selected` : ''}>${efb_var.text.thankYouMessage}</option>
@@ -201,7 +232,7 @@ function show_setting_window_efb(idset) {
       </select>`;
     } 
     const paymentMethodEls =()=>{
-     // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+     
       return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
       <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
@@ -229,7 +260,7 @@ function show_setting_window_efb(idset) {
     }
 
     const paymentPersianPayEls =()=>{
-      // console.log(`paymentMethodEls[${valj_efb[0].paymentmethod}]`);
+      
        return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
        <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
        <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
@@ -314,7 +345,7 @@ function show_setting_window_efb(idset) {
       let icon = "";
       let t = ""
       let iset ="";
-      //console.log(`valj_efb`,valj_efb);
+      
       if (side == "Next") {iset=idset=side+"_"; icon = valj_efb[0].button_Next_icon; t = efb_var.text.next; }
       else if (side == "Previous") {iset=idset=side+"_"; icon = valj_efb[0].button_Previous_icon; t = efb_var.text.previous }
       else if ( side =='tnx') {
@@ -395,7 +426,7 @@ function show_setting_window_efb(idset) {
           </select>
       `
     const btnColorEls =() =>{
-      //console.log(indx,valj_efb[indx]);
+      
       color = valj_efb[indx].button_color;
       //console.log(ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') ,color)
       const hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn') //slice text=5 bg=2 border=6 btn=3    
@@ -453,7 +484,7 @@ function show_setting_window_efb(idset) {
       `
     }
     const selectHeightEls = () => {
-      //console.log(indx,valj_efb[indx].el_height ,valj_efb[indx].el_height );
+      
       return `
         <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.height}</label>
         <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="selectHeightEl" data-tag="${valj_efb[indx].type}">                                            
@@ -486,7 +517,7 @@ function show_setting_window_efb(idset) {
     <label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
-  //console.log(el.dataset);
+  
    
     switch (el.dataset.tag) {
       case 'email':
@@ -496,6 +527,8 @@ function show_setting_window_efb(idset) {
       case 'number':
       case 'url':
       case "textarea":
+      case 'pdate':
+      case 'ardate':
         body = `
                 <div class="efb  mb-3">
                 <!--  not   advanced-->
@@ -515,8 +548,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
-                        ${el.dataset.tag != "textarea" && el.dataset.tag != "number" ? mLenEls :''}                                       
-                        ${el.dataset.tag != "number" ? miLenEls :''}                                       
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? mLenEls :''}                                       
+                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? miLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}
@@ -652,7 +685,7 @@ function show_setting_window_efb(idset) {
       case "esign":
       case "rating":
       case "switch":
-        //console.log(valj_efb[indx]);
+        
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -679,7 +712,7 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "range" ?miLenEls:''}   
                 ${el.dataset.tag == "range" ?valueEls:''}   
                
-                ${el.dataset.tag == "range" ?valueEls:''}   
+                 
                 ${el.dataset.tag == 'rating' ? '' : widthEls}
                 ${el.dataset.tag != 'range' ? selectHeightEls() :''}
                 ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('')}
@@ -694,7 +727,7 @@ function show_setting_window_efb(idset) {
         break;
       case "file":
       case "dadfile":
-        //console.log(valj_efb[indx].file);
+        
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -843,7 +876,7 @@ function show_setting_window_efb(idset) {
         `
         break;
       case "buttonNav":
-        //console.log("buttonNav");
+        
         let content = ` 
         ${SingleTextEls('')}
         ${iconEls('')}
@@ -937,7 +970,7 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    //console.log('body',body);
+    
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
     for (const el of document.querySelectorAll(`.elEdit`)) {
@@ -988,27 +1021,39 @@ function creator_form_builder_Efb() {
   let dragab = true;
   let disable = "disable";
   let formType = valj_efb[0].type
+
   const ond = `onClick="alert_message_efb('${efb_var.text.error}','${efb_var.text.thisElemantNotAvailable}',7,'danger')"`
   if (formType == "login") {
     dragab = false;
     disable = ond;
     //thisElemantNotAvailable
   }
+  
   if( efb_var.language=='fa_IR')fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
   for (let ob of fields_efb) {
    
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
     // else if (formType=="payment") {if( ob.id=="stripe") { dragab=false;disable=ond} else {{ dragab=true;disable="disable"}}}
     if(ob.id=="stripe" && efb_var.addons.AdnSPF !=1){
-      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
       dragab = false;
     }else if(ob.id=="persiaPay" && efb_var.addons.AdnPPF !=1){
-      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'danger')"`
+      
+      disable = `onClick="alert_message_efb('${efb_var.text.error}', '${efb_var.text.IMAddonP}', 20 , 'info')"`
+      dragab = false;
+    }else if (ob.id=="pdate" && (efb_var.addons.hasOwnProperty('AdnPDP')==false || efb_var.addons.AdnPDP !=1)){
+      
+      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonPD}', 20 , 'info')"`
+      dragab = false;
+    }else if (ob.id=="ardate" && (efb_var.addons.hasOwnProperty('AdnADP')==false || efb_var.addons.AdnADP !=1)){
+      
+      disable = `onClick="alert_message_efb('${efb_var.text.iaddon}', '${efb_var.text.IMAddonAD}', 20 , 'info')"`
       dragab = false;
     }
     els += `
     <div class="efb tag col-3 draggable-efb ${ob.tag}" draggable="${dragab}" id="${ob.id}" ${mobile_view_efb ? `onClick="add_element_dpz_efb('${ob.id}')"` : ''}>
-     ${ob.pro == true && pro_efb == false ? ` <a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
+     ${ob.pro == true && pro_efb == false ? ` <a type="button"  onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a>` : ''}
       <button type="button" class="efb btn efb btn-select-form float-end ${disable != "disable" ? "btn-muted" : ''}" id="${ob.id}_b" ${disable}><i class="efb  ${ob.icon}"></i><span class="efb d-block text-capitalize">${ob.name}</span></button>
     </div>
     `
@@ -1080,7 +1125,7 @@ function creator_form_builder_Efb() {
   </div></div>
   
   `
-  console.log('[before]create_dargAndDrop_el');
+  
   create_dargAndDrop_el();
   items_dd_efb();
 }
