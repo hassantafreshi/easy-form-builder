@@ -2518,9 +2518,9 @@ state_rply_btn_efb=(t)=>{
 
        document.getElementById("replayB_emsFormBuilder").remove();
        //console.log(document.getElementById("replayB_emsFormBuilder"));
-       document.getElementById("attach_efb").remove();
        document.getElementById("replayM_emsFormBuilder").remove();
        document.getElementById("label_replyM_efb").remove();
+       if(document.getElementById("attach_efb"))document.getElementById("attach_efb").remove();
        document.getElementById("replay_state__emsFormBuilder").innerHTML=`<h5 class="efb fs-4 my-3 text-center text-pinkEfb">${efb_var.text.clsdrspn}</h5>`
 
       }else{

@@ -19,7 +19,8 @@ class efbFunction {
 	public function __construct() {  
 		global $wpdb;
 		$this->db = $wpdb; 
-		
+		error_log('called function.php');
+		add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
     }
 
 
@@ -909,5 +910,23 @@ class efbFunction {
 		}
 		
 	}
+
+	function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
+        // The path to our plugin's main file
+        $our_plugin = plugin_basename( __FILE__ );
+        
+        // If an update has taken place and the updated type is plugins and the plugins element exists
+        if( $options['action'] == 'update' && $options['type'] == 'plugin' && isset( $options['plugins'] ) ) {
+         // Iterate through the plugins being updated and check if ours is there
+         foreach( $options['plugins'] as $plugin ) {
+            error_log($our_plugin);
+            error_log($plugin);
+          if( $plugin == $our_plugin ) {
+           // Your action if it is your plugin
+       
+          }
+         }
+        }
+       }
 
 }
