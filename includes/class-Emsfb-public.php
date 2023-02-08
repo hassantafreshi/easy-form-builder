@@ -83,7 +83,7 @@ class _Public {
 		//error_log($_GET['user']);
 		//error_log(is_user_logged_in());
 		if($admin_form==true && is_user_logged_in()==false){
-			return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		$table_name = $this->db->prefix . "emsfb_form";
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
@@ -202,12 +202,23 @@ class _Public {
 		}
 		
 		if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
+
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+				//
+				$this->efbFunction->addon_adds_cron_efb();
+				 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			}
 			
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 			$persianDatePicker = new persianDatePickerEFB() ; 	
 		}
 		if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+				$this->efbFunction->addon_adds_cron_efb();
+				 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			}
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 			$arabicDatePicker = new arabicDatePickerEfb() ; 
 		}//end if custom date
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
@@ -1189,11 +1200,16 @@ class _Public {
 										}catch( Exception $e ){
 											$msg = ' تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
 										}  */
-										include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
-										$persiaPay = new zarinPalEFB() ;
-										$result = $persiaPay->validate_payment_zarinPal($jsonData);
-										if($result['errors']){
-											$msg = $result['errors']['message'];
+										if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/")) {
+											$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
+										}else{
+
+											include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+											$persiaPay = new zarinPalEFB() ;
+											$result = $persiaPay->validate_payment_zarinPal($jsonData);
+											if($result['errors']){
+												$msg = $result['errors']['message'];
+											}
 										}
 									}else{
 										$msg = 'خطای تنظیمات : با مدیر وبسایت تماس بگیرید ، خطای 406 ' ;
@@ -2167,7 +2183,11 @@ class _Public {
 				die("secure!");
 		}
 
-        include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
+			 $efbFunction->addon_adds_cron_efb();
+			 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+		}
+        require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
         
         
 		$this->id = sanitize_text_field($_POST['id']);
@@ -2624,7 +2644,7 @@ class _Public {
 			} */
 
 			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;
 			if(gettype($persiapay)=="object"){

@@ -166,18 +166,27 @@ class Create {
 		}
 
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
-					include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+					//wmaddon
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
+						$r = $efbFunction->update_message_admin_side_efb();
+						echo $r; 
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 					$persianDatePicker = new persianDatePickerEFB() ; 	
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
-					include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
+						$r = $efbFunction->update_message_admin_side_efb();
+						echo $r; 
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 					$arabicDatePicker = new arabicDatePickerEfb() ; 
 				}
-		/* 		include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
-				$arabicDatePicker = new arabicDatePickerEfb() ;  */
 
-				/* include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
-				$persianDatePicker = new persianDatePickerEFB() ; */ 
 					
 
 

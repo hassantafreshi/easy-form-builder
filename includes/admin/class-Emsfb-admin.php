@@ -24,8 +24,8 @@ class Admin {
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
-        //$this->efbFunction = new efbFunction(); 
-        
+        //$this->efbFunction = new efbFunction();        
+       
     }
 
     /**
@@ -37,7 +37,7 @@ class Admin {
             include(ABSPATH . "wp-includes/pluggable.php");
            
         }
- 
+       
        // apply_filters( 'the_content', [$this,'check_shortCode'] );
         // Add plugin caps to admin role
         if (is_admin() and is_super_admin()) {
@@ -47,8 +47,7 @@ class Admin {
         // Actions.
         add_action('admin_enqueue_scripts', [$this, 'admin_assets']);
         add_action('admin_menu', [$this, 'admin_menu']);
-        add_action('test_call_efb', [$this, 'test_call_efb']);
-        
+ 
         $this->ip = $this->get_ip_address();
 
         //$current_user->display_name
@@ -355,7 +354,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
         }
        if($value!="AdnOF"){
-            //8899addone
+
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
@@ -393,7 +392,6 @@ class Admin {
                 $this->fun_addon_new($url);
 
             }
-            //8899Addon End
         }
         /*
             AdnSPF == strip payment
@@ -1206,6 +1204,11 @@ class Admin {
 		
 		 
 	}//end function
+
+
+    /* function test_call_efb(){
+        error_log('function===============>test_call_efb');
+    } */
 
 
 }

@@ -19,11 +19,34 @@ class efbFunction {
 	public function __construct() {  
 		global $wpdb;
 		$this->db = $wpdb; 
-		error_log('called function.php');
 		add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
+		//$this->test_Efb();
+		add_action( 'download_all_addons_efb', [$this, 'download_all_addons_efb'] );
+		
     }
 
+	/* public function my_cron_job_function() {
+		// your code here
+		error_log("my_cron_job_function");
+	  }
+ */
+	public function test_Efb(){
+		//error_log('test');
+	
 
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
+			error_log('not found stripe');
+		}
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
+			error_log('not found persiadatepicker');
+		}
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
+			error_log('not found arabicdatepicker');
+		}
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {	
+			error_log('not found persiapay');
+		}
+	}
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
@@ -611,6 +634,8 @@ class efbFunction {
 			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
 			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
+			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after 5 minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),							
+			//"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after 5 minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),							
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -911,22 +936,150 @@ class efbFunction {
 		
 	}
 
+
 	function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
         // The path to our plugin's main file
         $our_plugin = plugin_basename( __FILE__ );
-        
+		
+		$our_plugin = substr($our_plugin, 0, strpos($our_plugin, "/"));
         // If an update has taken place and the updated type is plugins and the plugins element exists
         if( $options['action'] == 'update' && $options['type'] == 'plugin' && isset( $options['plugins'] ) ) {
          // Iterate through the plugins being updated and check if ours is there
          foreach( $options['plugins'] as $plugin ) {
-            error_log($our_plugin);
-            error_log($plugin);
-          if( $plugin == $our_plugin ) {
-           // Your action if it is your plugin
-       
+			$plugin = substr($plugin, 0, strpos($plugin, "/"));		
+			//error_log($our_plugin);
+            //error_log($plugin);
+          if( $plugin == $our_plugin || true) {
+			error_log("runn plugin");
+			//$this->download_all_addons_efb();
+			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
+				//error_log('download_all_addons_efb [if]');
+				wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
+			  }
           }
          }
         }
        }
 
+
+	   public function addon_adds_cron_efb(){
+		//error_log('addon_adds_cron_efb');
+		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
+			//error_log('download_all_addons_efb [if]');
+			wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
+		  }
+	   }//addon_adds_cron_efb
+
+
+	   public function addon_add_efb($value){
+		if($value!="AdnOF"){
+
+            // اگر لینک دانلود داشت
+            $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+            $vwp = get_bloginfo('version');
+            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+            $request = wp_remote_get($u);
+            
+            if( is_wp_error( $request ) ) {
+
+                error_log("function.php====> Cannot connect to wp-json of ws.team");
+                return false;
+            }
+            
+            $body = wp_remote_retrieve_body( $request );
+            $data = json_decode( $body );
+
+             if($data->status==false){
+              return false;
+               
+            }
+
+            // Check version of EFB to Addons
+            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+				return false;                
+            } 
+
+            if($data->download==true){
+                $url =$data->link;
+                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                $this->fun_addon_new($url);
+				return true;
+            }
+			
+        }
+	   }//end function
+
+	   public function fun_addon_new($url){
+		//download the addon dependency 
+		error_log($url);
+		$name =substr($url,strrpos($url ,"/")+1,-4);
+		/* 
+		 */
+		$r =download_url($url);
+		if(is_wp_error($r)){
+			//show error message
+			//error_log(json_encode($r));
+		}else{
+			$r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
+			if(is_wp_error($r)){
+				
+			}else{
+				
+				require_once(ABSPATH . 'wp-admin/includes/file.php');
+				WP_Filesystem();
+				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
+				if(is_wp_error($r)){
+				
+					error_log('error unzip');
+					error_log(json_encode($r));
+					return false;
+				}
+			} 
+			return true;           
+		}
+
+
+		//run install php of addons
+		$fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/".$name."/".$name.".php"; 
+				
+		if(file_exists($fl_ex)){         
+			$name ='\Emsfb\\'.$name;
+			require_once  $fl_ex;  
+			$t = new $name();      
+		}
+		
+	}// end function
+
+
+	public function download_all_addons_efb(){
+		error_log("run download_all_addons_efb");
+		$ac=$this->get_setting_Emsfb();
+		$addons["AdnSPF"]=$ac->AdnSPF;
+		$addons["AdnOF"]=$ac->AdnOF;
+		$addons["AdnATC"]=$ac->AdnATC;
+		$addons["AdnPPF"]=$ac->AdnPPF;
+		$addons["AdnSS"]=$ac->AdnSS;
+		$addons["AdnSPF"]=$ac->AdnSPF;
+		$addons["AdnESZ"]=$ac->AdnESZ;
+		$addons["AdnSE"]=$ac->AdnSE;
+		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+		foreach ($addons as $key => $value) {
+			//error_log($key);
+			//error_log($value);
+			if($value ==1){
+				
+				$this->addon_add_efb($key);
+			}
+		}
+	   //
+	}
+
+
+	public function update_message_admin_side_efb(){
+		$text = ["wmaddon"];
+        $lang= $this->text_efb($text);
+		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+	}
+	
 }
