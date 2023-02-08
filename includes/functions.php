@@ -950,7 +950,7 @@ class efbFunction {
 			//error_log($our_plugin);
             //error_log($plugin);
           if( $plugin == $our_plugin || true) {
-			error_log("runn plugin");
+			//error_log("runn plugin");
 			//$this->download_all_addons_efb();
 			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
 				//error_log('download_all_addons_efb [if]');
@@ -1011,7 +1011,10 @@ class efbFunction {
 
 	   public function fun_addon_new($url){
 		//download the addon dependency 
-		error_log($url);
+		$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
+		require_once( $path . 'wp-load.php' );
+		require_once (ABSPATH .'wp-admin/includes/admin.php');
+		//error_log($url);
 		$name =substr($url,strrpos($url ,"/")+1,-4);
 		/* 
 		 */
@@ -1052,7 +1055,7 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		error_log("run download_all_addons_efb");
+		//error_log("run download_all_addons_efb");
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=$ac->AdnSPF;
 		$addons["AdnOF"]=$ac->AdnOF;
