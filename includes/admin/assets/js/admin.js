@@ -1025,7 +1025,7 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
-  console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
+  //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
@@ -1224,7 +1224,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].show_pro_bar = el.classList.contains('active')==true ? true : false
         break;
       case "showformLoggedEl":
-        console.log(`showformLoggedEl[${valj_efb[0].stateForm}]`);
+        //console.log(`showformLoggedEl[${valj_efb[0].stateForm}]`);
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case "placeholderEl":

@@ -79,6 +79,12 @@ class _Public {
 	public function EFB_Form_Builder($id){
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
+		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
+		//error_log($_GET['user']);
+		//error_log(is_user_logged_in());
+		if($admin_form==true && is_user_logged_in()==false){
+			return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+		}
 		$table_name = $this->db->prefix . "emsfb_form";
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 
@@ -129,11 +135,11 @@ class _Public {
 
 		$state="form";		
 		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.18');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.22');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 			
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.5.18' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.5.22' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		
 		}
@@ -170,7 +176,7 @@ class _Public {
 				}
 				else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
-						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.18');
+						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.22');
 						wp_enqueue_script('pay_js');
 						
 						if($paymentType=="stripe"){ 
@@ -178,13 +184,13 @@ class _Public {
 							wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 							wp_enqueue_script('stripe-js');
 
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.5.18');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), true, '3.5.22');
 							wp_enqueue_script('parsipay_js');
 							//pub key stripe
 							$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 						}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 							$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.5.18');
+							wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), true, '3.5.22');
 							wp_enqueue_script('parsipay_js');
 						}
 				}
@@ -196,12 +202,23 @@ class _Public {
 		}
 		
 		if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
+
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
+				//
+				$this->efbFunction->addon_adds_cron_efb();
+				 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			}
 			
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 			$persianDatePicker = new persianDatePickerEFB() ; 	
 		}
 		if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
+
+			if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
+				$this->efbFunction->addon_adds_cron_efb();
+				 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			}
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 			$arabicDatePicker = new arabicDatePickerEfb() ; 
 		}//end if custom date
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
@@ -396,19 +413,19 @@ class _Public {
 
 	function public_scripts_and_css_head(){
 	
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.5.18');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.5.22');
 		wp_enqueue_style('Emsfb-style-css');
 
-		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.5.18');
+		wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), true,'3.5.22');
 		wp_enqueue_script('core_js');
 		
 
-		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.5.18');
+		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.5.22');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
 		
 
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.5.18');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.5.22');
 		wp_enqueue_script('efb-main-js'); 		
 		
 
@@ -417,7 +434,7 @@ class _Public {
 		
 
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.5.18');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.5.22');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
@@ -448,7 +465,7 @@ class _Public {
 		//اگر پرو بود اگر پلاگین نصب بود 
 		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
 		if($this->pro_efb==1 ){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.18');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.22');
 			wp_enqueue_script('efb-pro-els'); 
 		}
 	
@@ -456,11 +473,11 @@ class _Public {
 			
 
 
-			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.18');
+			wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.22');
 			wp_enqueue_script('efb-bootstrap-min-js'); 
 	
 			
-			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.18');
+			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.22');
 			wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			
 						
@@ -478,17 +495,17 @@ class _Public {
 				if (preg_match("/\bbootstrap.bundle.min.js+/i", $path)) $bund = false;				
 			}
 			if($minb){
-				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.18');
+				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.22');
 				wp_enqueue_script('efb-bootstrap-min-js'); 
 			}
 			if($bund){
-				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.18');
+				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.5.22');
 				wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
 			} */
 
 		}
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.5.18');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.5.22');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 		
 		
@@ -1183,11 +1200,16 @@ class _Public {
 										}catch( Exception $e ){
 											$msg = ' تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
 										}  */
-										include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
-										$persiaPay = new zarinPalEFB() ;
-										$result = $persiaPay->validate_payment_zarinPal($jsonData);
-										if($result['errors']){
-											$msg = $result['errors']['message'];
+										if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/")) {
+											$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
+										}else{
+
+											include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+											$persiaPay = new zarinPalEFB() ;
+											$result = $persiaPay->validate_payment_zarinPal($jsonData);
+											if($result['errors']){
+												$msg = $result['errors']['message'];
+											}
 										}
 									}else{
 										$msg = 'خطای تنظیمات : با مدیر وبسایت تماس بگیرید ، خطای 406 ' ;
@@ -1640,7 +1662,7 @@ class _Public {
 
 
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.5.18');
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.5.22');
 		wp_enqueue_script('jquery');
 		return "<script>console.log('Easy Form Builder v3.5.9')</script>";
 	  }//end function
@@ -1872,13 +1894,20 @@ class _Public {
 				//$this->location = $efbFunction->iplocation_efb($ip,1);
 				//
 				$table_name = $this->db->prefix . "emsfb_msg_";
-				$value = $this->db->get_results( "SELECT track,form_id,read_ FROM `$table_name` WHERE msg_id = '$id'" );
-				//error_log(json_decode($value[0]->read_));
+				$value = $this->db->get_results( "SELECT track,form_id,read_,content FROM `$table_name` WHERE msg_id = '$id'" );				
 				if($value[0]->read_==4){
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 					wp_send_json_success($response,$_POST);
 					die();
 				}
+				$valn =str_replace('\\', '', $value[0]->content);
+				//error_log($vv_);
+				$msg_obj = json_decode($valn,true);
+				$vv_="";
+				$lst = end($msg_obj);
+				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+			   //error_log("=============>link_w ");
+			   //error_log($link_w );
 				$table_name = $this->db->prefix . "emsfb_rsp_";				
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
@@ -1893,32 +1922,69 @@ class _Public {
 				
 				$this->db->update($table_name,array('read_'=>0), array('msg_id' => $id) );
 				$by=$this->lanText["guest"];
+				$email_usr ="";
 
 				//error_log(json_encode(wp_get_current_user()));
 				
 				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
 					$usr= wp_get_current_user();
 					$by = $usr->user_nicename;
+					$email_usr = $usr->user_email;
 					
 				}
 				
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
+				
 				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
+				
 				$valn =str_replace('\\', '', $vald[0]->form_structer);
 				$valn= json_decode($valn,true);
 				$usr;
 				$email_fa = $valn[0]["email"];
-				$lst = end($valn);
-			 	$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 					$email = $setting->emailSupporter;
 				}
 				
-				if($email!= null  && gettype($email)=="string") {$this->send_email_Emsfb($email,$value[0]->track,$pro,"newMessage",$link_w);}
-				if(strlen($email_fa)>4){
-					
-					$this->send_email_Emsfb($email_fa,$value[0]->track,$pro,"newMessage",$link_w);
+				if($email!= null  && gettype($email)=="string" && $email != $email_usr) {
+					$link = $link_w. "?user=admin";
+					//error_log($link);
+					$this->send_email_Emsfb($email,$track,$pro,"newMessage",$link);
+				}
+				if(strlen($email_fa)>4 && $email_usr!=$email_fa){
+					$link = $link_w. "?user=admin";
+					//error_log($link);
+					$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
+				}
+				//error_log("===============>email of filled");
+				//error_log($email_usr);
+				//error_log("===============>email_fa");
+				//error_log($email_fa);
+				//error_log("===============>email");
+				//error_log($email);
+				if($email == $email_usr || $email_usr==$email_fa){
+					//error_log('==============> ارسال پاسخ به کاربری که فرم را پر کرده است');
+					//error_log($value[0]->content);
+
+					$id =$valn[0]["email_to"];
+					//error_log($id);
+					//error_log($valn[0]["email_to"]);
+					if(isset($id)){
+						//error_log("================>id");
+
+						/* $email_fa = array_filter($msg_obj, function($item) use($id){ 
+							if(isset($item['id_']) && $item['id_']==$id){return $item["value"]["value"];}					
+						});	 */
+						foreach ($msg_obj as $key => $value) {
+							if(isset($value['id_']) && $value['id_']==$id){
+								$email_fa= $value["value"];
+								break;
+							}
+						}
+						//error_log($email_fa);
+						if($email_fa!="") $this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link_w);
+					}
 				}
 				//messageSent s78
 				
@@ -1936,9 +2002,18 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb($to , $track ,$pro , $state,$link){
+		
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
+		//$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
+		if(strlen($link)>5){
+
+			$link_w =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+		}else{
+			$link_w = home_url();
+		}
+		//error_log($to);
+		//error_log($link_w);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		//error_log(json_encode($this->lanText));
 				$cont = $track;
@@ -1979,6 +2054,7 @@ class _Public {
 			$cont=$message;
 		}   
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		//error_log($link);
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
 		
 	}
@@ -2107,7 +2183,11 @@ class _Public {
 				die("secure!");
 		}
 
-        include(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
+			 $efbFunction->addon_adds_cron_efb();
+			 return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+		}
+        require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
         
         
 		$this->id = sanitize_text_field($_POST['id']);
@@ -2564,7 +2644,7 @@ class _Public {
 			} */
 
 			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
-			include(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;
 			if(gettype($persiapay)=="object"){
@@ -2922,7 +3002,7 @@ class _Public {
 
 	
 /* 	function modify_jquery_login_efb() {
-		//this function added jquery vesrion 3.5.18 for multiselect
+		//this function added jquery vesrion 3.5.22 for multiselect
 		if (!is_admin() && $GLOBALS['pagenow']!='wp-login.php') {
 			
 			wp_deregister_script('jquery');
@@ -2998,6 +3078,8 @@ class _Public {
 
 	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email,$link){
 		//if($fs_obj[0]["sendEmail"]==true || $fs_obj[0]["sendEmail"]=="true"){
+			//error_log($admin_email);
+			//error_log($email);
 			$user_email="null";
 			$user_email = array_filter($msg_obj, function($item) use($fs_obj){ 
 				if(isset($item['id_']) && $item['id_']==$fs_obj[0]["email_to"]){return $item["value"];}					
@@ -3015,9 +3097,11 @@ class _Public {
 					}						 
 				}
 			}
+			$link = $link. "?user=admin";
 			if(isset($admin_email)==true){
 				/* 
 				 */
+				
 				$this->send_email_Emsfb($admin_email,$trackingCode,$pro,"newMessage",$link);
 			}
 			/* 

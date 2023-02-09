@@ -27,7 +27,7 @@ jQuery(function () {
     }
   }
   let g =new URLSearchParams(location.search)
-  console.log("get'state'")
+  //console.log("get'state'")
   const state = g.get('state') !=null ? sanitize_text_efb(g.get('state')) : null;
  if(state==null){
    fun_emsFormBuilder_render_view(25); //778899

@@ -38,7 +38,7 @@ setTimeout(() => {
       efb_var = ajax_object_efm;
      
       if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
-        console.log('new version!',efb_var.v_efb)
+        //console.log('new version!',efb_var.v_efb)
         //setTimeout(() => {
           localStorage.setItem('v_efb',efb_var.v_efb);
           location.reload(true);          
@@ -352,7 +352,7 @@ function createStepsOfPublic() {
     
             let date = arg.date;
             handle_change_event_efb(el)
-            console.log(date.format("iYYYY/iM/iD"));
+            //console.log(date.format("iYYYY/iM/iD"));
         });
       }//end if
     }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
@@ -444,7 +444,7 @@ function handle_change_event_efb(el){
   //  const mx=()=> {return  l.type!="number" ? 0 :0}
      len =  el.hasAttribute('maxlength') ? el.maxLength :0;
      if(len==0) return 1;
-     console.log(`must max len[${len}] el.maxLength[${el.maxLength}]`,ajax_object_efm.text.mxcplen,el)
+     //console.log(`must max len[${len}] el.maxLength[${el.maxLength}]`,ajax_object_efm.text.mxcplen,el)
 
     if (value.length > len && el.type!="number") {
       state = false;
