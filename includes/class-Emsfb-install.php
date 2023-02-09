@@ -119,7 +119,7 @@ class Install {
 							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 							dbDelta( $s );			
 						}else if($v==NULL && $s==false){
-							$setting ='{\"version\":\"3.5.21\",\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
+							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
 							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );

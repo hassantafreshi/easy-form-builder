@@ -25,11 +25,6 @@ class efbFunction {
 		
     }
 
-	/* public function my_cron_job_function() {
-		// your code here
-		error_log("my_cron_job_function");
-	  }
- */
 	public function test_Efb(){
 		//error_log('test');
 	
@@ -634,8 +629,7 @@ class efbFunction {
 			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
 			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
-			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after 5 minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),							
-			//"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after 5 minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),							
+			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after few minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -949,7 +943,7 @@ class efbFunction {
 			$plugin = substr($plugin, 0, strpos($plugin, "/"));		
 			//error_log($our_plugin);
             //error_log($plugin);
-          if( $plugin == $our_plugin || true) {
+          if( $plugin == $our_plugin) {
 			//error_log("runn plugin");
 			//$this->download_all_addons_efb();
 			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {

@@ -953,7 +953,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 /* new d&D */
 
 const funSetPosElEfb = (dataId, position) => {
-  console.log('funSetPosElEfb');
+  //console.log('funSetPosElEfb');
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
@@ -1283,7 +1283,7 @@ function handle_navbtn_efb(steps, device) {
     if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
 
     jQuery("#next_efb").click(function () {
-      console.log(`next vp clicked!`);
+      //console.log(`next vp clicked!`);
       var cp = current_s_efb + 1
       var state = true
       if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
@@ -2610,7 +2610,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
 const checkInvalidUTF8_efb=(string, strip = false)=>{
   string = String(string);
-  console.log(`checkInvalidUTF8_efb[${string}]`);
+  //console.log(`checkInvalidUTF8_efb[${string}]`);
   if (string.length === 0) {
     return '';
   }
@@ -2629,12 +2629,12 @@ const checkInvalidUTF8_efb=(string, strip = false)=>{
   if (!utf8PCRE) {
     return string;
   }
-  console.log(`checkInvalidUTF8_efb[${string}]`);
+  //console.log(`checkInvalidUTF8_efb[${string}]`);
   // Check if the string is valid UTF-8
   if (encodeURI(string) === string) {
     return string;
   }
-  console.log(`checkInvalidUTF8_efb[${string}]`);
+  //console.log(`checkInvalidUTF8_efb[${string}]`);
   // Attempt to strip the bad chars if requested (not recommended)
   if (strip) {
     return unescape(encodeURIComponent(string));
@@ -2669,7 +2669,7 @@ const stripAllTags_efb=(string, removeBreaks = false)=>{
 }
 
 const sanitize_text_efb=(str, keep_newlines = false)=>{
-  console.log(`sanitize_text_efb[${str}]`);
+  //console.log(`sanitize_text_efb[${str}]`);
   if (typeof str === 'object' || Array.isArray(str)) {
     return '';
   }else if(str==null || str==undefined){
