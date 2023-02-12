@@ -92,6 +92,7 @@ class _Public {
 		$this->id = $row_id;
 		
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" );
+		
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;
 			
@@ -123,7 +124,9 @@ class _Public {
 		} */
 		$typeOfForm =$value_form[0]->form_type;
 		$value = $value_form[0]->form_structer;
-		
+		/* error_log($value);
+		$value = preg_replace('/"email":"(.*?)"/', '\"email\":\"\"', $value);
+		error_log($value); */
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
 		

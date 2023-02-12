@@ -72,6 +72,7 @@ setTimeout(() => {
       if (ajax_object_efm.state !== 'settingError') {
         if (ajax_object_efm.state == 'form') {
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
+          ajax_object_efm.ajax_value="";
         } else if (ajax_object_efm.state == 'tracker') {
           
           fun_tracking_show_emsFormBuilder()
@@ -112,7 +113,9 @@ function fun_render_view_efb(val, check) {
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
+  valueJson_ws[0].email ="";
   valj_efb = valueJson_ws
+  console.log(valj_efb ,valueJson_ws);
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');

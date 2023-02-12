@@ -60,7 +60,7 @@ h1.efb {	color: #202a8d !important;
  	*/}
  
 h3.efb {	font-size: 25px !important;
- 	color: #a2b0d5 !important;
+ 	color: #a2b0d5;
  	;
  	/*display: inline-block;
  	*/}
@@ -371,7 +371,7 @@ i.efb {	font-size: 1.2rem;
  }
  
 h4.efb {	font-size: 50px !important;
- 	color: #202a8d !important;
+ 	color: #202a8d;
  }
  .card.efb {	border: none !important;
  	border-radius: 20px !important;
@@ -381,7 +381,7 @@ h4.efb {	font-size: 50px !important;
  }
  
 h5.efb {	font-size: 25px !important;
- 	color: #202a8d !important;
+ 	color: #202a8d;
  }
  .efb.alert {	position: absolute;
  	right: 50px;

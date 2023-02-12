@@ -1448,7 +1448,7 @@ let change_el_edit_Efb = (el) => {
       case "selectColorEl":
         color = el.value;
         c = switch_color_efb(color);
-
+        console.log(c);
         //console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
@@ -1469,6 +1469,21 @@ let change_el_edit_Efb = (el) => {
         } else if (el.dataset.el == "el") {
           valj_efb[indx].el_text_color = "text-" + c;
           postId = '_'
+        }
+         else if (el.dataset.el == "clrdoneMessageEfb") {
+          valj_efb[0].clrdoneMessageEfb = "text-" + c;
+          return;
+         // postId = '_'
+        }
+         else if (el.dataset.el == "clrdoneTitleEfb") {
+          valj_efb[0].clrdoneTitleEfb = "text-" + c;
+          return;
+          //postId = '_'
+        }
+         else if (el.dataset.el == "clrdoniconEfb") {
+          valj_efb[0].clrdoniconEfb = "text-" + c;
+          return;
+          //postId = '_'
         }
         
         if (el.dataset.tag != "form" && el.dataset.tag != "payment" &&

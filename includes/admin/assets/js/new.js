@@ -892,6 +892,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     {
     //const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay" || dataTag == "chlRadio" || dataTag == "chlCheckBox" || dataTag =="dadfile") ? true : false;
     const pro_el = valj_efb[iVJ].pro;
+    console.log(`pro_el[${pro_el}]`);
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
@@ -917,10 +918,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate == false  ? `<setion class="efb my-1 ttEfb ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     <div class="efb my-1 mx-0 ${elementId} ${tagT} ttEfb ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-1` : ''} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
-    
-    ${previewSate != true && pro_efb == false && pro_el ? proActiv : ''}
+    ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
-    ${previewSate != true && pro_efb == false && pro_el ? '</div>' : ''}
+    ${previewSate != true && pro_efb == false && pro_el==true  ? '</div>' : ''}
     ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link") || previewSate != true ? endTags : '</div>'}
 
     ${previewSate == false  ? ` </setion><!--endTag EFB-->` :''}
@@ -2038,7 +2038,14 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
-  const ttype = valj_efb[id].type;
+  let ttype = "text";
+  if(id==-1){
+    ttype ="text";
+  }else{
+    ttype = valj_efb[id].type
+  }
+  console.log(t, c, type, id);
+
   //console.log(`t=>[${t}]`,`c=>[${c}]`,type , ttype);
   let v = `.${t}{color:${c}!important;}`
   let tag = "";
@@ -2066,6 +2073,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
       break;
   }
 
+  c=c[0]!="#" ? "#"+c : c
   if (type == "text") { v = `.${type}-${t}{color:${c}!important;}` }
   else if (type == "icon") { v = `.text-${t}{color:${c}!important;}` }
   else if (type == "border") { v = `${tag}.${type}-${t}{border-color:${c}!important;}` }
@@ -2075,6 +2083,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
+  console.log(val, key, indexVJ);
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2085,9 +2094,12 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'label_text_color': type = "text"; color = valj_efb[indexVJ].style_label_color ? valj_efb[indexVJ].style_label_color : ''; break;
       case 'message_text_color': type = "text"; color = valj_efb[indexVJ].style_message_text_color ? valj_efb[indexVJ].style_message_text_color : ''; break;
       case 'el_border_color': type = "border"; color = valj_efb[indexVJ].style_border_color ? valj_efb[indexVJ].style_border_color : ''; break;
+      case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
+      case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
+      case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
     }
     //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
-    if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color, type, indexVJ);
+    if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
 }
@@ -2214,22 +2226,27 @@ function send_data_efb() {
 
 function funTnxEfb(val, title, message) {
   const done = valj_efb[0].thank_you_message.done || efb_var.text.done
+  const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const thankYou = valj_efb[0].thank_you_message.thankYou || efb_var.text.thanksFillingOutform
   const t = title ? title : done;
   const m = message ? message : thankYou;
+  const clr_doneMessageEfb=valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"doneMessageEfb" ;
+  const clr_doneTitleEfb =valj_efb[0].hasOwnProperty("clrdoneTitleEfb") ? valj_efb[0].clrdoneTitleEfb :"doneTitleEfb" ;
+  const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;
+  const doneTrackEfb=clr_doneTitleEfb ;
   const trckCd = `
-  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb}" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-               <button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
-                   <i class="efb fs-5 bi-clipboard-check mx-1"></i>${efb_var.text.copy}
+               <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
+                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i>${efb_var.text.copy}
                </button></div>`
   return `
-                    <h4 class="efb  my-1 fs-2">
-                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2" id="DoneIconEfb"></i>${t}
+                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb}" id="doneTitleEfb">
+                        <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"></i>${t}
                     </h4>
-                    <h3 class="efb fs-4">${m}</h3>
-                   ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}
+                    <h3 class="efb fs-4 ${clr_doneMessageEfb}" id="doneMessageEfb">${m}</h3>
+                  <span class="efb " ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
   
   `
 }

@@ -191,8 +191,13 @@ class Panel_edit  {
 				wp_enqueue_script('jquery-dd'); 
 				/*end new code v4 */
 
-			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js'); */
+			wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
+
+			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
+			wp_enqueue_script('countries-js');
 
 			
 
