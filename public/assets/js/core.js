@@ -1245,12 +1245,14 @@ function fun_vaid_tracker_check_emsFormBuilder() {
 
 
 function emsFormBuilder_show_content_message(value, content) {
+  //console.log("test efb");
   const msg_id = value.msg_id;
   const userIp = "XXXXXXXXX";
   const track = value.track;
   
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
+  //console.log("efb",setting_emsFormBuilder.activeDlBtn);
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
  
 
@@ -1297,6 +1299,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
+  
   
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';

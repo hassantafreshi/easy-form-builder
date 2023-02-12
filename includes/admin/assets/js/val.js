@@ -21,8 +21,7 @@ const fields_efb = [
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
-  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
-  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
+ 
   /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
@@ -42,6 +41,8 @@ const fields_efb = [
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
+  { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
+  { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
