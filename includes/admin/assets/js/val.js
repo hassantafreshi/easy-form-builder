@@ -571,8 +571,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element')}
-                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? mLenEls :''}                                       
                         ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? miLenEls :''}                                       
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? mLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label')}
@@ -731,8 +731,8 @@ function show_setting_window_efb(idset) {
                 ${labelPostionEls}
                 ${ElementAlignEls('label')}
                 ${ElementAlignEls('description')}
-                ${el.dataset.tag == "range" ? mLenEls :''}                                       
                 ${el.dataset.tag == "range" ?miLenEls:''}   
+                ${el.dataset.tag == "range" ? mLenEls :''}                                       
                 ${el.dataset.tag == "range" ?valueEls:''}   
                
                  

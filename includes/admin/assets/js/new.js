@@ -2083,7 +2083,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
-  console.log(val, key, indexVJ);
+  //console.log(val, key, indexVJ);
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""

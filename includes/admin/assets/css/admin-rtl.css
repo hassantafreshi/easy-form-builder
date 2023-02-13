@@ -35,8 +35,11 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
  .efb.form-check-inline .efb.form-check-input {
     float: right;
 } 
+.efb.listContent{margin-right: 4px!important;}
 
-
+.efblist::before {
+    margin: 0 0 0 3px;
+}
 @media screen and (max-width: 782px) {
     .top_circle-efb-1, .top_circle-efb-2 {		display: none !important;}
      #alert_content_efb {		position: absolute;margin: 15% 5%;z-index: 1070 !important;width: 70%;}
@@ -47,7 +50,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
      .efb.def.col-md-6 .efb.ttiptext, 
      .efb.def.col-md-4 .efb.ttiptext {	margin: -30px 70px 0px 0px!important;font-size: 12px!important; };
  }
-
+ 
  .efb.unpx {
     margin: -32px -54px 0px 0!important;
     font-size: 10px!important;
