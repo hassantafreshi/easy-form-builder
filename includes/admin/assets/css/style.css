@@ -206,7 +206,7 @@ i.efb {	font-size: 1.2rem;
  	transition: 0.5s;
  	color: white;
  }
- .btn-darkb {	background-color: #202a8d !important;
+ .btn-darkb {	background-color: #202a8d !important;color: white;
  }
  .border-darkb {	border-color: #202a8d !important;
  }
@@ -216,6 +216,7 @@ i.efb {	font-size: 1.2rem;
  	background-image: linear-gradient(65deg, #202a8d 0, #4757e7 100%);
  	border: none;
  	transition: 0.5s;
+	color: white;
  }
  .btn-pinkEfb {	background-color: #ff4b93;
  }

@@ -293,7 +293,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const vtype = (elementId == "payCheckbox" || elementId == "payRadio" || elementId == "paySelect" || elementId == "payMultiselect" || elementId == "chlRadio" || elementId == "chlCheckBox") ? elementId.slice(3).toLowerCase() : elementId;
   let classes = ''
   const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
-  let minlen,maxlen,temp;
+  let minlen,maxlen,temp,col;
   switch (elementId) {
     case 'email':
     case 'text':
@@ -447,7 +447,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       // const rndm_a = Math.random().toString(36).substr(2, 9);
 
       dataTag = elementId;
-      const col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[iVJ].op_style )) :''
+       col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[iVJ].op_style )) :''
       if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox") pay = "";
       if (editState != false) {
         // if edit mode
@@ -809,8 +809,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         //case 'chlRadio':
         // const rndm_a = Math.random().toString(36).substr(2, 9);
         type_field_efb = elementId;
-        dataTag = elementId;
-        col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style) != 1 ? 'col-md-' + (12 / Number(valj_efb[iVJ].op_style)) : ''
+        dataTag = elementId;      
+         col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style) != 1 ? 'col-md-' + (12 / Number(valj_efb[iVJ].op_style)) : ''
         if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox") pay = "";
   
         if (editState != false) {
@@ -856,7 +856,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                   <input type="hidden" data-vid="${op_1}" data-parent="${rndm} data-type="rating"  id="${op_1}-point-rating" >
               </div>                                            
           </div>
-          <div class="efb   col-sm-12 row my-1" data-id="${op_2}" data-parent="${rndm}" id="${op_2}-v">
+          <div class="efb col-md-12    col-sm-12 row my-1" data-id="${op_2}" data-parent="${rndm}" id="${op_2}-v">
               <div class="efb my-2 col-md-8 fs-6 ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size}" id="${op_2}_lab">${efb_var.text.newSubject}</div>
               <div class="efb col-md-4  d-flex justify-content-center " id="${op_2}" > 
                   <div class="efb btn btn-secondary text-white mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${op_2}"  onclick="fun_point_rating(this)"> <i class="efb bi-star-fill"></i></div>

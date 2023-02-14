@@ -49,16 +49,16 @@ const fields_efb = [
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
  /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'html', pro: true, tag:'advance all' }, */
 
-/*   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
+  { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
- */
+
 ]
 
 
 
 function show_setting_window_efb(idset) {
-  
+  console.log(idset);
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -541,7 +541,7 @@ function show_setting_window_efb(idset) {
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
   
-   
+   console.log(el.dataset.tag)
     switch (el.dataset.tag) {
       case 'email':
       case 'text':
@@ -967,7 +967,7 @@ function show_setting_window_efb(idset) {
         
           `
         break;
-        case 'stripe':
+      case 'stripe':
         
   
         body = `<div class="efb  mb-3">
@@ -988,6 +988,118 @@ function show_setting_window_efb(idset) {
           <div class="efb  clearfix"></div>
           </div>`
         break;
+        case "table_matrix":
+          //case "multiselect":
+          //case "conturyList":
+          //case "stateProvince":
+          //case "payCheckbox":
+          //case "payRadio":
+          //case "paySelect":
+          //case "chlCheckBox":
+          //case "chlRadio":
+          //case "payMultiselect":
+          const obj_r_matrix = valj_efb.filter(obj => {
+            return obj.parent === el.id
+          })
+          //let s = el.dataset.tag;
+          /* let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio"  ? true :false
+          s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false */
+          const newRndmm = Math.random().toString(36).substr(2, 9);
+          let r_matrixs = `<!-- options --!>`;
+          //const col ='col-md-12'
+    
+          if (obj_r_matrix.length > 0) {
+    
+    
+            for (let ob of obj_r_matrix) {
+              let cont = ` <div class="efb  btn-edit-holder newop" id="deleteOption" data-parent_id="${ob.parent}">
+                <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
+                    <i class="efb  efb bi-x-lg text-danger"></i>
+                </button>
+                <button type="button" id="addOption" onClick="add_r_matrix_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndmm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
+                    <i class="efb  bi-plus-circle  text-success"></i>
+                </button> 
+                
+              </div>`
+              r_matrixs += `<div id="${ob.id_op}-v" class="efb  col-md-12">
+              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+              ${cont}
+              </div>`
+            }
+          }
+    
+          //optionElpush_efb
+          body = `
+                    <div class="efb  mb-3">
+                    <!--notAdvanced-->
+                    ${Nadvanced}
+                    
+                    
+                    ${el.dataset.tag == 'multiselect' || el.dataset.tag == 'payMultiselect' ? selectMultiSelectEls : ''}
+                    <label for="optionListefb" class="efb  ">${efb_var.text.options} 
+                  
+                    </label>
+                    <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
+                        <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>                    
+                    </div>
+                    <div class="efb  mb-3" id="optionListefb">
+                     ${r_matrixs}
+                    </div>
+                    ${type_field_efb == "radio" ? addOtherslEls : ''}
+                    <!--notAdvanced-->
+      
+                    <!--advanced-->
+                    <div class="efb  d-grid gap-2">
+                        <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" id="btn-collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                          <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
+                        </button>
+                    </div>
+                    <div class="efb mb-3 mt-3 d-none" id="collapseAdvanced">
+                            <div class="efb  mb-3 px-3 row">                                        
+                          
+                            ${labelFontSizeEls}
+    
+                            
+                           
+                           
+                            ${labelPostionEls}
+                            ${ElementAlignEls('label')}
+                            ${ElementAlignEls('description')}
+                            ${widthEls}     
+                                      
+                            ${classesEls}
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="efb  clearfix"></div>
+                    `
+          break;
+          case "pointr10":
+          case "pointr5":
+            console.log(`pointer[${el.dataset.tag}]`);
+              body = `
+                        <div class="efb  mb-3">
+                        <!--  not   advanced-->
+                        ${Nadvanced}   
+                        <!--  not   advanced-->
+                        <div class="efb  d-grid gap-2">              
+                       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" id="btn-collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
+                        </button>
+                        </div>
+                        <div class="efb mb-3 mt-3 d-none" id="collapseAdvanced">
+                                <div class="efb  mb-3 px-3 row">                                                                 
+                                ${labelPostionEls}
+                                ${ElementAlignEls('label')}
+                                ${ElementAlignEls('description')}
+                                ${widthEls}                      
+                                ${classesEls}
+                                </div>
+                            </div>
+                        </div><div class="efb  clearfix"></div>
+                        `
+              break;
   
     }
   

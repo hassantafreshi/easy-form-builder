@@ -52,7 +52,7 @@ rating_el_pro_efb =(previewSate, rndm,iVJ)=>{
 pointer10_el_pro_efb = (previewSate, classes,iVJ)=>{
   return ` <div class="efb  NPS d-flex justify-content-right " id="${valj_efb[iVJ].id_}" >     
   <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="0"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)">0</div>                            
-  <div class="efb emsFormBuilder_v rating${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 1</div>
+  <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="1"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 1</div>
   <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="2"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 2</div>
   <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="3"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 3</div>
   <div class="efb emsFormBuilder_v rating ${classes} ${valj_efb[iVJ].classes} btn btn-outline-secondary mx-1 ${previewSate != true ? 'disabled' : ''}"  data-point="4"  data-id="${valj_efb[iVJ].id_}"  onclick="fun_nps_rating(this)"> 4</div>
@@ -823,7 +823,6 @@ function fun_point_rating(el) {
 function fun_nps_rating(el) {
   const id = el.dataset.id;
   el.className = btnChangerEfb(el.className, 'btn-darkb');
-
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
       
       if (Number(l.dataset.point) != Number(el.dataset.point)) {
