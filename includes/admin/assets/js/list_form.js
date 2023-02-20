@@ -385,6 +385,20 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       
       m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
+    else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
+      s = true;
+      console.log(390 ,checboxs.includes(c.id_));
+      let vc ='null';
+      checboxs.push(c.id_);
+      for(let op of content){
+        console.log(op, c.id_ ,op.id_ == c.id_);
+        if(op.type=="r_matrix" && op.id_ == c.id_){
+          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.name}</b> <br>${op.value} </p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
+        }
+      }
+      
+      m += `${vc}`;
+    }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';

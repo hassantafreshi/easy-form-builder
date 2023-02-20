@@ -361,9 +361,9 @@ class Admin {
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             $request = wp_remote_get($u);
             
-            if( is_wp_error( $request ) ) {
+            if( is_wp_error( $request )) {
 
-                $m = $lang["error403"];
+                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
                
@@ -386,10 +386,15 @@ class Admin {
                 
             }
 
-            if($data->download==true){
+            if($data->download==true ){
                 $url =$data->link;
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
-                $this->fun_addon_new($url);
+               $s= $this->fun_addon_new($url);
+               if($s==false ){
+                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
+                $response = ['success' => false, "m" => $m];
+                wp_send_json_success($response, $_POST);
+               }
 
             }
         }
@@ -1105,7 +1110,7 @@ class Admin {
             }else{
                 $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
                 if(is_wp_error($r)){
-                    
+                    return false;
                 }else{
                     
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -1114,9 +1119,9 @@ class Admin {
                     if(is_wp_error($r)){
                         error_log('error unzip');
                         error_log(json_encode($r));
-                    }else{
-                        
-                    }    
+                        return false;
+                    }
+                    return true; 
                 }            
             }
 

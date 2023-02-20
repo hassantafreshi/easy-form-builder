@@ -2285,3 +2285,7 @@ div#attach_efb {	position: relative;
 div#gRecaptcha {
     margin: 7px -42px!important;
 }
+
+.efb.rating.btn-darkb {
+    color: white;
+}

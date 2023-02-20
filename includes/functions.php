@@ -19,17 +19,18 @@ class efbFunction {
 	public function __construct() {  
 		global $wpdb;
 		$this->db = $wpdb; 
-		add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
+		//add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
 		//$this->test_Efb();
-		add_action( 'download_all_addons_efb', [$this, 'download_all_addons_efb'] );
-		
+		error_log('called function.php');
+		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
+		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
     }
 
 	public function test_Efb(){
-		//error_log('test');
+		 error_log('===>test_Efb==function.php');
 	
 
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
+		/* if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
 			error_log('not found stripe');
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
@@ -40,7 +41,7 @@ class efbFunction {
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {	
 			error_log('not found persiapay');
-		}
+		} */
 	}
 	public function text_efb($inp){
 		//isset($test) ? $test:
@@ -931,7 +932,7 @@ class efbFunction {
 	}
 
 
-	function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
+	/* function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
         // The path to our plugin's main file
         $our_plugin = plugin_basename( __FILE__ );
 		
@@ -944,23 +945,20 @@ class efbFunction {
 			//error_log($our_plugin);
             //error_log($plugin);
           if( $plugin == $our_plugin) {
-			//error_log("runn plugin");
-			//$this->download_all_addons_efb();
 			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-				//error_log('download_all_addons_efb [if]');
 				wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
 			  }
           }
          }
         }
-       }
+       } */
 
 
 	   public function addon_adds_cron_efb(){
-		//error_log('addon_adds_cron_efb');
+		error_log('addon_adds_cron_efb');
+		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
 		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-			//error_log('download_all_addons_efb [if]');
-			wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
+			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
 		  }
 	   }//addon_adds_cron_efb
 
@@ -975,7 +973,8 @@ class efbFunction {
             $request = wp_remote_get($u);
             
             if( is_wp_error( $request ) ) {
-
+				//sample_admin_notice__success
+				add_action( 'admin_notices', 'admin_notice_msg_efb' );
                 error_log("function.php====> Cannot connect to wp-json of ws.team");
                 return false;
             }
@@ -1049,7 +1048,8 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		//error_log("run download_all_addons_efb");
+		error_log("run download_all_addons_efb");
+		
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=$ac->AdnSPF;
 		$addons["AdnOF"]=$ac->AdnOF;
@@ -1062,7 +1062,7 @@ class efbFunction {
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 		foreach ($addons as $key => $value) {
-			//error_log($key);
+			error_log($key);
 			//error_log($value);
 			if($value ==1){
 				
@@ -1077,6 +1077,24 @@ class efbFunction {
 		$text = ["wmaddon"];
         $lang= $this->text_efb($text);
 		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+	}
+
+	function admin_notice_msg_efb($s) {
+		$v = __('Easy Form Builder','easy-form-builder');
+		$t = "notice-success";
+		if($s=="dlproblem"){
+			$t = "notice-error";
+			$v =__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
+		}else if($s=="unzipproblem"){
+			$t = "notice-error";
+			$v =__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
+
+		}
+		?>
+		<div class="notice <?php $t ?> is-dismissible">
+			<p><?php $v ?></p>
+		</div>
+		<?php
 	}
 	
 }

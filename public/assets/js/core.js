@@ -749,6 +749,10 @@ function fun_sendBack_emsFormBuilder(ob) {
     }  */
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
+    }else if(ob.type == "r_matrix"){
+      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ob === ob.id_ob);
+      console.log(indx)
+      indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
         

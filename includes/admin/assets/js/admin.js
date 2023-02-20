@@ -1771,8 +1771,9 @@ let change_el_edit_Efb = (el) => {
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
-            //radio || checkbox          
-            document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+            //radio || checkbox       
+            if (type_field_efb != "table_matrix") document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
+            //document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           }
           el.setAttribute('value', valj_efb[iindx].value);
@@ -2082,7 +2083,7 @@ let editFormEfb = () => {
     for (let v in valj_efb) {
       
       try {
-        if (valj_efb[v].type != "option") {
+        if (valj_efb[v].type != "option" && valj_efb[v].type != 'r_matrix') {
           const type = valj_efb[v].type == "step" ? "steps" : valj_efb[v].type;
          
           let el = addNewElement(type, valj_efb[v].id_, true, false);
@@ -2317,22 +2318,37 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
-  
+  const fun_add = tag != 'r_matrix' ? `onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})"` : `onClick="add_r_matrix_edit_pro_efb(${parentsID.trim()},${tag.trim()},${valj_efb.length})"`
   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v"  class="efb  col-md-12">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
-  ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+  ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-5 border-d efb-rounded elEdit">` : ''}
   <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
         <i class="efb  bi-x-lg text-danger"></i>
     </button>
-   <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})" data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb  btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
+   <button type="button" id="addOption" ${fun_add}  data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb  btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
         <i class="efb  bi-plus-circle  text-success"></i>
     </button>
   </div>
   </div>`;
-  if (tag !== "multiselect" && tag !== "payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
+ // if (tag !== "multiselect" && tag !== "payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
+ const indx = valj_efb.findIndex(x => x.id_ == parentsID);
+ if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {
+   const els = valj_efb.filter(obj => { return obj.parent === parentsID });
+   document.getElementById(`${parentsID}_options`).innerHTML = '<!--efb.app-->';
+   els.forEach(l => {
+     document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(l.id_, l.value, l.id_, 'radio', l.parent);
+   });
+   //add_new_option_view_select("random"+valj_efb[indx].id_, efb_var.text.otherTxt, "random"+valj_efb[indx].id_, "radio", valj_efb[indx].id_);    
+   document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select("random" + parentsID, efb_var.text.otherTxt, "random" + parentsID, 'radio', parentsID);
+ } else if (tag == "table_matrix") {
+   // /r_matrix_push_efb
+   document.getElementById(`${parentsID}_options`).innerHTML += add_r_matrix_view_select(idin, value, id_ob, tag, parentsID);
+ } else if(tag !== "multiselect" && tag !== "payMultiselect" && tag!="radio"){
 
+   document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
+ }
   for (let el of document.querySelectorAll(`.elEdit`)) {
     
     el.addEventListener("change", (e) => { change_el_edit_Efb(el); })
