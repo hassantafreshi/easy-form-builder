@@ -68,3 +68,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 td.efb.ms {
     text-align: right;
 }
+
+div#gRecaptcha {
+    margin: 7px -42px!important;
+}

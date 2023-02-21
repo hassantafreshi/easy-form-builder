@@ -26,6 +26,7 @@ let stock_state_efb =false;
 let page_state_efb ="";
 let setting_emsFormBuilder=[];
 let position_l_efb ="start"
+let temp_efb;
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
@@ -700,7 +701,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <!--multiselect-->      
       <div class="efb ${valj_efb[iVJ].classes} ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
         ${ttip}
-        <div class="efb efblist  mx-1  inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
+        <div class="efb efblist  mx-0  inplist ${pay}  ${previewSate != true ? 'disabled' : ''}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
       
         <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
@@ -2760,3 +2761,25 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
     </div>
     `
 }
+
+async  function  fetch_json_from_url_efb(url){
+  temp_efb="null";
+ let r = {s:false ,r:"false"}
+ fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    // use the parsed JSON data here
+    r.s=true ;
+    r.r =data
+    console.log(data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    r.r =error
+  });
+  temp_efb=r;
+}
+
+
+
+

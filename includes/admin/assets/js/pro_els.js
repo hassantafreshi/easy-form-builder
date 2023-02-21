@@ -89,7 +89,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
 
       } else {
 
-        if (typeof countries_local != 'object') {
+        if (typeof counstries_list_efb  != 'object') {
           optn = `
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
             <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
@@ -98,14 +98,16 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
           optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
 
         } else {
-          countries_local.sort();
+          //countries_local.sort();
+          console.log(counstries_list_efb);
           let optn = '<!-- list of counries -->'
-          for (let i = 0; i < countries_local.length; i++) {
+          for (let i of counstries_list_efb) {
+            console.log(i.n ,i);
+            
+            const op_id = i.s2.toLowerCase();
+            optn += `<option value="${i.n} (${i.l})" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb" >${i.n} (${i.l})</option>`
 
-            const op_id = countries_local[i].replace(" ", "_");
-            optn += `<option value="${countries_local[i]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb" >${countries_local[i]}</option>`
-
-            optionElpush_efb(rndm, countries_local[i], rndm_1, op_id);
+            optionElpush_efb(rndm, `${i.n} (${i.l})`, rndm_1, op_id);
 
             // i+=1;
           }

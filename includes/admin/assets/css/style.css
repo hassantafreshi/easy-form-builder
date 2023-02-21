@@ -2283,7 +2283,7 @@ div#attach_efb {	position: relative;
 
 
 div#gRecaptcha {
-    margin: 7px -42px!important;
+    margin: 7px 7px;
 }
 
 .efb.rating.btn-darkb {
