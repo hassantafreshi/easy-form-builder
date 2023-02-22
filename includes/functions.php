@@ -631,6 +631,10 @@ class efbFunction {
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
 			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
 			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after few minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),				
+			"cpnnc" => $state  &&  isset($ac->text->cpnnc) ? $ac->text->cpnnc : __('The cell phone number is not correct','easy-form-builder'),				
+			"icc" => $state  &&  isset($ac->text->icc) ? $ac->text->icc : __('Invalid country code','easy-form-builder'),				
+			"cpnts" => $state  &&  isset($ac->text->cpnts) ? $ac->text->cpnts : __('The cell phone number is too short','easy-form-builder'),				
+			"cpntl" => $state  &&  isset($ac->text->cpntl) ? $ac->text->cpntl : __('The cell phone number is too long','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

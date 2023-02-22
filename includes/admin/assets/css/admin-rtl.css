@@ -72,3 +72,32 @@ td.efb.ms {
 div#gRecaptcha {
     margin: 7px -42px!important;
 }
+
+
+
+.iti__country-list{
+	/* text-align: inherit!important; */
+	position: relative!important;
+} 
+
+.iti__country{
+	direction: ltr;
+}
+.iti__arrow {
+    margin-right: 6px;
+}
+
+.iti__selected-flag{
+    flex-direction: row-reverse;
+}
+
+.hStyleOpEfb{
+    margin-left:  0px !important;
+    margin-right:  10px !important;
+    padding-right: 5PX;
+    padding-left: 0;
+}
+
+.iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {
+    background-color: rgba(255, 255, 255, 0)!important;
+}

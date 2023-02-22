@@ -1476,9 +1476,12 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
 
 function fun_send_replayMessage_emsFormBuilder(id) {
+  console.log(id);
   //پاسخ مدیر را ارسال می کند به سرور 
-  document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
+ // document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
+  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
+setTimeout(() => {
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   message=sanitize_text_efb(message);
   // +='disabled fas fa-spinner fa-pulse';
@@ -1503,6 +1506,8 @@ function fun_send_replayMessage_emsFormBuilder(id) {
     
     fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
   }
+}, 100);
+  
 
 
 }
@@ -1800,6 +1805,7 @@ function response_rMessage_id(res, message) {
     document.getElementById('replayM_emsFormBuilder').value = "";
     document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+    document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
      /* attachment reply */
      if(document.getElementById('name_attach_efb')) document.getElementById('name_attach_efb').innerHTML =ajax_object_efm.text.file
      /* end attachment reply */

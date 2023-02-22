@@ -28,7 +28,8 @@ class Panel_edit  {
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
 			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png',
-			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
+			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
+			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
@@ -200,7 +201,11 @@ class Panel_edit  {
 			wp_enqueue_script('countries-js');
 
 			
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
+			wp_enqueue_script('intlTelInput-js');
 
+			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.23');
+			wp_enqueue_style('intlTelInput-css');
 
 			
 			$table_name = $this->db->prefix . "emsfb_form";

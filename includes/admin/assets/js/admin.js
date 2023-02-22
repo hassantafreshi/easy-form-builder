@@ -2360,8 +2360,8 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   const fun_add = tag != 'r_matrix' ? `onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})"` : `onClick="add_r_matrix_edit_pro_efb(${parentsID.trim()},${tag.trim()},${valj_efb.length})"`
   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v"  class="efb  col-md-12">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-5 border-d efb-rounded elEdit">
-  ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-5 border-d efb-rounded elEdit">` : ''}
+  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
+  ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
   <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
     <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
         <i class="efb  bi-x-lg text-danger"></i>

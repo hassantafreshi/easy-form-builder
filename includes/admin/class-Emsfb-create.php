@@ -205,11 +205,19 @@ class Create {
 		wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 		wp_enqueue_script('countries-js');
 
+
+		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
+		wp_enqueue_script('intlTelInput-js');
+
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.23');
+        wp_enqueue_style('intlTelInput-css');
+
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
-		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
+		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
+		'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
 		];
 		
 		$smtp =-1;

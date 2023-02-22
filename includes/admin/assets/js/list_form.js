@@ -857,6 +857,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         if(document.getElementById('replay_state__emsFormBuilder')){
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+        document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply
         }else{
           alert_message_efb(res.data.m,'', 12 , 'danger')
         }

@@ -100,7 +100,7 @@ function pro_show_efb(state) {
 }
 function move_show_efb() {
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb "></i></div>
-  <div class="efb  text-center">
+  <div class="efb  text-center" dir="rtl">
    <img src="${efb_var.images.movebtn}" class="efb  img-fluid" alt="">
   </div>`
   show_modal_efb(body, '','bi-arrows-move', 'saveBox')
@@ -420,12 +420,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case "mobile":
-
+      temp = create_intlTelInput_efb(rndm,iVJ,previewSate,corner)
       ui = `
                 ${label}
                 <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
                 ${ttip}
-                <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+                ${temp}
                 ${desc}
             `
       dataTag = "textarea";
@@ -797,6 +797,19 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       console.log('pointr5')
       //pointer10_el_pro_efb
       temp=pointer5_el_pro_efb(previewSate, classes,iVJ);
+      console.log(temp);
+      ui = `
+      ${label}
+      <div class="efb  ${previewSate == true ? pos[3] : `col-md-9`} col-sm-12 mx-0 ttEfb show"  id='${rndm}-f'>
+        ${ttip}
+        ${temp}
+        ${desc}`
+      dataTag = elementId;
+      break;
+    case 'smartcr':
+      console.log('smartcr')
+      //pointer10_el_pro_efb
+      temp=smartcr_el_pro_efb(previewSate, classes,iVJ);
       console.log(temp);
       ui = `
       ${label}

@@ -42,16 +42,17 @@ const fields_efb = [
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
+  { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
+  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' },
+  { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
+  { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   
 /*   { name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
   { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
-  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'html', pro: true, tag:'advance all' },
 
-  { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
-  { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   //{ name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
 
 ]
@@ -228,7 +229,59 @@ const selectHeightEls = (idset,indx) => {
     </select>
     `
 }
+const ElcountriesListSelections = (idset,indx) => {
+  const rndm = idset;
+ let optn = `<!--opt-->`;
+  for (const i of counstries_list_efb) {
+   // console.log(i);
+    const v = i.l!=i.n  ? `<small>(${i.l})</small>` :''
+    optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}" data-row="${i.s2.trim().toLowerCase()}" data-state="0" data-visible="1">
+    <th scope="row" class="efb bi-square efb" onClick="fun_test(this)" data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}">${i.n} ${v}</td>
+  </tr>  `
 
+  }//end for 
+   return `
+    <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.conturyList}</label>
+    <div class="efb col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
+    <div class="efb efblist  mx-0  inplist  h-d-efb efb-rounded border-d bi-chevron-down" data-id="menu-${rndm}"   data-no="145" data-min="" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
+  
+    <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
+    <table class="efb table menu-${rndm}">
+     <thead class="efb efblist">
+       <tr> <div class="efb searchSection efblist p-2 bg-light"> 
+       <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
+           <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
+     </tr> </thead>
+     <tbody class="efb">                  
+      ${optn}
+     </tbody>
+   </table>
+  </div>
+    `
+}
+function fun_test(t){
+  console.log(t)
+  const idx = t.dataset.indx;
+  const c= t.dataset.name;
+  const n= t.dataset.code;
+ if( valj_efb[idx].hasOwnProperty("c_c")==false){
+  valj_efb[idx].c_c=[c]
+  valj_efb[idx].c_n=[n];
+  return;
+ }else{
+   const indx = valj_efb[idx].c_c.indexOf(c)
+   if(indx!=-1){
+    console.log(valj_efb[idx].c_c , c,indx);
+    valj_efb[idx].c_c.splice(indx,1)
+    valj_efb[idx].c_n.splice(indx,1)
+    return;
+  }else{
+    valj_efb[idx].c_c.push(c)
+    valj_efb[idx].c_n.push(n)
+  }
+ }
+
+}
 function show_setting_window_efb(idset) {
   console.log(idset);
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
@@ -587,12 +640,14 @@ function show_setting_window_efb(idset) {
       case "textarea":
       case 'pdate':
       case 'ardate':
+      case 'mobile':
         body = `
                 <div class="efb  mb-3">
                 <!--  not   advanced-->
                 ${Nadvanced}
                 ${placeholderEls}
                 ${el.dataset.tag == "email" ? emailEls : ''}
+                ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
                 <!--  not   advanced-->
                 <div class="efb  d-grid gap-2">              
                <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -606,8 +661,8 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element',indx,idset)}
-                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? miLenEls :''}                                       
-                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  ? mLenEls :''}                                       
+                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile"  ? miLenEls :''}                                       
+                        ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" ? mLenEls :''}                                       
                         
                         ${labelPostionEls}
                         ${ElementAlignEls('label',indx,idset)}
@@ -1061,7 +1116,7 @@ function show_setting_window_efb(idset) {
                 
               </div>`
               r_matrixs += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
+              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
               ${cont}
               </div>`
             }
@@ -1376,8 +1431,8 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
   let opetions = `<!-- options --!>`;
   for (let ob of objOptions) {         
     opetions += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
-  ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-5 border-d efb-rounded elEdit">` :''}
+  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
+  ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
     <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
         <i class="efb  efb bi-x-lg text-danger"></i>

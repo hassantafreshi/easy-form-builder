@@ -324,7 +324,7 @@ i.efb {	font-size: 1.2rem;
  	border-radius: 50%;
  	opacity: 0.8;
  }
- .form-control.efb {	color: #595b6e !important;
+ .form-control.efb {	color: #595b6e;
  }
  .field-selected-efb {	border: 1px dashed #ffbaba;
  	border-radius: 5px !important;
@@ -688,6 +688,7 @@ h5.efb {	font-size: 25px !important;
  .efb-star.h-d-efb , .efb-star.h-l-efb  {
 	padding: 10px 0px !important;
  }
+ 
 
  .star-efb:not(:checked)>label {	float: right;
  	width: 0.8em;
@@ -730,7 +731,7 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  }
  /* DAND Section */#uploadFilePreEfb label {	width: 100%;
  }
- .dadFile-efb {	background-color: #fbfdff !important;
+ .dadFile-efb {	background-color: #fbfdff45 !important;
  	border: 3px dashed #c8ddff !important;
  	min-height: auto;
  	width: 100%;
@@ -882,7 +883,8 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
  }
  .efb.zindex-100 {	z-index: 100;
  }
- /* height sectio on input *//* defualt height size *//* large height size */.dadFile-efb.h-d-efb,.maps-efb.h-d-efb,.sign-efb.h-d-efb {	height: 300px;
+ /* height sectio on input *//* defualt height size *//* large height size */
+ .dadFile-efb.h-d-efb,.maps-efb.h-d-efb,.sign-efb.h-d-efb {	height: 200px!important;
  }
 
  
@@ -926,8 +928,10 @@ input[type=file].h-l-efb {	height: fit-content!important;
  	font-size: 50px !important;
  }
  .hStyleOpEfb {	display: inline !important;
- 	margin: 0px 10px !important;
+ 	margin-left:  10px !important;
+	padding-left: 5PX;
  }
+
  
 textarea.h-l-efb {	min-height: 100px !important;
  	font-size: 25px !important;
@@ -2289,3 +2293,8 @@ div#gRecaptcha {
 .efb.rating.btn-darkb {
     color: white;
 }
+.iti {
+	width: 100%!important;
+}
+
+

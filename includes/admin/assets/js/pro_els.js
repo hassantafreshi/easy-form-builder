@@ -76,6 +76,9 @@ pointer5_el_pro_efb = (previewSate, classes,iVJ)=>{
   <input type="hidden" data-vid="${valj_efb[iVJ].id_}" data-type="rating" id="${valj_efb[iVJ].id_}-point-rating">
   </div> `
 }
+smartcr_el_pro_efb = (previewSate, classes,iVJ)=>{
+  return `<h3> Smart</h3> `
+}
 countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
     let optn ='<!--countreies-->'
     if (editState != false) {
@@ -105,7 +108,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
             console.log(i.n ,i);
             
             const op_id = i.s2.toLowerCase();
-            optn += `<option value="${i.n} (${i.l})" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb" >${i.n} (${i.l})</option>`
+            optn += `<option value="${i.n} (${i.l})" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
 
             optionElpush_efb(rndm, `${i.n} (${i.l})`, rndm_1, op_id);
 
@@ -862,4 +865,77 @@ function fun_switch_efb(el){
           fun_sendBack_emsFormBuilder(o[0]);
   }, 100);
 
+}
+
+function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
+  //const rndm = (Math.random() + 1).toString(36).substring(7);
+  load_intlTelInput_efb(rndm)
+  return `
+  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
+  <button id="${rndm}-btn" type="submit" class="efb d-none">Submit</button>
+ `;
+
+
+
+}
+
+load_intlTelInput_efb=(rndm)=>{
+  setTimeout(()=>{
+   // let input = document.getElementById(rndm+"_");
+   console.log(rndm,document.getElementById(rndm+"_"));
+     const iti= window.intlTelInput(document.getElementById(rndm+"_"), {
+    // allowDropdown: false,
+    // autoHideDialCode: false,
+    // autoPlaceholder: "off",
+    // dropdownContainer: document.body,
+    // excludeCountries: ["us"],
+    // formatOnDisplay: false,
+  /*    geoIpLookup: function(callback) {
+      $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+         var countryCode = (resp && resp.country) ? resp.country : "";
+         callback(countryCode);
+       }); */
+    // },
+    // hiddenInput: "full_number",
+    // initialCountry: "auto",
+    // localizedCountries: { 'de': 'Deutschland' },
+    // nationalMode: false,
+    //onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
+    // placeholderNumberType: "MOBILE",
+    //preferredCountries: ['cn', 'jp'],
+    // separateDialCode: true,
+    utilsScript: efb_var.images.utilsJs,
+  });
+  
+  document.getElementById(rndm+"_").addEventListener('blur', function() {
+  
+ /*  const  errorMap = ["The cell phone number is not correct", "Invalid country code", "The cell phone number is too short", "The cell phone number is too long", "The cell phone number is not correct"];
+  const  errorMap = [cpnnc, icc,cpnts,cpntl, cpnnc]; */
+  const  errorMap = [efb_var.text.cpnnc, efb_var.text.icc,efb_var.text.cpnts,efb_var.text.cpntl, efb_var.text.cpnnc];
+  document.getElementById(rndm+"_").classList.remove("border-danger");
+  document.getElementById(rndm+"_").classList.remove("border-success");
+  document.getElementById(rndm+"_-message").innerHTML="";
+  document.getElementById(rndm+"_-message").classList.remove("d-block");
+  document.getElementById(rndm+"_-message").classList.add("d-none");
+    if (document.getElementById(rndm+"_").value.trim()) {
+      if (iti.isValidNumber()) {
+        //validMsg.classList.remove("hide");
+        //add value mobileNumber
+        document.getElementById(rndm+"_").classList.add("border-success");
+      } else {
+        document.getElementById(rndm+"_").classList.add("border-danger");
+        let errorCode = iti.getValidationError() 
+        errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
+        console.log(errorCode);
+        document.getElementById(rndm+"_-message").classList.remove("d-none");
+        document.getElementById(rndm+"_-message").classList.add("d-block");
+        document.getElementById(rndm+"_-message").innerHTML=errorCode;
+        /* errorMsg.innerHTML = errorMap[errorCode];
+        errorMsg.classList.remove("hide"); */
+        //Remove value mobile number if exist
+      }
+    }
+  });
+  },800)
 }
