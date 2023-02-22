@@ -1464,11 +1464,13 @@ textarea.efb.form-control-lg {
  .efb.form-check {
 	    display: flex;
  	min-height: 1.5rem;
- 	padding-left: 1.5em;
- 	margin-bottom: .125rem}
+ 	/* padding-left: 1.5em; */
+ 	margin-bottom: .125rem;
+align-items: center;}
  .efb.form-check .efb.form-check-input {
 	float: left;
- 	margin-left: -1.5em}
+ 	/* margin-left: -1.5em */
+}
  .efb.form-check-input {
 	width: 1em;
  	height: 1em;
