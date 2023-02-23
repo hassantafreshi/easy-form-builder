@@ -298,7 +298,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-
+		error_log('add_form_structure');
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -321,9 +321,14 @@ class Create {
 		//$this->value = $_POST['value'];
 
 		$valp =str_replace('\\', '', $_POST['value']);
+		error_log("====>valp");
+		error_log($valp);
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		error_log("====>valx");
+		error_log($valx);
 		$this->value=str_replace('"', '\\"', $valx);
 
 		$this->formtype =  sanitize_text_field($_POST['type']);
@@ -332,8 +337,8 @@ class Create {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-
-		
+		error_log("====>this->value");
+		error_log($this->value);
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
@@ -341,7 +346,7 @@ class Create {
 		wp_send_json_success($response,$_POST);
 		die();		
 	}
-
+	
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 		

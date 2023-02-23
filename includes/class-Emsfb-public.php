@@ -776,6 +776,37 @@ class _Public {
 									$rt= $item;
 									$in_loop=false;
 									break;
+								case 'mobile':
+									error_log('===========> mobile');
+									error_log(json_encode($f["c_n"]));
+									error_log($item['value']);
+									$stated=0;
+									
+									if(isset($item['value'])){
+										$stated=0;
+										$item['value'] = sanitize_text_field($item['value']);	
+										error_log("====>stated");
+										error_log($stated);
+										 array_filter($f["c_n"], function($no) use($item , &$stated){
+											error_log("value===c");
+											//$stated=0;
+											error_log(strpos($item['value'] , '+'.$no));
+											error_log($item['value']);
+											error_log($no);
+											error_log($stated);
+											$v = strpos($item['value'] , '+'.$no);
+											error_log($v);
+											error_log($v === 0);
+											if ( strpos($item['value'] , '+'.$no) === 0 ) $stated=1;
+											
+										});		
+										error_log("====>stated");
+										error_log(json_encode($stated));
+									}
+									# code...
+									$rt= $item;
+									$in_loop=false;
+									break;
 								case 'radio':							
 								case 'payRadio':
 								case 'chlRadio':

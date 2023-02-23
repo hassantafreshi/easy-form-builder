@@ -869,7 +869,7 @@ function fun_switch_efb(el){
 
 function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   //const rndm = (Math.random() + 1).toString(36).substring(7);
-  load_intlTelInput_efb(rndm)
+  load_intlTelInput_efb(rndm,iVJ)
   return `
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField d-none" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}-code" placeholder="verify"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'disabled' : ''}>
@@ -880,13 +880,19 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
 
 }
 
-load_intlTelInput_efb=(rndm)=>{
+load_intlTelInput_efb=(rndm,iVJ)=>{
+  //let list =[];
+ const onlyCountries= valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length>0 ? valj_efb[iVJ].c_c : "";
+ console.log(valj_efb[iVJ]);
   setTimeout(()=>{
    // let input = document.getElementById(rndm+"_");
-   console.log(rndm,document.getElementById(rndm+"_"));
+   //console.log(rndm,document.getElementById(rndm+"_"));
      const iti= window.intlTelInput(document.getElementById(rndm+"_"), {
     // allowDropdown: false,
-    // autoHideDialCode: false,
+    onlyCountries:onlyCountries,
+    autoHideDialCode: true,
+    placeholderNumberType:"MOBILE",
+   // separateDialCode: true,
     // autoPlaceholder: "off",
     // dropdownContainer: document.body,
     // excludeCountries: ["us"],
@@ -904,7 +910,7 @@ load_intlTelInput_efb=(rndm)=>{
     //onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
     // placeholderNumberType: "MOBILE",
     //preferredCountries: ['cn', 'jp'],
-    // separateDialCode: true,
+
     utilsScript: efb_var.images.utilsJs,
   });
   
@@ -920,9 +926,23 @@ load_intlTelInput_efb=(rndm)=>{
   document.getElementById(rndm+"_-message").classList.add("d-none");
     if (document.getElementById(rndm+"_").value.trim()) {
       if (iti.isValidNumber()) {
+        console.log(`iti.isValidNumber()[${iti.isValidNumber()}]`);
+
+        
         //validMsg.classList.remove("hide");
         //add value mobileNumber
+        console.log(iti.s.dialCode);
+        console.log(document.getElementById(rndm+"_").value);
+      
         document.getElementById(rndm+"_").classList.add("border-success");
+        
+          let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
+          fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
+          console.log(sendBack_emsFormBuilder_pub);
+        
+
+        //document.getElementById(rndm+"_").value = "+"+iti.s.dialCode+document.getElementById(rndm+"_").value
+        
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");
         let errorCode = iti.getValidationError() 
@@ -931,6 +951,12 @@ load_intlTelInput_efb=(rndm)=>{
         document.getElementById(rndm+"_-message").classList.remove("d-none");
         document.getElementById(rndm+"_-message").classList.add("d-block");
         document.getElementById(rndm+"_-message").innerHTML=errorCode;
+
+        let inx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[iVJ].id_);
+        if (inx != -1) {
+          sendBack_emsFormBuilder_pub.splice(inx, 1)
+          console.log(sendBack_emsFormBuilder_pub)
+        }
         /* errorMsg.innerHTML = errorMap[errorCode];
         errorMsg.classList.remove("hide"); */
         //Remove value mobile number if exist

@@ -543,51 +543,51 @@ class efbFunction {
 			"advance" => $state  &&  isset($ac->text->advance) ? $ac->text->advance : __('Advance','easy-form-builder'),
 			"all" => $state  &&  isset($ac->text->all) ? $ac->text->all : __('All','easy-form-builder'),
 			"new" => $state  &&  isset($ac->text->new) ? $ac->text->new : __('New','easy-form-builder'),
-			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),
+			"landingTnx" => $state  &&  isset($ac->text->landingTnx) ? $ac->text->landingTnx : __('Landing of thank you section','easy-form-builder'),//here
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
-			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait while redirected','easy-form-builder'),
+			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('GET PRO','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version, to enable the Professional Advanced features, get Pro version.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('Thanks for using Easy Form Builder! Did you know you can unlock even more features with our Pro version? Upgrade now to get access to our Advanced Professional features.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('Stripe Payment Addon','easy-form-builder'),				
-			"stripeDAddon" => $state  &&  isset($ac->text->stripeDAddon) ? $ac->text->stripeDAddon : __('Stripe addon of Easy Form Builder authorizes you to attach your WordPress site with Stripe to organize payments, donations, and online orders.','easy-form-builder'),				
+			"stripeDAddon" => $state  &&  isset($ac->text->stripeDAddon) ? $ac->text->stripeDAddon : __('The Stripe add-on for Easy Form Builder enables you to integrate your WordPress site with Stripe for payment processing, donations, and online orders.','easy-form-builder'),				
 			"offlineTAddon" => $state  &&  isset($ac->text->offlineTAddon) ? $ac->text->offlineTAddon : __('Offline Forms Addon','easy-form-builder'),				
-			"offlineDAddon" => $state  &&  isset($ac->text->offlineDAddon) ? $ac->text->offlineDAddon : __('Offline Forms Addon of Easy Form Builder authorize your users to save their progress in an offline situation while filling in your forms.','easy-form-builder'),				
+			"offlineDAddon" => $state  &&  isset($ac->text->offlineDAddon) ? $ac->text->offlineDAddon : __('The Offline Forms add-on for Easy Form Builder allows users to save their progress when filling out forms in offline situations.','easy-form-builder'),				
 			
 			"trackCTAddon" => $state  &&  isset($ac->text->trackCTAddon) ? $ac->text->trackCDAddon : __('trackCTAddon','easy-form-builder'),				
 			"trackCDAddon" => $state  &&  isset($ac->text->trackCDAddon) ? $ac->text->trackCDAddon : __('trackCDAddon','easy-form-builder'),				
 			"install" => $state  &&  isset($ac->text->install) ? $ac->text->install : __('Install','easy-form-builder'),				
-			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder then try again','easy-form-builder'),				
-			"AfLnFrm" => $state  &&  isset($ac->text->AfLnFrm) ? $ac->text->AfLnFrm : __('Activation offline form mode','easy-form-builder'),				
+			"upDMsg" => $state  &&  isset($ac->text->upDMsg) ? $ac->text->upDMsg : __('Please update Easy Form Builder before trying again.','easy-form-builder'),				
+			"AfLnFrm" => $state  &&  isset($ac->text->AfLnFrm) ? $ac->text->AfLnFrm : __('Activation of offline form mode.','easy-form-builder'),				
 			"IMAddons" => $state  &&  isset($ac->text->IMAddons) ? $ac->text->IMAddons : __('Before activation this option, install','easy-form-builder'),				
-			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : __('Before creating a payment form you should install the addon payment like Stripe Addon','easy-form-builder'),				
+			"IMAddonP" => $state  &&  isset($ac->text->IMAddonP) ? $ac->text->IMAddonP : __('To create a payment form, you must first install a payment add-on such as the Stripe Add-on.','easy-form-builder'),				
 			"allformat" => $state  &&  isset($ac->text->allformat) ? $ac->text->allformat : __('All formats','easy-form-builder'),				
 			"AdnSST" => $state  &&  isset($ac->text->AdnSST) ? $ac->text->AdnSST : __('EFB SMS Addon','easy-form-builder'),				
-			"AdnSSD" => $state  &&  isset($ac->text->AdnSSD) ? $ac->text->AdnSSD : __('Send SMS messages from your forms by mobile input such as validating a mobile number or sending the confirmation code using the EFB SMS add-on, which allows you to send notifications by SMS service.','easy-form-builder'),				
+			"AdnSSD" => $state  &&  isset($ac->text->AdnSSD) ? $ac->text->AdnSSD : __('Enable SMS functionality in your forms with the EFB SMS add-on, allowing you to validate mobile numbers and send confirmation codes via SMS, as well as receive notifications through SMS service.','easy-form-builder'),				
 			"AdnATCT" => $state  &&  isset($ac->text->AdnATCT) ? $ac->text->AdnATCT : __('Advanced confirmation code Addon','easy-form-builder'),				
-			"AdnATCD" => $state  &&  isset($ac->text->AdnATCD) ? $ac->text->AdnATCD : __('Send a link of the confirmation code by Email or SMS to those who are users and/or admins which allows your user directly find out new responses.','easy-form-builder'),				
+			"AdnATCD" => $state  &&  isset($ac->text->AdnATCD) ? $ac->text->AdnATCD : __('Send a confirmation code via email or SMS to users and/or admins, allowing them to quickly access new responses.','easy-form-builder'),				
 			"chlCheckBox" => $state  &&  isset($ac->text->chlCheckBox) ? $ac->text->chlCheckBox : __('Box Checklist','easy-form-builder'),				
 			"chlRadio" => $state  &&  isset($ac->text->chlRadio) ? $ac->text->chlRadio : __('Radio Checklist','easy-form-builder'),				
 			"qty" => $state  &&  isset($ac->text->qty) ? $ac->text->qty : __('Qty','easy-form-builder'),				
-			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : __('Warning to WPBakery users for more information click here.','easy-form-builder'),				
-			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : __('Are you sure to close the responses to this message?','easy-form-builder'),				
-			"clsdrspnsMo" => $state  &&  isset($ac->text->clsdrspnsMo) ? $ac->text->clsdrspnsMo : __('Are you sure to open the responses to this message?','easy-form-builder'),				
+			"wwpb" => $state  &&  isset($ac->text->wwpb) ? $ac->text->wwpb : __('This is a warning for WPBakery users. For more information, please click here.','easy-form-builder'),				
+			"clsdrspnsM" => $state  &&  isset($ac->text->clsdrspnsM) ? $ac->text->clsdrspnsM : __('Are you sure you want to close the responses to this message?','easy-form-builder'),				
+			"clsdrspnsMo" => $state  &&  isset($ac->text->clsdrspnsMo) ? $ac->text->clsdrspnsMo : __('Are you sure you want to open the responses to this message?','easy-form-builder'),				
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
 			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
-			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I want to localize Easy Form Builder','easy-form-builder'),				
+			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I would like to localize Easy Form Builder.','easy-form-builder'),				
 			"mlen" => $state  &&  isset($ac->text->mlen) ? $ac->text->mlen : __('Max length','easy-form-builder'),				
 			"milen" => $state  &&  isset($ac->text->milen) ? $ac->text->milen : __('Min length','easy-form-builder'),				
 			"mmlen" => $state  &&  isset($ac->text->mmlen) ? $ac->text->mmlen : __('The maximum number of characters allowed in the input element is 524288','easy-form-builder'),				
-			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value at least NN characters','easy-form-builder'),				
-			"mcplen" => $state  &&  isset($ac->text->mcplen) ? $ac->text->mcplen : __('Please enter a number greater than or equal to NN','easy-form-builder'),				
-			"mmxplen" => $state  &&  isset($ac->text->mmxplen) ? $ac->text->mmxplen : __('Please Enter A maximum of NN Characters For This Field','easy-form-builder'),				
-			"mxcplen" => $state  &&  isset($ac->text->mxcplen) ? $ac->text->mxcplen : __('Please enter a number less than or equal to NN','easy-form-builder'),				
+			"mmplen" => $state  &&  isset($ac->text->mmplen) ? $ac->text->mmplen : __('Please enter a value that is at least NN characters long.','easy-form-builder'),				
+			"mcplen" => $state  &&  isset($ac->text->mcplen) ? $ac->text->mcplen : __('Please enter a number that is greater than or equal to NN.','easy-form-builder'),				
+			"mmxplen" => $state  &&  isset($ac->text->mmxplen) ? $ac->text->mmxplen : __('Please Enter a maximum of NN Characters For this field','easy-form-builder'),				
+			"mxcplen" => $state  &&  isset($ac->text->mxcplen) ? $ac->text->mxcplen : __('Please enter a number that is less than or equal to NN','easy-form-builder'),				
 			"max" => $state  &&  isset($ac->text->max) ? $ac->text->max : __('Max','easy-form-builder'),				
 			"min" => $state  &&  isset($ac->text->min) ? $ac->text->min : __('Min','easy-form-builder'),				
 			"mxlmn" => $state  &&  isset($ac->text->mxlmn) ? $ac->text->mxlmn : __('Minimum entry must lower than maximum entry','easy-form-builder'),				
@@ -611,30 +611,31 @@ class efbFunction {
 			"IMAddonAD" => $state  &&  isset($ac->text->IMAddonAD) ? $ac->text->IMAddonAD : __('Please go to Add-ons Page of Easy Form Builder plugin and install the Hijri date addons','easy-form-builder'),	
 			"warning" => $state  &&  isset($ac->text->warning) ? $ac->text->warning : __('warning','easy-form-builder'),	
 			"datetimelocal" => $state  &&  isset($ac->text->datetimelocal) ? $ac->text->datetimelocal : __('date & time','easy-form-builder'),				
-			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : __('Active the file upload Button in response box','easy-form-builder'),				
-			"scaptcha" => $state  &&  isset($ac->text->scaptcha) ? $ac->text->scaptcha : __('Active Google reCAPTCHA in response box','easy-form-builder'),				
-			"sdlbtn" => $state  &&  isset($ac->text->sdlbtn) ? $ac->text->sdlbtn : __('Active the download button in response box','easy-form-builder'),				
-			"sips" => $state  &&  isset($ac->text->sips) ? $ac->text->sips : __('Show IP\'s of users in response box','easy-form-builder'),				
+			"dsupfile" => $state  &&  isset($ac->text->dsupfile) ? $ac->text->dsupfile : __('Activate the file upload button in the response box','easy-form-builder'),				
+			"scaptcha" => $state  &&  isset($ac->text->scaptcha) ? $ac->text->scaptcha : __('Activate Google reCAPTCHA in the response box','easy-form-builder'),				
+			"sdlbtn" => $state  &&  isset($ac->text->sdlbtn) ? $ac->text->sdlbtn : __('Activate the download button in the response box.','easy-form-builder'),				
+			"sips" => $state  &&  isset($ac->text->sips) ? $ac->text->sips : __('Display the IP addresses of users in the response box.','easy-form-builder'),				
 			"persiaPayTAddon" => $state  &&  isset($ac->text->persiaPayTAddon) ? $ac->text->persiaPayTAddon : __('Persia Payment Addon','easy-form-builder'),				
-			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('Persia payment addon of Easy Form Builder authorizes you to attach your site with Persia payment to organize payments, donations, and online orders.','easy-form-builder'),				
+			"persiaPayDAddon" => $state  &&  isset($ac->text->persiaPayDAddon) ? $ac->text->persiaPayDAddon : __('The Persia payment addon for Easy Form Builder enables you to connect your website with Persia payment to process payments, donations, and online orders.','easy-form-builder'),				
 
 			"datePTAddon" => $state  &&  isset($ac->text->datePTAddon) ? $ac->text->datePTAddon : __('Jalali date Addon','easy-form-builder'),				
-			"datePDAddon" => $state  &&  isset($ac->text->datePDAddon) ? $ac->text->datePDAddon : __('Jalali date addon able you to add Jalali date field in forms and create any kind of form with the Shamsi date field.','easy-form-builder'),				
+			"datePDAddon" => $state  &&  isset($ac->text->datePDAddon) ? $ac->text->datePDAddon : __('The Jalali date addon allows you to add a Jalali date field to your forms and create any type of form that includes this Shamsi date field.','easy-form-builder'),				
 			"dateATAddon" => $state  &&  isset($ac->text->dateATAddon) ? $ac->text->dateATAddon : __('Hijri date Addon','easy-form-builder'),				
-			"dateADAddon" => $state  &&  isset($ac->text->dateADAddon) ? $ac->text->dateADAddon : __('Hijri date addon able you to add Hijri date field in forms and create any kind of form with the Hijri date field.','easy-form-builder'),				
+			"dateADAddon" => $state  &&  isset($ac->text->dateADAddon) ? $ac->text->dateADAddon : __('The Hijri date addon allows you to add a Hijri date field to your forms and create any type of form that includes this field."','easy-form-builder'),				
 			"smsTAddon" => $state  &&  isset($ac->text->smsTAddon) ? $ac->text->smsTAddon : __('SMS service Addon','easy-form-builder'),				
-			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('SMS service Addon able you to send notification SMS when you or customers receive new messages or responses.','easy-form-builder'),				
-			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please Install Hiji or Jalali date addon, You cannot Install both of them','easy-form-builder'),				
+			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('The SMS service addon enables you to receive notification SMS messages when you or your customers receive new messages or responses.','easy-form-builder'),				
+			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please install either the Hijri or Jalali date addon. You cannot install both addons simultaneously.','easy-form-builder'),				
 			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
 			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
 			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
 			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
-			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You see this message because your requirement add-ons are installing. Please visit this page after few minutes. If it is longer than 5 minutes and nothing happens so contact the support team of Easy Form Builder => Whitestudio.team','easy-form-builder'),				
+			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You are seeing this message because your required add-ons are being installed. Please wait a few minutes and then visit this page again. If it has been more than five minutes and nothing has happened, please contact the support team of Easy Form Builder at Whitestudio.team.','easy-form-builder'),				
 			"cpnnc" => $state  &&  isset($ac->text->cpnnc) ? $ac->text->cpnnc : __('The cell phone number is not correct','easy-form-builder'),				
 			"icc" => $state  &&  isset($ac->text->icc) ? $ac->text->icc : __('Invalid country code','easy-form-builder'),				
 			"cpnts" => $state  &&  isset($ac->text->cpnts) ? $ac->text->cpnts : __('The cell phone number is too short','easy-form-builder'),				
 			"cpntl" => $state  &&  isset($ac->text->cpntl) ? $ac->text->cpntl : __('The cell phone number is too long','easy-form-builder'),				
+			"scdnmi" => $state  &&  isset($ac->text->scdnmi) ? $ac->text->scdnmi : __('Please select the number of countries to display within an acceptable range.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -854,6 +855,8 @@ class efbFunction {
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
+				error_log($k);
+				error_log(json_encode($v));
 				switch ($k) {
 					case 'value':					
 						$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;			
@@ -874,6 +877,26 @@ class efbFunction {
 						$valp[$key][$k]['trackingCode']=sanitize_text_field( $v['trackingCode']);
 						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
 					break;
+					case 'c_c':			
+						//error_log($valp[$key][$k]);
+						foreach ($valp[$key][$k] as $kei => $value) {
+							# code...							
+							$valp[$key][$k][$kei] = sanitize_text_field($value);
+						}
+						//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
+						break;
+						case 'c_n':
+							//error_log("c_n sanitize_obj_msg_efb=>mobile");
+							//error_log(json_encode($valp[$key][$k]));
+							foreach ($valp[$key][$k] as $kei => $value) {
+								# code...
+								//error_log("c_n foreach =====>");
+								//error_log($key);
+								//error_log($value);
+								$valp[$key][$k][$kei] = sanitize_text_field($value);
+							}
+							//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
+							break;
 					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
 					break;

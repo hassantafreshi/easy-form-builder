@@ -510,6 +510,7 @@ function handle_change_event_efb(el){
      
     }
     let vd ;
+    console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
@@ -518,6 +519,10 @@ function handle_change_event_efb(el){
       case "textarea":
         const outp = el.type =="textarea" ?true : false
         value = sanitize_text_efb(el.value,outp);
+        console.log('text');
+        if(el.classList.contains("intlPhone")==true){
+         return;
+        }
         if(validate_len()==0){
         return;
         /* const len = el.hasOwnProperty('minLength') ? el.minLength : 2;
@@ -652,6 +657,7 @@ function handle_change_event_efb(el){
         state = valid_phone_emsFormBuilder(el);
         value = state == true ? sanitize_text_efb(el.value) : '';
         break;
+
       case "password":
         state = valid_password_emsFormBuilder(el);
         value = state == true ? sanitize_text_efb(el.value) : '';

@@ -232,18 +232,32 @@ const selectHeightEls = (idset,indx) => {
 const ElcountriesListSelections = (idset,indx) => {
   const rndm = idset;
  let optn = `<!--opt-->`;
+ let selectData =""
+ let value ="";
+ let c_c =[];
+ if(valj_efb[indx].hasOwnProperty("c_c")){
+  for(let i of valj_efb[indx].c_c){
+    console.log(i);
+   c_c.push(i);
+   value +=i + ","
+   selectData +=i + " @efb!"
+  }
+ }
   for (const i of counstries_list_efb) {
    // console.log(i);
-    const v = i.l!=i.n  ? `<small>(${i.l})</small>` :''
-    optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}" data-row="${i.s2.trim().toLowerCase()}" data-state="0" data-visible="1">
-    <th scope="row" class="efb bi-square efb" onClick="fun_test(this)" data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${i.s2.trim().toLowerCase()}" data-code="${i.c_c}" data-name="${i.s2.trim().toLowerCase()}">${i.n} ${v}</td>
+   //bi-check-square text-info efb
+    const s2 = i.s2.trim().toLowerCase();
+    console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
+    const v = i.l!=i.n  ? `(${i.l})` :''
+    optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" data-row="${s2}" data-state="0" data-visible="1">
+    <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
   </tr>  `
 
   }//end for 
    return `
-    <label for="selectHeightEl" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.conturyList}</label>
+    <label for="${rndm}-f" class="efb  mt-3 bi-arrow-down-up mx-2">${efb_var.text.scdnmi}</label>
     <div class="efb col-sm-12 listSelect mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
-    <div class="efb efblist  mx-0  inplist  h-d-efb efb-rounded border-d bi-chevron-down" data-id="menu-${rndm}"   data-no="145" data-min="" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
+    <div class="efb efblist  mx-0  inplist  h-d-efb efb-rounded border-d bi-chevron-down" data-id="menu-${rndm}"   data-no="145" data-min="" data-parent="1" data-icon="1" data-select="${selectData}"  data-vid='${rndm}' id="${rndm}_options" > ${value.length>1 ? value :efb_var.text.selectOption}</div>
   
     <div class="efb efblist mx-1  listContent d-none rounded-bottom  bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
     <table class="efb table menu-${rndm}">
