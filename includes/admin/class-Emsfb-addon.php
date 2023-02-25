@@ -112,7 +112,7 @@ class Addon {
 		$ac= $efbFunction->get_setting_Emsfb();
 		//v2 translate
 		
-		$lang = $efbFunction->text_efb(1);
+		$lang = $efbFunction->text_efb(2);
 		if(gettype($ac)!="string"){
 			
 			if (md5($server_name)==$ac->activeCode){

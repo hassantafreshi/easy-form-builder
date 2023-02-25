@@ -928,8 +928,10 @@ function show_setting_window_efb(idset) {
         `
   
         break;
-      case "html":
-        const valHTML = valj_efb[indx].value.replace(/@!/g,`"`);
+      case "html":       
+        let valHTML = valj_efb[indx].value.replace(/@!/g,`"`);
+         valHTML = valj_efb[indx].value.replace(/@efb@nq#/g,`\n`);
+        
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->

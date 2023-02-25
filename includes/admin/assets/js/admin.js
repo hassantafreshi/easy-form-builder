@@ -1862,7 +1862,7 @@ let change_el_edit_Efb = (el) => {
             for (const key in temp_efb.r) {
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
-              const lValue =  value.l.length>1 ?`${value.l.trim()} (${nValue})`  : nValue;
+              const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
               const sValue = value.s
               console.log(`n: ${nValue}, l: ${lValue} ,s[${sValue}]` );
               optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));

@@ -194,7 +194,8 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
               <i class="efb  bi-gear-fill text-success" id="efbSetting"></i></button>${efb_var.text.andAddingHtmlCode}
           </div></div></div>`;
       } else {
-        ui = valj_efb[iVJ].value.replace(/@!/g, `"`) + "<!--endhtml first -->";
+        ui = valj_efb[iVJ].value.replace(/@!/g, `"`) ;
+        ui = valj_efb[iVJ].value.replace(/@efb@nq#/g, ``) + "<!--endhtml first -->";
         ui = `<div ${previewSate == false ? `class="efb bg-light" id="${rndm}_html" ` : ''}> ${ui} </div>`;
       }
       return ui;

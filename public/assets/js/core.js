@@ -109,7 +109,7 @@ setTimeout(() => {
 
 function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
-  url.searchParams.set('stepNo', 1);
+ // url.searchParams.set('stepNo', 1);
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));

@@ -80,7 +80,7 @@ function fub_shwBtns_efb() {
 function pro_show_efb(state) {
 
   let message = state;
-  if (typeof state != "string") message = state == 1 ? efb_var.text.proUnlockMsg : `${efb_var.text.ifYouNeedCreateMoreThan2Steps} ${efb_var.text.proVersion}`;
+  if (typeof state != "string") message = state == 1 ? efb_var.text.proUnlockMsg : efb_var.text.ifYouNeedCreateMoreThan2Steps;
   const body = `<div class="efb  pro-version-efb-modal"><i class="efb  bi-gem"></i></div>
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
@@ -1308,7 +1308,7 @@ function handle_navbtn_efb(steps, device) {
       if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
       setTimeout(function () {
         var url = new URL(window.location);
-        url.searchParams.set('stepNo', cp);
+       // url.searchParams.set('stepNo', cp);
         history.pushState("EFBstep-"+cp,null,url);
         if (state = true) {
           if (cp == steps_len_efb) {
@@ -2634,7 +2634,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
 
  santize_string_efb = (str) => {
-  //console.log('in santize_string_efb',str);
+  console.log('in santize_string_efb',str);
   if(str==undefined || str==null) return null;
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return str.replaceAll(regexp, '');
@@ -2645,6 +2645,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
 
 const checkInvalidUTF8_efb=(string, strip = false)=>{
+  console.log(string);
   string = String(string);
   //console.log(`checkInvalidUTF8_efb[${string}]`);
   if (string.length === 0) {

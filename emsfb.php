@@ -2,7 +2,7 @@
 /**
  * Plugin Name:         Easy Form Builder
  * Plugin URI:          https://whitestudio.team
- * Description:         Easily create multi-step forms included Confirmation Code and Notification email by using Easy Form Builder's drag & drop form wizard. This is the free version with limits.
+ * Description:         Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all without any coding knowledge required, using the easy-to-use drag and drop form wizard of Easy Form Builder. This is the free version with some limitations, but it still provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.
  * Version:             3.5.24
  * Author:              WhiteStudio
  * Author URI:          https://whitestudio.team
