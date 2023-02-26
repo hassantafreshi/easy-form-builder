@@ -138,8 +138,8 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return ` 
-  <div class="efb mt-3">
-  <!-- <label for="countriesListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.country}</label> -->
+  <div class="efb mx-1 mt-3">
+  <label for="countriesListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb"> ${efb_var.text.sctdlosp}</label> 
   <select  data-id="${idset}" data-type="${el_type}" class="efb elEdit form-select efb border-d efb-rounded"  id="countriesListEl"  data-tag="${valj_efb[indx].type}">
   ${opt}
   </select>
@@ -319,6 +319,7 @@ function show_setting_window_efb(idset) {
     <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.label}" id="labelEl" required value="${valj_efb[indx].name ? valj_efb[indx].name : ''}"></div>`
     const idHidden = `
     <!-- <input type="hide"  class="efb d-none" data-id="${idset}" data-hide="idhide" id="${valj_efb[indx].id_}" >-->`
+   
   
     const desEls = `<label for="desEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.description}</label>
     <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.description}" id="desEl" required value="${valj_efb[indx].message ? valj_efb[indx].message : ''}">`
@@ -338,9 +339,21 @@ function show_setting_window_efb(idset) {
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="requiredEl" ${Number(valj_efb[indx].required) == 1 ? 'checked' : ''}>
     <label class="efb form-check-label pt-1" for="requiredEl">${efb_var.text.required}</label>                                            
     </div>`; */
-    const disabledEls = `<div class="efb mx-1 my-3 efb">
+/*     const disabledEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="disabledEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >    
-    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.disabled}</label>                                            
+    <label class="efb form-check-label pt-1" for="disabledEl">${efb_var.text.dFeild}</label>                                            
+    </div>`; */
+    const hiddenEls = `<div class="efb mx-0 my-1 efb">
+    <button type="button" id="hiddenEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hidden') && Number(valj_efb[indx].hidden) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+    <div class="efb handle"></div>
+    </button>   
+    <label class="efb form-check-label" for="hiddenEl">${efb_var.text.hField}</label>                                            
+    </div>`;
+    const disabledEls = `<div class="efb mx-0 my-1 efb">
+    <button type="button" id="disabledEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('disabled') && Number(valj_efb[indx].disabled) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
+    <div class="efb handle"></div>
+    </button>   
+    <label class="efb form-check-label" for="disabledEl">${efb_var.text.dField}</label>                                            
     </div>`;
    /*  const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <input  data-id="${idset}" class="efb elEdit form-check-input fs-7" type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hidelabel') && Number(valj_efb[indx].hidelabel) == 1 ? 'checked' : ''}>
@@ -349,8 +362,7 @@ function show_setting_window_efb(idset) {
     const hideLabelEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="hideLabelEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >
         <div class="efb handle"></div>
-      </button>
-   <!-- <input  data-id="${idset}" class="efb elEdit form-check-input fs-7 " type="checkbox"  id="hideLabelEl" ${valj_efb[indx].hasOwnProperty('hflabel') && Number(valj_efb[indx].hflabel) == 1 ? 'checked' : ''}> -->
+      </button>   
     <label class="efb form-check-label" for="hideLabelEl">${efb_var.text.hflabel}</label>                                            
     </div>`; 
     const cardEls = `<div class="efb mx-1 my-3 efb">
@@ -670,6 +682,7 @@ function show_setting_window_efb(idset) {
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">     
+                       
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
                         ${selectColorEls('description','text')}
@@ -686,6 +699,8 @@ function show_setting_window_efb(idset) {
                         ${cornerEls('',indx,idset)}
                         ${valueEls}
                         ${classesEls}
+                        ${disabledEls}
+                        ${hiddenEls}
                         </div>
                     </div>
                 </div><div class="efb  clearfix"></div>
@@ -789,7 +804,8 @@ function show_setting_window_efb(idset) {
                     </button>
                 </div>
                 <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                        <div class="efb  mb-3 px-3 row">                                        
+                        <div class="efb  mb-3 px-3 row">  
+                                   
                         ${o_c ? optnsStyleEls :''}
                         ${labelFontSizeEls}
                         ${selectColorEls('label','text')}
@@ -803,6 +819,8 @@ function show_setting_window_efb(idset) {
                         ${widthEls}     
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}               
                         ${classesEls}
+                        ${disabledEls}
+                        ${hiddenEls}   
                         </div>
                     </div>
                     
@@ -828,7 +846,8 @@ function show_setting_window_efb(idset) {
         </button>
         </div>
         <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">      
+                <div class="efb  mb-3 px-3 row">  
+           
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}   
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off',idset):''}                                         
                 ${labelFontSizeEls}
@@ -851,6 +870,8 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == 'esign' ? iconEls('') : ''}
                 ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
                 ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
+                ${disabledEls}
+                ${hiddenEls}     
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>
@@ -871,7 +892,8 @@ function show_setting_window_efb(idset) {
         </button>
         </div>
         <div class="efb mb-3 mt-3" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">                                                          
+                <div class="efb  mb-3 px-3 row">      
+                                                 
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
@@ -885,6 +907,8 @@ function show_setting_window_efb(idset) {
                 ${selectHeightEls(idset,indx)}
                 ${cornerEls("",indx,idset)}
                 ${classesEls}
+                ${disabledEls}
+                ${hiddenEls}   
                 <!-- select type of file -->
                 </div>
             </div>
@@ -914,6 +938,7 @@ function show_setting_window_efb(idset) {
         </div>
         <div class="efb mb-3 mt-3" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">
+
                 ${labelPostionEls} 
                 ${ElementAlignEls('label',indx,idset)}   
                 ${ElementAlignEls('description',indx,idset)}                                        
@@ -922,6 +947,8 @@ function show_setting_window_efb(idset) {
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
+                ${disabledEls}
+                ${hiddenEls}
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>

@@ -1164,6 +1164,12 @@ let change_el_edit_Efb = (el) => {
         }
         
         break;
+        case "hiddenEl":
+          valj_efb[indx].hidden= el.classList.contains('active')==true ? 1 :0;
+          break;
+        case "disabledEl":
+          valj_efb[indx].disabled= el.classList.contains('active')==true ? 1 :0;
+          break;
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1 ) {
           //valj_efb[0].sendEmail = el.checked
@@ -2874,16 +2880,30 @@ funBTNAddOnsEFB=(val,v_required)=>{
 }
 
 funBTNAddOnsUnEFB=(val)=>{
-  emsFormBuilder_delete(val,'addon');
+  emsFormBuilder_delete(val,'addon','');
 }
 
 fun_confirm_remove_addon_emsFormBuilder=(val)=>{
    actionSendAddonsUn_efb(val);
  }
 
-function emsFormBuilder_delete(id, type) {
+function emsFormBuilder_delete(id, type,value) {
   //v2
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
+  let val =id;
+  console.log(type);
+  console.log(id);
+  switch (type) {
+    case "addon":
+      val = efb_var.text[id];
+      break;
+    case "form":
+      val=value;
+      break;
+    case "message":
+      val=value;
+      break;
+  }
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${efb_var.text[type]} >> ${val} </b></div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');

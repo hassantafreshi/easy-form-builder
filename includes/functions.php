@@ -48,7 +48,7 @@ class efbFunction {
 		$ac= $this->get_setting_Emsfb();		 
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;		
 		$lang = [
-			
+
 			"create" => $state ? $ac->text->create : __('Create','easy-form-builder'),
 			"define" => $state ? $ac->text->define : __('Define','easy-form-builder'),
 			"formName" => $state ? $ac->text->formName : __('Form Name','easy-form-builder'),
@@ -636,6 +636,16 @@ class efbFunction {
 			"cpnts" => $state  &&  isset($ac->text->cpnts) ? $ac->text->cpnts : __('The cell phone number is too short','easy-form-builder'),				
 			"cpntl" => $state  &&  isset($ac->text->cpntl) ? $ac->text->cpntl : __('The cell phone number is too long','easy-form-builder'),				
 			"scdnmi" => $state  &&  isset($ac->text->scdnmi) ? $ac->text->scdnmi : __('Please select the number of countries to display within an acceptable range.','easy-form-builder'),				
+			"dField" => $state  &&  isset($ac->text->dField) ? $ac->text->dField : __('Disabled Field','easy-form-builder'),				
+			"hField" => $state  &&  isset($ac->text->hField) ? $ac->text->hField : __('Hidden Field','easy-form-builder'),							
+			"sctdlosp" => $state  &&  isset($ac->text->sctdlosp) ? $ac->text->sctdlosp : __('Select a country to display a list of states/provinces.','easy-form-builder'),				
+			//don't remove (used in delete message)						
+			"AdnOF" => $state  &&  isset($ac->text->AdnOf) ? $ac->text->AdnOf : __('Offline Forms Addon','easy-form-builder'),
+			"AdnSPF" => $state  &&  isset($ac->text->AdnSPF) ? $ac->text->AdnSPF : __('Stripe Payment Addon','easy-form-builder'),
+			"AdnPDP" => $state  &&  isset($ac->text->AdnPDP) ? $ac->text->AdnPDP : __('Jalali date Addon','easy-form-builder'),
+			"AdnADP" => $state  &&  isset($ac->text->AdnADP) ? $ac->text->AdnADP : __('Hijri date Addon','easy-form-builder'),
+			"AdnPPF" => $state  &&  isset($ac->text->AdnPPF) ? $ac->text->AdnPPF : __('Persia Payment Addon','easy-form-builder'),
+			//End don't remove (used in delete message)
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -1136,7 +1146,8 @@ class efbFunction {
 
 	public function efb_sentence_forms(){
 		$r =[
-			"s_t" => __('One of the free features','easy-form-builder')
+			"s_t" => __('One of the free features','easy-form-builder'),
+								
 		];
 		return $r;
 	}
