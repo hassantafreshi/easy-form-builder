@@ -115,11 +115,11 @@ function fun_render_view_efb(val, check) {
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
   valj_efb = valueJson_ws
-  console.log(valj_efb ,valueJson_ws);
+  console.log(valj_efb ,valueJson_ws ,sendBack_emsFormBuilder_pub);
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');
-
+  console.log(sendBack_emsFormBuilder_pub);
 }
 
 /* function ShowTab_emsFormBuilder_view(n) {
@@ -311,6 +311,7 @@ function fun_render_view_efb(val, check) {
 } */
 //function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 function createStepsOfPublic() {
+  console.log(sendBack_emsFormBuilder_pub.length);
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
     let price = '';
@@ -318,7 +319,9 @@ function createStepsOfPublic() {
       switch (el.type) {
         case "file":
           const ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-          files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
+          if(((ob.hasOwnProperty("disabled") && ob.disabled!=true ) || ob.hasOwnProperty("disabled")==false )&& 
+          ((ob.hasOwnProperty('hidden') && ob.hidden==true) || ob.hasOwnProperty('hidden')==false))
+           files_emsFormBuilder.push({ id_: ob.id_, value: "@file@", state: 0, url: "", type: "file", name: ob.name, session: sessionPub_emsFormBuilder });
           break;
         case "hidden":
           break;
@@ -872,7 +875,13 @@ function alarm_emsFormBuilder(val) {
         }
       }
       //final validation
-      if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder()
+      if (validation_before_send_emsFormBuilder() == true){ actionSendData_emsFormBuilder()
+      }
+   /*    else{
+        console.log('false');
+        response_fill_form_efb({ success: false, data: { success: false, m: `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:404` } })
+       // show_message_result_form_set_EFB(0, efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:404`)
+      } */
     } else {
       const timeValue = setInterval(function () {
         //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
@@ -895,7 +904,14 @@ function alarm_emsFormBuilder(val) {
             sendBack_emsFormBuilder_pub.push(file);
             localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
           }
-          if (validation_before_send_emsFormBuilder() == true) actionSendData_emsFormBuilder();
+          if (validation_before_send_emsFormBuilder() == true){ 
+            actionSendData_emsFormBuilder();
+          }
+        /*   else{
+            console.log('false');
+           // show_message_result_form_set_EFB(0, efb_var.text.error, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:404`)
+             response_fill_form_efb({ success: false, data: { success: false, m: `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:404` } })
+          } */
           clearInterval(timeValue);
         }
       }, 1500);
@@ -1395,7 +1411,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
         marker_maps_efb = c.value;
-        initMap();
+        initMap(false);
         m += value;
       }
     } else if (c.type == "rating") {
@@ -1598,13 +1614,24 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
-    
+    console.log(row);
     count[0] += 1;
     if (row.value == "@file@") {
-
+      
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       if (indx != -1) {
         //  fill += valueJson_ws[indx].required == true ? 1 : 0;  
+        console.log(`valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true [${valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true}]`);
+        console.log(`((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false) [${((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)}]`)
+        if(valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true && 
+           ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
+          ){
+            const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==valueJson_ws[indx].id_);
+            console.log(`i=======================>${i}`);
+            sendBack_emsFormBuilder_pub.splice(i,1);
+            count[0] -= 1;
+            continue 
+          }
         if (row.url.length > 5) {
           fill += valueJson_ws[indx].required == true ? 1 : 0;
           count[1] += 1;
@@ -1614,6 +1641,13 @@ function validation_before_send_emsFormBuilder() {
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
 
       if(indx!=-1){
+        /* if((
+        (valueJson_ws[indx].hasOwnProperty('disabled') && valueJson_ws[indx].disabled==true && valueJson_ws[indx].hasOwnProperty('hidden')==false)
+        || (valueJson_ws[indx].hasOwnProperty('disabled') && valueJson_ws[indx].disabled==true &&
+            valueJson_ws[indx].hasOwnProperty('hidden')==true && valueJson_ws[indx].hidden==false)) && row.value.length>0  ){          
+              response_fill_form_efb({ success: false, data: { success: false, m: `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:404` } })
+              return false;
+            } */
         if ( (valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "option" || valueJson_ws[indx].type == "Select"
         || valueJson_ws[indx].type == "payMultiselect" || valueJson_ws[indx].type == "paySelect")) {
         const exists = valueJson_ws[indx].type == "multiselect" || valueJson_ws[indx].type == "payMultiselect" ? valueJson_ws.findIndex(x => x.parent == valueJson_ws[indx].id_) : valueJson_ws.findIndex(x => x.parents == valueJson_ws[indx].id_);

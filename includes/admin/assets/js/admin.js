@@ -1031,7 +1031,7 @@ let change_el_edit_Efb = (el) => {
       
       el.value = sanitize_text_efb(el.value);}
       if (el.value==null) return  valNotFound_efb()
-      console.log(el.id)
+      //console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1166,9 +1166,25 @@ let change_el_edit_Efb = (el) => {
         break;
         case "hiddenEl":
           valj_efb[indx].hidden= el.classList.contains('active')==true ? 1 :0;
+          if(valj_efb[indx].hidden==1){
+           c= document.getElementById(valj_efb[indx].id_);
+           clss= document.createElement('div');
+           clss.id=valj_efb[indx].id_+"-hidden";
+           c.insertBefore(clss, c.firstChild);
+           document.getElementById(valj_efb[indx].id_+"-hidden").innerHTML= hiddenMarkEl( valj_efb[indx].id_);
+           document.getElementById(valj_efb[indx].id_).classList.add("hidden");
+          }else{
+            document.getElementById(`${valj_efb[indx].id_}-hidden`).remove();
+            document.getElementById(valj_efb[indx].id_).classList.remove("hidden");
+          }
           break;
         case "disabledEl":
-          valj_efb[indx].disabled= el.classList.contains('active')==true ? 1 :0;
+          postId= valj_efb[indx].id_;
+          clss= document.getElementById(postId).classList;
+          c= el.classList.contains('active')==true ? 1 :0
+          c==1 ? clss.add('disabled') : clss.remove('disabled');
+          valj_efb[indx].disabled=c ;
+          //console.log(c ,document.getElementById(c).classList )
           break;
       case "SendemailEl":
         if (efb_var.smtp == "true" || efb_var.smtp == 1 ) {
@@ -1245,7 +1261,7 @@ let change_el_edit_Efb = (el) => {
           //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
           document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
           valj_efb[indx].value = el.value;
-        } else if (el.dataset.tag == 'heading' || el.dataset.tag == 'textarea' ||el.dataset.tag == 'link' ) {
+        } else if (el.dataset.tag == 'heading' ||el.dataset.tag == 'link' ||el.dataset.tag == 'textarea') {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
           document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
           valj_efb[indx].value = el.value;
@@ -1887,7 +1903,7 @@ let change_el_edit_Efb = (el) => {
         break;
     }
 
-  }, len_Valj * 10)
+  }, len_Valj * 6)
 
 }
 
@@ -2213,11 +2229,11 @@ let sampleElpush_efb = (rndm, elementId) => {
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     
-   // console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
+    console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
-      label_position: 'beside', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
+      label_position: 'up', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
@@ -2290,7 +2306,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
        label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
-      label_text_color: 'text-labelEfb', label_position: 'beside', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
+      label_text_color: 'text-labelEfb', label_position: 'up', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro
     })
@@ -2358,7 +2374,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  
+  console.log(parentsID, idin, value, id_ob, tag);
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
@@ -2381,6 +2397,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
  const indx = valj_efb.findIndex(x => x.id_ == parentsID);
  if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {
    const els = valj_efb.filter(obj => { return obj.parent === parentsID });
+   console.log(document.getElementById(`${parentsID}_options`).innerHTML);
    document.getElementById(`${parentsID}_options`).innerHTML = '<!--efb.app-->';
    els.forEach(l => {
      document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(l.id_, l.value, l.id_, 'radio', l.parent);
@@ -2390,9 +2407,10 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
  } else if (tag == "table_matrix") {
    // /r_matrix_push_efb
    document.getElementById(`${parentsID}_options`).innerHTML += add_r_matrix_view_select(idin, value, id_ob, tag, parentsID);
- } else if(tag !== "multiselect" && tag !== "payMultiselect" && tag!="radio"){
+ } else if(tag !== "multiselect" && tag !== "payMultiselect" || ( tag=="radio" &&  valj_efb[indx].hasOwnProperty('addother') == false )){
 
    document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
+
  }
   for (let el of document.querySelectorAll(`.elEdit`)) {
     
@@ -2527,10 +2545,11 @@ function add_option_edit_pro_efb(parent, tag, len) {
 }
 
 //delete element
-function show_delete_window_efb(idset) {
+function show_delete_window_efb(idset,iVJ) {
   
   // این تابع المان را از صفحه پاک می کند
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}</div></div>`
+  let v = valj_efb[iVJ].hasOwnProperty('type') ?`<br> <b>${valj_efb[iVJ].type} > ${valj_efb[iVJ].name ?? valj_efb[iVJ].value }</b>` : ''
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem} ${v}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
@@ -3045,7 +3064,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function fun_switch_form_efb(el){
-  change_el_edit_Efb(el);
+  r= el.id=="hiddenEl" ||  el.id=="disabledEl" ? efb_check_el_pro(el) :true;
+  console.log(el.id,r);
+  if(r==true) change_el_edit_Efb(el) ;
   
 /*   if(state_efb!='run'){ return}
   const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
@@ -3124,3 +3145,25 @@ window.addEventListener("popstate",e=>{
   }
 })
 
+
+function efb_check_el_pro(el){
+  console.log(efb_var.pro , pro_ws)
+  f_b=()=>{
+    el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
+  }
+  if(pro_ws==false) {
+    if(el.type=="button"){
+      f_b();
+      pro_show_efb(efb_var.text.youUseProElements)  
+    }
+    return false ;
+  }
+
+  if(el.id=="scaptcha_emsFormBuilder"){
+    if (document.getElementById('sitekey_emsFormBuilder').value.length <5) { 
+      f_b();
+      alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
+    }
+  }
+  return true;
+}

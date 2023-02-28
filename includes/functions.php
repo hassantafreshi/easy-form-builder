@@ -629,7 +629,7 @@ class efbFunction {
 			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
 			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
-			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXX : __('please enter valid value for the XXX field.','easy-form-builder'),				
+			"mnvvXXX" => $state  &&  isset($ac->text->mnvvXX) ? $ac->text->mnvvXXX : __('Please enter valid value for the XXX field.','easy-form-builder'),				
 			"wmaddon" => $state  &&  isset($ac->text->wmaddon) ? $ac->text->wmaddon : __('You are seeing this message because your required add-ons are being installed. Please wait a few minutes and then visit this page again. If it has been more than five minutes and nothing has happened, please contact the support team of Easy Form Builder at Whitestudio.team.','easy-form-builder'),				
 			"cpnnc" => $state  &&  isset($ac->text->cpnnc) ? $ac->text->cpnnc : __('The cell phone number is not correct','easy-form-builder'),				
 			"icc" => $state  &&  isset($ac->text->icc) ? $ac->text->icc : __('Invalid country code','easy-form-builder'),				
@@ -645,6 +645,7 @@ class efbFunction {
 			"AdnPDP" => $state  &&  isset($ac->text->AdnPDP) ? $ac->text->AdnPDP : __('Jalali date Addon','easy-form-builder'),
 			"AdnADP" => $state  &&  isset($ac->text->AdnADP) ? $ac->text->AdnADP : __('Hijri date Addon','easy-form-builder'),
 			"AdnPPF" => $state  &&  isset($ac->text->AdnPPF) ? $ac->text->AdnPPF : __('Persia Payment Addon','easy-form-builder'),
+			"tfnapca" => $state  &&  isset($ac->text->tfnapca) ? $ac->text->tfnapca : __('Please contact the administrator as the field is currently unavailable.','easy-form-builder'),
 			//End don't remove (used in delete message)
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			

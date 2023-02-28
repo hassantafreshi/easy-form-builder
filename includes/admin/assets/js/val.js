@@ -264,7 +264,7 @@ const ElcountriesListSelections = (idset,indx) => {
      <thead class="efb efblist">
        <tr> <div class="efb searchSection efblist p-2 bg-light"> 
        <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
-           <input type="text" class="efb efblist search searchBox my-1 col-12 rounded border-primary" data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
+           <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
      </tr> </thead>
      <tbody class="efb">                  
       ${optn}
@@ -514,6 +514,12 @@ function show_setting_window_efb(idset) {
     <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
       <input type="${valj_efb[indx].type!="range" ? "text" :'number' }"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}>
       `
+    const valueTextereaEls = `
+    <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.value}</label>
+      <textarea type="text"  data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb mb-3" data-tag="${valj_efb[indx].type}" id="valueEl" placeholder="${efb_var.text.defaultValue}" ${valj_efb[indx].value && valj_efb[indx].value.length > 1 ? `value="${valj_efb[indx].value}"` : ''}  rows="3"></textarea>
+      `
+      /* 
+<textarea id="2vcr1vrhx_" placeholder="Long Text" class="efb  px-2 input-efb emsFormBuilder_v form-control   h-d-efb efb-square text-labelEfb border-d  efbField" data-vid="2vcr1vrhx" data-id="2vcr1vrhx-el" value="" rows="5" disabled=""></textarea> */
     const placeholderEls = `
       <label for="placeholderEl" class="efb  mt-3 bi-patch-exclamation mx-2">${efb_var.text.placeholder}</label>
       <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"id="placeholderEl" placeholder="${efb_var.text.placeholder}" ${valj_efb[indx].placeholder && valj_efb[indx].placeholder.length > 1 ? `value="${valj_efb[indx].placeholder}"` : ''}>
@@ -556,7 +562,7 @@ function show_setting_window_efb(idset) {
       //check for Nex and previous
 
       return `
-      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0">${t} ${efb_var.text.icon} </label>
+      <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label bi-heptagon mx-2 mt-2 mb-0" id="DoneIconEfb">${t} ${efb_var.text.icon} </label>
           <div class="efb  listSelect my-2">     
             <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d efb-rounded bi-chevron-down" id="iconEl" 
             data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}" 
@@ -566,7 +572,7 @@ function show_setting_window_efb(idset) {
                     <thead class="efb  efblist">
                       <tr><div class="efb  searchSection efblist  p-2 bg-secondary">
                         <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
-                          <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded border-primary" data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
+                          <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded " data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">                                            
                         </div></tr>
                     </thead> <tbody class="efb">
                     ${list}
@@ -697,7 +703,7 @@ function show_setting_window_efb(idset) {
                         ${widthEls}
                         ${selectHeightEls(idset,indx)}
                         ${cornerEls('',indx,idset)}
-                        ${valueEls}
+                        ${el.dataset.tag != "textarea" ? valueEls : valueTextereaEls}
                         ${classesEls}
                         ${disabledEls}
                         ${hiddenEls}
@@ -995,11 +1001,13 @@ function show_setting_window_efb(idset) {
                 ${widthEls}
                 ${selectHeightEls(idset,indx)}
                 ${cornerEls('yesNo',indx,idset)}
-                <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.button1Value}</label>
+                <label for="valueEl" class="efb  mt-3 mb-0 bi-cursor-text mx-2">${efb_var.text.button1Value}</label>
                 <input type="text"  data-id="${idset}" class="efb elEdit border-d efb-rounded text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="1" placeholder="${efb_var.text.exDot} ${efb_var.text.yes}" value="${valj_efb[indx].button_1_text}">
-                <label for="valueEl" class="efb  mt-3 bi-cursor-text mx-2">${efb_var.text.button2Value}</label>
+                <label for="valueEl" class="efb  mt-0 mb-1 bi-cursor-text mx-2">${efb_var.text.button2Value}</label>
                 <input type="text"  data-id="${idset}" class="efb elEdit border-d efb-rounded text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
                 ${classesEls}
+                ${disabledEls}
+                ${hiddenEls}
                 </div>
             </div>
         </div><div class="efb  clearfix"></div>

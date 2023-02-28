@@ -357,7 +357,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
         marker_maps_efb = c.value;
-        initMap();
+        initMap(false);
         m += value;
       }
     } else if (c.type == "rating") {
@@ -2263,27 +2263,7 @@ function act_local_efb_event(t){
 
 
 
-function efb_check_el_pro(el){
-  
-  f_b=()=>{
-    el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
-  }
-  if(pro_ws==false) {
-    if(el.type=="button"){
-      f_b();
-      pro_show_efb(efb_var.text.availableInProversion)  
-    }
-    return false ;
-  }
 
-  if(el.id=="scaptcha_emsFormBuilder"){
-    if (document.getElementById('sitekey_emsFormBuilder').value.length <5) { 
-      f_b();
-      alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
-    }
-  }
-  return true;
-}
 
 
 

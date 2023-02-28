@@ -1115,7 +1115,11 @@ progress.efb {
  	margin-bottom: 1rem;
  	color: #212529;
  	vertical-align: top;
- 	border-color: #dee2e6}
+ 	border-color: #dee2e6;
+	 border-left: none;
+	 border-right: none;
+	 border-bottom: none;
+}
  .efb.table>:not(caption)>*>* {
 	padding: .5rem .5rem;
  	background-color: var(--bs-table-bg);

@@ -38,6 +38,7 @@ class Create {
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
 		
+		
 	}
 
 	public function add_Create_menu() {
@@ -122,6 +123,9 @@ class Create {
 		'AdnPDP'=>0,
 		'AdnADP'=>0];
 		//v2 translate
+
+		//write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
+
 		
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
@@ -241,6 +245,9 @@ class Create {
 		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.23');
 		wp_enqueue_script('stripe_js');
 
+
+		$colors = $this->get_list_colores_template();
+		error_log(json_encode($colors));
 
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 		$location ='';
@@ -379,6 +386,36 @@ class Create {
         return  $s;
     }//end fun
 
+
+	public function get_list_colores_template(){
+		//list_files(get_template_directory())
+		//$template_name = get_template(); //get active template name
+		$template_path =list_files(get_template_directory()); //get active template path
+		//$files = scandir($template_path); //scan all files in template directory
+		$colors =[]; //create array to store colors
+		foreach ($template_path as $file) { //loop through each file
+
+			if (preg_match('/\.css$/', $file) || preg_match('/\.json$/', $file)) { //check if file is css file
+				//error_log($file);
+				$content = file_get_contents($file); //get content of css file
+				preg_match_all('/#[a-fA-F0-9]{3,6}/', $content, $matches); //find all colors in css file using regex 
+				//array_unique(array_merge($colors,$matches), SORT_REGULAR);
+				foreach ($matches as $match) { //loop through each color found in css file 
+					/* if (!in_array($match, $colors)) { //check if color already exists in array or not 
+						array_push($colors, $match); //add color to array if it doesn't exist already 
+					}  */
+					//error_log(json_encode($match));
+					$colors=array_unique(array_merge($colors,$match), SORT_REGULAR);
+					//convert this obiject array to array : {"0":"#FCF5ED","1":"#3F67C6","2":"#FFFFFF","3":"#3556A5","4":"#374C80","5":"#CA2315","6":"#FFF6F6","7":"#000000","8":"#F5F5F5","9":"#1A1A1A","10":"#FF7179","11":"#F4F4F2","13":"#ffffff","15":"#ffe2c7","17":"#f6f6f6","18":"#1a4548","28":"#F6F6F6"} 
+				} 
+				//error_log(gettype($colors) );
+			} 
+		} 
+		$colors = array_values($colors);
+		error_log("json_encodecolors");
+		error_log(json_encode($colors));
+		return $colors; //print all colors found in active template
+	}
 
 
 

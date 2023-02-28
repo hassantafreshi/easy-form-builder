@@ -9,14 +9,14 @@ Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
-**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form, registration form, or survey form, Easy Form Builder's visual user interface makes it easy to create professional-looking forms without any coding skills. In a short amount of time, you can create custom forms with ease, even if you're not a programmer. Plus, with the ability to add free add-ons like Google ReCaptcha validation and offline forms, you can enhance the security and convenience of your forms for both you and your users.
+
 
 == Description ==
 **Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
-
+Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all with drag and drop form wizard of Easy Form Builder. This is the free version provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form, registration form,
 
 If you're looking to create custom multi-step forms without any coding skills, Easy Form Builder is the plugin for you. With over 30 field types and a simple drag-and-drop interface, building a custom form has never been easier. Easy Form Builder also includes a unique confirmation code (tracking ID) for each submission, allowing you to connect each submission to an individual request.
 
