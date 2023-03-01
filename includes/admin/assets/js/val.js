@@ -496,14 +496,23 @@ function show_setting_window_efb(idset) {
           <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
       </div></div>`;
+
    
     const widthEls = `
-      <label for="widthEl" class="efb  mt-3 bi-arrow-left-right mx-2">${efb_var.text.width}</label>
+      <label for="sizeEl" class="efb  mt-3 bi-arrow-left-right mx-2">${efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  efb-rounded elEdit form-select"  id="sizeEl" >                                            
+          <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
+          <option value="17" ${valj_efb[indx].size == 17 ? `selected` : ''}>17%</option>
+          <option value="25" ${valj_efb[indx].size == 25 ? `selected` : ''}>25%</option>
           <option value="33" ${valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
+          <option value="42" ${valj_efb[indx].size == 42 ? `selected` : ''}>42%</option>
           <option value="50" ${valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
-          <option value="80" ${valj_efb[indx].size == 80 ? `selected` : ''} >80%</option>
-          <option value="100" ${valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
+          <option value="58" ${valj_efb[indx].size == 58 ? `selected` : ''}>58%</option>
+          <option value="67" ${valj_efb[indx].size == 67 ? `selected` : ''}>67%</option>
+          <option value="75" ${valj_efb[indx].size == 75 ? `selected` : ''}>75%</option>
+          <option value="83" ${valj_efb[indx].size == 80 || valj_efb[indx].size == 83 ? `selected` : ''} >83%</option>
+          <option value="92" ${valj_efb[indx].size == 92 ? `selected` : ''} >92%</option>
+          <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
       </select>
       `
     const classesEls = `
@@ -718,7 +727,8 @@ function show_setting_window_efb(idset) {
                 <!--  not   advanced-->
                 ${valueEls}
                 ${selectColorEls('el','heading')}
-                ${fontSizeEls(idset,indx)}                                  
+                ${fontSizeEls(idset,indx)}     
+                ${widthEls}                             
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `
@@ -730,7 +740,8 @@ function show_setting_window_efb(idset) {
                 ${valueEls}
                 ${hrefEls(idset,indx)}                                  
                 ${selectColorEls('el','link')}
-                ${selectHeightEls(idset,indx)}                                  
+                ${selectHeightEls(idset,indx)}
+                ${widthEls}                                   
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `
@@ -1391,7 +1402,7 @@ function creator_form_builder_Efb() {
                 <hr class="efb hr">
             </ul>
           <div class="efb row">${els}</div></div>
-         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row items " id="dropZoneEFB">
+         <div class="efb  col-md-8 body-dpz-efb"><div class="efb crd efb  drag-box"><div class="efb card-body dropZoneEFB row items px-0 mx-0" id="dropZoneEFB">
        
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>

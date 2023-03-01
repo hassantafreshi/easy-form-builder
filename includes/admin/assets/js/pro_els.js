@@ -166,22 +166,24 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
 }
 
 
-headning_el_pro_efb = (rndm,iVJ)=>{
-    return ` <div class="efb  col-md-12 col-sm-12"  id='${rndm}-f'>
-    <p  id="${rndm}_"  class="efb  px-2  emsFormBuilder_v  ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size}   efbField" data-vid='${rndm}' data-id="${rndm}-el" >${valj_efb[iVJ].value}</p>
+headning_el_pro_efb = (rndm,pos,iVJ)=>{
+  console.log(pos,valj_efb[iVJ])
+    return ` <div class="efb px-0 mx-0  ${pos[0]} col-sm-12"  id='${rndm}-f'>
+    <p  id="${rndm}_"  class="efb  px-0  emsFormBuilder_v  ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size}   efbField" data-vid='${rndm}' data-id="${rndm}-el" >${valj_efb[iVJ].value}</p>
     </div>`
 }
 
-link_el_pro_efb = (previewSate, rndm,iVJ)=>{
-    return`<div class="efb  col-md-12 col-sm-12"  id='${rndm}-f'>
-    <a  id="${rndm}_"  target="_blank" class="efb  px-2 btn underline emsFormBuilder_v ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size} efbField" data-vid='${rndm}' data-id="${rndm}-el" href="${valj_efb[iVJ].href}">${valj_efb[iVJ].value}</a>
+link_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
+  console.log(pos,valj_efb[iVJ])
+    return`<div class="efb ${pos[0]} px-0 mx-0   col-sm-12"  id='${rndm}-f'>
+    <a  id="${rndm}_"  target="_blank" class="efb  px-0 btn underline emsFormBuilder_v ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size} efbField" data-vid='${rndm}' data-id="${rndm}-el" href="${valj_efb[iVJ].href}">${valj_efb[iVJ].value}</a>
     </div>`
 }
 
-yesNi_el_pro_efb = (previewSate, rndm,iVJ)=>{
+yesNi_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
   const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square';
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-    return `<div class="efb col-md-12 col-sm-12 efb ${valj_efb[iVJ].classes} ${disabled}"  id='${rndm}-f'>
+    return `<div class="efb ${pos[3]} col-sm-12 efb ${valj_efb[iVJ].classes} ${disabled}"  id='${rndm}-f'>
     <div class="efb  btn-group  btn-group-toggle w-100  col-md-12 col-sm-12  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" data-toggle="buttons" data-id="${rndm}-id" id="${rndm}_yn">    
     <label for="${rndm}_1" data-lid="${rndm}" data-value="${valj_efb[iVJ].button_1_text}" onClick="yesNoGetEFB('${valj_efb[iVJ].button_1_text}', '${rndm}' ,'${rndm}_b_1')" class="efb  btn ${valj_efb[iVJ].button_color} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_height} ${corner} yesno-efb left-efb  ${disabled} ${previewSate != true ? 'disabled' : ''}" id="${rndm}_b_1">
       <input type="radio" name="${rndm}" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid='${rndm}' data-id="${rndm}-id" id="${rndm}_1" value="${valj_efb[iVJ].button_1_text}"><span id="${rndm}_1_lab">${valj_efb[iVJ].button_1_text}</span></label>
