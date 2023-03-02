@@ -2346,3 +2346,10 @@ div#gRecaptcha {
 setion.hidden {
     background: #cccccc63;
 }
+
+div#Listefb-150 {
+    max-height: 150px;
+    overflow: auto;
+    padding: 4px 10px;
+    background: #efefef85;
+}

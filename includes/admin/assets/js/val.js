@@ -1116,6 +1116,7 @@ function show_setting_window_efb(idset) {
           ${selectColorEls('clrdoniconEfb','text')}
           ${selectColorEls('clrdoneMessageEfb','text')}
           ${thankYouredirectEls}
+          ${content_colors_setting_efb()}
           </div>
           </div>        
       </div>

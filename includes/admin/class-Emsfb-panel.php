@@ -107,6 +107,7 @@ class Panel_edit  {
 			
 		
 			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+			$colors = $efbFunction->get_list_colores_template();
 			$location ='';
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.23');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -125,7 +126,8 @@ class Panel_edit  {
 				'wp_lan'=>get_locale(),
 				'location'=>$location,
 				'setting'=>$ac,
-				'v_efb'=>EMSFB_PLUGIN_VERSION
+				'v_efb'=>EMSFB_PLUGIN_VERSION,
+				'colors'=>$colors,
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.23');

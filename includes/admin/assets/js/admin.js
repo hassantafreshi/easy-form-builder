@@ -539,6 +539,9 @@ function add_dasboard_emsFormBuilder() {
     n.addEventListener("click", (e) => {
       form_type_emsFormBuilder = n.id;
       create_form_by_type_emsfb(n.id, 'npreview');
+      setTimeout(() => {
+        msg_colors_from_template()
+      }, 1000);
     })
   }
   newform_ = document.getElementsByClassName("efbPreviewForm")
@@ -3166,4 +3169,105 @@ function efb_check_el_pro(el){
     }
   }
   return true;
+}
+
+function test_efb_(el){
+  console.log("test_efb")
+  console.log(el.dataset.color ,el.dataset.id);
+  //create for valj_efb and switch label , icon , button ,
+  for(let i in valj_efb){
+    console.log(valj_efb[i]);
+    switch(el.dataset.id){
+      case 'label':
+        // ویژگی ها باتن
+        break;
+      case 'description':
+        // ویژگی ها باتن
+        break;
+      case 'icon':
+        // ویژگی ها باتن
+        break;
+      case 'btntc':
+        //رنگ متن روی دکمه و آیکون روی دکمه
+        // ویژگی ها باتن
+        break;
+      case 'button':
+      case 'buttonColor':
+          // در همه ردیف ها ویژگی باتن تغییر کند
+          // مقدار رنگ در یک متغییر محلی یا مرورگر ذخیره شود
+          // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
+          break;
+    }
+  }
+
+  // در مرحله بعد در زمان ایجاد ردیف جدید در چک شود رنگ پیش فرض در درون متغییر محلی وجود دارد
+  // یا نه اگر نبود از متد سابق و اگر بود رنگ متغییر محلی valj_efb
+}
+
+content_colors_setting_efb=()=>{
+  get_colors_el =(name)=>{
+    let r =`<!--colors-->`
+    for(let i of efb_var.colors){
+      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid #ccc;" onClick="test_efb_(this)"></p>`;
+    }
+    //return `<div class="efb row col">${r}</div>`;
+    return `<span class="efb ">
+    <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-1 mt-3 mb-1 efb fs-6">${efb_var.text[name]}</label>
+    <div class="efb row col mx-1" id="Listefb-150">
+    ${r}
+    </div></span>`;
+  }
+  
+
+  const v= `<div class="efb my-3">     
+  <hr>        
+  <p class="efb text-darkb fs-7">${efb_var.text.efbmsgctm}</p>
+  ${get_colors_el('description')}
+  ${get_colors_el('label')}
+  ${get_colors_el('icon')}
+  ${get_colors_el('buttonColor')}
+  ${get_colors_el('btntc')}
+  </div><div class="efb  clearfix"></div>`
+  return v;
+}
+function open_setting_colors_efb(alert){
+  console.log('open_setting_colors_efb');
+  jQuery(alert).alert('close')
+
+
+if(document.getElementById('sideBoxEfb').classList.contains('show')){
+  sideMenuEfb(0);
+  //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+  return};
+
+state_view_efb=1;
+  document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
+  sideMenuEfb(1)
+let body =  content_colors_setting_efb();
+
+document.getElementById('sideMenuConEfb').innerHTML=body;
+}
+
+msg_colors_from_template = ()=>{
+  get_colors =()=>{
+    let r =`<!--colors-->`
+    for(let i of efb_var.colors){
+      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="test_efb_(this)"></div>`;
+    }
+    return `<div class="efb row col">${r}</div>`;
+  }
+  console.log('==================>msg_colors_from_template');
+  let colorsDiv 
+  if(efb_var.hasOwnProperty('colors')){
+    c= get_colors();
+    div = `<div class="efb text-dark"> ${efb_var.text.wylpfucat} </div><a class="btn btn-darkb text-white efb w-100 mt-1" onclick="open_setting_colors_efb(this)">${efb_var.text.yes}</a>`
+    alert_message_efb("",div ,120000, 'info');
+  }
+
+
+
+
+
+
+ 
 }
