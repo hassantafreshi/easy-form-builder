@@ -650,6 +650,8 @@ class efbFunction {
 			"efbmsgctm" => $state  &&  isset($ac->text->efbmsgctm) ? $ac->text->efbmsgctm : __('Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template.By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly.','easy-form-builder'),
 			"btntc" => $state  &&  isset($ac->text->btntc) ? $ac->text->btntc : __('Button text color','easy-form-builder'),
 			//End don't remove (used in delete message)
+			"atcfle" => $state  &&  isset($ac->text->atcfle) ? $ac->text->atcfle : __('attached files','easy-form-builder'),				
+			"dslctd" => $state  &&  isset($ac->text->dslctd) ? $ac->text->dslctd : __('Default selected','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

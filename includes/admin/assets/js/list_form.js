@@ -22,7 +22,7 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        setTimeout(() => {  alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
+        //setTimeout(() => {  alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
@@ -402,6 +402,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
+        if(title=="file") title ="atcfle"
+        console.log(`title[${title}]`);
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {

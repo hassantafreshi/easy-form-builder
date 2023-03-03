@@ -1438,6 +1438,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
+       if(title=="file") title ="atcfle"
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')&& c.id_!="payment") {

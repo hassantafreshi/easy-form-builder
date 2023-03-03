@@ -1490,22 +1490,38 @@ efb_powered_by=()=>{
 
 
 efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
-  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
-  let opetions = `<!-- options --!>`;
-  for (let ob of objOptions) {         
-    opetions += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
-  ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
-  <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
-    <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
-        <i class="efb  efb bi-x-lg text-danger"></i>
-    </button>
+ const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
+ console.log(objOptions);
+ let t = "radio";
+ //const col = "col-sm-11"
+ let opetions = `<!-- options --!>`;
+ let parent = valj_efb.find(x=>x.id_ == objOptions[0].parent)
+  let l_b = mobile_view_efb ? 'd-block' : 'd-none';
+ for (let ob of objOptions) {         
+   if(parent){
+     if(parent.type.toLowerCase().indexOf("multi")>-1  || parent.type.toLowerCase().includes("checkbox")==true || parent.type.toLowerCase().includes("multiselect")==true  ) t="checkbox"
+     
+   }
+    opetions += `<div class="efb mx-0 px-0 col-sm-12 row"> 
+    <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
+    <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0"" name="${ob.parent}" type="${t}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" id="ElvalueOptions">
+    <label  for="ElvalueOptions" class="efb form-label mx-1 my-0 py-0 ${l_b} fs-6" >${efb_var.text.dslctd}</label>
+    </div>
+    <div id="${ob.id_op}-v" class="efb  col-sm-11 mx-0 px-0">
+      <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
+      ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
+      <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
+      <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
+          <i class="efb  efb bi-x-lg text-danger"></i>
+      </button>
     <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
         <i class="efb  bi-plus-circle  text-success"></i>
     </button> 
     
   </div>
-  </div>`
+  </div>
+  </div>
+  `
   }
   return opetions
 }
