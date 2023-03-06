@@ -376,7 +376,7 @@ class efbFunction {
 			"errorVerifyingRecaptcha" => $state ? $ac->text->errorVerifyingRecaptcha : __('Please try again, Captcha Verification Failed.','easy-form-builder'),			
 			"enterThePassword" => $state ? $ac->text->enterThePassword : __('Password must be at least 8 characters long and include a number and an uppercase letter.','easy-form-builder'),
 			"PleaseFillForm" => $state ? $ac->text->PleaseFillForm : __('Please complete the form.','easy-form-builder'),
-			"selectOption" => $state ? $ac->text->selectOption : __('Choose an option','easy-form-builder'),
+			"selectOption" => $state ? $ac->text->selectOption : __('Choose options','easy-form-builder'),
 			"selected" => $state ? $ac->text->selected : __('Selected','easy-form-builder'),
 			"selectedAllOption" => $state ? $ac->text->selectedAllOption : __('Select All','easy-form-builder'),
 			"sentSuccessfully" => $state ? $ac->text->sentSuccessfully : __('Sent successfully','easy-form-builder'),

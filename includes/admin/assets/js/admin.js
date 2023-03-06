@@ -1790,7 +1790,7 @@ let change_el_edit_Efb = (el) => {
       case 'EditOption':
 
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-        //console.log(iindx, )
+        console.log(`iindx=========>[${iindx}]`);
         if (iindx != -1) {
           
           valj_efb[iindx].value = el.value;
@@ -1802,7 +1802,7 @@ let change_el_edit_Efb = (el) => {
             if (vl) vl.value = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
             //radio || checkbox       
-            if (type_field_efb != "table_matrix") document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
+             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
             //document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           }
@@ -2381,9 +2381,14 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
+  const s=tag.includes("pay");
+  let l_b = mobile_view_efb ? 'd-block' : 'd-none';
+  let parent = valj_efb.find(x=>x.id_ == parentsID)
+  let t = "radio";
+  if(parent.type.toLowerCase().indexOf("multi")>-1  || parent.type.toLowerCase().includes("checkbox")==true || parent.type.toLowerCase().includes("multiselect")==true  ) t="checkbox"
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
   const fun_add = tag != 'r_matrix' ? `onClick="add_option_edit_pro_efb('${parentsID.trim()}','${tag.trim()}',${valj_efb.length})"` : `onClick="add_r_matrix_edit_pro_efb(${parentsID.trim()},${tag.trim()},${valj_efb.length})"`
-  document.getElementById('optionListefb').innerHTML += `
+/*   document.getElementById('optionListefb').innerHTML += `
   <div id="${id_ob}-v"  class="efb  col-md-12">
   <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
   ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
@@ -2395,7 +2400,8 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
         <i class="efb  bi-plus-circle  text-success"></i>
     </button>
   </div>
-  </div>`;
+  </div>`; */
+  document.getElementById('optionListefb').innerHTML +=add_option_edit_admin_efb(0,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,"");
  // if (tag !== "multiselect" && tag !== "payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
  const indx = valj_efb.findIndex(x => x.id_ == parentsID);
  if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {
@@ -3261,7 +3267,7 @@ msg_colors_from_template = ()=>{
   if(efb_var.hasOwnProperty('colors')){
     c= get_colors();
     div = `<div class="efb text-dark"> ${efb_var.text.wylpfucat} </div><a class="btn btn-darkb text-white efb w-100 mt-1" onclick="open_setting_colors_efb(this)">${efb_var.text.yes}</a>`
-    alert_message_efb("",div ,120000, 'info');
+    alert_message_efb("",div ,35, 'info');
   }
 
 

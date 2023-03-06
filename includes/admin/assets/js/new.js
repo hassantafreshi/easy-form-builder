@@ -2760,7 +2760,7 @@ const checkInvalidUTF8_efb=(string, strip = false)=>{
 
 const preKsesLessThan_efb=(text)=>{
   return text.replace(/<[^>]*?((?=<)|>|$)/g, function(match) {
-    return preKsesLessThanCallback(match);
+    return preKsesLessThanCallback_efb(match);
   });
 }
 
