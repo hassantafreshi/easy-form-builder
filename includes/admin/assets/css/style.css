@@ -745,7 +745,13 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
 #floating-panel.efb {	position: absolute;
    z-index: 5;
    margin-top: 7% !important;
+   margin-left: 2px;
    padding-left: 1% !important;
+}
+#floating-panel.sm.efb {
+   margin-top: 14% !important;
+   margin-left: 2%;
+
 }
 #floating-panel .input-efb {	color: #bb2d3b !important;
 }

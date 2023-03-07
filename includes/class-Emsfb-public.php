@@ -318,11 +318,19 @@ class _Public {
 		 $stng = $this->pub_stting;
 		 if(gettype($stng)!=="integer" && $lanText["settingsNfound"]){
 			// $valstng= json_decode($stng);
-			 if( $formObj[0]["captcha"]==true && (isset($this->pub_stting->siteKey)==true) && strlen($this->pub_stting->siteKey)>1){				
-				 $k =$this->pub_stting->siteKey;}
-			 if( isset($this->pub_stting->apiKeyMap) && strlen($this->pub_stting->apiKeyMap)>5){
-				 
-				 $key= $this->pub_stting->apiKeyMap;
+			 if( $formObj[0]["captcha"]==true && (isset($this->pub_stting->siteKey)==true) && strlen($this->pub_stting->siteKey)>1)
+			 {				
+				 $k =$this->pub_stting->siteKey;
+				 $k = "<script>let sitekye_emsFormBuilder='".$k."'</script>";
+			 }
+			  
+			 error_log("this->pub_stting->apiKeyMap");
+			 error_log(json_encode($this->pub_stting));
+			 //error_log($this->pub_stting->mapKey);
+			 error_log($this->pub_stting["mapKey"]);
+			 if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
+				 error_log('maps!!!!!!!!!!!!!!!');
+				 $key= $this->pub_stting["mapKey"];
 				 $lng = strval(get_locale());
 				 
 					 if ( strlen($lng) > 0 ) {
@@ -349,7 +357,8 @@ class _Public {
 			 </div>
 			 
 			 </div><div id='alert_efb' class='efb mx-5'></div>
-			 <script>let sitekye_emsFormBuilder='".$k."'</script>";
+			 ".$k."
+			 ";
 		 }
 
 		
@@ -386,9 +395,12 @@ class _Public {
 				wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 				wp_enqueue_script('recaptcha');
 			}
-			if(isset($valstng->apiKeyMap) && $valstng->apiKeyMap!=""){
+			error_log("valstng->apiKeyMap");
+			error_log($valstng->mapKey);
+			if(isset($valstng->mapKey) && $valstng->mapKey!=""){
 				
-				$key= $valstng->apiKeyMap;
+				$key= $valstng->mapKey;
+				
 				$lng = strval(get_locale());
 				
 					if ( strlen($lng) > 0 ) {
@@ -1017,7 +1029,22 @@ class _Public {
 											$rt= $item;
 										}
 										$in_loop=false;
-								break;								
+								break;
+								case 'maps':
+									error_log('maps');
+									error_log(json_encode($item['value']));
+									$stated=1;
+									$rt= $item;
+									//$item['value'] =$item['value'];
+									foreach ($item['value'] as $key => $value) {
+										error_log($value["lat"]);
+										error_log($value["lng"]);
+										error_log(is_numeric($value["lat"]));
+										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ $stated=0;$rt =null;};
+										error_log(is_numeric($value["lng"]));
+									}
+									
+								break;
 								case 'color':
 										$stated=0;	
 										$l=strlen($item['value']);

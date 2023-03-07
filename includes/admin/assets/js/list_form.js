@@ -301,7 +301,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   //console.error(content[0].paymentcurrency,content);
   for (const c of content) {
-    if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
+    if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
     

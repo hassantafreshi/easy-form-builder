@@ -745,7 +745,11 @@ function handle_change_event_efb(el){
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string'){return}
   remove_ttmsg_efb(ob.id_)
-  if(ob.hasOwnProperty('value') && typeof(ob.value)!='number') ob.value=fun_text_forbiden_convert_efb(ob.value);
+  console.log(ob);
+  if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object') {ob.value=fun_text_forbiden_convert_efb(ob.value);
+  }else if(ob.hasOwnProperty('value') && ( typeof(ob.value)=='object') &&  ob.type=="maps" ){
+    ob.value=ob.value;
+  }
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     
@@ -1350,7 +1354,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   for (const c of content) {
     let value ="<b></b>";
-    if(c.hasOwnProperty('value')){
+    if(c.hasOwnProperty('value') && c.type!="maps"){
       c.value = replaceContentMessageEfb(c.value);
       if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
       
@@ -1894,6 +1898,7 @@ function calPLenEfb(len) {
 }
 
 fun_text_forbiden_convert_efb=(value)=>{
+  console.log(value);
  value= value.replaceAll("'", "@efb@sq#");
  value= value.replaceAll("`", "@efb@vq#");
  value= value.replaceAll(`"`, "@efb@dq#");

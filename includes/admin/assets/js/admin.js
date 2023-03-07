@@ -2160,8 +2160,8 @@ let editFormEfb = () => {
 
           if (type == 'maps') {
             setTimeout(() => {
-              const lat = valj_efb[v].lat;
-              const lon = valj_efb[v].lng;
+              const lat = Number(valj_efb[v].lat);
+              const lon = Number(valj_efb[v].lng);
               map = new google.maps.Map(document.getElementById(`${valj_efb[v].id_}-map`), {
                 center: { lat: lat, lng: lon },
                 zoom: 8,
@@ -2815,14 +2815,7 @@ fun_efb_add_el = (t) => {
   }
 }
 
-googleMapsNOkEfb =()=>{
- return `<div class="efb  boxHtml-efb sign-efb h-100" >
-        <div class="efb  noCode-efb m-5 text-center">
-        <button type="button" class="efb  btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
-         <i class="efb  bi-question-lg text-pinkEfb"></i></button> 
-         <p class="efb fs-6">${efb_var.text.aPIkeyGoogleMapsError}</p> 
-      </div></div>`;
-}
+
 
 function active_element_efb(el) {
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان

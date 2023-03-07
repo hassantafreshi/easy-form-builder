@@ -591,10 +591,10 @@ function initMap(disabled) {
     // mrk ==-1 show all point inside  markers_maps_efb
     const idx = valj_efb.findIndex(x => x.type == "maps")
     // lat: 49.24803870604257, lon: -123.10512829684463
-    const lat = idx != -1 && valj_efb[idx].lat ? valj_efb[idx].lat : 49.24803870604257;
-    const lon = idx != -1 && valj_efb[idx].lng ? valj_efb[idx].lng : -123.10512829684463;
-    const mark = idx != -1 ? valj_efb[idx].mark : 1;
-    const zoom = idx != -1 && valj_efb[idx].zoom && valj_efb[idx].zoom != "" ? valj_efb[idx].zoom : 10;
+    const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;
+    const lon = idx != -1 && valj_efb[idx].lng ? Number(valj_efb[idx].lng) : -123.10512829684463;
+    const mark = idx != -1 ? Number(valj_efb[idx].mark) : 1;
+    const zoom = idx != -1 && valj_efb[idx].zoom && valj_efb[idx].zoom != "" ? Number(valj_efb[idx].zoom) : 10;
     const location = { lat: lat, lng: lon };
     if(typeof google == "undefined"){
       alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
@@ -646,7 +646,14 @@ function initMap(disabled) {
 
 //});
 
-  
+googleMapsNOkEfb =()=>{
+  return `<div class="efb  boxHtml-efb sign-efb h-100" >
+         <div class="efb  noCode-efb m-5 text-center">
+         <button type="button" class="efb  btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
+          <i class="efb  bi-question-lg text-pinkEfb"></i></button> 
+          <p class="efb fs-6">${efb_var.text.aPIkeyGoogleMapsError}</p> 
+       </div></div>`;
+ }
 // Adds a marker to the map and push to the array.
 
 function addMarker(position) {

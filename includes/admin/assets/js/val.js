@@ -1589,10 +1589,12 @@ function funShowAttrElsEfb(el){
     el.classList.remove('show');
     el.classList.add('hide');
     ol.idstate = "true" ;
+    el.innerHTML= efb_var.text.hdattr
   }else{
     el.classList.remove('hide');
     el.classList.add('show');
     ol.idstate = "false" ;
+    el.innerHTML= efb_var.text.shwattr
   }
 
   for(let ob of document.querySelectorAll(`.elIds`)){
