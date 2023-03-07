@@ -924,6 +924,15 @@ class efbFunction {
 							}
 							//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 							break;
+					case 'id':
+						$valp[$key][$k]= sanitize_text_field($valp[$key][$k]);
+						if(strlen($valp[$key][$k])<1) break;
+						$valp[$key]["id_"] = $valp[$key][$k];
+						error_log("iddddddddddddddddddddd===================");
+						error_log($valp[$key][$k]);
+						error_log($valp[$key]["id_"]);
+						if($valp[$key]["type"]=="option")$valp[$key]["option"] = $valp[$key][$k];
+					break;
 					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
 					break;

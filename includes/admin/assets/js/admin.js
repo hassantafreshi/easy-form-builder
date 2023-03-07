@@ -1810,6 +1810,31 @@ let change_el_edit_Efb = (el) => {
           el.setAttribute('defaultValue', valj_efb[iindx].value);
         }
         break;
+      case 'ElIdOptions':
+
+        c = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        console.log(`iindx=========>[${c}]`);
+        if (c != -1) {
+          el.value =  el.value.replace(/[^a-zA-Z0-9_-]/g, '')
+          el.setAttribute('value', el.value);
+          valj_efb[c].hasOwnProperty("id")  ? valj_efb[c].id= el.value : Object.assign(valj_efb[c], { id: el.value })
+          console.log(valj_efb[c]);
+        /*   if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+
+            //Select
+            let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
+            if (vl) vl.innerHTML = el.value;
+            if (vl) vl.value = el.value;
+          } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
+            //radio || checkbox       
+             document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
+            //document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+          }
+          el.setAttribute('value', valj_efb[iindx].value);
+          el.setAttribute('defaultValue', valj_efb[iindx].value); */
+        }
+        break;
       case 'paymentOption':   
         el.dataset.id;
         const ipndx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
@@ -2377,6 +2402,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  console.log('====================>add_new_option_efb')
   console.log(parentsID, idin, value, id_ob, tag);
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
