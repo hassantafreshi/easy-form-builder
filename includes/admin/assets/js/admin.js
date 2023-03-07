@@ -2384,6 +2384,8 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   const s=tag.includes("pay");
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
   let parent = valj_efb.find(x=>x.id_ == parentsID)
+  let obd = valj_efb.find(x=>x.id_ == id_ob)
+  let id = obd.hasOwnProperty("id") ? obd.id : obd.id_;
   let t = "radio";
   if(parent.type.toLowerCase().indexOf("multi")>-1  || parent.type.toLowerCase().includes("checkbox")==true || parent.type.toLowerCase().includes("multiselect")==true  ) t="checkbox"
   const col = ftyp == "payment" || ftyp == "smart" ? 'col-md-7' : 'col-md-12'
@@ -2401,7 +2403,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
     </button>
   </div>
   </div>`; */
-  document.getElementById('optionListefb').innerHTML +=add_option_edit_admin_efb(0,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,"");
+  document.getElementById('optionListefb').innerHTML +=add_option_edit_admin_efb(0,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id);
  // if (tag !== "multiselect" && tag !== "payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
  const indx = valj_efb.findIndex(x => x.id_ == parentsID);
  if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {

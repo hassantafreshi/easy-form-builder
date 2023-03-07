@@ -652,6 +652,8 @@ class efbFunction {
 			//End don't remove (used in delete message)
 			"atcfle" => $state  &&  isset($ac->text->atcfle) ? $ac->text->atcfle : __('attached files','easy-form-builder'),				
 			"dslctd" => $state  &&  isset($ac->text->dslctd) ? $ac->text->dslctd : __('Default selected','easy-form-builder'),				
+			"shwattr" => $state  &&  isset($ac->text->shwattr) ? $ac->text->shwattr : __('Show attributes','easy-form-builder'),				
+			"hdattr" => $state  &&  isset($ac->text->hdattr) ? $ac->text->hdattr : __('Hide attributes','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

@@ -705,6 +705,7 @@ function fun_get_form_by_id(id) {
           valj_efb = value;
           setTimeout(() => {
             formName_Efb = valj_efb[0].formName;
+            form_type_emsFormBuilder=valj_efb[0].type
             form_ID_emsFormBuilder = id;
             localStorage.setItem('valj_efb', JSON.stringify(value));
             const edit = { id: res.data.id, edit: true };

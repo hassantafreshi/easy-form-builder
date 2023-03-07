@@ -797,18 +797,22 @@ function show_setting_window_efb(idset) {
                 ${Nadvanced}
                 ${el.dataset.tag=="stateProvince" ? countries_list_el_select("stateProvince",idset,indx):""}
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
-                <label for="optionListefb" class="efb  ">${efb_var.text.options} 
+                <div class="efb m-0 p-0 col-md-12 row">
+                <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options} 
                 <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
                 <i class="efb  bi-plus-circle  text-success"></i>
-               </button> 
-                </label>
+                  </button> 
+                </div>
+                <div class="efb col-md-6 text-capitalize text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onClick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
+                </div>
                
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
                     <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
+                    
                     ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
                 </div>
                
-                <div class="efb  mb-3" id="optionListefb" data-idstate="true">
+                <div class="efb  mb-3" id="optionListefb" data-idstate="false">
                  ${opetions}
                 </div>
                 ${qtyPlcEls}
@@ -1199,7 +1203,7 @@ function show_setting_window_efb(idset) {
                     <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
                         <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>                    
                     </div>
-                    <div class="efb  mb-3" id="optionListefb" data-idstate="true">
+                    <div class="efb  mb-3" id="optionListefb" data-idstate="false">
                      ${r_matrixs}
                     </div>
                     ${type_field_efb == "radio" ? addOtherslEls : ''}
@@ -1503,7 +1507,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
      
    }
     const price = ob.hasOwnProperty("price") ? ob.price : 0;
-    const id = ob.hasOwnProperty("id") ? ob.id : "";
+    const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
     opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id)
     /* opetions += `<div class="efb mx-0 col-sm-12 row opt"> 
     <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
@@ -1550,13 +1554,11 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   </div>
   </div>` */
   const s_show_id = document.getElementById('optionListefb') && document.getElementById('optionListefb').dataset.idstate =="true" ? true : false;
-  let id_v = "<!--efb-->";
-  if(s_show_id==true){
-    id_v=`  <div id="" class="efb mx-0 px-0 col-sm-12">
-    <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2" >${efb_var.text.id}</label>
-    <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-6 border-d efb-rounded elEdit col-sm-9">
+  let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
+    <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>
+    <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
     </div>`
-  }
+  
   return `<div class="efb mx-0 col-sm-12 row opt"> 
   <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
   <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0"" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions">
@@ -1578,6 +1580,26 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
 </div>
 </div>
 `
+}
+
+function funShowAttrElsEfb(el){
+  console.log(el);
+  let ol = document.getElementById('optionListefb').dataset;
+  if(el.classList.contains('show')){
+    el.classList.remove('show');
+    el.classList.add('hide');
+    ol.idstate = "true" ;
+  }else{
+    el.classList.remove('hide');
+    el.classList.add('show');
+    ol.idstate = "false" ;
+  }
+
+  for(let ob of document.querySelectorAll(`.elIds`)){
+    ol.idstate=="true" ? ob.classList.remove('d-none') : ob.classList.add('d-none');
+    console.log(ob,ol.idstate=="true",ol.idstate ) 
+  }
+
 }
 
 
