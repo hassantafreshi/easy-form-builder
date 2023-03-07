@@ -1035,15 +1035,19 @@ class _Public {
 									error_log(json_encode($item['value']));
 									$stated=1;
 									$rt= $item;
+									$c = 0;
 									//$item['value'] =$item['value'];
 									foreach ($item['value'] as $key => $value) {
+										$c+=1;
 										error_log($value["lat"]);
 										error_log($value["lng"]);
 										error_log(is_numeric($value["lat"]));
 										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ $stated=0;$rt =null;};
 										error_log(is_numeric($value["lng"]));
 									}
-									
+									if($c!=$f["mark"]){ $stated=0;$rt =null;}
+									//mark
+									$in_loop=false;
 								break;
 								case 'color':
 										$stated=0;	
