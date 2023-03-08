@@ -1810,6 +1810,46 @@ let change_el_edit_Efb = (el) => {
           el.setAttribute('defaultValue', valj_efb[iindx].value);
         }
         break;
+      case 'ElvalueOptions':
+        console.log(el);
+        clss =el.dataset.parent
+        c = valj_efb.find(x=>x.id_==clss)     
+        indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        console.log(`indx[${indx}]`) ;
+        /* 
+        
+        */
+        color = c.type.toLowerCase();
+        console.log(`type change [${color}]`,color.includes("radio"));
+        if(color.includes("radio")==true || (color.includes("select")==true &&  color.includes("multi")==false)){
+         //c = valj_efb.findIndex(x=>x.id_==clss)     
+        /*   if(c.value!=""){
+            //c.value
+             document.querySelector(`[data-id="${c.value}"]`).setAttribute("checked",false)} */
+             console.log(valj_efb[indx])
+             clss =c.value=valj_efb[indx].id_;
+             //document.getElementById(c).checked=true
+             el.setAttribute("checked",true)
+            // document.getElementById(clss).setAttribute("checked",true);
+         if(color.includes("radio")==true) document.getElementById(clss).setAttribute("checked",true);
+        }else{
+          clss = valj_efb[indx].id_;
+          if(el.checked==false){
+
+            el.setAttribute("checked",false)
+            if(color.includes("checkbox")==true) document.getElementById(clss).setAttribute("checked",false);
+            clss= c.value.findIndex(x=>x ==clss)
+            c.value.splice(clss,1);
+            console.log(c.value);
+          }else{
+           
+           typeof c.value=="string" ? c.value =[clss] : c.value.push(clss);
+           console.log(c.value);
+           el.setAttribute("checked",true)
+           if(color.includes("checkbox")==true) document.getElementById(clss).setAttribute("checked",true);
+          }
+        }
+      break;
       case 'ElIdOptions':
 
         c = valj_efb.findIndex(x => x.id_op == el.dataset.id);
@@ -2429,7 +2469,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
     </button>
   </div>
   </div>`; */
-  document.getElementById('optionListefb').innerHTML +=add_option_edit_admin_efb(0,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id);
+  document.getElementById('optionListefb').innerHTML +=add_option_edit_admin_efb(0,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id ,"");
  // if (tag !== "multiselect" && tag !== "payMultiselect") document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
  const indx = valj_efb.findIndex(x => x.id_ == parentsID);
  if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {

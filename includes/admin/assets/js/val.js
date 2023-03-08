@@ -1501,14 +1501,24 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  let opetions = `<!-- options --!>`;
  let parent = valj_efb.find(x=>x.id_ == objOptions[0].parent)
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
+  const tp = parent.type.toLowerCase();
+  console.log(`parent lower case=====>[${tp}]`)
  for (let ob of objOptions) {         
    if(parent){
-     if(parent.type.toLowerCase().indexOf("multi")>-1  || parent.type.toLowerCase().includes("checkbox")==true || parent.type.toLowerCase().includes("multiselect")==true  ) t="checkbox"
+     if(tp.indexOf("multi")>-1  || tp.includes("checkbox")==true || tp.includes("multiselect")==true  ) t="checkbox"
      
    }
     const price = ob.hasOwnProperty("price") ? ob.price : 0;
-    const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
-    opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id)
+    //const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
+    const id = ob.id_;
+    let checked= "";
+    console.log(parent);
+    
+    
+    if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && parent.value == ob.id_){ checked="checked";
+    }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==id)!=-1 ){checked="checked"}
+    console.log(`checked[${checked}]`);
+    opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id,checked)
     /* opetions += `<div class="efb mx-0 col-sm-12 row opt"> 
     <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
     <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0"" name="${ob.parent}" type="${t}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" id="ElvalueOptions">
@@ -1519,7 +1529,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
     ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
     <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
     <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
-    <i class="efb  efb bi-x-lg text-danger"></i>
+    <i class="efb  efb bi-x-lg text-danger"></i>,
     </button>
     <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
     <i class="efb  bi-plus-circle  text-success"></i>
@@ -1538,7 +1548,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
 }
 
 
-const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value)=>{
+const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
   console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
   //price,parentsID,t,idin,tag,id_ob,value,col.s,l_b,ftyp,id_value
   /* ` <div id="${id_ob}-v"  class="efb  col-md-12">
@@ -1561,11 +1571,11 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   
   return `<div class="efb mx-0 col-sm-12 row opt"> 
   <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
-  <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0"" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions">
+  <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0 elEdit" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions" ${checked}>
   <label  for="ElvalueOptions" class="efb form-label mx-1 my-0 py-0 ${l_b} fs-6" >${efb_var.text.dslctd}</label>
   </div>
   <div id="${id_ob}-v" class="efb  col-sm-11 mx-0 px-0">
-  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
+  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${parentsID}">
   <button type="button" id="deleteOption"  onClick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
