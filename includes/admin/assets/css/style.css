@@ -2370,3 +2370,6 @@ div#Listefb-150 {
   background:#898aa954;
 
 }
+
+.showBtns input[type][readonly],.showBtns select[readonly],.showBtns label {
+   pointer-events: none;}
