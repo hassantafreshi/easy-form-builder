@@ -996,7 +996,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
-  //console.log(el.id , el.value)
+   console.log("=================>change_el_edit_Efb",el.id , el.value)
   if (el.value.length > 0 && el.value.search(/(")+/g) != -1) {
     el.value = el.value.replaceAll(`"`, '');
     alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
@@ -3221,7 +3221,7 @@ function efb_check_el_pro(el){
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
-  if(pro_ws==false) {
+  if(efb_var.pro==false) {
     if(el.type=="button"){
       f_b();
       pro_show_efb(efb_var.text.youUseProElements)  

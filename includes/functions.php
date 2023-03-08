@@ -885,8 +885,24 @@ class efbFunction {
 				error_log($k);
 				error_log(json_encode($v));
 				switch ($k) {
-					case 'value':					
-						$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;			
+					case 'value':
+						$type =strtolower($type);
+						error_log(preg_match("/checkbox/i", $type));
+						error_log(preg_match("/multi/i", $type));
+						if( preg_match("/checkbox/i", $type)==false && preg_match("/multi/i", $type)==false && gettype($v)!="array" && gettype($v)!="object"){
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
+						}else{
+								error_log("=========================>");
+								error_log(gettype($v));
+							foreach ($v as $ki => $va) {
+								# code...
+								$v[$ki]=sanitize_text_field($va);
+								error_log($ki);
+								error_log($va);
+							}
+							$valp[$key][$k] =$v;
+						}
+								
 					break;
 					case 'email':
 					case 'email_to':
@@ -927,11 +943,55 @@ class efbFunction {
 					case 'id':
 						$valp[$key][$k]= sanitize_text_field($valp[$key][$k]);
 						if(strlen($valp[$key][$k])<1) break;
-						$valp[$key]["id_"] = $valp[$key][$k];
-						error_log("iddddddddddddddddddddd===================");
+						
+						
 						error_log($valp[$key][$k]);
 						error_log($valp[$key]["id_"]);
-						if($valp[$key]["type"]=="option")$valp[$key]["option"] = $valp[$key][$k];
+						if($valp[$key]["type"]=="option"){
+							error_log("iddddddddddddddddddddd===================");
+							foreach ($valp as $ki => $vl) {
+								$tp = $vl["type"];
+								if(array_key_exists('id_',$vl)==false) continue;
+								error_log(json_encode($vl));
+								if($vl['id_']!=$valp[$key]["parent"]){
+									continue;
+								}
+								error_log("_____________________________________________________________");
+								error_log($vl['id_']);
+								error_log(json_encode($vl));
+								error_log($valp[$key]["parent"]);
+								foreach ($vl as $kii => $vll) {
+									//value
+									error_log("::::::::::::::");
+									if($kii!="value") continue;
+									error_log($kii);
+									if(gettype($vll)!="array" && gettype($vll)!="object" ){
+										if($vll==$valp[$key]["id_"])$vll=$valp[$key][$k];
+									}else{
+										foreach ($vll as $ke => $vn) {
+											error_log('>>>>>>>>>>>>>>>>>>');
+											error_log($vn);
+											# code...
+											//$vll[$ke]=sanitize_text_field($va);
+											if($vn==$valp[$key]["id_"]) {
+												error_log('<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>');
+												error_log($vn);
+												$valp[$ki][$kii][$ke] =$valp[$key][$k];
+												error_log($valp[$ki][$kii][$ke] );
+												//error_log($valp[$vll][$k]);
+											}
+
+											//error_log($ki);
+											error_log($vn);
+										}
+									}
+									//error_log($vll);
+								}
+							}
+							$valp[$key]["id_old"]=$valp[$key]["id_"];
+							$valp[$key]["id_"] = $valp[$key][$k];
+							$valp[$key]["option"] = $valp[$key][$k];
+						}
 					break;
 					default:					
 					$valp[$key][$k]=sanitize_text_field($v);
