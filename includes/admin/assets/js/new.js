@@ -1730,10 +1730,87 @@ function previewFormEfb(state) {
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
       //add value to sendBack_emsFormBuilder_pub
+      console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
+      }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0){
+        let t = value.type.toLowerCase();
+        let o=[]
+        console.log(`==================> type`,t);
+        if(t.includes('radio')==true){
+          let ch = valj_efb.find(x=>x.id_==value.value);
+          console.log(`=========================>ch`,ch)
+          t=1;
+          o=[{
+            id_: value.id_,
+            name: value.name,
+            id_ob: ch.id_,
+            amount: value.amount,
+            type: value.type,
+            value: ch.value,
+            session: sessionPub_emsFormBuilder
+        }]
+          console.log(`==================> radio`,value);
+        }else if (t.includes('checkbox')==true){
+          t=1;
+          console.log(`==================> checkbox`,value);
+          
+          for(let c of value.value){
+            let ch = valj_efb.find(x=>x.id_==c);
+            console.log(`=========================>ch`,ch)          
+            o.push({
+              id_: value.id_,
+              name: value.name,
+              id_ob: ch.id_,
+              amount: value.amount,
+              type: value.type,
+              value: ch.value,
+              session: sessionPub_emsFormBuilder
+              })
+          }
+        }else if(t.includes('multi')==true){
+          t=1;
+          console.log(`==================> multi`,value);
+
+          let val='';
+          for(let c of value.value){
+            let ch = valj_efb.find(x=>x.id_==c);
+            val += ch.value+'@efb!'
+          }
+              o=[{
+                id_: value.id_,
+                name: value.name,              
+                amount: value.amount,
+                type: value.type,
+                value: val,
+                session: sessionPub_emsFormBuilder
+            }]
+        }else if(t.includes('select')==true){
+          t=1;
+           let ch = valj_efb.find(x=>x.id_==value.value);
+          console.log(`=========================>ch`,ch)
+        
+          o=[{
+            id_: value.id_,
+            name: value.name,
+            id_ob: ch.id_,
+            amount: value.amount,
+            type: value.type,
+            value: ch.value,
+            session: sessionPub_emsFormBuilder
+        }]
+        }
+
+        if(t===1){
+          console.log(`============================================>t===1`)
+          for(let i in o){
+            console.log(o[i]);
+            fun_sendBack_emsFormBuilder(o[i]);
+          }
+          
+        }
       }
     })
 

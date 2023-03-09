@@ -110,16 +110,19 @@ setTimeout(() => {
 function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
  // url.searchParams.set('stepNo', 1);
+ console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
   valj_efb = valueJson_ws
+  console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
   console.log(valj_efb ,valueJson_ws ,sendBack_emsFormBuilder_pub);
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');
-  console.log(sendBack_emsFormBuilder_pub);
+  console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+ 
 }
 
 /* function ShowTab_emsFormBuilder_view(n) {
@@ -583,7 +586,7 @@ function handle_change_event_efb(el){
       case "radio":
         
         value = sanitize_text_efb(el.value);
-        
+        console.log(el.checked , el)
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
         if (el.value.length > 1 || el.checked == true) {
