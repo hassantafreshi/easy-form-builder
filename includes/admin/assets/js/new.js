@@ -610,8 +610,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         // if edit mode
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+        const id_selected = valj_efb[indx_parent].value;
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color}  emsFormBuilder_v efb">${i.value}</option>`
+          const selected = i.id_==id_selected ? "selected" : "";
+          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color}  emsFormBuilder_v efb" ${selected}>${i.value}</option>`
         }//end for 
 
       } else {
@@ -679,14 +681,27 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = 'multiselect';
 
       const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
+      
+      let va = ``
+      let sl =``
       if (editState != false) {
         // if edit mode
         optn = `<!--opt-->`;
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+       
+        const s = valj_efb[indx_parent].value.length>0 ? true :false
+
         for (const i of optns_obj) {
+          let c = "efb bi-square efb"
+          if(s==true && valj_efb[indx_parent].value.findIndex(x=>x==i.id_)!=-1){
+             c = "bi-check-square text-info efb"
+             va+= i.value+',' 
+             sl +=i.id_ +' @efb!'}            
+         
+          
           optn += `<tr class="efb  efblist ${valj_efb[indx_parent].el_text_color}  ${pay}" data-id="${rndm}" data-name="${i.value}" data-row="${i.id_}" data-state="0" data-visible="1">
-          <th scope="row" class="efb bi-square efb"></th><td class="efb  ms col-12">${i.value}</td>
+          <th scope="row" class="${c}"></th><td class="efb  ms col-12">${i.value}</td>
           ${ pay.length>2 ?`<td class="efb ms fw-bold text-center"><span id="${i.id_}-price" class="efb efb-crrncy">${Number(i.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></td>` :''}
         </tr>  `
 
@@ -720,7 +735,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <!--multiselect-->      
       <div class="efb ${valj_efb[iVJ].classes} ${pos[3]} col-sm-12 listSelect px-0 mx-0 ttEfb show"   id='${rndm}-f' data-id="${rndm}-el" >
         ${ttip}
-        <div class="efb efblist  mx-0  inplist ${pay}  ${previewSate != true ? 'disabled' : ''} ${disabled}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select=""  data-vid='${rndm}' id="${rndm}_options" > ${efb_var.text.selectOption}</div>
+        <div class="efb efblist  mx-0  inplist ${pay}  ${previewSate != true ? 'disabled' : ''} ${disabled}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select="${sl}"  data-vid='${rndm}' id="${rndm}_options" > ${va.length==0 ? efb_var.text.selectOption : va}</div>
       
         <div class="efb efblist mx-0  listContent d-none rounded-bottom bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
