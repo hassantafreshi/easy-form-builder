@@ -1,6 +1,7 @@
 
 
 fun_add_stripe_efb = () => {
+  
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -264,7 +265,7 @@ fun_add_stripe_efb = () => {
     return  `
     <!-- stripe -->
     <div class="efb  col-sm-12 stripe"  id='${rndm}-f'>
-    <div class="efb  stripe-bg mx-2 p-3 card w-100">
+    <div class="efb  stripe-bg  p-3 card w-100">
     <div class="efb  headpay border-b row col-md-12 mb-3">
       <div class="efb  h3 col-sm-5">
         <div class="efb  col-12 text-dark"> ${efb_var.text.payAmount}:</div>

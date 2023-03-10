@@ -1704,8 +1704,9 @@ function previewFormEfb(state) {
   ///setTimeout(() => { 
 
   try {
+    let count =0;
     valj_efb.forEach((value, index) => {
-     
+      console.log(`indx[${index}] count[${count}]`)
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1736,13 +1737,15 @@ function previewFormEfb(state) {
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0){
+        
         let t = value.type.toLowerCase();
         let o=[]
-        console.log(`==================> type`,t);
+        console.log(`==================> type`,t , value.id_);
         if(t.includes('radio')==true){
+          count+=1;
           let ch = valj_efb.find(x=>x.id_==value.value);
           console.log(`=========================>ch`,ch)
-          t=1;
+          
           o=[{
             id_: value.id_,
             name: value.name,
@@ -1752,9 +1755,14 @@ function previewFormEfb(state) {
             value: ch.value,
             session: sessionPub_emsFormBuilder
         }]
+        if(t.includes('pay')){
+          console.log(o.at(-1));
+          Object.assign(o.at(-1),{price:ch.price})
+        }
+        t=1;
           console.log(`==================> radio`,value);
         }else if (t.includes('checkbox')==true){
-          t=1;
+          count+=1;
           console.log(`==================> checkbox`,value);
           
           for(let c of value.value){
@@ -1769,9 +1777,15 @@ function previewFormEfb(state) {
               value: ch.value,
               session: sessionPub_emsFormBuilder
               })
+            if(t.includes('pay')){
+              console.log(o.at(-1));
+              Object.assign(o.at(-1),{price:ch.price})
+            }
+          
           }
-        }else if(t.includes('multi')==true){
           t=1;
+        }else if(t.includes('multi')==true){
+          count+=1;
           console.log(`==================> multi`,value);
 
           let val='';
@@ -1787,8 +1801,9 @@ function previewFormEfb(state) {
                 value: val,
                 session: sessionPub_emsFormBuilder
             }]
+            t=1;
         }else if(t.includes('select')==true){
-          t=1;
+          count+=1;
            let ch = valj_efb.find(x=>x.id_==value.value);
           console.log(`=========================>ch`,ch)
         
@@ -1801,6 +1816,7 @@ function previewFormEfb(state) {
             value: ch.value,
             session: sessionPub_emsFormBuilder
         }]
+        t=1;
         }
 
         if(t===1){
@@ -1811,6 +1827,7 @@ function previewFormEfb(state) {
           }
           
         }
+        console.log(`==================> type count[${count}]`);
       }
     })
 
@@ -1837,7 +1854,7 @@ function previewFormEfb(state) {
 
   if (content.length > 10) content += `</div>`
   head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-4 w-100"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
     `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   //console.log(state ,idn , id);
