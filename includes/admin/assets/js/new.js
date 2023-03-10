@@ -1730,13 +1730,13 @@ function previewFormEfb(state) {
       if((value.hasOwnProperty('disabled') && value.disabled==true && value.hasOwnProperty('hidden')==false)
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
-      //add value to sendBack_emsFormBuilder_pub
+      //add value to sendBack_emsFormBuilder
       console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
-      }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0){
+      }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 ){
         
         let t = value.type.toLowerCase();
         let o=[]
@@ -1901,7 +1901,7 @@ function previewFormEfb(state) {
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
     if (valj_efb[0].type == "payment") {
       //console.log('payment');
-      if (ajax_object_efm.paymentGateway == "stripe") fun_add_stripe_efb();
+      if (ajax_object_efm.paymentGateway == "stripe" && typeof fun_add_stripe_efb =="function") fun_add_stripe_efb();
     }
   }
   let ttype ='text'

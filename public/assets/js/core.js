@@ -605,7 +605,7 @@ function handle_change_event_efb(el){
           
           if(indx!=-1) {
             sendBack_emsFormBuilder_pub.splice(indx,1);
-            if(ob.type=="payCheckbox")fun_total_pay_efb();
+            if(ob.type=="payCheckbox") fun_total_pay_efb();
             
             return ;
           }
