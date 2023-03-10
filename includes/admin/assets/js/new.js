@@ -455,7 +455,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'chlCheckBox':
     case 'chlRadio':
       // const rndm_a = Math.random().toString(36).substr(2, 9);
-
+    
       dataTag = elementId;
        col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[iVJ].op_style )) :''
       if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox") pay = "";
@@ -773,6 +773,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ui =typeof link_el_pro_efb =="function" ?  link_el_pro_efb (previewSate,pos, rndm,iVJ) : public_pro_message();
       break;
     case 'stripe':
+      
       if(addons_emsFormBuilder.AdnSPF ==1){
         let sub = efb_var.text.onetime;
         let cl = `one`;
@@ -1899,9 +1900,8 @@ function previewFormEfb(state) {
     //content is hold element and should added to a innerHTML
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
-    if (valj_efb[0].type == "payment") {
-      //console.log('payment');
-      if (ajax_object_efm.paymentGateway == "stripe" && typeof fun_add_stripe_efb =="function") fun_add_stripe_efb();
+    if (valj_efb[0].type == "payment") {      
+     if (ajax_object_efm.paymentGateway == "stripe" && typeof fun_add_stripe_efb =="function") fun_add_stripe_efb();
     }
   }
   let ttype ='text'
@@ -2027,8 +2027,7 @@ function previewFormEfb(state) {
   step_el_efb = Number(valj_efb[0].steps);
  
   if (localStorage.getItem('formId') == efb_var.id && state == 'run' && 
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) 
-  ||valj_efb[0].type=="payment" ) ) { fun_offline_Efb() 
+  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1)  ) ) { fun_offline_Efb() 
   }
 
   //console.log(`check state of t ============> ${ttype}`);
@@ -2284,7 +2283,6 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 fun_offline_Efb = () => {
   let el = '';
   const values = JSON.parse(localStorage.getItem('sendback'))
-  //sendBack_emsFormBuilder_pub.push({id:'w_link',name:'w_link',type:'file',value:window.location.href});
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
 
