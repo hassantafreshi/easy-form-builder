@@ -491,6 +491,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   ob.value= ob.value.replaceAll(`\n`, "@efb@nq#");
   ob.value= ob.value.replaceAll(`\r`, " ");
   }
+  if(typeof sendBack_emsFormBuilder_pub=="undefined")return;
   if (sendBack_emsFormBuilder_pub.length>0) {
     let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
     

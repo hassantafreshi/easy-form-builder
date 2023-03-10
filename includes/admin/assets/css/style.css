@@ -2363,11 +2363,11 @@ div#Listefb-150 {
   padding: 5px;
 }
 .efb.opt:nth-child(odd) {
-  background: #e3dddd85;
+  background: #e6e6e6;
   margin: 7px 0px;
 }
 .efb.opt:nth-child(even) {
-  background:#898aa954;
+  background:#cbccf554;
 
 }
 

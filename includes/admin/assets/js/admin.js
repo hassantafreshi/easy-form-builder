@@ -996,7 +996,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
-   console.log("=================>change_el_edit_Efb",el.id , el.value)
+   //console.log("=================>change_el_edit_Efb",el.id , el.value)
   if (el.value.length > 0 && el.value.search(/(")+/g) != -1) {
     el.value = el.value.replaceAll(`"`, '');
     alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
@@ -1811,40 +1811,50 @@ let change_el_edit_Efb = (el) => {
         }
         break;
       case 'ElvalueOptions':
-        console.log(el);
+        //console.log(el);
         clss =el.dataset.parent
-        c = valj_efb.find(x=>x.id_==clss)     
+        c = valj_efb.findIndex(x=>x.id_==clss)     
         indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-        console.log(`indx[${indx}]`) ;
-        /* 
-        
-        */
-        color = c.type.toLowerCase();
-        console.log(`type change [${color}]`,color.includes("radio"));
+        //console.log(`indx[${indx}]`) ;
+       
+        color = valj_efb[c].type.toLowerCase();
+        const oi = valj_efb[c].value
+        //console.log(`type change [${color}]`,color.includes("radio"));
         if(color.includes("radio")==true || (color.includes("select")==true &&  color.includes("multi")==false)){
-         //c = valj_efb.findIndex(x=>x.id_==clss)     
-        /*   if(c.value!=""){
-            //c.value
-             document.querySelector(`[data-id="${c.value}"]`).setAttribute("checked",false)} */
-             console.log(valj_efb[indx])
-             clss =c.value=valj_efb[indx].id_;
-             //document.getElementById(c).checked=true
+          // c = valj_efb.findIndex(x=>x.id_==clss) 
+          
+          valj_efb[c].value =valj_efb[indx].id_
+          console.log(c ,valj_efb[c].value) ;
+          if(oi.length>0 && color.includes("radio")==true){
+            
+            //document.getElementById(oi+'-g').removeAttribute("checked");
+            document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
+            console.log(document.querySelector(`[data-id="${oi}"]`))
+            document.getElementById(oi).removeAttribute("checked");
+          }
+               
+             clss =valj_efb[indx].id_;
              el.setAttribute("checked",true)
-            // document.getElementById(clss).setAttribute("checked",true);
-         if(color.includes("radio")==true) document.getElementById(clss).setAttribute("checked",true);
+         if(color.includes("radio")==true) {document.getElementById(clss).setAttribute("checked",true);}
+        /*  c = valj_efb.findIndex(x=>x.id_==clss) 
+         valj_efb[c].value =valj_efb[indx].id_ */
         }else{
           clss = valj_efb[indx].id_;
           if(el.checked==false){
 
-            el.setAttribute("checked",false)
-            if(color.includes("checkbox")==true) document.getElementById(clss).setAttribute("checked",false);
-            clss= c.value.findIndex(x=>x ==clss)
-            c.value.splice(clss,1);
-            console.log(c.value);
+            el.removeAttribute("checked")
+            if(color.includes("checkbox")==true) {
+              document.getElementById(clss).removeAttribute("checked");
+              document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
+              //document.getElementById(clss).setAttribute("checked",false);
+            }
+            clss= valj_efb[c].value.findIndex(x=>x ==clss)
+            valj_efb[c].value.splice(clss,1);
+            console.log(valj_efb[c].value);
           }else{
            
-           typeof c.value=="string" ? c.value =[clss] : c.value.push(clss);
-           console.log(c.value);
+           typeof valj_efb[c].value=="string" ? valj_efb[c].value =[clss] : valj_efb[c].value.push(clss);
+           console.log(valj_efb[c].value);
            el.setAttribute("checked",true)
            if(color.includes("checkbox")==true) document.getElementById(clss).setAttribute("checked",true);
           }
