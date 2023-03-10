@@ -1841,11 +1841,11 @@ let change_el_edit_Efb = (el) => {
         }else{
           clss = valj_efb[indx].id_;
           if(el.checked==false){
-
+            console.log(`el =====================> `,el)
             el.removeAttribute("checked")
             if(color.includes("checkbox")==true) {
               document.getElementById(clss).removeAttribute("checked");
-              document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
+              el.removeAttribute("checked");
               //document.getElementById(clss).setAttribute("checked",false);
             }
             clss= valj_efb[c].value.findIndex(x=>x ==clss)
