@@ -330,13 +330,20 @@ function createStepsOfPublic() {
           break;
         case 'checkbox':
         case 'radio':
+          document.getElementById(el.id).addEventListener("change", (e) => {
             if(el.dataset.tag && el.dataset.tag.includes("chl")!=false){
-              const id = el.id +"_chl"
-              document.getElementById(id).addEventListener("change", (e) => {
+             // const id = el.id +"_chl"
+              
                 
                 //console.log(document.getElementById(id).value);
-              })
+             
+            }else if(el.classList.contains('payefb') && valj_efb[0].type == "form"){
+              /* setTimeout(() => {
+                console.log('========>payout')
+                fun_total_pay_efb()
+              }, 100); */
             }
+          })
           break;
 
       }
@@ -365,6 +372,7 @@ function createStepsOfPublic() {
         });
       }//end if
     }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
+    //}else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
           
       /* let q = valueJson_ws.find(x => x.id_ === el.id);
       const p = price.length > 0 ? { price: price } : { price: q.price }

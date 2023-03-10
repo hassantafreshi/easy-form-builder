@@ -3,7 +3,7 @@
 
 function fun_total_pay_efb() {
    
-    
+    console.log('fun_total_pay_efb');
     let total = 0;
     updateTotal = (i) => {
      // i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
@@ -14,8 +14,10 @@ function fun_total_pay_efb() {
     }
   
     for (let r of sendBack_emsFormBuilder_pub) {
+      console.log(r);
       if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
     }
+    console.log(`total[${total}]`);
     setTimeout(() => { updateTotal(total); }, 800);
     if(valj_efb[0].getway=="persiaPay") fun_total_pay_persiaPay_efn(total)
   }

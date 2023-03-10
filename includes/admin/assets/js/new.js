@@ -786,6 +786,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         dataTag = elementId;
         ui =typeof add_ui_stripe_efb =="function" ? add_ui_stripe_efb(rndm,cl,sub): public_pro_message();
         valj_efb[0].type = "payment";
+        form_type_emsFormBuilder=valj_efb[0].type;
       }else{
         alert_message_efb(efb_var.text.error, efb_var.text.IMAddonP, 20 , 'danger');
         const l = valj_efb.length -1;
@@ -797,6 +798,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case "zarinPal":
         if(  addons_emsFormBuilder.AdnPPF ==1 ){
           valj_efb[0].type = "payment";
+          form_type_emsFormBuilder=valj_efb[0].type;
           dataTag = elementId;
           valj_efb[0].paymentmethod="charge"
           ui =typeof add_ui_persiaPay_efb =="function" ? add_ui_persiaPay_efb(rndm): public_pro_message();

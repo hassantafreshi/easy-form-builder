@@ -158,7 +158,7 @@ class _Public {
 
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
-		
+		error_log($typeOfForm);
 		if($typeOfForm=="payment"){
 			
 			$r = $this->setting;
@@ -174,8 +174,7 @@ class _Public {
 				if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
 				else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
 					$paymentType="zarinPal";
-				}
-				else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
+				}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 					if($paymentType!="null" && $pro==true){
 						wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.24');
 						wp_enqueue_script('pay_js');
@@ -200,6 +199,10 @@ class _Public {
 			}//end if payment
 			
 		
+		}else if((strpos($value , '\"type\":\"pay') || strpos($value , '"type":"pay'))){
+			error_log('===========> added public pay.js');
+			wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.24');
+			wp_enqueue_script('pay_js');
 		}
 		
 		if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
