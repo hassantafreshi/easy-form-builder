@@ -256,7 +256,7 @@ class efbFunction {
 			"rounded" => $state ? $ac->text->rounded : __('Rounded','easy-form-builder'),
 			"square" => $state ? $ac->text->square : __('Square','easy-form-builder'),
 			"icon" => $state ? $ac->text->icon : __('Icon','easy-form-builder'),
-			"buttonColor" => $state ? $ac->text->buttonColor : __('Button Color','easy-form-builder'),
+			"buttonColor" => $state ? $ac->text->buttonColor : __('Button color','easy-form-builder'),
 			"blue" => $state ? $ac->text->blue : __('Blue','easy-form-builder'),
 			"darkBlue" => $state ? $ac->text->darkBlue : __('Dark Blue','easy-form-builder'),
 			"lightBlue" => $state ? $ac->text->lightBlue : __('Light Blue','easy-form-builder'),

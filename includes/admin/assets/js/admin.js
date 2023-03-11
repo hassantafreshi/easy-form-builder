@@ -11,12 +11,12 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
-let pub_el_text_color ='text-labelEfb';
-let pub_message_text_color ='text-muted';
-let pub_icon_color;
-let pub_label_text_color ='text-labelEfb';
-let pub_el_border_color='border-d';
-let pub_button_color='btn-primary';
+let pub_el_text_color_efb='text-labelEfb';
+let pub_message_text_color_efb ='text-muted';
+let pub_icon_color_efb;
+let pub_label_text_color_efb ='text-labelEfb';
+let pub_el_border_color_efb='border-d';
+let pub_button_color_efb='btn-primary';
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -3286,11 +3286,51 @@ function efb_check_el_pro(el){
   return true;
 }
 
-function test_efb_(el){
+function colors_template_picker_efb(el){
   console.log("test_efb")
   console.log(el.dataset.color ,el.dataset.id);
   //create for valj_efb and switch label , icon , button ,
-  for(let i in valj_efb){
+  const t = `colorDEfb-${el.dataset.color.slice(1)}`
+  const c = el.dataset.color;
+  let type = "text"
+  let r =""
+  switch(el.dataset.id){
+    case 'label':
+      type = "text"
+       r=  efb_add_costum_color(t, c ,"" , type)
+       pub_el_text_color_efb = r;
+       pub_label_text_color_efb  = r;
+    break;
+    case 'description':
+      type = "text"
+      pub_message_text_color_efb=  efb_add_costum_color(t, c ,"" , type)
+      break;
+    case 'icon':
+      type = "text"
+      r=  efb_add_costum_color(t, c ,"" , type)
+      pub_icon_color_efb = r;
+      break;
+    case 'btntc':
+      //رنگ متن روی دکمه و آیکون روی دکمه
+      // ویژگی ها باتن
+      type = "text";
+      r=  efb_add_costum_color(t, c ,"" , type)
+      break;
+    case 'button':
+    case 'buttonColor':
+      type = "btn"
+      pub_button_color_efb=  efb_add_costum_color(t, c ,"" , type)
+        // در همه ردیف ها ویژگی باتن تغییر کند
+        // مقدار رنگ در یک متغییر محلی یا مرورگر ذخیره شود
+        // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
+        break;
+      }
+      console.log(`color for [${el.dataset.id}] => [${r}]`);
+  //c #000e24
+  //v = ""
+  //type = text, border , bg , btn
+  
+/*   for(let i in valj_efb){
     console.log(valj_efb[i]);
     switch(el.dataset.id){
       case 'label':
@@ -3313,7 +3353,7 @@ function test_efb_(el){
           // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
           break;
     }
-  }
+  } */
 
   // در مرحله بعد در زمان ایجاد ردیف جدید در چک شود رنگ پیش فرض در درون متغییر محلی وجود دارد
   // یا نه اگر نبود از متد سابق و اگر بود رنگ متغییر محلی valj_efb
@@ -3323,7 +3363,7 @@ content_colors_setting_efb=()=>{
   get_colors_el =(name)=>{
     let r =`<!--colors-->`
     for(let i of efb_var.colors){
-      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid #ccc;" onClick="test_efb_(this)"></p>`;
+      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid #ccc;" onClick="colors_template_picker_efb(this)"></p>`;
     }
     //return `<div class="efb row col">${r}</div>`;
     return `<span class="efb ">
@@ -3367,7 +3407,7 @@ msg_colors_from_template = ()=>{
   get_colors =()=>{
     let r =`<!--colors-->`
     for(let i of efb_var.colors){
-      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="test_efb_(this)"></div>`;
+      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="colors_template_picker_efb(this)"></div>`;
     }
     return `<div class="efb row col">${r}</div>`;
   }

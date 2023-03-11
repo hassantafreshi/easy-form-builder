@@ -2250,12 +2250,32 @@ addStyleColorBodyEfb = (t, c, type, id) => {
   }
 
   c=c[0]!="#" ? "#"+c : c
-  if (type == "text") { v = `.${type}-${t}{color:${c}!important;}` }
+  efb_add_costum_color(t, c ,v , type)
+  /* if (type == "text") { v = `.${type}-${t}{color:${c}!important;}` }
   else if (type == "icon") { v = `.text-${t}{color:${c}!important;}` }
   else if (type == "border") { v = `${tag}.${type}-${t}{border-color:${c}!important;}` }
   else if (type == "bg") { v = `.${type}-${t}{background-color:${c}!important;}` }
   else if (type == "btn") { v = `.${type}-${t}{background-color:${c}!important;}` }
+  document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` })) */
+}
+
+
+efb_add_costum_color=(t, c ,v , type)=>{
+  //t colorDEfb-000e24
+  //c #000e24
+  //v = ""
+  //type = text, border , bg , btn
+  console.log(t, c ,v , type);
+  let n =''
+  c=c[0]!="#" ? "#"+c : c
+  if (type == "text") {       n=`${type}-${t}`;         v = `.${n}{color:${c}!important;}` }
+  else if (type == "icon") {  n=`text-${t}`;            v = `.${n}{color:${c}!important;}` }
+  else if (type == "border") {n=`${type}-${t}`;         v = `${tag}.${n}{border-color:${c}!important;}` }
+  else if (type == "bg") {    n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
+  else if (type == "btn") {   n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
+  console.log(n);
+  return n;
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
