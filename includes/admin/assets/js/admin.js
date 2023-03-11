@@ -2398,7 +2398,8 @@ let sampleElpush_efb = (rndm, elementId) => {
   
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  if (tag != undefined || (typeof tag=="string" && tag.includes("pay")==-1)) {
+  console.log(tag);
+  if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false)) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });

@@ -106,8 +106,8 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
             <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
            `
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
 
         } else {
           //countries_local.sort();
@@ -119,7 +119,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
             const op_id = i.s2.toLowerCase();
             optn += `<option value="${i.n} (${i.l})" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
 
-            optionElpush_efb(rndm, `${i.n} (${i.l})`, rndm_1, op_id);
+            optionElpush_efb(rndm, `${i.n} (${i.l})`, rndm_1, op_id ,'select');
 
             // i+=1;
           }
@@ -147,8 +147,8 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
             <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
            `
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4);
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
 
         } else {
           state_local.sort();
@@ -156,7 +156,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
           for (let i = 0; i < state_local.length; i++) {
 
             optn += `<option value="${state_local[i]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" >${state_local[i]}</option>`
-            optionElpush_efb(rndm, state_local[i], rndm_1, state_local[i]);
+            optionElpush_efb(rndm, state_local[i], rndm_1, state_local[i] ,'select');
           }
 
         }

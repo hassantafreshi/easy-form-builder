@@ -889,11 +889,14 @@ class efbFunction {
 						$type =strtolower($type);
 						error_log(preg_match("/checkbox/i", $type));
 						error_log(preg_match("/multi/i", $type));
-						if( preg_match("/checkbox/i", $type)==false && preg_match("/multi/i", $type)==false && gettype($v)!="array" && gettype($v)!="object"){
+						error_log(preg_match("/radio/i", $type));
+						if( preg_match("/checkbox/i", $type)==false && preg_match("/multi/i", $type)==false && gettype($v)!="array" && gettype($v)!="object" 
+							|| (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
 						}else{
 								error_log("=========================>");
 								error_log(gettype($v));
+								if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
 								# code...
 								$v[$ki]=sanitize_text_field($va);
@@ -990,6 +993,8 @@ class efbFunction {
 							}
 							$valp[$key]["id_old"]=$valp[$key]["id_"];
 							$valp[$key]["id_"] = $valp[$key][$k];
+							if(isset($valp[$key]["id_op"]))$valp[$key]["id_op"]=$valp[$key][$k];
+							if(isset($valp[$key]["dataId"]))$valp[$key]["dataId"]=$valp[$key][$k] ."-id";
 							$valp[$key]["option"] = $valp[$key][$k];
 						}
 					break;

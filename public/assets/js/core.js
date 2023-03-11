@@ -1961,30 +1961,85 @@ window.addEventListener("popstate",e=>{
    //sefb --> selected  t = selected / f=unselected / null == selected
    //defb --> disabled  t = disabled / f=enabled / null == don't change pro
   const getUrlparams = new URLSearchParams(location.search)
-  const iefb = getUrlparams.getAll("iefb");  //id field
+  const iefb =  getUrlparams.getAll("iefb");  //id field
   const hefb =  getUrlparams.getAll("hefb"); //hidden field
   const sefb =  getUrlparams.getAll("sefb"); //selected field
   const defb =  getUrlparams.getAll("defb"); //disabled field
+  const vefb =  getUrlparams.getAll("vefb"); //value for field
   console.log(iefb);
   if(iefb.length>0){
     for(let i in iefb){
       // آی ذی را جستجو کند و مقدار دیفالت ولیو برای آن اضافه کند اگر وجود نداشت و مقدار قبلی را تغییر بدهد
-      console.log(`index[${i}] id[${iefb[i]}]`);
-      if(sefb.length>0 && sefb.length>i){
-       //اگر ترو بود انتخاب کند
-       // اگر فالس بود انتخاب نکند
-       // اگر مقدار نداشت دست بهش نزند
+      console.log(`index[${i}] id[${iefb[i]}] selected[${sefb[i]}]`);
+      const id =iefb[i];
+      const i_ = valj_efb.findIndex(x=>x.id_==id);
+      let i_p = -1;
+      let t_e ='string';
+      if(valj_efb[i_].hasOwnProperty('parent')==true) i_p= valj_efb.findIndex(x=>x.id_==valj_efb[i_].parent)
+      if(i_p!=-1){
+        t_e = valj_efb[i_p].type.toLowerCase();
+        t_e = (t_e.includes('select')==true && t_e.includes('multi')==false) ||t_e.includes('radio')==true ? "string" :'array';
       }
-      if(defb.length>0 && defb.length>i){
-       //t= disabled
-       //f= enabled
+      console.log(id , i_ , i_p ,t_e,valj_efb[i_] ,valj_efb[i_].hasOwnProperty('parent') ,sefb[i] )
+      if(sefb.length>0 && sefb.length>i){
+         //Selected field 1 add / 0 remove
+         //run just for options
+         if(i_p==-1)continue;
+        if(t_e=="string"  ){
+            if(sefb[i]==1){
+            valj_efb[i_p].value = id;
+            console.log(sefb[i] ,id,valj_efb[i_p]);
+          }
+        }else{
+          t_e  = typeof valj_efb[i_p].value;
+          const indx = t_e!="string" ?  valj_efb[i_p].value.findIndex(x=>x==id) : -2
+          console.log(t_e,indx);
+          if(sefb[i]==1){
+            
+            if(indx==-1){ 
+              valj_efb[i_p].value.push(id);
+            }else if (indx==-2){
+              valj_efb[i_p].value=[id];
+              console.log(sefb[i] ,id,valj_efb[i_p]);
+            }
+
+          }else{            
+            if(indx>-1)valj_efb[i_p].value.splice(indx,1);
+          }
+        }
+        
+      }
+      if(defb.length>0 && defb.length>i){    
+       //1= disabled
+       //2= enabled
        //n= don't change pro
+       i_p=  i_p!=-1 ? i_p : i_
+       if(defb[i]==1){
+        valj_efb[i_p].disabled=1          
+       }else if(defb[i]==0){
+        valj_efb[i_p].disabled=0    
+       }
       }
       if(hefb.length>0 && hefb.length>i){
         // اگر دیسپلی گت داشت  و مقدار برابر با اف بود مقدار فیلد مرتبط را مخفی کند  مقدار
         //hidden =1
         // شود اگر وجود نداشت کلا تغییر ایجاد نکند اگر تی بود
         // hidden = 0 
+        // یعنی متغییر را نمایش دهد
+        i_p=  i_p!=-1 ? i_p : i_
+        if(hefb[i]==1){
+          valj_efb[i_p].hidden=1            
+         }else if(hefb[i]==0){
+          valj_efb[i_p].hidden=0  
+         }
+      }
+      if(vefb.length>0 && vefb.length>i && i_p==-1){
+        valj_efb[i].value = vefb[i];
+        // اگر دیسپلی گت داشت  و مقدار برابر با اف بود مقدار فیلد مرتبط را مخفی کند  مقدار
+        //vefb =1
+        // شود اگر وجود نداشت کلا تغییر ایجاد نکند اگر تی بود
+        // vefb = 0 
+        //vefb == string  added to value
         // یعنی متغییر را نمایش دهد
       }
     }

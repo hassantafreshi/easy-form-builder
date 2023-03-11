@@ -501,8 +501,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
            ${elementId.includes('chl')!=false?`<input type="text" class="efb col ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${valj_efb[iVJ].id_}" data-vid="" id="${valj_efb[iVJ].id_}_chl" placeholder="${valj_efb[iVJ].pholder_chl_value}" disabled>` :''}
            ${pay.length>2 ?`<span  class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="${op_2}-price" class="efb efb-crrncy">${pv.toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></span>` :''}
        </div>`
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1);
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2);
+        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, op_1, op_1 ,dataTag);
+        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, op_2, op_2 ,dataTag);
       }
       ui = `
       <!-- checkbox -->
@@ -621,8 +621,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb  " >${efb_var.text.newOption} 1</option>
         <option value="${efb_var.text.newOption} 2" id="${rndm_2}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb " >${efb_var.text.newOption} 2</option>
        `
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3);
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_2, op_4);
+        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,dataTag);
+        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_2, op_4 ,dataTag);
       }
       ui = `
       ${label}
@@ -724,9 +724,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        `
         const id = `menu-${rndm}`;
         //console.log(rndm);
-        optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, op_3);
-        optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, op_4);
-        optionElpush_efb(rndm, `${efb_var.text.yellow}`, `${op_5}`, op_5);
+        optionElpush_efb(rndm, `${efb_var.text.blue}`, `${op_3}`, op_3 ,dataTag);
+        optionElpush_efb(rndm, `${efb_var.text.Red}`, `${op_4}`, op_4 ,dataTag);
+        optionElpush_efb(rndm, `${efb_var.text.yellow}`, `${op_5}`, op_5 ,dataTag);
 
       }
       //console.log(`previewSate[${previewSate}]`);

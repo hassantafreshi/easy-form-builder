@@ -32,18 +32,21 @@ function fun_total_pay_efb() {
     if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
     for (let o of valj_efb) {
       //console.log(o.type.includes('pay'),o);
-      if (o.hasOwnProperty('price')==true || o.type.includes('pay')>0 && o.type.includes('payment')==false) {
+      if (o.hasOwnProperty('price')==true ) {
+        //|| o.type.includes('pay')==true && o.type.includes('payment')==false
         //console.log(o.hasOwnProperty('parent'));
+        console.log(o);
         if (o.hasOwnProperty('parent')) {
           const p = valj_efb.findIndex(x => x.id_ == o.parent);
-          type = valj_efb[p].type;
+          type = valj_efb[p].type.toLowerCase();
+          if( type != "radio"  && type != "checkbox" && type != "select") continue;
           
           let ov = document.querySelector(`[data-vid="${o.parent}"]`);
           ov.classList.remove('payefb');
           ov.classList.add('disabled');
         
           ov.disabled = true;
-          if (type != "multiselect" && type != "select" && type != "payMultiselect" && type != "paySelect") {
+          if (type != "multiselect"  && type != "payMultiselect" && type != "paySelect") {
             const ob = valj_efb.filter(obj => {
               return obj.parent === o.parent
             })

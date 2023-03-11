@@ -295,8 +295,8 @@ fun_add_stripe_efb = () => {
     </div>
     <a class="efb  btn my-2 efb p-2 efb-square h-l-efb  efb-btn-lg float-end text-decoration-none disabled" id="btnStripeEfb">${efb_var.text.payNow}</a>
     <div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
-   
-        
+    </div>
+    </div>
     <!-- end stripe -->
     `
 }
