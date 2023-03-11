@@ -1272,7 +1272,7 @@ function show_setting_window_efb(idset) {
     
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
-    for (const el of document.querySelectorAll(`.elEdit`)) {
+    for (const el of document.querySelectorAll(`.elEdit`)) {      
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
     }

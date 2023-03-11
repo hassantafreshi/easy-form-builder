@@ -11,6 +11,12 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
+let pub_el_text_color ='text-labelEfb';
+let pub_message_text_color ='text-muted';
+let pub_icon_color;
+let pub_label_text_color ='text-labelEfb';
+let pub_el_border_color='border-d';
+let pub_button_color='btn-primary';
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -997,9 +1003,11 @@ const funSetCornerElEfb = (dataId, co) => {
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
    //console.log("=================>change_el_edit_Efb",el.id , el.value)
-  if (el.value.length > 0 && el.value.search(/(")+/g) != -1) {
+  if (el.value.length > 0 && el.value.search(/(")+/g) != -1 && el.id !="htmlCodeEl") {
     el.value = el.value.replaceAll(`"`, '');
     alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
+  }else if (el.id =="htmlCodeEl"){
+    el.value = el.value.replaceAll(`"`, `'`);
   }
 
   if (lenV > 20) {
@@ -1861,8 +1869,24 @@ let change_el_edit_Efb = (el) => {
         }
       break;
       case 'ElIdOptions':
+        if(el.value.length<3){
+          alert_message_efb(efb_var.text.error ,efb_var.text.idl5, 25 ,'danger' )
+          break;
+        }
+         c = valj_efb.findIndex(x=>x.id == el.value)
+         if(c==-1){
+          c = valj_efb.findIndex(x=>x.id_ == el.value)
+         
+         }
 
-        c = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+         if(c!=-1){
+          el.value="";
+          clss = `<div class="efb"> ${efb_var.text.idmu} <br> <b>[${valj_efb[c].value}]<b> </div>`
+          alert_message_efb(efb_var.text.error ,clss, 30 ,'danger' )
+          break;
+         }
+        
+         c= valj_efb.findIndex(x => x.id_op == el.dataset.id);
         console.log(`iindx=========>[${c}]`);
         if (c != -1) {
           el.value =  el.value.replace(/[^a-zA-Z0-9_-]/g, '')
@@ -2391,7 +2415,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     if (elementId == "dadfile") {
       //console.log (valj_efb[(valj_efb.length) - 1])
       Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color: "text-pinkEfb", button_color: 'btn-primary' })
-      //icon_color: 'default'
+      
     }
 
   }
