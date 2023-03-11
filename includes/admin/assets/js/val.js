@@ -1569,7 +1569,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
     </div>`
   
-  return `<div class="efb mx-0 col-sm-12 row opt"> 
+  return `<div class="efb mx-0 col-sm-12 row opt" id="${idin}-gs"> 
   <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
   <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0 elEdit" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions" ${checked}>
   <label  for="ElvalueOptions" class="efb form-label mx-1 my-0 py-0 ${l_b} fs-6" >${efb_var.text.dslctd}</label>

@@ -2828,10 +2828,23 @@ const sort_obj_efb = () => {
 
 const delete_option_efb = (id) => {
   //حذف آپشن ها مولتی سلکت و درایو
-  document.getElementById(`${id}-v`).remove();
+  document.getElementById(`${id}-gs`).remove();
   if (document.getElementById(`${id}-v`)) document.getElementById(`${id}-v`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
-  if (indx != -1) { valj_efb.splice(indx, 1); }
+  let ip = valj_efb.findIndex(x => x.id_ == valj_efb[indx].parent)
+  console.log(`ip[${ip}]`);
+  if (indx != -1) {
+  if (ip!=-1 && typeof valj_efb[ip].value =="string"){
+    console.log(valj_efb[ip].value ,  valj_efb[indx].id_)
+     if(valj_efb[ip].value == valj_efb[indx].id_)valj_efb[ip].value="";
+  }else if(ip!=-1){
+    console.log(valj_efb[ip].value, valj_efb[indx].id_)
+    const ix = valj_efb[ip].value.findIndex(x=>x == valj_efb[indx].id_);
+    console.log(`ix[${ix}]`);
+    if(ix!=-1) valj_efb[ip].value.splice(ix,1);
+  }
+
+   valj_efb.splice(indx, 1); }
 }
 
 

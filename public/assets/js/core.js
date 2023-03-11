@@ -109,20 +109,28 @@ setTimeout(() => {
 
 function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
+ 
  // url.searchParams.set('stepNo', 1);
  console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
-  valj_efb = valueJson_ws
+  valj_efb = valueJson_ws;
+  fun_gets_url_efb();
   console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
   console.log(valj_efb ,valueJson_ws ,sendBack_emsFormBuilder_pub);
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');
   console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
- 
+  if(form_type_emsFormBuilder=="payment"){
+    setTimeout(() => {    
+      fun_total_pay_efb()
+    }, valj_efb.length *2);
+  }
+
+  
 }
 
 /* function ShowTab_emsFormBuilder_view(n) {
@@ -1944,5 +1952,44 @@ window.addEventListener("popstate",e=>{
     Number(e.state.slice(8)) <= Number(current_s_efb)  ? prev_btn_efb() :jQuery("#next_efb").trigger('click');
 
  })//end event backward public
+
+
+ fun_gets_url_efb =()=>{
+   if(efb_var.pro!=true){console.dirxml(`${efb_var.text.fieldAvailableInProversion}`);return;}
+   //iefb --> id 
+   //hefb --> hidden of element f==show / null or t === hidden
+   //sefb --> selected  t = selected / f=unselected / null == selected
+   //defb --> disabled  t = disabled / f=enabled / null == don't change pro
+  const getUrlparams = new URLSearchParams(location.search)
+  const iefb = getUrlparams.getAll("iefb");  //id field
+  const hefb =  getUrlparams.getAll("hefb"); //hidden field
+  const sefb =  getUrlparams.getAll("sefb"); //selected field
+  const defb =  getUrlparams.getAll("defb"); //disabled field
+  console.log(iefb);
+  if(iefb.length>0){
+    for(let i in iefb){
+      // آی ذی را جستجو کند و مقدار دیفالت ولیو برای آن اضافه کند اگر وجود نداشت و مقدار قبلی را تغییر بدهد
+      console.log(`index[${i}] id[${iefb[i]}]`);
+      if(sefb.length>0 && sefb.length>i){
+       //اگر ترو بود انتخاب کند
+       // اگر فالس بود انتخاب نکند
+       // اگر مقدار نداشت دست بهش نزند
+      }
+      if(defb.length>0 && defb.length>i){
+       //t= disabled
+       //f= enabled
+       //n= don't change pro
+      }
+      if(hefb.length>0 && hefb.length>i){
+        // اگر دیسپلی گت داشت  و مقدار برابر با اف بود مقدار فیلد مرتبط را مخفی کند  مقدار
+        //hidden =1
+        // شود اگر وجود نداشت کلا تغییر ایجاد نکند اگر تی بود
+        // hidden = 0 
+        // یعنی متغییر را نمایش دهد
+      }
+    }
+  }
+
+ }
 
 
