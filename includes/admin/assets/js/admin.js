@@ -13,10 +13,11 @@ const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
 let pub_el_text_color_efb='text-labelEfb';
 let pub_message_text_color_efb ='text-muted';
-let pub_icon_color_efb;
+let pub_icon_color_efb = "text-pinkEfb";
 let pub_label_text_color_efb ='text-labelEfb';
 let pub_el_border_color_efb='border-d';
-let pub_button_color_efb='btn-primary';
+let pub_bg_button_color_efb='btn-primary';
+let pub_txt_button_color_efb='text-white';
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -2307,7 +2308,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   amount_el_efb = amount_el_efb ?amount_el_efb: (valj_efb[testb-1].amount +1);
   step_el_efb = step_el_efb ? step_el_efb: valj_efb[0].steps ;
   const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-  const txt_color = elementId != "yesNo" ? 'text-labelEfb' : "text-white"
+  const txt_color = elementId != "yesNo" ? pub_el_text_color_efb : pub_txt_button_color_efb
   p=()=>{const l =fields_efb.find(x=>x.id == elementId);  return l && l.hasOwnProperty('pro')? l.pro :0} ;
   let pro = p();
   let size = 100;
@@ -2335,8 +2336,8 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
-      label_position: 'up', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
-      el_text_color: txt_color, message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
+      label_position: 'up', el_text_size: 'fs-6', label_text_color: pub_label_text_color_efb, el_border_color: 'border-d',
+      el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
       el_align: 'justify-content-start', pro: pro, icon_input: ''
     })
 
@@ -2351,14 +2352,14 @@ let sampleElpush_efb = (rndm, elementId) => {
       form_type_emsFormBuilder = "payment";
     }
     if (elementId == "esign") {
-
+      console.log(pub_icon_color_efb);
       Object.assign(valj_efb[(valj_efb.length) - 1], {
-        icon: 'bi-save', icon_color: "default", button_single_text: efb_var.text.clear,
-        button_color: 'btn-danger'
+        icon: 'bi-save', icon_color: pub_icon_color_efb, button_single_text: efb_var.text.clear,
+        button_color: pub_bg_button_color_efb
       })
       //icon: ''
     } else if (elementId == "yesNo") {
-      Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: 'btn-primary' })
+      Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
       Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 7 });
       setTimeout(() => {
@@ -2399,7 +2400,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
       id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
       label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
-      el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
+      el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
     });
 
   } else {
@@ -2408,13 +2409,13 @@ let sampleElpush_efb = (rndm, elementId) => {
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
       message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
        label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
-      label_text_color: 'text-labelEfb', label_position: 'up', el_text_color: 'text-dark', message_text_color: 'text-muted', el_height: 'h-d-efb',
+      label_text_color: pub_label_text_color_efb, label_position: 'up', el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
       el_align: 'justify-content-start', pro: pro
     })
     if (elementId == "dadfile") {
       //console.log (valj_efb[(valj_efb.length) - 1])
-      Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color: "text-pinkEfb", button_color: 'btn-primary' })
+      Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
       
     }
 
@@ -3319,7 +3320,7 @@ function colors_template_picker_efb(el){
     case 'button':
     case 'buttonColor':
       type = "btn"
-      pub_button_color_efb=  efb_add_costum_color(t, c ,"" , type)
+      pub_bg_button_color_efb=  efb_add_costum_color(t, c ,"" , type)
         // در همه ردیف ها ویژگی باتن تغییر کند
         // مقدار رنگ در یک متغییر محلی یا مرورگر ذخیره شود
         // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
@@ -3362,8 +3363,39 @@ function colors_template_picker_efb(el){
 content_colors_setting_efb=()=>{
   get_colors_el =(name)=>{
     let r =`<!--colors-->`
+    /* 
+    let pub_el_text_color_efb='text-labelEfb';
+    let pub_message_text_color_efb ='text-muted';
+    let pub_icon_color_efb = "text-pinkEfb";
+    let pub_label_text_color_efb ='text-labelEfb';
+    let pub_el_border_color_efb='border-d';
+    let pub_bg_button_color_efb='btn-primary';
+    let pub_txt_button_color_efb='text-white';
+     */
+    let d = '';
+    switch(name){
+      case 'description':
+        d = pub_message_text_color_efb.includes('text-colorDEfb-')==true ? "#"+pub_message_text_color_efb.slice(15) :'';
+      break;
+      case 'label':
+        d = pub_label_text_color_efb.includes('text-colorDEfb-')==true ? "#"+pub_label_text_color_efb.slice(15) :'';
+      break;
+      case 'icon':
+        d = pub_icon_color_efb.includes('text-colorDEfb-')==true ? "#"+pub_icon_color_efb.slice(15) :'';
+      break;
+      case 'buttonColor':
+        d= pub_bg_button_color_efb.includes('text-colorDEfb-')==true ? "#"+pub_bg_button_color_efb.slice(15) :'';
+      break;
+      case 'btntc':
+        d= pub_txt_button_color_efb.includes('text-colorDEfb-')==true ? "#"+pub_txt_button_color_efb.slice(15) :'';
+      break;
+      case 'form':
+      break
+    }
+    console.log(`d[${d}]`);
     for(let i of efb_var.colors){
-      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid #ccc;" onClick="colors_template_picker_efb(this)"></p>`;
+      const c = d==i ? '#c60000' : '#ccc';
+      r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid ${c};" onClick="colors_template_picker_efb(this)"></p>`;
     }
     //return `<div class="efb row col">${r}</div>`;
     return `<span class="efb ">

@@ -30,7 +30,7 @@ esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
     </canvas>
    ${previewSate == true ? `<input type="hidden" data-type="esign" data-vid='${rndm}' class="efb  emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">` : ``}
     <div class="efb  mx-1">${desc}</div>
-    <div class="efb  mb-3"><button type="button" class="efb  btn ${corner} ${valj_efb[iVJ].button_color} efb-btn-lg mt-1 fs-6 ${disabled}" id="${rndm}_b" onClick="fun_clear_esign_efb('${rndm}')">  <i class="efb  ${valj_efb[iVJ].icon} mx-2 ${valj_efb[iVJ].icon_color != "default" ? valj_efb[iVJ].icon_color : ''} " id="${rndm}_icon"></i><span id="${rndm}_button_single_text" class="efb  text-white efb " ${disabled}>${valj_efb[iVJ].button_single_text}</span></button></div>
+    <div class="efb  mb-3"><button type="button" class="efb  btn ${corner} ${valj_efb[iVJ].button_color} efb-btn-lg mt-1 fs-6 ${disabled}" id="${rndm}_b" onClick="fun_clear_esign_efb('${rndm}')">  <i class="efb  ${valj_efb[iVJ].icon} mx-2 ${valj_efb[iVJ].icon_color != "default" ? valj_efb[iVJ].icon_color : ''} " id="${rndm}_icon"></i><span id="${rndm}_button_single_text" class="efb  ${valj_efb[iVJ].icon_color} efb " ${disabled}>${valj_efb[iVJ].button_single_text}</span></button></div>
       `;
 }
 
@@ -806,7 +806,7 @@ function fun_point_rating(el) {
       if (Number(l.dataset.point) <= Number(el.dataset.point)) {
           /* l.classList.remove('btn-secondary');
           l.classList.add('btn-darkb'); */
-          l.className = btnChangerEfb(l.className, 'btn-darkb');
+          l.className = btnChangerEfb(l.className, pub_bg_button_color_efb);
       } else {
           l.className = btnChangerEfb(l.className, 'btn-secondary');
       }
@@ -850,11 +850,11 @@ function fun_point_rating(el) {
 }
 function fun_nps_rating(el) {
   const id = el.dataset.id;
-  el.className = btnChangerEfb(el.className, 'btn-darkb');
+  el.className = btnChangerEfb(el.className, pub_bg_button_color_efb);
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
       
       if (Number(l.dataset.point) != Number(el.dataset.point)) {
-
+          console.log(l.className);
           l.className = btnChangerEfb(l.className, 'btn-outline-secondary');
       }
   }

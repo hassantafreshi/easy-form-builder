@@ -1714,10 +1714,10 @@ div#sideBoxEfb {	height: 100vh;
    max-height: 2.7rem;
    margin: 2%;
 }
-#btnStripeEfb {	background-color: #535ad5;
+#btnStripeEfb {	/* background-color: #535ad5; */
    color: #fff;
 }
-#btnStripeEfb:hover {	background-color: #3a43ff;
+#btnStripeEfb:hover {/* 	background-color: #3a43ff; */
    color: #fff;
 }
 #btnStripeEfb:disabled {	color: rgb(218, 218, 218);

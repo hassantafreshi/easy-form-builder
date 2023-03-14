@@ -233,7 +233,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
           id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
           label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
-          el_text_color: 'text-labelEfb', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
+          el_text_color: 'text-labelEfb', message_text_color:pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
         });
 
         indexVJ = valj_efb.length - 1;
@@ -267,7 +267,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
         id: `${step_el_efb}`, name: efb_var.text[formName_Efb].toUpperCase(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
         label_text_size: 'fs-5', el_text_size: 'fs-5', file: 'document', label_text_color: 'text-darkb',
-        el_text_color: 'text-dark', message_text_color: 'text-muted', icon_color: 'text-danger', icon: 'bi-ui-checks-grid', visible: 1
+        el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
       });
       // add_buttons_zone_efb(0, 'dropZoneEFB');
 
