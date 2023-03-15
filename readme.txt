@@ -2,14 +2,14 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.23
+Stable tag: 			3.5.24
 Requires at least: 	      4.7
 Tested up to: 			6.1.1
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
-
+Easy Form Builder is a user-friendly plugin to help you create powerful forms. With Easy Form Builder, creating professional forms of any kind becomes a breeze - no coding skills required Via a visual user interface 
 
 == Description ==
 **Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
@@ -355,6 +355,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.24=
+* Improved UX of Easy Form Builder
+* Added Phone picker to forms
 
 =3.5.23=
 =3.5.22=
