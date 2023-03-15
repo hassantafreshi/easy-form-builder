@@ -546,9 +546,9 @@ function add_dasboard_emsFormBuilder() {
     n.addEventListener("click", (e) => {
       form_type_emsFormBuilder = n.id;
       create_form_by_type_emsfb(n.id, 'npreview');
-      setTimeout(() => {
+      /* setTimeout(() => {
         msg_colors_from_template()
-      }, 1000);
+      }, 1000); */
     })
   }
   newform_ = document.getElementsByClassName("efbPreviewForm")
@@ -3295,6 +3295,7 @@ function colors_template_picker_efb(el){
   const c = el.dataset.color;
   let type = "text"
   let r =""
+  Object.assign(valj_efb[0],{customize_color:1});
   switch(el.dataset.id){
     case 'label':
       type = "text"
@@ -3316,6 +3317,7 @@ function colors_template_picker_efb(el){
       // ویژگی ها باتن
       type = "text";
       r=  efb_add_costum_color(t, c ,"" , type)
+      pub_txt_button_color_efb=r;
       break;
     case 'button':
     case 'buttonColor':
@@ -3327,6 +3329,62 @@ function colors_template_picker_efb(el){
         break;
       }
       console.log(`color for [${el.dataset.id}] => [${r}]`);
+     // if(valj_efb.length<2) return;
+
+      for(let i in valj_efb){
+        console.log(i);
+        const row = valj_efb[i];
+        let type = valj_efb[i].hasOwnProperty('type') ? valj_efb[i].type :"";
+        for(const [k , v] of Object.entries(row)){
+
+          console.log(`k[${k}],v[${v}]`);
+          switch(k){
+            case 'el_text_color':
+            case 'label_text_color':             
+              if(type =="form" || type=="yesNo" || type=="payment"){
+                valj_efb[i][k]=pub_txt_button_color_efb;
+              }else{
+                valj_efb[i][k]=pub_el_text_color_efb 
+              }
+              console.error(`${k}=============>${valj_efb[i][k]}` ,pub_el_text_color_efb);
+              console.error(valj_efb[i].type ,valj_efb[i][k]);
+            
+            break;
+          /*   case 'label_text':
+              //pub_label_text_color_efb
+              valj_efb[i][k]=pub_label_text_color_efb;
+            break */
+
+            case 'message_text_color':
+             // type = "text"
+             valj_efb[i][k]=pub_message_text_color_efb;
+              break;
+            case 'icon_color':
+              valj_efb[i][k]=pub_icon_color_efb;
+              break;
+            case 'btntc':
+              //رنگ متن روی دکمه و آیکون روی دکمه
+              // ویژگی ها باتن
+            
+             
+              pub_txt_button_color_efb;
+              break;
+            case 'button_color':
+              
+              valj_efb[i][k]=pub_bg_button_color_efb
+                // در همه ردیف ها ویژگی باتن تغییر کند
+                // مقدار رنگ در یک متغییر محلی یا مرورگر ذخیره شود
+                // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
+                break;
+          }
+        }
+
+        editFormEfb();
+       /*  row.forEach((v,k) => {
+          console.log(i , k , v);
+        }); */
+        
+      }
   //c #000e24
   //v = ""
   //type = text, border , bg , btn
@@ -3399,7 +3457,7 @@ content_colors_setting_efb=()=>{
     }
     //return `<div class="efb row col">${r}</div>`;
     return `<span class="efb ">
-    <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-1 mt-3 mb-1 efb fs-6">${efb_var.text[name]}</label>
+    <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-1 mt-3 mb-1 efb fs-6">${efb_var.text[name+'s']}</label>
     <div class="efb row col mx-1" id="Listefb-150">
     ${r}
     </div></span>`;

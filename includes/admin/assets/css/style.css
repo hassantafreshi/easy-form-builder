@@ -1394,10 +1394,10 @@ fieldset.efb {	background: transparent;
    border-radius: .3rem;
 }
 #btn_send_efb.h-l-efb,#btn_send_efb.h-xl-efb,#btn_send_efb.h-xxl-efb,#btn_send_efb.h-xxxl-efb {	width: 100% !important;
-   margin: 0px 20px 10px 29px;
+  /*  margin: 0px 20px 10px 29px; */
+  margin:0px 5px 10px 5px
 }
-.rtl #btn_send_efb{	margin: 0px 29px 10px 20px;
-}
+
 #img_recaptcha_perview_efb {	max-width: 300px;
 }
 .efb input[type=radio]:after,.efb input[type=checkbox]:after,.efb input[type=radio]:checked::before,.efb input[type=checkbox]:checked::before {	display: contents !important;
