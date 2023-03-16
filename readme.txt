@@ -214,7 +214,7 @@ Easy Form Builder offers numerous features to make your life easier, including::
 
 - *Free WordPress User Registration Forms*:Quickly create login and user registration forms with Easy Form Builder's premade templates. Save time and improve user experience on your website with this hassle-free solution.
 
-- *Create **free* Surveys and Polls forms*: Design survey and poll forms and evaluate responses through advanced analytics and visualization tools like charts and reports.
+- *Create **free** Surveys and Polls forms*: Design survey and poll forms and evaluate responses through advanced analytics and visualization tools like charts and reports.
 
 - *Private Form (Form Locker)*: Take control of your form permissions with Easy Form Builder's Private Forms feature. Set access control rules so that only members of your site can access certain forms, ensuring the privacy and security of your data.
 
@@ -222,9 +222,9 @@ Easy Form Builder offers numerous features to make your life easier, including::
 
 - *Online Form Builder*: With Easy Form Builder's drag & drop and Multi-Step form builder, you can easily create custom WordPress contact forms and other online forms without any coding skills. This powerful tool helps you collect important information from your website visitors, improving your lead generation and customer engagement.
 
-- *Multi Step Form Builder*: With Easy Form Builder's **free* and unlimited multi-step form builder, you can easily create complex and lengthy forms by breaking them down into smaller, more manageable steps for a better user experience.
+- *Multi Step Form Builder*: With Easy Form Builder's **free** and unlimited multi-step form builder, you can easily create complex and lengthy forms by breaking them down into smaller, more manageable steps for a better user experience.
 
-- *Entry Management* : With Easy Form Builder's **free* entry management feature, you can effortlessly manage filled forms and responses from a user-friendly dashboard, streamlining your workflow and improving efficiency.
+- *Entry Management* : With Easy Form Builder's **free** entry management feature, you can effortlessly manage filled forms and responses from a user-friendly dashboard, streamlining your workflow and improving efficiency.
 
 - *Email Notification* : Respond to incoming inquiries quickly with our instant contact form notification system available for **free**. Stay on top of your messages by receiving email alerts as soon as someone submits a contact form on your website. With Easy Form Builder, you can streamline your communication process and never miss an important message again.
 
