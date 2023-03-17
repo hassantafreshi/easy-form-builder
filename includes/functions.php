@@ -230,7 +230,7 @@ class efbFunction {
 			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : __('This feature is only available in the Pro version of Easy Form Builder.','easy-form-builder'),
 			"editField" => $state ? $ac->text->editField : __('Edit Field','easy-form-builder'),
 			"description" => $state ? $ac->text->description : __('Description','easy-form-builder'),
-			"descriptions" => $state ? $ac->text->descriptiosn : __('Descriptions','easy-form-builder'),
+			"descriptions" => $state ? $ac->text->descriptions : __('Descriptions','easy-form-builder'),
 			"thisEmailNotificationReceive" => $state ? $ac->text->thisEmailNotificationReceive : __('Enable email notifications','easy-form-builder'),
 			"activeTrackingCode" => $state ? $ac->text->activeTrackingCode : __('Active the Confirmation Code','easy-form-builder'),
 			"addGooglereCAPTCHAtoForm" => $state ? $ac->text->addGooglereCAPTCHAtoForm : __('Add Google reCAPTCHA to the form ','easy-form-builder'),
@@ -455,7 +455,7 @@ class efbFunction {
 			"activationNcorrect" => $state ? $ac->text->activationNcorrect : __('The activation code you entered is incorrect. Please double-check and try again.','easy-form-builder'),
 			"localizationM" => $state ? $ac->text->localizationM : __('To localize the plugin, simply go to the Panel, click on Setting, and then Localization.','easy-form-builder'),
 			"MMessageNSendEr" => $state ? $ac->text->MMessageNSendEr : __('We are sorry, but the message was not sent due to a settings error. Please contact the admin for assistance.','easy-form-builder'),
-			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('To ensure compatibility, please go to the Panel and select the <Setting>" option. From there, choose the option that states <My template has used Bootstrap framework> and click <Save>. If you encounter any additional issues, please don not hesitate to contact us through our website at whitestudio.team.','easy-form-builder'),
+			"warningBootStrap" => $state && isset($ac->text->warningBootStrap) ? $ac->text->warningBootStrap : __('To ensure compatibility, please go to the Panel and select the <Setting> option. From there, choose the option that states <My template has used Bootstrap framework> and click <Save>. If you encounter any additional issues, please don not hesitate to contact us through our website at whitestudio.team.','easy-form-builder'),
 			"or" => $state  && isset($ac->text->or)? $ac->text->or : __('OR','easy-form-builder'),
 			"emailTemplate" => $state  &&  isset($ac->text->emailTemplate) ? $ac->text->emailTemplate : __('Email Template','easy-form-builder'),
 			"reset" => $state  &&  isset($ac->text->reset) ? $ac->text->reset : __('reset','easy-form-builder'),
@@ -526,7 +526,7 @@ class efbFunction {
 			"submit" => $state  &&  isset($ac->text->submit) ? $ac->text->submit : __('Submit','easy-form-builder'),
 			"purchaseOrder" => $state  &&  isset($ac->text->purchaseOrder) ? $ac->text->purchaseOrder : __('Purchase Order','easy-form-builder'),
 			"paymentNcaptcha" => $state  &&  isset($ac->text->paymentNcaptcha) ? $ac->text->paymentNcaptcha : __('It is not possible to include reCAPTCHA on payment forms.','easy-form-builder'),
-			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line "Email server [Easy Form Builder]". If you have received the email, please select the option "I confirm that this host supports SMTP" and save the changes.','easy-form-builder'),
+			"PleaseMTPNotWork" => $state &&  isset($ac->text->PleaseMTPNotWork) ? $ac->text->PleaseMTPNotWork : __('Easy Form Builder could not confirm if your service is able to send emails. Please check your email inbox (or spam folder) to see if you have received an email with the subject line: Email server [Easy Form Builder]. If you have received the email, please select the option <I confirm that this host supports SMTP> and save the changes.','easy-form-builder'),
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : __('I confirm that this host supports SMTP','easy-form-builder'),
 			"interval" => $state  &&  isset($ac->text->interval) ? $ac->text->interval : __('Interval','easy-form-builder'),
 			"nextBillingD" => $state  &&  isset($ac->text->nextBillingD) ? $ac->text->nextBillingD : __('Next Billing Date','easy-form-builder'),
@@ -581,7 +581,7 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
-			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('19$/year','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('21$/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I would like to localize Easy Form Builder.','easy-form-builder'),				
@@ -894,12 +894,14 @@ class efbFunction {
 					case 'value':
 						$type =strtolower($type);
 						error_log(preg_match("/checkbox/i", $type));
+						error_log("preg_match/multi/i, type");
 						error_log(preg_match("/multi/i", $type));
 						error_log(preg_match("/radio/i", $type));
-						if( preg_match("/checkbox/i", $type)==false && preg_match("/multi/i", $type)==false && gettype($v)!="array" && gettype($v)!="object" 
-							|| (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
+						error_log(gettype($v));
+						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
+							&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
-						}else{
+						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
 								error_log("=========================>");
 								error_log(gettype($v));
 								if(gettype($v)=="string") break;
@@ -910,6 +912,8 @@ class efbFunction {
 								error_log($va);
 							}
 							$valp[$key][$k] =$v;
+						}else{
+							$valp[$key][$k]=sanitize_text_field($v);
 						}
 								
 					break;

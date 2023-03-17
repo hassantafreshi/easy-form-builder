@@ -2262,7 +2262,7 @@ let editFormEfb = () => {
             setTimeout(() => {
               const lat = Number(valj_efb[v].lat);
               const lon = Number(valj_efb[v].lng);
-              map = new google.maps.Map(document.getElementById(`${valj_efb[v].id_}-map`), {
+              if(typeof google!='undefined' && google.hasOwnProperty('maps'))  map = new google.maps.Map(document.getElementById(`${valj_efb[v].id_}-map`), {
                 center: { lat: lat, lng: lon },
                 zoom: 8,
               })

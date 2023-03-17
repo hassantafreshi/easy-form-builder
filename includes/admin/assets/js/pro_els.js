@@ -600,7 +600,7 @@ function initMap(disabled) {
       alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
       return 0;
     }
-    map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
+    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
       zoom: zoom,
       center: location,
       mapTypeId: "roadmap",

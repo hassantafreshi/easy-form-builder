@@ -469,9 +469,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         //console.log(`col options[${col}]`);
         for (const i of optns_obj) {
           let checked ="";
-          console.log(parent.value,i.id_,i)
-          if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && parent.value == i.id_){ checked="checked";
-          }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_)!=-1 ){checked="checked"}
+          console.error(parent.value,i.id_,i,parent.value , i.id_old            )
+          if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || parent.value == i.id_old )  ){ checked="checked";
+          }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
           optn += `<div class="efb  form-check ${col}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
@@ -693,6 +693,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const s = valj_efb[indx_parent].value.length>0 ? true :false
 
         for (const i of optns_obj) {
+          console.log(`[[[${i.id_}]]] `,valj_efb[indx_parent]);
           let c = "efb bi-square efb"
           if(s==true && valj_efb[indx_parent].value.findIndex(x=>x==i.id_)!=-1){
              c = "bi-check-square text-info efb"
@@ -1739,14 +1740,14 @@ function previewFormEfb(state) {
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
-      }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 ){
+      }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 && value.type !='option' ){
         
         let t = value.type.toLowerCase();
         let o=[]
-        console.log(`==================> type`,t , value.id_);
+        console.log(`==================> type`,t , value.id_ ,value.value);
         if(t.includes('radio')==true){
           count+=1;
-          let ch = valj_efb.find(x=>x.id_==value.value);
+          let ch = valj_efb.find(x=>x.id_==value.value || x.id_old==value.value);
           console.log(`=========================>ch`,ch)
           
           o=[{
