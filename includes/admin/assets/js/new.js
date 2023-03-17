@@ -471,7 +471,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           let checked ="";
           //console.error(parent.value,i.id_,i,parent.value , i.id_old            )
           console.log(tp);
-          if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || parent.value == i.id_old )  ){ checked="checked";
+          if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || (i.hasOwnProperty("id_old") && parent.value == i.id_old) )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
