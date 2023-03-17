@@ -11,13 +11,7 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
-let pub_el_text_color_efb='text-labelEfb';
-let pub_message_text_color_efb ='text-muted';
-let pub_icon_color_efb = "text-pinkEfb";
-let pub_label_text_color_efb ='text-labelEfb';
-let pub_el_border_color_efb='border-d';
-let pub_bg_button_color_efb='btn-primary';
-let pub_txt_button_color_efb='text-white';
+
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
 
@@ -2662,7 +2656,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 function show_delete_window_efb(idset,iVJ) {
   console.log(`iVJ[${iVJ}]`);
   // این تابع المان را از صفحه پاک می کند
-  let v = valj_efb[iVJ].hasOwnProperty('type') ?`<br> <b>${valj_efb[iVJ].type} > ${valj_efb[iVJ].name ?? valj_efb[iVJ].value }</b>` : ''
+  let v = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ?`<br> <b>${valj_efb[iVJ].type} > ${valj_efb[iVJ].name ?? valj_efb[iVJ].value }</b>` : ''
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem} ${v}</div></div>`
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
@@ -3420,6 +3414,7 @@ function colors_template_picker_efb(el){
 }
 
 content_colors_setting_efb=()=>{
+  return '';
   get_colors_el =(name)=>{
     let r =`<!--colors-->`
     /* 
@@ -3489,7 +3484,7 @@ if(document.getElementById('sideBoxEfb').classList.contains('show')){
 state_view_efb=1;
   document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
   sideMenuEfb(1)
-let body =  content_colors_setting_efb();
+//let body =  content_colors_setting_efb();
 
 document.getElementById('sideMenuConEfb').innerHTML=body;
 }

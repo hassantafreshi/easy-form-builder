@@ -1116,9 +1116,9 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
           ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
-          ${selectColorEls('clrdoneTitleEfb','text')}
+        <!--  ${selectColorEls('clrdoneTitleEfb','text')}
           ${selectColorEls('clrdoniconEfb','text')}
-          ${selectColorEls('clrdoneMessageEfb','text')}
+          ${selectColorEls('clrdoneMessageEfb','text')} -->
           ${thankYouredirectEls}
          <!-- ${content_colors_setting_efb()} -->
           </div>

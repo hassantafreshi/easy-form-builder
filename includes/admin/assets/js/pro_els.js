@@ -95,7 +95,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-
+          console.log(valj_efb[indx_parent].value,i.id_, valj_efb[indx_parent].value==i.id_ )
           optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
         }//end for 
 
@@ -132,6 +132,8 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
 
 statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
     let optn ='<!--states-->'
+    const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
+        const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
     if (editState != false) {
         // if edit mode
 
@@ -139,8 +141,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
                   if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || parent.value == i.id_old )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
         */
-        const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
-        const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+        
         for (const i of optns_obj) {
           console.log(valj_efb[indx_parent].value, i.id_, valj_efb[indx_parent].value==i.id_ , valj_efb[indx_parent].value==i.id_old)
           optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`

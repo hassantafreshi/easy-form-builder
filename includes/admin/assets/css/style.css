@@ -1328,6 +1328,9 @@ img.right_circle-efb {	width: 58%;
    margin: 36% 0%}
 #header-efb.bg-color {	background-color: #c8ddff40 !important;
 }
+.efb input[type="radio"]:checked::before{
+   background-color:#fff0!important;
+}
 .efb input[type=radio]:checked:before,.efb input[type=radio]:before,.efb input[type=checkbox]:checked:before,.efb input[type=checkbox]:before,.efb input[type=radio]:checked:after,.efb input[type=radio]:after,.efb input[type=checkbox]:checked:after,.efb input[type=checkbox]:after {	display: none !important;
 }
 .efb input[type=color].h-d-efb {	height: 40px!important;
