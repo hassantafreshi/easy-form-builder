@@ -469,7 +469,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         //console.log(`col options[${col}]`);
         for (const i of optns_obj) {
           let checked ="";
-          console.error(parent.value,i.id_,i,parent.value , i.id_old            )
+          //console.error(parent.value,i.id_,i,parent.value , i.id_old            )
+          console.log(tp);
           if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || parent.value == i.id_old )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 

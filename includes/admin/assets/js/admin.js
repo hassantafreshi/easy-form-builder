@@ -1828,9 +1828,9 @@ let change_el_edit_Efb = (el) => {
        
         color = valj_efb[c].type.toLowerCase();
         const oi = valj_efb[c].value
-        console.log(`type change [${color}]`,color.includes("radio"));
+        console.log(`type change [${color}]`,color.includes("stateProvince"));
         if(color.includes("radio")==true || (color.includes("select")==true &&  color.includes("multi")==false) 
-        || color.includes("conturyList")==true || color.includes("stateProvince")==true ){
+        || color.includes("conturylist")==true || color.includes("stateprovince")==true ){
           // c = valj_efb.findIndex(x=>x.id_==clss) 
           
           valj_efb[c].value =valj_efb[indx].id_
