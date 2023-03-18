@@ -1511,13 +1511,15 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
     const price = ob.hasOwnProperty("price") ? ob.price : 0;
     //const id = ob.hasOwnProperty("id") ? ob.id : ob.id_;
     const id = ob.id_;
+    const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
-    console.log(parent);
+    console.log(parent ,id,id_old);
     
     
-    if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && parent.value == ob.id_){ checked="checked";
-    }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==id)!=-1 ){checked="checked"}
-    console.log(`checked[${checked}]`);
+    if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && (parent.value == ob.id_ || parent.value==id_old)){ checked="checked";
+    }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"
+    }else if((tp.includes("stateprovince")==true || tp.includes("conturylist")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"}
+    console.log(`checked[${checked}] tp[${tp}]`);
     opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id,checked)
     /* opetions += `<div class="efb mx-0 col-sm-12 row opt"> 
     <div id="" class="efb mx-0 px-0 col-sm-1 form-check">

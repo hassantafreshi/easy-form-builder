@@ -2340,11 +2340,13 @@ let sampleElpush_efb = (rndm, elementId) => {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
+      valj_efb[testb].el_text_color="text-white"
     }
     if (elementId == "persiaPay") {
       Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'zarinPal' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
+      valj_efb[testb].el_text_color ="text-white"
     }
     if (elementId == "esign") {
       console.log(pub_icon_color_efb);

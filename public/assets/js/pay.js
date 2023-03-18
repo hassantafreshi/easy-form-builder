@@ -19,7 +19,10 @@ function fun_total_pay_efb() {
     }
     console.log(`total[${total}]`);
     setTimeout(() => { updateTotal(total); }, 800);
-    if(valj_efb[0].getway=="persiaPay") fun_total_pay_persiaPay_efn(total)
+    if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
+    else{
+      console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
+    }
   }
 
   fun_currency_no_convert_efb = (currency, number) => {
