@@ -65,6 +65,7 @@ input[type="email"]::-webkit-input-placeholder.efb {    text-align: right;}
 .efb.def.col-md-6 .efb.ttiptext,.efb.def.col-md-10 .efb.ttiptext,.efb.def.col-md-8 .efb.ttiptext {	margin:-25px 50px 0px 0px!important}
 .efb.def.col-md-4 .efb.ttiptext {	margin: -25px 20px 0px 0px!important };
 
+
 td.efb.ms {
     text-align: right;
 }

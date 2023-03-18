@@ -2645,6 +2645,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
   const p = calPLenEfb(len)
   len = len < 50 ? 200 : (len + Math.log(len)) * p
   const id_ob = Math.random().toString(36).substr(2, 9);
+  console.log(id_ob);
   optionElpush_efb(parent, efb_var.text.newOption, id_ob, id_ob, tag);
   setTimeout(() => {
     add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);

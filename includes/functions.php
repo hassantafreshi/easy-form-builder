@@ -894,12 +894,14 @@ class efbFunction {
 					case 'value':
 						$type =strtolower($type);
 						error_log(preg_match("/checkbox/i", $type));
-						error_log("preg_match/multi/i, type");
+						
 						error_log(preg_match("/multi/i", $type));
 						error_log(preg_match("/radio/i", $type));
 						error_log(gettype($v));
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
-							&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
+						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
+							    error_log("-----------------------");
+								error_log($valp[$key][$k]);
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
 								error_log("=========================>");
@@ -913,7 +915,10 @@ class efbFunction {
 							}
 							$valp[$key][$k] =$v;
 						}else{
-							$valp[$key][$k]=sanitize_text_field($v);
+							//$valp[$key][$k]=sanitize_text_field($v);
+							error_log("-----------------------");
+								error_log($valp[$key][$k]);
+							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
 						}
 								
 					break;

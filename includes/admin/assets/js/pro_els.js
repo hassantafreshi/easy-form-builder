@@ -113,13 +113,15 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
           //countries_local.sort();
           console.log(counstries_list_efb);
           let optn = '<!-- list of counries -->'
+          let count =0;
           for (let i of counstries_list_efb) {
+            count+=1;
             console.log(i.n ,i);
-            
+            let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
-            optn += `<option value="${i.n} (${i.l})" id="${rndm_1}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
+            optn += `<option value="${i.n} (${i.l})" id="${id}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
 
-            optionElpush_efb(rndm, `${i.n} (${i.l})`, rndm_1, op_id ,'select');
+            optionElpush_efb(rndm, `${i.n} (${i.l})`, id, op_id ,'select');
 
             // i+=1;
           }
@@ -159,11 +161,14 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
 
         } else {
           state_local.sort();
-          let optn = '<!-- list of counries -->'
+          let optn = '<!-- list of states -->'
+          let count =0;
           for (let i = 0; i < state_local.length; i++) {
-
-            optn += `<option value="${state_local[i]} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
-            optionElpush_efb(rndm, state_local[i], rndm_1, state_local[i] ,'select');
+            count+=1;
+            console.log(i.n ,i);
+            let id = rndm_1 +count
+            optn += `<option value="${state_local[i]} 1" id="${id}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
           }
 
         }
