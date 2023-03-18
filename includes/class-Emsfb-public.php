@@ -1752,10 +1752,14 @@ class _Public {
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );				
 			if($value!=null){
+				error_log('value is not null');
 				$id=$value[0]->msg_id;
+				error_log($value[0]->msg_id);
+				$id = preg_replace('/[,]+/','',$id);
 				$this->id =$id;
 				$table_name = $this->db->prefix . "emsfb_rsp_";
-				$content = $this->db->get_results( "SELECT content,rsp_by,date FROM `$table_name` WHERE msg_id = '$id'" );
+				$content = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
+				error_log(json_encode($content));
 				foreach($content as $key=>$val){					
 					$r = (int)$val->rsp_by;
 					if ($r>0){
@@ -2017,9 +2021,18 @@ class _Public {
 				$ip =$this->ip= $this->get_ip_address();
 				//$this->location = $efbFunction->iplocation_efb($ip,1);
 				//
+				error_log("----------->id");
+				$id = preg_replace('/[,]+/','',$id);
+				//preg_replace('/(@efb@)+/','/',$rePage);
+				error_log($id);
+				error_log(gettype($id));
 				$table_name = $this->db->prefix . "emsfb_msg_";
-				$value = $this->db->get_results( "SELECT track,form_id,read_,content FROM `$table_name` WHERE msg_id = '$id'" );				
-				if($value[0]->read_==4){
+				error_log($table_name);
+				$value=null;
+				$value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
+				
+				if($value==null|| $value[0]->read_==4){
+					error_log('not exist!');
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 					wp_send_json_success($response,$_POST);
 					die();

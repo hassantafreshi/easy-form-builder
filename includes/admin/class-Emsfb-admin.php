@@ -664,7 +664,7 @@ class Admin {
         }
 
         $id = number_format($_POST['id']);
-
+        error_log($id);
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
         $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id, 'read_' => 0]);
@@ -716,6 +716,7 @@ class Admin {
             die();
         }
         $id = number_format($_POST['id']);
+        $id = preg_replace('/[,]+/','',$id);
         $m  = sanitize_text_field($_POST['message']);
 
         //echo $table_name;

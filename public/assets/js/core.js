@@ -1571,6 +1571,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
+  console.log(`id[${id}]` , typeof id);
   jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",

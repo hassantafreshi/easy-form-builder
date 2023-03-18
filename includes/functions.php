@@ -849,7 +849,8 @@ class efbFunction {
 		
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
-	 
+		//error_log($msg_id);
+		$msg_id = preg_replace('/[,]+/','',$msg_id);
 		$email="null";
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
 		$data = $this->db->get_results("SELECT content ,form_id,track FROM `$table_name` WHERE msg_id = '$msg_id' ORDER BY msg_id DESC LIMIT 1");

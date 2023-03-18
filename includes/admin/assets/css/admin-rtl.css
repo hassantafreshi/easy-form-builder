@@ -102,3 +102,12 @@ div#gRecaptcha {
 .iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {
     background-color: rgba(255, 255, 255, 0)!important;
 }
+
+
+#floating-panel.efb {
+    position: absolute;
+    z-index: 5;
+    margin-top: 15px !important;
+    padding-left: 1% !important;
+    padding-right: 52px;
+}
