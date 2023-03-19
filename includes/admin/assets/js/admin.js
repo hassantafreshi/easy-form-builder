@@ -1828,6 +1828,8 @@ let change_el_edit_Efb = (el) => {
           // c = valj_efb.findIndex(x=>x.id_==clss) 
           
           valj_efb[c].value =valj_efb[indx].id_
+
+          //console.error(`selected [${valj_efb[indx].id_}]`);
           console.log(c ,valj_efb[c].value) ;
           if(oi.length>0 && color.includes("radio")==true){
             

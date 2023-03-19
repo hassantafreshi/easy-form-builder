@@ -1719,6 +1719,8 @@ function previewFormEfb(state) {
     let count =0;
     valj_efb.forEach((value, index) => {
       console.log(`indx[${index}] count[${count}]`)
+      let t = value.type.toLowerCase();
+      if(value.type!="option")  console.log(`==================> type !`,t , value.id_ ,value.type);
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1743,16 +1745,16 @@ function previewFormEfb(state) {
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
       //add value to sendBack_emsFormBuilder
-      console.log(value);
+      if(value.type!="option") console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 && value.type !='option' ){
         
-        let t = value.type.toLowerCase();
+        
         let o=[]
-        console.log(`==================> type`,t , value.id_ ,value.value);
+        console.log(`==================> type:`,t , value.id_ ,value.value);
         if(t.includes('radio')==true){
           count+=1;
           let ch = valj_efb.find(x=>x.id_==value.value || x.id_old==value.value);
@@ -1814,7 +1816,7 @@ function previewFormEfb(state) {
                 session: sessionPub_emsFormBuilder
             }]
             t=1;
-        }else if(t.includes('select')==true){
+        }else if(t.includes('select')==true || t.includes('stateprovince')==true || t.includes('conturylist')==true){
           count+=1;
            let ch = valj_efb.find(x=>x.id_==value.value);
           console.log(`=========================>ch`,ch)
@@ -2279,7 +2281,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
   c=c[0]!="#" ? "#"+c : c
   if (type == "text") {       n=`${type}-${t}`;         v = `.${n}{color:${c}!important;}` }
   else if (type == "icon") {  n=`text-${t}`;            v = `.${n}{color:${c}!important;}` }
-  else if (type == "border") {n=`${type}-${t}`;         v = `${tag}.${n}{border-color:${c}!important;}` }
+  else if (type == "border") {n=`${type}-${t}`;         v = `.${n}{border-color:${c}!important;}` }
   else if (type == "bg") {    n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
   else if (type == "btn") {   n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
