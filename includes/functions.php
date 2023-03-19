@@ -21,7 +21,7 @@ class efbFunction {
 		$this->db = $wpdb; 
 		//add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
 		//$this->test_Efb();
-		error_log('called function.php');
+		//error_log('called function.php');
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
     }

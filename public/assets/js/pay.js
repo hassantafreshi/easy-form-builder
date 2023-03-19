@@ -20,7 +20,7 @@ function fun_total_pay_efb() {
     console.log(`total[${total}]`);
     setTimeout(() => { updateTotal(total); }, 800);
     if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
-    else{
+    else if(valj_efb[0].getway=="persiaPay"){
       console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
     }
   }
@@ -39,11 +39,17 @@ function fun_total_pay_efb() {
         //|| o.type.includes('pay')==true && o.type.includes('payment')==false
         //console.log(o.hasOwnProperty('parent'));
         console.log(o);
+
+       
         if (o.hasOwnProperty('parent')) {
           const p = valj_efb.findIndex(x => x.id_ == o.parent);
-          type = valj_efb[p].type.toLowerCase();
-          if( type != "radio"  && type != "checkbox" && type != "select") continue;
+          if (p==-1) continue;
           
+          if(valj_efb[p].hasOwnProperty('type')==false) continue;
+          type = valj_efb[p].type.toLowerCase();
+          //if( type != "radio"  && type != "checkbox" && type != "select") continue;
+          if(type.includes('pay')==false) continue;
+          console.log(valj_efb[p])
           let ov = document.querySelector(`[data-vid="${o.parent}"]`);
           ov.classList.remove('payefb');
           ov.classList.add('disabled');
@@ -56,7 +62,7 @@ function fun_total_pay_efb() {
             
             for (let o of ob) {
               ov = document.getElementById(o.id_);
-              
+              console.log(ov);
               ov.classList.add('disabled');
               ov.classList.remove('payefb');
               ov.disabled = true;
