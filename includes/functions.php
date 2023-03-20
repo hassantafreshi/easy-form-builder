@@ -27,7 +27,7 @@ class efbFunction {
     }
 
 	public function test_Efb(){
-		 error_log('===>test_Efb==function.php');
+		 //error_log('===>test_Efb==function.php');
 	
 
 		/* if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
@@ -889,36 +889,36 @@ class efbFunction {
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
-				error_log($k);
-				error_log(json_encode($v));
+				//error_log($k);
+				//error_log(json_encode($v));
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
-						error_log(preg_match("/checkbox/i", $type));
+						//error_log(preg_match("/checkbox/i", $type));
 						
-						error_log(preg_match("/multi/i", $type));
-						error_log(preg_match("/radio/i", $type));
-						error_log(gettype($v));
+						//error_log(preg_match("/multi/i", $type));
+						//error_log(preg_match("/radio/i", $type));
+						//error_log(gettype($v));
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
 						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
-							    error_log("-----------------------");
-								error_log($valp[$key][$k]);
+							    //error_log("-----------------------");
+								//error_log($valp[$key][$k]);
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
-								error_log("=========================>");
-								error_log(gettype($v));
+								//error_log("=========================>");
+								//error_log(gettype($v));
 								if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
 								# code...
 								$v[$ki]=sanitize_text_field($va);
-								error_log($ki);
-								error_log($va);
+								//error_log($ki);
+								//error_log($va);
 							}
 							$valp[$key][$k] =$v;
 						}else{
 							//$valp[$key][$k]=sanitize_text_field($v);
-							error_log("-----------------------");
-								error_log($valp[$key][$k]);
+							//error_log("-----------------------");
+								//error_log($valp[$key][$k]);
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
 						}
 								
@@ -964,44 +964,44 @@ class efbFunction {
 						if(strlen($valp[$key][$k])<1) break;
 						
 						
-						error_log($valp[$key][$k]);
-						error_log($valp[$key]["id_"]);
+						//error_log($valp[$key][$k]);
+						//error_log($valp[$key]["id_"]);
 						if($valp[$key]["type"]=="option"){
-							error_log("iddddddddddddddddddddd===================");
+							//error_log("iddddddddddddddddddddd===================");
 							foreach ($valp as $ki => $vl) {
 								$tp = $vl["type"];
 								if(array_key_exists('id_',$vl)==false) continue;
-								error_log(json_encode($vl));
+								//error_log(json_encode($vl));
 								if($vl['id_']!=$valp[$key]["parent"]){
 									continue;
 								}
-								error_log("_____________________________________________________________");
-								error_log($vl['id_']);
-								error_log(json_encode($vl));
-								error_log($valp[$key]["parent"]);
+								//error_log("_____________________________________________________________");
+								//error_log($vl['id_']);
+								//error_log(json_encode($vl));
+								//error_log($valp[$key]["parent"]);
 								foreach ($vl as $kii => $vll) {
 									//value
-									error_log("::::::::::::::");
+									//error_log("::::::::::::::");
 									if($kii!="value") continue;
-									error_log($kii);
+									//error_log($kii);
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
 										if($vll==$valp[$key]["id_"])$vll=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
-											error_log('>>>>>>>>>>>>>>>>>>');
-											error_log($vn);
+											//error_log('>>>>>>>>>>>>>>>>>>');
+											//error_log($vn);
 											# code...
 											//$vll[$ke]=sanitize_text_field($va);
 											if($vn==$valp[$key]["id_"]) {
-												error_log('<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>');
-												error_log($vn);
+												//error_log('<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>');
+												//error_log($vn);
 												$valp[$ki][$kii][$ke] =$valp[$key][$k];
-												error_log($valp[$ki][$kii][$ke] );
+												//error_log($valp[$ki][$kii][$ke] );
 												//error_log($valp[$vll][$k]);
 											}
 
 											//error_log($ki);
-											error_log($vn);
+											//error_log($vn);
 										}
 									}
 									//error_log($vll);
@@ -1099,7 +1099,7 @@ class efbFunction {
 
 
 	   public function addon_adds_cron_efb(){
-		error_log('addon_adds_cron_efb');
+		//error_log('addon_adds_cron_efb');
 		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
 		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
 			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
@@ -1119,7 +1119,7 @@ class efbFunction {
             if( is_wp_error( $request ) ) {
 				//sample_admin_notice__success
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );
-                error_log("function.php====> Cannot connect to wp-json of ws.team");
+                //error_log("function.php====> Cannot connect to wp-json of ws.team");
                 return false;
             }
             
@@ -1170,8 +1170,8 @@ class efbFunction {
 				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
 				if(is_wp_error($r)){
 				
-					error_log('error unzip');
-					error_log(json_encode($r));
+					//error_log('error unzip');
+					//error_log(json_encode($r));
 					return false;
 				}
 			} 
@@ -1192,7 +1192,7 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		error_log("run download_all_addons_efb");
+		//error_log("run download_all_addons_efb");
 		
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=$ac->AdnSPF;
@@ -1206,7 +1206,7 @@ class efbFunction {
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 		foreach ($addons as $key => $value) {
-			error_log($key);
+			//error_log($key);
 			//error_log($value);
 			if($value ==1){
 				
@@ -1278,8 +1278,8 @@ class efbFunction {
 			} 
 		} 
 		$colors = array_values($colors);
-		error_log("json_encodecolors");
-		error_log(json_encode($colors));
+		//error_log("json_encodecolors");
+		//error_log(json_encode($colors));
 		return $colors; //print all colors found in active template
 	}
 	

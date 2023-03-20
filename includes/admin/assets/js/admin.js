@@ -3346,8 +3346,8 @@ function colors_template_picker_efb(el){
               }else{
                 valj_efb[i][k]=pub_el_text_color_efb 
               }
-              console.error(`${k}=============>${valj_efb[i][k]}` ,pub_el_text_color_efb);
-              console.error(valj_efb[i].type ,valj_efb[i][k]);
+              //console.error(`${k}=============>${valj_efb[i][k]}` ,pub_el_text_color_efb);
+              //console.error(valj_efb[i].type ,valj_efb[i][k]);
             
             break;
           /*   case 'label_text':

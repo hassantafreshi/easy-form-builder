@@ -158,7 +158,7 @@ class _Public {
 
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
-		error_log($typeOfForm);
+		//error_log($typeOfForm);
 		if($typeOfForm=="payment"){
 			
 			$r = $this->setting;
@@ -200,7 +200,7 @@ class _Public {
 			
 		
 		}else if((strpos($value , '\"type\":\"pay') || strpos($value , '"type":"pay'))){
-			error_log('===========> added public pay.js');
+			//error_log('===========> added public pay.js');
 			wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), true, '3.5.24');
 			wp_enqueue_script('pay_js');
 		}
@@ -327,12 +327,12 @@ class _Public {
 				 $k = "<script>let sitekye_emsFormBuilder='".$k."'</script>";
 			 }
 			  
-			 error_log("this->pub_stting->apiKeyMap");
-			 error_log(json_encode($this->pub_stting));
+			 //error_log("this->pub_stting->apiKeyMap");
+			 //error_log(json_encode($this->pub_stting));
 			 //error_log($this->pub_stting->mapKey);
-			 error_log($this->pub_stting["mapKey"]);
+			 //error_log($this->pub_stting["mapKey"]);
 			 if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
-				 error_log('maps!!!!!!!!!!!!!!!');
+				 //error_log('maps!!!!!!!!!!!!!!!');
 				 $key= $this->pub_stting["mapKey"];
 				 $lng = strval(get_locale());
 				 
@@ -398,8 +398,8 @@ class _Public {
 				wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 				wp_enqueue_script('recaptcha');
 			}
-			error_log("valstng->apiKeyMap");
-			error_log($valstng->mapKey);
+			//error_log("valstng->apiKeyMap");
+			//error_log($valstng->mapKey);
 			if(isset($valstng->mapKey) && $valstng->mapKey!=""){
 				
 				$key= $valstng->mapKey;
@@ -731,16 +731,16 @@ class _Public {
 								return;
 							}
 							//error_log($f['disabled']);
-							error_log(json_encode($f));
-							error_log('commmper');
-							error_log(isset($f['disabled'])==true &&  $f['disabled']==1  && isset($f['hidden']) ==false);
-							error_log(isset($f['disabled'])==true && $f['disabled']==1 && isset($f['hidden'])==true && $f['hidden']==false);
+							//error_log(json_encode($f));
+							//error_log('commmper');
+							//error_log(isset($f['disabled'])==true &&  $f['disabled']==1  && isset($f['hidden']) ==false);
+							//error_log(isset($f['disabled'])==true && $f['disabled']==1 && isset($f['hidden'])==true && $f['hidden']==false);
 							if((( isset($f['disabled'])==true &&  $f['disabled']==1  && isset($f['hidden']) ==false) 
 							|| ( isset($f['disabled'])==true && $f['disabled']==1 && isset($f['hidden'])==true && $f['hidden']==false ) )
 							&&( $item['id_'] == $f['id_'] || $f['id_']==$item['id_'])
 							&& strlen($item['value'])>1 ){
-								error_log("-------------------------->");
-								error_log($item['name']);
+								//error_log("-------------------------->");
+								//error_log($item['name']);
 								$stated=0;
 								$in_loop==false;
 								return;
@@ -755,8 +755,8 @@ class _Public {
 							$mr =str_replace('XXX', $f['name'], $mr );}
 							
 												
-							error_log($f["type"]);
-							error_log(json_encode($f));	
+							//error_log($f["type"]);
+							//error_log(json_encode($f));	
 							switch ($f['type']) {
 								case 'email':
 									$stated=0;
@@ -806,31 +806,31 @@ class _Public {
 									$in_loop=false;
 									break;
 								case 'mobile':
-									error_log('===========> mobile');
-									error_log(json_encode($f["c_n"]));
-									error_log($item['value']);
+									//error_log('===========> mobile');
+									//error_log(json_encode($f["c_n"]));
+									//error_log($item['value']);
 									$stated=0;
 									
 									if(isset($item['value'])){
 										$stated=0;
 										$item['value'] = sanitize_text_field($item['value']);	
-										error_log("====>stated");
-										error_log($stated);
+										//error_log("====>stated");
+										//error_log($stated);
 										 array_filter($f["c_n"], function($no) use($item , &$stated){
-											error_log("value===c");
+											//error_log("value===c");
 											//$stated=0;
-											error_log(strpos($item['value'] , '+'.$no));
-											error_log($item['value']);
-											error_log($no);
-											error_log($stated);
+											//error_log(strpos($item['value'] , '+'.$no));
+											//error_log($item['value']);
+											//error_log($no);
+											//error_log($stated);
 											$v = strpos($item['value'] , '+'.$no);
-											error_log($v);
-											error_log($v === 0);
+											//error_log($v);
+											//error_log($v === 0);
 											if ( strpos($item['value'] , '+'.$no) === 0 ) $stated=1;
 											
 										});		
-										error_log("====>stated");
-										error_log(json_encode($stated));
+										//error_log("====>stated");
+										//error_log(json_encode($stated));
 									}
 									# code...
 									$rt= $item;
@@ -909,15 +909,15 @@ class _Public {
 									if(isset($item['value'])){
 										$item['value'] = sanitize_text_field($item['value']);
 										$item['name'] = sanitize_text_field($item['name']);
-										error_log(json_encode($item));
-										error_log(json_encode($f));								
+										//error_log(json_encode($item));
+										//error_log(json_encode($f));								
 									
 										
 										
 										//array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
 											if((isset($f['id_']) && isset($item['id_']) && $f['id_']==$item['id_'] )){
-												error_log($item['id_']);
-												error_log($f['id_']);
+												//error_log($item['id_']);
+												//error_log($f['id_']);
 												$item['value']=$f['value'];
 												$item['value']=$f['value'];
 												$rt = $item;
@@ -1034,19 +1034,19 @@ class _Public {
 										$in_loop=false;
 								break;
 								case 'maps':
-									error_log('maps');
-									error_log(json_encode($item['value']));
+									//error_log('maps');
+									//error_log(json_encode($item['value']));
 									$stated=1;
 									$rt= $item;
 									$c = 0;
 									//$item['value'] =$item['value'];
 									foreach ($item['value'] as $key => $value) {
 										$c+=1;
-										error_log($value["lat"]);
-										error_log($value["lng"]);
-										error_log(is_numeric($value["lat"]));
+										//error_log($value["lat"]);
+										//error_log($value["lng"]);
+										//error_log(is_numeric($value["lat"]));
 										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ $stated=0;$rt =null;};
-										error_log(is_numeric($value["lng"]));
+										//error_log(is_numeric($value["lng"]));
 									}
 									if($c!=$f["mark"]){ $stated=0;$rt =null;}
 									//mark
@@ -1752,14 +1752,14 @@ class _Public {
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );				
 			if($value!=null){
-				error_log('value is not null');
+				//error_log('value is not null');
 				$id=$value[0]->msg_id;
-				error_log($value[0]->msg_id);
+				//error_log($value[0]->msg_id);
 				$id = preg_replace('/[,]+/','',$id);
 				$this->id =$id;
 				$table_name = $this->db->prefix . "emsfb_rsp_";
 				$content = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
-				error_log(json_encode($content));
+				//error_log(json_encode($content));
 				foreach($content as $key=>$val){					
 					$r = (int)$val->rsp_by;
 					if ($r>0){
@@ -2021,18 +2021,18 @@ class _Public {
 				$ip =$this->ip= $this->get_ip_address();
 				//$this->location = $efbFunction->iplocation_efb($ip,1);
 				//
-				error_log("----------->id");
+				//error_log("----------->id");
 				$id = preg_replace('/[,]+/','',$id);
 				//preg_replace('/(@efb@)+/','/',$rePage);
-				error_log($id);
-				error_log(gettype($id));
+				//error_log($id);
+				//error_log(gettype($id));
 				$table_name = $this->db->prefix . "emsfb_msg_";
-				error_log($table_name);
+				//error_log($table_name);
 				$value=null;
 				$value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
 				
 				if($value==null|| $value[0]->read_==4){
-					error_log('not exist!');
+					//error_log('not exist!');
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
 					wp_send_json_success($response,$_POST);
 					die();
