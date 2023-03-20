@@ -3,7 +3,7 @@
 
 function fun_total_pay_efb() {
    
-    console.log('fun_total_pay_efb');
+    //console.log('fun_total_pay_efb');
     let total = 0;
     updateTotal = (i) => {
      // i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
@@ -14,14 +14,14 @@ function fun_total_pay_efb() {
     }
   
     for (let r of sendBack_emsFormBuilder_pub) {
-      console.log(r);
+      //console.log(r);
       if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
     }
-    console.log(`total[${total}]`);
+    //console.log(`total[${total}]`);
     setTimeout(() => { updateTotal(total); }, 800);
     if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
     else if(valj_efb[0].getway=="persiaPay"){
-      console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
+      //console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
     }
   }
 
@@ -38,7 +38,7 @@ function fun_total_pay_efb() {
       if (o.hasOwnProperty('price')==true ) {
         //|| o.type.includes('pay')==true && o.type.includes('payment')==false
         //console.log(o.hasOwnProperty('parent'));
-        console.log(o);
+        //console.log(o);
 
        
         if (o.hasOwnProperty('parent')) {
@@ -49,7 +49,7 @@ function fun_total_pay_efb() {
           type = valj_efb[p].type.toLowerCase();
           //if( type != "radio"  && type != "checkbox" && type != "select") continue;
           if(type.includes('pay')==false) continue;
-          console.log(valj_efb[p])
+          //console.log(valj_efb[p])
           let ov = document.querySelector(`[data-vid="${o.parent}"]`);
           ov.classList.remove('payefb');
           ov.classList.add('disabled');
@@ -62,7 +62,7 @@ function fun_total_pay_efb() {
             
             for (let o of ob) {
               ov = document.getElementById(o.id_);
-              console.log(ov);
+              //console.log(ov);
               ov.classList.add('disabled');
               ov.classList.remove('payefb');
               ov.disabled = true;

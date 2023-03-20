@@ -1476,7 +1476,7 @@ let change_el_edit_Efb = (el) => {
       case "selectColorEl":
         color = el.value;
         c = switch_color_efb(color);
-        console.log(c);
+        //console.log(c);
         //console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
@@ -1793,7 +1793,7 @@ let change_el_edit_Efb = (el) => {
       case 'EditOption':
 
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-        console.log(`iindx=========>[${iindx}]`);
+        //console.log(`iindx=========>[${iindx}]`);
         if (iindx != -1) {
           
           valj_efb[iindx].value = el.value;
@@ -1822,20 +1822,20 @@ let change_el_edit_Efb = (el) => {
        
         color = valj_efb[c].type.toLowerCase();
         const oi = valj_efb[c].value
-        console.log(`type change [${color}]`,color.includes("stateProvince"));
+        //console.log(`type change [${color}]`,color.includes("stateProvince"));
         if(color.includes("radio")==true || (color.includes("select")==true &&  color.includes("multi")==false) 
         || color.includes("conturylist")==true || color.includes("stateprovince")==true ){
           // c = valj_efb.findIndex(x=>x.id_==clss) 
           
           valj_efb[c].value =valj_efb[indx].id_
 
-          console.error(`selected [${valj_efb[indx].id_}]`)
-          console.log(c ,valj_efb[c].value) ;
+          //console.error(`selected [${valj_efb[indx].id_}]`)
+          //console.log(c ,valj_efb[c].value) ;
           if(oi.length>0 && color.includes("radio")==true){
             
             //document.getElementById(oi+'-g').removeAttribute("checked");
             document.querySelector(`[data-id="${oi}"]`).removeAttribute("checked");
-            console.log(document.querySelector(`[data-id="${oi}"]`))
+            //console.log(document.querySelector(`[data-id="${oi}"]`))
             document.getElementById(oi).removeAttribute("checked");
           }
                
@@ -1847,7 +1847,7 @@ let change_el_edit_Efb = (el) => {
         }else{
           clss = valj_efb[indx].id_;
           if(el.checked==false){
-            console.log(`el =====================> `,el)
+            //console.log(`el =====================> `,el)
             el.removeAttribute("checked")
             if(color.includes("checkbox")==true) {
               document.getElementById(clss).removeAttribute("checked");
@@ -1856,11 +1856,11 @@ let change_el_edit_Efb = (el) => {
             }
             clss= valj_efb[c].value.findIndex(x=>x ==clss)
             valj_efb[c].value.splice(clss,1);
-            console.log(valj_efb[c].value);
+            //console.log(valj_efb[c].value);
           }else{
            
            typeof valj_efb[c].value=="string" ? valj_efb[c].value =[clss] : valj_efb[c].value.push(clss);
-           console.log(valj_efb[c].value);
+           //console.log(valj_efb[c].value);
            el.setAttribute("checked",true)
            if(color.includes("checkbox")==true) document.getElementById(clss).setAttribute("checked",true);
           }
@@ -1885,12 +1885,12 @@ let change_el_edit_Efb = (el) => {
          }
         
          c= valj_efb.findIndex(x => x.id_op == el.dataset.id);
-        console.log(`iindx=========>[${c}]`);
+         //console.log(`iindx=========>[${c}]`);
         if (c != -1) {
           el.value =  el.value.replace(/[^a-zA-Z0-9_-]/g, '')
           el.setAttribute('value', el.value);
           valj_efb[c].hasOwnProperty("id")  ? valj_efb[c].id= el.value : Object.assign(valj_efb[c], { id: el.value })
-          console.log(valj_efb[c]);
+          //console.log(valj_efb[c]);
         /*   if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
 
             //Select
@@ -1968,14 +1968,14 @@ let change_el_edit_Efb = (el) => {
           }
         break;
       case "countriesListEl":
-        console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
+        //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         if(el.dataset.tag =="stateProvince" && document.getElementById('optionListefb')!=null){
           document.getElementById('optionListefb').innerHTML=loading_messge_efb();
           fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`);
           let  opetions;
           setTimeout(() => {
-            console.log(temp_efb);  
+            //console.log(temp_efb);  
             if(temp_efb.s==false ||temp_efb=="null" ) {
               alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
               return;
@@ -1986,7 +1986,7 @@ let change_el_edit_Efb = (el) => {
               const nValue = value.n.trim();
               const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
               const sValue = value.s
-              console.log(`n: ${nValue}, l: ${lValue} ,s[${sValue}]` );
+              //console.log(`n: ${nValue}, l: ${lValue} ,s[${sValue}]` );
               optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
               
             
@@ -2477,8 +2477,8 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  console.log('====================>add_new_option_efb')
-  console.log(parentsID, idin, value, id_ob, tag);
+  //console.log('====================>add_new_option_efb')
+  //console.log(parentsID, idin, value, id_ob, tag);
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
@@ -2509,7 +2509,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
  const indx = valj_efb.findIndex(x => x.id_ == parentsID);
  if (tag == "radio" && valj_efb[indx].hasOwnProperty('addother') == true && valj_efb[indx].addother == true) {
    const els = valj_efb.filter(obj => { return obj.parent === parentsID });
-   console.log(document.getElementById(`${parentsID}_options`).innerHTML);
+   //console.log(document.getElementById(`${parentsID}_options`).innerHTML);
    document.getElementById(`${parentsID}_options`).innerHTML = '<!--efb.app-->';
    els.forEach(l => {
      document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(l.id_, l.value, l.id_, 'radio', l.parent);
@@ -2649,7 +2649,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
   const p = calPLenEfb(len)
   len = len < 50 ? 200 : (len + Math.log(len)) * p
   const id_ob = Math.random().toString(36).substr(2, 9);
-  console.log(id_ob);
+  //console.log(id_ob);
   optionElpush_efb(parent, efb_var.text.newOption, id_ob, id_ob, tag);
   setTimeout(() => {
     add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
@@ -2659,7 +2659,7 @@ function add_option_edit_pro_efb(parent, tag, len) {
 
 //delete element
 function show_delete_window_efb(idset,iVJ) {
-  console.log(`iVJ[${iVJ}]`);
+  //console.log(`iVJ[${iVJ}]`);
   // این تابع المان را از صفحه پاک می کند
   let v = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ?`<br> <b>${valj_efb[iVJ].type} > ${valj_efb[iVJ].name ?? valj_efb[iVJ].value }</b>` : ''
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem} ${v}</div></div>`
@@ -2858,15 +2858,15 @@ const delete_option_efb = (id) => {
   if (document.getElementById(`${id}-v`)) document.getElementById(`${id}-v`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
   let ip = valj_efb.findIndex(x => x.id_ == valj_efb[indx].parent)
-  console.log(`ip[${ip}]`);
+  //console.log(`ip[${ip}]`);
   if (indx != -1) {
   if (ip!=-1 && typeof valj_efb[ip].value =="string"){
-    console.log(valj_efb[ip].value ,  valj_efb[indx].id_)
+    //console.log(valj_efb[ip].value ,  valj_efb[indx].id_)
      if(valj_efb[ip].value == valj_efb[indx].id_)valj_efb[ip].value="";
   }else if(ip!=-1){
-    console.log(valj_efb[ip].value, valj_efb[indx].id_)
+    //console.log(valj_efb[ip].value, valj_efb[indx].id_)
     const ix = valj_efb[ip].value.findIndex(x=>x == valj_efb[indx].id_);
-    console.log(`ix[${ix}]`);
+    //console.log(`ix[${ix}]`);
     if(ix!=-1) valj_efb[ip].value.splice(ix,1);
   }
 
@@ -3028,8 +3028,8 @@ fun_confirm_remove_addon_emsFormBuilder=(val)=>{
 function emsFormBuilder_delete(id, type,value) {
   //v2
   let val =id;
-  console.log(type);
-  console.log(id);
+  //console.log(type);
+  //console.log(id);
   switch (type) {
     case "addon":
       val = efb_var.text[id];
@@ -3184,7 +3184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function fun_switch_form_efb(el){
   r= el.id=="hiddenEl" ||  el.id=="disabledEl" ? efb_check_el_pro(el) :true;
-  console.log(el.id,r);
+  //console.log(el.id,r);
   if(r==true) change_el_edit_Efb(el) ;
   
 /*   if(state_efb!='run'){ return}
@@ -3266,7 +3266,7 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  console.log(efb_var.pro , pro_ws)
+  //console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
@@ -3288,8 +3288,8 @@ function efb_check_el_pro(el){
 }
 
 function colors_template_picker_efb(el){
-  console.log("test_efb")
-  console.log(el.dataset.color ,el.dataset.id);
+  //console.log("test_efb")
+  //console.log(el.dataset.color ,el.dataset.id);
   //create for valj_efb and switch label , icon , button ,
   const t = `colorDEfb-${el.dataset.color.slice(1)}`
   const c = el.dataset.color;
@@ -3328,16 +3328,16 @@ function colors_template_picker_efb(el){
         // از ساختار انتخاب گر رنگ استفاده شود برای اضافه کردن ویژگی جدید به آن اتربیوت
         break;
       }
-      console.log(`color for [${el.dataset.id}] => [${r}]`);
+      //console.log(`color for [${el.dataset.id}] => [${r}]`);
      // if(valj_efb.length<2) return;
 
       for(let i in valj_efb){
-        console.log(i);
+        //console.log(i);
         const row = valj_efb[i];
         let type = valj_efb[i].hasOwnProperty('type') ? valj_efb[i].type :"";
         for(const [k , v] of Object.entries(row)){
 
-          console.log(`k[${k}],v[${v}]`);
+          //console.log(`k[${k}],v[${v}]`);
           switch(k){
             case 'el_text_color':
             case 'label_text_color':             
@@ -3477,7 +3477,7 @@ content_colors_setting_efb=()=>{
   return v;
 }
 function open_setting_colors_efb(alert){
-  console.log('open_setting_colors_efb');
+  //console.log('open_setting_colors_efb');
   jQuery(alert).alert('close')
 
 
@@ -3502,7 +3502,7 @@ msg_colors_from_template = ()=>{
     }
     return `<div class="efb row col">${r}</div>`;
   }
-  console.log('==================>msg_colors_from_template');
+  //console.log('==================>msg_colors_from_template');
   let colorsDiv 
   if(efb_var.hasOwnProperty('colors')){
     c= get_colors();

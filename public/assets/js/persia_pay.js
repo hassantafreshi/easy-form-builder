@@ -142,7 +142,7 @@ fun_after_bankpay_persia_ui =()=>{
     //console.log(id,document.getElementById(id))
   if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
     {
-      console.log('done!')
+      //console.log('done!')
       document.getElementById(id).classList.remove('disabled');
      
       //console.log(document.getElementById(id));

@@ -68,7 +68,7 @@ efb_var_waitng(50)
 function fub_shwBtns_efb() {
   for (const el of document.querySelectorAll(".showBtns")) {
     el.addEventListener("click", (e) => {
-      console.log(el.className , el);
+      //console.log(el.className , el);
       active_element_efb(el);
 
     });
@@ -162,7 +162,7 @@ const show_modal_efb = (body, title, icon, type) => {
 const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
   let op = `<!-- option --!> 2`
-  console.log(tag);
+  //console.log(tag);
   let price ="<!--efb.app-->";
   let qst ='<!--efb.app-->';
   let tagtype= tag;
@@ -190,7 +190,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
     </div>`
 
   }
-  console.log(op);
+  //console.log(op);
   return op;
 }
 
@@ -308,7 +308,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  console.log(`hidden[${hidden}] disabled[${disabled}] pos[3][${pos[3]}]`);
+  //console.log(`hidden[${hidden}] disabled[${disabled}] pos[3][${pos[3]}]`);
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
   switch (elementId) {
     case 'email':
@@ -477,7 +477,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         for (const i of optns_obj) {
           let checked ="";
           //console.error(parent.value,i.id_,i,parent.value , i.id_old            )
-          console.log(tp);
+          //console.log(tp);
           if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || (i.hasOwnProperty("id_old") && parent.value == i.id_old) )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
@@ -701,7 +701,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const s = valj_efb[indx_parent].value.length>0 ? true :false
 
         for (const i of optns_obj) {
-          console.log(`[[[${i.id_}]]] `,valj_efb[indx_parent]);
+          //console.log(`[[[${i.id_}]]] `,valj_efb[indx_parent]);
           let c = "efb bi-square efb"
           if(s==true && valj_efb[indx_parent].value.findIndex(x=>x==i.id_)!=-1){
              c = "bi-check-square text-info efb"
@@ -820,7 +820,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'heading':
       dataTag = elementId;
-      console.log(iVJ);
+      //console.log(iVJ);
       ui =typeof headning_el_pro_efb =="function" ?headning_el_pro_efb (rndm,pos,iVJ) :public_pro_message();
         // ${typeof html_el_pro_efb =="function" ? html_el_pro_efb(previewSate, rndm,iVJ) : public_pro_message()}
       break;
@@ -828,11 +828,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       break;
     case 'pointr10':
-      console.log('pointr5')
+      //console.log('pointr5')
       //pointer10_el_pro_efb
       //temp=pointer10_el_pro_efb(previewSate, classes,iVJ);
       temp =typeof pointer10_el_pro_efb =="function" ? pointer10_el_pro_efb(previewSate, classes,iVJ) :public_pro_message();
-      console.log(temp);
+      //console.log(temp);
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
@@ -842,11 +842,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       break;
     case 'pointr5':
-      console.log('pointr5')
+      //console.log('pointr5')
       //pointer10_el_pro_efb
       //temp=pointer5_el_pro_efb(previewSate, classes,iVJ);
       temp =typeof pointer5_el_pro_efb =="function" ? pointer5_el_pro_efb(previewSate, classes,iVJ) :public_pro_message();
-      console.log(temp);
+      //console.log(temp);
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
@@ -856,11 +856,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       break;
     case 'smartcr':
-      console.log('smartcr')
+      //console.log('smartcr')
       //pointer10_el_pro_efb
       //temp=smartcr_el_pro_efb(previewSate, classes,iVJ);
       temp =typeof smartcr_el_pro_efb =="function" ? smartcr_el_pro_efb(previewSate, classes,iVJ) :public_pro_message();
-      console.log(temp);
+      //console.log(temp);
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
@@ -870,7 +870,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       break;
     case 'table_matrix':
-        console.log('case table_matrix');
+        //console.log('case table_matrix');
         //  case 'payCheckbox':
         //case 'payRadio':
         //case 'chlCheckBox':
@@ -961,7 +961,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     {
     //const pro_el = (dataTag == "heading" || dataTag == "link" || dataTag == "payMultiselect" || dataTag == "paySelect" || dataTag == "payRadio" || dataTag == "payCheckbox" || dataTag == "stripe" || dataTag == "switch" || dataTag == "rating" || dataTag == "esign" || dataTag == "maps" || dataTag == "color" || dataTag == "html" || dataTag == "yesNo" || dataTag == "stateProvince" || dataTag == "conturyList" || dataTag == "mobile" || dataTag == "persiaPay" || dataTag == "chlRadio" || dataTag == "chlCheckBox" || dataTag =="dadfile") ? true : false;
     const pro_el = valj_efb[iVJ].hasOwnProperty('pro') ? valj_efb[iVJ].pro :false ;
-    console.log(`pro_el[${pro_el}]`,valj_efb[iVJ]);
+    //console.log(`pro_el[${pro_el}]`,valj_efb[iVJ]);
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
     <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
@@ -1020,7 +1020,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   return newElement;
 }
 const public_pro_message= ()=>{
-  console.log('(EFB->Pro Version Expired)');
+  //console.log('(EFB->Pro Version Expired)');
  return `<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">${efb_var.text.tfnapca}</div>`
 }
 const hiddenMarkEl=(id) =>{ return`
@@ -1034,7 +1034,7 @@ const hiddenMarkEl=(id) =>{ return`
 /* new d&D */
 
 const funSetPosElEfb = (dataId, position) => {
-  console.log('funSetPosElEfb',dataId);
+  //console.log('funSetPosElEfb',dataId);
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
@@ -1718,9 +1718,9 @@ function previewFormEfb(state) {
   try {
     let count =0;
     valj_efb.forEach((value, index) => {
-      console.log(`indx[${index}] count[${count}]`)
+      //console.log(`indx[${index}] count[${count}]`)
       let t = value.type.toLowerCase();
-      if(value.type!="option")  console.log(`==================> type !`,t , value.id_ ,value.type);
+      //if(value.type!="option")  console.log(`==================> type !`,t , value.id_ ,value.type);
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1745,7 +1745,7 @@ function previewFormEfb(state) {
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
       //add value to sendBack_emsFormBuilder
-      if(value.type!="option") console.log(value);
+      //if(value.type!="option") console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
@@ -1754,11 +1754,11 @@ function previewFormEfb(state) {
         
         
         let o=[]
-        console.log(`==================> type:`,t , value.id_ ,value.value);
+        //console.log(`==================> type:`,t , value.id_ ,value.value);
         if(t.includes('radio')==true){
           count+=1;
           let ch = valj_efb.find(x=>x.id_==value.value || x.id_old==value.value);
-          console.log(`=========================>ch`,ch)
+          //console.log(`=========================>ch`,ch)
           
           o=[{
             id_: value.id_,
@@ -1770,18 +1770,18 @@ function previewFormEfb(state) {
             session: sessionPub_emsFormBuilder
         }]
         if(t.includes('pay')){
-          console.log(o.at(-1));
+          //console.log(o.at(-1));
           Object.assign(o.at(-1),{price:ch.price})
         }
         t=1;
-          console.log(`==================> radio`,value);
+          //console.log(`==================> radio`,value);
         }else if (t.includes('checkbox')==true){
           count+=1;
-          console.log(`==================> checkbox`,value);
+          //console.log(`==================> checkbox`,value);
           
           for(let c of value.value){
             let ch = valj_efb.find(x=>x.id_==c);
-            console.log(`=========================>ch`,ch)          
+            //console.log(`=========================>ch`,ch)          
             o.push({
               id_: value.id_,
               name: value.name,
@@ -1792,7 +1792,7 @@ function previewFormEfb(state) {
               session: sessionPub_emsFormBuilder
               })
             if(t.includes('pay')){
-              console.log(o.at(-1));
+              //console.log(o.at(-1));
               Object.assign(o.at(-1),{price:ch.price})
             }
           
@@ -1800,7 +1800,7 @@ function previewFormEfb(state) {
           t=1;
         }else if(t.includes('multi')==true){
           count+=1;
-          console.log(`==================> multi`,value);
+          //console.log(`==================> multi`,value);
 
           let val='';
           for(let c of value.value){
@@ -1819,7 +1819,7 @@ function previewFormEfb(state) {
         }else if(t.includes('select')==true || t.includes('stateprovince')==true || t.includes('conturylist')==true){
           count+=1;
            let ch = valj_efb.find(x=>x.id_==value.value);
-          console.log(`=========================>ch`,ch)
+          //console.log(`=========================>ch`,ch)
         
           o=[{
             id_: value.id_,
@@ -1834,14 +1834,14 @@ function previewFormEfb(state) {
         }
 
         if(t===1){
-          console.log(`============================================>t===1`)
+          //console.log(`============================================>t===1`)
           for(let i in o){
-            console.log(o[i]);
+            //console.log(o[i]);
             fun_sendBack_emsFormBuilder(o[i]);
           }
           
         }
-        console.log(`==================> type count[${count}]`);
+        //console.log(`==================> type count[${count}]`);
       }
     })
 
@@ -2231,7 +2231,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
   }else{
     ttype = valj_efb[id].type
   }
-  console.log(t, c, type, id);
+  //console.log(t, c, type, id);
 
   //console.log(`t=>[${t}]`,`c=>[${c}]`,type , ttype);
   let v = `.${t}{color:${c}!important;}`
@@ -2276,7 +2276,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
   //c #000e24
   //v = ""
   //type = text, border , bg , btn
-  console.log(t, c ,v , type);
+  //console.log(t, c ,v , type);
   let n =''
   c=c[0]!="#" ? "#"+c : c
   if (type == "text") {       n=`${type}-${t}`;         v = `.${n}{color:${c}!important;}` }
@@ -2285,7 +2285,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
   else if (type == "bg") {    n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
   else if (type == "btn") {   n=`${type}-${t}`;         v = `.${n}{background-color:${c}!important;}` }
   document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` }))
-  console.log(n);
+  //console.log(n);
   return n;
 }
 
@@ -2468,7 +2468,7 @@ let get_position_col_el = (dataId, state) => {
   let label_col = `col-md-12`;
   let input_col = `col-md-12`;
   let parent_row = '';
-  console.log(valj_efb[indx].size);
+  //console.log(valj_efb[indx].size);
   const size = valj_efb[indx].hasOwnProperty("size")? Number(valj_efb[indx].size)  : 100
   switch (size) {
     case 100:
@@ -2550,13 +2550,13 @@ let get_position_col_el = (dataId, state) => {
       //if (el_label.classList.contains('mx-2')) el_label.classList.remove('mx-2');
     }
   }
-  console.log(`state[${state}] parent_col[${parent_col}] parent_col[${input_col}] parent_col[${label_col}]`);
+  //console.log(`state[${state}] parent_col[${parent_col}] parent_col[${input_col}] parent_col[${label_col}]`);
   if (state == true) {
     el_parent.classList = colMdChangerEfb(el_parent.className, parent_col);
    if(el_input!="null") el_input.classList = colMdChangerEfb(el_input.className, input_col);
    if(el_label!="null") el_label.classList = colMdChangerEfb(el_label.className, label_col);
   }
-  console.log(`============================>parent_row[${parent_row}] parent_col[${parent_col}], label_col[${label_col}], input_col[${label_col}]`)
+  //console.log(`============================>parent_row[${parent_row}] parent_col[${parent_col}], label_col[${label_col}], input_col[${label_col}]`)
   return [parent_row, parent_col, label_col, input_col]
 }
 
@@ -2861,7 +2861,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
 
  santize_string_efb = (str) => {
-  console.log('in santize_string_efb',str);
+  //console.log('in santize_string_efb',str);
   if(str==undefined || str==null) return null;
   const regexp = /(<)(script[^>]*>[^<]*(?:<(?!\/script>)[^<]*)*<\/script>|\/?\b[^<>]+>|!(?:--\s*(?:(?:\[if\s*!IE]>\s*-->)?[^-]*(?:-(?!->)-*[^-]*)*)--|\[CDATA[^\]]*(?:](?!]>)[^\]]*)*]])>)/g
   return str.replaceAll(regexp, '');
@@ -2872,7 +2872,7 @@ function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
 
 
 const checkInvalidUTF8_efb=(string, strip = false)=>{
-  console.log(string);
+  //console.log(string);
   string = String(string);
   //console.log(`checkInvalidUTF8_efb[${string}]`);
   if (string.length === 0) {
@@ -2977,9 +2977,9 @@ valNotFound_efb=()=>{
 
 
 const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
-  console.log('add_r_matrix_view_select', idin, value, id_ob, tag, parentsID);
+  //console.log('add_r_matrix_view_select', idin, value, id_ob, tag, parentsID);
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
-  console.log(`indxP[${indxP}]`);
+  //console.log(`indxP[${indxP}]`);
   // let op = `<!-- option --!> 2`
 
   let tagtype = tag;

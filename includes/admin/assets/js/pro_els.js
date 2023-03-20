@@ -21,7 +21,7 @@
 }
 
 esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
-  console.log(`esign pos=============>[${pos[3]}]`)
+  //console.log(`esign pos=============>[${pos[3]}]`)
     const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'efb-square'
     let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
     return `<div class="efb  ${pos[3]} col-sm-12" id ="${rndm}-f">
@@ -36,7 +36,7 @@ esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
 
 rating_el_pro_efb =(previewSate,pos, rndm,iVJ)=>{
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  console.log(valj_efb[iVJ] );
+  //console.log(valj_efb[iVJ] );
     return ` <div class="efb  ${pos[3]} col-sm-12" id ="${rndm}-f">
       <div class="efb  star-efb d-flex justify-content-center ${valj_efb[iVJ].classes} ${disabled}"> 
                         <input type="radio" id="${rndm}-star5" data-vid='${rndm}' data-type="rating" class="efb "   data-star='star'  name="${rndm}-star-efb" value="5" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}  ${disabled}>
@@ -95,7 +95,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-          console.log(valj_efb[indx_parent].value,i.id_, valj_efb[indx_parent].value==i.id_ )
+          //console.log(valj_efb[indx_parent].value,i.id_, valj_efb[indx_parent].value==i.id_ )
           optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
         }//end for 
 
@@ -111,12 +111,12 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
 
         } else {
           //countries_local.sort();
-          console.log(counstries_list_efb);
+          //console.log(counstries_list_efb);
           let optn = '<!-- list of counries -->'
           let count =0;
           for (let i of counstries_list_efb) {
             count+=1;
-            console.log(i.n ,i);
+            //console.log(i.n ,i);
             let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
             optn += `<option value="${i.n} (${i.l})" id="${id}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
@@ -145,7 +145,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
         */
         
         for (const i of optns_obj) {
-          console.log(valj_efb[indx_parent].value, i.id_, valj_efb[indx_parent].value==i.id_ , valj_efb[indx_parent].value==i.id_old)
+          //console.log(valj_efb[indx_parent].value, i.id_, valj_efb[indx_parent].value==i.id_ , valj_efb[indx_parent].value==i.id_old)
           optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
         }//end for 
 
@@ -165,7 +165,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
           let count =0;
           for (let i = 0; i < state_local.length; i++) {
             count+=1;
-            console.log(i.n ,i);
+            //console.log(i.n ,i);
             let id = rndm_1 +count
             optn += `<option value="${state_local[i]} 1" id="${id}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
             optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
@@ -179,14 +179,14 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
 
 
 headning_el_pro_efb = (rndm,pos,iVJ)=>{
-  console.log(pos,valj_efb[iVJ])
+  //console.log(pos,valj_efb[iVJ])
     return ` <div class="efb px-0 mx-0  ${pos[0]} col-sm-12"  id='${rndm}-f'>
     <p  id="${rndm}_"  class="efb  px-0  emsFormBuilder_v  ${valj_efb[iVJ].classes}  ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size}   efbField" data-vid='${rndm}' data-id="${rndm}-el" >${valj_efb[iVJ].value}</p>
     </div>`
 }
 
 link_el_pro_efb = (previewSate,pos, rndm,iVJ)=>{
-  console.log(pos,valj_efb[iVJ])
+  //console.log(pos,valj_efb[iVJ])
     return`<div class="efb ${pos[0]} px-0 mx-0   col-sm-12"  id='${rndm}-f'>
     <a  id="${rndm}_"  target="_blank" class="efb  px-0 btn underline emsFormBuilder_v ${previewSate != true ? 'disabled' : ''} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_text_size} efbField" data-vid='${rndm}' data-id="${rndm}-el" href="${valj_efb[iVJ].href}">${valj_efb[iVJ].value}</a>
     </div>`
@@ -230,7 +230,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     n = efb_var.text[n];
     let types = ""
     let disabled =  valj_efb[indx].hasOwnProperty('disabled') &&  valj_efb[indx].disabled==true? 'disabled' : ''
-    console.log(valj_efb);
+    //console.log(valj_efb);
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
@@ -832,7 +832,7 @@ function fun_point_rating(el) {
       
       if(v.type=="r_matrix"){
           const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      console.log(o[0]);
+      //console.log(o[0]);
       fun_sendBack_emsFormBuilder(o[0]);
           const l = valj_efb.filter(obj => {
               return obj.parent == v.parent
@@ -866,7 +866,7 @@ function fun_nps_rating(el) {
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
       
       if (Number(l.dataset.point) != Number(el.dataset.point)) {
-          console.log(l.className);
+          //console.log(l.className);
           l.className = btnChangerEfb(l.className, 'btn-outline-secondary');
       }
   }
@@ -905,7 +905,7 @@ function fun_switch_efb(el){
 function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   //const rndm = (Math.random() + 1).toString(36).substring(7);
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
-  console.log(`intlTelInput[${disabled}]`);
+  //console.log(`intlTelInput[${disabled}]`);
   load_intlTelInput_efb(rndm,iVJ)
   return `
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
@@ -920,7 +920,7 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
 load_intlTelInput_efb=(rndm,iVJ)=>{
   //let list =[];
  const onlyCountries= valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length>0 ? valj_efb[iVJ].c_c : "";
- console.log(valj_efb[iVJ]);
+ //console.log(valj_efb[iVJ]);
   setTimeout(()=>{
    // let input = document.getElementById(rndm+"_");
    //console.log(rndm,document.getElementById(rndm+"_"));
@@ -963,19 +963,19 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
   document.getElementById(rndm+"_-message").classList.add("d-none");
     if (document.getElementById(rndm+"_").value.trim()) {
       if (iti.isValidNumber()) {
-        console.log(`iti.isValidNumber()[${iti.isValidNumber()}]`);
+        //console.log(`iti.isValidNumber()[${iti.isValidNumber()}]`);
 
         
         //validMsg.classList.remove("hide");
         //add value mobileNumber
-        console.log(iti.s.dialCode);
-        console.log(document.getElementById(rndm+"_").value);
+        //console.log(iti.s.dialCode);
+        //console.log(document.getElementById(rndm+"_").value);
       
         document.getElementById(rndm+"_").classList.add("border-success");
         
           let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
-          console.log(sendBack_emsFormBuilder_pub);
+          //console.log(sendBack_emsFormBuilder_pub);
         
 
         //document.getElementById(rndm+"_").value = "+"+iti.s.dialCode+document.getElementById(rndm+"_").value
@@ -984,7 +984,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         document.getElementById(rndm+"_").classList.add("border-danger");
         let errorCode = iti.getValidationError() 
         errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
-        console.log(errorCode);
+        //console.log(errorCode);
         document.getElementById(rndm+"_-message").classList.remove("d-none");
         document.getElementById(rndm+"_-message").classList.add("d-block");
         document.getElementById(rndm+"_-message").innerHTML=errorCode;
@@ -992,7 +992,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         let inx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[iVJ].id_);
         if (inx != -1) {
           sendBack_emsFormBuilder_pub.splice(inx, 1)
-          console.log(sendBack_emsFormBuilder_pub)
+          //console.log(sendBack_emsFormBuilder_pub)
         }
         /* errorMsg.innerHTML = errorMap[errorCode];
         errorMsg.classList.remove("hide"); */

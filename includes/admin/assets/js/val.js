@@ -128,7 +128,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
 }
 
 const countries_list_el_select=(el_type ,idset,indx)=>{
-  console.log(lan_con_efb[efb_var.language]);
+  //console.log(lan_con_efb[efb_var.language]);
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
   if (country==null){
@@ -237,7 +237,7 @@ const ElcountriesListSelections = (idset,indx) => {
  let c_c =[];
  if(valj_efb[indx].hasOwnProperty("c_c")){
   for(let i of valj_efb[indx].c_c){
-    console.log(i);
+   //console.log(i);
    c_c.push(i);
    value +=i + ","
    selectData +=i + " @efb!"
@@ -247,7 +247,7 @@ const ElcountriesListSelections = (idset,indx) => {
    // console.log(i);
    //bi-check-square text-info efb
     const s2 = i.s2.trim().toLowerCase();
-    console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
+    //console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
     const v = i.l!=i.n  ? `(${i.l})` :''
     optn += `<tr   class="efb   efblist " data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" data-row="${s2}" data-state="0" data-visible="1">
     <th scope="row" class="efb ${c_c.indexOf(s2)!=-1 ? 'bi-check-square text-info' : 'bi-square'}" onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}" ></th><td class="efb ms col-12"  onClick="fun_test(this)" data-indx="${indx}" data-id="${s2}" data-code="${i.c_c}" data-name="${s2}">${i.n} ${v}</td>
@@ -274,7 +274,7 @@ const ElcountriesListSelections = (idset,indx) => {
     `
 }
 function fun_test(t){
-  console.log(t)
+  //console.log(t)
   const idx = t.dataset.indx;
   const c= t.dataset.name;
   const n= t.dataset.code;
@@ -285,7 +285,7 @@ function fun_test(t){
  }else{
    const indx = valj_efb[idx].c_c.indexOf(c)
    if(indx!=-1){
-    console.log(valj_efb[idx].c_c , c,indx);
+    //console.log(valj_efb[idx].c_c , c,indx);
     valj_efb[idx].c_c.splice(indx,1)
     valj_efb[idx].c_n.splice(indx,1)
     return;
@@ -297,7 +297,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  console.log(idset);
+  //console.log(idset);
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -670,7 +670,7 @@ function show_setting_window_efb(idset) {
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
   
-   console.log(el.dataset.tag)
+    //console.log(el.dataset.tag)
     switch (el.dataset.tag) {
       case 'email':
       case 'text':
@@ -789,7 +789,7 @@ function show_setting_window_efb(idset) {
           </div>`
           } */
         }
-        console.log(el.dataset.tag);
+        //console.log(el.dataset.tag);
         //optionElpush_efb
         body = `
                 <div class="efb  mb-3">
@@ -1238,7 +1238,7 @@ function show_setting_window_efb(idset) {
           break;
           case "pointr10":
           case "pointr5":
-            console.log(`pointer[${el.dataset.tag}]`);
+            //console.log(`pointer[${el.dataset.tag}]`);
               body = `
                         <div class="efb  mb-3">
                         <!--  not   advanced-->
@@ -1495,7 +1495,7 @@ efb_powered_by=()=>{
 
 efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
- console.log(objOptions);
+ //console.log(objOptions);
  let t = "radio";
  //const col = "col-sm-11"
  let opetions = `<!-- options --!>`;
@@ -1503,7 +1503,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const vl =parent ? parent.value :'';
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
   const tp = parent.type.toLowerCase();
-  console.log(`parent lower case=====>[${tp}]`,ftyp)
+  //console.log(`parent lower case=====>[${tp}]`,ftyp)
  for (let ob of objOptions) {         
    if(parent){
      if(tp.indexOf("multi")>-1  || tp.includes("checkbox")==true || tp.includes("multiselect")==true  ) t="checkbox"
@@ -1514,13 +1514,13 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
     const id = ob.hasOwnProperty('id') ? ob.id : ob.id_;
     const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
-    console.log(parent.value ,id,id_old);
+    //console.log(parent.value ,id,id_old);
     
    
     if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && (vl == id || vl==id_old)){ checked="checked";
     }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof vl!="string" &&  vl.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"
     }else if((tp.includes("stateprovince")==true || tp.includes("conturylist")==true) &&  (vl==id || vl==id_old) ){checked="checked"}
-    console.log(`checked[${checked}] tp[${tp}]`);
+    //console.log(`checked[${checked}] tp[${tp}]`);
     opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id,checked)    
   }
   return opetions
@@ -1528,7 +1528,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
 
 
 const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
-  console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
+  //console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
   //price,parentsID,t,idin,tag,id_ob,value,col.s,l_b,ftyp,id_value
   /* ` <div id="${id_ob}-v"  class="efb  col-md-12">
   <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
@@ -1572,7 +1572,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
 }
 
 function funShowAttrElsEfb(el){
-  console.log(el);
+  //console.log(el);
   let ol = document.getElementById('optionListefb').dataset;
   if(el.classList.contains('show')){
     el.classList.remove('show');
@@ -1588,7 +1588,7 @@ function funShowAttrElsEfb(el){
 
   for(let ob of document.querySelectorAll(`.elIds`)){
     ol.idstate=="true" ? ob.classList.remove('d-none') : ob.classList.add('d-none');
-    console.log(ob,ol.idstate=="true",ol.idstate ) 
+    //console.log(ob,ol.idstate=="true",ol.idstate ) 
   }
 
 }
