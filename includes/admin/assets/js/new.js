@@ -2040,7 +2040,7 @@ function previewFormEfb(state) {
   step_el_efb = Number(valj_efb[0].steps);
  
   if (localStorage.getItem('formId') == efb_var.id && state == 'run' && 
-  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1)  ) ) { fun_offline_Efb() 
+  ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb() 
   }
 
   //console.log(`check state of t ============> ${ttype}`);
