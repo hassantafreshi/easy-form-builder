@@ -1434,7 +1434,7 @@ class _Public {
 									}
 								}
 							}else{
-								$response = array( 'success' => false  ,'m'=>'Error 405'); 
+								$response = array( 'success' => false  ,'m'=>__('Error Code','easy-form-builder').'</br>'. __('Payment Form','easy-form-builder')); 
 								wp_send_json_success($response,$_POST);
 								die();
 							}
