@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.24
+Stable tag: 			3.5.23
 Requires at least: 	      4.7
-Tested up to: 			6.1.1
+Tested up to: 			6.2
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -357,8 +357,13 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 == Changelog ==
 
 =3.5.24=
+* Fixed issues of UI Easy Form Builder
+
 * Improved UX of Easy Form Builder
-* Added Phone picker to forms
+
+* Added international telephone picker to admin WP form builder
+
+
 
 =3.5.23=
 =3.5.22=

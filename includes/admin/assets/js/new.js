@@ -1617,18 +1617,21 @@ localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt
 
 
 function alert_message_efb(title, message, sec, alert) {
+  
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
-  const id = document.getElementById('body_efb') ?'body_efb' : 'alert_efb';
+  let id = document.getElementById('body_efb')  ?'body_efb' : 'alert_efb';
+  if (id=="body_efb" && Number(document.getElementById('body_efb').offsetWidth)<380) id='alert_content_efb'
   //console.log(id);
   if (document.getElementById('alert_efb')==null){
     //<div id='alert_efb' class='efb mx-5'></div>
     document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
+  console.log(message);
   document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
-    <p>${message}</p>
+    <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
   </div>`
   document.getElementById(id).scrollIntoView({behavior: 'smooth'}, true);

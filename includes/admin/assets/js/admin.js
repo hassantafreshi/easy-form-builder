@@ -1114,6 +1114,7 @@ let change_el_edit_Efb = (el) => {
           }
         } else if (efb_var.smtp == '-1') {
           document.getElementById("adminFormEmailEl").value = "";
+          console.log(efb_var.text.goToEFBAddEmailM);
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
           // trackingCodeEl.checked=false;
