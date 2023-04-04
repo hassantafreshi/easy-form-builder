@@ -300,6 +300,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   //console.error(content[0].paymentcurrency,content);
+
   for (const c of content) {
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
@@ -674,6 +675,7 @@ function fun_open_message_emsFormBuilder(msg_id, state) {
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
   state_modal_show_efb(1)
+  
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0 || state == 3) {
@@ -725,7 +727,6 @@ function fun_update_message_state_by_id(id) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  
   jQuery(function ($) {
     data = {
       action: "update_message_state_Emsfb",

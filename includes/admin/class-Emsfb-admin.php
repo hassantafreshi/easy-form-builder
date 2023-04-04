@@ -216,7 +216,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $r          = $this->db->delete(
@@ -246,7 +246,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->delete(
@@ -285,7 +285,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id         = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
@@ -576,7 +576,7 @@ class Admin {
                 die();
             }
         } */
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']);
         
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
@@ -603,7 +603,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
@@ -635,8 +635,9 @@ class Admin {
         $id = sanitize_text_field(($_POST['id']));
         $code = 'efb'. $id;
         
-        $code =wp_create_nonce($code);       
-        $id = number_format( $id);
+        $code =wp_create_nonce($code); 
+            
+        $id =  ( int ) sanitize_text_field($id);
        
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
@@ -663,7 +664,7 @@ class Admin {
             die();
         }
 
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
         //error_log($id);
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
@@ -715,7 +716,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
         $id = preg_replace('/[,]+/','',$id);
         $m  = sanitize_text_field($_POST['message']);
 

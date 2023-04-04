@@ -63,13 +63,11 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 
 h1.efb {	color: #202a8d !important;
    font-weight: 600 !important;
-   ;
    /*display: inline-block;
    */}
 
 h3.efb {	font-size: 25px !important;
    color: #a2b0d5;
-   ;
    /*display: inline-block;
    */}
 
@@ -84,9 +82,7 @@ div#optionListeHeadfb {	z-index: 1040;
    margin: 0px 0px;
 }
 .bg-response.efb {	border-radius: 15px !important;
-   ;
    background-color: white !important;
-   ;
    box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.2) !important;
 }
 .nav-link.efb {	padding: .3rem 0.5rem !important;
@@ -818,14 +814,12 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
 .form-check-input.efb {	border-color: rgba(220, 220, 222, .75) !important;
 }
 .efb.fs-8.form-check-input {	font-size: 17px !important;
-   ;
    min-width: 17px;
    height: 17px;
    margin-top: 3px;
 }
 .efb.fs-7.form-check-input {	/*font-size: smaller;
    */	font-size: 20px !important;
-   ;
    min-width: 20px;
    height: 20;
    margin-top: 4px;
@@ -1741,7 +1735,6 @@ span#chargeEfb {	width: auto;
 }
 
 span#chargeEfb.one {	width: fit-content!important;
-   ;
    margin: 1px 5px !important;
 }
 #deleteOption.newop {	margin: 0px 10px;

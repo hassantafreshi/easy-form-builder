@@ -1477,7 +1477,6 @@ let change_el_edit_Efb = (el) => {
       case "selectColorEl":
         color = el.value;
         c = switch_color_efb(color);
-        //console.log(c);
         //console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);

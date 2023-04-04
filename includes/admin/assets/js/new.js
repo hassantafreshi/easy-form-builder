@@ -1628,7 +1628,7 @@ function alert_message_efb(title, message, sec, alert) {
     //<div id='alert_efb' class='efb mx-5'></div>
     document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
-  console.log(message);
+  
   document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <div>${String(message)}</div>
@@ -1871,7 +1871,7 @@ function previewFormEfb(state) {
 
   if (content.length > 10) content += `</div>`
   head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  btn-${RemoveTextOColorEfb(valj_efb[1].label_text_color)} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
     `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   //console.log(state ,idn , id);
@@ -1925,7 +1925,6 @@ function previewFormEfb(state) {
     const len = valj_efb.length;
     
     valj_efb.forEach((v, i) => {
-      //console.log(v);
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
@@ -2784,7 +2783,7 @@ state_rply_btn_efb=(t)=>{
 
        document.getElementById("replayB_emsFormBuilder").remove();
        //console.log(document.getElementById("replayB_emsFormBuilder"));
-       document.getElementById("attach_efb").remove();
+       if(document.getElementById("attach_efb")) document.getElementById("attach_efb").remove();
        document.getElementById("replayM_emsFormBuilder").remove();
        document.getElementById("label_replyM_efb").remove();
        document.getElementById("replay_state__emsFormBuilder").innerHTML=`<h5 class="efb fs-4 my-3 text-center text-pinkEfb">${efb_var.text.clsdrspn}</h5>`

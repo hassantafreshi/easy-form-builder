@@ -751,6 +751,7 @@ function addMarker(position) {
 
   reply_upload_efb =(msg_id)=>{
       let btnC = '<!--efb.app-->'
+      
     if( pro_efb==true){
        if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
@@ -805,6 +806,7 @@ function closed_resp_emsFormBuilder(msg_id){
 close_resp_efb=(id,s)=>{
   const ob = s==1 ? [{id_:'message', name:'message', type:'opened', amount:0, value: efb_var.text.clsdrspo, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}] : [{id_:'message', name:'message', type:'closed', amount:0, value: efb_var.text.clsdrspn, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}]
   sendBack_emsFormBuilder_pub= ob;
+  
   fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
 }
 
