@@ -2,27 +2,24 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.24
+Stable tag: 			3.5.26
 Requires at least: 	      4.7
 Tested up to: 			6.2
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Easy Form Builder is a user-friendly plugin to help you create powerful forms. With Easy Form Builder, creating professional forms of any kind becomes a breeze - no coding skills required Via a visual user interface 
+Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. This powerful form builder plguin you can create multistep forms.
 
 == Description ==
-**Easy Form Builder** is a user-friendly form creator that allows you to create professional multi-step forms within minutes.
+**Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create  multistep professional forms or contact-us forms within minutes.
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
-Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all with drag and drop form wizard of Easy Form Builder. This is the free version provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form, registration form,
-
 If you're looking to create custom multi-step forms without any coding skills, Easy Form Builder is the plugin for you. With over 30 field types and a simple drag-and-drop interface, building a custom form has never been easier. Easy Form Builder also includes a unique confirmation code (tracking ID) for each submission, allowing you to connect each submission to an individual request.
 
-For more information, check out our comprehensive documentation [Click Here](https://whitestudio.team/documents)
 
-Easy Form Builder offers numerous features to make your life easier, including::
+Easy Form Builder offers numerous features to make your life easier, including:
 
 **General features of Easy Form Builder**
 
@@ -71,7 +68,7 @@ Easy Form Builder offers numerous features to make your life easier, including::
 
 - Unlimited form creation
 
-- Unlimited responses or messages from forms
+- Unlimited responses or messages forms
 
 - Multistep form creation (limited steps)
 
@@ -127,16 +124,11 @@ Easy Form Builder offers numerous features to make your life easier, including::
 
 - Create any kind of form you want
 
-- Submitting an Offline Forms
+- Offline Forms
 
 - Download individual filled-out form (messages)
 
 - Slide Range Field for building Modern forms **for free**
-
-
-
-
-
 
 
 
@@ -148,7 +140,7 @@ Easy Form Builder offers numerous features to make your life easier, including::
 
 - *Signature Forms*: Make your contact forms stand out by adding signature fields for your users to sign. Signature forms can be used for a variety of purposes, such as contracts or agreements. By including this feature in your forms, you can improve user engagement and increase the likelihood of form completion.
 
-- *Location picker (Geolocation)*: With Easy Form Builder, you can easily add a drop-down field of countries to your forms, including Contact Us forms. This feature allows users to easily select their country from a pre-populated list. Enhance your user experience and make it easier for users to provide their country information with this simple feature
+- *Location picker (Geolocation)*: With Easy Form Builder, you can effortlessly incorporate a Geolocation feature into your forms, including Contact Us forms. This powerful feature enables users to conveniently select one or more points using Google Maps API.
 
 - *Countries list*: Make it easy for your users to select their country with the Easy Form Builder's country list select field. This drop-down field includes the local names of all countries, making it more user-friendly and accessible. Add it to your Contact Us form or country form today.
 
@@ -175,42 +167,7 @@ Easy Form Builder offers numerous features to make your life easier, including::
 - *Cell Phone Input Field* :you can easily add a cell phone input field to your forms, allowing users to input their phone number with ease. Additionally, this feature includes the option to limit the input to specific countries, ensuring that users provide phone numbers in the correct format for your needs. With this powerful tool included in our form builder, you can create a wide range of forms, from contact forms to registration forms and beyond, all with the ability to collect cell phone numbers in a hassle-free manner.
 
 
-**Advanced and Pro features of Easy Form Builder:**
-
-- Build secure and integrated Stripe payment forms
-
-- Create customizable drag and drop file upload forms
-
-- Design multi-step forms with unlimited steps for better user experience
-
-- Export survey results to CSV format for easy analysis
-
-- Export form responses or messages to CSV format for data management
-
-- Easily create any kind of payment order or service form with customizable payment fields such as  single-choice, selection choose
-
-- Create advanced forms with specialized fields including location picker (maps), Esign (e-signature), Yes/No question, Star rating, Switch button, and more
-
-- Customize the thank you page that users are redirected to after completing the form for better engagement and conversion rates.
-
-- Professional panel for managing user-filled forms and responses
-
-
-**Advanced Payment Forms Field of Easy Form Builder**
-
-
-- *Stripe payment* : Easily integrate Stripe payment gateway to create payment forms for accepting online payments for various purposes such as order forms, booking forms, and donation forms.
-
-- *Payment Single choose*: The Payment Single Choose field displays a list of orders, services or products, allowing users to select one item on the payment form.
-
-- *Payment Multi choose*: The Payment Multi Choose field displays a list of services or products or orders, allowing users to select multiple items on payment or order forms.
-
-- *Supported currencies*: Easy Form Builder payments are powered by Stripe, which supports over 135 currencies, making it convenient for users worldwide to make online payments.
-
-- *Recurring Payment Forms*: Create payment forms for recurring payments with the ability to choose the payment interval such as daily, weekly, monthly, or yearly. The plugin also offers one-time payment forms for those who prefer a single payment option.
-
-
-*Free advanced features of Easy Form Builder* 
+**Free advanced features of Easy Form Builder**
 
 - *Free WordPress User Registration Forms*:Quickly create login and user registration forms with Easy Form Builder's premade templates. Save time and improve user experience on your website with this hassle-free solution.
 
@@ -239,6 +196,56 @@ Easy Form Builder offers numerous features to make your life easier, including::
 - With Easy Form Builder's free add-on, users can submit their form responses even when their internet connection is lost. The form data will be stored locally and can be submitted once the internet connection is restored. This ensures that important data is not lost due to connectivity issues.
 
 
+
+**Advanced Payment Forms Field of Easy Form Builder**
+
+
+- *Stripe payment* : Easily integrate Stripe payment gateway to create payment forms for accepting online payments for various purposes such as order forms, booking forms, and donation forms.
+
+- *Payment Single choose*: The Payment Single Choose field displays a list of orders, services or products, allowing users to select one item on the payment form.
+
+- *Payment Multi choose*: The Payment Multi Choose field displays a list of services or products or orders, allowing users to select multiple items on payment or order forms.
+
+- *Supported currencies*: Easy Form Builder payments are powered by Stripe, which supports over 135 currencies, making it convenient for users worldwide to make online payments.
+
+- *Recurring Payment Forms*: Create payment forms for recurring payments with the ability to choose the payment interval such as daily, weekly, monthly, or yearly. The plugin also offers one-time payment forms for those who prefer a single payment option.
+
+
+**Advanced survey/poll forms of Easy Form Builder**
+
+
+- *5 Points Scale* : The 5-point scale is a popular method for creating survey forms and poll forms. With Easy Form Builder's 5 Points Scale fields, you can easily create beautiful forms, collect responses, and analyze results.
+
+- *Net Promoter Score* : The Net Promoter Score (NPS) question is a powerful tool for creating effective survey forms and poll forms in Easy Form Builder. By simply adding this question to your survey form, you can create a beautiful form that collects responses and enables you to easily export and analyze the results
+
+- *Get Export* : Easy Form Builder's panel allows you to effortlessly export collected responses from survey forms or poll forms.
+
+- *Present Charts* : With Easy Form Builder, you can easily present collected responses from survey or poll forms using pie charts for **free**
+
+
+**Advanced and Pro features of Easy Form Builder:**
+
+- Build secure and integrated Stripe payment forms
+
+- Create customizable drag and drop file upload forms
+
+- Design multi-step forms with unlimited steps for better user experience
+
+- Export survey results to CSV format for easy analysis
+
+- Export form responses or messages to CSV format for data management
+
+- Easily create any kind of payment order or service form with customizable payment fields such as  single-choice, selection choose
+
+- Create advanced forms with specialized fields including location picker (maps), Esign (e-signature), Yes/No question, Star rating, Switch button, and more
+
+- Customize the thank you page that users are redirected to after completing the form for better engagement and conversion rates.
+
+- Professional panel for managing user-filled forms and responses
+
+Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all with drag and drop form wizard of Easy Form Builder. This is the free version provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form, registration form,
+
+For more information, check out our comprehensive documentation [Click Here](https://whitestudio.team/documents)
 
 
 **Responsive Forms, SEO FRIENDLY AND OPTIMIZED FOR SPEED**
