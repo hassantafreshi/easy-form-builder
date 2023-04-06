@@ -22,7 +22,7 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        setTimeout(() => {  alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
+        //setTimeout(() => {  alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
@@ -64,7 +64,7 @@ function fun_emsFormBuilder_render_view(x) {
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
    <td  class="efb" > 
    <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
-   <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
+   <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
    <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
    <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
    <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
@@ -300,8 +300,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   //console.error(content[0].paymentcurrency,content);
+
   for (const c of content) {
-    if(c.hasOwnProperty('value')){ c.value = replaceContentMessageEfb(c.value)}
+    if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
     s = false;
     
@@ -357,7 +358,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
         marker_maps_efb = c.value;
-        initMap();
+        initMap(false);
         m += value;
       }
     } else if (c.type == "rating") {
@@ -385,9 +386,25 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       
       m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
     }
+    else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
+      s = true;
+      //console.log(390 ,checboxs.includes(c.id_));
+      let vc ='null';
+      checboxs.push(c.id_);
+      for(let op of content){
+        //console.log(op, c.id_ ,op.id_ == c.id_);
+        if(op.type=="r_matrix" && op.id_ == c.id_){
+          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.name}</b> <br>${op.value} </p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
+        }
+      }
+      
+      m += `${vc}`;
+    }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
+        if(title=="file") title ="atcfle"
+        //console.log(`title[${title}]`);
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
@@ -548,7 +565,7 @@ function fun_ws_show_list_messages(value) {
             <td class="efb "> 
             <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})" >
              ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
-             <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id}" onClick="${pro_ws == true ? `emsFormBuilder_delete(${v.msg_id} ,'message')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}" ><i class="efb  bi-trash"></i> </a>
+             <a class="efb zindex-100  btn btn-delete btn-sm" id="btn-m-d-${v.msg_id}" onClick="${pro_ws == true ? `emsFormBuilder_delete(${v.msg_id} ,'message','${v.track}')` : `pro_show_efb('${efb_var.text.availableInProversion}')`}" ><i class="efb  bi-trash"></i> </a>
             </td>                               
             </tr>` ;
       no += 1;
@@ -658,6 +675,7 @@ function fun_open_message_emsFormBuilder(msg_id, state) {
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
   state_modal_show_efb(1)
+  
   fun_emsFormBuilder_get_all_response_by_id(Number(msg_id));
   emsFormBuilder_show_content_message(msg_id)
   if (state == 0 || state == 3) {
@@ -689,6 +707,7 @@ function fun_get_form_by_id(id) {
           valj_efb = value;
           setTimeout(() => {
             formName_Efb = valj_efb[0].formName;
+            form_type_emsFormBuilder=valj_efb[0].type
             form_ID_emsFormBuilder = id;
             localStorage.setItem('valj_efb', JSON.stringify(value));
             const edit = { id: res.data.id, edit: true };
@@ -708,7 +727,6 @@ function fun_update_message_state_by_id(id) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  
   jQuery(function ($) {
     data = {
       action: "update_message_state_Emsfb",
@@ -843,6 +861,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
         if(document.getElementById('replay_state__emsFormBuilder')){
         document.getElementById('replay_state__emsFormBuilder').innerHTML = res.data.m;
         document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
+        document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply
         }else{
           alert_message_efb(res.data.m,'', 12 , 'danger')
         }
@@ -1151,12 +1170,13 @@ function fun_show_setting__emsFormBuilder() {
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showUpfile_emsFormBuilder">${efb_var.text.dsupfile}</label>                                
+                                                                 
                                 </div>
                                 <div class="efb card-body my-0 py-0 ${mxCSize4}">
                                   <button type="button" id="activeDlBtn_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${activeDlBtn == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">       
                                   <div class="efb handle"></div>
                                   </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>                                
+                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>
                                 </div>
                                <!-- <div class="efb card-body my-0 py-0 ${mxCSize4}">
                                   <button type="button" id="showIp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${showIp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >       
@@ -2248,27 +2268,7 @@ function act_local_efb_event(t){
 
 
 
-function efb_check_el_pro(el){
-  
-  f_b=()=>{
-    el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
-  }
-  if(pro_ws==false) {
-    if(el.type=="button"){
-      f_b();
-      pro_show_efb(efb_var.text.availableInProversion)  
-    }
-    return false ;
-  }
 
-  if(el.id=="scaptcha_emsFormBuilder"){
-    if (document.getElementById('sitekey_emsFormBuilder').value.length <5) { 
-      f_b();
-      alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger");
-    }
-  }
-  return true;
-}
 
 
 

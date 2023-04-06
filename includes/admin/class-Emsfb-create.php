@@ -38,6 +38,7 @@ class Create {
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
 		
+		
 	}
 
 	public function add_Create_menu() {
@@ -122,6 +123,9 @@ class Create {
 		'AdnPDP'=>0,
 		'AdnADP'=>0];
 		//v2 translate
+
+		//write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
+
 		
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
@@ -192,20 +196,32 @@ class Create {
 
 			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.22');	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), true,'3.5.26');	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.22');	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), true,'3.5.26');	
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
-		wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+		wp_enqueue_script('addsOnLocal-js'); */
+		wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js');
+		wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
+		wp_enqueue_script('countries-js');
+
+
+		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
+		wp_enqueue_script('intlTelInput-js');
+
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.26');
+        wp_enqueue_style('intlTelInput-css');
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
-		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
+		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
+		'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
 		];
 		
 		$smtp =-1;
@@ -218,21 +234,24 @@ class Create {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.22');
+		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.26');
 		wp_enqueue_script('pay_js');
 
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.22');
+			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.26');
 			wp_enqueue_script('persia_pay');
 		}
 
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.22');
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.26');
 		wp_enqueue_script('stripe_js');
 
 
+		$colors = $efbFunction->get_list_colores_template();
+		//error_log(json_encode($colors));
+
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.22');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.26');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -251,26 +270,27 @@ class Create {
 			'location'=>$location,
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$ac,
+			'colors'=>$colors,
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.22');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.26');
 		wp_enqueue_script('efb-val-js'); 
 		
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.22');
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.26');
 		wp_enqueue_script('efb-pro-els'); 
 		
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.22');
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.5.26');
 		wp_enqueue_script('efb-forms-js');
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.22');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.26');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.22');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.26');
 		wp_enqueue_script('efb-main-js'); 
 
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.22');
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.5.26');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
 
 		
@@ -286,7 +306,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-
+		//error_log('add_form_structure');
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -309,9 +329,14 @@ class Create {
 		//$this->value = $_POST['value'];
 
 		$valp =str_replace('\\', '', $_POST['value']);
+		//error_log("====>valp");
+		//error_log($valp);
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		
 		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		//error_log("====>valx");
+		//error_log($valx);
 		$this->value=str_replace('"', '\\"', $valx);
 
 		$this->formtype =  sanitize_text_field($_POST['type']);
@@ -320,8 +345,8 @@ class Create {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-
-		
+		//error_log("====>this->value");
+		//error_log($this->value);
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
@@ -329,7 +354,7 @@ class Create {
 		wp_send_json_success($response,$_POST);
 		die();		
 	}
-
+	
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
 	public function insert_db(){
 		
@@ -361,6 +386,8 @@ class Create {
         }
         return  $s;
     }//end fun
+
+
 
 
 

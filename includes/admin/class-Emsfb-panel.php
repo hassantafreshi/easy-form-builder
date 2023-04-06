@@ -28,13 +28,14 @@ class Panel_edit  {
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
 			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png',
-			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif'
+			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
+			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
 			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
-			$lang = $efbFunction->text_efb(1);
+			$lang = $efbFunction->text_efb(2);
 			$smtp =false;
 			$captcha =false;
 			$maps=false;
@@ -106,8 +107,9 @@ class Panel_edit  {
 			
 		
 			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+			$colors = $efbFunction->get_list_colores_template();
 			$location ='';
-			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.22');
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.26');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -124,13 +126,14 @@ class Panel_edit  {
 				'wp_lan'=>get_locale(),
 				'location'=>$location,
 				'setting'=>$ac,
-				'v_efb'=>EMSFB_PLUGIN_VERSION
+				'v_efb'=>EMSFB_PLUGIN_VERSION,
+				'colors'=>$colors,
 			));
 
-			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.22');
+			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.26');
 			wp_enqueue_script('efb-val-js'); 
 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.22');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.5.26');
 			wp_enqueue_script('efb-pro-els');
 
 
@@ -162,40 +165,49 @@ class Panel_edit  {
 				wp_enqueue_script('googleMaps-js');
 			}
 
-			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.22');
+			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), true,'3.5.26');
 			wp_enqueue_script('pay_js');
 	
 			if("fa_IR"==get_locale()){
-				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.22');
+				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), true,'3.5.26');
 				wp_enqueue_script('persia_pay');
 			}
 	
-			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.22');
+			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.26');
 			wp_enqueue_script('stripe_js');
 			
-			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.22' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.26' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0));
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.22');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.26');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
-			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.22');
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.5.26');
 			wp_enqueue_script('efb-main-js'); 
 			
 				/* new code v4 */
 			
-				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.22');	
+				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.5.26');	
 				wp_enqueue_script('jquery-ui');
-				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.22');	
+				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.5.26');	
 				wp_enqueue_script('jquery-dd'); 
 				/*end new code v4 */
 
-			wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js'); */
+			wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js');
 
-			
+			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
+			wp_enqueue_script('countries-js');
 
+			
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
+			wp_enqueue_script('intlTelInput-js');
+
+			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.26');
+			wp_enqueue_style('intlTelInput-css');
 
 			
 			$table_name = $this->db->prefix . "emsfb_form";
@@ -309,7 +321,7 @@ class Panel_edit  {
 
 
 
-			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.22');
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.5.26');
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			

@@ -137,21 +137,21 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.22' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.26' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.22');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.26');
             wp_enqueue_style('Emsfb-style-css');
 
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.22');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.26');
             wp_enqueue_style('Emsfb-bootstrap');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.22');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.26');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.22');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.26');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -159,13 +159,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.22');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.26');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.22');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.26');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.22');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.26');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -216,7 +216,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $r          = $this->db->delete(
@@ -246,7 +246,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->delete(
@@ -285,7 +285,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id         = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
@@ -361,9 +361,9 @@ class Admin {
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             $request = wp_remote_get($u);
             
-            if( is_wp_error( $request ) ) {
+            if( is_wp_error( $request )) {
 
-                $m = $lang["error403"];
+                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
                
@@ -386,10 +386,15 @@ class Admin {
                 
             }
 
-            if($data->download==true){
+            if($data->download==true ){
                 $url =$data->link;
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
-                $this->fun_addon_new($url);
+               $s= $this->fun_addon_new($url);
+               if($s==false ){
+                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
+                $response = ['success' => false, "m" => $m];
+                wp_send_json_success($response, $_POST);
+               }
 
             }
         }
@@ -571,7 +576,7 @@ class Admin {
                 die();
             }
         } */
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']);
         
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
@@ -598,7 +603,7 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
 
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
@@ -630,8 +635,9 @@ class Admin {
         $id = sanitize_text_field(($_POST['id']));
         $code = 'efb'. $id;
         
-        $code =wp_create_nonce($code);       
-        $id = number_format( $id);
+        $code =wp_create_nonce($code); 
+            
+        $id =  ( int ) sanitize_text_field($id);
        
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
@@ -658,8 +664,8 @@ class Admin {
             die();
         }
 
-        $id = number_format($_POST['id']);
-
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        //error_log($id);
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE msg_id = '$id'");
         $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id, 'read_' => 0]);
@@ -710,7 +716,8 @@ class Admin {
             wp_send_json_success($response, $_POST);
             die();
         }
-        $id = number_format($_POST['id']);
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        $id = preg_replace('/[,]+/','',$id);
         $m  = sanitize_text_field($_POST['message']);
 
         //echo $table_name;
@@ -1105,7 +1112,7 @@ class Admin {
             }else{
                 $r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
                 if(is_wp_error($r)){
-                    
+                    return false;
                 }else{
                     
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -1114,9 +1121,9 @@ class Admin {
                     if(is_wp_error($r)){
                         error_log('error unzip');
                         error_log(json_encode($r));
-                    }else{
-                        
-                    }    
+                        return false;
+                    }
+                    return true; 
                 }            
             }
 

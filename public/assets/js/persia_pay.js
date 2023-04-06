@@ -4,10 +4,11 @@ const getUrlback_efb = location.search;
 const getUrlparam_efb = new URLSearchParams(getUrlback_efb);
 const get_authority_efb = getUrlparam_efb.get('Authority');
 const get_Status_efb =  getUrlparam_efb.get('Status');
-
 fun_total_pay_persiaPay_efn=(total)=>{
-    
-    total != 0 ? document.getElementById("persiaPayEfb").classList.remove('disabled') : document.getElementById("persiaPayEfb").classList.add('disabled');
+    const el = document.getElementById("persiaPayEfb");
+    if(el){
+      total != 0 ?  el.classList.remove('disabled') : el.classList.add('disabled');
+    }
 }
 
 
@@ -142,7 +143,7 @@ fun_after_bankpay_persia_ui =()=>{
     //console.log(id,document.getElementById(id))
   if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
     {
-      console.log('done!')
+      //console.log('done!')
       document.getElementById(id).classList.remove('disabled');
      
       //console.log(document.getElementById(id));
