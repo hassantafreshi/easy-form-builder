@@ -839,6 +839,7 @@ class _Public {
 								case 'radio':							
 								case 'payRadio':
 								case 'chlRadio':
+								case 'imgRadio':
 									$stated=0;
 									if(isset($item['value'])){
 										

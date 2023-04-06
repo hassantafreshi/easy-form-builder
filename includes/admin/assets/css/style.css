@@ -651,9 +651,11 @@ h5.efb {	font-size: 25px !important;
   cursor: default!important;
 }
 
-.star-efb input {
+.star-efb input, .imgRadio.efb input  {
   display: none;
 }
+
+
 .efb.display-7 {	font-size: calc(1rem + 1vw);
    font-weight: 200;
    line-height: 1.0;
@@ -2382,3 +2384,13 @@ div#Listefb-150 {
 
 .showBtns input[type][readonly],.showBtns select[readonly],.showBtns label {
    pointer-events: none;}
+
+
+   .efb.form-check label.efb{
+      cursor: pointer!important;
+   }
+
+  .imgRadio .form-check-input:checked + label{
+      opacity: 0.5;
+  }
+ 

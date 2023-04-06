@@ -1004,3 +1004,26 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
   });
   },800)
 }
+
+
+fun_imgRadio_efb=(id ,link,row)=>{
+  console.log(row);
+  //اگر لینک خالی یا نال یا بودن اچ تی تی بود عکس پیش فرض شود
+  link = `https://dummyimage.com/600x400/000/fff`;
+  return `<label class="efb  " id="${id}_lab" for="${id}">
+    <img src="${link}" alt="Image 1">
+     </label>`;
+}
+
+add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
+ // const temp= fun_imgRadio_efb(id,link,row);
+ const row = valj_efb.findIndex(x=>x.id_==id_ob)
+ const temp = fun_imgRadio_efb(id_ob,link,row);
+ console.log(row);
+  return`<div class="efb  form-check imgRadio" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
+  <input class="efb  form-check-input " type="radio" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
+  ${temp}
+  </div>`;
+}
+
+//fun_imgRadio_efb(id_ob,'urllink',row)

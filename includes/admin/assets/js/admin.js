@@ -2477,6 +2477,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  console.log(tag);
   //console.log('====================>add_new_option_efb')
   //console.log(parentsID, idin, value, id_ob, tag);
   let p = document.getElementById("optionListefb")
@@ -2519,10 +2520,13 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
  } else if (tag == "table_matrix") {
    // /r_matrix_push_efb
    document.getElementById(`${parentsID}_options`).innerHTML += add_r_matrix_view_select(idin, value, id_ob, tag, parentsID);
- } else if(tag !== "multiselect" && tag !== "payMultiselect" || ( tag=="radio" &&  valj_efb[indx].hasOwnProperty('addother') == false )){
+ } else if(tag !== "multiselect" && tag !== "payMultiselect" &&  tag !== "imgRadio" || ( tag=="radio" &&  valj_efb[indx].hasOwnProperty('addother') == false )){
 
    document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(idin, value, id_ob, tag, parentsID);
 
+ }else if(tag == "imgRadio"){
+ 
+  document.getElementById(`${parentsID}_options`).innerHTML += add_new_imgRadio_efb(idin, value, id_ob, tag, parentsID);
  }
   for (let el of document.querySelectorAll(`.elEdit`)) {
     
@@ -2646,6 +2650,7 @@ const sort_obj_el_efb = () => {
 
 
 function add_option_edit_pro_efb(parent, tag, len) {
+  console.log(tag);
   const p = calPLenEfb(len)
   len = len < 50 ? 200 : (len + Math.log(len)) * p
   const id_ob = Math.random().toString(36).substr(2, 9);
@@ -2653,6 +2658,14 @@ function add_option_edit_pro_efb(parent, tag, len) {
   optionElpush_efb(parent, efb_var.text.newOption, id_ob, id_ob, tag);
   setTimeout(() => {
     add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
+    /* if(tag!="imgRadio"){
+      add_new_option_efb(parent, id_ob, efb_var.text.newOption, id_ob, tag);
+    }else{
+      const row = valj_efb[(valj_efb.length-1)];
+      add_new_imgRadio_efb(id_ob,'urllink',row)
+      
+    } */
+    
   }, len);
 
 }

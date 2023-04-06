@@ -660,6 +660,7 @@ class efbFunction {
 			"hdattr" => $state  &&  isset($ac->text->hdattr) ? $ac->text->hdattr : __('Hide attributes','easy-form-builder'),				
 			"idl5" => $state  &&  isset($ac->text->idl5) ? $ac->text->idl5 : __('The ID length should be at least 3 characters long.','easy-form-builder'),				
 			"idmu" => $state  &&  isset($ac->text->idmu) ? $ac->text->idmu : __('The ID value must be unique, as it is already being used in this field. please try a new, unique value.','easy-form-builder'),				
+			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image Select Field','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];

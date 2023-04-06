@@ -9,7 +9,7 @@ Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. This powerful form builder plguin you can create multistep forms.
+Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. use this powerful form builder to create multistep forms.
 
 == Description ==
 **Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create  multistep professional forms or contact-us forms within minutes.
@@ -362,6 +362,9 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.26=
+* Fixed issues of UI Easy Form Builder
 
 =3.5.24=
 * Fixed issues of UI Easy Form Builder

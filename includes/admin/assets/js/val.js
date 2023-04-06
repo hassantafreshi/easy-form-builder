@@ -26,7 +26,7 @@ const fields_efb = [
   /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
-  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
+  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   //{ name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
@@ -37,7 +37,8 @@ const fields_efb = [
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
-  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
+  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
+  
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
@@ -46,6 +47,7 @@ const fields_efb = [
  /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' }, */
   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
+  { name: efb_var.text.imgRadio, icon: 'bi-images', id: 'imgRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   
@@ -758,6 +760,7 @@ function show_setting_window_efb(idset) {
       case "chlCheckBox":
       case "chlRadio":
       case "payMultiselect":
+      case "imgRadio":
         const objOptions = valj_efb.filter(obj => {
           return obj.parent === el.id
         })
