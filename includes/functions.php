@@ -682,7 +682,7 @@ class efbFunction {
 				$rtrn=$lang;
 			}
 		}
-		array_push($rtrn);
+		//array_push($rtrn);
 		return $rtrn;
 	}
 

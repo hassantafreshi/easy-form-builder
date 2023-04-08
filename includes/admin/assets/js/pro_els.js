@@ -1007,20 +1007,39 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
 
 
 fun_imgRadio_efb=(id ,link,row)=>{
-  console.log(row);
+  console.log(id ,link,row);
   //اگر لینک خالی یا نال یا بودن اچ تی تی بود عکس پیش فرض شود
-  link = `https://dummyimage.com/600x400/000/fff`;
-  return `<label class="efb  " id="${id}_lab" for="${id}">
-    <img src="${link}" alt="Image 1">
-     </label>`;
+
+  /* 
+   <div class="efb card col-md-3 mx-3 my-1" style="">
+  <svg class="bd-placeholder-img card-img-top efb" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+  <div class="efb card-body">
+    <h5 class="efb card-title text-dark">Card title</h5>
+    <p class="efb card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    
+  </div>
+   */
+  let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption;
+  let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription;
+  link = link.includes('http')==false ?  efb_var.images.head : link;
+  return `
+    <label class="efb  " id="${id}_lab" for="${id}">
+    <div class="efb card col-md-3 mx-3 my-1 w-100" style="">
+    <img src="${link}" alt="${value}" style="width: 100%" >
+    <div class="efb card-body">
+        <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
+        <p class="efb card-text" id="${id}_value_sub">${sub_value}</p>    
+    </div>
+    </div>
+    </label>`;
 }
 
 add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
  // const temp= fun_imgRadio_efb(id,link,row);
- const row = valj_efb.findIndex(x=>x.id_==id_ob)
- const temp = fun_imgRadio_efb(id_ob,link,row);
- console.log(row);
-  return`<div class="efb  form-check imgRadio" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
+ const idx = valj_efb.findIndex(x=>x.id_==id_ob)
+ const temp = fun_imgRadio_efb(id_ob,"null",valj_efb[idx]);
+ //console.log(row);
+  return`<div class="efb  form-check imgRadio col-md-3" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
   <input class="efb  form-check-input " type="radio" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
   ${temp}
   </div>`;

@@ -1390,7 +1390,7 @@ let change_el_edit_Efb = (el) => {
           break;
         }
        if (postId != null) {      
-        valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');;
+        valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');
         valj_efb[0].thank_you ='rdrct';
        }else{
         valj_efb[0].thank_you ='msg';
@@ -2423,7 +2423,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
   console.log(tag);
-  if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false)) {
+  if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img") ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
   } else {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });
