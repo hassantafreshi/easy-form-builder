@@ -1382,21 +1382,30 @@ let change_el_edit_Efb = (el) => {
         //const el_ = document.querySelectorAll(``)
         break;
       case "thankYouredirectEl":
-        postId = el.value.match(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi)
+        ///^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+        console.log(el.value);
+        postId = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/gi)
         if(pro_efb!=true){
           pro_show_efb(1);
           valj_efb[0].thank_you ='msg';
           valj_efb[0].rePage = '';
           break;
         }
+        const u = (url)=>{
+          url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+          url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+          url = url.replace(/([/])+/g, '@efb@');
+          return url
+         }
        if (postId != null) {      
-        valj_efb[0].rePage = el.value.replace(/([/])+/g, '@efb@');
+        valj_efb[0].rePage = u(el.value);
         valj_efb[0].thank_you ='rdrct';
        }else{
         valj_efb[0].thank_you ='msg';
         valj_efb[0].rePage = '';
         alert_message_efb(efb_var.text.error, efb_var.text.enterValidURL,8,'warning');
        }
+       console.log(valj_efb[0].rePage );
         break;
       case "paymentGetWayEl":
         //console.log('paymentGetWayEl')
@@ -1803,6 +1812,9 @@ let change_el_edit_Efb = (el) => {
             let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
+          }else if(el.dataset.tag = "imgRadio"){
+            console.log(el.dataset.id,valj_efb[iindx].id_op);
+            document.getElementById(`${valj_efb[iindx].id_op}_value`).innerHTML = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
             //radio || checkbox       
              document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
@@ -2001,6 +2013,24 @@ let change_el_edit_Efb = (el) => {
         }
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         break;
+        case 'imgRadio_url':
+          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+          console.log('imgRadio_url' ,indx);
+          const ud = (url)=>{
+            url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+            url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+            url = url.replace(/([/])+/g, '@efb@');
+            return url;
+           }
+          valj_efb[indx].src = ud(el.value);
+          console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
+          document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
+          break;
+        case 'imgRadio_sub_value':
+          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+          valj_efb[indx].sub_value = el.value;
+          document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
+          break;
     }
 
   }, len_Valj * 6)
@@ -2343,14 +2373,12 @@ let sampleElpush_efb = (rndm, elementId) => {
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color="text-white"
-    }
-    if (elementId == "persiaPay") {
+    }else if (elementId == "persiaPay") {
       Object.assign(valj_efb[0], { getway: 'persiaPay', currency: 'irr', paymentmethod: 'charge', persiaPay:'zarinPal' });
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color ="text-white"
-    }
-    if (elementId == "esign") {
+    }else if (elementId == "esign") {
       console.log(pub_icon_color_efb);
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         icon: 'bi-save', icon_color: pub_icon_color_efb, button_single_text: efb_var.text.clear,
@@ -2423,8 +2451,21 @@ let sampleElpush_efb = (rndm, elementId) => {
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
   console.log(tag);
-  if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img") ) {
+  if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
+
+    const u = (url)=>{
+      url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+      url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+      url = url.replace(/([/])+/g, '@efb@');
+      return url;
+     }
+    if(tag.includes("img")==true){
+      Object.assign(valj_efb[(valj_efb.length) - 1], {
+        sub_value: efb_var.text.sampleDescription,
+        src:u(efb_var.images.head)
+      })
+    }
   } else {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb });
   }

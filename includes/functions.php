@@ -661,6 +661,7 @@ class efbFunction {
 			"idl5" => $state  &&  isset($ac->text->idl5) ? $ac->text->idl5 : __('The ID length should be at least 3 characters long.','easy-form-builder'),				
 			"idmu" => $state  &&  isset($ac->text->idmu) ? $ac->text->idmu : __('The ID value must be unique, as it is already being used in this field. please try a new, unique value.','easy-form-builder'),				
 			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image Select Field','easy-form-builder'),				
+			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert image url','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -931,6 +932,11 @@ class efbFunction {
 					case 'file':
 					case 'href':
 						$valp[$key][$k]=$v;
+					case 'rePage':
+					case 'src':
+						error_log($k);
+						$valp[$key][$k]=sanitize_url($v);
+						error_log($valp[$key][$k]);
 					break;
 					case 'thank_you_message':
 						//error_log(json_encode($valp[$key]));

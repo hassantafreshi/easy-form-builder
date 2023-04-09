@@ -1531,7 +1531,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
 
 
 const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
-  //console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
+  console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
   //price,parentsID,t,idin,tag,id_ob,value,col.s,l_b,ftyp,id_value
   /* ` <div id="${id_ob}-v"  class="efb  col-md-12">
   <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
@@ -1545,10 +1545,36 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     </button>
   </div>
   </div>` */
+  
+  const fun_imgRadio =()=>{
+    let r ='<!-efb-->'
+    const u = (url)=>{
+      url = url.replace(/(http:@efb@)+/g, 'http://');
+      url = url.replace(/(https:@efb@)+/g, 'https://');
+      url = url.replace(/(@efb@)+/g, '/');
+      console.log(url);
+      return url;
+     }
+    console.log(tag,tag=="imgRadio");
+    if(tag=="imgRadio"){
+      let row = valj_efb.find(x=>x.id_==id_value);
+      console.log(row)
+      if (typeof row == "undefined") r ='<!-efb-->';
+      const url = u(row.src);
+      r =`
+      <input type="text" placeholder="${efb_var.text.description}" id="imgRadio_sub_value"  value="${row.sub_value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+      <input type="text" placeholder="${efb_var.text.iimgurl}" id="imgRadio_url"  value="${url}" data-value="${url}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+      `
+    }
+    
+    return r ;
+  }
+  const imgRadio = fun_imgRadio();
   const s_show_id = document.getElementById('optionListefb') && document.getElementById('optionListefb').dataset.idstate =="true" ? true : false;
   let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
     <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>
     <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
+    
     </div>`
   
   return `<div class="efb mx-0 col-sm-12 row opt" id="${idin}-gs"> 
@@ -1558,6 +1584,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   </div>
   <div id="${id_ob}-v" class="efb  col-sm-11 mx-0 px-0">
   <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+  ${imgRadio}
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${parentsID}">
   <button type="button" id="deleteOption"  onClick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 

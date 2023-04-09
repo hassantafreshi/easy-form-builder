@@ -1019,13 +1019,21 @@ fun_imgRadio_efb=(id ,link,row)=>{
     
   </div>
    */
+  const u = (url)=>{
+    url = url.replace(/(http:@efb@)+/g, 'http://');
+    url = url.replace(/(https:@efb@)+/g, 'https://');
+    url = url.replace(/(@efb@)+/g, '/');
+    console.log(url);
+    return url;
+   }
   let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption;
   let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription;
-  link = link.includes('http')==false ?  efb_var.images.head : link;
+  link =link.includes('http')==false ?  efb_var.images.head : row.src;
+  link = u(link);
   return `
     <label class="efb  " id="${id}_lab" for="${id}">
     <div class="efb card col-md-3 mx-3 my-1 w-100" style="">
-    <img src="${link}" alt="${value}" style="width: 100%" >
+    <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
     <div class="efb card-body">
         <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
         <p class="efb card-text" id="${id}_value_sub">${sub_value}</p>    

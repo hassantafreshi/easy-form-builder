@@ -1413,6 +1413,12 @@ function fun_set_setting_emsFormBuilder() {
   
   //fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
+     const u = (url)=>{
+      url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+      url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+      url = url.replace(/([/])+/g, '@efb@');
+      return url;
+     }
     const el = document.getElementById(id)
 
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
@@ -1423,7 +1429,7 @@ function fun_set_setting_emsFormBuilder() {
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
         el.value = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
-        el.value = el.value.replace(/([/])+/g, '@efb@');
+        el.value = u(el.value);
         el.value = el.value.replace(/(["])+/g, `'`);
       }
       return el.value;
@@ -2140,7 +2146,7 @@ function email_template_efb(s) {
     //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
     let ti = efb_var.text.error;
-    c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
+    //c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
     c = c.replace(/(@efb@)+/g, '/');
     if (c.match(/(<script+)/gi)) {
       //show error message you can't use script code

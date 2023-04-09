@@ -655,11 +655,12 @@ class _Public {
 		
 		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state = $email_user= $check = "";
 		$email_user="null";
-		$this->value = sanitize_text_field($_POST['value']);
+		$this->value = $_POST['value'];
 		
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
-		
+		error_log($_POST['value']);
+		error_log($this->value);
 		
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
@@ -797,6 +798,7 @@ class _Public {
 									
 									if(isset($item['value'])){
 										$stated=1;
+										error_log($item['value']);
 										$item['value'] = sanitize_url($item['value']);
 										$l=strlen($item['value']);
 										if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
