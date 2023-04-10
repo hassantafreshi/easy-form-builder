@@ -836,7 +836,7 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${fun_el_select_in_efb(el.dataset.tag)  ? cornerEls('',indx,idset) : ''} 
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectBorderColorEls('element',indx,idset) : ''} 
-                        ${el.dataset.tag != 'multiselect' || el.dataset.tag != 'payMultiselect' ? selectColorEls('el','text') : ''} 
+                        ${el.dataset.tag != 'multiselect' && el.dataset.tag != 'payMultiselect' && el.dataset.tag != 'imgRadio'? selectColorEls('el','text') : ''} 
                         ${labelPostionEls}
                         ${ElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}

@@ -1033,9 +1033,11 @@ let change_el_edit_Efb = (el) => {
   let c, color;
   //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
+    console.log( el.value);
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
-      el.value = sanitize_text_efb(el.value);}
+      el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
+    }
       if (el.value==null) return  valNotFound_efb()
       //console.log(el.id)
     switch (el.id) {
@@ -1383,6 +1385,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "thankYouredirectEl":
         ///^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
+        console.log('value');
         console.log(el.value);
         postId = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/gi)
         if(pro_efb!=true){

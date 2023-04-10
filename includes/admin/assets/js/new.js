@@ -2958,7 +2958,7 @@ const stripAllTags_efb=(string, removeBreaks = false)=>{
 }
 
 const sanitize_text_efb=(str, keep_newlines = false)=>{
-  //console.log(`sanitize_text_efb[${str}]`);
+  console.log(`sanitize_text_efb[${str}]`);
   if (typeof str === 'object' || Array.isArray(str)) {
     return '';
   }else if(str==null || str==undefined){
