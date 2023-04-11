@@ -1403,25 +1403,40 @@ fieldset.efb {	background: transparent;
    content: "";
 }
 
-input[type=radio].efb.fs-6.form-check-input,input[type=checkbox].efb.fs-6.form-check-input {	height: 22px !important;
+input[type=radio].efb.fs-6.form-check-input,input[type=checkbox].efb.fs-6.form-check-input {	
+  height: 22px !important;
+  max-height: 22px !important;
+  min-height: 22px !important;
   margin: 1px;
    
 }
 
-input[type=radio].efb.fs-4.form-check-input,input[type=checkbox].efb.fs-4.form-check-input {	min-width: 30px !important;
+input[type=radio].efb.fs-4.form-check-input,input[type=checkbox].efb.fs-4.form-check-input {	
+   min-width: 30px !important;
    height: 30px !important;
+   max-height: 30px !important;
+   min-height: 30px !important;
 }
 
-input[type=radio].efb.fs-3.form-check-input,input[type=checkbox].efb.fs-3.form-check-input {	min-width: 40px !important;
+input[type=radio].efb.fs-3.form-check-input,input[type=checkbox].efb.fs-3.form-check-input {	
+   min-width: 40px !important;
    height: 40px !important;
+   max-height: 40px !important;
+   min-height: 40px !important;
 }
 
-input[type=radio].efb.fs-2.form-check-input,input[type=checkbox].efb.fs-2.form-check-input {	min-width: 50px !important;
+input[type=radio].efb.fs-2.form-check-input,input[type=checkbox].efb.fs-2.form-check-input {	
+   min-width: 50px !important;
    height: 50px !important;
+   max-height: 50px !important;
+   min-height: 50px !important;
 }
 
-input[type=radio].efb.fs-2.form-check-input input[type=checkbox].efb.fs-2.form-check-input {	min-width: 60px !important;
+input[type=radio].efb.fs-2.form-check-input input[type=checkbox].efb.fs-2.form-check-input {	
+   min-width: 60px !important;
    height: 60px !important;
+   max-height: 60px !important;
+   min-height: 60px !important;
 }
 .form-select.efb {	padding: 0px 35px !important;
 }

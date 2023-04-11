@@ -847,19 +847,27 @@ class _Public {
 										
 										$item['value'] = sanitize_text_field($item['value']);
 
-										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+										array_filter($formObj, function($fr) use(&$item,&$rt,&$stated) { 											
 											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
 												$item['value']=$fr['value'];
-												$rt = $item;
+												//$rt = $item;
 												$stated=1;
 												$t=strpos($item['type'],'pay');
 												if($t!=false){
 													$item['price']=$fr['price'];
 												}
+												$t=strpos($item['type'],'img');
+												if(isset($fr['src'])){
+													//array_push($item,array('src'=>$fr['src']));
+													$item['src']=$fr['src'];													
+												}
+												$rt= $item;
 												return;
 											}
 										});
 									}
+									error_log(json_encode($item));
+
 									$in_loop=false;
 									break;
 								case 'switch':

@@ -1625,4 +1625,14 @@ function funShowAttrElsEfb(el){
 
 
 
+
+fun_translate_check_efb=()=>{
+  const l= ['en_US' ,'fa_IR' ,'ar']
+  if(l.findIndex(x=>x==efb_var.wp_lan)!=-1 ) return true;
+  return false;
+}
+
+const test=fun_translate_check_efb();
+console.log("test=>",test ,efb_var.wp_lan);
+
   
