@@ -1569,7 +1569,32 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     
     return r ;
   }
+  const fun_bookingAttr =()=>{
+    let r ='<!-efb-->'
+  /*   const u = (url)=>{
+      url = url.replace(/(http:@efb@)+/g, 'http://');
+      url = url.replace(/(https:@efb@)+/g, 'https://');
+      url = url.replace(/(@efb@)+/g, '/');
+      console.log(url);
+      return url;
+     } */
+    console.log('fun_bookingAttr');
+    if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true){
+      let row = valj_efb.find(x=>x.id_==id_value);
+      console.log(row)
+      if (typeof row == "undefined") r ='<!-efb-->';
+      //dateExp
+      const date_v =row.hasOwnProperty('dateExp') && row.dateExp.length>1 ? row.dateExp : '';
+      r =`
+      <input type="date" placeholder="${efb_var.text.date}" id="bookDateExpEl"  value="${date_v}" data-value="${date_v}" data-id="${row.id_}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >      
+      <input type="number" data-id="${row.id_}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.max}" id="mLenEl" required value="${row.hasOwnProperty('mlen') ? row.mlen : ''}" >
+      `
+    }
+    
+    return r ;
+  }
   const imgRadio = fun_imgRadio();
+  const booking = fun_bookingAttr();
   const s_show_id = document.getElementById('optionListefb') && document.getElementById('optionListefb').dataset.idstate =="true" ? true : false;
   let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
     <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>
@@ -1585,6 +1610,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   <div id="${id_ob}-v" class="efb  col-sm-11 mx-0 px-0">
   <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
   ${imgRadio}
+  ${booking}
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${parentsID}">
   <button type="button" id="deleteOption"  onClick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 

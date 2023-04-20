@@ -1467,7 +1467,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         if(c.type.includes('pay')&& c.id_!="payment") {
 
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-        }
+        }else if(c.type.includes('imgRadio')){
+          
+          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
+          console.log(q);
+        } 
         m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m+=`</p>`;
       }

@@ -998,9 +998,10 @@ const funSetCornerElEfb = (dataId, co) => {
 let change_el_edit_Efb = (el) => {
   let lenV = valj_efb.length
    //console.log("=================>change_el_edit_Efb",el.id , el.value)
-  if (el.value.length > 0 && el.value.search(/(")+/g) != -1 && el.id !="htmlCodeEl") {
-    el.value = el.value.replaceAll(`"`, '');
-    alert_message_efb(efb_var.text.error, `Don't use forbidden Character like: ["]`, 10, "danger");
+  if (el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
+    el.value = el.value.replaceAll(`"`, '');   
+    alert_message_efb(efb_var.text.error, `Don't use forbidden Character likes: ["][<][>]`, 10, "danger");
+    return;
   }else if (el.id =="htmlCodeEl"){
     el.value = el.value.replaceAll(`"`, `'`);
   }
@@ -1024,9 +1025,9 @@ let change_el_edit_Efb = (el) => {
   let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
   postId = el.dataset.id.includes('Next_') || el.dataset.id.includes('Previous_') ? 0 : postId;
   //console.log(el.dataset.id != "button_group" || el.dataset.id != "button_group_",el,postId)
-  let indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId != 0 ? valj_efb.findIndex(x => x.dataId == postId) : 0;
+  let indx = el.dataset.id != "button_group" && el.dataset.id != "button_group_" && postId != 0 ? valj_efb.findIndex(x => x.dataId == postId || x.dataId==postId+'-id') : 0;
   const len_Valj = valj_efb.length;
-  
+  console.log(indx,postId);
   postId = null
 
   let clss = ''
@@ -1044,19 +1045,26 @@ let change_el_edit_Efb = (el) => {
       case "labelEl":
         
         valj_efb[indx].name = el.value;
-        document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = el.value
+        document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = sanitize_text_efb(el.value)
         
         break;
       case "desEl":
         valj_efb[indx].message = el.value;
-        document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML = el.value
+        document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML =sanitize_text_efb(el.value)
+        break;
+      case 'bookDateExpEl':
+        if(valj_efb[indx].hasOwnProperty('dateExp')==false) Object.assign( valj_efb[indx] , {dateExp:''})
+        valj_efb[indx].dateExp = el.value;
         break;
       case "mLenEl":
         if (Number(el.value)>524288 && valj_efb[indx].type!="range"){
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
         }else{
+          console.log(valj_efb[indx])
+          if(valj_efb[indx].hasOwnProperty('mlen')==false) Object.assign(valj_efb[indx],{mlen:'0'})
           valj_efb[indx].mlen = el.value;
+          console.log(valj_efb[indx])
           if(valj_efb[indx].hasOwnProperty("milen") && 
           Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
             alert_message_efb("",efb_var.text.mxlmn,15,"warning")
@@ -1069,10 +1077,10 @@ let change_el_edit_Efb = (el) => {
         break;
       case "textEl":
         
-        valj_efb[indx][el.dataset.atr] =el.value;
+        valj_efb[indx][el.dataset.atr] =sanitize_text_efb(el.value);
         c =  valj_efb[indx].id_ +"_"+el.dataset.atr
         //console.log(el.dataset,c)
-        document.getElementById(c).innerHTML=el.value;
+        document.getElementById(c).innerHTML=sanitize_text_efb(el.value);
         break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
@@ -1088,7 +1096,7 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
           valj_efb[indx].milen=0;
         }else{
-          valj_efb[indx].milen = el.value;
+          valj_efb[indx].milen = sanitize_text_efb(el.value);
           if(valj_efb[indx].hasOwnProperty("mlen") && 
           Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
             alert_message_efb("",efb_var.text.mxlmn,15,"warning")
@@ -1210,26 +1218,26 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "formNameEl":
-        valj_efb[0].formName = el.value
+        valj_efb[0].formName = sanitize_text_efb(el.value)
         break;
       case "trackingCodeEl":
         valj_efb[0].trackingCode =  el.classList.contains('active') ? true : false;
 
         break;
       case "thankYouMessageDoneEl":
-        valj_efb[0].thank_you_message.done = el.value;
+        valj_efb[0].thank_you_message.done = sanitize_text_efb(el.value);
         break;
       case "thankYouMessageEl":
-        valj_efb[0].thank_you_message.thankYou = el.value;
+        valj_efb[0].thank_you_message.thankYou = sanitize_text_efb(el.value);
         break;
       case "thankYouMessageConfirmationCodeEl":
-        valj_efb[0].thank_you_message.trackingCode = el.value;
+        valj_efb[0].thank_you_message.trackingCode = sanitize_text_efb(el.value);
         break;
       case "thankYouMessageErrorEl":
-        valj_efb[0].thank_you_message.error = el.value;
+        valj_efb[0].thank_you_message.error = sanitize_text_efb(el.value);
         break;
       case "thankYouMessagepleaseFillInRequiredFieldsEl":
-        valj_efb[0].thank_you_message.pleaseFillInRequiredFields = el.value;
+        valj_efb[0].thank_you_message.pleaseFillInRequiredFields = sanitize_text_efb(el.value);
         break;
       case "captchaEl":
 
@@ -1259,34 +1267,34 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case "placeholderEl":
-        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = el.value;
+        document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
 
-        valj_efb[indx].placeholder = el.value;
+        valj_efb[indx].placeholder = sanitize_text_efb(el.value);
         break;
       case "valueEl":
         
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
 
           //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
-          document.getElementById(`${valj_efb[indx].id_}_`).value = el.value;
-          valj_efb[indx].value = el.value;
+          document.getElementById(`${valj_efb[indx].id_}_`).value = sanitize_text_efb(el.value);
+          valj_efb[indx].value = sanitize_text_efb(el.value);
         } else if (el.dataset.tag == 'heading' ||el.dataset.tag == 'link' ||el.dataset.tag == 'textarea') {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
-          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = el.value;
-          valj_efb[indx].value = el.value;
+          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = sanitize_text_efb(el.value);
+          valj_efb[indx].value = sanitize_text_efb(el.value);
         } else {
           //yesNo
           id = `${valj_efb[indx].id_}_${el.dataset.no}`
-          document.getElementById(id).value = el.value;
-          document.getElementById(`${id}_lab`).innerHTML = el.value;
-          el.dataset.no == 1 ? valj_efb[indx].button_1_text = el.value : valj_efb[indx].button_2_text = el.value
+          document.getElementById(id).value = sanitize_text_efb(el.value);
+          document.getElementById(`${id}_lab`).innerHTML =sanitize_text_efb(el.value);
+          el.dataset.no == 1 ? valj_efb[indx].button_1_text = sanitize_text_efb(el.value) : valj_efb[indx].button_2_text = sanitize_text_efb(el.value)
         }
         break;
       case "classesEl":
         id = valj_efb[indx].id_;
         const v = el.value.replace(` `, `,`);
-        document.getElementById(id).className += el.value.replace(`,`, ` `);
-        valj_efb[indx].classes = v;
+        document.getElementById(id).className += sanitize_text_efb(el.value.replace(`,`, ` `));
+        valj_efb[indx].classes = sanitize_text_efb(v);
         break;
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
@@ -1815,7 +1823,7 @@ let change_el_edit_Efb = (el) => {
             let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
-          }else if(el.dataset.tag = "imgRadio"){
+          }else if(el.dataset.tag == "imgRadio"){
             console.log(el.dataset.id,valj_efb[iindx].id_op);
             document.getElementById(`${valj_efb[iindx].id_op}_value`).innerHTML = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {

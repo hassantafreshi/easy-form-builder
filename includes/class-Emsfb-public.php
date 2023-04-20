@@ -860,6 +860,7 @@ class _Public {
 												if(isset($fr['src'])){
 													//array_push($item,array('src'=>$fr['src']));
 													$item['src']=$fr['src'];													
+													$item['sub_value']=$fr['sub_value'];													
 												}
 												$rt= $item;
 												return;
