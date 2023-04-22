@@ -3,7 +3,7 @@
 
 function fun_total_pay_efb() {
    
-    //console.log('fun_total_pay_efb');
+    
     let total = 0;
     updateTotal = (i) => {
      // i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
@@ -14,10 +14,10 @@ function fun_total_pay_efb() {
     }
   
     for (let r of sendBack_emsFormBuilder_pub) {
-      //console.log(r);
+      
       if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
     }
-    //console.log(`total[${total}]`);
+    
     setTimeout(() => { updateTotal(total); }, 800);
     if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
     else if(valj_efb[0].getway=="persiaPay"){
@@ -38,7 +38,7 @@ function fun_total_pay_efb() {
       if (o.hasOwnProperty('price')==true ) {
         //|| o.type.includes('pay')==true && o.type.includes('payment')==false
         //console.log(o.hasOwnProperty('parent'));
-        //console.log(o);
+        
 
        
         if (o.hasOwnProperty('parent')) {
@@ -62,7 +62,7 @@ function fun_total_pay_efb() {
             
             for (let o of ob) {
               ov = document.getElementById(o.id_);
-              //console.log(ov);
+              
               ov.classList.add('disabled');
               ov.classList.remove('payefb');
               ov.disabled = true;

@@ -194,7 +194,7 @@ class efbFunction {
 			"setting" => $state ? $ac->text->setting : __('Setting','easy-form-builder'),
 			"maps" => $state ? $ac->text->maps : __('Maps','easy-form-builder'),
 			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : __('Find video tutorials in the adjacent box and click the document button for tutorials and articles.','easy-form-builder'),
-			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Activate Easy Form Builder Pro for more features and unlimited access to all services.','easy-form-builder'),
+			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Activate Pro version for more features and unlimited access to the all plugin services.','easy-form-builder'),
 			"aPIKey" => $state ? $ac->text->aPIKey : __('API KEY','easy-form-builder'),
 			"youNeedAPIgMaps" => $state ? $ac->text->youNeedAPIgMaps : __('Your form needs an API key for Google Maps to work properly.','easy-form-builder'),
 			"copiedClipboard" => $state ? $ac->text->copiedClipboard : __('Copied to Clipboard','easy-form-builder'),
@@ -225,7 +225,7 @@ class efbFunction {
 			"previewForm" => $state ? $ac->text->previewForm : __('Preview Form','easy-form-builder'),
 			"activateProVersion" => $state ? $ac->text->activateProVersion : __('Activate Pro Now','easy-form-builder'),
 			"itAppearedStepsEmpty" => $state ? $ac->text->itAppearedStepsEmpty : __('It seems that some of the steps in your form are empty. Please add field to all steps before saving.','easy-form-builder'),
-			"youUseProElements" => $state ? $ac->text->youUseProElements : __('This feature is only available in the Pro of Easy Form Builder. To use it, activate the Pro of Easy Form Builder .','easy-form-builder'),
+			"youUseProElements" => $state ? $ac->text->youUseProElements : __('You are using the pro field in the form. For save and using the form included pro fields, activate Pro version.','easy-form-builder'),
 			"sampleDescription" => $state ? $ac->text->sampleDescription : __('Sample description','easy-form-builder'),
 			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : __('This feature is only available in the Pro of Easy Form Builder.','easy-form-builder'),
 			"editField" => $state ? $ac->text->editField : __('Edit Field','easy-form-builder'),
@@ -296,7 +296,7 @@ class efbFunction {
 			"stars" => $state ? $ac->text->stars : __('Stars','easy-form-builder'),
 			"nothingSelected" => $state ? $ac->text->nothingSelected : __('Nothing selected','easy-form-builder'),
 			"duplicate" => $state ? $ac->text->duplicate : __('Duplicate','easy-form-builder'),
-			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in the Pro.','easy-form-builder'),
+			"availableProVersion" => $state ? $ac->text->availableProVersion : __('Available in the Pro version','easy-form-builder'),
 			"mobilePreview" => $state ? $ac->text->mobilePreview : __('Mobile Preview','easy-form-builder'),
 			"thanksFillingOutform" => $state ? $ac->text->thanksFillingOutform : __('Thanks for filling out the form.','easy-form-builder'),
 			"finish" => $state ? $ac->text->finish : __('Finish','easy-form-builder'),
@@ -534,7 +534,7 @@ class efbFunction {
 			"monthly" => $state  &&  isset($ac->text->monthly) ? $ac->text->monthly : __('Monthly','easy-form-builder'),
 			"weekly" => $state  &&  isset($ac->text->weekly) ? $ac->text->weekly : __('Weekly','easy-form-builder'),
 			"yearly" => $state  &&  isset($ac->text->yearly) ? $ac->text->yearly : __('Yearly','easy-form-builder'),
-			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Easy form builder Pro','easy-form-builder'),
+			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy form builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection has been lost, but do not worry, we have saved the information you entered on this form. Once you are reconnected to the internet, you can easily send your information by clicking the submit button.','easy-form-builder'),
 			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : __('Please ensure that you have a stable internet connection and try again.','easy-form-builder'),
@@ -552,7 +552,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('Activate the Pro version.','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('Did you know you can unlock even more features with Easy Form Builder Pro only $12.09/yearly? Activate now to get access to our Advanced Professional features.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $12.09/yearly.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('Stripe Payment Addon','easy-form-builder'),				
@@ -661,7 +661,7 @@ class efbFunction {
 			"idl5" => $state  &&  isset($ac->text->idl5) ? $ac->text->idl5 : __('The ID length should be at least 3 characters long.','easy-form-builder'),				
 			"idmu" => $state  &&  isset($ac->text->idmu) ? $ac->text->idmu : __('The ID value must be unique, as it is already being used in this field. please try a new, unique value.','easy-form-builder'),				
 			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image picker','easy-form-builder'),				
-			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert image url','easy-form-builder'),				
+			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert an image url','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -934,9 +934,9 @@ class efbFunction {
 						$valp[$key][$k]=$v;
 					case 'rePage':
 					case 'src':
-						error_log($k);
+						//error_log($k);
 						$valp[$key][$k]=sanitize_url($v);
-						error_log($valp[$key][$k]);
+						//error_log($valp[$key][$k]);
 					break;
 					case 'thank_you_message':
 						//error_log(json_encode($valp[$key]));

@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.26
+Stable tag: 			3.5.28
 Requires at least: 	      4.7
 Tested up to: 			6.2
 Requires PHP:			7.4 or higher
@@ -59,7 +59,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
-- Easy form builder able you to build forms with smartphones, tablets, or other devices
+- Easy form builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
 
 
 
@@ -165,6 +165,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - *Jalali Date Picker* : With Easy Form Builder's Shamsi Date Picker, you can easily create forms that include Persian or Jalali date fields. This feature is perfect for users who need to collect dates according to the Persian calendar system.
 
 - *Cell Phone Input Field* :you can easily add a cell phone input field to your forms, allowing users to input their phone number with ease. Additionally, this feature includes the option to limit the input to specific countries, ensuring that users provide phone numbers in the correct format for your needs. With this powerful tool included in our form builder, you can create a wide range of forms, from contact forms to registration forms and beyond, all with the ability to collect cell phone numbers in a hassle-free manner.
+
+- *Image Picker Field* : Add image picker field in forms and let your users select an image as option this feature is based on image radio button for building forms.
 
 
 **Free advanced features of Easy Form Builder**
@@ -362,6 +364,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.28=
+* Added new feature image picker field to form builder
+
+* Fixed issues of UI Easy Form Builder
 
 =3.5.26=
 * Fixed issues of UI Easy Form Builder

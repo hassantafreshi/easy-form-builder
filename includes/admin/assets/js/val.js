@@ -130,7 +130,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
 }
 
 const countries_list_el_select=(el_type ,idset,indx)=>{
-  //console.log(lan_con_efb[efb_var.language]);
+  
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
   if (country==null){
@@ -239,7 +239,7 @@ const ElcountriesListSelections = (idset,indx) => {
  let c_c =[];
  if(valj_efb[indx].hasOwnProperty("c_c")){
   for(let i of valj_efb[indx].c_c){
-   //console.log(i);
+   
    c_c.push(i);
    value +=i + ","
    selectData +=i + " @efb!"
@@ -287,7 +287,7 @@ function fun_test(t){
  }else{
    const indx = valj_efb[idx].c_c.indexOf(c)
    if(indx!=-1){
-    //console.log(valj_efb[idx].c_c , c,indx);
+    
     valj_efb[idx].c_c.splice(indx,1)
     valj_efb[idx].c_n.splice(indx,1)
     return;
@@ -299,7 +299,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  //console.log(idset);
+  
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -792,7 +792,7 @@ function show_setting_window_efb(idset) {
           </div>`
           } */
         }
-        //console.log(el.dataset.tag);
+        
         //optionElpush_efb
         body = `
                 <div class="efb  mb-3">
@@ -1241,7 +1241,7 @@ function show_setting_window_efb(idset) {
           break;
           case "pointr10":
           case "pointr5":
-            //console.log(`pointer[${el.dataset.tag}]`);
+            
               body = `
                         <div class="efb  mb-3">
                         <!--  not   advanced-->
@@ -1498,7 +1498,7 @@ efb_powered_by=()=>{
 
 efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
- //console.log(objOptions);
+ 
  let t = "radio";
  //const col = "col-sm-11"
  let opetions = `<!-- options --!>`;
@@ -1517,13 +1517,13 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
     const id = ob.hasOwnProperty('id') ? ob.id : ob.id_;
     const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
-    //console.log(parent.value ,id,id_old);
+    
     
    
     if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && (vl == id || vl==id_old)){ checked="checked";
     }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof vl!="string" &&  vl.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"
     }else if((tp.includes("stateprovince")==true || tp.includes("conturylist")==true) &&  (vl==id || vl==id_old) ){checked="checked"}
-    //console.log(`checked[${checked}] tp[${tp}]`);
+    
     opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id,checked)    
   }
   return opetions
@@ -1552,10 +1552,10 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
       url = url.replace(/(http:@efb@)+/g, 'http://');
       url = url.replace(/(https:@efb@)+/g, 'https://');
       url = url.replace(/(@efb@)+/g, '/');
-      console.log(url);
+      //console.log(url);
       return url;
      }
-    console.log(tag,tag=="imgRadio");
+    //console.log(tag,tag=="imgRadio");
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
       console.log(row)
@@ -1571,14 +1571,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   }
   const fun_bookingAttr =()=>{
     let r ='<!-efb-->'
-  /*   const u = (url)=>{
-      url = url.replace(/(http:@efb@)+/g, 'http://');
-      url = url.replace(/(https:@efb@)+/g, 'https://');
-      url = url.replace(/(@efb@)+/g, '/');
-      console.log(url);
-      return url;
-     } */
-    console.log('fun_bookingAttr');
+    //console.log('fun_bookingAttr');
     if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true){
       let row = valj_efb.find(x=>x.id_==id_value);
       console.log(row)
@@ -1628,7 +1621,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
 }
 
 function funShowAttrElsEfb(el){
-  //console.log(el);
+  
   let ol = document.getElementById('optionListefb').dataset;
   if(el.classList.contains('show')){
     el.classList.remove('show');

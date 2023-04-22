@@ -230,7 +230,7 @@ class _Public {
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
 			wp_enqueue_script('intlTelInput-js');
 
-			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.26');
+			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.28');
 			wp_enqueue_style('intlTelInput-css');
 		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
@@ -659,8 +659,8 @@ class _Public {
 		
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
-		error_log($_POST['value']);
-		error_log($this->value);
+		//error_log($_POST['value']);
+		//error_log($this->value);
 		
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
@@ -867,7 +867,7 @@ class _Public {
 											}
 										});
 									}
-									error_log(json_encode($item));
+									//error_log(json_encode($item));
 
 									$in_loop=false;
 									break;
