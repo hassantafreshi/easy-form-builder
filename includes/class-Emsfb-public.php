@@ -798,7 +798,7 @@ class _Public {
 									
 									if(isset($item['value'])){
 										$stated=1;
-										error_log($item['value']);
+										//error_log($item['value']);
 										$item['value'] = sanitize_url($item['value']);
 										$l=strlen($item['value']);
 										if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
