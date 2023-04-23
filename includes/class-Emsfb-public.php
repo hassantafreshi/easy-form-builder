@@ -811,6 +811,7 @@ class _Public {
 									//error_log('===========> mobile');
 									//error_log(json_encode($f["c_n"]));
 									//error_log($item['value']);
+									//error_log(json_encode($f));
 									$stated=0;
 									
 									if(isset($item['value'])){
@@ -818,7 +819,8 @@ class _Public {
 										$item['value'] = sanitize_text_field($item['value']);	
 										//error_log("====>stated");
 										//error_log($stated);
-										 array_filter($f["c_n"], function($no) use($item , &$stated){
+										$l = isset($f["c_n"]) ? $f["c_n"] : ['all'];
+										 array_filter($l, function($no) use($item , &$stated){
 											//error_log("value===c");
 											//$stated=0;
 											//error_log(strpos($item['value'] , '+'.$no));
@@ -828,7 +830,7 @@ class _Public {
 											$v = strpos($item['value'] , '+'.$no);
 											//error_log($v);
 											//error_log($v === 0);
-											if ( strpos($item['value'] , '+'.$no) === 0 ) $stated=1;
+											if ( strpos($item['value'] , '+'.$no) === 0 || $no=='all') $stated=1;
 											
 										});		
 										//error_log("====>stated");

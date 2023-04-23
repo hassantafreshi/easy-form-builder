@@ -478,7 +478,7 @@ createCardAddoneEfb = (i) => {
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
-  { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
+  //{ id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
   { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'all payment new', pro: true },
   { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
@@ -1066,10 +1066,10 @@ let change_el_edit_Efb = (el) => {
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
         }else{
-          console.log(valj_efb[indx])
+          //console.log(valj_efb[indx])
           if(valj_efb[indx].hasOwnProperty('mlen')==false) Object.assign(valj_efb[indx],{mlen:'0'})
           valj_efb[indx].mlen = el.value;
-          console.log(valj_efb[indx])
+          //console.log(valj_efb[indx])
           if(valj_efb[indx].hasOwnProperty("milen") && 
           Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
             alert_message_efb("",efb_var.text.mxlmn,15,"warning")
@@ -1080,7 +1080,7 @@ let change_el_edit_Efb = (el) => {
           
         } 
         if(valj_efb[0].hasOwnProperty('booking')== true && valj_efb[indx].hasOwnProperty("registered_count")==false) Object.assign(valj_efb[indx],{registered_count:0})
-        console.log(valj_efb[indx]);
+        //console.log(valj_efb[indx]);
         break;
       case "textEl":
         
@@ -2033,7 +2033,7 @@ let change_el_edit_Efb = (el) => {
         break;
         case 'imgRadio_url':
           indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-          console.log('imgRadio_url' ,indx);
+          //console.log('imgRadio_url' ,indx);
           const ud = (url)=>{
             url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
             url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
@@ -2041,7 +2041,7 @@ let change_el_edit_Efb = (el) => {
             return url;
            }
           valj_efb[indx].src = ud(el.value);
-          console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
+          //console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
           document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
           break;
         case 'imgRadio_sub_value':
@@ -2377,7 +2377,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     
-    console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
+    //console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
@@ -2397,7 +2397,7 @@ let sampleElpush_efb = (rndm, elementId) => {
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color ="text-white"
     }else if (elementId == "esign") {
-      console.log(pub_icon_color_efb);
+      //console.log(pub_icon_color_efb);
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         icon: 'bi-save', icon_color: pub_icon_color_efb, button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
@@ -2468,7 +2468,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  console.log(tag);
+  //console.log(tag);
   if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 
@@ -2536,7 +2536,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
-  console.log(tag);
+  //console.log(tag);
   //console.log('====================>add_new_option_efb')
   
   let p = document.getElementById("optionListefb")
@@ -2709,7 +2709,7 @@ const sort_obj_el_efb = () => {
 
 
 function add_option_edit_pro_efb(parent, tag, len) {
-  console.log(tag);
+  //console.log(tag);
   const p = calPLenEfb(len)
   len = len < 50 ? 200 : (len + Math.log(len)) * p
   const id_ob = Math.random().toString(36).substr(2, 9);

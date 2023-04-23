@@ -932,7 +932,9 @@ class efbFunction {
 					break;
 					case 'file':
 					case 'href':
+						//error_log($v);
 						$valp[$key][$k]=$v;
+					break;
 					case 'rePage':
 					case 'src':
 						//error_log($k);

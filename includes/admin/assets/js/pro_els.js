@@ -271,13 +271,13 @@ function viewfileEfb(id, indx) {
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
          <div class="efb card efb">
-          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center"></i>
+          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center fs-2"></i>
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
-    
+    //console.log(valj_efb[indx]);
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -1026,13 +1026,13 @@ fun_imgRadio_efb=(id ,link,row)=>{
     //console.log(url);
     return url;
    }
-  let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption;
-  let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription;
+  let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption ?? '';
+  let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription ?? '';
   link =link.includes('http')==false ?  efb_var.images.head : row.src;
   link = u(link);
   return `
     <label class="efb  " id="${id}_lab" for="${id}">
-    <div class="efb card col-md-3 mx-0 my-1 p-1 w-100" style="">
+    <div class="efb card col-md-3 mx-0 my-1 w-100" style="">
     <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
     <div class="efb card-body">
         <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>

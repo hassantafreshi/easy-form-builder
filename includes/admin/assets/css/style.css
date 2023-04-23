@@ -917,15 +917,18 @@ input[type="textarea"].h-d-efb,textarea.h-d-efb {	height: 120px!important;
    font-size: 17px !important;
 }
 
-input[type=file].h-d-efb ,.h-d-efb ,select.h-d-efb{	height: fit-content!important;
+input[type=file].h-d-efb ,.h-d-efb ,select.h-d-efb{	
+   height: 39px!important;
    font-size: 17px !important;
 }
 
-input[type=file].h-l-efb {	height: fit-content!important;
+input[type=file].h-l-efb {	
+   height: fit-content!important;
    font-size: 30px !important;
 }
 /* xlarge height size */
-input[type=file].h-xl-efb {	height: fit-content!important;
+input[type=file].h-xl-efb {	
+   height: fit-content!important;
    font-size: 35px !important;
 }
 /* xxlarge height size */
@@ -940,16 +943,16 @@ input[type=file].h-xxxl-efb {	height: fit-content!important;
    left: 0;
    top: 10px;
 }
-.h-l-efb {	height: fit-content!important;
+.h-l-efb {	height: 58px!important;
    font-size: 30px !important;
 }
-/* xlarge height size */.h-xl-efb {	height: fit-content!important;
+/* xlarge height size */.h-xl-efb {	height: 66px!important;
    font-size: 35px !important;
 }
-/* xxlarge height size */.h-xxl-efb {	height: fit-content!important;
+/* xxlarge height size */.h-xxl-efb {	height: 74px!important;
    font-size: 40px !important;
 }
-/* xxxlarge height size */.h-xxxl-efb {	height: fit-content!important;
+/* xxxlarge height size */.h-xxxl-efb {	height: 89px!important;
    font-size: 50px !important;
 }
 .hStyleOpEfb {	display: inline !important;
@@ -1531,43 +1534,43 @@ tr.efblist {	display: block;
    margin: 0px 7px !important;
 }
 .efblist.inplist.h-d-efb {
-  font-size: 13px !important;
+  font-size: 17px !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
-  padding-top: 6px!important;
-  min-height: 35px;
-  max-height: 35px;
+  padding-top: 2px!important;
+  min-height: 39px;
+  max-height: 39px;
 }
-.mobile .efblist.inplist.h-d-efb {	font-size: 13px !important;
+.mobile .efblist.inplist.h-d-efb {	font-size: 15px !important;
 }
-.efblist.inplist.h-l-efb {	font-size: 17px !important;
+.efblist.inplist.h-l-efb {	font-size: 30px !important;
    padding-left: 10px !important;
    padding-right: 10px !important;
-   padding-top: 6px!important;
-   min-height: 40px;
-   max-height: 40px;
+   padding-top: 0px!important;
+   min-height: 58px;
+   max-height: 58px;
 }
-.efblist.inplist.h-xl-efb {	font-size: 20px !important;
-   min-height: 50px;
-   max-height: 50px;
-   padding-top: 9px!important;
+.efblist.inplist.h-xl-efb {	font-size: 35px !important;
+   min-height: 66px;
+   max-height: 66px;
+   padding-top: 0px!important;
    padding-left: 10px !important;
    padding-right: 10px !important;
 }
-.efblist.inplist.h-xxl-efb {	font-size: 25px !important;
+.efblist.inplist.h-xxl-efb {	font-size: 40px !important;
    padding-left: 10px !important;
    padding-right: 10px !important;
-   padding-top: 10px !important;
-   min-height: 60px;
-   max-height: 60px;
+   padding-top: 0px !important;
+   min-height: 74px;
+   max-height: 74px;
 }
-.efblist.inplist.h-xxxl-efb {	font-size: 30px !important;
+.efblist.inplist.h-xxxl-efb {	font-size: 50px !important;
    padding-left: 10px !important;
    padding-right: 10px !important;
   
-   padding-top: 11px !important;
-   min-height: 70px;
-   max-height: 70px;
+   padding-top: 0px !important;
+   min-height: 88px;
+   max-height: 88px;
 }
 .efb.efblist.iconDD.h-d-efb {	margin: -30px 17px;
 }
