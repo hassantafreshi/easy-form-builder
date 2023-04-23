@@ -480,7 +480,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
        col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[iVJ].op_style )) :''
       if (elementId == "radio" || elementId == "checkbox" || elementId == "chlRadio" || elementId == "chlCheckBox" || elementId == "imgRadio") pay = "";
-      temp = elementId=="imgRadio" ? 'col-md-3' :'';
+      temp = elementId=="imgRadio" ? 'col-md-4 mx-0 px-2' :'';
       if (editState != false) {
         // if edit mode
         

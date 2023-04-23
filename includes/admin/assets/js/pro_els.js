@@ -1032,7 +1032,7 @@ fun_imgRadio_efb=(id ,link,row)=>{
   link = u(link);
   return `
     <label class="efb  " id="${id}_lab" for="${id}">
-    <div class="efb card col-md-3 mx-3 my-1 w-100" style="">
+    <div class="efb card col-md-3 mx-0 my-1 p-1 w-100" style="">
     <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
     <div class="efb card-body">
         <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
