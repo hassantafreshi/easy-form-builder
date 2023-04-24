@@ -307,6 +307,9 @@ hr.solid {	margin-top: 0rem;
     text-align: center;
 }
 
+.efblist.inplist{
+	padding-top: 10px!important;
+ }
   
 
 /*  Create Form Dashboard  end*//* conversation box *//* .chat{	margin-top: auto;

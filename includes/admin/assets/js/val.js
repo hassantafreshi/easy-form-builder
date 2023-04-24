@@ -26,7 +26,7 @@ const fields_efb = [
   /* { name: efb_var.text.datetimelocal, icon: 'bi-calendar-date', id: 'datetime-local', pro: true, tag:'basic all' }, */
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
-  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
+  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   //{ name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   //{ name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' }, 
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
@@ -37,7 +37,8 @@ const fields_efb = [
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
   //{ name: efb_var.text.chlRadio, icon: 'bi-card-list', id: 'chlRadio', pro: true, tag:'advance all' },
-  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
+  { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: true, tag:'advance all' },
+  
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: true, tag:'advance all' },
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
@@ -46,6 +47,7 @@ const fields_efb = [
  /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' }, */
   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
+  { name: efb_var.text.imgRadio, icon: 'bi-images', id: 'imgRadio', pro: true, tag:'advance all' },
   { name: efb_var.text.pdate, icon: 'bi-calendar-date', id: 'pdate', pro: true, tag:'advance all' },
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   
@@ -128,7 +130,7 @@ const ElementAlignEls = (side ,indx ,idset) => {
 }
 
 const countries_list_el_select=(el_type ,idset,indx)=>{
-  //console.log(lan_con_efb[efb_var.language]);
+  
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
   if (country==null){
@@ -237,7 +239,7 @@ const ElcountriesListSelections = (idset,indx) => {
  let c_c =[];
  if(valj_efb[indx].hasOwnProperty("c_c")){
   for(let i of valj_efb[indx].c_c){
-   //console.log(i);
+   
    c_c.push(i);
    value +=i + ","
    selectData +=i + " @efb!"
@@ -285,7 +287,7 @@ function fun_test(t){
  }else{
    const indx = valj_efb[idx].c_c.indexOf(c)
    if(indx!=-1){
-    //console.log(valj_efb[idx].c_c , c,indx);
+    
     valj_efb[idx].c_c.splice(indx,1)
     valj_efb[idx].c_n.splice(indx,1)
     return;
@@ -297,7 +299,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  //console.log(idset);
+  
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -758,6 +760,7 @@ function show_setting_window_efb(idset) {
       case "chlCheckBox":
       case "chlRadio":
       case "payMultiselect":
+      case "imgRadio":
         const objOptions = valj_efb.filter(obj => {
           return obj.parent === el.id
         })
@@ -789,7 +792,7 @@ function show_setting_window_efb(idset) {
           </div>`
           } */
         }
-        //console.log(el.dataset.tag);
+        
         //optionElpush_efb
         body = `
                 <div class="efb  mb-3">
@@ -833,7 +836,7 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${fun_el_select_in_efb(el.dataset.tag)  ? cornerEls('',indx,idset) : ''} 
                         ${fun_el_select_in_efb(el.dataset.tag) ? selectBorderColorEls('element',indx,idset) : ''} 
-                        ${el.dataset.tag != 'multiselect' || el.dataset.tag != 'payMultiselect' ? selectColorEls('el','text') : ''} 
+                        ${el.dataset.tag != 'multiselect' && el.dataset.tag != 'payMultiselect' && el.dataset.tag != 'imgRadio'? selectColorEls('el','text') : ''} 
                         ${labelPostionEls}
                         ${ElementAlignEls('label',indx,idset)}
                         ${ElementAlignEls('description',indx,idset)}
@@ -1238,7 +1241,7 @@ function show_setting_window_efb(idset) {
           break;
           case "pointr10":
           case "pointr5":
-            //console.log(`pointer[${el.dataset.tag}]`);
+            
               body = `
                         <div class="efb  mb-3">
                         <!--  not   advanced-->
@@ -1495,7 +1498,7 @@ efb_powered_by=()=>{
 
 efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-sm-7':'col-sm-12'
- //console.log(objOptions);
+ 
  let t = "radio";
  //const col = "col-sm-11"
  let opetions = `<!-- options --!>`;
@@ -1514,13 +1517,13 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
     const id = ob.hasOwnProperty('id') ? ob.id : ob.id_;
     const id_old = ob.hasOwnProperty("id_old") ? ob.id_old :'null'
     let checked= "";
-    //console.log(parent.value ,id,id_old);
+    
     
    
     if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && (vl == id || vl==id_old)){ checked="checked";
     }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof vl!="string" &&  vl.findIndex(x=>x==id || x==id_old)!=-1 ){checked="checked"
     }else if((tp.includes("stateprovince")==true || tp.includes("conturylist")==true) &&  (vl==id || vl==id_old) ){checked="checked"}
-    //console.log(`checked[${checked}] tp[${tp}]`);
+    
     opetions +=add_option_edit_admin_efb(price,parent.id_,t,ob.id_op,el.dataset.tag.trim(),ob.id_ob,ob.value,col,s,l_b,ftyp,id,checked)    
   }
   return opetions
@@ -1542,10 +1545,55 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     </button>
   </div>
   </div>` */
+  
+  const fun_imgRadio =()=>{
+    let r ='<!-efb-->'
+    const u = (url)=>{
+      url = url.replace(/(http:@efb@)+/g, 'http://');
+      url = url.replace(/(https:@efb@)+/g, 'https://');
+      url = url.replace(/(@efb@)+/g, '/');
+      //console.log(url);
+      return url;
+     }
+    //console.log(tag,tag=="imgRadio");
+    if(tag=="imgRadio"){
+      let row = valj_efb.find(x=>x.id_==id_value);
+      console.log(row)
+      if (typeof row == "undefined") r ='<!-efb-->';
+      const url = u(row.src);
+      r =`
+      <input type="text" placeholder="${efb_var.text.description}" id="imgRadio_sub_value"  value="${row.sub_value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+      <input type="text" placeholder="${efb_var.text.iimgurl}" id="imgRadio_url"  value="${url}" data-value="${url}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+      `
+    }
+    
+    return r ;
+  }
+  const fun_bookingAttr =()=>{
+    let r ='<!-efb-->'
+    //console.log('fun_bookingAttr');
+    //console.log(tag);
+    if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true && (tag=='radio' || tag=='checkbox' || tag=='select' || tag=='imgRadio')){
+      let row = valj_efb.find(x=>x.id_==id_value);
+      //console.log(row)
+      if (typeof row == "undefined") r ='<!-efb-->';
+      //dateExp
+      const date_v =row.hasOwnProperty('dateExp') && row.dateExp.length>1 ? row.dateExp : '';
+      r =`
+      <input type="date" placeholder="${efb_var.text.date}" id="bookDateExpEl"  value="${date_v}" data-value="${date_v}" data-id="${row.id_}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >      
+      <input type="number" data-id="${row.id_}" class="efb elEdit form-control text-muted efb border-d efb-rounded h-d-efb mb-1" placeholder="${efb_var.text.max}" id="mLenEl" required value="${row.hasOwnProperty('mlen') ? row.mlen : ''}" >
+      `
+    }
+    
+    return r ;
+  }
+  const imgRadio = fun_imgRadio();
+  const booking = fun_bookingAttr();
   const s_show_id = document.getElementById('optionListefb') && document.getElementById('optionListefb').dataset.idstate =="true" ? true : false;
   let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
     <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>
     <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
+    
     </div>`
   
   return `<div class="efb mx-0 col-sm-12 row opt" id="${idin}-gs"> 
@@ -1555,6 +1603,8 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   </div>
   <div id="${id_ob}-v" class="efb  col-sm-11 mx-0 px-0">
   <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+  ${imgRadio}
+  ${booking}
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
   <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${parentsID}">
   <button type="button" id="deleteOption"  onClick="delete_option_efb('${idin}')" data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
@@ -1572,7 +1622,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
 }
 
 function funShowAttrElsEfb(el){
-  //console.log(el);
+  
   let ol = document.getElementById('optionListefb').dataset;
   if(el.classList.contains('show')){
     el.classList.remove('show');
@@ -1594,5 +1644,15 @@ function funShowAttrElsEfb(el){
 }
 
 
+
+
+fun_translate_check_efb=()=>{
+  const l= ['en_US' ,'fa_IR' ,'ar']
+  if(l.findIndex(x=>x==efb_var.wp_lan)!=-1 ) return true;
+  return false;
+}
+
+const test=fun_translate_check_efb();
+console.log("test=>",test ,efb_var.wp_lan);
 
   

@@ -77,7 +77,7 @@ class efbFunction {
 			//"numberOfSteps" => $state ? $ac->text->numberOfSteps : __('Number of steps','easy-form-builder'),
 			//"titleOfStep" => $state ? $ac->text->titleOfStep : __('Title of step','easy-form-builder'),
 			"proVersion" => $state ? $ac->text->proVersion : __('Pro Version','easy-form-builder'),
-			"getProVersion" => $state ? $ac->text->getProVersion : __('Get Pro version','easy-form-builder'),					
+			"getProVersion" => $state ? $ac->text->getProVersion : __('Activate Pro version','easy-form-builder'),					
 			"reCAPTCHA" => $state ? $ac->text->reCAPTCHA : __('reCAPTCHA','easy-form-builder'),
 			//"protectsYourWebsiteFromFraud" => $state ? $ac->text->protectsYourWebsiteFromFraud : __('Click here to watch a video tutorial.','easy-form-builder'),
 			"enterSITEKEY" => $state ? $ac->text->enterSITEKEY : __('SECRET KEY','easy-form-builder'),
@@ -194,7 +194,7 @@ class efbFunction {
 			"setting" => $state ? $ac->text->setting : __('Setting','easy-form-builder'),
 			"maps" => $state ? $ac->text->maps : __('Maps','easy-form-builder'),
 			"youCanFindTutorial" => $state ? $ac->text->youCanFindTutorial : __('Find video tutorials in the adjacent box and click the document button for tutorials and articles.','easy-form-builder'),
-			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Upgrade to Easy Form Builder Pro for more features and unlimited access to all services.','easy-form-builder'),
+			"proUnlockMsg" => $state ? $ac->text->proUnlockMsg : __('Activate Pro version for more features and unlimited access to the all plugin services.','easy-form-builder'),
 			"aPIKey" => $state ? $ac->text->aPIKey : __('API KEY','easy-form-builder'),
 			"youNeedAPIgMaps" => $state ? $ac->text->youNeedAPIgMaps : __('Your form needs an API key for Google Maps to work properly.','easy-form-builder'),
 			"copiedClipboard" => $state ? $ac->text->copiedClipboard : __('Copied to Clipboard','easy-form-builder'),
@@ -223,11 +223,11 @@ class efbFunction {
 			"shortcode" => $state ? $ac->text->shortcode : __('ShortCode','easy-form-builder'),
 			"copyTrackingcode" => $state ? $ac->text->copyTrackingcode : __('Copy Confirmation Code','easy-form-builder'),
 			"previewForm" => $state ? $ac->text->previewForm : __('Preview Form','easy-form-builder'),
-			"activateProVersion" => $state ? $ac->text->activateProVersion : __('Get Pro Version Now','easy-form-builder'),
+			"activateProVersion" => $state ? $ac->text->activateProVersion : __('Activate Pro Now','easy-form-builder'),
 			"itAppearedStepsEmpty" => $state ? $ac->text->itAppearedStepsEmpty : __('It seems that some of the steps in your form are empty. Please add field to all steps before saving.','easy-form-builder'),
-			"youUseProElements" => $state ? $ac->text->youUseProElements : __('This feature is only available in the Pro version of Easy Form Builder. To use it, please upgrade to the Pro version.','easy-form-builder'),
+			"youUseProElements" => $state ? $ac->text->youUseProElements : __('You are using the pro field in the form. For save and using the form included pro fields, activate Pro version.','easy-form-builder'),
 			"sampleDescription" => $state ? $ac->text->sampleDescription : __('Sample description','easy-form-builder'),
-			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : __('This feature is only available in the Pro version of Easy Form Builder.','easy-form-builder'),
+			"fieldAvailableInProversion" => $state ? $ac->text->fieldAvailableInProversion : __('This feature is only available in the Pro of Easy Form Builder.','easy-form-builder'),
 			"editField" => $state ? $ac->text->editField : __('Edit Field','easy-form-builder'),
 			"description" => $state ? $ac->text->description : __('Description','easy-form-builder'),
 			"descriptions" => $state ? $ac->text->descriptions : __('Descriptions','easy-form-builder'),
@@ -253,7 +253,7 @@ class efbFunction {
 			"cSSClasses" => $state ? $ac->text->cSSClasses : __('CSS Classes','easy-form-builder'),
 			"defaultValue" => $state ? $ac->text->defaultValue : __('Default value','easy-form-builder'),
 			"placeholder" => $state ? $ac->text->placeholder : __('Placeholder','easy-form-builder'),
-			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : __('Eenter admin email for email notifications.','easy-form-builder'),
+			"enterAdminEmailReceiveNoti" => $state ? $ac->text->enterAdminEmailReceiveNoti : __('Enter admin email for email notifications.','easy-form-builder'),
 			"corners" => $state ? $ac->text->corners : __('Corners','easy-form-builder'),
 			"rounded" => $state ? $ac->text->rounded : __('Rounded','easy-form-builder'),
 			"square" => $state ? $ac->text->square : __('Square','easy-form-builder'),
@@ -551,8 +551,8 @@ class efbFunction {
 			"redirectPage" => $state  &&  isset($ac->text->redirectPage) ? $ac->text->redirectPage : __('Redirect page','easy-form-builder'),
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
-			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('GET PRO','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('Thanks for using Easy Form Builder! Did you know you can unlock even more features with our Pro version? Upgrade now to get access to our Advanced Professional features.','easy-form-builder'),				
+			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('Activate the Pro version.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $12.09/yearly.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('Stripe Payment Addon','easy-form-builder'),				
@@ -581,7 +581,7 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
-			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('21$/year','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('12.09$/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I would like to localize Easy Form Builder.','easy-form-builder'),				
@@ -629,7 +629,7 @@ class efbFunction {
 			"smsTAddon" => $state  &&  isset($ac->text->smsTAddon) ? $ac->text->smsTAddon : __('SMS service Addon','easy-form-builder'),				
 			"smsDAddon" => $state  &&  isset($ac->text->smsDAddon) ? $ac->text->smsDAddon : __('The SMS service addon enables you to receive notification SMS messages when you or your customers receive new messages or responses.','easy-form-builder'),				
 			"mPAdateW" => $state  &&  isset($ac->text->mPAdateW) ? $ac->text->mPAdateW : __('Please install either the Hijri or Jalali date addon. You cannot install both addons simultaneously.','easy-form-builder'),				
-			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Respnse box','easy-form-builder'),				
+			"rbox" => $state  &&  isset($ac->text->rbox) ? $ac->text->rbox : __('Response box','easy-form-builder'),				
 			"smartcr" => $state  &&  isset($ac->text->smartcr) ? $ac->text->smartcr : __('Regions Drop-Down','easy-form-builder'),				
 			"ptrnMmm" => $state  &&  isset($ac->text->ptrnMmm) ? $ac->text->ptrnMmm : __('The value of the XXX field does not match the pattern and must be at least NN characters.','easy-form-builder'),				
 			"ptrnMmx" => $state  &&  isset($ac->text->ptrnMmx) ? $ac->text->ptrnMmx : __('The value of the XXX field does not match the pattern and must be at  most NN characters.','easy-form-builder'),				
@@ -660,6 +660,9 @@ class efbFunction {
 			"hdattr" => $state  &&  isset($ac->text->hdattr) ? $ac->text->hdattr : __('Hide attributes','easy-form-builder'),				
 			"idl5" => $state  &&  isset($ac->text->idl5) ? $ac->text->idl5 : __('The ID length should be at least 3 characters long.','easy-form-builder'),				
 			"idmu" => $state  &&  isset($ac->text->idmu) ? $ac->text->idmu : __('The ID value must be unique, as it is already being used in this field. please try a new, unique value.','easy-form-builder'),				
+			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image picker','easy-form-builder'),				
+			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert an image url','easy-form-builder'),				
+			"newbkForm" => $state ? $ac->text->newbkForm : __('New Booking Form','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -681,7 +684,7 @@ class efbFunction {
 				$rtrn=$lang;
 			}
 		}
-		array_push($rtrn);
+		//array_push($rtrn);
 		return $rtrn;
 	}
 
@@ -929,7 +932,14 @@ class efbFunction {
 					break;
 					case 'file':
 					case 'href':
+						//error_log($v);
 						$valp[$key][$k]=$v;
+					break;
+					case 'rePage':
+					case 'src':
+						//error_log($k);
+						$valp[$key][$k]=sanitize_url($v);
+						//error_log($valp[$key][$k]);
 					break;
 					case 'thank_you_message':
 						//error_log(json_encode($valp[$key]));

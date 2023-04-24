@@ -36,7 +36,7 @@ esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
 
 rating_el_pro_efb =(previewSate,pos, rndm,iVJ)=>{
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  //console.log(valj_efb[iVJ] );
+  
     return ` <div class="efb  ${pos[3]} col-sm-12" id ="${rndm}-f">
       <div class="efb  star-efb d-flex justify-content-center ${valj_efb[iVJ].classes} ${disabled}"> 
                         <input type="radio" id="${rndm}-star5" data-vid='${rndm}' data-type="rating" class="efb "   data-star='star'  name="${rndm}-star-efb" value="5" data-name="star"  data-id="${rndm}-el" ${previewSate != true ? 'disabled' : ''}  ${disabled}>
@@ -111,12 +111,12 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
 
         } else {
           //countries_local.sort();
-          //console.log(counstries_list_efb);
+          
           let optn = '<!-- list of counries -->'
           let count =0;
           for (let i of counstries_list_efb) {
             count+=1;
-            //console.log(i.n ,i);
+            
             let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
             optn += `<option value="${i.n} (${i.l})" id="${id}" data-vid='${rndm}' data-id="${op_id}" data-op="${op_id}" class="efb text-dark efb fs-6" >${i.n} (${i.l})</option>`
@@ -165,7 +165,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
           let count =0;
           for (let i = 0; i < state_local.length; i++) {
             count+=1;
-            //console.log(i.n ,i);
+            
             let id = rndm_1 +count
             optn += `<option value="${state_local[i]} 1" id="${id}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
             optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
@@ -230,7 +230,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     n = efb_var.text[n];
     let types = ""
     let disabled =  valj_efb[indx].hasOwnProperty('disabled') &&  valj_efb[indx].disabled==true? 'disabled' : ''
-    //console.log(valj_efb);
+    
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
@@ -271,13 +271,13 @@ function viewfileEfb(id, indx) {
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
          <div class="efb card efb">
-          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center"></i>
+          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center fs-2"></i>
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
   
     fun_addProgessiveEl_efb(id ,0);
-    
+    //console.log(valj_efb[indx]);
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
       //console.log('validExtensions_efb_fun(valj_efb[indx].file, fileType)');
       let fileReader = new FileReader();
@@ -816,7 +816,7 @@ function fun_point_rating(el) {
   const id = el.dataset.id;
 
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
-      //console.log(l);
+      
       if (Number(l.dataset.point) <= Number(el.dataset.point)) {
           /* l.classList.remove('btn-secondary');
           l.classList.add('btn-darkb'); */
@@ -827,27 +827,27 @@ function fun_point_rating(el) {
   }
   document.getElementById(id + '-point-rating').value = el.dataset.point;
   //console.log(document.getElementById(id + '-point-rating').value)
-  //console.log(state_efb);
+  
   if(state_efb=='run'){
       const v = valj_efb.find(x=>x.id_ ==id);
-      //console.log(`id[${id}]`,v);
+      
       
       if(v.type=="r_matrix"){
           const o = [{ id_ob: v.id_, name: v.value,id_:v.parent, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      //console.log(o[0]);
+      
       fun_sendBack_emsFormBuilder(o[0]);
           const l = valj_efb.filter(obj => {
               return obj.parent == v.parent
             })
           const p = valj_efb.find(x=>x.id_ ==v.parent);
-          //console.log(l,p);
+          
           if(p.required==true){
               setTimeout(() => {
-                  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+                  
                   const o_r = sendBack_emsFormBuilder_pub.filter(obj => {
                       return obj.parent == v.parent
                     })
-                  //console.log(`added`,o_r,l.length,o_r.length);
+                  
                   if(l.length==o_r.length){
                      //console.log('equal')
                   }
@@ -856,7 +856,7 @@ function fun_point_rating(el) {
           }
       }else{
       const o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: el.dataset.point, session: sessionPub_emsFormBuilder }];
-      //console.log(o);
+      
       fun_sendBack_emsFormBuilder(o[0]);
       }
   }
@@ -868,7 +868,7 @@ function fun_nps_rating(el) {
   for (let l of document.querySelectorAll(`[data-id="${id}"]`)) {
       
       if (Number(l.dataset.point) != Number(el.dataset.point)) {
-          //console.log(l.className);
+          
           l.className = btnChangerEfb(l.className, 'btn-outline-secondary');
       }
   }
@@ -907,7 +907,7 @@ function fun_switch_efb(el){
 function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   //const rndm = (Math.random() + 1).toString(36).substring(7);
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
-  //console.log(`intlTelInput[${disabled}]`);
+  
   load_intlTelInput_efb(rndm,iVJ)
   return `
   <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_"  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
@@ -922,7 +922,7 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
 load_intlTelInput_efb=(rndm,iVJ)=>{
   //let list =[];
  const onlyCountries= valj_efb[iVJ].hasOwnProperty("c_c") && valj_efb[iVJ].c_c.length>0 ? valj_efb[iVJ].c_c : "";
- //console.log(valj_efb[iVJ]);
+ 
   setTimeout(()=>{
    // let input = document.getElementById(rndm+"_");
    //console.log(rndm,document.getElementById(rndm+"_"));
@@ -970,14 +970,14 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         
         //validMsg.classList.remove("hide");
         //add value mobileNumber
-        //console.log(iti.s.dialCode);
+        
         //console.log(document.getElementById(rndm+"_").value);
       
         document.getElementById(rndm+"_").classList.add("border-success");
         
           let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
-          //console.log(sendBack_emsFormBuilder_pub);
+          
         
 
         //document.getElementById(rndm+"_").value = "+"+iti.s.dialCode+document.getElementById(rndm+"_").value
@@ -986,7 +986,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         document.getElementById(rndm+"_").classList.add("border-danger");
         let errorCode = iti.getValidationError() 
         errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
-        //console.log(errorCode);
+        
         document.getElementById(rndm+"_-message").classList.remove("d-none");
         document.getElementById(rndm+"_-message").classList.add("d-block");
         document.getElementById(rndm+"_-message").innerHTML=errorCode;
@@ -1004,3 +1004,53 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
   });
   },800)
 }
+
+
+fun_imgRadio_efb=(id ,link,row)=>{
+  //console.log(id ,link,row);
+  //اگر لینک خالی یا نال یا بودن اچ تی تی بود عکس پیش فرض شود
+
+  /* 
+   <div class="efb card col-md-3 mx-3 my-1" style="">
+  <svg class="bd-placeholder-img card-img-top efb" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+  <div class="efb card-body">
+    <h5 class="efb card-title text-dark">Card title</h5>
+    <p class="efb card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    
+  </div>
+   */
+  const u = (url)=>{
+    url = url.replace(/(http:@efb@)+/g, 'http://');
+    url = url.replace(/(https:@efb@)+/g, 'https://');
+    url = url.replace(/(@efb@)+/g, '/');
+    //console.log(url);
+    return url;
+   }
+  let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption ?? '';
+  let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription ?? '';
+  link =link.includes('http')==false ?  efb_var.images.head : row.src;
+  link = u(link);
+  return `
+    <label class="efb  " id="${id}_lab" for="${id}">
+    <div class="efb card col-md-3 mx-0 my-1 w-100" style="">
+    <img src="${link}" alt="${value}" style="width: 100%"  id="${id}_img">
+    <div class="efb card-body">
+        <h5 class="efb card-title text-dark" id="${id}_value">${value}</h5>
+        <p class="efb card-text" id="${id}_value_sub">${sub_value}</p>    
+    </div>
+    </div>
+    </label>`;
+}
+
+add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
+ // const temp= fun_imgRadio_efb(id,link,row);
+ const idx = valj_efb.findIndex(x=>x.id_==id_ob)
+ const temp = fun_imgRadio_efb(id_ob,"null",valj_efb[idx]);
+ 
+  return`<div class="efb  form-check imgRadio col-md-3" data-parent="${parentsID}" data-id="${id_ob}"  id="${id_ob}-v">
+  <input class="efb  form-check-input " type="radio" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
+  ${temp}
+  </div>`;
+}
+
+//fun_imgRadio_efb(id_ob,'urllink',row)

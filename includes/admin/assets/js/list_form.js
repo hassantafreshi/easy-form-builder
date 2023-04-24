@@ -392,7 +392,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let vc ='null';
       checboxs.push(c.id_);
       for(let op of content){
-        //console.log(op, c.id_ ,op.id_ == c.id_);
+        
         if(op.type=="r_matrix" && op.id_ == c.id_){
           vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.name}</b> <br>${op.value} </p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
         }
@@ -404,7 +404,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
         let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
         if(title=="file") title ="atcfle"
-        //console.log(`title[${title}]`);
+        
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
@@ -412,7 +412,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
           //checboxs.push
-        }
+        }else if(c.type.includes('imgRadio')){
+          
+          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
+          //console.log(q);
+        } 
         m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
@@ -1413,6 +1417,12 @@ function fun_set_setting_emsFormBuilder() {
   
   //fun_State_btn_set_setting_emsFormBuilder();
   const f = (id) => {
+     const u = (url)=>{
+      url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+      url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+      url = url.replace(/([/])+/g, '@efb@');
+      return url;
+     }
     const el = document.getElementById(id)
 
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
@@ -1423,7 +1433,7 @@ function fun_set_setting_emsFormBuilder() {
     if (el.type == "text" || el.type == "email" || el.type == "textarea" || el.type == "hidden") {
       if (id == "emailTemp_emsFirmBuilder") {
         el.value = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
-        el.value = el.value.replace(/([/])+/g, '@efb@');
+        el.value = u(el.value);
         el.value = el.value.replace(/(["])+/g, `'`);
       }
       return el.value;
@@ -2140,7 +2150,7 @@ function email_template_efb(s) {
     //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
     let ti = efb_var.text.error;
-    c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
+    //c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
     c = c.replace(/(@efb@)+/g, '/');
     if (c.match(/(<script+)/gi)) {
       //show error message you can't use script code

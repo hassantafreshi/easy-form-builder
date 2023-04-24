@@ -111,19 +111,19 @@ function fun_render_view_efb(val, check) {
   var url = new URL(window.location);
  
  // url.searchParams.set('stepNo', 1);
-  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+  
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
   valj_efb = valueJson_ws;
   fun_gets_url_efb();
-  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
-  //console.log(valj_efb ,valueJson_ws ,sendBack_emsFormBuilder_pub);
+  
+  
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
   previewFormEfb('run');
-  //console.log("sendBack_emsFormBuilder_pub",sendBack_emsFormBuilder_pub);
+  
   if(form_type_emsFormBuilder=="payment"){
     setTimeout(() => {    
       fun_total_pay_efb()
@@ -322,7 +322,7 @@ function fun_render_view_efb(val, check) {
 } */
 //function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 function createStepsOfPublic() {
-  //console.log(sendBack_emsFormBuilder_pub.length);
+  
   for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
     let price = '';
@@ -359,7 +359,7 @@ function createStepsOfPublic() {
         
         //778899
         // e.preventDefault();
-        
+        console.log(el);
         handle_change_event_efb(el);
 
       });//end function change event
@@ -532,7 +532,15 @@ function handle_change_event_efb(el){
      
     }
     let vd ;
-    //console.log(el.type);
+    if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
+      console.log('booking');
+      const r = fun_booking_avilable(el)
+      if(r[0]==false){
+        alert_message_efb(r[1],'',150,'danger')
+        //noti_message_efb( ,'danger' , `step-${current_s_efb}-efb-msg`)
+        return
+      }
+    }
     switch (el.type) {
       case "text":
       case "color":
@@ -541,7 +549,7 @@ function handle_change_event_efb(el){
       case "textarea":
         const outp = el.type =="textarea" ?true : false
         value = sanitize_text_efb(el.value,outp);
-        //console.log('text');
+        
         if(el.classList.contains("intlPhone")==true){
          return;
         }
@@ -579,7 +587,7 @@ function handle_change_event_efb(el){
         }
         break;
       case 'url':
-        const che = el.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
         
         if (che == null) {
           valid = false;
@@ -602,7 +610,7 @@ function handle_change_event_efb(el){
       case "radio":
         
         value = sanitize_text_efb(el.value);
-        //console.log(el.checked , el)
+        console.log(el.checked , el , sendBack_emsFormBuilder_pub)
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
         if (el.value.length > 1 || el.checked == true) {
@@ -764,7 +772,7 @@ function handle_change_event_efb(el){
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string'){return}
   remove_ttmsg_efb(ob.id_)
-  //console.log(ob);
+  
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object') {ob.value=fun_text_forbiden_convert_efb(ob.value);
   }else if(ob.hasOwnProperty('value') && ( typeof(ob.value)=='object') &&  ob.type=="maps" ){
     ob.value=ob.value;
@@ -1014,12 +1022,14 @@ function actionSendData_emsFormBuilder() {
 
       
     }
+    console.log(data);
     $.ajax({
       type: "POST",
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
+        console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1297,14 +1307,14 @@ function fun_vaid_tracker_check_emsFormBuilder() {
 
 
 function emsFormBuilder_show_content_message(value, content) {
-  //console.log("test efb");
+  
   const msg_id = value.msg_id;
   const userIp = "XXXXXXXXX";
   const track = value.track;
   
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
-  //console.log("efb",setting_emsFormBuilder.activeDlBtn);
+  
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
  
 
@@ -1467,7 +1477,11 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         if(c.type.includes('pay')&& c.id_!="payment") {
 
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-        }
+        }else if(c.type.includes('imgRadio')){
+          
+          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
+          //console.log(q);
+        } 
         m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m+=`</p>`;
       }
@@ -1522,7 +1536,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
 
 
 function fun_send_replayMessage_emsFormBuilder(id) {
-  //console.log(id);
+  
   //پاسخ مدیر را ارسال می کند به سرور 
  // document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
@@ -1571,7 +1585,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
     return;
   }
-  //console.log(`id[${id}]` , typeof id);
+  
   jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",
@@ -1640,7 +1654,7 @@ function validation_before_send_emsFormBuilder() {
     }
   }
   for (const row of sendBack_emsFormBuilder_pub) {
-    //console.log(row);
+    
     count[0] += 1;
     if (row.value == "@file@") {
       
@@ -1653,7 +1667,7 @@ function validation_before_send_emsFormBuilder() {
            ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
           ){
             const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==valueJson_ws[indx].id_);
-            //console.log(`i=======================>${i}`);
+            
             sendBack_emsFormBuilder_pub.splice(i,1);
             count[0] -= 1;
             continue 
@@ -1918,7 +1932,7 @@ function calPLenEfb(len) {
 }
 
 fun_text_forbiden_convert_efb=(value)=>{
- //console.log(value);
+ 
  value= value.replaceAll("'", "@efb@sq#");
  value= value.replaceAll("`", "@efb@vq#");
  value= value.replaceAll(`"`, "@efb@dq#");
@@ -1967,11 +1981,11 @@ window.addEventListener("popstate",e=>{
   const sefb =  getUrlparams.getAll("sefb"); //selected field
   const defb =  getUrlparams.getAll("defb"); //disabled field
   const vefb =  getUrlparams.getAll("vefb"); //value for field
-  //console.log(iefb);
+  
   if(iefb.length>0){
     for(let i in iefb){
       // آی ذی را جستجو کند و مقدار دیفالت ولیو برای آن اضافه کند اگر وجود نداشت و مقدار قبلی را تغییر بدهد
-      //console.log(`index[${i}] id[${iefb[i]}] selected[${sefb[i]}]`);
+      
       const id =iefb[i];
       const i_ = valj_efb.findIndex(x=>x.id_==id);
       let i_p = -1;
@@ -1989,19 +2003,19 @@ window.addEventListener("popstate",e=>{
         if(t_e=="string"  ){
             if(sefb[i]==1){
             valj_efb[i_p].value = id;
-            //console.log(sefb[i] ,id,valj_efb[i_p]);
+            
           }
         }else{
           t_e  = typeof valj_efb[i_p].value;
           const indx = t_e!="string" ?  valj_efb[i_p].value.findIndex(x=>x==id) : -2
-          //console.log(t_e,indx);
+          
           if(sefb[i]==1){
             
             if(indx==-1){ 
               valj_efb[i_p].value.push(id);
             }else if (indx==-2){
               valj_efb[i_p].value=[id];
-              //console.log(sefb[i] ,id,valj_efb[i_p]);
+              
             }
 
           }else{            
@@ -2049,3 +2063,42 @@ window.addEventListener("popstate",e=>{
  }
 
 
+ fun_booking_avilable =(el)=>{
+ let r =[true,''];
+ // if(ob.)
+ console.log(el.type);
+ let id = el.id;
+ if(el.type=='select' || el.type=='select-one'){
+  console.log(el.options[el.selectedIndex].dataset.id)
+  id=el.options[el.selectedIndex].dataset.id;
+ }
+ console.log(id,el.dataset,el);
+  const row = valj_efb.find(x=>x.id_==id)
+  const ndate = new Date().toLocaleDateString("fr-CA", {year:"numeric", month: "2-digit", day:"2-digit"});
+  console.log(row ,ndate);
+  uncheck =()=>{
+    if(el.type=="radio" || el.type=="checkbox"){
+      console.log(el.checked);
+      el.checked=false
+    }
+  }
+    if(typeof row!="object"){
+      r=[false,'Row not Found! contact to admin'];
+      uncheck();
+      return r;
+    }
+    if( row.hasOwnProperty('dateExp') && row.dateExp<ndate){
+      r=[false,'Sorry, the selected option is no longer available as its expiration date has passed. Please choose another option.'];
+      uncheck();
+
+      return  r;
+    }
+    if( row.hasOwnProperty('mlen') && Number(row.mlen)<= Number(row.registered_count)){
+      r=[false,'Unfortunately, the option you selected is no longer available. Please choose from the other available options.'];
+      uncheck();
+      return  r;
+    }
+
+    
+  return  r;
+ }
