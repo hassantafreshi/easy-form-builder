@@ -359,7 +359,7 @@ function createStepsOfPublic() {
         
         //778899
         // e.preventDefault();
-        
+        console.log(el);
         handle_change_event_efb(el);
 
       });//end function change event
@@ -532,7 +532,15 @@ function handle_change_event_efb(el){
      
     }
     let vd ;
-    
+    if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
+      console.log('booking');
+      const r = fun_booking_avilable(el)
+      if(r[0]==false){
+        alert_message_efb(r[1],'',150,'danger')
+        //noti_message_efb( ,'danger' , `step-${current_s_efb}-efb-msg`)
+        return
+      }
+    }
     switch (el.type) {
       case "text":
       case "color":
@@ -602,7 +610,7 @@ function handle_change_event_efb(el){
       case "radio":
         
         value = sanitize_text_efb(el.value);
-        //console.log(el.checked , el)
+        console.log(el.checked , el , sendBack_emsFormBuilder_pub)
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
         if (el.value.length > 1 || el.checked == true) {
@@ -1014,12 +1022,14 @@ function actionSendData_emsFormBuilder() {
 
       
     }
+    console.log(data);
     $.ajax({
       type: "POST",
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
+        console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -2053,3 +2063,42 @@ window.addEventListener("popstate",e=>{
  }
 
 
+ fun_booking_avilable =(el)=>{
+ let r =[true,''];
+ // if(ob.)
+ console.log(el.type);
+ let id = el.id;
+ if(el.type=='select' || el.type=='select-one'){
+  console.log(el.options[el.selectedIndex].dataset.id)
+  id=el.options[el.selectedIndex].dataset.id;
+ }
+ console.log(id,el.dataset,el);
+  const row = valj_efb.find(x=>x.id_==id)
+  const ndate = new Date().toLocaleDateString("fr-CA", {year:"numeric", month: "2-digit", day:"2-digit"});
+  console.log(row ,ndate);
+  uncheck =()=>{
+    if(el.type=="radio" || el.type=="checkbox"){
+      console.log(el.checked);
+      el.checked=false
+    }
+  }
+    if(typeof row!="object"){
+      r=[false,'Row not Found! contact to admin'];
+      uncheck();
+      return r;
+    }
+    if( row.hasOwnProperty('dateExp') && row.dateExp<ndate){
+      r=[false,'Sorry, the selected option is no longer available as its expiration date has passed. Please choose another option.'];
+      uncheck();
+
+      return  r;
+    }
+    if( row.hasOwnProperty('mlen') && Number(row.mlen)<= Number(row.registered_count)){
+      r=[false,'Unfortunately, the option you selected is no longer available. Please choose from the other available options.'];
+      uncheck();
+      return  r;
+    }
+
+    
+  return  r;
+ }

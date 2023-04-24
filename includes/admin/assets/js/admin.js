@@ -794,9 +794,10 @@ function create_form_by_type_emsfb(id, s) {
     valj_efb = [];
 
   }else if (id == "booking") {
-    valj_efb = [{ "type": "form", "steps": 1, "formName": "booking", "email": "", "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": false, "stateForm": false ,"booking":true},
+    valj_efb = [{ "type": "form", "steps": 1, "formName":'booking', "email": "", "trackingCode": true, "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": "qas87uoct", "show_icon": true, "show_pro_bar": true, "captcha": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "sendEmail": true, "stateForm": false, "dShowBg": true ,"booking":true},
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "booking form", "icon": "bi-check2", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },];
-
+    form_type_emsFormBuilder = "form";
+    valueJson_ws_p=valj_efb;
   }
  
   formName_Efb = form_type_emsFormBuilder
@@ -1079,7 +1080,7 @@ let change_el_edit_Efb = (el) => {
           }
           
         } 
-        if(valj_efb[0].hasOwnProperty('booking')== true && valj_efb[indx].hasOwnProperty("registered_count")==false) Object.assign(valj_efb[indx],{registered_count:0})
+        if(valj_efb[0].hasOwnProperty('booking')== true && valj_efb[indx].hasOwnProperty("registered_count")==false) Object.assign(valj_efb[indx],{"registered_count":0})
         //console.log(valj_efb[indx]);
         break;
       case "textEl":
@@ -2468,7 +2469,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  //console.log(tag);
+  console.log(tag);
   if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 
@@ -2478,7 +2479,7 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
       url = url.replace(/([/])+/g, '@efb@');
       return url;
      }
-    if(tag.includes("img")==true){
+    if(typeof tag != "undefined"  &&tag.includes("img")==true){
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         sub_value: efb_var.text.sampleDescription,
         src:u(efb_var.images.head)

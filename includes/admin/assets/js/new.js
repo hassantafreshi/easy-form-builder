@@ -769,7 +769,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${ttip}
         <div class="efb efblist  mx-0  inplist ${pay}  ${previewSate != true ? 'disabled' : ''} ${disabled}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color} bi-chevron-down" data-id="menu-${rndm}"   data-no="${valj_efb[iVJ].maxSelect}" data-min="${valj_efb[iVJ].minSelect}" data-parent="1" data-icon="1" data-select="${sl}"  data-vid='${rndm}' id="${rndm}_options" > ${va.length==0 ? efb_var.text.selectOption : va}</div>
       
-        <div class="efb efblist mx-0  listContent d-none rounded-bottom bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
+        <div class="efb efblist mx-0  listContent shadow d-none border rounded-bottom bg-light" data-id="menu-${rndm}" data-list="menu-${rndm}">
         <table class="efb table menu-${rndm}">
          <thead class="efb efblist">
            <tr> <div class="efb searchSection efblist p-2 bg-light"> 
@@ -1644,7 +1644,8 @@ function alert_message_efb(title, message, sec, alert) {
   sec = sec * 1000
   /* Alert the copied text */
   alert = alert ? `alert-${alert}` : 'alert-info';
-  let id = document.getElementById('body_efb')  ?'body_efb' : 'alert_efb';
+  const id_ = document.getElementById(`step-${current_s_efb}-efb-msg`) ? `step-${current_s_efb}-efb-msg` : `body_efb`
+  let id = document.getElementById('body_efb')  ? id_ : 'alert_efb';
   if (id=="body_efb" && Number(document.getElementById('body_efb').offsetWidth)<380) id='alert_content_efb'
   
   if (document.getElementById('alert_efb')==null){
@@ -1652,12 +1653,12 @@ function alert_message_efb(title, message, sec, alert) {
     document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
   
-  document.getElementById('alert_efb').innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+  document.getElementById(id).innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
   </div>`
-  document.getElementById(id).scrollIntoView({behavior: 'smooth'}, true);
+  document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
   setTimeout(function () {
     jQuery('.alert_efb').hide();
     document.getElementById('alert_efb').innerHTML = ""

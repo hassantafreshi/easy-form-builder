@@ -629,8 +629,7 @@ class _Public {
 		//error_log(strval(wp_verify_nonce($msgnonce,'nonce_msg')));
 		// 
 		if (check_ajax_referer('public-nonce','nonce')==false){
-				
-		
+						
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 		}
@@ -718,16 +717,18 @@ class _Public {
 				}
 				
 				
-				//error_log(json_encode($valo));
-				//error_log(json_encode($formObj));
+				error_log(json_encode($valo));
+				error_log(json_encode($formObj));
 				$mr=$this->lanText["error405"];
 				$stated = 1;
+				$form_condition = '';
+				if(isset($formObj[0]['booking']) && $formObj[0]['booking']==1) $form_condition='booking';
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;						
 						if($key<2) continue;
 						if($stated==0){break;}
-						$it= array_filter($valo, function($item) use ($f,&$stated ,&$rt,$formObj,&$in_loop,&$mr) { 
+						$it= array_filter($valo, function($item) use ($f,$key,&$stated ,&$rt,&$formObj,&$in_loop,&$mr,$form_condition) { 
 							if($in_loop==false){
 								return;
 							}
@@ -849,7 +850,8 @@ class _Public {
 										
 										$item['value'] = sanitize_text_field($item['value']);
 
-										array_filter($formObj, function($fr) use(&$item,&$rt,&$stated) { 											
+										array_filter($formObj, function($fr,$ki ) use(&$item,&$rt,&$stated,&$formObj,$form_condition) { 
+																				
 											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
 												$item['value']=$fr['value'];
 												//$rt = $item;
@@ -864,10 +866,40 @@ class _Public {
 													$item['src']=$fr['src'];													
 													$item['sub_value']=$fr['sub_value'];													
 												}
+												if($form_condition=='booking')	{
+													error_log('booking con inside radio');
+													error_log($ki);
+													error_log(wp_date('Y-m-d'));
+													if(isset($fr['dateExp'])==true){
+														error_log($fr['dateExp']);
+
+														error_log(strtotime($fr['dateExp']));
+														error_log(strtotime(wp_date('Y-m-d')));
+														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
+															$stated=-1;
+														}
+
+														
+													}
+
+													if(isset($fr['mlen'])==true){
+														if($fr['mlen']<=$fr['registered_count']){
+															$stated=-2;
+														}else{
+															error_log($formObj[$ki]['registered_count']);
+															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
+															error_log($formObj[$ki]['registered_count']);
+														}
+													}
+													//if time exists check
+													//if time biger $stated
+													//if mlen biger then 1 check registered_count
+												
+												}	
 												$rt= $item;
 												return;
 											}
-										});
+										},ARRAY_FILTER_USE_BOTH );
 									}
 									//error_log(json_encode($item));
 
@@ -908,7 +940,40 @@ class _Public {
 												//gettype($t)!='boolean'
 												if(gettype($t)!='boolean'){
 													$item['price']=$f['price'];
-												}											
+												}
+												
+												error_log("json_encodef");
+												error_log(json_encode($f));
+												if($form_condition=='booking')	{
+													error_log('booking con inside options');
+													error_log($key);
+													error_log(wp_date('Y-m-d'));
+													if(isset($f['dateExp'])==true){
+														error_log($f['dateExp']);
+
+														error_log(strtotime($f['dateExp']));
+														error_log(strtotime(wp_date('Y-m-d')));
+														if(strtotime($f['dateExp'])<strtotime(wp_date('Y-m-d'))){
+															$stated=-1;
+														}
+
+														
+													}
+
+													if(isset($f['mlen'])==true){
+														if($f['mlen']<=$f['registered_count']){
+															$stated=-2;
+														}else{
+															error_log($formObj[$key]['registered_count']);
+															$formObj[$key]['registered_count'] =(int) $formObj[$key]['registered_count'] +1;
+															error_log($formObj[$key]['registered_count']);
+														}
+													}
+													//if time exists check
+													//if time biger $stated
+													//if mlen biger then 1 check registered_count
+												
+												}
 											}
 										//});
 									}
@@ -977,15 +1042,45 @@ class _Public {
 									if(isset($item['value'])){
 										
 										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
+										array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition) { 											
 											if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
 												$stated=1;
 												$item['value']=$fr['value'];
 												$rt = $item;
 												$in_loop=false;
+												if($form_condition=='booking')	{
+													error_log('booking con inside select');
+													error_log($ki);
+													error_log(wp_date('Y-m-d'));
+													if(isset($fr['dateExp'])==true){
+														error_log($fr['dateExp']);
+
+														error_log(strtotime($fr['dateExp']));
+														error_log(strtotime(wp_date('Y-m-d')));
+														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
+															$stated=-1;
+														}
+
+														
+													}
+
+													if(isset($fr['mlen'])==true){
+														if($fr['mlen']<=$fr['registered_count']){
+															$stated=-2;
+														}else{
+															error_log($formObj[$ki]['registered_count']);
+															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
+															error_log($formObj[$ki]['registered_count']);
+														}
+													}
+													//if time exists check
+													//if time biger $stated
+													//if mlen biger then 1 check registered_count
+												
+												}
 												return;
 											}
-										});
+										},ARRAY_FILTER_USE_BOTH);
 									}
 								
 									
