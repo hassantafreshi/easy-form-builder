@@ -144,8 +144,8 @@ Thanks goes to these wonderful people
     <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a> 
 </td>
 <td>
-  <a href="https://github.com/psmits1567"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter Smits</strong></sub></a><br />
-    <a title="Translation" href="https://github.com/hassantafreshi/easy-form-builder">🌍</a> 
+  <a href="https://github.com/psmits1567"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a> 
 </td>
 
 </tbody>
