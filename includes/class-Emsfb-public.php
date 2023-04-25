@@ -618,7 +618,7 @@ class _Public {
 	  public function get_ajax_form_public(){
 		
 		
-		$text_ =["mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
@@ -629,7 +629,7 @@ class _Public {
 		//error_log(strval(wp_verify_nonce($msgnonce,'nonce_msg')));
 		// 
 		if (check_ajax_referer('public-nonce','nonce')==false){
-						
+				
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 		}
@@ -876,7 +876,10 @@ class _Public {
 														error_log(strtotime($fr['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
+
 														}
 
 														
@@ -884,7 +887,9 @@ class _Public {
 
 													if(isset($fr['mlen'])==true){
 														if($fr['mlen']<=$fr['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
 															error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
@@ -954,7 +959,9 @@ class _Public {
 														error_log(strtotime($f['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
 														if(strtotime($f['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}
 
 														
@@ -962,7 +969,9 @@ class _Public {
 
 													if(isset($f['mlen'])==true){
 														if($f['mlen']<=$f['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
 															error_log($formObj[$key]['registered_count']);
 															$formObj[$key]['registered_count'] =(int) $formObj[$key]['registered_count'] +1;
@@ -1058,7 +1067,9 @@ class _Public {
 														error_log(strtotime($fr['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $fr['value'], $mr );
 														}
 
 														
@@ -1066,7 +1077,9 @@ class _Public {
 
 													if(isset($fr['mlen'])==true){
 														if($fr['mlen']<=$fr['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
 															error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;

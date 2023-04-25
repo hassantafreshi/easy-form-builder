@@ -663,6 +663,8 @@ class efbFunction {
 			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image picker','easy-form-builder'),				
 			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert an image url','easy-form-builder'),				
 			"newbkForm" => $state ? $ac->text->newbkForm : __('New Booking Form','easy-form-builder'),
+			"bkXpM" => $state  &&  isset($ac->text->bkXpM) ? $ac->text->bkXpM : __('We are sorry, the booking time for the XXX option has expired. Please choose from the other available options.','easy-form-builder'),				
+			"bkFlM" => $state  &&  isset($ac->text->bkFlM) ? $ac->text->bkFlM : __('We are sorry, the XXX option is currently at full capacity. Please choose from the other available options.','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
