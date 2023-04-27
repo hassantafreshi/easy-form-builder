@@ -1010,7 +1010,7 @@ input[type=range].efb {	border: transparent !important;
 }
 .h-xxxl-efb.efb-rounded {	border-radius: 60px !important;
 }
-/* height sectio on input */label.yesno-efb.h-d-efb {	padding-top: 0% !important;
+/* height sectio on input */label.yesno-efb.h-d-efb {	padding-top: 1% !important;
 }
 
 label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label.yesno-efb.h-xxxl-efb {	padding-top: 2% !important;

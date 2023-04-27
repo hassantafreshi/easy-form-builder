@@ -1007,6 +1007,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
 
 
 fun_imgRadio_efb=(id ,link,row)=>{
+  console.log(row);
   //console.log(id ,link,row);
   //اگر لینک خالی یا نال یا بودن اچ تی تی بود عکس پیش فرض شود
 
@@ -1026,8 +1027,8 @@ fun_imgRadio_efb=(id ,link,row)=>{
     //console.log(url);
     return url;
    }
-  let value = row.hasOwnProperty('value') && row.value.length>1 ? row.value : efb_var.text.newOption ?? '';
-  let sub_value = row.hasOwnProperty('sub_value') && row.sub_value.length>1 ? row.sub_value : efb_var.text.sampleDescription ?? '';
+  let value = row.hasOwnProperty('value')  ? row.value : efb_var.text.newOption ?? '';
+  let sub_value = row.hasOwnProperty('sub_value') ? row.sub_value : efb_var.text.sampleDescription ?? '';
   link =link.includes('http')==false ?  efb_var.images.head : row.src;
   link = u(link);
   return `
