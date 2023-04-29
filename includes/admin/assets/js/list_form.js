@@ -1956,14 +1956,13 @@ function convert_to_dataset_emsFormBuilder() {
   //console.log('convert_to_dataset_emsFormBuilder')
   const head = JSON.parse(localStorage.getItem("head_ws_p"));
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-  
   let rows = exp;
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
   for (col in rows) {
     if (col != 0) {
-      for (let c in rows[col]) {
+      for (let c=0 ; c<rows[col].length ; c++) {
         if (rows[col][c] != 'null@EFB' && rows[col][c] != 'notCount@EFB') {
           const indx = entry[c].findIndex(x => x == rows[col][c]);
 
@@ -1979,9 +1978,9 @@ function convert_to_dataset_emsFormBuilder() {
 
     } else {
 
-      for (let c of rows[col]) {
+      for (let v of rows[col]) {
 
-        titleTable.push(c);
+        titleTable.push(v);
       }
     }
   }
