@@ -1653,7 +1653,7 @@ function alert_message_efb(title, message, sec, alert) {
     document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
   
-  document.getElementById(id).innerHTML = ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+  document.getElementById(id).innerHTML += ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
