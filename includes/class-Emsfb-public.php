@@ -618,7 +618,7 @@ class _Public {
 	  public function get_ajax_form_public(){
 		
 		
-		$text_ =["mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
@@ -629,7 +629,7 @@ class _Public {
 		//error_log(strval(wp_verify_nonce($msgnonce,'nonce_msg')));
 		// 
 		if (check_ajax_referer('public-nonce','nonce')==false){
-						
+				
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 		}
@@ -850,7 +850,7 @@ class _Public {
 										
 										$item['value'] = sanitize_text_field($item['value']);
 
-										array_filter($formObj, function($fr,$ki ) use(&$item,&$rt,&$stated,&$formObj,$form_condition) { 
+										array_filter($formObj, function($fr,$ki ) use(&$item,&$rt,&$stated,&$formObj,$form_condition ,&$mr) { 
 																				
 											if(isset($fr['id_']) && isset($item['id_ob']) && $fr['id_']==$item['id_ob']){
 												$item['value']=$fr['value'];
@@ -869,22 +869,29 @@ class _Public {
 												if($form_condition=='booking')	{
 													error_log('booking con inside radio');
 													error_log($ki);
+													error_log(json_encode($formObj[$ki]));
 													error_log(wp_date('Y-m-d'));
 													if(isset($fr['dateExp'])==true){
 														error_log($fr['dateExp']);
 
 														error_log(strtotime($fr['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
+														//$fr['dateExp'] ='04-04-2023';
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $fr['value'], $mr );
+															
 														}
-
+														error_log($mr);
 														
 													}
 
-													if(isset($fr['mlen'])==true){
+													if(isset($fr['mlen'])==true){														
 														if($fr['mlen']<=$fr['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $fr['value'], $mr );
 														}else{
 															error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
@@ -948,21 +955,28 @@ class _Public {
 													error_log('booking con inside options');
 													error_log($key);
 													error_log(wp_date('Y-m-d'));
+													error_log(isset($f['dateExp']));
 													if(isset($f['dateExp'])==true){
 														error_log($f['dateExp']);
-
+														//$f['dateExp']="04-04-2023";
 														error_log(strtotime($f['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
+														
 														if(strtotime($f['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}
 
 														
 													}
 
 													if(isset($f['mlen'])==true){
+														
 														if($f['mlen']<=$f['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
 															error_log($formObj[$key]['registered_count']);
 															$formObj[$key]['registered_count'] =(int) $formObj[$key]['registered_count'] +1;
@@ -1042,7 +1056,7 @@ class _Public {
 									if(isset($item['value'])){
 										
 										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition) { 											
+										array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition,&$mr) { 											
 											if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
 												$stated=1;
 												$item['value']=$fr['value'];
@@ -1053,20 +1067,24 @@ class _Public {
 													error_log($ki);
 													error_log(wp_date('Y-m-d'));
 													if(isset($fr['dateExp'])==true){
-														error_log($fr['dateExp']);
-
+														error_log($fr['dateExp']);													
 														error_log(strtotime($fr['dateExp']));
 														error_log(strtotime(wp_date('Y-m-d')));
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=-1;
+															$stated=0;
+															$mr = $this->lanText["bkXpM"];
+															$mr =str_replace('XXX', $fr['value'], $mr );
 														}
 
 														
 													}
 
 													if(isset($fr['mlen'])==true){
+														
 														if($fr['mlen']<=$fr['registered_count']){
-															$stated=-2;
+															$stated=0;
+															$mr = $this->lanText["bkFlM"];
+															$mr =str_replace('XXX', $fr['value'], $mr );
 														}else{
 															error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
@@ -1246,7 +1264,7 @@ class _Public {
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
-					
+					error_log($mr);
 					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$_POST);
 				}
@@ -1254,8 +1272,18 @@ class _Public {
 					
 					
 					$this->value = json_encode($valobj,JSON_UNESCAPED_UNICODE);
-					$this->value = str_replace('"', '\\"', $this->value);
 					
+					$this->value = str_replace('"', '\\"', $this->value);
+					if($form_condition=='booking'){
+						$table_name = $this->db->prefix . "emsfb_form";
+						//,`form_name` =>
+						$id = sanitize_text_field($_POST['id']);
+						$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
+						error_log("================>inside booking check!");
+						error_log($value);
+						$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
+						error_log(json_encode($r));
+					}
 					
 				
 				/*end form validation  */	

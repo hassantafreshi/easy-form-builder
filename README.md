@@ -5,7 +5,7 @@
 ###  Easy Form Builder is friendly, multi-step and Drag & drop form creator Plugin for Wordpress
 <div align="center">
     <a href="https://whitestudio.team">
-        <img src="https://ps.w.org/easy-form-builder/assets/icon.svg" alt="✨  Easy Form Builder  ✨" width="100px" />
+        <img src="https://ps.w.org/easy-form-builder/assets/icon-128x128.gif" alt="✨  Easy Form Builder  ✨" width="100px" />
     </a>
 </div>
 
@@ -27,6 +27,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
               <tr>
             <td>English , <a href="https://wordpress.org/plugins/easy-form-builder/">Easy Form Builder</a></td>
             <td>Danish , <a href="https://da.wordpress.org/plugins/easy-form-builder/">Nem formularbygger</a></td>
+            <td>Nederlands , <a href="https://nl.wordpress.org/plugins/easy-form-builder/">Formulier bouwer</a></td>
             <td>हिन्दी , <a href="https://hi.wordpress.org/plugins/easy-form-builder/">आसान फॉर्म बिल्डर</a></td>
             <td>فارسی ,<a href="https://fa.wordpress.org/plugins/easy-form-builder/"> فرم ساز آسان</a></td>
             <td>العربی,<a href="https://ar.wordpress.org/plugins/easy-form-builder/">منشئ النموذج السهل</a></td>
@@ -129,10 +130,10 @@ Thanks goes to these wonderful people
 <table align="center">
 <tbody>
 <tr>
-<td><a href="https://github.com/hassantafreshi/"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan Tafreshi</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
-<td><a href="https://github.com/01mrlast"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson Last</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji></td>
-<td><a href="https://github.com/aminkhadivar/"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin Khadivar</strong></sub></a><br /><a href="#design" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
-  <td><a href="https://github.com/thaikolja"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja Nolte</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
+<td><a href="https://github.com/hassantafreshi/"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
+<td><a href="https://github.com/01mrlast"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji></td>
+<td><a href="https://github.com/aminkhadivar/"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin</strong></sub></a><br /><a href="#design" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
+  <td><a href="https://github.com/thaikolja"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation">🌍</a></td>
 <td><a href="https://github.com/rahulslj"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
   <a title="Translation" href="#translation">🌍</a></td>
@@ -140,8 +141,12 @@ Thanks goes to these wonderful people
   <a href="https://github.com/ehssantafreshi"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a></td>
 <td>
-  <a href="https://github.com/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush Samadi</strong></sub></a><br />
+  <a href="https://github.com/soroushsamadi86"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush</strong></sub></a><br />
     <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a> 
+</td>
+<td>
+  <a href="https://github.com/psmits1567"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a> 
 </td>
 
 </tbody>

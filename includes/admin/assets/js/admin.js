@@ -478,7 +478,7 @@ createCardAddoneEfb = (i) => {
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
-  //{ id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
+  { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
   { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'all payment new', pro: true },
   { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
