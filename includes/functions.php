@@ -668,7 +668,7 @@ class efbFunction {
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : __('Conditional logic Addon','easy-form-builder'),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : __('Conditional logic Addon','easy-form-builder'),
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : __('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users unique needs.','easy-form-builder'),			
-			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : __('Enable Conditional','easy-form-builder'),
+			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : __('Conditional logic','easy-form-builder'),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : __('Enable Conditional','easy-form-builder'),
 			"show" => $state  &&  isset($ac->text->show) ? $ac->text->show : __('Show','easy-form-builder'),
 			"hide" => $state  &&  isset($ac->text->hide) ? $ac->text->hide : __('Hide','easy-form-builder'),
@@ -915,8 +915,6 @@ class efbFunction {
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
-				//error_log($k);
-				//error_log(json_encode($v));
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
@@ -1047,8 +1045,13 @@ class efbFunction {
 							$valp[$key]["option"] = $valp[$key][$k];
 						}
 					break;
-					default:					
+					case 'conditions':
+						//$valp[$key][$k]=$v;
+						$valp[$key][$k]=$v;
+					break;
+					default:		
 					$valp[$key][$k]=sanitize_text_field($v);
+					
 					break;
 				}
 			}

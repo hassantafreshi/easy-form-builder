@@ -1279,6 +1279,39 @@ let change_el_edit_Efb = (el) => {
 
         valj_efb[indx].placeholder = sanitize_text_efb(el.value);
         break;
+      case "enableConEl":
+         clss=true;
+         const show_l_o =()=>{
+          document.getElementById('logic_options').classList.remove('d-none');
+          document.getElementById('logic_options').classList.add('d-block');
+         }
+         postId =el.dataset.setid;
+          if(valj_efb[0].hasOwnProperty('logic')==false) {
+            Object.assign(valj_efb[0],{'logic':true})
+            Object.assign(valj_efb[0],{'conditions':[]})
+            clss=false;
+          }
+          c =  el.classList.contains('active')==true ? true : false
+          console.log(c);
+          if(clss==true){
+            clss= valj_efb[0].conditions.findIndex(x=>x.id_==postId)
+            if(clss!=-1){
+              valj_efb[0].conditions[clss].state=c;
+              if (c==false){
+                //logic_options
+                document.getElementById('logic_options').classList.remove('d-block');
+                document.getElementById('logic_options').classList.add('d-none');
+              }else{
+                show_l_o();
+              }
+            }
+          }else{
+            show_l_o();
+            valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:0 , term:'is' , one:'', two:''}]});
+
+          }
+          console.log(el.dataset,valj_efb[0].conditions);  
+          break;
       case "valueEl":
         
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
@@ -2032,24 +2065,32 @@ let change_el_edit_Efb = (el) => {
         }
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         break;
-        case 'imgRadio_url':
-          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-          //console.log('imgRadio_url' ,indx);
-          const ud = (url)=>{
-            url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
-            url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
-            url = url.replace(/([/])+/g, '@efb@');
-            return url;
-           }
-          valj_efb[indx].src = ud(el.value);
-          //console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
-          document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
-          break;
-        case 'imgRadio_sub_value':
-          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-          valj_efb[indx].sub_value = el.value;
-          document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
-          break;
+      case 'imgRadio_url':
+        indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        //console.log('imgRadio_url' ,indx);
+        const ud = (url)=>{
+          url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+          url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+          url = url.replace(/([/])+/g, '@efb@');
+          return url;
+          }
+        valj_efb[indx].src = ud(el.value);
+        //console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
+        document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
+        break;
+      case 'imgRadio_sub_value':
+        indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        valj_efb[indx].sub_value = el.value;
+        document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
+        break;
+      case 'condElSH':
+        indx = valj_efb[0].conditions.findIndex(x=>x.id_ ==el.options[el.selectedIndex].id);
+        console.log(indx);
+        if(indx!=-1){
+          valj_efb[0].conditions[indx].show= el.options[el.selectedIndex].value=="show" ? true : false;
+        }
+        console.log(valj_efb[0].conditions[indx],el.options[el.selectedIndex].value)
+        break;
     }
 
   }, len_Valj * 6)
@@ -2066,6 +2107,19 @@ function wating_sort_complate_efb(t) {
  // myModal.show_efb()
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
+}
+
+get_list_name_selecting_field_efb=()=>{
+  console.log('get_list_name_selecting_field_efb');
+  let r =[];
+  for(let i in valj_efb){
+    if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
+     // console.log(valj_efb[i].name);
+      r.push({name:valj_efb[i].name, id_:valj_efb[i].id_});
+    }
+  }
+  console.log(r);
+  return r;
 }
 
 function create_form_efb() {
