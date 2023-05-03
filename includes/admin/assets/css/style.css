@@ -185,7 +185,7 @@ i.efb {	font-size: 1.2rem;
    border-radius: 100px !important;
    transition: 0.5s;
 }
-/* 778899 */.btn-primary.efb {	background-color: #4636f1 !important;
+.btn-primary.efb {	background-color: #4636f1 !important;
    background-image: linear-gradient(65deg, #4636f1 0, #6030b8 100%) !important;
    border: none !important;
    transition: 0.5s !important;

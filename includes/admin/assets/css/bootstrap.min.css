@@ -4516,7 +4516,7 @@ align-items: center;}
 	visibility: visible !important}
  .efb.invisible {
 	visibility: hidden !important}
- /* 778899 */@media (min-width:576px) {
+@media (min-width:576px) {
 	.efb.float-sm-start {
 		float: left !important }
  	.efb.float-sm-end {

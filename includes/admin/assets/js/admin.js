@@ -1040,13 +1040,13 @@ let change_el_edit_Efb = (el) => {
   let c, color;
   //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
-    //console.log( el.value);
+    console.log( el.id);
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
       if (el.value==null) return  valNotFound_efb()
-      //console.log(el.id)
+    console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1292,7 +1292,7 @@ let change_el_edit_Efb = (el) => {
             clss=false;
           }
           c =  el.classList.contains('active')==true ? true : false
-          console.log(c);
+          console.log(`activ [${c}] clss[${clss}]`);
           if(clss==true){
             clss= valj_efb[0].conditions.findIndex(x=>x.id_==postId)
             if(clss!=-1){
@@ -1303,12 +1303,27 @@ let change_el_edit_Efb = (el) => {
                 document.getElementById('logic_options').classList.add('d-none');
               }else{
                 show_l_o();
+                valj_efb[0].logic =true;
+              }
+            }else{
+              if(c==true){
+                show_l_o();
+                valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:"0" , term:'is' , one:'', two:''}]});
               }
             }
           }else{
             show_l_o();
-            valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:0 , term:'is' , one:'', two:''}]});
+            valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:"0" , term:'is' , one:'', two:''}]});
 
+          }
+
+          if(c==false || c==0){
+            
+           for(var i=0 ; i<valj_efb[0].conditions.length ; i++){
+            console.log(i,valj_efb[0].conditions[i].state);
+            if(valj_efb[0].conditions[i].state==true) c=true;
+           }
+           if(c!=true) valj_efb[0].logic=false;
           }
           console.log(el.dataset,valj_efb[0].conditions);  
           break;
@@ -1852,7 +1867,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'EditOption':
-
+          console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
         
         if (iindx != -1) {
@@ -2083,13 +2098,40 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].sub_value = el.value;
         document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
         break;
-      case 'condElSH':
-        indx = valj_efb[0].conditions.findIndex(x=>x.id_ ==el.options[el.selectedIndex].id);
-        console.log(indx);
-        if(indx!=-1){
-          valj_efb[0].conditions[indx].show= el.options[el.selectedIndex].value=="show" ? true : false;
-        }
-        console.log(valj_efb[0].conditions[indx],el.options[el.selectedIndex].value)
+      case 'selectSmartforOptionsEls':
+        indx = valj_efb.findIndex(x=>x.id_ ==el.options[el.selectedIndex].value);
+        console.log(indx ,el.options[el.selectedIndex]);
+
+         if(indx!=-1){
+          const no = el.options[el.selectedIndex].dataset.idset;
+          const step = (el.options[el.selectedIndex].dataset.fid);
+          const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
+          console.log(n,valj_efb[0].conditions[n])
+          if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
+          
+          console.log(`step[${step}] n[${n}] no[${no}] c[${c}]`,valj_efb[0].conditions);
+          if (c!=-1){
+            valj_efb[0].conditions[n].condition[c].one = sanitize_text_efb(el.options[el.selectedIndex].value);
+            console.log(valj_efb[0].conditions[c]);
+            const fid =( el.options[el.selectedIndex].dataset.fid);
+            const idset = (el.options[el.selectedIndex].dataset.idset);
+            const s_op = sanitize_text_efb(el.options[el.selectedIndex].value);
+            valj_efb[0].conditions[n].condition[c].two="";
+            //idset ,fid , s_op
+            document.querySelector(`[data-id='oso-${idset}'`).innerHTML= optionSmartforOptionsEls(fid , idset ,s_op);
+          }
+        }        
+          break;
+        case "optiontSmartforOptionsEls":
+          c=-1;
+          console.log(el.options[el.selectedIndex].dataset);
+          const step = (el.options[el.selectedIndex].dataset.idset);
+          let no = (el.options[el.selectedIndex].dataset.fid);
+          no = no;
+          const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
+          if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
+          if(c!=-1)valj_efb[0].conditions[n].condition[c].two = sanitize_text_efb(el.options[el.selectedIndex].value);
+          console.log(`step[${step}] n[${n}] no[${no}] c[${c}] value[${el.options[el.selectedIndex].value}]`);
         break;
     }
 
@@ -2116,6 +2158,30 @@ get_list_name_selecting_field_efb=()=>{
     if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
      // console.log(valj_efb[i].name);
       r.push({name:valj_efb[i].name, id_:valj_efb[i].id_});
+    }
+  }
+  console.log(r);
+  return r;
+}
+get_list_name_otions_field_efb=(i_op)=>{
+  //i_op parent id  , if i_op ==0 first select;
+
+  console.log('get_list_name_otions_field_efb');
+  let r =[];
+  if(i_op==0){
+    for(let i in valj_efb){
+      if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
+       // console.log(valj_efb[i].name);
+       i_op= valj_efb[i].id_;
+       break;
+      }
+    }
+  }
+  console.log(`i_op[${i_op}]`);
+  for(let i in valj_efb){
+    if(valj_efb[i].parent==i_op){
+     // console.log(valj_efb[i].name);
+      r.push({name:valj_efb[i].value, id_:valj_efb[i].id_});
     }
   }
   console.log(r);
@@ -3153,6 +3219,7 @@ fun_confirm_remove_addon_emsFormBuilder=(val)=>{
  }
 
 function emsFormBuilder_delete(id, type,value) {
+  console.log(id, type,value);
   //v2
   let val =id;
   
@@ -3166,6 +3233,9 @@ function emsFormBuilder_delete(id, type,value) {
       break;
     case "message":
       val=value;
+      break;
+    case 'condlogic':
+      val =id;
       break;
   }
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${efb_var.text[type]} >> ${val} </b></div></div>`
@@ -3183,6 +3253,9 @@ function emsFormBuilder_delete(id, type,value) {
     }else if (type =='addon'){
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
+    }else if (type ="condlogic"){
+      console.log(`id[${id}] value[${value}]`);
+      fun_remove_condition_efb(id , value);
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)
@@ -3191,6 +3264,24 @@ function emsFormBuilder_delete(id, type,value) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+fun_remove_condition_efb = (no , step_id)=>{
+  console.log(no);
+  document.getElementById(no+"-logics-gs").remove();
+ const  step_no = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
+ console.log(step_no)
+ if(step_no!=-1){
+  const no_no = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==no );
+  console.log(no_no);
+   if (no_no!=-1){
+    if(valj_efb[0].conditions[step_no].condition.length==1){
+      valj_efb[0].conditions[step_no].condition[no_no].one ="";
+      valj_efb[0].conditions[step_no].condition[no_no].two ="";
+    }else{
+      valj_efb[0].conditions[step_no].condition.splice(no_no ,1)}
+    }
+     console.log(valj_efb[0].conditions[step_no].condition);
+ }
+}
 
 addons_btn_state_efb=(id)=>{
 
@@ -3645,4 +3736,61 @@ msg_colors_from_template = ()=>{
 
 
  
+}
+add_new_logic_efb = (newId , step_id) =>{
+  //add_new_logic_efb('${rndm_no}','${fid}')
+  newId = Math.random().toString(36).substr(2, 9);
+  const row = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
+  if (row==-1) return;
+  valj_efb[0].conditions[row].condition.push({no:newId, term: 'is',one:"",two:""});
+  console.log(newId , step_id);
+      const ones = selectSmartforOptionsEls(newId ,step_id);
+      const twos = optionSmartforOptionsEls(newId,step_id , 0);
+      const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+      const del_btn =`
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      `
+  document.getElementById("list-logics").innerHTML += `<div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">
+    <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+    <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+    <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+    <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+  </div>`
+
+  for (let el of document.querySelectorAll(`.elEdit`)) {
+    console.log(el.id ,el.dataset);
+    el.addEventListener("change", (e) => { change_el_edit_Efb(el);
+    
+     })
+
+     if(el.id =="selectSmartforOptionsEls"){
+       const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
+       const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
+       const id =  valj_efb[0].conditions[row].condition[no].one;
+       console.log("===============>selectSmartforOptionsEls",  row , no , id);
+      if(id!=""){
+        let v= valj_efb.findIndex(x=>x.id_==id);
+        
+        if(v!=-1){
+           console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
+           v =sanitize_text_efb(valj_efb[v].name)
+           console.error(v ,el);
+           el.value = v;}
+      }
+      el.value
+    }else if (el.id =="optiontSmartforOptionsEls"){
+      console.log("===============>optiontSmartforOptionsEls");
+      const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
+      const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
+      const id =  valj_efb[0].conditions[row].condition[no].two;
+      console.log("===============>optiontSmartforOptionsEls",  row , no , id);
+      if(id!=""){
+        let v= valj_efb.findIndex(x=>x.id_==id);
+        
+        if(v!=-1){
+          v= sanitize_text_efb(valj_efb[v].value);          
+          el.value = v;}
+      }
+    }
+  }
 }

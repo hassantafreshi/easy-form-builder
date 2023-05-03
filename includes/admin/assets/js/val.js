@@ -672,23 +672,63 @@ function show_setting_window_efb(idset) {
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
 
+
     
     const logic_section = (fid)=>{
       let state =false ;
       let visible_=true ;
+      let i = 0;
       if (valj_efb[0].hasOwnProperty('logic')==true || valj_efb[0].logic==true){
-       const i = valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+        i = valj_efb[0].conditions.findIndex(x=>x.id_==fid);
        if(i!=-1){
         state =valj_efb[0].conditions[i].state;
        }
        console.log(i);
       }
-      if(valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[0].show==false )visible_=false;
+      if(valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].show==false )visible_=false;
       if(valj_efb[0].hasOwnProperty("conditions")==true){
         console.log(valj_efb[0].conditions[0]);
       }
       console.log(visible_);
-      get_list_name_selecting_field_efb(); //778899
+      const rndm_no = Math.random().toString(36).substr(2, 9);
+      const ones = selectSmartforOptionsEls(0 ,fid);
+      const twos = optionSmartforOptionsEls(0,fid , 0);
+      const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+      const del_btn =`
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete(0,'condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      `
+      let rows = ` <div class="efb mx-0 col-sm-12 row opt" id="0-logics-gs"> 
+      <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+      <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+      <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+      <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+    </div>`;
+      if((i!=-1)&& valj_efb[0].hasOwnProperty("conditions")==true) console.log(`valj_efb[0].hasOwnProperty("conditions")[${valj_efb[0].hasOwnProperty("conditions")}] i[${i}] valj_efb[0].conditions[i].length[${valj_efb[0].conditions[i].condition.length}]`);
+      if((i!=-1) && valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].condition.length>1){
+        console.log('run loop!');
+        for(let v=1 ; v<valj_efb[0].conditions[i].condition.length ; v++){
+          console.log(valj_efb[0].conditions[i].condition[v]);
+          let fid = valj_efb[0].conditions[i].id_
+          let row_id = valj_efb[0].conditions[i].condition[v].no;
+          let one = valj_efb[0].conditions[i].condition[v].one !="" ? valj_efb[0].conditions[i].condition[v].one :0;
+          console.log(one , fid , row_id);
+          const ones = selectSmartforOptionsEls(row_id ,fid);
+          const twos = optionSmartforOptionsEls(row_id,fid , one);
+          const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+          const del_btn =`
+          <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${row_id}','condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+          `
+           rows += ` <div class="efb mx-0 col-sm-12 row opt" id="${row_id}-logics-gs"> 
+          <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+          <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+          <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+          <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+          </div>`;
+
+          //console.log(rows);
+        }
+      }
+       //778899
       /* این تابع برای گرفتن لیست المان ها برای موراد شرطی استفاده شود */
       const  visible = state==false ? 'd-none' :'d-block';    
       const actv = state==false ? '' :'active';
@@ -698,55 +738,40 @@ function show_setting_window_efb(idset) {
         <i class="efb  bi-arrow-down-circle-fill me-1" id="logic_collapse_icon"></i>${efb_var.text.condlogic}
         </button>
       </div>
-      <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
+            <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
               <div class="efb  mb-3 px-3 row">   
                 <div class="efb mx-1 my-3 efb">    
                   <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-d-efb  btn-toggle ${actv}" data-toggle="button" aria-pressed="${state}" autocomplete="off" data-id="formSet" data-setid="${fid}" onclick="fun_switch_form_efb(this)">       
                   <div class="efb handle" ></div>
-                  </button>
-                  <label class="efb" for="enableConEl">${efb_var.text.enableCon}</label>                                            
+                    </button>
+                    <label class="efb" for="enableConEl">${efb_var.text.enableCon}</label>                                            
                   </div>
                 
-                <div class="efb ${visible}" id="logic_options">
-                  <!--- new test-->
-                  <div class="efb my-2 mx-0  def col-md-12 row col-sm-12 showBtns efbField " >
+                  <div class="efb ${visible}" id="logic_options">
+                   <!--- new test-->
+                   <div class="efb my-2 mx-0  def col-md-12 row col-sm-12 showBtns efbField " >
 
-                              <div class="efb  col-sm-12 col-md-5 efb  px-0 mx-0 ">
-                                <select class="efb elEdit  form-select efb emsFormBuilder_v h-d-efb efb-square border-d  w-100 border-d efb-rounded" data-op="${fid}" data-id="condElSH" id="condElSH" >      
+                              <div class="efb  col-sm-12 col-md-3 efb  px-0 mx-0">
+                                <select class="efb elEdit px-2 form-select efb emsFormBuilder_v h-d-efb efb-square border-d  w-100 border-d efb-rounded" data-op="${fid}" data-id="condElSH" id="condElSH" >      
                                   <option value="show" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb"  ${visible_==true?'selected':''}>${efb_var.text.show}</option>
-                                  <option value="hide" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb " ${visible_==false ?'selected':''}>${efb_var.text.hide}</option>       
+                                <!--  <option value="hide" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb " ${visible_==false ?'selected':''}>${efb_var.text.hide}</option>       -->
                                 </select>        
-                                </div>
-                                <label for="condElSH" class="efb mx-2 px-0 col-md-5 col-sm-12 col-form-label fs-6 " >${efb_var.text.tfif}</label>
-                  </div>
-                            <div class="efb mx-0 col-sm-12 row opt" id="12ujg3b6q-gs"> 
-
-                            <div id="opt-v-1" class="efb  col-sm-11 mx-0 px-0">
-                            <input type="text" placeholder="Name" id="EditOption" value="New option 1" data-value="New option 1" data-parent="nlp1gweku" data-id="12ujg3b6q" data-tag="radio" class="efb  col-sm-12  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
-                            <!---efb---->
-                            <!---efb---->
-                            
-                            <div class="efb  btn-edit-holder newop" id="deleteOption" data-parent_id="nlp1gweku">
-                            <button type="button" id="deleteOption" onclick="delete_option_efb('12ujg3b6q')" data-parent="nlp1gweku" data-tag="radio" data-id="12ujg3b6q" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="Delete"> 
-                            <i class="efb  efb bi-x-lg text-danger"></i>
-                            </button>
-                            <button type="button" id="addOption" onclick="add_option_edit_pro_efb('nlp1gweku','radio' ,5)" data-parent="nlp1gweku" data-tag="radio" data-id="12ujg3b6q" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="Add"> 
-                            <i class="efb  bi-plus-circle  text-success"></i>
-                            </button> 
-                            
-                            </div>
-                              <div class="efb mx-0 px-0 col-sm-12 elIds d-none">
-                              <label for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 ">ID</label>
-                              <input type="text" placeholder="ID" id="ElIdOptions" value="12ujg3b6q" data-parent="nlp1gweku" data-id="12ujg3b6q" data-tag="radio" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
-                              
                               </div>
-                          </div>
-                          </div>
+                                <label for="condElSH" class="efb mx-2 px-0 col-md-5 col-sm-12 col-form-label fs-6 " >${efb_var.text.tfif}</label>
+                                <div class="efb mx-0 px-0 col-md-2" >
+                                  <button type="button" id="addOption" onclick="add_new_logic_efb('${rndm_no}','${fid}')" data-parent="7s91ltyus" data-tag="radio" data-id="kxo0ofh9g" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="Add"> 
+                                  <i class="efb  bi-plus-circle  text-success"></i>
+                                  </button>
+                                </div>
                     </div>
-                  <!--- new test-->
+                    <div class"efb mx-0 px-0" id="list-logics">
+                     ${rows}
+                    </div>
                 </div>
-          </div>
-      </div>
+                  <!--- new test-->
+              </div>
+            </div>
+      <!-- </div> -->
   `
     }
   
@@ -1723,8 +1748,68 @@ function funShowAttrElsEfb(el){
 
 }
 
+const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
+  //fid step_ number s_op id of option (one)
+  //(0,fid , 0
+  let two ="";
+  console.log(idset ,fid , s_op);
+  if(s_op==0 && valj_efb[0].hasOwnProperty('conditions')){
+   const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+   console.log(step_no);
+   if (step_no!=-1){
+    two= valj_efb[0].conditions[step_no].condition[0].two;
+    s_op =  valj_efb[0].conditions[step_no].condition[0].one!=""  ? valj_efb[0].conditions[step_no].condition[0].one : 0;
+    console.log(two , `s_op[${s_op}] one[${valj_efb[0].conditions[step_no].condition[0].two}]`);
+   }else{
+    s_op=0;
+   }
+  }else if (valj_efb[0].hasOwnProperty('conditions')==true){
+    const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+    console.log(`step_no[${step_no}]`);
+    if(step_no!=-1){
+      const row = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==idset);
+      if (row !=-1) two = valj_efb[0].conditions[step_no].condition[row].two;
+      console.log(`row[${row}]`,two);
+    }
+  }
+  
+ let row= get_list_name_otions_field_efb(s_op);
+ let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+// let idset =''
+ for (let i =0 ; i< row.length ; i++){
+  console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
+  op +=`<option value="${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
+ }
+ return `<select  data-id="oso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="optiontSmartforOptionsEls" data-tag="list_otiones">
+ ${op}
+ <select>`
+}
 
 
+
+const selectSmartforOptionsEls = (idset ,fid)=>{
+  console.log(idset ,fid);
+  let c = -1;
+  const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
+  //test below row
+  if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
+  //end test row
+  if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
+  console.log(n,valj_efb[0].conditions[n].condition, c , typeof c);}
+  if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
+ // if (c==-1) return `<!-- efb: conditions not exists -->`
+ let row= get_list_name_selecting_field_efb();
+ let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+// let idset =''
+ 
+ for (let i =0 ; i< row.length ; i++){
+  //if(c.hasOwnProperty('one')) console.log(`c.one[${c.one}] row[${i}].id_[${row[i].id_}]`)
+  op +=`<option value="${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.hasOwnProperty('one') && c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
+ }
+ return `<select  data-id="sso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="selectSmartforOptionsEls" data-tag="list_selected">
+ ${op}
+ <select>`
+}
 
 fun_translate_check_efb=()=>{
   const l= ['en_US' ,'fa_IR' ,'ar']
