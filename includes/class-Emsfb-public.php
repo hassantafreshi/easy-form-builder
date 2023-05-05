@@ -233,6 +233,11 @@ class _Public {
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.28');
 			wp_enqueue_style('intlTelInput-css');
 		}
+
+		if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
+			wp_register_script('intlTelInput-js',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+			wp_enqueue_script('intlTelInput-js');
+		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 

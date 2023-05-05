@@ -2424,4 +2424,13 @@ div#Listefb-150 {
   }
 
 
+
+.efb.justify-content-left {
+   justify-content: left;
+}
+.efb.justify-content-right {
+   justify-content: right;
+}
+
+
  

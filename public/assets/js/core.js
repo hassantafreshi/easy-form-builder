@@ -124,6 +124,11 @@ function fun_render_view_efb(val, check) {
   state_efb = "run";
   previewFormEfb('run');
   
+  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
+    stack_steps_efb.push(1);
+    logic_ui_forms_efb();
+  }
+
   if(form_type_emsFormBuilder=="payment"){
     setTimeout(() => {    
       fun_total_pay_efb()

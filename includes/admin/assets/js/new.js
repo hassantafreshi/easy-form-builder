@@ -1393,6 +1393,13 @@ function handle_navbtn_efb(steps, device) {
     jQuery("#next_efb").click(function () {
       
       var cp = current_s_efb + 1
+      if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true ){
+        if(stack_steps_efb.length>cp){ c
+          p = stack_steps_efb[cp-1];
+        }else{
+          steps_len_efb = cp;          
+        }
+      }
       var state = true
       if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
       setTimeout(function () {
@@ -1532,17 +1539,25 @@ function handle_navbtn_efb(steps, device) {
 
 function prev_btn_efb(){
   var cs = current_s_efb;
+  var logic = false 
+  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true ){
+    logic=true;
+    if(stack_steps_efb.length<= cs){ cs = stack_steps_efb[cs-1];
+    }
+  }
 
       if (cs == 2) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         jQuery("#next_efb").toggleClass("d-none");
 
-      } else if (cs == valj_efb[0].steps) {
+      } else if (cs == valj_efb[0].steps  || (logic && stack_steps_efb.length<= cs )) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         if (sitekye_emsFormBuilder.length > 1 && valj_efb[0] == true) jQuery("#next_efb").removeClass('disabled');
       }
+
+
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
       if (valj_efb[0].type == "payment" && preview_efb != true)
@@ -1894,8 +1909,8 @@ function previewFormEfb(state) {
 
 
   if (content.length > 10) content += `</div>`
-  head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
     `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   

@@ -685,7 +685,7 @@ function show_setting_window_efb(idset) {
        }
        console.log(i);
       }
-      if(valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].show==false )visible_=false;
+      if(valj_efb[0].hasOwnProperty("conditions")==true && i!=-1 &&valj_efb[0].conditions[i].show==false )visible_=false;
       if(valj_efb[0].hasOwnProperty("conditions")==true){
         console.log(valj_efb[0].conditions[0]);
       }
