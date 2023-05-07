@@ -21,3 +21,8 @@ easy-form-builder.zip
 vendor/logic/*
 temp/*
 vendor-backup/*
+vendor/*.git
+vendor/.git
+vendor/.git/*
+vendor/..vscode
+vendor/..vscode/*
