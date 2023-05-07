@@ -235,8 +235,8 @@ class _Public {
 		}
 
 		if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
-			wp_register_script('intlTelInput-js',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
-			wp_enqueue_script('intlTelInput-js');
+			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+			wp_enqueue_script('logic-efb');
 		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();

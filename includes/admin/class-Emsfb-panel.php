@@ -209,6 +209,10 @@ class Panel_edit  {
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.28');
 			wp_enqueue_style('intlTelInput-css');
 
+			if( true){
+				wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+				wp_enqueue_script('logic-efb');
+			}
 			
 			$table_name = $this->db->prefix . "emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );

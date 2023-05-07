@@ -1393,13 +1393,6 @@ function handle_navbtn_efb(steps, device) {
     jQuery("#next_efb").click(function () {
       
       var cp = current_s_efb + 1
-      if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true ){
-        if(stack_steps_efb.length>cp){ c
-          p = stack_steps_efb[cp-1];
-        }else{
-          steps_len_efb = cp;          
-        }
-      }
       var state = true
       if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
       setTimeout(function () {
@@ -1539,25 +1532,17 @@ function handle_navbtn_efb(steps, device) {
 
 function prev_btn_efb(){
   var cs = current_s_efb;
-  var logic = false 
-  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true ){
-    logic=true;
-    if(stack_steps_efb.length<= cs){ cs = stack_steps_efb[cs-1];
-    }
-  }
 
       if (cs == 2) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         jQuery("#next_efb").toggleClass("d-none");
 
-      } else if (cs == valj_efb[0].steps  || (logic && stack_steps_efb.length<= cs )) {
+      } else if (cs == valj_efb[0].steps) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
         if (sitekye_emsFormBuilder.length > 1 && valj_efb[0] == true) jQuery("#next_efb").removeClass('disabled');
       }
-
-
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
       if (valj_efb[0].type == "payment" && preview_efb != true)
@@ -2467,6 +2452,7 @@ function send_data_efb() {
     document.getElementById('efb-final-step').innerHTML = cp
     // current_s_efb=1;
   } else {
+    console.log('send_data_efb');
     endMessage_emsFormBuilder_view()
   }
 }
