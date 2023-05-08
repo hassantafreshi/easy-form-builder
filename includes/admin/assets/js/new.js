@@ -2057,7 +2057,7 @@ function previewFormEfb(state) {
   } catch {
     console.error(`Preview of Pc Form has an Error`)
   }
-  if (state != 'mobile') handle_navbtn_efb(valj_efb[0].steps, 'pc')
+  if (state != 'mobile') (valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==true) ? logic_handle_navbtn_efb(valj_efb[0].steps, 'pc'):  handle_navbtn_efb(valj_efb[0].steps, 'pc')
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
@@ -2164,7 +2164,7 @@ fun_el_select_in_efb = (el) => { return el == 'conturyList' || el == 'stateProvi
 fun_el_check_radio_in_efb = (el) => { return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false }
 
 function fun_validation_efb() {
-  //console.log('fun_validate')
+  console.log('fun_validate')
   let offsetw = document.getElementById('body_efb').offsetWidth;
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
@@ -2240,7 +2240,7 @@ function fun_validation_efb() {
 
   }
   if (idi != "null") { document.getElementById(idi).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}); }
-  
+  console.log(state)
   return state
 }
 
@@ -2447,6 +2447,7 @@ fun_offline_Efb = () => {
 
 function send_data_efb() {
   //if is preview 210201-SMHTH06 then recive from server and show
+  console.log('send_data_efb')
   if (state_efb != "run") {
     const cp = funTnxEfb('DemoCode-220201')
     document.getElementById('efb-final-step').innerHTML = cp

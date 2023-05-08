@@ -24,5 +24,5 @@ vendor-backup/*
 vendor/*.git
 vendor/.git
 vendor/.git/*
-vendor/..vscode
-vendor/..vscode/*
+vendor/.vscode
+vendor/.vscode/*

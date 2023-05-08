@@ -1260,6 +1260,13 @@ class _Public {
 				
 					
 				}
+				$count =  count($valobj);
+				if($count==0){
+					error_log(json_encode($valobj));
+					error_log(json_encode($count));
+					$stated=0;
+					$mr=$this->lanText["error403"];
+				}
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 
 				
