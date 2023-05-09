@@ -1137,6 +1137,9 @@ function show_setting_window_efb(idset) {
       case "booking":
         break;
       case "steps":
+        console.log(`steps[${idset}]` ,Number(idset)>1);
+        idset=Number(idset);
+        const logic_steps =idset>1? logic_section(idset) :"<!--efb-->";
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -1162,7 +1165,7 @@ function show_setting_window_efb(idset) {
                 </div>
             </div>
         </div>
-        ${logic_section(idset)}
+        ${logic_steps}
         <div class="efb  clearfix"></div>
         `
         break;

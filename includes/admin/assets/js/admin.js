@@ -2155,6 +2155,7 @@ get_list_name_selecting_field_efb=()=>{
   console.log('get_list_name_selecting_field_efb');
   let r =[];
   for(let i in valj_efb){
+    if(valj_efb[i].type=='multiselect') continue;
     if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
      // console.log(valj_efb[i].name);
       r.push({name:valj_efb[i].name, id_:valj_efb[i].id_});
@@ -2170,6 +2171,7 @@ get_list_name_otions_field_efb=(i_op)=>{
   let r =[];
   if(i_op==0){
     for(let i in valj_efb){
+      if(valj_efb[i].type=='multiselect') continue;
       if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
        // console.log(valj_efb[i].name);
        i_op= valj_efb[i].id_;
