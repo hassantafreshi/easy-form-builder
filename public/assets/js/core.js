@@ -546,6 +546,7 @@ function handle_change_event_efb(el){
         return
       }
     }
+    console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
