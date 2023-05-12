@@ -2454,7 +2454,7 @@ function obj_resort_row(step) {
   // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
  
-  for (v of valj_efb) {
+  for (let v of valj_efb) {
     if (v.step == step) {
       v.step = step;
       if (v.dataId) {
@@ -2987,7 +2987,7 @@ let handleDrag = (item) => {
 
   if (status_drag_start == false) {
     
-    for (i of valj_efb) {
+    for (let i of valj_efb) {
 
       if (i.type != "option" && i.type != "form" && i.type != "payment" && selectedItem.id != i.id_ && selectedItem.previousElementSibling.id != i.id_) {
         //console.log(i,i.id_,document.getElementById(i.id_));
@@ -3011,7 +3011,7 @@ let handleDrop = (item) => {
   item.target.classList.remove('drag-sort-active-efb');
   sort_obj_el_efb_()
   if (status_drag_start == true) {
-    for (i of valj_efb) {
+    for (let i of valj_efb) {
       if (i.type != "option" && i.type != "form")
         if (document.getElementById(i.id_)) document.getElementById(i.id_).classList.remove("drophere")
     }
@@ -3752,13 +3752,15 @@ add_new_logic_efb = (newId , step_id) =>{
       const del_btn =`
       <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
       `
-  document.getElementById("list-logics").innerHTML += `<div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">
+  document.getElementById("list-logics").innerHTML += `
+  <div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">
     <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
     <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
     <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
-    <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+    <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
   </div>`
 
+  
   for (let el of document.querySelectorAll(`.elEdit`)) {
     console.log(el.id ,el.dataset);
     el.addEventListener("change", (e) => { change_el_edit_Efb(el);
@@ -3767,17 +3769,21 @@ add_new_logic_efb = (newId , step_id) =>{
 
      if(el.id =="selectSmartforOptionsEls"){
        const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
-       const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
+       const no =  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
        const id =  valj_efb[0].conditions[row].condition[no].one;
-       console.log("===============>selectSmartforOptionsEls",  row , no , id);
+       console.log("===============>selectSmartforOptionsEls",  row , no , id,valj_efb[0].conditions[row].condition[no]);
       if(id!=""){
         let v= valj_efb.findIndex(x=>x.id_==id);
-        
+        console.log(`v[${v}]`);
         if(v!=-1){
            console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
            v =sanitize_text_efb(valj_efb[v].name)
            console.error(v ,el);
-           el.value = v;}
+           const op = document.getElementById("opsso-"+id)
+           op.seleced="selected"
+           console.log(op,el);
+           el.value = op.value;
+          }
       }
       el.value
     }else if (el.id =="optiontSmartforOptionsEls"){
@@ -3790,8 +3796,13 @@ add_new_logic_efb = (newId , step_id) =>{
         let v= valj_efb.findIndex(x=>x.id_==id);
         
         if(v!=-1){
-          v= sanitize_text_efb(valj_efb[v].value);          
-          el.value = v;}
+          v= sanitize_text_efb(valj_efb[v].value);     
+          const op = document.getElementById("ocsso-"+id)
+          op.seleced="selected"
+          console.log(op,el);
+          el.value = op.value;
+          
+        }
       }
     }
   }

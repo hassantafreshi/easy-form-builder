@@ -721,7 +721,7 @@ function handle_change_event_efb(el){
       case undefined:
         //select_options_emsFormBuilder            
         let check = false;
-        for (ex of exportView_emsFormBuilder) {
+        for (let ex of exportView_emsFormBuilder) {
           if (ex.id_ == el.id) {
             check = true;
             break;
@@ -729,7 +729,7 @@ function handle_change_event_efb(el){
         }
         if (check == true) {
           ob = valueJson_ws.find(x => x.id_ === el.id);
-          for (o of select_options_emsFormBuilder) {
+          for (let o of select_options_emsFormBuilder) {
             value += o + `,`;
           }
         }
@@ -868,12 +868,12 @@ function alarm_emsFormBuilder(val) {
 }
 
  function endMessage_emsFormBuilder_view() {
-  console.log(document.getElementById('prev_efb').className)
+ // console.log(document.getElementById('prev_efb').className)
   let counter = 0;
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
-  for (i = 1; i <= stepMax; i++) {
+  for (let i = 1; i <= stepMax; i++) {
     if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ?  valj_efb[0].corner :'efb-square';
@@ -897,7 +897,7 @@ function alarm_emsFormBuilder(val) {
     // faild form
   } else {
     let checkFile = 0;
-    for (file of files_emsFormBuilder) {
+    for (let file of files_emsFormBuilder) {
       if (files_emsFormBuilder.length > 0 && file.state == 1) {
         checkFile += 1;
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
@@ -927,7 +927,7 @@ function alarm_emsFormBuilder(val) {
       const timeValue = setInterval(function () {
         //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
         let checkFile = 0;
-        for (file of files_emsFormBuilder) {
+        for (let file of files_emsFormBuilder) {
           if (files_emsFormBuilder.length > 0 && file.state == 1) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
@@ -956,7 +956,7 @@ function alarm_emsFormBuilder(val) {
           clearInterval(timeValue);
         }
 
-        console.log(document.getElementById('prev_efb').className)
+        //console.log(document.getElementById('prev_efb').className)
       }, 1500);
     }
     //  Ok form
@@ -975,7 +975,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function actionSendData_emsFormBuilder() {
-  console.log(document.getElementById('prev_efb').className)
+  //console.log(document.getElementById('prev_efb').className)
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length > 1 && valueJson_ws[0].hasOwnProperty('captcha') == true && valueJson_ws[0].captcha == true && typeof grecaptcha == "object" ? grecaptcha.getResponse() : "";
@@ -985,10 +985,10 @@ function actionSendData_emsFormBuilder() {
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
     return;
   }
-  console.log(document.getElementById('prev_efb').className)
+  //console.log(document.getElementById('prev_efb').className)
  //console.log(`url==========>${location.href.split('?')[0]}`,valj_efb);
   jQuery(function ($) {
-    console.log(document.getElementById('prev_efb').className)
+    //console.log(document.getElementById('prev_efb').className)
     form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
     data = {
       action: "get_form_Emsfb",
@@ -1001,7 +1001,7 @@ function actionSendData_emsFormBuilder() {
       nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0]
     };
-    console.log(document.getElementById('prev_efb').className)
+    //console.log(document.getElementById('prev_efb').className)
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
         data = {
@@ -1037,7 +1037,7 @@ function actionSendData_emsFormBuilder() {
 
       
     }
-    console.log(document.getElementById('prev_efb').className)
+    //console.log(document.getElementById('prev_efb').className)
     console.log(data);
     $.ajax({
       type: "POST",
@@ -1055,8 +1055,8 @@ function actionSendData_emsFormBuilder() {
       }
 
     })
-    if(document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
-    if(document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
+    if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
+    if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
   });
 
 
@@ -1335,7 +1335,7 @@ function emsFormBuilder_show_content_message(value, content) {
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
  
 
-  for (c of content) {
+  for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
   }
@@ -1812,7 +1812,7 @@ function Show_recovery_pass_efb() {
 function response_fill_form_efb(res) {
   //pWRedirect
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
-  console.log(document.getElementById('prev_efb').className)
+  //console.log(document.getElementById('prev_efb').className)
   if (res.data.success == true) {
    if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){

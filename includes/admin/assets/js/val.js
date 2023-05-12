@@ -701,7 +701,7 @@ function show_setting_window_efb(idset) {
       <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
       <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
       <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
-      <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+      <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
     </div>`;
       if((i!=-1)&& valj_efb[0].hasOwnProperty("conditions")==true) console.log(`valj_efb[0].hasOwnProperty("conditions")[${valj_efb[0].hasOwnProperty("conditions")}] i[${i}] valj_efb[0].conditions[i].length[${valj_efb[0].conditions[i].condition.length}]`);
       if((i!=-1) && valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].condition.length>1){
@@ -722,7 +722,7 @@ function show_setting_window_efb(idset) {
           <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
           <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
           <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
-          <dic class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+          <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
           </div>`;
 
           //console.log(rows);
@@ -1781,7 +1781,7 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
 // let idset =''
  for (let i =0 ; i< row.length ; i++){
   console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
-  op +=`<option value="${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
+  op +=`<option value="${row[i].id_}"  id="ocsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="oso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="optiontSmartforOptionsEls" data-tag="list_otiones">
  ${op}
@@ -1791,23 +1791,24 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
 
 
 const selectSmartforOptionsEls = (idset ,fid)=>{
-  console.log(idset ,fid);
+  console.error("!!!!!!!!",idset ,fid);
   let c = -1;
   const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
   //test below row
   if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
   //end test row
   if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
-  console.log(n,valj_efb[0].conditions[n].condition, c , typeof c);}
+  console.log("!!!!!!!!",n,valj_efb[0].conditions[n].condition, c , typeof c);}
   if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
  // if (c==-1) return `<!-- efb: conditions not exists -->`
  let row= get_list_name_selecting_field_efb();
- let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+ let op =`<option disabled>${efb_var.text.nothingSelected}</option>`;
 // let idset =''
  
  for (let i =0 ; i< row.length ; i++){
-  //if(c.hasOwnProperty('one')) console.log(`c.one[${c.one}] row[${i}].id_[${row[i].id_}]`)
-  op +=`<option value="${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.hasOwnProperty('one') && c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
+  if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
+  if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.hasOwnProperty('one')[${c.hasOwnProperty('one')}] && c.one[${c.one}] == row[i].id_[${row[i].id_}] c.one == row[i].id_[${c.one == row[i].id_}]` ,c.hasOwnProperty('one') && c.one == row[i].id_)
+  op +=`<option value="${row[i].id_}" id="opsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="sso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="selectSmartforOptionsEls" data-tag="list_selected">
  ${op}

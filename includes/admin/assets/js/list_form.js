@@ -885,7 +885,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 
 
 function fun_ws_show_response(value) {
-  for (v of value) {
+  for (let v of value) {
 
     const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
@@ -1508,7 +1508,7 @@ function fun_set_setting_emsFormBuilder() {
   const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder'];
   let state = true
 
-  for (id of ids) {
+  for (let id of ids) {
 
     if (v(id) === false) {
       state = false;
@@ -1777,13 +1777,13 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
   //let county = 0
-  for (v of value) {
+  for (let v of value) {
   
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
 
-    for (c in content) {
+    for (let c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
@@ -1881,7 +1881,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
   const exp = Array.from(Array(rows.length), () => Array(col_index).fill(efb_var.text.noComment));
 
-  for (e in exp) {
+  for (let e in exp) {
     for (let i = 0; i < col_index; i++) {
       if (rows[e][i] != "null@EFB") exp[e][i] = rows[e][i];
     }
@@ -1960,7 +1960,7 @@ function convert_to_dataset_emsFormBuilder() {
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
-  for (col in rows) {
+  for (let col in rows) {
     if (col != 0) {
       for (let c=0 ; c<rows[col].length ; c++) {
         if (rows[col][c] != 'null@EFB' && rows[col][c] != 'notCount@EFB') {

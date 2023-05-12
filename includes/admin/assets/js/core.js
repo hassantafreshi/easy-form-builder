@@ -595,7 +595,7 @@ function endMessage_emsFormBuilder_view() {
   //console.log('fun endMessage_emsFormBuilder_view')
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
-  for (i = 1; i <= stepMax; i++) {
+  for (let i = 1; i <= stepMax; i++) {
     if (-1 == (sendBack_emsFormBuilder.findIndex(x => x.step == i))) notfilled.push(i);
   }
   let countRequired = 0;
@@ -607,6 +607,8 @@ function endMessage_emsFormBuilder_view() {
       if (-1 == (sendBack_emsFormBuilder.findIndex(x => x.id_ == id))) valueExistsRequired += 1;
     }
   }
+
+ 
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder.length < 1) {
     let str = ""
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
@@ -689,7 +691,7 @@ function valid_file_emsFormBuilder(id) {
   let accept = el.accept.split(",");
 
   if (el.files[0] && el.files[0].size < 15000000) {
-    for (ac of accept) {
+    for (let ac of accept) {
       //validition of type file
       const r = el.files[0].type.indexOf(ac.slice(1, ac.length))
       if (r != -1) check = +1;

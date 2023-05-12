@@ -1874,13 +1874,10 @@ function previewFormEfb(state) {
 
     step_no += 1;
     content += `
-           ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
-           <!-- fieldset1 --> 
-           ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
-           <div id="step-1-efb-msg"></div>
+           ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb--!>'}
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-            ${loading_messge_efb()}                
+            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() : loading_messge_efb()}                
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
@@ -2381,7 +2378,7 @@ fun_offline_Efb = () => {
         const op = document.getElementById(`${value.id_}_options`)
         op.innerHTML = value.value.replaceAll('@efb!', ',');
         const vs = value.value.split('@efb!');
-        for (v of vs) {
+        for (let v of vs) {
           el = document.querySelector(`.efblist  [data-name="${v}"]`)
           if (el) {
             el.className += ` border-info`;
@@ -3051,5 +3048,10 @@ async  function  fetch_json_from_url_efb(url){
 }
 
 
-
+fun_captcha_load_efb = ()=>{
+  return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+            <!-- fieldset1 --> 
+            ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
+            <div id="step-1-efb-msg"></div>`
+ }
 

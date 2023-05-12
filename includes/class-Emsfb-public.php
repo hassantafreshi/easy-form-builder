@@ -623,7 +623,7 @@ class _Public {
 	  public function get_ajax_form_public(){
 		
 		
-		$text_ =["bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
@@ -1265,7 +1265,7 @@ class _Public {
 					error_log(json_encode($valobj));
 					error_log(json_encode($count));
 					$stated=0;
-					$mr=$this->lanText["error403"];
+					$mr=$this->lanText["pleaseMakeSureAllFields"];
 				}
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 
