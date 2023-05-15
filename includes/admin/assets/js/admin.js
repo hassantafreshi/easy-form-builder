@@ -2502,7 +2502,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     //console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
+      id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
       label_position: 'up', el_text_size: 'fs-6', label_text_color: pub_label_text_color_efb, el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
@@ -2566,7 +2566,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     const stepName = efb_var.text[formName_Efb] != undefined ? efb_var.text[formName_Efb].toUpperCase() : efb_var.text.step;
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
-      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
       label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
     });
@@ -2575,7 +2575,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
-      message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
+      message: "", id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
        label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
       label_text_color: pub_label_text_color_efb, label_position: 'up', el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
@@ -2601,7 +2601,7 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
       url = url.replace(/([/])+/g, '@efb@');
       return url;
      }
-    if(typeof tag != "undefined"  &&tag.includes("img")==true){
+    if(typeof tag != "undefined"  && tag.includes("img")==true){
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         sub_value: efb_var.text.sampleDescription,
         src:u(efb_var.images.head)
