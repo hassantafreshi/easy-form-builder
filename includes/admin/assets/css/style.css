@@ -1368,9 +1368,13 @@ img.right_circle-efb {	width: 58%;
    border-radius: .25rem;
 }
 
+.dropZoneEFB input.efb,.dropZoneEFB textarea.efb,.dropZoneEFB select.efb,.dropZoneEFB .seldiv.efb,.dropZoneEFB .select2-choice.efb,.dropZoneEFB .select2-selection--single.efb {	margin: 0px;
+   padding: 0px;
+   background-color: #fafafa!important;
+}
 input.efb,textarea.efb,select.efb,.seldiv.efb,.select2-choice.efb,.select2-selection--single.efb {	margin: 0px;
    padding: 0px;
-   background-color: #fafafa !important;
+   background-color: #fafafa ;
 }
 .sideMenu input.efb,.sideMenu textarea.efb,.sideMenu select.efb,.sideMenu .seldiv.efb,.sideMenu .select2-choice.efb,.sideMenu .select2-selection--single.efb {	background-color: #ffffffc9 !important;
 }
