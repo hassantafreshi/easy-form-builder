@@ -199,7 +199,7 @@ function fun_render_view_efb(val, check) {
     if (form_type_emsFormBuilder == "form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
     document.getElementById("body_efb-title").style.display = "block";
     document.getElementById("efb-final-step").style.display = "none";
-    for (el of document.querySelectorAll('.finish')) {
+    for (let el of document.querySelectorAll('.finish')) {
       el.classList.remove("finish");
       el.classList.remove("active");
       el.classList.contains('first')
@@ -325,10 +325,10 @@ function fun_render_view_efb(val, check) {
   } catch (re) { } finally { }
   return NotValidCount > 0 ? false : true;
 } */
-//function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
+//function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (let i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 function createStepsOfPublic() {
   
-  for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+  for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
     let price = '';
     if (el.type != "submit") {
