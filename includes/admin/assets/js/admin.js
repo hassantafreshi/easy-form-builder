@@ -2586,7 +2586,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  console.log(tag);
+  //console.log(tag);
   if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 
@@ -3216,7 +3216,7 @@ fun_confirm_remove_addon_emsFormBuilder=(val)=>{
  }
 
 function emsFormBuilder_delete(id, type,value) {
-  console.log(id, type,value);
+  //console.log(id, type,value);
   //v2
   let val =id;
   
@@ -3251,7 +3251,7 @@ function emsFormBuilder_delete(id, type,value) {
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
     }else if (type ="condlogic"){
-      console.log(`id[${id}] value[${value}]`);
+      //console.log(`id[${id}] value[${value}]`);
       fun_remove_condition_efb(id , value);
     }
     activeEl_efb = 0;
@@ -3262,13 +3262,13 @@ function emsFormBuilder_delete(id, type,value) {
 }
 
 fun_remove_condition_efb = (no , step_id)=>{
-  console.log(no);
+  //console.log(no);
   document.getElementById(no+"-logics-gs").remove();
  const  step_no = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
- console.log(step_no)
+ //console.log(step_no)
  if(step_no!=-1){
   const no_no = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==no );
-  console.log(no_no);
+  //console.log(no_no);
    if (no_no!=-1){
     if(valj_efb[0].conditions[step_no].condition.length==1){
       valj_efb[0].conditions[step_no].condition[no_no].one ="";
@@ -3276,7 +3276,7 @@ fun_remove_condition_efb = (no , step_id)=>{
     }else{
       valj_efb[0].conditions[step_no].condition.splice(no_no ,1)}
     }
-     console.log(valj_efb[0].conditions[step_no].condition);
+     //console.log(valj_efb[0].conditions[step_no].condition);
  }
 }
 
@@ -3452,7 +3452,7 @@ window.addEventListener("popstate",e=>{
       break;
     case 'show-message':
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      if (v==null) console.error('get[id] not found!');
+      //if (v==null) console.error('get[id] not found!');
       g_page = sanitize_text_efb(getUrlparams.get('form_type'));
       
       efb_var.msg_id =v;
@@ -3469,7 +3469,7 @@ window.addEventListener("popstate",e=>{
     case "edit-form":
       //console.log('edit-form')
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      if (v==null) console.error('get[id] not found!');
+      //if (v==null) console.error('get[id] not found!');
       
       fun_get_form_by_id(Number(v));
       fun_backButton();
@@ -3740,7 +3740,7 @@ add_new_logic_efb = (newId , step_id) =>{
   const row = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
   if (row==-1) return;
   valj_efb[0].conditions[row].condition.push({no:newId, term: 'is',one:"",two:""});
-  console.log(newId , step_id);
+  //console.log(newId , step_id);
       const ones = selectSmartforOptionsEls(newId ,step_id);
       const twos = optionSmartforOptionsEls(newId,step_id , 0);
       const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
@@ -3757,7 +3757,7 @@ add_new_logic_efb = (newId , step_id) =>{
 
   
   for (let el of document.querySelectorAll(`.elEdit`)) {
-    console.log(el.id ,el.dataset);
+    //console.log(el.id ,el.dataset);
     el.addEventListener("change", (e) => { change_el_edit_Efb(el);
     
      })
@@ -3766,27 +3766,27 @@ add_new_logic_efb = (newId , step_id) =>{
        const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
        const no =  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
        const id =  valj_efb[0].conditions[row].condition[no].one;
-       console.log("===============>selectSmartforOptionsEls",  row , no , id,valj_efb[0].conditions[row].condition[no]);
+       //console.log("===============>selectSmartforOptionsEls",  row , no , id,valj_efb[0].conditions[row].condition[no]);
       if(id!=""){
         let v= valj_efb.findIndex(x=>x.id_==id);
-        console.log(`v[${v}]`);
+        //console.log(`v[${v}]`);
         if(v!=-1){
-           console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
+           //console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
            v =sanitize_text_efb(valj_efb[v].name)
-           console.error(v ,el);
+           //console.error(v ,el);
            const op = document.getElementById("opsso-"+id)
            op.seleced="selected"
-           console.log(op,el);
+           //console.log(op,el);
            el.value = op.value;
           }
       }
       el.value
     }else if (el.id =="optiontSmartforOptionsEls"){
-      console.log("===============>optiontSmartforOptionsEls");
+      //console.log("===============>optiontSmartforOptionsEls");
       const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
       const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
       const id =  valj_efb[0].conditions[row].condition[no].two;
-      console.log("===============>optiontSmartforOptionsEls",  row , no , id);
+      //console.log("===============>optiontSmartforOptionsEls",  row , no , id);
       if(id!=""){
         let v= valj_efb.findIndex(x=>x.id_==id);
         
@@ -3794,7 +3794,7 @@ add_new_logic_efb = (newId , step_id) =>{
           v= sanitize_text_efb(valj_efb[v].value);     
           const op = document.getElementById("ocsso-"+id)
           op.seleced="selected"
-          console.log(op,el);
+          //console.log(op,el);
           el.value = op.value;
           
         }
