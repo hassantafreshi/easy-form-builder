@@ -478,7 +478,7 @@ createCardAddoneEfb = (i) => {
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
-  { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
+ // { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
   { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'all payment new', pro: true },
   { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
@@ -1040,13 +1040,13 @@ let change_el_edit_Efb = (el) => {
   let c, color;
   //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
-    console.log( el.id);
+    //console.log( el.id);
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
       if (el.value==null) return  valNotFound_efb()
-    console.log(el.id)
+    //console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1292,7 +1292,7 @@ let change_el_edit_Efb = (el) => {
             clss=false;
           }
           c =  el.classList.contains('active')==true ? true : false
-          console.log(`activ [${c}] clss[${clss}]`);
+          //console.log(`activ [${c}] clss[${clss}]`);
           if(clss==true){
             clss= valj_efb[0].conditions.findIndex(x=>x.id_==postId)
             if(clss!=-1){
@@ -1320,12 +1320,12 @@ let change_el_edit_Efb = (el) => {
           if(c==false || c==0){
             
            for(var i=0 ; i<valj_efb[0].conditions.length ; i++){
-            console.log(i,valj_efb[0].conditions[i].state);
+            //console.log(i,valj_efb[0].conditions[i].state);
             if(valj_efb[0].conditions[i].state==true) c=true;
            }
            if(c!=true) valj_efb[0].logic=false;
           }
-          console.log(el.dataset,valj_efb[0].conditions);  
+          //console.log(el.dataset,valj_efb[0].conditions);  
           break;
       case "valueEl":
         
@@ -1867,7 +1867,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'EditOption':
-          console.log('EditOption',el.dataset)
+          //console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
         
         if (iindx != -1) {
@@ -2100,19 +2100,19 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'selectSmartforOptionsEls':
         indx = valj_efb.findIndex(x=>x.id_ ==el.options[el.selectedIndex].value);
-        console.log(indx ,el.options[el.selectedIndex]);
+        //console.log(indx ,el.options[el.selectedIndex]);
 
          if(indx!=-1){
           const no = el.options[el.selectedIndex].dataset.idset;
           const step = (el.options[el.selectedIndex].dataset.fid);
           const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
-          console.log(n,valj_efb[0].conditions[n])
+          //console.log(n,valj_efb[0].conditions[n])
           if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
           
-          console.log(`step[${step}] n[${n}] no[${no}] c[${c}]`,valj_efb[0].conditions);
+          //console.log(`step[${step}] n[${n}] no[${no}] c[${c}]`,valj_efb[0].conditions);
           if (c!=-1){
             valj_efb[0].conditions[n].condition[c].one = sanitize_text_efb(el.options[el.selectedIndex].value);
-            console.log(valj_efb[0].conditions[c]);
+            //console.log(valj_efb[0].conditions[c]);
             const fid =( el.options[el.selectedIndex].dataset.fid);
             const idset = (el.options[el.selectedIndex].dataset.idset);
             const s_op = sanitize_text_efb(el.options[el.selectedIndex].value);
@@ -2124,14 +2124,14 @@ let change_el_edit_Efb = (el) => {
           break;
         case "optiontSmartforOptionsEls":
           c=-1;
-          console.log(el.options[el.selectedIndex].dataset);
+          //console.log(el.options[el.selectedIndex].dataset);
           const step = (el.options[el.selectedIndex].dataset.idset);
           let no = (el.options[el.selectedIndex].dataset.fid);
           no = no;
           const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
           if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
           if(c!=-1)valj_efb[0].conditions[n].condition[c].two = sanitize_text_efb(el.options[el.selectedIndex].value);
-          console.log(`step[${step}] n[${n}] no[${no}] c[${c}] value[${el.options[el.selectedIndex].value}]`);
+          //console.log(`step[${step}] n[${n}] no[${no}] c[${c}] value[${el.options[el.selectedIndex].value}]`);
         break;
     }
 
@@ -2152,7 +2152,6 @@ function wating_sort_complate_efb(t) {
 }
 
 get_list_name_selecting_field_efb=()=>{
-  console.log('get_list_name_selecting_field_efb');
   let r =[];
   for(let i in valj_efb){
     if(valj_efb[i].type=='multiselect') continue;
@@ -2161,13 +2160,11 @@ get_list_name_selecting_field_efb=()=>{
       r.push({name:valj_efb[i].name, id_:valj_efb[i].id_});
     }
   }
-  console.log(r);
+  //console.log(r);
   return r;
 }
 get_list_name_otions_field_efb=(i_op)=>{
   //i_op parent id  , if i_op ==0 first select;
-
-  console.log('get_list_name_otions_field_efb');
   let r =[];
   if(i_op==0){
     for(let i in valj_efb){
@@ -2179,14 +2176,12 @@ get_list_name_otions_field_efb=(i_op)=>{
       }
     }
   }
-  console.log(`i_op[${i_op}]`);
   for(let i in valj_efb){
     if(valj_efb[i].parent==i_op){
      // console.log(valj_efb[i].name);
       r.push({name:valj_efb[i].value, id_:valj_efb[i].id_});
     }
   }
-  console.log(r);
   return r;
 }
 

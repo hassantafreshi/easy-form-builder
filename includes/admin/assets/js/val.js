@@ -1137,7 +1137,7 @@ function show_setting_window_efb(idset) {
       case "booking":
         break;
       case "steps":
-        console.log(`steps[${idset}]` ,Number(idset)>1);
+        //console.log(`steps[${idset}]` ,Number(idset)>1);
         idset=Number(idset);
         const logic_steps =idset>1? logic_section(idset) :"<!--efb-->";
         body = `
@@ -1666,7 +1666,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     //console.log(tag,tag=="imgRadio");
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
-      console.log(row)
+      //console.log(row)
       if (typeof row == "undefined") r ='<!-efb-->';
       const url = u(row.src);
       r =`
@@ -1755,24 +1755,24 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
   //fid step_ number s_op id of option (one)
   //(0,fid , 0
   let two ="";
-  console.log(idset ,fid , s_op);
+  //console.log(idset ,fid , s_op);
   if(s_op==0 && valj_efb[0].hasOwnProperty('conditions')){
    const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
-   console.log(step_no);
+   //console.log(step_no);
    if (step_no!=-1){
     two= valj_efb[0].conditions[step_no].condition[0].two;
     s_op =  valj_efb[0].conditions[step_no].condition[0].one!=""  ? valj_efb[0].conditions[step_no].condition[0].one : 0;
-    console.log(two , `s_op[${s_op}] one[${valj_efb[0].conditions[step_no].condition[0].two}]`);
+    //console.log(two , `s_op[${s_op}] one[${valj_efb[0].conditions[step_no].condition[0].two}]`);
    }else{
     s_op=0;
    }
   }else if (valj_efb[0].hasOwnProperty('conditions')==true){
     const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
-    console.log(`step_no[${step_no}]`);
+    //console.log(`step_no[${step_no}]`);
     if(step_no!=-1){
       const row = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==idset);
       if (row !=-1) two = valj_efb[0].conditions[step_no].condition[row].two;
-      console.log(`row[${row}]`,two);
+      //console.log(`row[${row}]`,two);
     }
   }
   
@@ -1780,7 +1780,7 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
  let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
 // let idset =''
  for (let i =0 ; i< row.length ; i++){
-  console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
+  //console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
   op +=`<option value="${row[i].id_}"  id="ocsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="oso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="optiontSmartforOptionsEls" data-tag="list_otiones">
@@ -1791,14 +1791,15 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
 
 
 const selectSmartforOptionsEls = (idset ,fid)=>{
-  console.error("!!!!!!!!",idset ,fid);
+  //console.error("!!!!!!!!",idset ,fid);
   let c = -1;
   const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
   //test below row
-  if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
+  //if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
   //end test row
   if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
-  console.log("!!!!!!!!",n,valj_efb[0].conditions[n].condition, c , typeof c);}
+  //console.log("!!!!!!!!",n,valj_efb[0].conditions[n].condition, c , typeof c);
+  }
   if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
  // if (c==-1) return `<!-- efb: conditions not exists -->`
  let row= get_list_name_selecting_field_efb();
@@ -1806,8 +1807,8 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
 // let idset =''
  
  for (let i =0 ; i< row.length ; i++){
-  if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
-  if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.hasOwnProperty('one')[${c.hasOwnProperty('one')}] && c.one[${c.one}] == row[i].id_[${row[i].id_}] c.one == row[i].id_[${c.one == row[i].id_}]` ,c.hasOwnProperty('one') && c.one == row[i].id_)
+  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
+  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.hasOwnProperty('one')[${c.hasOwnProperty('one')}] && c.one[${c.one}] == row[i].id_[${row[i].id_}] c.one == row[i].id_[${c.one == row[i].id_}]` ,c.hasOwnProperty('one') && c.one == row[i].id_)
   op +=`<option value="${row[i].id_}" id="opsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="sso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="selectSmartforOptionsEls" data-tag="list_selected">
@@ -1822,6 +1823,6 @@ fun_translate_check_efb=()=>{
 }
 
 const test=fun_translate_check_efb();
-console.log("test=>",test ,efb_var.wp_lan);
+//console.log("test=>",test ,efb_var.wp_lan);
 
   

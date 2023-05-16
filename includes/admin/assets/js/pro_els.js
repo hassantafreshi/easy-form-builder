@@ -1007,7 +1007,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
 
 
 fun_imgRadio_efb=(id ,link,row)=>{
-  console.log(row);
+  //console.log(row);
   //console.log(id ,link,row);
   //اگر لینک خالی یا نال یا بودن اچ تی تی بود عکس پیش فرض شود
 

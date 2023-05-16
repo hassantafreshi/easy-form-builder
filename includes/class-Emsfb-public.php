@@ -722,8 +722,8 @@ class _Public {
 				}
 				
 				
-				error_log(json_encode($valo));
-				error_log(json_encode($formObj));
+				//error_log(json_encode($valo));
+				//error_log(json_encode($formObj));
 				$mr=$this->lanText["error405"];
 				$stated = 1;
 				$form_condition = '';
@@ -872,15 +872,15 @@ class _Public {
 													$item['sub_value']=$fr['sub_value'];													
 												}
 												if($form_condition=='booking')	{
-													error_log('booking con inside radio');
-													error_log($ki);
-													error_log(json_encode($formObj[$ki]));
-													error_log(wp_date('Y-m-d'));
+													//error_log('booking con inside radio');
+													//error_log($ki);
+													//error_log(json_encode($formObj[$ki]));
+													//error_log(wp_date('Y-m-d'));
 													if(isset($fr['dateExp'])==true){
-														error_log($fr['dateExp']);
+														//error_log($fr['dateExp']);
 
-														error_log(strtotime($fr['dateExp']));
-														error_log(strtotime(wp_date('Y-m-d')));
+														//error_log(strtotime($fr['dateExp']));
+														//error_log(strtotime(wp_date('Y-m-d')));
 														//$fr['dateExp'] ='04-04-2023';
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
 															$stated=0;
@@ -888,7 +888,7 @@ class _Public {
 															$mr =str_replace('XXX', $fr['value'], $mr );
 															
 														}
-														error_log($mr);
+														//error_log($mr);
 														
 													}
 
@@ -898,9 +898,9 @@ class _Public {
 															$mr = $this->lanText["bkFlM"];
 															$mr =str_replace('XXX', $fr['value'], $mr );
 														}else{
-															error_log($formObj[$ki]['registered_count']);
+															//error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
-															error_log($formObj[$ki]['registered_count']);
+															//error_log($formObj[$ki]['registered_count']);
 														}
 													}
 													//if time exists check
@@ -954,8 +954,8 @@ class _Public {
 													$item['price']=$f['price'];
 												}
 												
-												error_log("json_encodef");
-												error_log(json_encode($f));
+												//error_log("json_encodef");
+												//error_log(json_encode($f));
 												if($form_condition=='booking')	{
 													error_log('booking con inside options');
 													error_log($key);
@@ -983,9 +983,9 @@ class _Public {
 															$mr = $this->lanText["bkFlM"];
 															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
-															error_log($formObj[$key]['registered_count']);
+															//error_log($formObj[$key]['registered_count']);
 															$formObj[$key]['registered_count'] =(int) $formObj[$key]['registered_count'] +1;
-															error_log($formObj[$key]['registered_count']);
+															//error_log($formObj[$key]['registered_count']);
 														}
 													}
 													//if time exists check
@@ -1262,8 +1262,6 @@ class _Public {
 				}
 				$count =  count($valobj);
 				if($count==0){
-					error_log(json_encode($valobj));
-					error_log(json_encode($count));
 					$stated=0;
 					$mr=$this->lanText["pleaseMakeSureAllFields"];
 				}
@@ -1276,7 +1274,7 @@ class _Public {
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
-					error_log($mr);
+					//error_log($mr);
 					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$_POST);
 				}
@@ -1291,10 +1289,10 @@ class _Public {
 						//,`form_name` =>
 						$id = sanitize_text_field($_POST['id']);
 						$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
-						error_log("================>inside booking check!");
-						error_log($value);
+						//error_log("================>inside booking check!");
+						//error_log($value);
 						$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
-						error_log(json_encode($r));
+						//error_log(json_encode($r));
 					}
 					
 				

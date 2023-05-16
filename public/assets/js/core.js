@@ -364,7 +364,7 @@ function createStepsOfPublic() {
         
         //778899
         // e.preventDefault();
-        console.log(el);
+        //console.log(el);
         handle_change_event_efb(el);
 
       });//end function change event
@@ -538,7 +538,7 @@ function handle_change_event_efb(el){
     }
     let vd ;
     if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
-      console.log('booking');
+      //console.log('booking');
       const r = fun_booking_avilable(el)
       if(r[0]==false){
         alert_message_efb(r[1],'',150,'danger')
@@ -546,7 +546,7 @@ function handle_change_event_efb(el){
         return
       }
     }
-    console.log(el.type);
+    //console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
@@ -616,7 +616,7 @@ function handle_change_event_efb(el){
       case "radio":
         
         value = sanitize_text_efb(el.value);
-        console.log(el.checked , el , sendBack_emsFormBuilder_pub)
+        //console.log(el.checked , el , sendBack_emsFormBuilder_pub)
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
         if (el.value.length > 1 || el.checked == true) {
@@ -1038,14 +1038,14 @@ function actionSendData_emsFormBuilder() {
       
     }
     //console.log(document.getElementById('prev_efb').className)
-    console.log(data);
+    //console.log(data);
     $.ajax({
       type: "POST",
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-        console.log(res);
+        //console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1989,7 +1989,7 @@ window.addEventListener("popstate",e=>{
 
 
  fun_gets_url_efb =()=>{
-   if(efb_var.pro!=true){console.dirxml(`${efb_var.text.fieldAvailableInProversion}`);return;}
+   if(efb_var.pro!=true){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
    //iefb --> id 
    //hefb --> hidden of element f==show / null or t === hidden
    //sefb --> selected  t = selected / f=unselected / null == selected
