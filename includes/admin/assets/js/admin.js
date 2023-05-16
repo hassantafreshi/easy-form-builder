@@ -893,7 +893,7 @@ switch_color_efb = (color) => {
     case '#202a8d': c = "darkb"; break;
     case '#898aa9': c = "labelEfb"; break;
     case '#ff4b93': c = "pinkEfb"; break;
-    case '#ffff': c = "white"; break;
+    case '#ffffff': c = "white"; break;
     case '#212529': c = "dark"; break;
     case '#777777': c = "muted "; break;
     default: c = "colorDEfb-" + color.slice(1);
@@ -924,7 +924,7 @@ ColorNameToHexEfbOfElEfb = (v, i, n) => {
     case "labelEfb": r = '#898aa9'; break;
     case "d": r = '#83859f'; break;
     case "pinkEfb": r = '#ff4b93'; break;
-    case "white": r = '#ffff'; break;
+    case "white": r = '#ffffff'; break;
     case "dark": r = '#212529'; break;
     case "muted": r = '#777777'; break;
     case "muted": r = '#777777'; break;

@@ -1380,7 +1380,7 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    
+    //console.log(body);
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
     for (const el of document.querySelectorAll(`.elEdit`)) {      
