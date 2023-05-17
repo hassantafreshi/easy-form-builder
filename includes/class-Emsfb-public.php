@@ -349,16 +349,17 @@ class _Public {
 			 }
 		 }	
 		 $efb_m= $pro==true ||$this->pro_efb==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
-		 if($formObj[0]["stateForm"]==true){
+		 if($formObj[0]["stateForm"]==true ){
 
 			
-			$content ="<div id='body_efb' class='efb card card-public row pb-3 efb px-2'> <div class='efb text-center my-5'>
-			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-5'>". $lanText["formPrivateM"]."</h3>
+			$content ="<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
+			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
 			</div> </div>";
+			return $content; 
 		 }else{
 
-			 $content="<div id='body_efb' class='efb card card-public row pb-3 efb px-2'>
+			 $content="<div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
 			 <div class='efb lds-hourglass efb text-center my-2' style='display:inline-block'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
 			 ".$efb_m."
@@ -370,9 +371,7 @@ class _Public {
 		 }
 
 		
-		return $content; 
-		die();
-		// 
+		return $content;
 	}
 
 

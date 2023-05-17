@@ -912,6 +912,7 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
+		error_log("=============================================");
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
@@ -1049,7 +1050,7 @@ class efbFunction {
 						//$valp[$key][$k]=$v;
 						$valp[$key][$k]=$v;
 					break;
-					default:		
+					default:
 					$valp[$key][$k]=sanitize_text_field($v);
 					
 					break;

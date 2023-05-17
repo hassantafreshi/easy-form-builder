@@ -638,24 +638,27 @@ function show_setting_window_efb(idset) {
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoniconEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#202a8d" ;
+        color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
         //console.log(color.slice(5));
         t = efb_var.text.icon
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
       }
       else if (forEl == "clrdoneMessageEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#202a8d";
+        color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
         //console.log(color.slice(5));
         t = efb_var.text.message
         cls="tnxmsg";
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoneTitleEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#202a8d";
-        //console.log(color.slice(5));
+        color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
+         console.log(color);
         t = efb_var.text.title
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
       }
       addColorTolistEfb(hex);
@@ -1227,9 +1230,9 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
           ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
-        <!--  ${selectColorEls('clrdoneTitleEfb','text')}
+          ${selectColorEls('clrdoneTitleEfb','text')}
           ${selectColorEls('clrdoniconEfb','text')}
-          ${selectColorEls('clrdoneMessageEfb','text')} -->
+          ${selectColorEls('clrdoneMessageEfb','text')}
           ${thankYouredirectEls}
          <!-- ${content_colors_setting_efb()} -->
           </div>

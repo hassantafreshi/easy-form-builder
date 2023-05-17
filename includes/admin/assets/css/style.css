@@ -65,7 +65,7 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
    margin-top: -100px;
 }
 
-#wpwrap h1.efb {	color: #202a8d !important;
+#wpwrap h1.efb {	color: #202a8d ;
    font-weight: 600 !important;
    /*display: inline-block;
    */}
