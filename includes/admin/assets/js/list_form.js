@@ -2109,13 +2109,14 @@ function clickToCheckEmailServer() {
       };
 
       $.post(ajax_object_efm.ajax_url, data, function (res) {
-
+        const el= document.getElementById("hostSupportSmtp_emsFormBuilder");
         if (res.data.success == true) {
           alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+         if(el.classList.contains('active')==false) el.classList.add('active') ;
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
-          document.getElementById("hostSupportSmtp_emsFormBuilder").classList.remove('active') ;
+          el.classList.remove('active') ;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
         document.getElementById('clickToCheckEmailServer').classList.remove('disabled')

@@ -234,7 +234,7 @@ function emsFormBuilder_nevButton_view(n) {
     document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
     document.getElementById("emsFormBuilder-form-view-title").style.display = "block";
     document.getElementById("emsFormBuilder-text-message-view").style.display = "none";
-    for (el of document.querySelectorAll('.finish')) {
+    for (let el of document.querySelectorAll('.finish')) {
       el.classList.remove("finish");
       el.classList.remove("active");
       el.classList.contains('first')

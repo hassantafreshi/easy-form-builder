@@ -75,7 +75,7 @@ a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
       */}
       
 #wpwrap h3.efb , .modal-content .h3.efb {	font-size: 25px !important;
-   color: #a2b0d5!important;
+   color: #a2b0d5;
    /*display: inline-block;
    */}
 div#optionListefb {	max-height: 280px;
