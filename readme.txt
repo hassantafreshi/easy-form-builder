@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.5.28
+Stable tag: 			3.5.30
 Requires at least: 	      4.7
-Tested up to: 			6.2
+Tested up to: 			6.2.1
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -364,6 +364,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+=3.5.30=
+* Fixed issues of UI Easy Form Builder
+
+* Fixed issues
 
 =3.5.28=
 * Added new feature image picker field to form builder

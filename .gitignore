@@ -18,5 +18,11 @@ vendor/stripe/stripe-php/.gitignore
 vendor/stripe/stripe-php/.editorconfig
 vendor/stripe/stripe-php/.coveralls.github-actions.yml
 easy-form-builder.zip
+vendor/logic/*
 temp/*
 vendor-backup/*
+vendor/*.git
+vendor/.git
+vendor/.git/*
+vendor/.vscode
+vendor/.vscode/*

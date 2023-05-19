@@ -124,6 +124,11 @@ function fun_render_view_efb(val, check) {
   state_efb = "run";
   previewFormEfb('run');
   
+  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
+    stack_steps_efb.push(1);
+    logic_ui_forms_efb();
+  }
+
   if(form_type_emsFormBuilder=="payment"){
     setTimeout(() => {    
       fun_total_pay_efb()
@@ -194,7 +199,7 @@ function fun_render_view_efb(val, check) {
     if (form_type_emsFormBuilder == "form") document.getElementById("emsFormBuilder-all-steps-view").style.display = "";
     document.getElementById("body_efb-title").style.display = "block";
     document.getElementById("efb-final-step").style.display = "none";
-    for (el of document.querySelectorAll('.finish')) {
+    for (let el of document.querySelectorAll('.finish')) {
       el.classList.remove("finish");
       el.classList.remove("active");
       el.classList.contains('first')
@@ -320,10 +325,10 @@ function fun_render_view_efb(val, check) {
   } catch (re) { } finally { }
   return NotValidCount > 0 ? false : true;
 } */
-//function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
+//function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClassName("emsFormBuilder-step-view"); for (let i = 0; i < x.length; i++) { x[i].className = x[i].className.replace(" active", ""); } x[n].className += " active"; }
 function createStepsOfPublic() {
   
-  for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+  for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     //validate change
     let price = '';
     if (el.type != "submit") {
@@ -359,7 +364,7 @@ function createStepsOfPublic() {
         
         //778899
         // e.preventDefault();
-        console.log(el);
+        //console.log(el);
         handle_change_event_efb(el);
 
       });//end function change event
@@ -533,7 +538,7 @@ function handle_change_event_efb(el){
     }
     let vd ;
     if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
-      console.log('booking');
+      //console.log('booking');
       const r = fun_booking_avilable(el)
       if(r[0]==false){
         alert_message_efb(r[1],'',150,'danger')
@@ -541,6 +546,7 @@ function handle_change_event_efb(el){
         return
       }
     }
+    //console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
@@ -610,7 +616,7 @@ function handle_change_event_efb(el){
       case "radio":
         
         value = sanitize_text_efb(el.value);
-        console.log(el.checked , el , sendBack_emsFormBuilder_pub)
+        //console.log(el.checked , el , sendBack_emsFormBuilder_pub)
         if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
         vd =document.getElementById(`${ob.id_}_-message`)
         if (el.value.length > 1 || el.checked == true) {
@@ -630,9 +636,10 @@ function handle_change_event_efb(el){
           if(indx!=-1) {
             sendBack_emsFormBuilder_pub.splice(indx,1);
             if(ob.type=="payCheckbox") fun_total_pay_efb();
-            
+            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
             return ;
           }
+         
          }
 
          const indx =valj_efb.findIndex(x=>x.id_ ==el.name);
@@ -655,7 +662,7 @@ function handle_change_event_efb(el){
           document.getElementById(id).value ="";
          }
 
-         
+         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
         break;
       case "select-one":
       case "select":
@@ -671,6 +678,7 @@ function handle_change_event_efb(el){
           
           if (typeof v.price == "string") price_efb = v.price;
         }
+        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
         break;
       case "range":
           value = sanitize_text_efb(el.value);
@@ -713,7 +721,7 @@ function handle_change_event_efb(el){
       case undefined:
         //select_options_emsFormBuilder            
         let check = false;
-        for (ex of exportView_emsFormBuilder) {
+        for (let ex of exportView_emsFormBuilder) {
           if (ex.id_ == el.id) {
             check = true;
             break;
@@ -721,7 +729,7 @@ function handle_change_event_efb(el){
         }
         if (check == true) {
           ob = valueJson_ws.find(x => x.id_ === el.id);
-          for (o of select_options_emsFormBuilder) {
+          for (let o of select_options_emsFormBuilder) {
             value += o + `,`;
           }
         }
@@ -860,10 +868,12 @@ function alarm_emsFormBuilder(val) {
 }
 
  function endMessage_emsFormBuilder_view() {
+ // console.log(document.getElementById('prev_efb').className)
   let counter = 0;
+  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
-  for (i = 1; i <= stepMax; i++) {
+  for (let i = 1; i <= stepMax; i++) {
     if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ?  valj_efb[0].corner :'efb-square';
@@ -882,18 +892,18 @@ function alarm_emsFormBuilder(val) {
     let str = ""
     currentTab_emsFormBuilder = 0;
     document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="efb mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
-    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
 
     // faild form
   } else {
     let checkFile = 0;
-    for (file of files_emsFormBuilder) {
+    for (let file of files_emsFormBuilder) {
       if (files_emsFormBuilder.length > 0 && file.state == 1) {
         checkFile += 1;
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
         checkFile = -100;
         document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb font-weight-bold">File Error</h3> <span class="efb font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-         <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+         <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
         return;
 
       }
@@ -917,13 +927,13 @@ function alarm_emsFormBuilder(val) {
       const timeValue = setInterval(function () {
         //بررسی می کند همه فایل ها آپلود شده اند یا نه اگر آپلود شده باشند دیگه اجرا نمی شود و فایل ها اضافه می  شوند
         let checkFile = 0;
-        for (file of files_emsFormBuilder) {
+        for (let file of files_emsFormBuilder) {
           if (files_emsFormBuilder.length > 0 && file.state == 1) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             checkFile = -100;
             document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4">File Error</h3> <span class="efb fs-6">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
-               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
             return;
 
           }
@@ -945,6 +955,8 @@ function alarm_emsFormBuilder(val) {
           } */
           clearInterval(timeValue);
         }
+
+        //console.log(document.getElementById('prev_efb').className)
       }, 1500);
     }
     //  Ok form
@@ -963,6 +975,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function actionSendData_emsFormBuilder() {
+  //console.log(document.getElementById('prev_efb').className)
   if (ajax_object_efm.type == "userIsLogin") return 0;
   if (form_type_emsFormBuilder != 'login') localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
   recaptcha_emsFormBuilder = valueJson_ws.length > 1 && valueJson_ws[0].hasOwnProperty('captcha') == true && valueJson_ws[0].captcha == true && typeof grecaptcha == "object" ? grecaptcha.getResponse() : "";
@@ -972,9 +985,10 @@ function actionSendData_emsFormBuilder() {
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
     return;
   }
-  
+  //console.log(document.getElementById('prev_efb').className)
  //console.log(`url==========>${location.href.split('?')[0]}`,valj_efb);
   jQuery(function ($) {
+    //console.log(document.getElementById('prev_efb').className)
     form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
     data = {
       action: "get_form_Emsfb",
@@ -987,6 +1001,7 @@ function actionSendData_emsFormBuilder() {
       nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0]
     };
+    //console.log(document.getElementById('prev_efb').className)
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
         data = {
@@ -1022,14 +1037,15 @@ function actionSendData_emsFormBuilder() {
 
       
     }
-    console.log(data);
+    //console.log(document.getElementById('prev_efb').className)
+    //console.log(data);
     $.ajax({
       type: "POST",
       async: false,
       url: ajax_object_efm.ajax_url,
       data: data,
       success: function (res) {
-        console.log(res);
+        //console.log(res);
         response_fill_form_efb(res)
         //localStorage.removeItem('PayId');
       },
@@ -1039,7 +1055,8 @@ function actionSendData_emsFormBuilder() {
       }
 
     })
-
+    if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
+    if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
   });
 
 
@@ -1318,7 +1335,7 @@ function emsFormBuilder_show_content_message(value, content) {
   let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
  
 
-  for (c of content) {
+  for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
   }
@@ -1641,6 +1658,7 @@ function fun_show_alert_setting_emsFormBuilder() {
 
 function validation_before_send_emsFormBuilder() {
   //console.log( localStorage.getItem('sendback'),sendBack_emsFormBuilder_pub)
+  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const count = [0, 0]
   let fill = 0;
   let require = 0;
@@ -1709,9 +1727,9 @@ function validation_before_send_emsFormBuilder() {
 
   }
   require = require > fill ? 1 : 0;
-  if ((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) {
+  if (((count[1] == 0 && count[0] != 0) || (count[0] == 0 && count[1] == 0) || require == 1) && ( (valj_efb[0].hasOwnProperty("logic")== true || valj_efb[0].hasOwnProperty("logic")==false) && valj_efb.logic==false )) {
     document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center fs-2 efb"></i></h1><h3 class="efb fs-3 efb text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 fs-5 efb text-muted"> ${require != 1 ? ajax_object_efm.text.PleaseFillForm : ajax_object_efm.text.pleaseFillInRequiredFields} </br></span>
-     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
     //console.log(`sendBack_emsFormBuilder_pub`,sendBack_emsFormBuilder_pub)
     for (const v of valueJson_ws) {
@@ -1793,7 +1811,8 @@ function Show_recovery_pass_efb() {
 
 function response_fill_form_efb(res) {
   //pWRedirect
-  
+  const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
+  //console.log(document.getElementById('prev_efb').className)
   if (res.data.success == true) {
    if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
@@ -1853,7 +1872,7 @@ function response_fill_form_efb(res) {
   } else {
 
     if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
-    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
+    <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     }else{
       alert_message_efb(res.data.m,'',14,'warning');
     }
@@ -1970,7 +1989,7 @@ window.addEventListener("popstate",e=>{
 
 
  fun_gets_url_efb =()=>{
-   if(efb_var.pro!=true){console.dirxml(`${efb_var.text.fieldAvailableInProversion}`);return;}
+   if(efb_var.pro!=true){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
    //iefb --> id 
    //hefb --> hidden of element f==show / null or t === hidden
    //sefb --> selected  t = selected / f=unselected / null == selected

@@ -662,13 +662,14 @@ class efbFunction {
 			"idmu" => $state  &&  isset($ac->text->idmu) ? $ac->text->idmu : __('The ID value must be unique, as it is already being used in this field. please try a new, unique value.','easy-form-builder'),				
 			"imgRadio" => $state  &&  isset($ac->text->imgRadio) ? $ac->text->imgRadio : __('Image picker','easy-form-builder'),				
 			"iimgurl" => $state  &&  isset($ac->text->iimgurl) ? $ac->text->iimgurl : __('Insert an image url','easy-form-builder'),				
-			"newbkForm" => $state ? $ac->text->newbkForm : __('New Booking Form','easy-form-builder'),
+			"newbkForm" => $state &&  isset($ac->text->newbkForm)? $ac->text->newbkForm : __('New Booking Form','easy-form-builder'),
 			"bkXpM" => $state  &&  isset($ac->text->bkXpM) ? $ac->text->bkXpM : __('We are sorry, the booking time for the XXX option has expired. Please choose from the other available options.','easy-form-builder'),				
 			"bkFlM" => $state  &&  isset($ac->text->bkFlM) ? $ac->text->bkFlM : __('We are sorry, the XXX option is currently at full capacity. Please choose from the other available options.','easy-form-builder'),				
 			"AdnSMF" => $state  &&  isset($ac->text->AdnSMF) ? $ac->text->AdnSMF : __('Conditional logic Addon','easy-form-builder'),
 			"condATAddon" => $state  &&  isset($ac->text->condATAddon) ? $ac->text->condATAddon : __('Conditional logic Addon','easy-form-builder'),
 			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : __('The Conditional Logic Addon enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users unique needs.','easy-form-builder'),			
-			"condADAddon" => $state  &&  isset($ac->text->condADAddon) ? $ac->text->condADAddon : __('Enable Conditional','easy-form-builder'),
+			//"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : __('Conditional logic','easy-form-builder'),
+			"condlogic" => $state  &&  isset($ac->text->condlogic) ? $ac->text->condlogic : __('Enable Conditional','easy-form-builder'),
 			"enableCon" => $state  &&  isset($ac->text->enableCon) ? $ac->text->enableCon : __('Enable Conditional','easy-form-builder'),
 			"show" => $state  &&  isset($ac->text->show) ? $ac->text->show : __('Show','easy-form-builder'),
 			"hide" => $state  &&  isset($ac->text->hide) ? $ac->text->hide : __('Hide','easy-form-builder'),
@@ -912,11 +913,10 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
+		//error_log("=============================================");
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
-				//error_log($k);
-				//error_log(json_encode($v));
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
@@ -1047,8 +1047,13 @@ class efbFunction {
 							$valp[$key]["option"] = $valp[$key][$k];
 						}
 					break;
-					default:					
+					case 'conditions':
+						//$valp[$key][$k]=$v;
+						$valp[$key][$k]=$v;
+					break;
+					default:
 					$valp[$key][$k]=sanitize_text_field($v);
+					
 					break;
 				}
 			}

@@ -230,8 +230,13 @@ class _Public {
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
 			wp_enqueue_script('intlTelInput-js');
 
-			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.28');
+			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.5.30');
 			wp_enqueue_style('intlTelInput-css');
+		}
+
+		if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
+			wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
+			wp_enqueue_script('logic-efb');
 		}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
@@ -344,16 +349,17 @@ class _Public {
 			 }
 		 }	
 		 $efb_m= $pro==true ||$this->pro_efb==true ? "" :"<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
-		 if($formObj[0]["stateForm"]==true){
+		 if($formObj[0]["stateForm"]==true ){
 
 			
-			$content ="<div id='body_efb' class='efb card card-public row pb-3 efb px-2'> <div class='efb text-center my-5'>
-			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-5'>". $lanText["formPrivateM"]."</h3>
+			$content ="<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
+			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
 			</div> </div>";
+			return $content; 
 		 }else{
 
-			 $content="<div id='body_efb' class='efb card card-public row pb-3 efb px-2'>
+			 $content="<div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
 			 <div class='efb lds-hourglass efb text-center my-2' style='display:inline-block'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
 			 ".$efb_m."
@@ -365,9 +371,7 @@ class _Public {
 		 }
 
 		
-		return $content; 
-		die();
-		// 
+		return $content;
 	}
 
 
@@ -618,7 +622,7 @@ class _Public {
 	  public function get_ajax_form_public(){
 		
 		
-		$text_ =["bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
 		$efbFunction = new efbFunction() ;
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$this->id = sanitize_text_field($_POST['id']);
@@ -717,8 +721,8 @@ class _Public {
 				}
 				
 				
-				error_log(json_encode($valo));
-				error_log(json_encode($formObj));
+				//error_log(json_encode($valo));
+				//error_log(json_encode($formObj));
 				$mr=$this->lanText["error405"];
 				$stated = 1;
 				$form_condition = '';
@@ -867,15 +871,15 @@ class _Public {
 													$item['sub_value']=$fr['sub_value'];													
 												}
 												if($form_condition=='booking')	{
-													error_log('booking con inside radio');
-													error_log($ki);
-													error_log(json_encode($formObj[$ki]));
-													error_log(wp_date('Y-m-d'));
+													//error_log('booking con inside radio');
+													//error_log($ki);
+													//error_log(json_encode($formObj[$ki]));
+													//error_log(wp_date('Y-m-d'));
 													if(isset($fr['dateExp'])==true){
-														error_log($fr['dateExp']);
+														//error_log($fr['dateExp']);
 
-														error_log(strtotime($fr['dateExp']));
-														error_log(strtotime(wp_date('Y-m-d')));
+														//error_log(strtotime($fr['dateExp']));
+														//error_log(strtotime(wp_date('Y-m-d')));
 														//$fr['dateExp'] ='04-04-2023';
 														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
 															$stated=0;
@@ -883,7 +887,7 @@ class _Public {
 															$mr =str_replace('XXX', $fr['value'], $mr );
 															
 														}
-														error_log($mr);
+														//error_log($mr);
 														
 													}
 
@@ -893,9 +897,9 @@ class _Public {
 															$mr = $this->lanText["bkFlM"];
 															$mr =str_replace('XXX', $fr['value'], $mr );
 														}else{
-															error_log($formObj[$ki]['registered_count']);
+															//error_log($formObj[$ki]['registered_count']);
 															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
-															error_log($formObj[$ki]['registered_count']);
+															//error_log($formObj[$ki]['registered_count']);
 														}
 													}
 													//if time exists check
@@ -949,8 +953,8 @@ class _Public {
 													$item['price']=$f['price'];
 												}
 												
-												error_log("json_encodef");
-												error_log(json_encode($f));
+												//error_log("json_encodef");
+												//error_log(json_encode($f));
 												if($form_condition=='booking')	{
 													error_log('booking con inside options');
 													error_log($key);
@@ -978,9 +982,9 @@ class _Public {
 															$mr = $this->lanText["bkFlM"];
 															$mr =str_replace('XXX', $f['value'], $mr );
 														}else{
-															error_log($formObj[$key]['registered_count']);
+															//error_log($formObj[$key]['registered_count']);
 															$formObj[$key]['registered_count'] =(int) $formObj[$key]['registered_count'] +1;
-															error_log($formObj[$key]['registered_count']);
+															//error_log($formObj[$key]['registered_count']);
 														}
 													}
 													//if time exists check
@@ -1255,6 +1259,11 @@ class _Public {
 				
 					
 				}
+				$count =  count($valobj);
+				if($count==0){
+					$stated=0;
+					$mr=$this->lanText["pleaseMakeSureAllFields"];
+				}
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 
 				
@@ -1264,7 +1273,7 @@ class _Public {
 				$this->id = $type=="payment" ? sanitize_text_field($_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
 				if($stated==0){
-					error_log($mr);
+					//error_log($mr);
 					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$_POST);
 				}
@@ -1279,10 +1288,10 @@ class _Public {
 						//,`form_name` =>
 						$id = sanitize_text_field($_POST['id']);
 						$value =json_encode($formObj,JSON_UNESCAPED_UNICODE);
-						error_log("================>inside booking check!");
-						error_log($value);
+						//error_log("================>inside booking check!");
+						//error_log($value);
 						$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
-						error_log(json_encode($r));
+						//error_log(json_encode($r));
 					}
 					
 				

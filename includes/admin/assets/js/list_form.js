@@ -885,7 +885,7 @@ function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, tra
 
 
 function fun_ws_show_response(value) {
-  for (v of value) {
+  for (let v of value) {
 
     const content = v.content ? JSON.parse(v.content.replace(/[\\]/g, '')) : { name: 'Message', value: 'message not exists' }
     fun_emsFormBuilder__add_a_response_to_messages(content, v.rsp_by, v.ip, 0, v.date);
@@ -1508,7 +1508,7 @@ function fun_set_setting_emsFormBuilder() {
   const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder'];
   let state = true
 
-  for (id of ids) {
+  for (let id of ids) {
 
     if (v(id) === false) {
       state = false;
@@ -1777,13 +1777,13 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     }
   }
   //let county = 0
-  for (v of value) {
+  for (let v of value) {
   
     const content = JSON.parse(replaceContentMessageEfb(v.content))
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
 
-    for (c in content) {
+    for (let c in content) {
       // rows = Object.assign(rows, {[c.name]:c.value});
       let value_col_index;
       if(content[c]!=null && content[c].hasOwnProperty('id_') && content[c].id_.length>1){
@@ -1881,7 +1881,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
   const exp = Array.from(Array(rows.length), () => Array(col_index).fill(efb_var.text.noComment));
 
-  for (e in exp) {
+  for (let e in exp) {
     for (let i = 0; i < col_index; i++) {
       if (rows[e][i] != "null@EFB") exp[e][i] = rows[e][i];
     }
@@ -1960,7 +1960,7 @@ function convert_to_dataset_emsFormBuilder() {
   let countEnrty = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let entry = Array.from(Array(rows[0].length), () => Array(0).fill(0));
   let titleTable = []; // list name of tables and thier titles
-  for (col in rows) {
+  for (let col in rows) {
     if (col != 0) {
       for (let c=0 ; c<rows[col].length ; c++) {
         if (rows[col][c] != 'null@EFB' && rows[col][c] != 'notCount@EFB') {
@@ -2109,13 +2109,14 @@ function clickToCheckEmailServer() {
       };
 
       $.post(ajax_object_efm.ajax_url, data, function (res) {
-
+        const el= document.getElementById("hostSupportSmtp_emsFormBuilder");
         if (res.data.success == true) {
           alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+         if(el.classList.contains('active')==false) el.classList.add('active') ;
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
-          document.getElementById("hostSupportSmtp_emsFormBuilder").classList.remove('active') ;
+          el.classList.remove('active') ;
         }
         document.getElementById('clickToCheckEmailServer').innerHTML = nnrhtml
         document.getElementById('clickToCheckEmailServer').classList.remove('disabled')
@@ -2263,7 +2264,7 @@ function funNproEmailTemp() {
   
   return `<table role='presentation' bgcolor='#F5F8FA' width='100%'>
   <a type="button" onclick="pro_show_efb(1)" class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="This field available in Pro version" data-original-title="This field available in Pro version"><i class="efb  bi-gem text-light"></i></a>
-  <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon.svg?rev=2618751" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
+  <tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'><a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src="https://ps.w.org/easy-form-builder/assets/icon-256x256.gif" style="margin: 5px; width:16px;height:16px" >  ${efb_var.text.easyFormBuilder}</a> 
  <br> <img src="${ws}img/favicon.png" style="margin: 5px"> <a class='efb subtle-link' target='_blank' href='${ws}'>White Studio Team</a></td></tr>`
 }
 

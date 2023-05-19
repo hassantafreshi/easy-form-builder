@@ -638,24 +638,27 @@ function show_setting_window_efb(idset) {
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoniconEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#202a8d" ;
+        color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
         //console.log(color.slice(5));
         t = efb_var.text.icon
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
       }
       else if (forEl == "clrdoneMessageEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#202a8d";
+        color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
         //console.log(color.slice(5));
         t = efb_var.text.message
         cls="tnxmsg";
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
       }
       else if (forEl == "clrdoneTitleEfb") {
-        color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#202a8d";
-        //console.log(color.slice(5));
+        color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
+         console.log(color);
         t = efb_var.text.title
-        if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+        hex = color;
+        if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
       }
       addColorTolistEfb(hex);
@@ -671,6 +674,109 @@ function show_setting_window_efb(idset) {
     <label for="labelEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.minSelect}</label>
     <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.minSelect}" id="selectMultiSelectMinEl"  value="${valj_efb[indx].minSelect ? valj_efb[indx].minSelect : '0'}" >`
   
+
+
+    
+    const logic_section = (fid)=>{
+      let state =false ;
+      let visible_=true ;
+      let i = 0;
+      if (valj_efb[0].hasOwnProperty('logic')==true || valj_efb[0].logic==true){
+        i = valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+       if(i!=-1){
+        state =valj_efb[0].conditions[i].state;
+       }
+       console.log(i);
+      }
+      if(valj_efb[0].hasOwnProperty("conditions")==true && i!=-1 &&valj_efb[0].conditions[i].show==false )visible_=false;
+      if(valj_efb[0].hasOwnProperty("conditions")==true){
+        console.log(valj_efb[0].conditions[0]);
+      }
+      console.log(visible_);
+      const rndm_no = Math.random().toString(36).substr(2, 9);
+      const ones = selectSmartforOptionsEls(0 ,fid);
+      const twos = optionSmartforOptionsEls(0,fid , 0);
+      const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+      const del_btn =`
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete(0,'condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      `
+      let rows = ` <div class="efb mx-0 col-sm-12 row opt" id="0-logics-gs"> 
+      <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+      <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+      <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+      <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+    </div>`;
+      if((i!=-1)&& valj_efb[0].hasOwnProperty("conditions")==true) console.log(`valj_efb[0].hasOwnProperty("conditions")[${valj_efb[0].hasOwnProperty("conditions")}] i[${i}] valj_efb[0].conditions[i].length[${valj_efb[0].conditions[i].condition.length}]`);
+      if((i!=-1) && valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].condition.length>1){
+        console.log('run loop!');
+        for(let v=1 ; v<valj_efb[0].conditions[i].condition.length ; v++){
+          console.log(valj_efb[0].conditions[i].condition[v]);
+          let fid = valj_efb[0].conditions[i].id_
+          let row_id = valj_efb[0].conditions[i].condition[v].no;
+          let one = valj_efb[0].conditions[i].condition[v].one !="" ? valj_efb[0].conditions[i].condition[v].one :0;
+          console.log(one , fid , row_id);
+          const ones = selectSmartforOptionsEls(row_id ,fid);
+          const twos = optionSmartforOptionsEls(row_id,fid , one);
+          const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+          const del_btn =`
+          <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${row_id}','condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+          `
+           rows += ` <div class="efb mx-0 col-sm-12 row opt" id="${row_id}-logics-gs"> 
+          <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+          <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+          <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+          <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+          </div>`;
+
+          //console.log(rows);
+        }
+      }
+       //778899
+      /* این تابع برای گرفتن لیست المان ها برای موراد شرطی استفاده شود */
+      const  visible = state==false ? 'd-none' :'d-block';    
+      const actv = state==false ? '' :'active';
+      return `
+      <div class="efb  d-grid gap-2">
+        <button class="efb btn btn-outline-light mt-3" id="logic_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
+        <i class="efb  bi-arrow-down-circle-fill me-1" id="logic_collapse_icon"></i>${efb_var.text.condlogic}
+        </button>
+      </div>
+            <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
+              <div class="efb  mb-3 px-3 row">   
+                <div class="efb mx-1 my-3 efb">    
+                  <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-d-efb  btn-toggle ${actv}" data-toggle="button" aria-pressed="${state}" autocomplete="off" data-id="formSet" data-setid="${fid}" onclick="fun_switch_form_efb(this)">       
+                  <div class="efb handle" ></div>
+                    </button>
+                    <label class="efb" for="enableConEl">${efb_var.text.enableCon}</label>                                            
+                  </div>
+                
+                  <div class="efb ${visible}" id="logic_options">
+                   <!--- new test-->
+                   <div class="efb my-2 mx-0  def col-md-12 row col-sm-12 showBtns efbField " >
+
+                              <div class="efb  col-sm-12 col-md-3 efb  px-0 mx-0">
+                                <select class="efb elEdit px-2 form-select efb emsFormBuilder_v h-d-efb efb-square border-d  w-100 border-d efb-rounded" data-op="${fid}" data-id="condElSH" id="condElSH" >      
+                                  <option value="show" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb"  ${visible_==true?'selected':''}>${efb_var.text.show}</option>
+                                <!--  <option value="hide" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb " ${visible_==false ?'selected':''}>${efb_var.text.hide}</option>       -->
+                                </select>        
+                              </div>
+                                <label for="condElSH" class="efb mx-2 px-0 col-md-5 col-sm-12 col-form-label fs-6 " >${efb_var.text.tfif}</label>
+                                <div class="efb mx-0 px-0 col-md-2" >
+                                  <button type="button" id="addOption" onclick="add_new_logic_efb('${rndm_no}','${fid}')" data-parent="7s91ltyus" data-tag="radio" data-id="kxo0ofh9g" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="Add"> 
+                                  <i class="efb  bi-plus-circle  text-success"></i>
+                                  </button>
+                                </div>
+                    </div>
+                    <div class"efb mx-0 px-0" id="list-logics">
+                     ${rows}
+                    </div>
+                </div>
+                  <!--- new test-->
+              </div>
+            </div>
+      <!-- </div> -->
+  `
+    }
   
     //console.log(el.dataset.tag)
     switch (el.dataset.tag) {
@@ -693,11 +799,11 @@ function show_setting_window_efb(idset) {
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
                 <!--  not   advanced-->
                 <div class="efb  d-grid gap-2">              
-               <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                    <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-                </button>
+                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                    </button>
                 </div>
-                <div class="efb mb-3 mt-3" id="collapseAdvanced">
+                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">     
                        
                         ${labelFontSizeEls}
@@ -823,11 +929,11 @@ function show_setting_window_efb(idset) {
   
                 <!--advanced-->
                 <div class="efb  d-grid gap-2">
-                    <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                      <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
-                    </button>
+                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                    <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                  </button>
                 </div>
-                <div class="efb mb-3 mt-3" id="collapseAdvanced">
+                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                         <div class="efb  mb-3 px-3 row">  
                                    
                         ${o_c ? optnsStyleEls :''}
@@ -865,11 +971,11 @@ function show_setting_window_efb(idset) {
         ${Nadvanced}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
-       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-        </button>
+            <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+              <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+            </button>
         </div>
-        <div class="efb mb-3 mt-3" id="collapseAdvanced">
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">  
            
                 ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}   
@@ -911,11 +1017,11 @@ function show_setting_window_efb(idset) {
         ${el.dataset.tag == 'dadfile' ? fileTypeEls : '<!--efb.app-->'}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
-       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-        </button>
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
         </div>
-        <div class="efb mb-3 mt-3" id="collapseAdvanced">
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">      
                                                  
                 ${labelFontSizeEls}
@@ -955,12 +1061,12 @@ function show_setting_window_efb(idset) {
         </label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d efb-rounded efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
         <!--  not   advanced-->
-        <div class="efb  d-grid gap-2">              
-       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb   bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-        </button>
+        <div class="efb  d-grid gap-2">
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
         </div>
-        <div class="efb mb-3 mt-3" id="collapseAdvanced">
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">
 
                 ${labelPostionEls} 
@@ -1001,11 +1107,11 @@ function show_setting_window_efb(idset) {
         ${Nadvanced}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
-       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-        </button>
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
         </div>
-        <div class="efb mb-3 mt-3" id="collapseAdvanced">
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">                                            
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
@@ -1034,6 +1140,9 @@ function show_setting_window_efb(idset) {
       case "booking":
         break;
       case "steps":
+        //console.log(`steps[${idset}]` ,Number(idset)>1);
+        idset=Number(idset);
+        const logic_steps =idset>1 && false ? logic_section(idset) :"<!--efb-->";
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
@@ -1044,11 +1153,11 @@ function show_setting_window_efb(idset) {
         </div>
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
-       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-        </button>
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
         </div>
-        <div class="efb mb-3 mt-3" id="collapseAdvanced">
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
                 <div class="efb  mb-3 px-3 row">
                 ${iconEls('')}
                
@@ -1058,7 +1167,9 @@ function show_setting_window_efb(idset) {
                 ${classesEls}              
                 </div>
             </div>
-        </div><div class="efb  clearfix"></div>
+        </div>
+        ${logic_steps}
+        <div class="efb  clearfix"></div>
         `
         break;
       case "buttonNav":
@@ -1108,20 +1219,20 @@ function show_setting_window_efb(idset) {
          
          
           <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
-          </button>
-      </div>
-      <div class="efb mb-3 mt-3" id="collapseAdvanced">
+            <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+            </button>
+          </div>
+      <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
               <div class="efb  mb-3 px-3 row">   
           ${thankYouTypeEls}
           ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
           ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
-        <!--  ${selectColorEls('clrdoneTitleEfb','text')}
+          ${selectColorEls('clrdoneTitleEfb','text')}
           ${selectColorEls('clrdoniconEfb','text')}
-          ${selectColorEls('clrdoneMessageEfb','text')} -->
+          ${selectColorEls('clrdoneMessageEfb','text')}
           ${thankYouredirectEls}
          <!-- ${content_colors_setting_efb()} -->
           </div>
@@ -1214,11 +1325,11 @@ function show_setting_window_efb(idset) {
       
                     <!--advanced-->
                     <div class="efb  d-grid gap-2">
-                        <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" id="btn-collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                          <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}                    
-                        </button>
+                      <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                      </button>
                     </div>
-                    <div class="efb mb-3 mt-3 d-none" id="collapseAdvanced">
+                    <div class="efb mb-3 mt-3 collapse  d-none" id="collapseAdvanced">
                             <div class="efb  mb-3 px-3 row">                                        
                           
                             ${labelFontSizeEls}
@@ -1248,11 +1359,11 @@ function show_setting_window_efb(idset) {
                         ${Nadvanced}   
                         <!--  not   advanced-->
                         <div class="efb  d-grid gap-2">              
-                       <button class="efb btn btn-outline-light mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" id="btn-collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                            <i class="efb  bi-arrow-down-circle-fill me-1"></i>${efb_var.text.advanced}
-                        </button>
+                          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                           <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                          </button>
                         </div>
-                        <div class="efb mb-3 mt-3 d-none" id="collapseAdvanced">
+                        <div class="efb mb-3 mt-3 collapse  d-none" id="collapseAdvanced">
                                 <div class="efb  mb-3 px-3 row">                                                                 
                                 ${labelPostionEls}
                                 ${ElementAlignEls('label',indx,idset)}
@@ -1272,7 +1383,7 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    
+    //console.log(body);
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
     for (const el of document.querySelectorAll(`.elEdit`)) {      
@@ -1307,8 +1418,8 @@ function creator_form_builder_Efb() {
       type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: pub_label_text_color_efb,
-      el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: false,
-      show_pro_bar: false, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,
+      el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
+      show_pro_bar: true, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,dShowBg:true,
       thank_you: 'msg',
       thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.done, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
     });
@@ -1558,7 +1669,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     //console.log(tag,tag=="imgRadio");
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
-      console.log(row)
+      //console.log(row)
       if (typeof row == "undefined") r ='<!-efb-->';
       const url = u(row.src);
       r =`
@@ -1643,8 +1754,70 @@ function funShowAttrElsEfb(el){
 
 }
 
+const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
+  //fid step_ number s_op id of option (one)
+  //(0,fid , 0
+  let two ="";
+  //console.log(idset ,fid , s_op);
+  if(s_op==0 && valj_efb[0].hasOwnProperty('conditions')){
+   const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+   //console.log(step_no);
+   if (step_no!=-1){
+    two= valj_efb[0].conditions[step_no].condition[0].two;
+    s_op =  valj_efb[0].conditions[step_no].condition[0].one!=""  ? valj_efb[0].conditions[step_no].condition[0].one : 0;
+    //console.log(two , `s_op[${s_op}] one[${valj_efb[0].conditions[step_no].condition[0].two}]`);
+   }else{
+    s_op=0;
+   }
+  }else if (valj_efb[0].hasOwnProperty('conditions')==true){
+    const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
+    //console.log(`step_no[${step_no}]`);
+    if(step_no!=-1){
+      const row = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==idset);
+      if (row !=-1) two = valj_efb[0].conditions[step_no].condition[row].two;
+      //console.log(`row[${row}]`,two);
+    }
+  }
+  
+ let row= get_list_name_otions_field_efb(s_op);
+ let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+// let idset =''
+ for (let i =0 ; i< row.length ; i++){
+  //console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
+  op +=`<option value="${row[i].id_}"  id="ocsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
+ }
+ return `<select  data-id="oso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="optiontSmartforOptionsEls" data-tag="list_otiones">
+ ${op}
+ <select>`
+}
 
 
+
+const selectSmartforOptionsEls = (idset ,fid)=>{
+  //console.error("!!!!!!!!",idset ,fid);
+  let c = -1;
+  const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
+  //test below row
+  //if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
+  //end test row
+  if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
+  //console.log("!!!!!!!!",n,valj_efb[0].conditions[n].condition, c , typeof c);
+  }
+  if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
+ // if (c==-1) return `<!-- efb: conditions not exists -->`
+ let row= get_list_name_selecting_field_efb();
+ let op =`<option disabled>${efb_var.text.nothingSelected}</option>`;
+// let idset =''
+ 
+ for (let i =0 ; i< row.length ; i++){
+  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
+  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.hasOwnProperty('one')[${c.hasOwnProperty('one')}] && c.one[${c.one}] == row[i].id_[${row[i].id_}] c.one == row[i].id_[${c.one == row[i].id_}]` ,c.hasOwnProperty('one') && c.one == row[i].id_)
+  op +=`<option value="${row[i].id_}" id="opsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
+ }
+ return `<select  data-id="sso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="selectSmartforOptionsEls" data-tag="list_selected">
+ ${op}
+ <select>`
+}
 
 fun_translate_check_efb=()=>{
   const l= ['en_US' ,'fa_IR' ,'ar']
@@ -1653,6 +1826,6 @@ fun_translate_check_efb=()=>{
 }
 
 const test=fun_translate_check_efb();
-console.log("test=>",test ,efb_var.wp_lan);
+//console.log("test=>",test ,efb_var.wp_lan);
 
   

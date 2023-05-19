@@ -478,7 +478,7 @@ createCardAddoneEfb = (i) => {
 funProEfb=()=>{return `<div class="efb  pro-card"><a type="button" onClick='pro_show_efb(1)' class="efb pro-version-efb" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.fieldAvailableInProversion}" data-original-title="${efb_var.text.fieldAvailableInProversion}"><i class="efb  bi-gem text-light"></i></a></div>`}
 const boxs_efb = [
   { id: 'form', title: efb_var.text.newForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check2-square', tag: 'all new', pro: false },
-  { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
+ // { id: 'booking', title: efb_var.text.newbkForm, desc: efb_var.text.createBlankMultistepsForm, status: true, icon: 'bi-check-circle-fill', tag: 'all new', pro: true },
   { id: 'contact', title: efb_var.text.contactusForm, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
   { id: 'payment', title: efb_var.text.paymentform, desc: efb_var.text.createPaymentForm, status: true, icon: 'bi-wallet-fill', tag: 'all payment new', pro: true },
   { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
@@ -893,7 +893,7 @@ switch_color_efb = (color) => {
     case '#202a8d': c = "darkb"; break;
     case '#898aa9': c = "labelEfb"; break;
     case '#ff4b93': c = "pinkEfb"; break;
-    case '#ffff': c = "white"; break;
+    case '#ffffff': c = "white"; break;
     case '#212529': c = "dark"; break;
     case '#777777': c = "muted "; break;
     default: c = "colorDEfb-" + color.slice(1);
@@ -924,7 +924,7 @@ ColorNameToHexEfbOfElEfb = (v, i, n) => {
     case "labelEfb": r = '#898aa9'; break;
     case "d": r = '#83859f'; break;
     case "pinkEfb": r = '#ff4b93'; break;
-    case "white": r = '#ffff'; break;
+    case "white": r = '#ffffff'; break;
     case "dark": r = '#212529'; break;
     case "muted": r = '#777777'; break;
     case "muted": r = '#777777'; break;
@@ -1040,13 +1040,13 @@ let change_el_edit_Efb = (el) => {
   let c, color;
   //console.log('tesssssssssssssssssssssssss',el,el.hasOwnProperty('value'));
   setTimeout(() => {
-    //console.log( el.value);
+    //console.log( el.id);
     if(el.hasAttribute('value') && el.id!="htmlCodeEl"){ 
       
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
       if (el.value==null) return  valNotFound_efb()
-      //console.log(el.id)
+    //console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1279,6 +1279,54 @@ let change_el_edit_Efb = (el) => {
 
         valj_efb[indx].placeholder = sanitize_text_efb(el.value);
         break;
+      case "enableConEl":
+         clss=true;
+         const show_l_o =()=>{
+          document.getElementById('logic_options').classList.remove('d-none');
+          document.getElementById('logic_options').classList.add('d-block');
+         }
+         postId =el.dataset.setid;
+          if(valj_efb[0].hasOwnProperty('logic')==false) {
+            Object.assign(valj_efb[0],{'logic':true})
+            Object.assign(valj_efb[0],{'conditions':[]})
+            clss=false;
+          }
+          c =  el.classList.contains('active')==true ? true : false
+          //console.log(`activ [${c}] clss[${clss}]`);
+          if(clss==true){
+            clss= valj_efb[0].conditions.findIndex(x=>x.id_==postId)
+            if(clss!=-1){
+              valj_efb[0].conditions[clss].state=c;
+              if (c==false){
+                //logic_options
+                document.getElementById('logic_options').classList.remove('d-block');
+                document.getElementById('logic_options').classList.add('d-none');
+              }else{
+                show_l_o();
+                valj_efb[0].logic =true;
+              }
+            }else{
+              if(c==true){
+                show_l_o();
+                valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:"0" , term:'is' , one:'', two:''}]});
+              }
+            }
+          }else{
+            show_l_o();
+            valj_efb[0].conditions.push({id_:postId, state:c,show:true, condition:[{no:"0" , term:'is' , one:'', two:''}]});
+
+          }
+
+          if(c==false || c==0){
+            
+           for(var i=0 ; i<valj_efb[0].conditions.length ; i++){
+            //console.log(i,valj_efb[0].conditions[i].state);
+            if(valj_efb[0].conditions[i].state==true) c=true;
+           }
+           if(c!=true) valj_efb[0].logic=false;
+          }
+          //console.log(el.dataset,valj_efb[0].conditions);  
+          break;
       case "valueEl":
         
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
@@ -1819,7 +1867,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'EditOption':
-
+          //console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
         
         if (iindx != -1) {
@@ -2032,24 +2080,59 @@ let change_el_edit_Efb = (el) => {
         }
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         break;
-        case 'imgRadio_url':
-          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-          //console.log('imgRadio_url' ,indx);
-          const ud = (url)=>{
-            url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
-            url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
-            url = url.replace(/([/])+/g, '@efb@');
-            return url;
-           }
-          valj_efb[indx].src = ud(el.value);
-          //console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
-          document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
+      case 'imgRadio_url':
+        indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        //console.log('imgRadio_url' ,indx);
+        const ud = (url)=>{
+          url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
+          url = url.replace(/(https:\/\/)+/g, 'https:@efb@');
+          url = url.replace(/([/])+/g, '@efb@');
+          return url;
+          }
+        valj_efb[indx].src = ud(el.value);
+        //console.log(document.getElementById(valj_efb[indx].id_+'_img').src);
+        document.getElementById(valj_efb[indx].id_+'_img').src = el.value;
+        break;
+      case 'imgRadio_sub_value':
+        indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
+        valj_efb[indx].sub_value = el.value;
+        document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
+        break;
+      case 'selectSmartforOptionsEls':
+        indx = valj_efb.findIndex(x=>x.id_ ==el.options[el.selectedIndex].value);
+        //console.log(indx ,el.options[el.selectedIndex]);
+
+         if(indx!=-1){
+          const no = el.options[el.selectedIndex].dataset.idset;
+          const step = (el.options[el.selectedIndex].dataset.fid);
+          const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
+          //console.log(n,valj_efb[0].conditions[n])
+          if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
+          
+          //console.log(`step[${step}] n[${n}] no[${no}] c[${c}]`,valj_efb[0].conditions);
+          if (c!=-1){
+            valj_efb[0].conditions[n].condition[c].one = sanitize_text_efb(el.options[el.selectedIndex].value);
+            //console.log(valj_efb[0].conditions[c]);
+            const fid =( el.options[el.selectedIndex].dataset.fid);
+            const idset = (el.options[el.selectedIndex].dataset.idset);
+            const s_op = sanitize_text_efb(el.options[el.selectedIndex].value);
+            valj_efb[0].conditions[n].condition[c].two="";
+            //idset ,fid , s_op
+            document.querySelector(`[data-id='oso-${idset}'`).innerHTML= optionSmartforOptionsEls(fid , idset ,s_op);
+          }
+        }        
           break;
-        case 'imgRadio_sub_value':
-          indx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
-          valj_efb[indx].sub_value = el.value;
-          document.getElementById(valj_efb[indx].id_+'_value_sub').innerHTML = el.value;
-          break;
+        case "optiontSmartforOptionsEls":
+          c=-1;
+          //console.log(el.options[el.selectedIndex].dataset);
+          const step = (el.options[el.selectedIndex].dataset.idset);
+          let no = (el.options[el.selectedIndex].dataset.fid);
+          no = no;
+          const n = valj_efb[0].conditions.findIndex(x=>x.id_ ==step);
+          if(n!=-1) c= valj_efb[0].conditions[n].condition.findIndex(x=>x.no ==no);
+          if(c!=-1)valj_efb[0].conditions[n].condition[c].two = sanitize_text_efb(el.options[el.selectedIndex].value);
+          //console.log(`step[${step}] n[${n}] no[${no}] c[${c}] value[${el.options[el.selectedIndex].value}]`);
+        break;
     }
 
   }, len_Valj * 6)
@@ -2066,6 +2149,40 @@ function wating_sort_complate_efb(t) {
  // myModal.show_efb()
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
+}
+
+get_list_name_selecting_field_efb=()=>{
+  let r =[];
+  for(let i in valj_efb){
+    if(valj_efb[i].type=='multiselect') continue;
+    if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
+     // console.log(valj_efb[i].name);
+      r.push({name:valj_efb[i].name, id_:valj_efb[i].id_});
+    }
+  }
+  //console.log(r);
+  return r;
+}
+get_list_name_otions_field_efb=(i_op)=>{
+  //i_op parent id  , if i_op ==0 first select;
+  let r =[];
+  if(i_op==0){
+    for(let i in valj_efb){
+      if(valj_efb[i].type=='multiselect') continue;
+      if(fun_el_select_in_efb(valj_efb[i].type)==true || fun_el_check_radio_in_efb(valj_efb[i].type)==true){
+       // console.log(valj_efb[i].name);
+       i_op= valj_efb[i].id_;
+       break;
+      }
+    }
+  }
+  for(let i in valj_efb){
+    if(valj_efb[i].parent==i_op){
+     // console.log(valj_efb[i].name);
+      r.push({name:valj_efb[i].value, id_:valj_efb[i].id_});
+    }
+  }
+  return r;
 }
 
 function create_form_efb() {
@@ -2332,7 +2449,7 @@ function obj_resort_row(step) {
   // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
  
-  for (v of valj_efb) {
+  for (let v of valj_efb) {
     if (v.step == step) {
       v.step = step;
       if (v.dataId) {
@@ -2380,7 +2497,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     //console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
     valj_efb.push({
-      id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: efb_var.text.sampleDescription,
+      id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
       label_position: 'up', el_text_size: 'fs-6', label_text_color: pub_label_text_color_efb, el_border_color: 'border-d',
       el_text_color: txt_color, message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb', label_align: label_align, message_align: 'justify-content-start',
@@ -2444,7 +2561,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     const stepName = efb_var.text[formName_Efb] != undefined ? efb_var.text[formName_Efb].toUpperCase() : efb_var.text.step;
     valj_efb.push({
       id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: 'stepNavEfb',
-      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: efb_var.text.sampleDescription,
+      id: `${step_el_efb}`, name: stepName, icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
       label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
       el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
     });
@@ -2453,7 +2570,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
-      message: efb_var.text.sampleDescription, id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
+      message: "", id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
        label_text_size: 'fs-6', message_text_size: 'fs-7', el_text_size: 'fs-6', file: 'allformat',
       label_text_color: pub_label_text_color_efb, label_position: 'up', el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, el_height: 'h-d-efb',
       label_align: label_align, message_align: 'justify-content-start', el_border_color: 'border-d',
@@ -2469,7 +2586,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   
 }
 let optionElpush_efb = (parent, value, rndm, op, tag) => {
-  console.log(tag);
+  //console.log(tag);
   if (typeof tag == "undefined" || (typeof tag=="string" && tag.includes("pay")==false) || tag.includes("img")==true ) {
     valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 
@@ -2479,7 +2596,7 @@ let optionElpush_efb = (parent, value, rndm, op, tag) => {
       url = url.replace(/([/])+/g, '@efb@');
       return url;
      }
-    if(typeof tag != "undefined"  &&tag.includes("img")==true){
+    if(typeof tag != "undefined"  && tag.includes("img")==true){
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         sub_value: efb_var.text.sampleDescription,
         src:u(efb_var.images.head)
@@ -2865,7 +2982,7 @@ let handleDrag = (item) => {
 
   if (status_drag_start == false) {
     
-    for (i of valj_efb) {
+    for (let i of valj_efb) {
 
       if (i.type != "option" && i.type != "form" && i.type != "payment" && selectedItem.id != i.id_ && selectedItem.previousElementSibling.id != i.id_) {
         //console.log(i,i.id_,document.getElementById(i.id_));
@@ -2889,7 +3006,7 @@ let handleDrop = (item) => {
   item.target.classList.remove('drag-sort-active-efb');
   sort_obj_el_efb_()
   if (status_drag_start == true) {
-    for (i of valj_efb) {
+    for (let i of valj_efb) {
       if (i.type != "option" && i.type != "form")
         if (document.getElementById(i.id_)) document.getElementById(i.id_).classList.remove("drophere")
     }
@@ -3099,6 +3216,7 @@ fun_confirm_remove_addon_emsFormBuilder=(val)=>{
  }
 
 function emsFormBuilder_delete(id, type,value) {
+  //console.log(id, type,value);
   //v2
   let val =id;
   
@@ -3112,6 +3230,9 @@ function emsFormBuilder_delete(id, type,value) {
       break;
     case "message":
       val=value;
+      break;
+    case 'condlogic':
+      val =id;
       break;
   }
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${efb_var.text[type]} >> ${val} </b></div></div>`
@@ -3129,6 +3250,9 @@ function emsFormBuilder_delete(id, type,value) {
     }else if (type =='addon'){
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
+    }else if (type ="condlogic"){
+      //console.log(`id[${id}] value[${value}]`);
+      fun_remove_condition_efb(id , value);
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)
@@ -3137,6 +3261,24 @@ function emsFormBuilder_delete(id, type,value) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+fun_remove_condition_efb = (no , step_id)=>{
+  //console.log(no);
+  document.getElementById(no+"-logics-gs").remove();
+ const  step_no = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
+ //console.log(step_no)
+ if(step_no!=-1){
+  const no_no = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==no );
+  //console.log(no_no);
+   if (no_no!=-1){
+    if(valj_efb[0].conditions[step_no].condition.length==1){
+      valj_efb[0].conditions[step_no].condition[no_no].one ="";
+      valj_efb[0].conditions[step_no].condition[no_no].two ="";
+    }else{
+      valj_efb[0].conditions[step_no].condition.splice(no_no ,1)}
+    }
+     //console.log(valj_efb[0].conditions[step_no].condition);
+ }
+}
 
 addons_btn_state_efb=(id)=>{
 
@@ -3310,7 +3452,7 @@ window.addEventListener("popstate",e=>{
       break;
     case 'show-message':
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      if (v==null) console.error('get[id] not found!');
+      //if (v==null) console.error('get[id] not found!');
       g_page = sanitize_text_efb(getUrlparams.get('form_type'));
       
       efb_var.msg_id =v;
@@ -3327,7 +3469,7 @@ window.addEventListener("popstate",e=>{
     case "edit-form":
       //console.log('edit-form')
       v = getUrlparams.get('id') ? sanitize_text_efb(getUrlparams.get('id')) :null;
-      if (v==null) console.error('get[id] not found!');
+      //if (v==null) console.error('get[id] not found!');
       
       fun_get_form_by_id(Number(v));
       fun_backButton();
@@ -3591,4 +3733,72 @@ msg_colors_from_template = ()=>{
 
 
  
+}
+add_new_logic_efb = (newId , step_id) =>{
+  //add_new_logic_efb('${rndm_no}','${fid}')
+  newId = Math.random().toString(36).substr(2, 9);
+  const row = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
+  if (row==-1) return;
+  valj_efb[0].conditions[row].condition.push({no:newId, term: 'is',one:"",two:""});
+  //console.log(newId , step_id);
+      const ones = selectSmartforOptionsEls(newId ,step_id);
+      const twos = optionSmartforOptionsEls(newId,step_id , 0);
+      const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
+      const del_btn =`
+      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${newId}','condlogic' ,'${step_id}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
+      `
+  document.getElementById("list-logics").innerHTML += `
+  <div class="efb mx-0 col-sm-12 row opt" id="${newId}-logics-gs">
+    <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
+    <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
+    <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
+    <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
+  </div>`
+
+  
+  for (let el of document.querySelectorAll(`.elEdit`)) {
+    //console.log(el.id ,el.dataset);
+    el.addEventListener("change", (e) => { change_el_edit_Efb(el);
+    
+     })
+
+     if(el.id =="selectSmartforOptionsEls"){
+       const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
+       const no =  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
+       const id =  valj_efb[0].conditions[row].condition[no].one;
+       //console.log("===============>selectSmartforOptionsEls",  row , no , id,valj_efb[0].conditions[row].condition[no]);
+      if(id!=""){
+        let v= valj_efb.findIndex(x=>x.id_==id);
+        //console.log(`v[${v}]`);
+        if(v!=-1){
+           //console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
+           v =sanitize_text_efb(valj_efb[v].name)
+           //console.error(v ,el);
+           const op = document.getElementById("opsso-"+id)
+           op.seleced="selected"
+           //console.log(op,el);
+           el.value = op.value;
+          }
+      }
+      el.value
+    }else if (el.id =="optiontSmartforOptionsEls"){
+      //console.log("===============>optiontSmartforOptionsEls");
+      const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
+      const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
+      const id =  valj_efb[0].conditions[row].condition[no].two;
+      //console.log("===============>optiontSmartforOptionsEls",  row , no , id);
+      if(id!=""){
+        let v= valj_efb.findIndex(x=>x.id_==id);
+        
+        if(v!=-1){
+          v= sanitize_text_efb(valj_efb[v].value);     
+          const op = document.getElementById("ocsso-"+id)
+          op.seleced="selected"
+          //console.log(op,el);
+          el.value = op.value;
+          
+        }
+      }
+    }
+  }
 }
