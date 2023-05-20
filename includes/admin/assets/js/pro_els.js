@@ -13,7 +13,7 @@
   let disabled =  valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==true? 'disabled' : ''
     return `<div class="efb  mb-3" id="uploadFilePreEfb">
                 <label for="${rndm}_" class="efb  form-label">
-                    <div class="efb  dadFile-efb  ${disabled} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner}   ${valj_efb[iVJ].el_border_color}" id="${rndm}_box" ${disabled}>
+                    <div class="efb  dadFile-efb py-0 ${disabled} ${valj_efb[iVJ].classes} ${valj_efb[iVJ].el_height} ${corner}   ${valj_efb[iVJ].el_border_color}" id="${rndm}_box" ${disabled}>
                     ${ui_dadfile_efb(iVJ, previewSate)}                            
                     </div>
                 </label>
