@@ -1349,7 +1349,16 @@ let change_el_edit_Efb = (el) => {
       case "classesEl":
         id = valj_efb[indx].id_;
         const v = el.value.replace(` `, `,`);
-        document.getElementById(id).className += sanitize_text_efb(el.value.replace(`,`, ` `));
+        clss = document.getElementById(id).className;
+        console.log(document.getElementById(id).classList.contains('efb1'))
+        if(document.getElementById(id).classList.contains('efb1')==true){
+          c= clss.indexOf('efb1');
+  
+          clss= clss.slice(0,c);
+ 
+        }
+        document.getElementById(id).className =clss+" efb1 "+ sanitize_text_efb(el.value.replace(`,`, ` `));
+        console.log(document.getElementById(id).className, id)
         valj_efb[indx].classes = sanitize_text_efb(v);
         break;
       case "sizeEl":
