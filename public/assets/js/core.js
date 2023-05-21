@@ -72,7 +72,7 @@ setTimeout(() => {
       if (ajax_object_efm.state !== 'settingError') {
         if (ajax_object_efm.state == 'form') {
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
-          ajax_object_efm.ajax_value="";
+           //ajax_object_efm.ajax_value="";
         } else if (ajax_object_efm.state == 'tracker') {
           
           fun_tracking_show_emsFormBuilder()

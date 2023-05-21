@@ -822,7 +822,7 @@ function show_setting_window_efb(idset) {
                     ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
                 </div>
                
-                <div class="efb  mb-3" id="optionListefb" data-idstate="false">
+                <div class="efb  mb-3"  id="optionListefb" data-idstate="false">
                  ${opetions}
                 </div>
                 ${qtyPlcEls}
