@@ -1348,9 +1348,21 @@ let change_el_edit_Efb = (el) => {
         break;
       case "classesEl":
         id = valj_efb[indx].id_;
-        const v = el.value.replace(` `, `,`);
-        document.getElementById(id).className += sanitize_text_efb(el.value.replace(`,`, ` `));
-        valj_efb[indx].classes = sanitize_text_efb(v);
+        for(let d of document.querySelectorAll(`[data-css='${id}']`)){
+          const v = el.value.replace(` `, `,`);
+          
+          clss = d.className;
+          console.log(d.classList.contains('efb1'))
+          if(d.classList.contains('efb1')==true){
+            c= clss.indexOf('efb1');
+    
+            clss= clss.slice(0,c);
+   
+          }
+          d.className =clss+" efb1 "+ sanitize_text_efb(el.value.replace(`,`, ` `));
+          console.log(d, id)
+          valj_efb[indx].classes = sanitize_text_efb(v);
+        }
         break;
       case "sizeEl":
         postId = document.getElementById(`${valj_efb[indx].id_}_labG`)
@@ -2658,6 +2670,7 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   //console.log('====================>add_new_option_efb')
   
   let p = document.getElementById("optionListefb")
+  console.log(p);
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
   const s=tag.includes("pay");

@@ -677,106 +677,7 @@ function show_setting_window_efb(idset) {
 
 
     
-    const logic_section = (fid)=>{
-      let state =false ;
-      let visible_=true ;
-      let i = 0;
-      if (valj_efb[0].hasOwnProperty('logic')==true || valj_efb[0].logic==true){
-        i = valj_efb[0].conditions.findIndex(x=>x.id_==fid);
-       if(i!=-1){
-        state =valj_efb[0].conditions[i].state;
-       }
-       console.log(i);
-      }
-      if(valj_efb[0].hasOwnProperty("conditions")==true && i!=-1 &&valj_efb[0].conditions[i].show==false )visible_=false;
-      if(valj_efb[0].hasOwnProperty("conditions")==true){
-        console.log(valj_efb[0].conditions[0]);
-      }
-      console.log(visible_);
-      const rndm_no = Math.random().toString(36).substr(2, 9);
-      const ones = selectSmartforOptionsEls(0 ,fid);
-      const twos = optionSmartforOptionsEls(0,fid , 0);
-      const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
-      const del_btn =`
-      <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete(0,'condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
-      `
-      let rows = ` <div class="efb mx-0 col-sm-12 row opt" id="0-logics-gs"> 
-      <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
-      <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
-      <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
-      <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
-    </div>`;
-      if((i!=-1)&& valj_efb[0].hasOwnProperty("conditions")==true) console.log(`valj_efb[0].hasOwnProperty("conditions")[${valj_efb[0].hasOwnProperty("conditions")}] i[${i}] valj_efb[0].conditions[i].length[${valj_efb[0].conditions[i].condition.length}]`);
-      if((i!=-1) && valj_efb[0].hasOwnProperty("conditions")==true && valj_efb[0].conditions[i].condition.length>1){
-        console.log('run loop!');
-        for(let v=1 ; v<valj_efb[0].conditions[i].condition.length ; v++){
-          console.log(valj_efb[0].conditions[i].condition[v]);
-          let fid = valj_efb[0].conditions[i].id_
-          let row_id = valj_efb[0].conditions[i].condition[v].no;
-          let one = valj_efb[0].conditions[i].condition[v].one !="" ? valj_efb[0].conditions[i].condition[v].one :0;
-          console.log(one , fid , row_id);
-          const ones = selectSmartforOptionsEls(row_id ,fid);
-          const twos = optionSmartforOptionsEls(row_id,fid , one);
-          const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
-          const del_btn =`
-          <button type="button" class="efb zindex-100  btn btn-delete btn-sm m-1" onclick="emsFormBuilder_delete('${row_id}','condlogic' ,'${fid}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"><i class="efb  bi-trash"></i></button>
-          `
-           rows += ` <div class="efb mx-0 col-sm-12 row opt" id="${row_id}-logics-gs"> 
-          <div class="efb mx-0 px-0 col-md-4">  ${ones}</div>
-          <div class="efb mx-0 px-0 col-md-2">  ${si}</div>
-          <div class="efb mx-0 px-0 col-md-4">  ${twos}</div>
-          <div class="efb mx-0 px-0 col-md-2">  ${del_btn}</div>
-          </div>`;
 
-          //console.log(rows);
-        }
-      }
-       //778899
-      /* این تابع برای گرفتن لیست المان ها برای موراد شرطی استفاده شود */
-      const  visible = state==false ? 'd-none' :'d-block';    
-      const actv = state==false ? '' :'active';
-      return `
-      <div class="efb  d-grid gap-2">
-        <button class="efb btn btn-outline-light mt-3" id="logic_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
-        <i class="efb  bi-arrow-down-circle-fill me-1" id="logic_collapse_icon"></i>${efb_var.text.condlogic}
-        </button>
-      </div>
-            <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
-              <div class="efb  mb-3 px-3 row">   
-                <div class="efb mx-1 my-3 efb">    
-                  <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-d-efb  btn-toggle ${actv}" data-toggle="button" aria-pressed="${state}" autocomplete="off" data-id="formSet" data-setid="${fid}" onclick="fun_switch_form_efb(this)">       
-                  <div class="efb handle" ></div>
-                    </button>
-                    <label class="efb" for="enableConEl">${efb_var.text.enableCon}</label>                                            
-                  </div>
-                
-                  <div class="efb ${visible}" id="logic_options">
-                   <!--- new test-->
-                   <div class="efb my-2 mx-0  def col-md-12 row col-sm-12 showBtns efbField " >
-
-                              <div class="efb  col-sm-12 col-md-3 efb  px-0 mx-0">
-                                <select class="efb elEdit px-2 form-select efb emsFormBuilder_v h-d-efb efb-square border-d  w-100 border-d efb-rounded" data-op="${fid}" data-id="condElSH" id="condElSH" >      
-                                  <option value="show" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb"  ${visible_==true?'selected':''}>${efb_var.text.show}</option>
-                                <!--  <option value="hide" id="${fid}" data-vid="0" data-id="${fid}" data-op="${fid}" class="efb text-dark efb " ${visible_==false ?'selected':''}>${efb_var.text.hide}</option>       -->
-                                </select>        
-                              </div>
-                                <label for="condElSH" class="efb mx-2 px-0 col-md-5 col-sm-12 col-form-label fs-6 " >${efb_var.text.tfif}</label>
-                                <div class="efb mx-0 px-0 col-md-2" >
-                                  <button type="button" id="addOption" onclick="add_new_logic_efb('${rndm_no}','${fid}')" data-parent="7s91ltyus" data-tag="radio" data-id="kxo0ofh9g" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="Add"> 
-                                  <i class="efb  bi-plus-circle  text-success"></i>
-                                  </button>
-                                </div>
-                    </div>
-                    <div class"efb mx-0 px-0" id="list-logics">
-                     ${rows}
-                    </div>
-                </div>
-                  <!--- new test-->
-              </div>
-            </div>
-      <!-- </div> -->
-  `
-    }
   
     //console.log(el.dataset.tag)
     switch (el.dataset.tag) {
@@ -921,7 +822,7 @@ function show_setting_window_efb(idset) {
                     ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
                 </div>
                
-                <div class="efb  mb-3" id="optionListefb" data-idstate="false">
+                <div class="efb  mb-3"  id="optionListefb" data-idstate="false">
                  ${opetions}
                 </div>
                 ${qtyPlcEls}
