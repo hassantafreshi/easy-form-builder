@@ -2947,6 +2947,16 @@ const preKsesLessThanCallback_efb=(matches)=>{
   return matches[0];
 }
 
+function escHtml(unsafe)
+{
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+
 
 const stripAllTags_efb=(string, removeBreaks = false)=>{
   string = string.replace(/@<(script|style)[^>]*?>.*?<\/\1>@si/g, "");

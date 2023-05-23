@@ -1352,7 +1352,7 @@ let change_el_edit_Efb = (el) => {
           const v = el.value.replace(` `, `,`);
           
           clss = d.className;
-          console.log(d.classList.contains('efb1'))
+          //console.log(d.classList.contains('efb1'))
           if(d.classList.contains('efb1')==true){
             c= clss.indexOf('efb1');
     
@@ -1360,7 +1360,7 @@ let change_el_edit_Efb = (el) => {
    
           }
           d.className =clss+" efb1 "+ sanitize_text_efb(el.value.replace(`,`, ` `));
-          console.log(d, id)
+          //console.log(d, id)
           valj_efb[indx].classes = sanitize_text_efb(v);
         }
         break;
@@ -2670,7 +2670,6 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
   //console.log('====================>add_new_option_efb')
   
   let p = document.getElementById("optionListefb")
-  console.log(p);
   let p_prime = p.cloneNode(true)
   const ftyp = tag.includes("pay") ? 'payment' : '';
   const s=tag.includes("pay");
@@ -3647,7 +3646,7 @@ function colors_template_picker_efb(el){
 }
 
 content_colors_setting_efb=()=>{
-  return '';
+  return false;
   get_colors_el =(name)=>{
     let r =`<!--colors-->`
     /* 
