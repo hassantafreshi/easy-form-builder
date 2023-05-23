@@ -27,7 +27,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
               <tr>
             <td>English , <a href="https://wordpress.org/plugins/easy-form-builder/">Easy Form Builder</a></td>
             <td>Nederlands , <a href="https://nl.wordpress.org/plugins/easy-form-builder/">Formulier bouwer</a></td>
-            <td>Nederlands , <a href="https://ru.wordpress.org/plugins/easy-form-builder/">Простой конструктор форм</a></td>
+            <td>Russian , <a href="https://ru.wordpress.org/plugins/easy-form-builder/">Простой конструктор форм</a></td>
             <td>हिन्दी , <a href="https://hi.wordpress.org/plugins/easy-form-builder/">आसान फॉर्म बिल्डर</a></td>
             <td>Danish , <a href="https://da.wordpress.org/plugins/easy-form-builder/">Nem formularbygger</a></td>
             <td>فارسی ,<a href="https://fa.wordpress.org/plugins/easy-form-builder/"> فرم ساز آسان</a></td>
