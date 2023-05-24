@@ -204,8 +204,9 @@ class Create {
 
 		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 		wp_enqueue_script('addsOnLocal-js'); */
+		/* error_log(get_locale());
 		wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js');
+		wp_enqueue_script('addsOnLocal-js'); */
 		wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 		wp_enqueue_script('countries-js');
 
@@ -252,7 +253,8 @@ class Create {
 		wp_enqueue_script('stripe_js');
 
 
-		$colors = $efbFunction->get_list_colores_template();
+		//$colors = $efbFunction->get_list_colores_template();
+		$colors =[];
 		//error_log(json_encode($colors));
 
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';

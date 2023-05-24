@@ -107,7 +107,8 @@ class Panel_edit  {
 			
 		
 			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
-			$colors = $efbFunction->get_list_colores_template();
+			//$colors = $efbFunction->get_list_colores_template();
+			$colors =[];
 			$location ='';
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.31');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -196,8 +197,8 @@ class Panel_edit  {
 
 			/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
 			wp_enqueue_script('addsOnLocal-js'); */
-			wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
-			wp_enqueue_script('addsOnLocal-js');
+			/* wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js'); */
 
 			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 			wp_enqueue_script('countries-js');

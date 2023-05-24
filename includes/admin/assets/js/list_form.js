@@ -1079,7 +1079,7 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
-  
+  const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
             <h4 class="efb title-holder efb">
@@ -1163,27 +1163,27 @@ function fun_show_setting__emsFormBuilder() {
                                 <i class="efb  bi-chat-left-text m-3"></i>${efb_var.text.rbox}
                               </h5>
                                 <div class="efb card-body mx-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="scaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${scaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">       
+                                  <button type="button" id="scaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${scaptcha == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">       
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="scaptcha_emsFormBuilder">${efb_var.text.scaptcha}</label>                                
                                 </div>
             
                                 <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="showUpfile_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${dsupfile == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >       
+                                  <button type="button" id="showUpfile_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${dsupfile == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >       
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showUpfile_emsFormBuilder">${efb_var.text.dsupfile}</label>                                
                                                                  
                                 </div>
                                 <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="activeDlBtn_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${activeDlBtn == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">       
+                                  <button type="button" id="activeDlBtn_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${activeDlBtn == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">       
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>
                                 </div>
                                <!-- <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="showIp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${showIp == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >       
+                                  <button type="button" id="showIp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${showIp == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   >       
                                   <div class="efb handle"></div>
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showIp_emsFormBuilder">${efb_var.text.sips}</label>                                
@@ -1219,7 +1219,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
                                 <label class="efb form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""}>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent}>
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
@@ -1289,10 +1289,10 @@ function fun_show_setting__emsFormBuilder() {
                                <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
                                   <label class="efb form-label mx-2">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""}>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent}>
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""}>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent}>
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                                                
                               </div>
@@ -1435,7 +1435,8 @@ function fun_set_setting_emsFormBuilder() {
         el.value = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         el.value = u(el.value);
         el.value = el.value.replace(/(["])+/g, `'`);
-      }
+        return el.value;
+      } 
       return el.value;
     } else if (el.type == "checkbox") {
       
@@ -1529,6 +1530,7 @@ function fun_set_setting_emsFormBuilder() {
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
+    //console.log(scaptcha);
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
     smtp = f('hostSupportSmtp_emsFormBuilder');
@@ -2162,7 +2164,7 @@ function email_template_efb(s) {
         c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.addSCEmailM}</p></div>`;
         ti = efb_var.text.error;
       }
-      else if (!efb_var.pro) {
+      else if (efb_var.pro!="true" && efb_var.pro!=true) {
 
         c += funNproEmailTemp();
         

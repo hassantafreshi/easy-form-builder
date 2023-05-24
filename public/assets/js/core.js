@@ -117,7 +117,7 @@ function fun_render_view_efb(val, check) {
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
   valj_efb = valueJson_ws;
-  fun_gets_url_efb();
+  if(efb_var.pro==true || efb_var.pro=="true") fun_gets_url_efb();
   
   
   formNameEfb = valj_efb[0].formName;
@@ -1989,7 +1989,7 @@ window.addEventListener("popstate",e=>{
 
 
  fun_gets_url_efb =()=>{
-   if(efb_var.pro!=true){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
+   //if(efb_var.pro!=true && efb_var.pro!="true"){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
    //iefb --> id 
    //hefb --> hidden of element f==show / null or t === hidden
    //sefb --> selected  t = selected / f=unselected / null == selected

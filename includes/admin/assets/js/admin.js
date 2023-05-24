@@ -1149,7 +1149,8 @@ let change_el_edit_Efb = (el) => {
           if(efb_var.addons.AdnOF!=0 ){
             valj_efb[0].AfLnFrm ? valj_efb[0].AfLnFrm = el.classList.contains('active') : Object.assign(valj_efb[0], { AfLnFrm: el.classList.contains('active') });
           }else{
-            el.checked=false;
+            el.checked=false;        
+              el.classList.remove('active');         
             alert_message_efb(efb_var.text.error, `${efb_var.text.IMAddons} ${efb_var.text.offlineTAddon}`, 20, "danger")
             
           }
@@ -1248,6 +1249,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].thank_you_message.pleaseFillInRequiredFields = sanitize_text_efb(el.value);
         break;
       case "captchaEl":
+       
 
         if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
           //console.log(`captcha!!!`,el.classList)
@@ -1263,6 +1265,10 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
+        console.log(`[${efb_var.captcha }]`)
+        if (efb_var.captcha !=true && efb_var.captcha !="true" ){
+          el.classList.remove('active');         
+       }
         break;
       case "showSIconsEl":
         valj_efb[0].show_icon =  el.classList.contains('active')==true ? true : false
@@ -3497,10 +3503,13 @@ function efb_check_el_pro(el){
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
-  if(efb_var.pro==false) {
-    if(el.type=="button"){
+  if(efb_var.pro==false || efb_var.pro=="false" || efb_var.pro=="") {
+    if(el.type=="button" && el.classList.contains('setting')==false){
       f_b();
       pro_show_efb(efb_var.text.youUseProElements)  
+    }else if(el.type=="button" && el.classList.contains('setting')==true){
+      f_b();
+      pro_show_efb(efb_var.text.proUnlockMsg)  
     }
     return false ;
   }
@@ -3644,20 +3653,11 @@ function colors_template_picker_efb(el){
   // در مرحله بعد در زمان ایجاد ردیف جدید در چک شود رنگ پیش فرض در درون متغییر محلی وجود دارد
   // یا نه اگر نبود از متد سابق و اگر بود رنگ متغییر محلی valj_efb
 }
-
+/* 
 content_colors_setting_efb=()=>{
   return false;
   get_colors_el =(name)=>{
     let r =`<!--colors-->`
-    /* 
-    let pub_el_text_color_efb='text-labelEfb';
-    let pub_message_text_color_efb ='text-muted';
-    let pub_icon_color_efb = "text-pinkEfb";
-    let pub_label_text_color_efb ='text-labelEfb';
-    let pub_el_border_color_efb='border-d';
-    let pub_bg_button_color_efb='btn-primary';
-    let pub_txt_button_color_efb='text-white';
-     */
     let d = '';
     switch(name){
       case 'description':
@@ -3702,7 +3702,7 @@ content_colors_setting_efb=()=>{
   ${get_colors_el('btntc')}
   </div><div class="efb  clearfix"></div>`
   return v;
-}
+} */
 function open_setting_colors_efb(alert){
   
   jQuery(alert).alert('close')
