@@ -1542,7 +1542,7 @@ function prev_btn_efb(){
       } else if (cs == valj_efb[0].steps) {
         var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
         jQuery("#next_efb").html(val);
-        if (sitekye_emsFormBuilder.length > 1 && valj_efb[0] == true) jQuery("#next_efb").removeClass('disabled');
+        if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1") ) jQuery("#next_efb").removeClass('disabled');
       }
       var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
       //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
@@ -1588,6 +1588,11 @@ function prev_btn_efb(){
         jQuery("#prev_efb").toggleClass("d-none");
         jQuery("#next_efb").toggleClass("d-none");
       }
+     
+        console.log(valj_efb[0].captcha);
+      
+      if(Number(valj_efb[0].captcha) == 1 && current_s_efb<steps_len_efb) jQuery("#next_efb").removeClass('disabled');
+      
       if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 }
 
@@ -1657,8 +1662,9 @@ function alert_message_efb(title, message, sec, alert) {
   document.getElementById(id).innerHTML += ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <div>${String(message)}</div>
-    <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>
+    <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close" onclick="close_msg_efb()"></button>
   </div>`
+  console.log(id);
   document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
   setTimeout(function () {
     jQuery('.alert_efb').hide();
@@ -1669,6 +1675,12 @@ function alert_message_efb(title, message, sec, alert) {
   //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
   
   //jQuery('.alert').alert()
+}
+function close_msg_efb(){
+  const v=document.getElementById('alert_content_efb')
+  if (v) {
+    v.remove();
+  }
 }
 function noti_message_efb(message, alert ,id) {
   //sec = sec * 1000

@@ -2535,7 +2535,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     }else if (elementId == "esign") {
       //console.log(pub_icon_color_efb);
       Object.assign(valj_efb[(valj_efb.length) - 1], {
-        icon: 'bi-save', icon_color: pub_icon_color_efb, button_single_text: efb_var.text.clear,
+        icon: 'bi-save', icon_color: "text-white", button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
       })
       //icon: ''
