@@ -1664,7 +1664,7 @@ function alert_message_efb(title, message, sec, alert) {
     <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close" onclick="close_msg_efb()"></button>
   </div>`
-  console.log(id);
+  //console.log(id);
   document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
   setTimeout(function () {
     jQuery('.alert_efb').hide();
