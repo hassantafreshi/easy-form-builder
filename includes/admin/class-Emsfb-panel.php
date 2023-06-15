@@ -215,9 +215,10 @@ class Panel_edit  {
 				wp_enqueue_script('logic-efb');
 			}
 			
-			$table_name = $this->db->prefix . "emsfb_form";
-			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
+			/* $table_name = $this->db->prefix . "emsfb_form";
+			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" ); */
 		
+			$value = $efbFunction->efb_list_forms();
 			$table_name = $this->db->prefix . "emsfb_setting";
 			$stng = $this->db->get_results( "SELECT * FROM `$table_name`  ORDER BY id DESC LIMIT 1" );
 			

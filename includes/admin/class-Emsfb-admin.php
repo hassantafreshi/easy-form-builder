@@ -77,8 +77,12 @@ class Admin {
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //Add new addons
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //Remove a addon
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));               // بارگذاری فایل
-            
-        /*    add_action( 'save_post', function ( $post_ID,$post,$update )
+
+           
+            $this->custom_ui_plugins();
+          
+           
+            /*    add_action( 'save_post', function ( $post_ID,$post,$update )
            {
             //https://developer.wordpress.org/reference/hooks/field_no_prefix_save_pre/
            }, 10, 3 ); */
@@ -1216,6 +1220,36 @@ class Admin {
     /* function test_call_efb(){
         error_log('function===============>test_call_efb');
     } */
+
+    public function custom_ui_plugins(){
+           //// Check if wpbakery available
+           if( is_plugin_active('js_composer/js_composer.php')){          
+                //first check wp bakery addons installed or not
+                // if wp bakery is not installed
+                // first install after that call wp bakery function            
+                 error_log("WPBakeryShortCode exist");
+                 if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){                    
+                     error_log("directory wpbakery not exist");
+                 }
+
+              //   require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/widget_wpbakery.php");
+                // add_action('vc_before_init', [$this, 'register_custom_widget_wpbakery_efb']);
+                 
+                 require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
+                 
+             }
+ 
+             // Check if Gutenberg editor is available
+             if (function_exists('register_block_type')) {
+                 error_log("Gutenberg exist");
+                 if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){                    
+                    error_log("directory gutenberg not exist");
+                }
+             }
+    }
+
+
+
 
 
 }

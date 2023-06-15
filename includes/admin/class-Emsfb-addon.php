@@ -184,6 +184,13 @@ class Addon {
             AdnPLF == passwordless form
             AdnMSF == membership form
             AdnBEF == booking and event form
+
+			AdnWPB == WP Bakery
+			AdnELM == Elemntor 
+			AdnGTB == Gutnberg
+
+			AdnPFA == Private Form Advanced
+			
         */
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,

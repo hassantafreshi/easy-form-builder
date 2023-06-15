@@ -687,6 +687,7 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
+			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),				
 			
 		];
@@ -1286,6 +1287,12 @@ class efbFunction {
 								
 		];
 		return $r;
+	}
+
+	public function efb_list_forms(){
+		$table_name = $this->db->prefix . "emsfb_form";
+			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
+			return $value;
 	}
 
 	/* public function get_list_colores_template(){
