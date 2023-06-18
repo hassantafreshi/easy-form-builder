@@ -141,21 +141,21 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.33' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.34' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.33');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.34');
             wp_enqueue_style('Emsfb-style-css');
 
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.33');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.5.34');
             wp_enqueue_style('Emsfb-bootstrap');
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.33');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.5.34');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.33');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.34');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -163,13 +163,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.33');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.34');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.33');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.5.34');
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.33');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.34');
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -1227,23 +1227,24 @@ class Admin {
                 //first check wp bakery addons installed or not
                 // if wp bakery is not installed
                 // first install after that call wp bakery function            
-                 error_log("WPBakeryShortCode exist");
+                 //error_log("WPBakeryShortCode exist");
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){                    
-                     error_log("directory wpbakery not exist");
+                     //error_log("directory wpbakery not exist");
                  }
 
               //   require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/widget_wpbakery.php");
                 // add_action('vc_before_init', [$this, 'register_custom_widget_wpbakery_efb']);
                  
-                 require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
+                 //require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
+                 require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
                  
              }
  
              // Check if Gutenberg editor is available
              if (function_exists('register_block_type')) {
-                 error_log("Gutenberg exist");
+                 //error_log("Gutenberg exist");
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){                    
-                    error_log("directory gutenberg not exist");
+                    //error_log("directory gutenberg not exist");
                 }
              }
     }

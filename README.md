@@ -48,7 +48,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 **Version Numbers**
 
 *  Easy Form Builder 1.30.0 – 1.33.X is deprecated and will no longer be supported.
-* [Easy Form Builder 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is deprecated and will no longer be supported
+* [Easy Form Builder 2.3.X](https://github.com/hassantafreshi/easy-form-builder/tree/v2) is deprecated and will no longer be supported.
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is under active development. (recommended)
 
 

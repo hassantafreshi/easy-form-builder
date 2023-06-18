@@ -17,6 +17,7 @@ class efbFunction {
 	protected $db;
 	
 	public function __construct() {  
+		
 		global $wpdb;
 		$this->db = $wpdb; 
 		//add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
