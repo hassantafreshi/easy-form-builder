@@ -535,7 +535,7 @@ class efbFunction {
 			"monthly" => $state  &&  isset($ac->text->monthly) ? $ac->text->monthly : __('Monthly','easy-form-builder'),
 			"weekly" => $state  &&  isset($ac->text->weekly) ? $ac->text->weekly : __('Weekly','easy-form-builder'),
 			"yearly" => $state  &&  isset($ac->text->yearly) ? $ac->text->yearly : __('Yearly','easy-form-builder'),
-			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy form builder','easy-form-builder'),
+			"howProV" => $state  &&  isset($ac->text->howProV) ? $ac->text->howProV : __('How to activate Pro version of Easy Form Builder','easy-form-builder'),
 			"uploadedFile" => $state  &&  isset($ac->text->uploadedFile) ? $ac->text->uploadedFile : __('Uploaded File','easy-form-builder'),
 			"offlineMSend" => $state  &&  isset($ac->text->offlineMSend) ? $ac->text->offlineMSend : __('Your internet connection has been lost, but do not worry, we have saved the information you entered on this form. Once you are reconnected to the internet, you can easily send your information by clicking the submit button.','easy-form-builder'),
 			"offlineSend" => $state  &&  isset($ac->text->offlineSend) ? $ac->text->offlineSend : __('Please ensure that you have a stable internet connection and try again.','easy-form-builder'),
