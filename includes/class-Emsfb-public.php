@@ -2577,7 +2577,7 @@ class _Public {
 				   'From:'.$from.'',
 				);
 			$to =get_option('admin_email');
-			$message="This message from Easy form builder, This IP:".$this->ip. 
+			$message="This message from Easy Form Builder, This IP:".$this->ip. 
 			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
@@ -2826,7 +2826,7 @@ class _Public {
 				   'From:'.$from.'',
 				);
 			$to =get_option('admin_email');
-			$message="This message from Easy form builder, This IP:".$this->ip. 
+			$message="This message from Easy Form Builder, This IP:".$this->ip. 
 			" try to enter invalid value like fee of the service of a form at :".date("Y-m-d-h:i:s",$t) ;
 			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
 		}
