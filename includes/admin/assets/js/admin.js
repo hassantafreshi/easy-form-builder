@@ -1119,7 +1119,7 @@ let change_el_edit_Efb = (el) => {
       case "adminFormEmailEl":
         
         if (efb_var.smtp == "1") {
-          if (el.value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) // email validation
+          if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
           {
             valj_efb[0].email = el.value;
             valj_efb[0].sendEmail=true;
@@ -1265,7 +1265,7 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
-        console.log(`[${efb_var.captcha }]`)
+        //console.log(`[${efb_var.captcha }]`)
         if (efb_var.captcha !=true && efb_var.captcha !="true" ){
           el.classList.remove('active');         
        }
@@ -2535,7 +2535,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     }else if (elementId == "esign") {
       //console.log(pub_icon_color_efb);
       Object.assign(valj_efb[(valj_efb.length) - 1], {
-        icon: 'bi-save', icon_color: pub_icon_color_efb, button_single_text: efb_var.text.clear,
+        icon: 'bi-save', icon_color: "text-white", button_single_text: efb_var.text.clear,
         button_color: pub_bg_button_color_efb
       })
       //icon: ''

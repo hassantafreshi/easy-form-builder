@@ -117,7 +117,7 @@ function fun_render_view_efb(val, check) {
   valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
   valueJson_ws[0].email ="";
   valj_efb = valueJson_ws;
-  if(efb_var.pro==true || efb_var.pro=="true") fun_gets_url_efb();
+  fun_gets_url_efb();
   
   
   formNameEfb = valj_efb[0].formName;
@@ -1071,7 +1071,7 @@ function valid_email_emsFormBuilder(el) {
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
   //if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove(); 
   let check = 0;
-  const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");

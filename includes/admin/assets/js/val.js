@@ -655,7 +655,7 @@ function show_setting_window_efb(idset) {
       }
       else if (forEl == "clrdoneTitleEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
-         console.log(color);
+         //console.log(color);
         t = efb_var.text.title
         hex = color;
         if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
