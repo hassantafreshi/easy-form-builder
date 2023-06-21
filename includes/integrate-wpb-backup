@@ -1,0 +1,108 @@
+<?php
+ class Easy_Form_Builder_WPBakery_Component {
+  public function __construct() {
+    // Register the WPBakery shortcode mapping
+   // add_action('vc_before_init', array($this, 'render_form_builder_shortcode'));
+
+    vc_map_shortcode('EMS_Form_Builder', array($this, 'render_form_builder_shortcode'));
+    add_shortcode('EMS_Form_Builder', array($this, 'render_form_builder_shortcode'));
+    
+    // Enqueue necessary scripts and styles
+    add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+    
+    // Add WPBakery component to dropdown settings
+    add_action('vc_before_init', array($this, 'add_wpbakery_dropdown_component'));
+
+     // Add hook for loading JS and CSS in WPBakery iframe
+    add_action('vc_load_iframe_jscss', array($this, 'load_iframe_jscss'));
+
+    if (defined('WPB_VC_VERSION')) {
+      // Add the shortcode to the Visual Composer mapping
+      vc_map_shortcode('EMS_Form_Builder', array($this, 'render_form_builder_shortcode'));
+    }
+  }
+  
+  // Enqueue necessary scripts and styles
+  public function enqueue_scripts() {
+    // Enqueue your scripts and styles here
+    // wp_enqueue_script('your-script', 'path/to/your/script.js', array('jquery'), '1.0', true);
+    // wp_enqueue_style('your-style', 'path/to/your/style.css');
+  }
+  
+  // Render the form builder shortcode
+  public function render_form_builder_shortcode($atts) {
+    // Extract the attributes, if needed
+    extract(shortcode_atts(array(
+      'id' => 0
+    ), $atts));
+    
+    // Your logic to render the form builder based on the provided ID
+    error_log($this->id);
+    ob_start();
+    
+    // Render your form builder HTML here
+    
+  //  $output = ob_get_clean();
+  $output = "<script>let sitekye_emsFormBuilder='' </script> <div id='body_efb' class='efb card card-public row pb-3 efb' data-form='{$id}'>".ob_get_clean()."</div>";
+    
+    return $output;
+  }
+  
+  // Add the WPBakery component to the dropdown settings
+  public function add_wpbakery_dropdown_component() {
+    // Check if WPBakery is active
+    require_once("integrate-wpb-component.php");
+    if (defined('WPB_VC_VERSION')) {
+      vc_map(array(
+        'name' => 'Easy Form Builder',
+        'base' => 'EMS_Form_Builder',
+        'category' => 'Content',
+        'icon' => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
+        'params' => array(
+          array(
+            'type' => 'dropdown',
+            'heading' => 'Select a Form',
+            'param_name' => 'id',
+            'value' => $this->get_available_forms(),
+            'description' => 'Choose a form to display',
+          )
+          ),
+          'class' => 'Easy_Form_Builder_WPBakery_Component',// Set a unique class name for the shortcode
+          'js_view' => 'Easy_Form_Builder_WPBakery_Component_View'
+      ));
+    }
+  }
+  
+  // Retrieve the available forms for the dropdown
+  public function get_available_forms() {
+    // Your logic to retrieve the available forms
+    // You can fetch form names and IDs from your database or any other source
+    
+    // For example, assuming you have an array of forms with IDs and names
+    $forms = array(
+      array('id' => 1, 'name' => 'Form 1'),
+      array('id' => 2, 'name' => 'Form 2'),
+      array('id' => 3, 'name' => 'Form 3')
+    );
+    
+    $options = array();
+    
+    foreach ($forms as $form) {
+      $options[$form['name']] = $form['id'];
+    }
+    
+    return $options;
+  }
+
+  // Load JS and CSS in WPBakery iframe
+  public function load_iframe_jscss() {
+    error_log("load_iframe_jscss");
+   
+    // Enqueue necessary scripts and styles for WPBakery iframe
+    // wp_enqueue_script('your-iframe-script', 'path/to/your/iframe-script.js', array('jquery'), '1.0', true);
+    // wp_enqueue_style('your-iframe-style', 'path/to/your/iframe-style.css');
+  }
+}
+
+new Easy_Form_Builder_WPBakery_Component;
+ 

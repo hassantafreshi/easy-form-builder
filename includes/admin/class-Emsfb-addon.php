@@ -324,7 +324,7 @@ class Addon {
 		
 		$this->insert_db();
 		if($this->id_ !=0){
-			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
+			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[ems_form_builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
 		wp_send_json_success($response,$_POST);
 		die();		

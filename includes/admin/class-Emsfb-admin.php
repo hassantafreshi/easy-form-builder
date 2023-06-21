@@ -301,7 +301,7 @@ class Admin {
         //,`form_name` =>
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
         $m = $lang["updated"];
-        $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        $response = ['success' => true, 'r' =>"updated", 'value' => "[ems_form_builder id=$id]"];
         wp_send_json_success($response, $_POST);
     }
     public function add_addons_Emsfb() {

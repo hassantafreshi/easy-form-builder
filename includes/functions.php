@@ -233,7 +233,7 @@ class efbFunction {
 			"description" => $state ? $ac->text->description : __('Description','easy-form-builder'),
 			"descriptions" => $state ? $ac->text->descriptions : __('Descriptions','easy-form-builder'),
 			"thisEmailNotificationReceive" => $state ? $ac->text->thisEmailNotificationReceive : __('Enable email notifications','easy-form-builder'),
-			"activeTrackingCode" => $state ? $ac->text->activeTrackingCode : __('Active the Confirmation Code','easy-form-builder'),
+			"activeTrackingCode" => $state ? $ac->text->activeTrackingCode : __('Show Confirmation Code','easy-form-builder'),
 			"addGooglereCAPTCHAtoForm" => $state ? $ac->text->addGooglereCAPTCHAtoForm : __('Add Google reCAPTCHA to the form ','easy-form-builder'),
 			"dontShowIconsStepsName" => $state ? $ac->text->dontShowIconsStepsName : __('Hide icons and step names.','easy-form-builder'),
 			"dontShowProgressBar" => $state ? $ac->text->dontShowProgressBar : __('Hide progress bar','easy-form-builder'),
