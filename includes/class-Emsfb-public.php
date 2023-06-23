@@ -24,7 +24,6 @@ class _Public {
 	public $url;
 	public function __construct() {
 		
-
 		global $wpdb;
 		$this->db = $wpdb;
 		$this->id =-1;
