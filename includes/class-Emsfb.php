@@ -91,7 +91,7 @@ class Emsfb {
 
         if(strlen($check_test_table)>0){
 			if ( strcmp($table_name,$check_test_table)!=0) {
-                $message =  __('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
+                $message =  __('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice: Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
                 ?>                    
                     <div class="notice notice-warning is-dismissible">
                         <p> <?php echo '<b>'.__('Warning').':</b> '. $message.''; ?> </p>
@@ -103,7 +103,7 @@ class Emsfb {
     }
 
     public static  function email_send(){
-		$message=__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice:Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
+		$message=__('The Easy Form Builder had Important update and require to deactivate and activate the plugin manually </br> Notice: Please do this act in immediately so forms of your site will available again.','easy-form-builder'); 
 		$usr=get_userdata(1);
 		
 		$users = get_super_admins();
