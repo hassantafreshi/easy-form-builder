@@ -2694,7 +2694,7 @@ class _Public {
 			wp_send_json_success($response, $_POST);
 
 		}else{
-			$response = array( 'success' => false  , 'm'=>__('Error Code:V02','easy-form-builder'));		
+			$response = array( 'success' => false  , 'm'=>__('Error Code: V02','easy-form-builder'));		
 			wp_send_json_success($response, $_POST);
 		}
 
