@@ -2157,7 +2157,7 @@ fetch(url, requestOptions)
  post_api_efb(); */
 post_api_efb_2=(data)=>{
     console.log('post_api_efb_2');
-    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/message/new/'; // Replace with your REST API endpoint URL
+    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/message/add/'; // Replace with your REST API endpoint URL
 
 const headers = new Headers({
   'Content-Type': 'application/json',

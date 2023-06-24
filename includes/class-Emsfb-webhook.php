@@ -46,7 +46,7 @@ class webhook {
              //get track id => return messages => get_ajax_track_public
              //get send email => mail_send_form_submit
           
-           //  register_rest_route('Emsfb/v1','forms/message/new/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
+           //  register_rest_route('Emsfb/v1','forms/message/add/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
         
 
           });

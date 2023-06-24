@@ -40,14 +40,19 @@ class _Public {
 			]); 
 
 		
-		   register_rest_route('Emsfb/v1','forms/message/new/', [
+		   register_rest_route('Emsfb/v1','forms/message/add/', [
 			  'methods' => 'POST',
 			  'callback'=>  [$this,'get_form_public_efb'],
 			  'permission_callback' => '__return_true'
 		  ]); 
-		   register_rest_route('Emsfb/v1','forms/email/new/', [
+		   register_rest_route('Emsfb/v1','forms/email/send/', [
 			  'methods' => 'POST',
 			  'callback'=>  [$this,'mail_send_form_api'],
+			  'permission_callback' => '__return_true'
+		  ]); 
+		   register_rest_route('Emsfb/v1','forms/file/upload/', [
+			  'methods' => 'POST',
+			  'callback'=>  [$this,'file_upload_api'],
 			  'permission_callback' => '__return_true'
 		  ]); 
 

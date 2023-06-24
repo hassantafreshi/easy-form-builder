@@ -3097,7 +3097,7 @@ fun_captcha_load_efb = ()=>{
 
   console.log('fun_send_mail_emsFormBuilder');
   console.log(data);
-  const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/email/new/'; // Replace with your REST API endpoint URL
+  const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/email/send/'; // Replace with your REST API endpoint URL
 
   const jsonData = JSON.stringify(data);
   console.log(jsonData);
