@@ -7,6 +7,8 @@ use WP_REST_Response;
  * Class Emsfb
  * @package Emsfb
  */
+
+ //require_once('functions.php');
 class webhook {
 
 
@@ -44,6 +46,8 @@ class webhook {
              //get track id => return messages => get_ajax_track_public
              //get send email => mail_send_form_submit
           
+           //  register_rest_route('Emsfb/v1','forms/message/new/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
+        
 
           });
     }
@@ -55,10 +59,10 @@ class webhook {
 
         $response = array(
             'success' => true,
-            'value' => 'value',
+            'value' => $slug["name"],
             'content' => "content",
             'nonce_msg' => "code",
-            'id' => 'this->id'      
+            'id' => $slug["id"]
           );
         
         return new WP_REST_Response($response, 200);
@@ -66,6 +70,21 @@ class webhook {
     
       
     } 
+
+
+ /*    public function  get_ajax_form_public($request){
+		$data_POST = $request->get_json_params();
+
+
+   // error_log('ok@@@');
+    require_once('class-Emsfb-public.php');
+    $public = new _public();
+    $public->get_form_public_efb($data_POST);
+		
+  
+        $response=$data_POST;
+        return new WP_REST_Response($response, 200);
+	  }//end function  */
 
 }
 new webhook();

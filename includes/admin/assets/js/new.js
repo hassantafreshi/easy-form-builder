@@ -3078,3 +3078,49 @@ fun_captcha_load_efb = ()=>{
             <div id="step-1-efb-msg"></div>`
  }
 
+
+ function fun_send_mail_emsFormBuilder(id,nonce,type_) {
+  
+
+ const data = {
+    action: "mail_send_submited_Emsfb",
+    id: id,
+    
+    type_: type_,
+    nonce:nonce
+
+  };
+  
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+  });
+
+  console.log('fun_send_mail_emsFormBuilder');
+  console.log(data);
+  const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/email/new/'; // Replace with your REST API endpoint URL
+
+  const jsonData = JSON.stringify(data);
+  console.log(jsonData);
+  const requestOptions = {
+    method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+    headers,
+    body: jsonData, // The JSON data as the request body
+  };
+
+  console.log(requestOptions);
+fetch(url, requestOptions)
+.then(response => response.json())
+.then(responseData => {
+  // Handle the response data
+  //response_fill_form_efb(responseData)
+  //console.log(`responseData`,responseData)
+  console.log(responseData);
+})
+.catch(error => {
+  // Handle errors
+  console.error(`error`,error)
+  
+});
+
+
+}

@@ -987,10 +987,10 @@ function actionSendData_emsFormBuilder() {
   }
   //console.log(document.getElementById('prev_efb').className)
  //console.log(`url==========>${location.href.split('?')[0]}`,valj_efb);
-  jQuery(function ($) {
+ // 
     //console.log(document.getElementById('prev_efb').className)
     form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
-    data = {
+  let  data = {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
       name: formNameEfb,
@@ -1035,10 +1035,12 @@ function actionSendData_emsFormBuilder() {
         };
       }
 
-      
     }
+    post_api_efb_2(data);
     //console.log(document.getElementById('prev_efb').className)
     //console.log(data);
+  /*   jQuery(function ($) {
+
     $.ajax({
       type: "POST",
       async: false,
@@ -1057,7 +1059,7 @@ function actionSendData_emsFormBuilder() {
     })
     if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
     if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
-  });
+  }); */
 
 
 
@@ -1813,8 +1815,10 @@ function response_fill_form_efb(res) {
   //pWRedirect
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   //console.log(document.getElementById('prev_efb').className)
+  //console.log(res.data);
   if (res.data.success == true) {
-   if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
+   // if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
+     if(res.data.track!=null) fun_send_mail_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
       <h3 class="efb fs-4">${efb_var.text.sentSuccessfully}</h3>
@@ -1868,6 +1872,7 @@ function response_fill_form_efb(res) {
         break;
 
     }
+
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
   } else {
 
@@ -2123,7 +2128,67 @@ window.addEventListener("popstate",e=>{
  }
 
 
+/* post_api_efb=()=>{
 
-  post_api_efb=()=>{
+    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/test/name/45'; // Replace with your REST API endpoint URL
+
+const headers = new Headers({
+  'Content-Type': 'application/json',
+});
+jsonData={};
+const requestOptions = {
+  method: 'GET', // Or any other HTTP method (POST, GET, etc.)
+  headers,
+  // The JSON data as the request body
+};
+
+fetch(url, requestOptions)
+  .then(response => response.json())
+  .then(responseData => {
+    // Handle the response data
+    console.log(`responseData`,responseData)
+  })
+  .catch(error => {
+    // Handle errors
+    console.log(`error`,error)
+  });
     
  }
+ post_api_efb(); */
+post_api_efb_2=(data)=>{
+    console.log('post_api_efb_2');
+    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/message/new/'; // Replace with your REST API endpoint URL
+
+const headers = new Headers({
+  'Content-Type': 'application/json',
+});
+
+
+const jsonData = JSON.stringify(data);
+const requestOptions = {
+  method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+  headers,
+  body: jsonData, // The JSON data as the request body
+};
+console.log(data);
+fetch(url, requestOptions)
+  .then(response => response.json())
+  .then(responseData => {
+    // Handle the response data
+    response_fill_form_efb(responseData)
+    //console.log(`responseData`,responseData)
+  })
+  .catch(error => {
+    // Handle errors
+    console.log(`error`,error)
+    response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
+  });
+  if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
+  if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
+ 
+}
+
+
+/*  setTimeout(() => {
+  post_api_efb_2(data);
+ }, 2000); */
