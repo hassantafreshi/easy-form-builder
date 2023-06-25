@@ -664,17 +664,17 @@ class _Public {
 
 	  public function mail_send_form_api($data_POST_){
 		error_log('mail_send_form_api');
-		$_POST = $data_POST_->get_json_params();
+		$data_POST = $data_POST_->get_json_params();
 	
 		
-		$this->id = sanitize_text_field($_POST['id']);
+		$this->id = sanitize_text_field($data_POST['id']);
 		$track = $this->id ;
-		$type = sanitize_text_field($_POST['type_']); //two type msg/rsp
+		$type = sanitize_text_field($data_POST['type_']); //two type msg/rsp
 			
 		error_log($this->id);
-		if (wp_verify_nonce($_POST["nonce"],$this->id)==false){
+		if (wp_verify_nonce($data_POST["nonce"],$this->id)==false){
 			$response = array( 'success' => false  , 'm'=>'error 403'); 
-			wp_send_json_success($response,$_POST);		
+			return wp_send_json_success($response,400);		
 		}
 
 		error_log('mail_send_form_api after nonce');
@@ -718,7 +718,7 @@ class _Public {
 			}
 				
 		$response = array( 'success' => true  , 'm'=>'Email ok'); 
-		wp_send_json_success($response, $_POST);
+		return wp_send_json_success($response, 200);
 	  }
 
 /* 	  public function get_ajax_form_public(){
@@ -3293,7 +3293,7 @@ class _Public {
     }
 
 
-	public function file_upload_public(){
+	/* public function file_upload_public(){
 			
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
@@ -3312,10 +3312,7 @@ class _Public {
                     $vl ='efb'.$id;
                     //'efb'.$this->id
                 }
-                /* $m = str_replace('\\', '', $vl);       
-                $vl = json_decode($m,true); */
-                //"type":"file"
-                //
+           
             }
         
         }
@@ -3356,6 +3353,73 @@ class _Public {
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]); 
 			wp_send_json_success($response,$_POST);
 			die('invalid file '.$_FILES['file']['type']);
+		}
+		
+		 
+	}//end function  */
+
+	public function file_upload_api($data_POST_){
+		error_log("file_upload_api");
+		$data_POST = $data_POST_->get_json_params();
+		$data_POST['id']=sanitize_text_field($data_POST['id']);
+		$data_POST['pl']=sanitize_text_field($data_POST['pl']);
+		
+		
+		$data_POST['nonce_msg']=sanitize_text_field($data_POST['nonce_msg']);
+		$vl=null;
+		if($data_POST['pl']!="msg"){
+			$vl ='efb'. $data_POST['id'];
+		}else{
+			$id = $data_POST['id'];
+			$table_name = $this->db->prefix . "emsfb_form";
+			$vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+			if($vl!=null){              
+				if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
+					$vl ='efb'.$id;
+					//'efb'.$this->id
+				}
+		   
+			}
+		
+		}
+		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
+			
+			
+			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
+			return WP_REST_Response($response,400);
+			
+		}
+		error_log("after file_upload_api");
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
+	
+		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
+		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+		 'text/plain' ,
+		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
+		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
+		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
+		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+		);
+		
+		if (in_array($_FILES['file']['type'], $arr_ext)) { 
+			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+						
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
+			if(is_ssl()==true){
+				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+			}
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
+			  WP_REST_Response($response,200);
+		}else{
+			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]); 
+			WP_REST_Response($response,400);
+			
 		}
 		
 		 
@@ -3753,7 +3817,7 @@ class _Public {
 			
             $m = __('error', 'easy-form-builder') . ' 403';
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
 
@@ -3769,7 +3833,7 @@ class _Public {
 			
 				$m = __('Stripe', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
-				wp_send_json_success($response, $_POST);
+				wp_send_json_success($response, 200);
 				die("secure!");
 		}
 
@@ -3820,7 +3884,7 @@ class _Public {
 					if($filtered==false){
 						$m = __('error', 'easy-form-builder') . ' 405';
 						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, $_POST);
+						wp_send_json_success($response, 200);
 					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
@@ -3986,11 +4050,11 @@ class _Public {
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
 			//error_log(json_encode($response));
-			wp_send_json_success($response, $_POST);
+			wp_send_json_success($response, 200);
 
 		}else{
 			$response = array( 'success' => false  , 'm'=>__('Error Code:V02','easy-form-builder'));		
-			wp_send_json_success($response, $_POST);
+			wp_send_json_success($response, 200);
 		}
 
     }
@@ -4007,7 +4071,7 @@ class _Public {
 			
             $m = __('error', 'easy-form-builder') . ' 403';
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
 
@@ -4023,7 +4087,7 @@ class _Public {
 			
 				$m = __('persiaPayment', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
-				wp_send_json_success($response, $_POST);
+				wp_send_json_success($response, 200);
 				die("secure!");
 		}
 
@@ -4069,7 +4133,7 @@ class _Public {
 					if($filtered==false){
 						$m = __('error', 'easy-form-builder') . ' 405';
 						$response = ['success' => false, 'm' => $m];
-						wp_send_json_success($response, $_POST);
+						wp_send_json_success($response, 200);
 					}
 					 $iv = array_keys($filtered);
 					 $a = isset( $iv[0])? $iv[0] :-1;
@@ -4168,7 +4232,7 @@ class _Public {
 			
 			if($price_f<4999){
 				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');		
-				wp_send_json_success($response, $_POST);
+				wp_send_json_success($response, 200);
 				die();
 			}
 	/* 		try{
@@ -4219,7 +4283,7 @@ class _Public {
 						}else{
 							$response = array('success' => false, 'm' => 'DB Error 400-PP');
 						}
-						wp_send_json_success($response, $_POST);
+						wp_send_json_success($response, 200);
 						
 					}
 					} else {
@@ -4315,7 +4379,7 @@ class _Public {
 						$this->insert_temp_costumer($website,$paymentType,$product_price,'payPing',$email,$name,$auth);
 
 						$response = array( 'success' => true  , 're'=>'در حال انتقال به درگاه بانک' , 'url'=>$GoToIPG);	
-						wp_send_json_success($response, $_POST);
+						wp_send_json_success($response, 200);
 						//header( 'Location: ' . $GoToIPG );
 					}else{
 						$msg = 'تراکنش ناموفق بود - شرح خطا: عدم وجود کد ارجاع';
@@ -4350,7 +4414,7 @@ class _Public {
 			$response = array( 'success' => false  , 'm'=>__('Error Code:V01','easy-form-builder'));		
 			
 		}
-		wp_send_json_success($response, $_POST);
+		wp_send_json_success($response, 200);
     }
 	public function fun_convert_form_structer($form_structure){
 		$form_ = str_replace('\\', '', $form_structure);;

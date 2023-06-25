@@ -777,7 +777,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
            <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
                <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
          </tr> </thead>
-         <tbody class="efb">                  
+         <tbody class="efb fs-7">                  
           ${optn}
          </tbody>
        </table>
@@ -2634,7 +2634,7 @@ function replaceContentMessageEfb(value){
 }
 
 
-function fun_upload_file_emsFormBuilder(id, type,tp) {
+/* function fun_upload_file_emsFormBuilder(id, type,tp) {
   
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -2727,6 +2727,128 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
       }
     });
   });
+
+  return r;
+} */
+function fun_upload_file_emsFormBuilder(id, type,tp) {
+  
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  //v3.6.0  updated
+  //این تابع فایل را به سمت سرور ارسال می کند
+  //console.log(id,type,tp)
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  files_emsFormBuilder[indx].state = 1;
+  files_emsFormBuilder[indx].type = type;
+  let r = ""
+  
+  
+  const nonce_msg = efb_var.nonce_msg ;
+  const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
+  //console.log(tp)
+  //jQuery(function ($) {
+    
+    var fd = new FormData();
+    var idn = '#' + id + '_'
+    var file = jQuery(document).find(idn);
+    var caption = jQuery(this).find(idn);
+    
+    var individual_file = file[0].files[0];
+    fd.append("file", individual_file);
+    var individual_capt = caption.val();
+    fd.append("caption", individual_capt);
+    fd.append('action', 'update_file_Emsfb');
+    fd.append('nonce', ajax_object_efm.nonce);
+    fd.append('id', id_nonce);
+    fd.append('pl', tp);
+    fd.append('nonce_msg', nonce_msg);
+    
+    var idB ='#'+id+'-prB';
+    var request = new XMLHttpRequest();
+    request.open('POST', '/wp-json/Emsfb/v1/forms/file/upload/');
+  const headers = new Headers({
+      'Content-Type': 'application/json',
+    });
+
+  const jsonData = JSON.stringify(fd);
+  const requestOptions = {
+      method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+      headers,
+      body: jsonData, // The JSON data as the request body
+    };
+    fetch('/wp-json/Emsfb/v1/forms/file/upload/',requestOptions )
+      .then(response  )
+      .then(data => {
+        
+        if (data.success) {
+          // File uploaded successfully
+          console.log('File uploaded:', data.file);
+        } else {
+          // Error occurred during file upload
+          console.error('File upload error:', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('File upload failed:', error);
+      });
+    /* jQuery.ajax({
+      type: 'POST',
+      url: ajax_object_efm.ajax_url,
+      data: fd,
+      contentType: false,
+      processData: false,
+      xhr: function(){
+        //upload Progress
+          var xhr = $.ajaxSettings.xhr();
+          if (xhr.upload) {
+          xhr.upload.addEventListener('progress', function(event) {
+          var percent = 0;
+          var position = event.loaded || event.position;
+          var total = event.total;
+          if (event.lengthComputable)
+          {
+          percent = Math.ceil(position / total * 100);
+          }
+          //update progressbar
+          
+ 
+          
+          $(idB).css("width", + percent +"%");
+          $(idB).text(percent +"% = " + file[0].files[0].name);
+        
+          }, true);
+          }
+          return xhr;
+     
+        
+        },
+      success: function (response) {
+        //files_emsFormBuilder
+        if (response.data.success === true) {
+          r = response.data.file.url;
+          if (response.data.file.error) {
+            alert_message_efb("", response.data.file.error, 14, "danger");
+            return;
+          }
+          files_emsFormBuilder[indx].url = response.data.file.url;
+          files_emsFormBuilder[indx].state = 2;
+          files_emsFormBuilder[indx].id = idn;
+          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
+          
+          fun_sendBack_emsFormBuilder(o[0]);
+           $(idB).css("width", + 100 +"%");
+          $(idB).text(100 +"% = " + file[0].files[0].name);
+
+          $("#"+id+"-prG").addClass("d-none");
+        } else {
+          //show message file type is not correct;        
+        }
+      }
+    }); */
+ // });
 
   return r;
 }
