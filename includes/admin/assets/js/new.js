@@ -777,7 +777,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
            <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
                <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
          </tr> </thead>
-         <tbody class="efb">                  
+         <tbody class="efb fs-7">                  
           ${optn}
          </tbody>
        </table>
@@ -2730,6 +2730,44 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
 
   return r;
 }
+function fun_upload_file_api_emsFormBuilder(id, type,tp) {
+  
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  //v3.6.0  updated
+
+  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
+  files_emsFormBuilder[indx].state = 1;
+  files_emsFormBuilder[indx].type = type;
+  let r = ""
+  
+  
+  const nonce_msg = efb_var.nonce_msg ;
+  const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
+  //console.log(tp)
+  //jQuery(function ($) {
+    
+    var fd = new FormData();
+    var idn = '#' + id + '_'
+    var file = jQuery(document).find(idn);
+    var caption = jQuery(this).find(idn);
+    
+    var individual_file = file[0].files[0];
+    fd.append("file", individual_file);
+    var individual_capt = caption.val();
+    fd.append("caption", individual_capt);
+    fd.append('action', 'update_file_Emsfb');
+    fd.append('nonce', ajax_object_efm.nonce);
+    fd.append('id', id_nonce);
+    fd.append('pl', tp);
+    fd.append('nonce_msg', nonce_msg);
+    
+   
+
+  return r;
+}
 
 function generatePDF_EFB(id) 
 {
@@ -3078,3 +3116,49 @@ fun_captcha_load_efb = ()=>{
             <div id="step-1-efb-msg"></div>`
  }
 
+
+ function fun_send_mail_emsFormBuilder(id,nonce,type_) {
+  
+
+ const data = {
+    action: "mail_send_submited_Emsfb",
+    id: id,
+    
+    type_: type_,
+    nonce:nonce
+
+  };
+  
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+  });
+
+  console.log('fun_send_mail_emsFormBuilder');
+  console.log(data);
+  const url = efb_var.rest_url+'Emsfb/v1/forms/email/send'; // Replace with your REST API endpoint URL
+
+  const jsonData = JSON.stringify(data);
+  console.log(jsonData);
+  const requestOptions = {
+    method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+    headers,
+    body: jsonData, // The JSON data as the request body
+  };
+
+  console.log(requestOptions);
+fetch(url, requestOptions)
+.then(response => response.json())
+.then(responseData => {
+  // Handle the response data
+  //response_fill_form_efb(responseData)
+  //console.log(`responseData`,responseData)
+  console.log(responseData);
+})
+.catch(error => {
+  // Handle errors
+  console.error(`error`,error)
+  
+});
+
+
+}

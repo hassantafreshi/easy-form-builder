@@ -3,7 +3,7 @@ Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
 Stable tag: 			3.5.34
-Requires at least: 	4.7
+Requires at least: 	      4.7
 Tested up to: 			6.2.2
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
@@ -12,7 +12,7 @@ License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. use this powerful form builder to create multistep forms.
 
 == Description ==
-**Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create multistep professional forms or contact-us forms within minutes.
+**Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create  multistep professional forms or contact-us forms within minutes.
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
@@ -59,7 +59,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
-- Easy Form Builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
+- Easy form builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
 
 
 
@@ -110,7 +110,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Easily Localization Easy Form Builder to your language
 
-- Email notification automatically sends email messages every time a respondent submits your built form on Easy Form Builder
+- Email notification automatically sends email messages every time a respondent submits your built form on Easy form Builder
 
 - Multiple Select (Multi Selection Dropdown list) field used to select multiple options in a support form or any kind of form
 
@@ -120,7 +120,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Save the IP of who is submitting a form
 
-- Customizable thank you message in forms
+- Customizable the thank you message in forms
 
 - Create any kind of form you want
 
@@ -189,7 +189,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - *Confirmation Code*: With the tracking code assigned by Easy Form Builder after the form is filled out, the user can track the status of the filled-out form, acting like an advanced ticketing system, without the need for another service for **free**.
 
-- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email templates for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” → “Email Template”.
+- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email templates for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”.
 
 - *Spam Protection* : Google ReCaptcha validation added to your forms for enhanced security against spam. for **free**.
 
@@ -237,7 +237,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Export form responses or messages to CSV format for data management
 
-- Easily create any kind of payment order or service form with customizable payment fields such as single-choice, selection choose
+- Easily create any kind of payment order or service form with customizable payment fields such as  single-choice, selection choose
 
 - Create advanced forms with specialized fields including location picker (maps), Esign (e-signature), Yes/No question, Star rating, Switch button, and more
 
@@ -245,7 +245,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Professional panel for managing user-filled forms and responses
 
-Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all with drag and drop form wizard of Easy Form Builder. This is the free version provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form or a registration form.
+Easily create multi-step forms with a unique Confirmation Code feature and notification emails, all with drag and drop form wizard of Easy Form Builder. This is the free version provides an intuitive interface and functionality to create professional forms in minutes. With the unique Confirmation Code feature, you can easily associate each submission with a specific request or user.**Easy Form Builder** is user-friendly WordPress plugin that simplifies the process of creating powerful forms. Whether you need a contact form, registration form,
 
 For more information, check out our comprehensive documentation [Click Here](https://whitestudio.team/documents)
 
@@ -279,7 +279,7 @@ With Easy Form Builder's confirmation code feature, you can easily track user re
 Easy Form Builder provides a default email template for form notifications, and administrators can create custom email templates to suit their needs. With this feature, you can ensure that your team receives the necessary information from your contact forms, subscription forms, and surveys, while also customizing the messaging to fit your brand.
  
 **Easily Localization**
-you can easily translate every single word, phrase, or message to your preferred language. This feature can help you create a better user experience for non-English speaking users, and increase the reach of your forms to a wider audience for **free**. You can access this feature in the Easy Form Builder panel by going to Settings > Localization.
+you can easily translate every single word, phrase, or message to your preferred language. This feature can help you create a better user experience for non-English speaking users, and increase the reach of your forms to a wider audience  for **free**. You can access this feature in the Easy Form Builder panel by going to Settings > Localization.
 
 
 **Create Efficient Forms with Multiple Selection Dropdowns**
@@ -306,10 +306,10 @@ Easy Form Builder offers an easy solution to improve your website's user experie
 
 == Installation ==
 
-**Notice** : If your template base on bootstrap then go to “Easy Form Builder” → “Settings” → checked “My template have used BootStrap framework” → Save
+**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
-2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select *Easy Form Builder* zip file then “Activate”.
+2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
@@ -326,14 +326,14 @@ Easy Form Builder offers an easy solution to improve your website's user experie
 1. Form Builder
 2. Create a form
 3. Preview a form
-4. Panel of Easy Form Builder
+4. Panel of Easy form builder
 5. List of responses
 6. Setting of Easy Form Builder
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
 9. Create a contact-us form
-10. Localization of Easy Form Builder to your language
-11. Email template Editor of Easy Form Builder 
+10. Localization Easy form builder to your language
+11. Email template Editor of Easy form builder 
 12. Order payment forms
 
 == Frequently Asked Questions ==
@@ -351,7 +351,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 6. [How to work with panels in *Easy Form Builder*](https://whitestudio.team/document/complete-guide-of-form-entries-and-mange-forms/)
 
-7. [How to add The Confirmation Code Finder to a post, page, or custom post type](https://whitestudio.team/document/how-to-add-the-confirmation-code-finder/)
+7. [How to add The Confirmation Code Finder to a post, page, or custom post type
+   ](https://whitestudio.team/document/how-to-add-the-confirmation-code-finder/)
 
 8. [How to find a response through a Confirmation Code](https://whitestudio.team/document/how-to-find-a-response-through-a-confirmation-code/)
 
@@ -407,7 +408,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 =3.5.21=
 
-* Improved install addons of Easy Form Builder
+* Improved install addons  of Easy Form Builder
 
 =3.5.18=
 
@@ -423,7 +424,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Improve UX of Easy Form Builder
 * Fixed issues
 * Added Jalali date Input for create Persian date form
-* Added Hijri date input for create Arabic or Islamic date form
+* Added Hijri date  input for create Arabic or Islamic date form
 
 
 =3.5.13=
@@ -501,7 +502,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 3.3.4 = 
 = 3.3.3 = 
-* email structer of Easy Form Builder is improved
+* email structer of easy form builder is improved  
 
 = 3.3.2 = 
 * Change Email Template
@@ -557,10 +558,10 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Added Stripe Gateway for create custom Stripe payment forms on Easy Form Builder plugin
 * Added Payment Multi Choose field for build own custom payment forms with Easy Form Builder
 * Added Payment Single choose field for create a form payment on WP Easy Form Builder plugin
-* Added Payment Selection Choose field usable for build custom pay form in Easy Form Builder
+* Added Payment Selection Choose field usable for build custom pay form in Easy form builder
 * Added Payment dropdown list field for create a checkout form payment on WP Easy Form Builder plugin
-* Added Link field on WordPress Easy Form Builder
-* Added title field on Easy Form Builder
+* Added Link field on WordPress Easy Form builder
+* Added title field on Easy form builder
 * Easy Form Builder payment form supports these currencies:
       USD (United State dollar)
       AED (United Arab Emirates dirham, درهم إماراتي)
@@ -605,11 +606,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
       FJD (Fijian dollar)
       FKP* (Falkland Islands pound)
       GBP (Pound sterling)
-      GEL (Georgian lari, ქართული ლარი)
+      GEL (Georgian lari,  ქართული ლარი)
       GIP (Gibraltar pound)
       GMD (Gambian dalasi)
       GNF* (Guinean franc, franc guinéen)
-      GTQ* (Guatemalan quetzal, quetzal guatemalteco)
+      GTQ* (Guatemalan quetzal,  quetzal guatemalteco)
       GYD (Guyanese dollar)
       HKD (Hong Kong dollar, 港元)
       HNL* (Honduran lempira, lempira hondureño)
@@ -733,7 +734,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * Fixed issues
 
 = 2.3.7 =
-* Add multiple Selection inputs to WP Easy Form Builder
+* Add multiple Selection inputs to WP easy form builder
 * UI improvements
 * Fixed issues
 
@@ -790,7 +791,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 * UI improvements
 
 = 2.2.0 =
-* option of Localize Easy Form Builder
+* option of Localize easy form builder
 * UI improvements
 
 = 2.1.1 =
@@ -852,7 +853,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 1.33.4 =
 * Fixed issues
-* localized spam protection
+* localized  spam protection
 
 = 1.33.3 =
 = 1.33.2 =
@@ -905,7 +906,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 1.31.6 =
 * RTL feature is added
 * UI improvements
-* Fixed issues of Phone number and Email validation
+* Fixed issues of Tell and Email validation
 
 
 == Upgrade Notice ==

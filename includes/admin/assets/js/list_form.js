@@ -58,7 +58,7 @@ function fun_emsFormBuilder_render_view(x) {
     
     return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
    <th scope="row" class="efb emsFormBuilder-tr" data-id="${i.form_id}" >
-     [EMS_Form_Builder id=${Number(i.form_id)}]  
+     [EMS_form_builder id=${Number(i.form_id)}]  
    </th>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
@@ -66,7 +66,7 @@ function fun_emsFormBuilder_render_view(x) {
    <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
    <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
-   <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
+   <input type="text"  class="efb  d-none" value='[EMS_form_builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
    <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
      onClick ="copyCodeEfb('${i.form_id}-fc')" 
      data-bs-toggle="tooltip" data-bs-placement="bottom"

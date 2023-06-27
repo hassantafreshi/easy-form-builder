@@ -114,10 +114,10 @@ class Admin {
     }
 
     public function admin_assets($hook) {
-        global $current_screen;
-
+        global $current_screen;       
+        $hook = $hook ? $hook : http_build_query($_GET);
         /** Only enqueue scripts and styles on the actual plugin admin pages */
-        if (is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")) {
+        if (is_admin() && isset($current_screen->id) && strpos($hook, "Emsfb")==true) {
             //$this->pay_stripe_sub_Emsfb();
             //notifcation new version
           /*   wp_register_script('whiteStudioMessage', 'https://whitestudio.team/js/message.js' . $this->plugin_version, null, null, true);
@@ -137,7 +137,7 @@ class Admin {
         }
 
         // if page is edit_forms_Emsfb
-        if (strpos($hook, 'Emsfb') && is_admin()) {
+        if (strpos($hook, 'Emsfb')==true && is_admin()) {
 
             if (is_rtl()) {
                 //code_v1 start
@@ -301,7 +301,7 @@ class Admin {
         //,`form_name` =>
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
         $m = $lang["updated"];
-        $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
+        $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_form_builder id=$id]"];
         wp_send_json_success($response, $_POST);
     }
     public function add_addons_Emsfb() {
@@ -1231,15 +1231,12 @@ class Admin {
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){                    
                      //error_log("directory wpbakery not exist");
                  }
-
-              //   require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/widget_wpbakery.php");
-                // add_action('vc_before_init', [$this, 'register_custom_widget_wpbakery_efb']);
                  
                  //require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
-                 require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
+                 //require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
                  
              }
- 
+             require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
              // Check if Gutenberg editor is available
              if (function_exists('register_block_type')) {
                  //error_log("Gutenberg exist");

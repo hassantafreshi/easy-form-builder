@@ -268,7 +268,7 @@ const ElcountriesListSelections = (idset,indx) => {
        <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
            <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
      </tr> </thead>
-     <tbody class="efb">                  
+     <tbody class="efb fs-7">                  
       ${optn}
      </tbody>
    </table>
