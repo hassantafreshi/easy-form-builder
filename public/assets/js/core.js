@@ -2135,7 +2135,7 @@ window.addEventListener("popstate",e=>{
 
 const headers = new Headers({
   'Content-Type': 'application/json',
-  'X-WP-Nonce': efb_var.nonce_msg
+
 });
 
 
