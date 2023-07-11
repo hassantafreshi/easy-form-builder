@@ -1239,99 +1239,6 @@ const loading_messge_efb = () => {
   return ` <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
 }
 
-
-/* 
-function fun_renderform_Efb() {
-  try {
-    valj_efb.forEach((v, i) => {
-      console.log(v);
-      let disabled = valj_efb[iVJ].hasOwnProperty('disabled') ? valj_efb[iVJ].disabled : false;
-      switch (v.type) {
-        case "maps":
-          initMap(disabled);
-          break;
-        case "esign":
-          c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
-          c2d_contex_efb.lineWidth = 5;
-          c2d_contex_efb.strokeStyle = "#000000";
-
-          if(disabled) return;
-          document.getElementById(`${v.id_}_`).addEventListener("mousedown", (e) => {
-            draw_mouse_efb = true;
-            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
-            canvas_id_efb = v.id_;
-            lastMousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e);
-          }, false);
-
-          document.getElementById(`${v.id_}_`).addEventListener("mouseup", (e) => {
-            draw_mouse_efb = false;
-            const value = document.getElementById(`${v.id_}-sig-data`).value;
-          }, false);
-
-          document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
-
-          // touch event support for mobile
-          document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
-            // canvas_id_efb = el.dataset.code;
-            let touch = e.touches[0];
-            let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
-          }, false);
-
-          document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
-            canvas_id_efb = v.id_;
-            c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
-            mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
-            let touch = e.touches[0];
-            let ms = new MouseEvent("mousedown", {
-              clientY: touch.clientY,
-              clientX: touch.clientX
-            });
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
-          }, false);
-
-          document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
-            let ms = new MouseEvent("mouseup", {});
-            document.getElementById(`${v.id_}_`).dispatchEvent(ms);
-            const value = document.getElementById(`${v.id_}-sig-data`).value;
-          }, false);
-
-          (function drawLoop() {
-            requestAnimFrame(drawLoop);
-            renderCanvas_efb(v.id_);
-          })();
-          break;
-        case "multiselect":
-        case "payMultiselect":
-          jQuery(function () {
-            jQuery('.selectpicker').selectpicker();
-          });
-          setTimeout(() => {
-            //const v = valj_efb.find(x=>x.id_==rndm);
-            const corner = v.hasOwnProperty('corner') ? v.corner: 'efb-square';
-            const opd = document.querySelector(`[data-id='${v.id_}_options']`)
-            opd.className += ` efb ${corner} ${v.el_border_color} ${v.el_text_size} ${v.el_height}`
-          }, 350);       
-          break;
-        case "rating":
-
-          break;
-        case "dadfile":
-          if(disabled) return;
-          set_dadfile_fun_efb(v.id_, i)
-          break;
-
-      }
-    })
-
-  } catch {
-    console.error(`Preview of Pc Form has an Error`)
-  } finally {
-    handle_navbtn_efb(valj_efb[0].steps)
-  }//end try
-  return true;
-}//end function */
-
 function copyCodeEfb(id) {
   /* Get the text field */
   var copyText = document.getElementById(id);
@@ -1347,16 +1254,6 @@ function copyCodeEfb(id) {
   alert_message_efb(efb_var.text.copiedClipboard, '', 6)
 }
 
-/* function setAtrOfElefb(id, text, color, time) {
-
-  document.getElementById(id).innerHTML += `<div class="efb  alert ${color} alert-dismissible mt-5" role="alert">
-      <strong>${text}</strong>
-      <button type="button" class="efb  btn-close" data-dismiss="alert" aria-label="Close"></button></div>`
-  setTimeout(function () {
-    jQuery('.alert').hide();
-  }, time);
-}
- */
 
 
 function validExtensions_efb_fun(type, fileType) {
@@ -1374,237 +1271,255 @@ function validExtensions_efb_fun(type, fileType) {
 
 
 var steps_len_efb 
+
 function handle_navbtn_efb(steps, device) {
+  console.log('============>handle_navbtn_efb');
   var next_s_efb, prev_s_efb; //fieldsets
   var opacity_efb;
 
-   steps_len_efb = Number(steps) + 1;
-  current_s_efb = 1
+  steps_len_efb = Number(steps) + 1;
+  current_s_efb = 1;
   setProgressBar_efb(current_s_efb, steps_len_efb);
   if (steps > 1) {
-    if (valj_efb[0].type == "payment" && preview_efb != true)
-    {
-      let state= valj_efb.findIndex(x => x.type == "stripe");
-      state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-      
-      if(valj_efb[state].step == current_s_efb) { jQuery("#next_efb").addClass('disabled'); }
-    }
-    if (current_s_efb == 1) { jQuery("#prev_efb").toggleClass("d-none"); }
+    if (valj_efb[0].type == "payment" && preview_efb != true) {
+      let state = valj_efb.findIndex(x => x.type == "stripe");
+      state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
 
-    jQuery("#next_efb").click(function () {
-      
-      var cp = current_s_efb + 1
-      var state = true
-      if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
+      if (valj_efb[state].step == current_s_efb) {
+        document.getElementById("next_efb").classList.add("disabled");
+      }
+    }
+    if (current_s_efb == 1) {
+      document.getElementById("prev_efb").classList.toggle("d-none");
+    }
+
+    document.getElementById("next_efb").addEventListener("click", function () {
+      var cp = current_s_efb + 1;
+      var state = true;
+      if (preview_efb == false && fun_validation_efb() == false) {
+        state = false;
+        return false;
+      }
       setTimeout(function () {
         var url = new URL(window.location);
-       // url.searchParams.set('stepNo', cp);
-        history.pushState("EFBstep-"+cp,null,url);
+        history.pushState("EFBstep-" + cp, null, url);
         if (state = true) {
           if (cp == steps_len_efb) {
-            jQuery("#prev_efb").addClass("d-none");
-            jQuery("#next_efb").addClass("d-none");
-            //send to server after validation 778899
-            send_data_efb();          
+            document.getElementById("prev_efb").classList.add("d-none");
+            document.getElementById("next_efb").classList.add("d-none");
+            send_data_efb();
             document.getElementById('efbform').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
           }
 
-
-          var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-          next_s_efb = current_s.next();
+          var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+          console.log(current_s);
+          current_s.classList.add("d-none");
+          console.log(current_s);
+          next_s_efb = current_s.nextElementSibling;
           var nxt = "" + (current_s_efb + 1) + "";
-          jQuery('[data-step="icon-s-' + (nxt) + '-efb"]').addClass("active");
-          jQuery('[data-step="step-' + (nxt) + '-efb"]').toggleClass("d-none");
+          console.log(`[data-step="icon-s-' + ${nxt} + '-efb"]`);
+          if(Number(valj_efb[0].show_icon)!=1){
+            document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
+            
 
+          }
+          document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
+          
+          next_s_efb.classList.remove('d-none');
+         // next_s_efb.style.display = "block";
 
-          next_s_efb.show();
+          /* current_s.animate(
+            { opacity_efb: 0 },
+            {
+              step: function (now) {
+                // for making fielset appear animation
+                opacity_efb = 1 - now;
 
-          current_s.animate({ opacity_efb: 0 }, {
-            step: function (now) {
-              // for making fielset appear animation
-              opacity_efb = 1 - now;
-
-              current_s.css({
-                'display': 'none',
-                'position': 'relative'
-              });
-              next_s_efb.css({ 'opacity_efb': opacity_efb });
-            },
-            duration: 500
-          });
+                current_s.style.display = "none";
+                current_s.style.position = "relative";
+                next_s_efb.style.opacity_efb = opacity_efb;
+              },
+              duration: 500
+            }
+          ); */
           current_s_efb += 1;
-          localStorage.setItem('step', current_s_efb);
+          localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
 
           if (current_s_efb <= steps) {
-            var val = valj_efb.find(x => x.step == nxt)
-            jQuery("#title_efb").attr('class', val['label_text_color']);
-            jQuery("#desc_efb").attr('class', val['message_text_color']);
-            jQuery("#title_efb").text(val['name']);
-            jQuery("#desc_efb").text(val['message']);
-            jQuery("#title_efb").addClass('text-center efb mt-1');
-            jQuery("#desc_efb").addClass('text-center efb fs-7');
-            jQuery("#prev_efb").removeClass("d-none");
+            var val = valj_efb.find(x => x.step == nxt);
+            if(Number(valj_efb[0].show_icon)!=1){
+              document.getElementById("title_efb").className = val["label_text_color"];
+              document.getElementById("desc_efb").className = val["message_text_color"];
+              document.getElementById("title_efb").textContent = val["name"];
+              document.getElementById("desc_efb").textContent = val["message"];
+              document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
+              document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
+            }
+            document.getElementById("prev_efb").classList.remove("d-none");
           }
 
-
-          if (current_s_efb == (steps_len_efb - 1)) {
-            if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) jQuery("#next_efb").toggleClass('disabled');
-            var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
-            jQuery("#next_efb").html(val);
+          if (current_s_efb == steps_len_efb - 1) {
+            if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
+              document.getElementById("next_efb").classList.toggle("disabled");
+            }
+            var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
+            document.getElementById("next_efb").innerHTML = val;
           }
-          //next_efb
-          //disabled   
-          if (valj_efb[0].type == "payment" && preview_efb != true)
-          {
-  
-            
-            let state= valj_efb.findIndex(x => x.type == "stripe");
-            state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-            
-            //console.log(statePay)
-            //if(valj_efb[state].step == current_s_efb && !localStorage.getItem('PayId')) { jQuery("#next_efb").addClass('disabled'); }
-            if(valj_efb[state].step == current_s_efb && ! efb_var.hasOwnProperty('payId')==true) { jQuery("#next_efb").addClass('disabled'); }
-          }   
-          //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
-          //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
-          if (document.getElementById('body_efb')) {
-            document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+
+          if (valj_efb[0].type == "payment" && preview_efb != true) {
+            let state = valj_efb.findIndex(x => x.type == "stripe");
+            state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
+            if (valj_efb[state].step == current_s_efb && !efb_var.hasOwnProperty("payId") == true) {
+              document.getElementById("next_efb").classList.add("disabled");
+            }
+          }
+
+          if (document.getElementById("body_efb")) {
+            document.getElementById("body_efb").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
           }
         }
-      }, 200)
-      
+      }, 200);
     });
 
-    jQuery("#prev_efb").click(function () {
+    document.getElementById("prev_efb").addEventListener("click", function () {
       prev_btn_efb();
     });
-
-
-
   } else {
     //One Step section
 
-
-    jQuery("#btn_send_efb").click(function () {
-      var state = true
-      if (preview_efb == false && fun_validation_efb() == false) { state = false; return false };
+    document.getElementById("btn_send_efb").addEventListener("click", function () {
+      var state = true;
+      if (preview_efb == false && fun_validation_efb() == false) {
+        state = false;
+        return false;
+      }
 
       setTimeout(function () {
         if (state = true) {
-          jQuery('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').addClass("active");
-          jQuery('[data-step="step-' + (current_s_efb + 1) + '-efb"]').toggleClass("d-none");
-          jQuery("#btn_send_efb").toggleClass("d-none");
-          var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-          next_s_efb = current_s.next();
-          next_s_efb.show();
-          current_s.animate({ opacity_efb: 0 }, {
-            step: function (now) {
-              // for making fielset appear animation
-              opacity_efb = 1 - now;
+          document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
+          document.querySelector('[data-step="step-' + (current_s_efb + 1) + '-efb"]').classList.toggle("d-none");
+          document.getElementById("btn_send_efb").classList.toggle("d-none");
+          var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+          next_s_efb = current_s.nextElementSibling;
+          next_s_efb.classList.remove('d-none');
+          //next_s_efb.style.display = "block";
+          /* current_s.animate(
+            { opacity_efb: 0 },
+            {
+              step: function (now) {
+                // for making fielset appear animation
+                opacity_efb = 1 - now;
 
-              current_s.css({
-                'display': 'none',
-                'position': 'relative'
-              });
-              next_s_efb.css({ 'opacity_efb': opacity_efb });
-            },
-            duration: 500
-          });
+                current_s.style.display = "none";
+                current_s.style.position = "relative";
+                next_s_efb.style.opacity_efb = opacity_efb;
+              },
+              duration: 500
+            }
+          ); */
           current_s_efb += 1;
           setProgressBar_efb(current_s_efb, steps_len_efb);
 
           send_data_efb();
-          //send to server after validation
-
         }
 
-        if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+        if (document.getElementById("body_efb")) {
+          document.getElementById("body_efb").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+        }
       }, 200);
-    })
+    });
   }
+ if(document.querySelector(".submit")){
+   document.querySelector(".submit").addEventListener("click", function () {
+     return false;
+   });
+ }
+}
 
-
-
-  jQuery(".submit").click(function () {
-    return false;
-  })
-
-};
-
-function prev_btn_efb(){
+function prev_btn_efb() {
+  console.log(`====>prev_btn_efb JS`);
   var cs = current_s_efb;
 
-      if (cs == 2) {
-        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
-        jQuery("#next_efb").html(val);
-        jQuery("#next_efb").toggleClass("d-none");
+  if (cs == 2) {
+    var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
+    document.getElementById("next_efb").innerHTML = val;
+    document.getElementById("next_efb").classList.toggle("d-none");
+  } else if (cs == valj_efb[0].steps) {
+    var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
+    document.getElementById("next_efb").innerHTML = val;
+    if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1")) {
+      document.getElementById("next_efb").classList.remove("disabled");
+    }
+  }
+  var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+  
+  console.log(current_s);
+  if (valj_efb[0].type == "payment" && preview_efb != true) {
+    let state = valj_efb.findIndex(x => x.type == "stripe");
+    state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
 
-      } else if (cs == valj_efb[0].steps) {
-        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
-        jQuery("#next_efb").html(val);
-        if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1") ) jQuery("#next_efb").removeClass('disabled');
-      }
-      var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
-      if (valj_efb[0].type == "payment" && preview_efb != true)
-      {
-        let state= valj_efb.findIndex(x => x.type == "stripe");
-        state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-        
-        if(valj_efb[state].step == current_s) { jQuery("#next_efb").removeClass('disabled'); }
-      }  
-      //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
-      //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step != current_s) { jQuery("#next_efb").removeClass('disabled'); }
-      prev_s_efb = current_s.prev();
-      jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
-      jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
-      //bug here
-      var s = "" + (current_s_efb - 1) + ""
-      var val = valj_efb.find(x => x.step == s)
-      jQuery("#title_efb").attr('class', val['label_text_color']);
-      jQuery("#desc_efb").attr('class', val['message_text_color']);
-      jQuery("#title_efb").text(val['name']);
-      jQuery("#desc_efb").text(val['message']);
-      jQuery("#title_efb").addClass('text-center efb mt-1');
-      jQuery("#desc_efb").addClass('text-center efb fs-7');
-      prev_s_efb.show();
+    if (valj_efb[state].step == current_s) {
+      document.getElementById("next_efb").classList.remove("disabled");
+    }
+  }
 
-      current_s.animate({ opacity_efb: 0 }, {
-        step: function (now) {
-          opacity_efb = 1 - now;
+  prev_s_efb = current_s.previousElementSibling;
+  
 
-          current_s.css({
-            'display': 'none',
-            'position': 'relative'
-          });
-          prev_s_efb.css({ 'opacity_efb': opacity_efb });
-        },
-        duration: 500
-      });
-      current_s_efb = current_s_efb - 1;
-      localStorage.setItem('step', current_s_efb);
-      setProgressBar_efb(current_s_efb, steps_len_efb);
-      if (current_s_efb == 1) {
-        jQuery("#prev_efb").toggleClass("d-none");
-        jQuery("#next_efb").toggleClass("d-none");
-      }
-     
-        console.log(valj_efb[0].captcha);
-      
-      if(Number(valj_efb[0].captcha) == 1 && current_s_efb<steps_len_efb) jQuery("#next_efb").removeClass('disabled');
-      
-      if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+  var s = "" + (current_s_efb - 1) + "";
+  var val = valj_efb.find(x => x.step == s);
+  if(Number(valj_efb[0].show_icon)!=1){
+      document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
+      document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
+      document.getElementById("title_efb").className = val["label_text_color"];
+      document.getElementById("desc_efb").className = val["message_text_color"];
+      document.getElementById("title_efb").textContent = val["name"];
+      document.getElementById("desc_efb").textContent = val["message"];
+      document.getElementById("title_efb").classList.add("text-center", "efb", "mt-1");
+      document.getElementById("desc_efb").classList.add("text-center", "efb", "fs-7");
+  }
+ // prev_s_efb.style.display = "block";
+  current_s.classList.add('d-none');
+  prev_s_efb.classList.remove("d-none");
+/*   current_s.animate(
+    { opacity_efb: 0 },
+    {
+      step: function (now) {
+        opacity_efb = 1 - now;
+
+        current_s.style.display = "none";
+        current_s.style.position = "relative";
+        prev_s_efb.style.opacity_efb = opacity_efb;
+      },
+      duration: 500
+    }
+  ); */
+
+  current_s_efb = current_s_efb - 1;
+  localStorage.setItem("step", current_s_efb);
+  setProgressBar_efb(current_s_efb, steps_len_efb);
+  if (current_s_efb == 1) {
+    document.getElementById("prev_efb").classList.toggle("d-none");
+    document.getElementById("next_efb").classList.toggle("d-none");
+  }
+
+  if (Number(valj_efb[0].captcha) == 1 && current_s_efb < steps_len_efb) {
+    document.getElementById("next_efb").classList.remove("disabled");
+  }
+
+  if (document.getElementById("body_efb")) {
+    document.getElementById("body_efb").scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  }
 }
-
 
 function setProgressBar_efb(curStep, steps_len_efb) {
-  var percent = parseFloat(100 / steps_len_efb) * curStep;
-  percent = percent.toFixed();
-  jQuery(".progress-bar-efb")
-    .css("width", percent + "%")
+  if(Number(valj_efb[0].show_pro_bar)==1) return
+  console.log(`====>setProgressBar_efb`);
+  var percent = (curStep / steps_len_efb) * 100;
+  percent = Math.round(percent * 100) / 100;
+  document.querySelector(".progress-bar-efb").style.width = percent + "%";
 }
-
 
 
 function ReadyElForViewEfb(content) {
@@ -1660,22 +1575,23 @@ function alert_message_efb(title, message, sec, alert) {
     document.getElementById("body_efb").innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
   }
   
-  document.getElementById(id).innerHTML += ` <div id="alert_content_efb" class="efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+  document.getElementById(id).innerHTML += ` <div id="alert_content_efb" class="efb alert_efb  alert ${alert} alert-dismissible ${efb_var.text.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <h5 class="efb alert-heading fs-4">${title}</h5>
     <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close" onclick="close_msg_efb()"></button>
   </div>`
   //console.log(id);
   document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
-  setTimeout(function () {
-    jQuery('.alert_efb').hide();
-    document.getElementById('alert_efb').innerHTML = ""
-  }, sec);
 
+  setTimeout(() => {
+    // Hide the alert element.
+    console.log('new code JS for close box');
+    document.querySelector(".alert_efb").style.display = "none";
+    document.getElementById("alert_efb").innerHTML = "";
+  }, sec);
  // window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
   //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
-  
-  //jQuery('.alert').alert()
+
 }
 function close_msg_efb(){
   const v=document.getElementById('alert_content_efb')
@@ -1705,7 +1621,7 @@ function noti_message_efb(message, alert ,id) {
   //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
   //window.scrollTo({ top: document.getElementById('noti_content_efb'), behavior: 'smooth' });
   
-  //jQuery('.alert').alert()
+s
 }
 
 
@@ -1905,7 +1821,7 @@ function previewFormEfb(state) {
 
 
   if (content.length > 10) content += `</div>`
-    head = `${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
+    head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
     ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
     `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
@@ -1914,7 +1830,7 @@ function previewFormEfb(state) {
   content = `  
     <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
 
-    ${valj_efb[0].show_icon == 0 || valj_efb[0].show_icon == false ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
+    ${Number(valj_efb[0].show_icon)!=1 ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
     
      <form id="efbform"> ${head} <div class="efb mt-1 px-2">${content}</div> </form>
     </div>
@@ -2110,50 +2026,50 @@ function previewFormEfb(state) {
 
 
 function fun_prev_send() {
-  jQuery(function () {
-    var stp = Number(valj_efb[0].steps) + 1;
-    var wtn = loading_messge_efb();
-    jQuery('#efb-final-step').html(wtn);
-    var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-    prev_s_efb = current_s.prev();
-    jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
-    jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
-    if (stp == 2) {
+  var stp = Number(valj_efb[0].steps) + 1;
+  var wtn = loading_messge_efb();
+  document.getElementById('efb-final-step').innerHTML = wtn;
+  var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
+  prev_s_efb = current_s.previousElementSibling;
+  if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
+  document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
+  if (stp == 2) {
+    document.getElementById("btn_send_efb").classList.toggle("d-none");
+  } else {
+    document.getElementById("next_efb").classList.toggle("d-none");
+  }
+  var s = "" + (current_s_efb - 1) + "";
+  var val = valj_efb.find(x => x.step == s);
+  if(Number(valj_efb[0].show_icon)!=1){
+    document.getElementById("title_efb").className = val['label_text_color'] + ' efb text-center mt-1';
+    document.getElementById("desc_efb").className = val['message_text_color'] + " efb text-center fs-6";
+    document.getElementById("title_efb").textContent = val['name'];
+    document.getElementById("desc_efb").textContent = val['message'];
 
-      jQuery("#btn_send_efb").toggleClass("d-none");
-    } else {
-      jQuery("#next_efb").toggleClass("d-none");
-    }
-    //bug here
-    var s = "" + (current_s_efb - 1) + ""
-    var val = valj_efb.find(x => x.step == s)
-    jQuery("#title_efb").attr('class', val['label_text_color'] + ' efb text-center mt-1');
-    jQuery("#desc_efb").attr('class', val['message_text_color'] +" efb text-center fs-6");
-    jQuery("#title_efb").text(val['name']);
-    jQuery("#desc_efb").text(val['message']);
-    jQuery("#prev_efb").toggleClass("d-none");
-    prev_s_efb.show();
+  }
+  document.getElementById("prev_efb").classList.toggle("d-none");
+  prev_s_efb.style.display = "block";
 
-
-    current_s.animate({ opacity_efb: 0 }, {
+  current_s.classList.add('d-none');
+  prev_s_efb.classList.remove('d-none');
+  console.log(prev_s_efb);
+  /* current_s.animate(
+    { opacity_efb: 0 },
+    {
       step: function (now) {
         opacity_efb = 1 - now;
 
-        current_s.css({
-          'display': 'none',
-          'position': 'relative'
-        });
-        prev_s_efb.css({ 'opacity_efb': opacity_efb });
+        current_s.style.display = 'none';
+        current_s.style.position = 'relative';
+        prev_s_efb.style.opacity_efb = opacity_efb;
       },
       duration: 500
-    });
-    current_s_efb -= 1;
-    localStorage.setItem('step', current_s_efb);
-    setProgressBar_efb(current_s_efb, stp);
-    //preview problem
-  });
+    }
+  ); */
+  current_s_efb -= 1;
+  localStorage.setItem('step', current_s_efb);
+  setProgressBar_efb(current_s_efb, stp);
 }
-
 
 function verifyCaptcha(token) {
   if (token.length > 1) {
@@ -2885,19 +2801,18 @@ state_rply_btn_efb=(t)=>{
 window.addEventListener('offline', (e) => { console.log('offline'); });
 window.addEventListener('online', (e) => { console.log('online'); });
 
-check_msg_ext_resp_efb=()=>{
-  jQuery('#replayM_emsFormBuilder').on('keypress', 
-    function (event) {      
-       if (jQuery('#replayB_emsFormBuilder').hasClass('disabled')) {
-        
-        jQuery('#replayB_emsFormBuilder').removeClass('disabled');
-      }
-        if (event.which == '13') {
-            event.preventDefault();
-            
-        }
-        //replayB_emsFormBuilder
-    });
+function check_msg_ext_resp_efb() {
+  // Get the `replayM_emsFormBuilder` element.
+  console.log('new ===> check_msg_ext_resp_efb')
+  const replayM_emsFormBuilder = document.querySelector("#replayM_emsFormBuilder");
+  replayM_emsFormBuilder.addEventListener("keypress", (event) => {
+    if (document.querySelector("#replayB_emsFormBuilder").classList.contains("disabled")) {
+      document.querySelector("#replayB_emsFormBuilder").classList.remove("disabled");
+    }
+    if (event.which === 13) {
+      event.preventDefault();
+    }
+  });
 }
 
 /* test code  */
