@@ -1297,6 +1297,93 @@ class efbFunction {
 			return $value;
 	}
 
+	/* section of generate validate code and status of visit and message [start] */
+	public function efb_code_validate_create( $fid, $type, $status, $tc) {
+		//$fid => form Id
+		//$type => form 0 , response 1, sms 2, email 3
+		// $status => visit , send , upd , del  =>  max len 5
+		//$tc => tracking code if exists 
+		$table_name = $this->db->prefix . 'emsfb_stts_';
+        $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
+		$uid = get_current_user_id();
+		$ip = $this->get_ip_address();
+		$os = $this->getVisitorOS();
+		$browser =$this->getVisitorBrowser();
+        $data = array(
+            'sid' => $sid,
+            'fid' => $fid,
+            'type_' => $type,
+            'status' => $status,
+            'ip' => $ip,
+            'os' => $os,
+            'browser' => $browser,
+            'uid' => $uid,
+            'tc' => $tc,
+			'active'=>1,
+			'date'=>wp_date('Y-m-d H:i:s')
+        );
+		error_log(json_encode($data));
+       $this->db->insert($table_name, $data);
+	   return $sid;
+    }
+
+    public function efb_code_validate_update($sid ,$status ,$tc ) {
+		// $status => visit , send , upd , del => max len 5
+		error_log("efb_code_validate_update");
+		error_log($sid);
+		error_log($status);
+		error_log($tc);
+		$table_name = $this->db->prefix . 'emsfb_stts_';
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+		$active =0;
+		$read_date =wp_date('Y-m-d H:i:s');
+		if($status=="rsp" || $status=="ppay")  $active =1;
+		/* $data_= $data = array(
+			'status' => $status,
+			'active' =>0,
+			'read_date'=> date('Y-m-d H:i:s')
+        );
+		if($tc!="null"){
+			error_log("============>tc");
+			$data_['tc'] = $tc;
+		}
+        $where = array(
+            'sid' => $sid,
+			'active'=>1
+            			
+        ); */
+		//error_log(json_encode($data));
+      /* $r= $this->db->update($table_name, $data_,$where); */
+
+	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
+
+		$stmt = $this->db->query($sql);
+		//$stmt->bindParam(':date_', $$date_limit);
+
+	
+	  
+	   error_log(json_encode($stmt));
+	  
+	   return $stmt > 0;
+    }
+
+    public function efb_code_validate_select($sid ,$fid) {
+		error_log("===============> efb_code_validate_select");
+		error_log($sid);
+		error_log($fid);
+		$table_name = $this->db->prefix . 'emsfb_stts_';
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+		//error_log($date_limit);
+        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
+        $result =$this->db->get_var($query);
+		error_log(json_encode($result));
+        return $result === '1';
+    }
+
+	/* section of generate validate code and status of visit and message [end] */
+	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
+
+
 	/* public function get_list_colores_template(){
 		//list_files(get_template_directory())
 		//$template_name = get_template(); //get active template name
@@ -1329,5 +1416,47 @@ class efbFunction {
 		//error_log(json_encode($colors));
 		return $colors; //print all colors found in active template
 	} */
+	public function getVisitorOS() {
+		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$os = "Unknown";
 	
+		if (strpos($userAgent, 'Windows') !== false) {
+			$os = "Windows";
+		} elseif (strpos($userAgent, 'Linux') !== false) {
+			$os = "Linux";
+		} elseif (strpos($userAgent, 'Macintosh') !== false || strpos($userAgent, 'Mac OS X') !== false) {
+			$os = "Mac";
+		} elseif (strpos($userAgent, 'Android') !== false) {
+			$os = "Android";
+		} elseif (strpos($userAgent, 'iOS') !== false) {
+			$os = "iOS";
+		}
+	
+		return $os;
+	}
+
+	public function getVisitorBrowser() {
+		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$browser = "Unknown";
+	
+		if (strpos($userAgent, 'Firefox') !== false) {
+			$browser = "Mozilla Firefox";
+		} elseif (strpos($userAgent, 'Chrome') !== false) {
+			if (strpos($userAgent, 'Edg') !== false) {
+				$browser = "Microsoft Edge";
+			} elseif (strpos($userAgent, 'Brave') !== false) {
+				$browser = "Brave";
+			} else {
+				$browser = "Google Chrome";
+			}
+		} elseif (strpos($userAgent, 'Safari') !== false) {
+			$browser = "Apple Safari";
+		} elseif (strpos($userAgent, 'Opera') !== false) {
+			$browser = "Opera";
+		} elseif (strpos($userAgent, 'MSIE') !== false || strpos($userAgent, 'Trident') !== false) {
+			$browser = "Internet Explorer";
+		}
+	
+		return $browser;
+	}
 }

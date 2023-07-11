@@ -81,6 +81,8 @@ class _Public {
 			  'permission_callback' => '__return_true'
 		  ]); 
 
+		
+
 		  //not complated end
 
 		});
@@ -346,8 +348,8 @@ class _Public {
 					}
 				}
 				
-				
-				
+				//efb_code_validate_create( $fid, $type, $status, $tc)
+				$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 				$code = 'efb'.$this->id;
 				$img = [
 						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
@@ -371,7 +373,9 @@ class _Public {
 				'v_efb'=>EMSFB_PLUGIN_VERSION,
 				'nonce_msg'=> wp_create_nonce($code),
 				'images' => $img,
-				'rest_url'=>get_rest_url(),
+				'rest_url'=>get_rest_url(null),
+				'rest_nonce'=>wp_create_nonce( 'wp_rest' ),
+				'sid'=>$sid
 				
 				);
 				
@@ -486,7 +490,8 @@ class _Public {
 		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		$location = '';
-		
+		//efb_code_validate_create( $fid, $type, $status, $tc)
+		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
 		wp_localize_script( 'core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -500,7 +505,8 @@ class _Public {
 			   'text' =>$text,
 			   'pro'=>$this->pro_efb,
 			   'wp_lan'=>get_locale(),			   
-			   'location'=>$location
+			   'location'=>$location,
+			   'sid'=>$sid
 		 ));  
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
@@ -1950,20 +1956,37 @@ class _Public {
 	  public function get_form_public_efb($data_POST_){
 		$data_POST = $data_POST_->get_json_params();
 		error_log(json_encode($data_POST));
+		
 		//error_log("get_form_public_efb");
 		$text_ =["pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
-		$efbFunction = new efbFunction() ;
-		$this->lanText= $this->efbFunction->text_efb($text_);
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
+		
+		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
-		$this->efbFunction =$efbFunction;
-		$key_nonce = 'efb'.$this->id;
-		$nonce_msg = sanitize_text_field($data_POST['nonce_msg']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+		$this->lanText= $this->efbFunction->text_efb($text_);
+		error_log('$s_sid check===>');
+		error_log($s_sid);
+
+		if ($s_sid !=1){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+		wp_send_json_success($response,$data_POST);
+		} 
+		//$efbFunction = new efbFunction() ;
+		
+
+		
+		//$key_nonce = 'efb'.$this->id;
+		//$nonce_msg = sanitize_text_field($data_POST['nonce_msg']);
 		$user_id = 1;
 		
-		error_log("recived -->");
+		/* error_log("recived -->");
 		error_log($key_nonce);
 		error_log($nonce_msg);
-		error_log($user_id );
+		error_log($user_id ); */
 		//error_log(wp_verify_nonce($data_POST['nonce_msg'],$key_nonce));
 		/* 
 		
@@ -1975,11 +1998,7 @@ class _Public {
 			wp_send_json_success($response,$data_POST);
 		}*/
 		
-		if (wp_verify_nonce($data_POST['nonce_msg'],$key_nonce)==false){
-				error_log('nonce run');
-			$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
-			wp_send_json_success($response,$data_POST);
-		} 
+		
 		
 		error_log(json_encode($data_POST));
 		
@@ -2723,7 +2742,7 @@ class _Public {
 							error_log($nnc);
 													
 							//wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 							
-							
+							$this->efbFunction->efb_code_validate_update($sid ,'send' ,$check );
 							$response = array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>$nnc); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							wp_send_json_success($response,$data_POST);
@@ -2934,6 +2953,7 @@ class _Public {
 							
 							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$this->id ,'nonce'=>wp_create_nonce($this->id)  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
+							$this->efbFunction->efb_code_validate_update($sid ,'pay' ,$check );
 							if($rePage!="null" && $check == 1){$response = array( 'success' => true  ,'m'=>$rePage); }
 							wp_send_json_success($response,$data_POST);
 							
@@ -2999,10 +3019,13 @@ class _Public {
 									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									//}
+									$this->efbFunction->efb_code_validate_update($sid ,'register' ,$check );
 								}
+								
 								$response = array( 'success' => true , 'm' =>$m); 
 								if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							}
+							
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "login":
@@ -3053,7 +3076,11 @@ class _Public {
 								$send['user_registered']=$user->data->user_registered;
 								$send['user_image']=get_avatar_url($user->data->ID);
 								$response = array( 'success' => true , 'm' =>$send); 
-								if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }								
+								if($rePage!="null"){
+									$response = array( 'success' => true  ,'m'=>$rePage); 
+									
+								}		
+								$this->efbFunction->efb_code_validate_update($sid ,'login' ,'login' );						
 								wp_send_json_success($response,$data_POST);
 							}else{
 								// user not login
@@ -3073,10 +3100,11 @@ class _Public {
 
 						break;
 						case "logout":
-							
+							$this->efbFunction->efb_code_validate_update($sid ,'logout' ,'logout' );
 							wp_logout();
 							$response = array( 'success' => true  );
 							wp_send_json_success($response,$data_POST);
+							
 						break;
 						case "recovery":							
 							$m = str_replace("\\","",$this->value);
@@ -3121,6 +3149,7 @@ class _Public {
 							}
 							$m=		$this->lanText["newPassM"];						
 							$response = array( 'success' => true , 'm' =>$m); 
+							$this->efbFunction->efb_code_validate_update($sid ,'repass' ,'repass' );
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "subscribe":
@@ -3147,6 +3176,7 @@ class _Public {
 
 							$response = array( 'success' => true , 'm' =>$this->lanText["done"]); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
+							$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "survey":
@@ -3176,6 +3206,7 @@ class _Public {
 							
 							$response = array( 'success' => true , 'm' =>$this->lanText["surveyComplatedM"]);
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); } 
+							$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "reservation":
@@ -3201,11 +3232,19 @@ class _Public {
 		$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
-		if (check_ajax_referer('public-nonce','nonce')!=1){
+		$sid = sanitize_text_field($_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		if ($s_sid !=1 || $sid==null){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
+		wp_send_json_success($response,$_POST);
+		} 
+	/* 	if (check_ajax_referer('public-nonce','nonce')!=1){
 			$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
-		}		
+		}	 */	
 		$response=$_POST['valid'];
 		$captcha_success =[];
 		$not_captcha=true;
@@ -3459,25 +3498,39 @@ class _Public {
 	}//end function
 
 	public function set_rMessage_id_Emsfb(){
-		
+		error_log('===>set_rMessage_id_Emsfb');
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		
+		
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
-		if (check_ajax_referer('public-nonce','nonce')!=1){
+
+		$sid = sanitize_text_field($_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		if ($s_sid !=1 || $sid==null){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+		wp_send_json_success($response,$_POST);
+		} 
+
+		$this->id =sanitize_text_field($_POST['id']);
+		$by ="";
+
+
+		/* 		if (check_ajax_referer('public-nonce','nonce')!=1){
 			
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
-		}
-		$this->id =sanitize_text_field($_POST['id']);
-		$by ="";
-		$key_nonce = 'efb'.$this->id;
+		} */
+	/* 	$key_nonce = 'efb'.$this->id;
 		if (check_ajax_referer($key_nonce,'nonce_msg')!=1){
 			
 			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 			wp_send_json_success($response,$_POST);
 			die();
-		}
+		} */
 
 		if(empty($_POST['message']) ){
 			$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]); 
@@ -4823,8 +4876,9 @@ class _Public {
 		return 0;
 	}
 
-	public function test_fun($slug){
-
+	public function test_fun($data_POST_){
+		$data_POST = $data_POST_->get_json_params();
+		error_log(json_encode($data_POST));
         error_log("test_fun");
 
         $response = array(
@@ -4851,6 +4905,8 @@ class _Public {
 		error_log(get_current_user_id());
 
 	}
+
+
 
 
 

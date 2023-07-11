@@ -177,10 +177,12 @@ class Panel_edit  {
 			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.34');
 			wp_enqueue_script('stripe_js');
 			
+		
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.5.34' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
-					'check' => 0));
+					'check' => 0,
+					));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.5.34');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 

@@ -692,7 +692,7 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        
+        error_log('admin ====>set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -1095,6 +1095,9 @@ class Admin {
 
     public function get_not_read_message() {
         $table_name = $this->db->prefix . "emsfb_msg_";
+        /* if (  $this->db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == NULL ){
+            return 'null';
+        } */
         $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
         $rtrn       = 'null';
         return $value;

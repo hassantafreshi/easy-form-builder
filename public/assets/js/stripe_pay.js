@@ -237,8 +237,9 @@ fun_add_stripe_efb = () => {
               paymentmethod: data.paymentmethod,
               value: `${data.val}`
             }];
-            efb_var.id = trackid;
+            //efb_var.id = trackid;
             localStorage.setItem('PayId',trackid);
+            efb_var.payId= trackid;
             //console.log(id)
             //console.log(o)
             sendBack_emsFormBuilder_pub.push(o[0])

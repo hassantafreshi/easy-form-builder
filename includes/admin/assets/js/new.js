@@ -1463,7 +1463,8 @@ function handle_navbtn_efb(steps, device) {
             state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
             
             //console.log(statePay)
-            if(valj_efb[state].step == current_s_efb && !localStorage.getItem('PayId')) { jQuery("#next_efb").addClass('disabled'); }
+            //if(valj_efb[state].step == current_s_efb && !localStorage.getItem('PayId')) { jQuery("#next_efb").addClass('disabled'); }
+            if(valj_efb[state].step == current_s_efb && ! efb_var.hasOwnProperty('payId')==true) { jQuery("#next_efb").addClass('disabled'); }
           }   
           //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s_efb) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
           //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s_efb && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
@@ -2075,7 +2076,8 @@ function previewFormEfb(state) {
   // if (state != "show") myModal.show_efb();
   step_el_efb = Number(valj_efb[0].steps);
  
-  if (localStorage.getItem('formId') == efb_var.id && state == 'run' && 
+  //if (localStorage.getItem('formId') == efb_var.id && state == 'run' && 
+  if ( state == 'run' && 
   ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb() 
   }
 

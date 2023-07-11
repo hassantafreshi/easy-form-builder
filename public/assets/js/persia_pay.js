@@ -97,7 +97,9 @@ function btnPersiaPayEfb(){
                     nonce: ajax_object_efm.nonce,
                     url :document.URL
                   };
+                  sessionStorage.setItem("id", efb_var.id);
                   
+
                   $.ajax({
                     type: "POST",
                     async: false,
@@ -112,8 +114,10 @@ function btnPersiaPayEfb(){
                           window.open(res.data.url ,'_self');
                           PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
                           <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-                          efb_var.id= res.data.id;
+                         // efb_var.id= res.data.id;
                           localStorage.setItem('PayId',res.data.id);
+                         // efb_var.payId= res.data.id;
+                         sessionStorage.setItem("payId", res.data.id);
                       }else{                   
                           PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;                                 
                           btnEfb.classList.remove('disabled');
@@ -139,7 +143,7 @@ function btnPersiaPayEfb(){
 
 fun_after_bankpay_persia_ui =()=>{
   const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-  efb_var.id=sanitize_text_efb(localStorage.getItem('efbPersiaPayId'))
+  efb_var.id=sanitize_text_efb(efb_var.payId)
     //console.log(id,document.getElementById(id))
   if ( ((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 && grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha != true) && document.getElementById(id) || valueJson_ws[0].captcha != true && document.getElementById(id) ) 
     {
