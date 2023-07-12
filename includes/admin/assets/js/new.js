@@ -1397,11 +1397,12 @@ function handle_navbtn_efb(steps, device) {
 
       setTimeout(function () {
         if (state = true) {
-          document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
+         if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
           document.querySelector('[data-step="step-' + (current_s_efb + 1) + '-efb"]').classList.toggle("d-none");
           document.getElementById("btn_send_efb").classList.toggle("d-none");
           var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
           next_s_efb = current_s.nextElementSibling;
+          current_s.classList.add('d-none');
           next_s_efb.classList.remove('d-none');
           //next_s_efb.style.display = "block";
           /* current_s.animate(
