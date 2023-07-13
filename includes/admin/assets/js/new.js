@@ -2048,8 +2048,8 @@ function fun_prev_send() {
     document.getElementById("desc_efb").textContent = val['message'];
 
   }
-  document.getElementById("prev_efb").classList.toggle("d-none");
-  prev_s_efb.style.display = "block";
+  if(document.getElementById("prev_efb"))document.getElementById("prev_efb").classList.toggle("d-none");
+  //prev_s_efb.style.display = "block";
 
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
