@@ -1869,7 +1869,8 @@ function previewFormEfb(state) {
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
     if (valj_efb[0].type == "payment") {      
-     if (ajax_object_efm.paymentGateway == "stripe" && typeof fun_add_stripe_efb =="function") fun_add_stripe_efb();
+     //if (ajax_object_efm.paymentGateway == "stripe" && typeof fun_add_stripe_efb =="function") fun_add_stripe_efb();
+     if (ajax_object_efm.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
     }
   }
   let ttype ='text'

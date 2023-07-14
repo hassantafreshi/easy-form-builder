@@ -225,16 +225,6 @@ class Addon {
 			}
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		/* wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), null, true);
-		wp_enqueue_script('pay_js'); */
-
-	/* 	if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), null, true);
-			wp_enqueue_script('persia_pay');
-		} */
-
-		/* wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), true,'3.5.34');
-		wp_enqueue_script('stripe_js'); */
 
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.34');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(

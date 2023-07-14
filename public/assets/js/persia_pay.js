@@ -69,10 +69,7 @@ function btnPersiaPayEfb(){
     return;
   }
   
-  let btnEfb = document.getElementById('persiaPayEfb');
-  btnEfb.innerHTML="لطفا صبر کنید";
-  btnEfb.classList.add('disabled')
-  let PaymentState = document.getElementById('afterPayefb');
+
 
   
   
@@ -87,57 +84,79 @@ function btnPersiaPayEfb(){
       }
     });
     
-              jQuery(function ($) {
-                  data = {
-                    action: "pay_IRBank_payEfb",
-                    value: JSON.stringify(val),
-                    id : efb_var.id,                      
-                    product:product,
-                    name:formNameEfb,
-                    nonce: ajax_object_efm.nonce,
-                    url :document.URL
-                  };
-                  sessionStorage.setItem("id", efb_var.id);
-                  
-
-                  $.ajax({
-                    type: "POST",
-                    async: false,
-                    url: ajax_object_efm.ajax_url,
-                    data: data,
-                    success: function (res) {         
-                      //console.log(res.data) ;    
-                      
-                      if(res.data.success==true){
-                          
-                          document.getElementById('beforePay').classList.add('d-none');
-                          window.open(res.data.url ,'_self');
-                          PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
-                          <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-                         // efb_var.id= res.data.id;
-                          localStorage.setItem('PayId',res.data.id);
-                         // efb_var.payId= res.data.id;
-                         sessionStorage.setItem("payId", res.data.id);
-                      }else{                   
-                          PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;                                 
-                          btnEfb.classList.remove('disabled');
-                          btnEfb.innerHTML="پرداخت";
-                      }
-                      
-                    },
-                    error: function (res) {
-                      console.error(res) ;  
-                      btnEfb.classList.remove('disabled'); 
-                      PaymentState.innerHTML =`<p class="h4">${res.status}</p> ${res.statusText} </br> ${res.responseText}`
-                      btnEfb.innerHTML="پرداخت" 
-                    
-                    }
-                  
-                  })
-                  PaymentState.classList.remove('d-none');
-                }); //end jquery 
+    data = {
+      action: "pay_IRBank_payEfb",
+      value: JSON.stringify(val),
+      id : efb_var.id,                      
+      product:product,
+      name:formNameEfb,
+      nonce: ajax_object_efm.nonce,
+      url :document.URL,
+      sid:efb_var.sid
+    };
+    sessionStorage.setItem("id", efb_var.id);
+    post_api_persiapay_efb(data);
   }, 300);
 }//end  btnPersiaPayeEfb
+
+
+post_api_persiapay_efb=(data)=>{
+  console.log('==========>post_api_persiapay_efb');
+  let btnEfb = document.getElementById('persiaPayEfb');
+  btnEfb.innerHTML="لطفا صبر کنید";
+  btnEfb.classList.add('disabled');
+  
+  let PaymentState = document.getElementById('afterPayefb');
+  console.log('===post_api_persiapay_efb');
+  console.log(data);
+  const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add'; // Replace with your REST API endpoint URL
+
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+
+    });
+
+
+  const jsonData = JSON.stringify(data);
+  const requestOptions = {
+  method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+  headers,
+  body: jsonData, // The JSON data as the request body
+  };
+  console.log(data);
+  fetch(url, requestOptions)
+  .then(response => response.json())
+  .then(res => {
+    console.log(res);
+    if(res.data.success==true){
+                            
+      document.getElementById('beforePay').classList.add('d-none');
+      window.open(res.data.url ,'_self');
+      PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
+      <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
+    // efb_var.id= responseData.data.id;
+      localStorage.setItem('PayId',res.data.id);
+    // efb_var.payId= responseData.data.id;
+    sessionStorage.setItem("payId", res.data.id);
+  }else{                   
+      PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;                                 
+      btnEfb.classList.remove('disabled');
+      btnEfb.innerHTML="پرداخت";
+  }
+  PaymentState.classList.remove('d-none');
+  })
+  .catch(error => {
+    // Handle errors
+    console.log(`error`,error)
+    console.error(error) ;  
+        btnEfb.classList.remove('disabled'); 
+        PaymentState.innerHTML =`<p class="h4">${efb_var.text.error}</p> ${error}`
+        btnEfb.innerHTML="پرداخت" 
+        PaymentState.classList.remove('d-none');
+  });
+ 
+  
+}
 
 
 

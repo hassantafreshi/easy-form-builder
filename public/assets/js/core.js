@@ -1043,7 +1043,7 @@ function actionSendData_emsFormBuilder() {
 
     }
     console.log(efb_var.sid);
-    post_api_efb_2(data);
+    post_api_forms_efb(data);
     //console.log(document.getElementById('prev_efb').className)
     //console.log(data);
   /*   jQuery(function ($) {
@@ -2145,8 +2145,8 @@ window.addEventListener("popstate",e=>{
  }
 
  
- post_api_efb_2=(data)=>{
-    console.log('post_api_efb_2');
+ post_api_forms_efb=(data)=>{
+    console.log('post_api_forms_efb');
     console.log(data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add'; // Replace with your REST API endpoint URL
 

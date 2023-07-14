@@ -50,14 +50,15 @@ class _Public {
 			  'callback'=>  [$this,'mail_send_form_api'],
 			  'permission_callback' => '__return_true'
 		  ]); 
+
+		  register_rest_route('Emsfb/v1','forms/payment/persia/add', [
+			 'methods' => 'POST',
+			 'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
+			 'permission_callback' => '__return_true'
+		 ]); 
 		  //not complated start
 
-		  //not work!
-		   register_rest_route('Emsfb/v1','forms/file/upload', [
-			  'methods' => 'POST',
-			  'callback'=>  [$this,'file_upload_api'],
-			  'permission_callback' => '__return_true'
-		  ]); 
+
 
 		   register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
 			  'methods' => 'POST',
@@ -65,11 +66,9 @@ class _Public {
 			  'permission_callback' => '__return_true'
 		  ]); 
 
-		   register_rest_route('Emsfb/v1','forms/payment/persia/add', [
-			  'methods' => 'POST',
-			  'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
-			  'permission_callback' => '__return_true'
-		  ]); 
+
+			
+
 		   register_rest_route('Emsfb/v1','forms/response/get', [
 			  'methods' => 'POST',
 			  'callback'=>  [$this,'get_track_public_api'],
@@ -81,7 +80,12 @@ class _Public {
 			  'permission_callback' => '__return_true'
 		  ]); 
 
-		
+			//not work!
+			register_rest_route('Emsfb/v1','forms/file/upload', [
+				'methods' => 'POST',
+				'callback'=>  [$this,'file_upload_api'],
+				'permission_callback' => '__return_true'
+			]); 
 
 		  //not complated end
 
@@ -102,13 +106,12 @@ class _Public {
 		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
 
-		add_action('wp_ajax_nopriv_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
-		add_action('wp_ajax_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
+		/* add_action('wp_ajax_nopriv_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
+		add_action('wp_ajax_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb')); */
 
-		//add_action('get_form_public_efb', array( $this,'get_form_public_efb'));
 
-		add_action( 'wp_ajax_pay_IRBank_payEfb',  array($this, 'persia_pay_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
-		add_action( 'wp_ajax_nopriv_pay_IRBank_payEfb',  array($this, 'persia_pay_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
+		/* add_action( 'wp_ajax_pay_IRBank_payEfb',  array($this, 'persia_pay_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
+		add_action( 'wp_ajax_nopriv_pay_IRBank_payEfb',  array($this, 'persia_pay_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند */
 
 		add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
 		
@@ -699,6 +702,7 @@ class _Public {
 
 	  public function mail_send_form_api($data_POST_){
 		error_log('mail_send_form_api');
+		ignore_user_abort(true);
 		$data_POST = $data_POST_->get_json_params();
 	
 		
@@ -3229,7 +3233,8 @@ class _Public {
 	  }//end function 
 
 	  public function get_ajax_track_public(){		
-		$this->public_scripts_and_css_head();
+		error_log('=========>get_ajax_track_public');
+		//$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($_POST['sid']);
@@ -3240,11 +3245,7 @@ class _Public {
 		$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
 		wp_send_json_success($response,$_POST);
 		} 
-	/* 	if (check_ajax_referer('public-nonce','nonce')!=1){
-			$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
-			wp_send_json_success($response,$_POST);
-			die();
-		}	 */	
+
 		$response=$_POST['valid'];
 		$captcha_success =[];
 		$not_captcha=true;
@@ -3895,7 +3896,7 @@ class _Public {
 	 return $rtrn;
 	}
 
-	public function pay_stripe_sub_Emsfb() {		
+/* 	public function pay_stripe_sub_Emsfb() {		
 		
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
@@ -3933,10 +3934,10 @@ class _Public {
 		$this->id = sanitize_text_field($_POST['id']);
 		$val_ = sanitize_text_field($_POST['value']);
 		
-		/*  */
+	
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		/*  */
+	
 		$fs =str_replace('\\', '', $value_form[0]->form_structer);
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
@@ -3986,17 +3987,6 @@ class _Public {
 					}
 					$a=-1;
 				}
-				/* if($val_[$i]["type"]=="select"){ 
-				}else if ($val_[$i]["type"]=="checkbox"){						
-				}else{
-					
-					$filtered = array_filter($fs_, function($item) use ($iv) { 
-						//error_log(json_encode($item));
-						if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 
-					});
-					$iv = array_keys($filtered);
-					 $a = $iv[0];
-				} */
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
@@ -4143,25 +4133,289 @@ class _Public {
 			wp_send_json_success($response, 200);
 		}
 
-    }
-	public function persia_pay_Emsfb() {		
-		/* 
-		value: JSON.stringify(sendBack_emsFormBuilder_pub),
-                id : efb_var.id,                      
-                product:product,
-                nonce: ajax_cor_pay.nonce,
-                url :window.location.href
-		*/
-	
-        if (check_ajax_referer('public-nonce', 'nonce') != 1) {
+    } */
+	public function pay_stripe_sub_Emsfb_api($data_POST_) {		
+		$data_POST = $data_POST_->get_json_params();
+		error_log(json_encode($data_POST));
+		error_log('=====>pay_stripe_sub_Emsfb_api');
+		$user = wp_get_current_user();
+		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
+		$this->id =sanitize_text_field($data_POST['id']);
+		error_log($uid);
+		/* if (check_ajax_referer('public-nonce', 'nonce') != 1) {
 			
-            $m = __('error', 'easy-form-builder') . ' 403';
-            $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, 200);
-            die("secure!");
-        }
+			$m = __('error', 'easy-form-builder') . ' 403';
+			$response = ['success' => false, 'm' => $m];
+			wp_send_json_success($response, 200);
+		} */
+
+
+
+		$sid = sanitize_text_field($data_POST['sid']);	
+		error_log('=====>sid');
+		error_log($sid);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+		error_log($s_sid);
+
+		if ($s_sid !=1){
+			error_log('s_sid is not valid!!');
+			$m = __('error', 'easy-form-builder') . ' 403';
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response,$data_POST);
+		} 
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+		$Sk ='null';
+		if(gettype($r)=="string"){
+			$setting =str_replace('\\', '', $r);
+			$setting =json_decode($setting);
+			$Sk = isset($setting->stripeSKey) && strlen($setting->stripeSKey)>5  ? $setting->stripeSKey :'null';
+		}
+
+		if ($Sk=="null"){
+			
+				$m = __('Stripe', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$response = ['success' => false, 'm' => $m];
+				wp_send_json_success($response, 200);
+				die("secure!");
+		}
+		error_log('=====> befor vendor stripe');
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
+			 $efbFunction->addon_adds_cron_efb();
+			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+		}
+		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
+		
+		
+		$this->id = sanitize_text_field($data_POST['id']);
+		$val_ = sanitize_text_field($data_POST['value']);
+		
+		/*  */
+		$table_name = $this->db->prefix . "emsfb_form";
+		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+		/*  */
+		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$fs_ = json_decode($fs,true);
+		$val =str_replace('\\', '', $val_);
+		$val_ = json_decode($val,true);
+		$paymentmethod = $fs_[0]['paymentmethod'];
+		$price_c =0;
+		$price_f=0;
+		$email ='';
+		$valobj=[];
+		error_log('=====> befor validation');
+		for ($i=0; $i <count($val_) ; $i++) { 
+			$a=-1;
+			if(isset($val_[$i]['price'])){				
+				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
+				$iv = $val_[$i];
+				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
+					$filtered = array_filter($fs_, function($item) use ($iv) { 
+						switch ($iv["type"]) {
+							case 'paySelect':
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
+							break;
+							case 'payRadio':
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
+							break;
+							case 'payCheckbox':
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
+							break;
+						}
+					});
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, 200);
+					}
+					 $iv = array_keys($filtered);
+					 $a = isset( $iv[0])? $iv[0] :-1;
+				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+					$rows = explode( ',', $iv["ids"] );					
+					foreach ($rows as $key => $value) {
+						$filtered = array_filter($fs_, function($item) use ($value) { 							
+							if(isset($item['id_']))return $item['id_'] == $value ;
+						});
+						$iv = array_keys($filtered);
+						
+						$price_f += $fs_[$a]["price"];										
+					}
+					$a=-1;
+				}
+				if($a !=-1){											
+					if($fs_[$a]["type"]!="payMultiselect"){						
+						$price_f+=$fs_[$a]["price"];					
+					}				
+						
+						$fs_[$a]["name"] = $val_[$i]["name"];
+						$fs_[$a]["type"] = "option_payment";
+
+					
+						array_push($valobj,$fs_[$a]);
+				}
+			}
+
+			
+		}
+		error_log('=====> befor IP');
+		$ip =$this->get_ip_address();
+		if($price_c != $price_f) {
+			$t=time();
+			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+				$headers = array(
+				   'MIME-Version: 1.0\r\n',
+				   'From:'.$from.'',
+				);
+			$to =get_option('admin_email');
+			$message="This message from Easy Form Builder, This IP:".$this->ip. 
+			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
+			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
+		}
+		$price_f = $price_f*100;
+		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
+		if($price_f>0){
+			$currency= $fs_[0]['currency'] ;
+			
+			//private key
+			$stripe = new \Stripe\StripeClient($Sk);
+			$newPay = [
+				'amount' => $price_f,
+				'currency' => $currency,
+				'payment_method_types' =>['card'],
+				'description' =>$description,
+			];
+
+			 $subPay;
+			 $amount;
+			 $paymentIntent;
+			 $amount;$created;$val ;
+			 if($paymentmethod=='charge'){
+				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));} 
+				$paymentIntent = $stripe->paymentIntents->create($newPay);				
+				$amount = $paymentIntent->amount/100;
+				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
+				$val = $paymentIntent->amount/100 . ' ' . $paymentIntent->currency;
+
+				
+			}else{
+				$token= sanitize_text_field($data_POST['token']);			
+				//Create a products 
+				//$stripe = new \Stripe\StripeClient($Sk);
+				$product = $stripe->products->create([
+					'name' => $description,
+					]);
+
+					 
+					//Create price for products				
+					$price= $stripe->prices->create([
+						'unit_amount' => $price_f,
+						'currency' => $currency,
+						'recurring' => ['interval' => $paymentmethod],
+						'product' => $product->id,
+					
+					]);
+	
+	
+					$customerData= [
+						'description' => $description,
+						'source'=>$token,
+					];
+					if(strlen($email)>1){$customerData=array_merge($customerData , array('email'=>$email));} 
+					$customer =$stripe->customers->create($customerData);
+					  $paymentIntent =	$stripe->subscriptions->create([
+						'customer' => $customer,
+						'items' => [
+						  ['price' => $price],
+						],
+					  ]);
+		
+					  $amount = $paymentIntent->plan->amount/100;
+					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
+					  $val =  $amount . ' ' . $paymentIntent->currency;
+				
+			}
+			
+
+			$filtered = array_filter($valobj, function($item) { 
+				if(isset($item['price']))	return $item; 								
+			});
+			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
+			
+			error_log('=====> after stripe product');
+
+			$response;	
+			
+			if($paymentmethod!='charge'){
+
+				$amount = $price->unit_amount/100;
+				$payA =  $amount  . ' '. $price->currency;
+				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
+				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
+				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
+				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description,'total'=>$amount ];
+				 $filtered=array_merge($filtered , array($ar)); 
+				 error_log('==========>charge');
+				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
+			}else{
+				$amount = $paymentIntent->amount/100;
+				$payA =  $amount  . ' '. $paymentIntent->currency;
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
+				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
+				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
+				 $filtered=array_merge($filtered , array($ar)); 
+				 error_log('==========>Ncharge');
+				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
+			}
+			//array_push($filtered,$ar);
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
+			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+			$this->value = str_replace('"', '\\"', $val_);
+			
+			$this->name = sanitize_text_field($data_POST['name']);
+			$check=	$this->insert_message_db(2,false);
+			
+			//$response->transStat
+			//array_push($response->transStat ,array('id'=>$check));
+			$response=array_merge($response , ['id'=>$check]);
+			//error_log(json_encode($response));
+			wp_send_json_success($response, 200);
+
+		}else{
+			$response = array( 'success' => false  , 'm'=>__('Error Code:V02','easy-form-builder'));		
+			wp_send_json_success($response, 200);
+		}
+
+	}
+
+	public function pay_persia_sub_Emsfb_api($data_POST_){
+		error_log('=========>pay_persia_sub_Emsfb_api');
+		$data_POST = $data_POST_->get_json_params();
+		error_log(json_encode($data_POST));
+		
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
+		$sid = sanitize_text_field($data_POST['sid']);
+		$this->id = sanitize_text_field($data_POST['id']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
+		$text_=['error405'];
+		$this->lanText= $this->efbFunction->text_efb($text_);
+		error_log('$s_sid check===>');
+		error_log($s_sid);
+
+		if ($s_sid !=1){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+		wp_send_json_success($response,$data_POST);
+		} 
 		$Sk ='null';
 		if(gettype($r)=="string"){
 			$setting =str_replace('\\', '', $r);
@@ -4177,14 +4431,14 @@ class _Public {
 				die("secure!");
 		}
 
-		$this->id = sanitize_text_field($_POST['id']);
-		$val_ = sanitize_text_field($_POST['value']);
-		$url = sanitize_url($_POST['url']);
+		$this->id = sanitize_text_field($data_POST['id']);
+		$val_ = sanitize_text_field($data_POST['value']);
+		$url = sanitize_url($data_POST['url']);
 		
-		/*  */
+
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
-		/*  */
+
 		$fs =str_replace('\\', '', $value_form[0]->form_structer);
 		$fs_ = json_decode($fs,true);
 		$val =str_replace('\\', '', $val_);
@@ -4235,17 +4489,7 @@ class _Public {
 					}
 					$a=-1;
 				}
-				/* if($val_[$i]["type"]=="select"){ 
-				}else if ($val_[$i]["type"]=="checkbox"){						
-				}else{
-					
-					$filtered = array_filter($fs_, function($item) use ($iv) { 
-						//error_log(json_encode($item));
-						if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value']; 
-					});
-					$iv = array_keys($filtered);
-					 $a = $iv[0];
-				} */
+
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
 						$price_f+=$fs_[$a]["price"];					
@@ -4280,19 +4524,6 @@ class _Public {
 		if($price_f>0){
 			$currency= $fs_[0]['currency'] ;
 			
-			//private key
-			/* $stripe = new \Stripe\StripeClient($Sk);
-			$newPay = [
-				'amount' => $price_f,
-				'currency' => $currency,
-				'payment_method_types' =>['card'],
-				'description' =>$description,
-			];
-
-			 $subPay;
-			 $amount;
-			 $paymentIntent;
-			 $amount;$created;$val ; */
 
 			
 
@@ -4321,67 +4552,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die();
 			}
-	/* 		try{
-			
-			
-				$ch = curl_init('https://api.zarinpal.com/pg/v4/payment/request.json');
-				curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type: application/json',
-				'Content-Length: ' . strlen($jsonData)
-				));
-			
-				$result = curl_exec($ch);
-				$err = curl_error($ch);
-				$result = json_decode($result, true, JSON_PRETTY_PRINT);
-				curl_close($ch);
-			
-		
-				//$result['data']["authority"]
-				if ($err) {
-					$msg = 'کد خطا: CURL#' . $er;
-					$erro = 'در اتصال به درگاه مشکلی پیش آمد.';
-					return false;
-				} else {
-				if (empty($result['errors'])) {
-					if ($result['data']['code'] == 100) {
-
-						//header('Location: https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"]);
-						$auth = $result['data']["authority"];
-						//$filtered +=['auth'=>$auth];
-						$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
-						
-						
-						$this->get_ip_address();
-						$this->value = str_replace('"', '\\"', $val_);
-						
-						$this->name = sanitize_text_field($_POST['name']);
-						$check=	$this->insert_message_db(2,$clientRefId);
-						//$this->insert_temp_costumer($website,$paymentType,$product_price,'ZarinPal',$email,$name,$auth);
-						$response;
-						if(isset($check)==true){
-							$GoToIPG = 'https://www.zarinpal.com/pg/StartPay/' . $result['data']["authority"];
-							$response = array( 'success' => true  ,'trackingCode'=>$check, 're'=>'در حال انتقال به درگاه بانک' , 'url'=>$GoToIPG);	
-							
-						}else{
-							$response = array('success' => false, 'm' => 'DB Error 400-PP');
-						}
-						wp_send_json_success($response, 200);
-						
-					}
-					} else {
-					$erro ='Error Code: ' . $result['errors']['code'];
-					$msg = 'تراکنش ناموفق بود، شرح خطا: ' .  $result['errors']['message'];
-			
-					}
-				}
-			}catch(Exception $e){
-				$msg = 'تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
-				$response = array( 'success' => false  , 're'=>$msg);				
-			} */
+	
 
 			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
@@ -4390,8 +4561,193 @@ class _Public {
 			if(gettype($persiapay)=="object"){
 				
 				$response = $persiapay->create_bill_zarinPal($jsonData,$clientRefId);
-				/* print_r($jsonData);
-				print_r($response); */
+
+				if($response['success']==true){
+					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
+						//$this->get_ip_address();
+						$this->value = str_replace('"', '\\"', $val_);
+						
+						$this->name = sanitize_text_field($data_POST['name']);
+						$check=	$this->insert_message_db(2,$clientRefId);
+						if(isset($check)!=true){
+							$response = array('success' => false, 'm' => 'خطا در ارتباط با دیتابیس ، شماره خطا DB-403');
+						}
+				}else{
+					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');		
+				}
+			}			
+			
+			//array_push($filtered,$ar);
+			
+			
+			//$response->transStat
+			//array_push($response->transStat ,array('id'=>$check));
+			$response=array_merge($response , ['id'=>$check]);
+	
+
+		}else{
+			$response = array( 'success' => false  , 'm'=>__('Error Code:V01','easy-form-builder'));		
+			
+		}
+		wp_send_json_success($response, 200);
+	}
+	public function persia_pay_Emsfb() {		
+	
+        if (check_ajax_referer('public-nonce', 'nonce') != 1) {
+			
+            $m = __('error', 'easy-form-builder') . ' 403';
+            $response = ['success' => false, 'm' => $m];
+            wp_send_json_success($response, 200);
+            die("secure!");
+        }
+
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
+		$Sk ='null';
+		if(gettype($r)=="string"){
+			$setting =str_replace('\\', '', $r);
+			$setting =json_decode($setting);
+			$Sk = isset($setting->payToken) && strlen($setting->payToken)>5  ? $setting->payToken :'null';
+		}
+
+		if ($Sk=="null"){
+			
+				$m = __('persiaPayment', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$response = ['success' => false, 'm' => $m];
+				wp_send_json_success($response, 200);
+				die("secure!");
+		}
+
+		$this->id = sanitize_text_field($_POST['id']);
+		$val_ = sanitize_text_field($_POST['value']);
+		$url = sanitize_url($_POST['url']);
+		
+
+		$table_name = $this->db->prefix . "emsfb_form";
+		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
+
+		$fs =str_replace('\\', '', $value_form[0]->form_structer);
+		$fs_ = json_decode($fs,true);
+		$val =str_replace('\\', '', $val_);
+		$val_ = json_decode($val,true);
+		$paymentmethod = $fs_[0]['paymentmethod'];
+		$price_c =0;
+		$price_f=0;
+		$email ='no@email.com';
+		$des = ':پرداختی فرم' . $fs_[0]['formName'];
+		$valobj=[];
+		for ($i=0; $i <count($val_) ; $i++) { 
+			$a=-1;
+			if(isset($val_[$i]['price'])){				
+				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
+				$iv = $val_[$i];
+				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
+					$filtered = array_filter($fs_, function($item) use ($iv) { 
+						switch ($iv["type"]) {
+							case 'paySelect':
+								if(isset($item['parent']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false ; 								
+							break;
+							case 'payRadio':
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['value']==$iv['value'] ? $item['value'] :false; 								
+							break;
+							case 'payCheckbox':
+								
+								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
+							break;
+						}
+					});
+					if($filtered==false){
+						$m = __('error', 'easy-form-builder') . ' 405';
+						$response = ['success' => false, 'm' => $m];
+						wp_send_json_success($response, 200);
+					}
+					 $iv = array_keys($filtered);
+					 $a = isset( $iv[0])? $iv[0] :-1;
+				}else if ($iv["type"]=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
+					$rows = explode( ',', $iv["ids"] );					
+					foreach ($rows as $key => $value) {
+						$filtered = array_filter($fs_, function($item) use ($value) { 							
+							if(isset($item['id_']))return $item['id_'] == $value ;
+						});
+						$iv = array_keys($filtered);
+						$a = isset( $iv[0])? $iv[0] :-1;
+						$price_f += $fs_[$a]["price"];										
+					}
+					$a=-1;
+				}
+
+				if($a !=-1){											
+					if($fs_[$a]["type"]!="payMultiselect"){						
+						$price_f+=$fs_[$a]["price"];					
+					}
+					//$k =array_search($fs_[$a]['parent'], array_column($fs_, 'id_'));
+					$fs_[$a]["name"] = $val_[$i]["name"];
+					$fs_[$a]["type"] = "option_payment";
+					//$fs_[$a]
+					array_push($valobj,$fs_[$a]);
+				}
+			}
+
+			
+		}
+
+		$this->ip= $this->get_ip_address();
+		$ip = $this->ip;
+		if($price_c != $price_f) {
+			$t=time();
+			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
+				$headers = array(
+				   'MIME-Version: 1.0\r\n',
+				   'From:'.$from.'',
+				);
+			$to =get_option('admin_email');
+			$message="This message from Easy Form Builder, This IP:".$this->ip. 
+			" try to enter invalid value like fee of the service of a form at :".date("Y-m-d-h:i:s",$t) ;
+			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
+		}
+		$price_f = $price_f;
+		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];		
+		if($price_f>0){
+			$currency= $fs_[0]['currency'] ;
+			
+
+			
+
+			$filtered = array_filter($valobj, function($item) { 
+				if(isset($item['price']))	return $item; 								
+			});
+			
+			
+			/* zarinpal pay start*/
+
+			$clientRefId =substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 12);
+			$TokenCode =$Sk;
+			$returnUrl =$url;
+
+			//$amount=1000;
+			$data = array("merchant_id" => $TokenCode,
+			"amount" => $price_f,
+			"callback_url" => $returnUrl,
+			"description" =>  $des,
+			"metadata" => [ "email" =>  $email],
+			);
+			$jsonData = json_encode($data);
+			
+			if($price_f<4999){
+				$response = array( 'success' => false  , 'm'=>'مجموع مبلغ پرداختی نباید کمتر از پانصد تومان باشد');		
+				wp_send_json_success($response, 200);
+				die();
+			}
+	
+
+			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
+			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
+			$persiapay = new zarinPalEFB() ;
+			$check;
+			if(gettype($persiapay)=="object"){
+				
+				$response = $persiapay->create_bill_zarinPal($jsonData,$clientRefId);
+
 				if($response['success']==true){
 					$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);	
 						//$this->get_ip_address();
@@ -4406,88 +4762,7 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>'اختلال در ارتباط با زرین پال. این اختلال ممکن است از طرف سرور زرین پال باشد');		
 				}
 			}			
-			/* 		//payping
-			$data = array(
-				'clientRefId'   => $clientRefId,
-				'payerIdentity' => $email,
-				'Amount'        => $price_f,
-				'Description'   => $des,
-				'returnUrl'     => $returnUrl
-			);
-		
-			try{
-			$curl = curl_init();
-			curl_setopt_array($curl, array(
-				CURLOPT_URL => "https://api.payping.ir/v2/pay",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 45,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_POSTFIELDS => json_encode($data),
-				CURLOPT_HTTPHEADER => array(
-					"accept: application/json",
-					"authorization: Bearer " . $TokenCode,
-					"cache-control: no-cache",
-					"content-type: application/json"
-				),
-					)
-			);
-			$response = curl_exec( $curl );
 			
-			
-			$header = curl_getinfo( $curl );
-			
-			
-			$err = curl_error( $curl );
-			
-			curl_close( $curl );
-			
-		
-			if( $err ){
-				$msg = 'کد خطا: CURL#' . $er;
-				$erro = 'در اتصال به درگاه مشکلی پیش آمد.';
-				$response = array( 'success' => false  , 're'=>$msg);	
-				return false;				
-			}else{
-				if( $header['http_code'] == 200 ){
-					$response = json_decode( $response, true );
-					
-					if( isset( $response ) and $response != '' ){
-						$response = $response['code'];
-						// ارسال به درگاه پرداخت با استفاده از کد ارجاع 
-						$GoToIPG = 'https://api.payping.ir/v2/pay/gotoipg/' . $response;
-
-
-						
-						$auth = $this->generate_uuid();
-						$this->insert_temp_costumer($website,$paymentType,$product_price,'payPing',$email,$name,$auth);
-
-						$response = array( 'success' => true  , 're'=>'در حال انتقال به درگاه بانک' , 'url'=>$GoToIPG);	
-						wp_send_json_success($response, 200);
-						//header( 'Location: ' . $GoToIPG );
-					}else{
-						$msg = 'تراکنش ناموفق بود - شرح خطا: عدم وجود کد ارجاع';
-					}
-				}elseif($header['http_code'] == 400){
-					$msg = 'تراکنش ناموفق بود، شرح خطا: ' . $response;
-					$response = array( 'success' => false  , 're'=>$msg);
-				}else{
-					$msg = 'تراکنش ناموفق بود، شرح خطا: ' . $header['http_code'];
-					$response = array( 'success' => false  , 're'=>$msg);
-				}
-					
-			}
-			}catch(Exception $e){
-				$msg = 'تراکنش ناموفق بود، شرح خطا سمت برنامه شما: ' . $e->getMessage();
-				$response = array( 'success' => false  , 're'=>$msg);				
-			} */
-			
-			/* zarinpal pay end*/
-			
-			
-
 			//array_push($filtered,$ar);
 			
 			
@@ -4800,15 +5075,7 @@ class _Public {
 				$fs_obj = json_decode($fs,true); // object of form_structer
 				//$this->id = $trackingCode;
 				
-			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );
-				
-				
-				//error_log(gettype($trackingCode));
-				
-				
-				
-				//$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro);
-				//error_log(json_encode($user_email));
+			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );									
 				
 				
 		}
