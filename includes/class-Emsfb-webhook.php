@@ -34,28 +34,13 @@ class webhook {
                   'permission_callback' => '__return_true'
               ]); 
 
-              //             //post filled forms => get_ajax_form_public
-             //post upload file => file_upload_public
-            
-             //post pay_stripe_sub_Emsfb => payment
-
-
-             //set_rMessage_id_Emsfb => store responses
-             //persia_pay_Emsfb
-
-             //get track id => return messages => get_ajax_track_public
-             //get send email => mail_send_form_submit
-          
-           //  register_rest_route('Emsfb/v1','forms/message/add/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
-        
-
           });
     }
 
 
     public function test_fun($slug){
 
-        error_log("test_fun");
+        //error_log("test_fun");
 
         $response = array(
             'success' => true,
@@ -72,19 +57,6 @@ class webhook {
     } 
 
 
- /*    public function  get_ajax_form_public($request){
-		$data_POST = $request->get_json_params();
-
-
-   // error_log('ok@@@');
-    require_once('class-Emsfb-public.php');
-    $public = new _public();
-    $public->get_form_public_efb($data_POST);
-		
-  
-        $response=$data_POST;
-        return new WP_REST_Response($response, 200);
-	  }//end function  */
 
 }
 new webhook();

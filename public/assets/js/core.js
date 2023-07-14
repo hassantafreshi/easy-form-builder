@@ -1293,19 +1293,20 @@ function fun_vaid_tracker_check_emsFormBuilder() {
        
       }
       else {
-
+        data = {
+          action: "get_track_Emsfb",
+          value: el,
+          name: formNameEfb,
+          valid: recaptcha_emsFormBuilder,
+          nonce: ajax_object_efm.nonce,
+          sid:efb_var.sid
+        };
         console.log('get_track_Emsfb');
         //reCaptch verified
         recaptcha_emsFormBuilder = response;
-        jQuery(function ($) {
-          data = {
-            action: "get_track_Emsfb",
-            value: el,
-            name: formNameEfb,
-            valid: recaptcha_emsFormBuilder,
-            nonce: ajax_object_efm.nonce,
-            sid:efb_var.sid
-          };
+        post_api_tracker_check_efb(data,innrBtn);
+      /*   jQuery(function ($) {
+          //pass data ,innrBtn
           console.log(data);
           $.ajax({
             type: "POST",
@@ -1326,7 +1327,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
               response_Valid_tracker_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } })
             }
           })
-        });
+        }); */
       }
     }
   }
@@ -1617,8 +1618,23 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     f_btn();
     return;
   }
+
+  data = {
+    action: "set_rMessage_id_Emsfb",
+    type: "POST",
+    id: id,
+    valid: recaptcha_emsFormBuilder,
+    message: JSON.stringify(message),
+    nonce: ajax_object_efm.nonce,
+    type: form_type_emsFormBuilder,
+    nonce_msg:efb_var.nonce_msg,
+    sid:efb_var.sid
+
+  };
+
+  post_api_r_message_efb(data,message)
   
-  jQuery(function ($) {
+  /* jQuery(function ($) {
     data = {
       action: "set_rMessage_id_Emsfb",
       type: "POST",
@@ -1641,7 +1657,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
     })
 
-  });
+  }); */
 }
 
 
@@ -2154,8 +2170,6 @@ const headers = new Headers({
   'Content-Type': 'application/json',
 
 });
-
-
 const jsonData = JSON.stringify(data);
 const requestOptions = {
   method: 'POST', // Or any other HTTP method (POST, GET, etc.)
@@ -2179,6 +2193,77 @@ fetch(url, requestOptions)
   if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
  
 }
+post_api_tracker_check_efb=(data,innrBtn)=>{
+  console.log('post_api_tracker_check_efb');
+  console.log(data);
+  const url = efb_var.rest_url+'Emsfb/v1/forms/response/get'; // Replace with your REST API endpoint URL
+
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+
+  });
+  const jsonData = JSON.stringify(data);
+  const requestOptions = {
+    method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+    headers,
+    body: jsonData, // The JSON data as the request body
+  };
+  console.log(data);
+  fetch(url, requestOptions)
+    .then(response => response.json())
+    .then(responseData => {
+      // Handle the response data
+      
+            console.log(`responseData`,responseData)
+            if(document.getElementById('vaid_check_emsFormBuilder')){
+              document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+              document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+            }
+            response_Valid_tracker_efb(responseData)
+            efb_var.nonce_msg = responseData.data.nonce_msg
+            efb_var.msg_id = responseData.data.id
+    })
+    .catch(error => {
+      // Handle errors
+      document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
+      document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
+      response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
+    });
+  
+  
+}//end function post_api_tracker_check_efb
+post_api_r_message_efb=(data,message)=>{
+  console.log('post_api_r_message_efb');
+  console.log(data);
+  const url = efb_var.rest_url+'Emsfb/v1/forms/response/add'; // Replace with your REST API endpoint URL
+
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+
+  });
+  const jsonData = JSON.stringify(data);
+  const requestOptions = {
+    method: 'POST', // Or any other HTTP method (POST, GET, etc.)
+    headers,
+    body: jsonData, // The JSON data as the request body
+  };
+  console.log(data);
+  fetch(url, requestOptions)
+    .then(response => response.json())
+    .then(responseData => {
+      // Handle the response data
+      
+            console.log(`responseData`,responseData)
+            response_rMessage_id(responseData, message); sendBack_emsFormBuilder_pub=[]; 
+    })
+    .catch(error => {
+      // Handle errors
+      console.log(`error`,error)
+      response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
+    });
+  
+  
+}//end function post_api_tracker_check_efb
 
 /* post_api_efb=()=>{
   //http://127.0.0.1/wp/wp-json/Emsfb/v1/test/name/45

@@ -23,16 +23,21 @@ class _Public {
 	public $pub_stting;
 	public $location;
 	public $url;
+	public $efb_uid  ;
 	public function __construct() {
 		
 		global $wpdb;
 		$this->db = $wpdb;
 		$this->id =-1;
 		$this->pro_efb =false;
+		
+		
+
 
 		add_action('rest_api_init',  @function(){
-    
-      
+			$this->efb_uid  = get_current_user_id();
+      		error_log('test=========>');
+			error_log($this->efb_uid);
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
@@ -56,24 +61,27 @@ class _Public {
 			 'callback'=>  [$this,'pay_persia_sub_Emsfb_api'],
 			 'permission_callback' => '__return_true'
 		 ]); 
+
+		 register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
+			'methods' => 'POST',
+			'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
+			'permission_callback' => '__return_true'
+		]); 
+		
+		register_rest_route('Emsfb/v1','forms/response/get', [
+		   'methods' => 'POST',
+		   'callback'=>  [$this,'get_track_public_api'],
+		   'permission_callback' => '__return_true'
+	   ]); 
+
 		  //not complated start
 
 
 
-		   register_rest_route('Emsfb/v1','forms/payment/stripe/card/add', [
-			  'methods' => 'POST',
-			  'callback'=>  [$this,'pay_stripe_sub_Emsfb_api'],
-			  'permission_callback' => '__return_true'
-		  ]); 
 
 
 			
 
-		   register_rest_route('Emsfb/v1','forms/response/get', [
-			  'methods' => 'POST',
-			  'callback'=>  [$this,'get_track_public_api'],
-			  'permission_callback' => '__return_true'
-		  ]); 
 		   register_rest_route('Emsfb/v1','forms/response/add', [
 			  'methods' => 'POST',
 			  'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
@@ -137,7 +145,8 @@ class _Public {
 	}
 
 	public function EFB_Form_Builder($id){
-		
+		error_log('user id============> public');
+		error_log(json_encode(wp_get_current_user()));
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 		//error_log($_GET['user']);
@@ -167,7 +176,7 @@ class _Public {
 		
 		$this->public_scripts_and_css_head();
 		
-		//$this->refresh_user_efb();
+		
 		$state="";
 		$pro=  $this->pro_efb;
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -509,7 +518,8 @@ class _Public {
 			   'pro'=>$this->pro_efb,
 			   'wp_lan'=>get_locale(),			   
 			   'location'=>$location,
-			   'sid'=>$sid
+			   'sid'=>$sid,
+			   'rest_url'=>get_rest_url(null),
 		 ));  
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
@@ -3232,7 +3242,93 @@ class _Public {
 		}
 	  }//end function 
 
-	  public function get_ajax_track_public(){		
+	  public function get_track_public_api($data_POST_) {		
+		$data_POST = $data_POST_->get_json_params();
+		error_log(json_encode($data_POST));
+		
+		error_log('=========>get_track_public_api');
+		error_log('=========>user id:');
+		error_log($this->efb_uid);
+
+		//$this->public_scripts_and_css_head();
+		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$lanText= $this->efbFunction->text_efb($text_);
+		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		if ($s_sid !=1 || $sid==null){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
+		wp_send_json_success($response,$data_POST);
+		} 
+
+		$response=$data_POST['valid'];
+		$captcha_success =[];
+		$not_captcha=true;
+		if(gettype($this->setting)=="string"){
+		$r=str_replace('\\', '', $this->setting);
+			 $setting =json_decode($r);
+			 
+			 /* $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
+			if($secretKey!="null"){
+				$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
+				$captcha_success =json_decode($verify['body']);
+				$not_captcha=false;	 
+			} */
+		}
+		 $strR = json_encode($captcha_success);
+		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
+		  $response = array( 'success' => false  , 'm'=> $lanText["errorMRobot"]); 
+		  wp_send_json_success($response,$data_POST);
+		 }
+		 else if ((!empty($captcha_success) && $captcha_success->success==true) ||  $not_captcha==true) {
+			if(empty($data_POST['value']) ){
+				$response = array( 'success' => false , "m"=>$lanText["enterVValue"]); 
+				wp_send_json_success($response,$data_POST);
+				die();
+			}		
+			$id = sanitize_text_field($data_POST['value']);
+			$this->ip=$this->get_ip_address();
+			$ip = $this->ip;
+			//$this->location = $this->efbFunction->iplocation_efb($ip,1);			
+			$table_name = $this->db->prefix . "emsfb_msg_";
+			$value = $this->db->get_results( "SELECT content,msg_id,track,date FROM `$table_name` WHERE track = '$id'" );				
+			if($value!=null){
+				//error_log('value is not null');
+				$id=$value[0]->msg_id;
+				//error_log($value[0]->msg_id);
+				$id = preg_replace('/[,]+/','',$id);
+				$this->id =$id;
+				$table_name = $this->db->prefix . "emsfb_rsp_";
+				$content = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
+				//error_log(json_encode($content));
+				foreach($content as $key=>$val){					
+					$r = (int)$val->rsp_by;
+					if ($r>0){
+						$usr =get_user_by('id',$r);
+						$val->rsp_by= $usr->display_name;
+					}else{
+						$val->rsp_by=$lanText["guest"];
+					}				 
+				}
+			}
+			$r = false;
+			$code = 'efb'.$this->id;
+			$code =wp_create_nonce($code);
+			
+			if($value!=null){
+				$r=true;
+				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id); 
+			}else{
+				$response = array( 'success' => false  , "m" =>$lanText["cCodeNFound"]); 
+			}
+			
+			wp_send_json_success($response,$data_POST);
+			}
+			//send_email to admin of page
+	  }//end function get_track_public_api
+
+/* 	  public function get_ajax_track_public(){		
 		error_log('=========>get_ajax_track_public');
 		//$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
@@ -3253,12 +3349,7 @@ class _Public {
 		$r=str_replace('\\', '', $this->setting);
 			 $setting =json_decode($r);
 			 
-			 /* $secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : 'null';
-			if($secretKey!="null"){
-				$verify = wp_remote_get( "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$response}" );
-				$captcha_success =json_decode($verify['body']);
-				$not_captcha=false;	 
-			} */
+
 		}
 		 $strR = json_encode($captcha_success);
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
@@ -3310,7 +3401,7 @@ class _Public {
 			wp_send_json_success($response,$_POST);
 			}
 			//send_email to admin of page
-	  }//end function
+	  }//end function */
 
 
 
@@ -3498,7 +3589,235 @@ class _Public {
 		 
 	}//end function
 
-	public function set_rMessage_id_Emsfb(){
+
+	public function set_rMessage_id_Emsfb_api($data_POST_) {		
+		$data_POST = $data_POST_->get_json_params();
+		error_log('===>set_rMessage_id_Emsfb_api');
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		
+		
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
+
+		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		if ($s_sid !=1 || $sid==null){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+		wp_send_json_success($response,200);
+		} 
+
+		$this->id =sanitize_text_field($data_POST['id']);
+		$by ="";
+
+		if(empty($data_POST['message']) ){
+			$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]); 
+			wp_send_json_success($response,200);
+			die();
+		}
+		if(empty($data_POST['id']) ){			
+			$response = array( 'success' => false , "m"=>$this->lanText["errorSomthingWrong"]); 
+			wp_send_json_success($response,200);
+			die();
+		}
+
+		if($this->isHTML($data_POST['message'])){
+			$response = array( 'success' => false , "m"=>$this->lanText["nAllowedUseHtml"]); 
+			wp_send_json_success($response,200);
+			die();
+		}
+
+		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
+		if(gettype($r)=="string"){
+			$r =str_replace('\\', '', $r);
+			$setting =json_decode($r);
+			
+			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
+			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
+			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
+			
+			$response=$data_POST['valid'];
+			$id;
+				$id=number_format(sanitize_text_field($data_POST['id']));
+				$m=sanitize_text_field($data_POST['message']);
+				$m = str_replace("\\","",$m);	
+				$message =json_decode($m);
+				$valobj=[];
+				$stated=1;
+				foreach ($message as $k =>$f){
+					
+					$in_loop=true;
+				
+					if($stated==0){break;}					  
+						switch ($f->type) {											
+							case 'allformat':	
+								$d = $_SERVER['HTTP_HOST'];
+								//$p = strpos($item['url'],'http://'.$d);
+								//don't change value stated because always file is sending 
+								
+								
+								$stated=1;
+								$stated=$setting->dsupfile==false ? 0:1;
+								if(isset($f->url) && strlen($f->url)>5 && ($setting->dsupfile==true)){
+									$stated=0;
+									$ar = ['http://wwww.'.$d , 'https://wwww.'.$d ,'http://'.$d, 'https://'.$d ];
+									$s = 0 ;
+									foreach ($ar as  $r) {
+										$c=strpos($f->url,$r);
+										if(gettype($c)!='boolean' && $c==0){
+											$s=1;
+										
+										}
+									}								
+										if($s==1 ){
+											$stated=1;
+											$f->url = sanitize_url($f->url);								
+											
+										}else{
+											$f->url="";											
+											$stated=0;
+										}
+								}
+									$in_loop=false;
+							break;													
+							default:
+								$stated=0;
+								if(isset($f->value) && $f->id_=="message"){
+									$stated=1;
+									$f->value = sanitize_text_field($f->value);
+								}
+								//$item['value'] =  'test';
+								
+								$in_loop=false;
+							break;
+						}
+						if($stated==0){
+							$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+							wp_send_json_success($response,200);
+						}
+				}
+			
+				$m = json_encode($message,JSON_UNESCAPED_UNICODE);
+				$m = str_replace('"', '\\"', $m);
+				$ip =$this->ip= $this->get_ip_address();
+				//$this->location = $efbFunction->iplocation_efb($ip,1);
+				//
+				//error_log("----------->id");
+				$id = preg_replace('/[,]+/','',$id);
+				//preg_replace('/(@efb@)+/','/',$rePage);
+				//error_log($id);
+				//error_log(gettype($id));
+				$table_name = $this->db->prefix . "emsfb_msg_";
+				//error_log($table_name);
+				$value=null;
+				$value = $this->db->get_results( "SELECT * FROM `$table_name` WHERE msg_id = '$id'" );
+				
+				if($value==null|| $value[0]->read_==4){
+					//error_log('not exist!');
+					$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					wp_send_json_success($response,200);
+					die();
+				}
+				$valn =str_replace('\\', '', $value[0]->content);
+				//error_log($vv_);
+				$msg_obj = json_decode($valn,true);
+				$vv_="";
+				$lst = end($msg_obj);
+				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+			   //error_log("=============>link_w ");
+			   //error_log($link_w );
+				$table_name = $this->db->prefix . "emsfb_rsp_";				
+				$this->db->insert($table_name, array(
+					'ip' => $ip, 
+					'content' => $m, 
+					'msg_id' => $id, 
+					'rsp_by' => $this->efb_uid, 
+					'read_' => 0,
+					'date'=>wp_date('Y-m-d H:i:s'),
+					
+				));  
+				$track = $value[0]->track;
+				
+				$this->db->update($table_name,array('read_'=>0), array('msg_id' => $id) );
+				$by=$this->lanText["guest"];
+				$email_usr ="";
+
+				//error_log(json_encode(wp_get_current_user()));
+				
+				if($this->efb_uid!=0 && $this->efb_uid!==-1){
+					$usr= wp_get_current_user();
+					$by = $usr->user_nicename;
+					$email_usr = $usr->user_email;
+					
+				}
+				
+				$form_id  = $value[0]->form_id;
+				$table_name = $this->db->prefix . "emsfb_form";
+				
+				$vald = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$form_id'" );
+				
+				$valn =str_replace('\\', '', $vald[0]->form_structer);
+				$valn= json_decode($valn,true);
+				$usr;
+				$email_fa = $valn[0]["email"];
+
+				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
+					$email = $setting->emailSupporter;
+				}
+				
+				if($email!= null  && gettype($email)=="string" && $email != $email_usr) {
+					$link = $link_w. "?user=admin";
+					//error_log($link);
+					$this->send_email_Emsfb($email,$track,$pro,"newMessage",$link);
+				}
+				if(strlen($email_fa)>4 && $email_usr!=$email_fa){
+					$link = $link_w. "?user=admin";
+					//error_log($link);
+					$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
+				}
+				//error_log("===============>email of filled");
+				//error_log($email_usr);
+				//error_log("===============>email_fa");
+				//error_log($email_fa);
+				//error_log("===============>email");
+				//error_log($email);
+				if($email == $email_usr || $email_usr==$email_fa){
+					//error_log('==============> ارسال پاسخ به کاربری که فرم را پر کرده است');
+					//error_log($value[0]->content);
+
+					$id =$valn[0]["email_to"];
+					//error_log($id);
+					//error_log($valn[0]["email_to"]);
+					if(isset($id)){
+						//error_log("================>id");
+
+					
+						foreach ($msg_obj as $key => $value) {
+							if(isset($value['id_']) && $value['id_']==$id){
+								$email_fa= $value["value"];
+								break;
+							}
+						}
+						//error_log($email_fa);
+						if($email_fa!="") $this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link_w);
+					}
+				}
+				//messageSent s78
+				
+				$response = array( 
+				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
+				'track'=>$track,
+				'nonce_msg'=>wp_create_nonce($track)); 										
+				wp_send_json_success($response,200);	
+		}else{
+			$m = $this->lanText["settingsNfound"] . '</br>' . $this->lanText["MMessageNSendEr"] ;
+			$response = array( 'success' => false , "m"=>$m, "by"=>$by);
+			wp_send_json_success($response,200);	
+		}
+
+	}//end function
+	/* public function set_rMessage_id_Emsfb(){
 		error_log('===>set_rMessage_id_Emsfb');
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -3517,21 +3836,6 @@ class _Public {
 
 		$this->id =sanitize_text_field($_POST['id']);
 		$by ="";
-
-
-		/* 		if (check_ajax_referer('public-nonce','nonce')!=1){
-			
-			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
-			wp_send_json_success($response,$_POST);
-			die();
-		} */
-	/* 	$key_nonce = 'efb'.$this->id;
-		if (check_ajax_referer($key_nonce,'nonce_msg')!=1){
-			
-			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
-			wp_send_json_success($response,$_POST);
-			die();
-		} */
 
 		if(empty($_POST['message']) ){
 			$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]); 
@@ -3654,7 +3958,7 @@ class _Public {
 					'ip' => $ip, 
 					'content' => $m, 
 					'msg_id' => $id, 
-					'rsp_by' => get_current_user_id(), 
+					'rsp_by' => $this->efb_uid, 
 					'read_' => 0,
 					'date'=>wp_date('Y-m-d H:i:s'),
 					
@@ -3667,7 +3971,7 @@ class _Public {
 
 				//error_log(json_encode(wp_get_current_user()));
 				
-				if(get_current_user_id()!=0 && get_current_user_id()!==-1){
+				if($this->efb_uid!=0 && $this->efb_uid!==-1){
 					$usr= wp_get_current_user();
 					$by = $usr->user_nicename;
 					$email_usr = $usr->user_email;
@@ -3714,9 +4018,7 @@ class _Public {
 					if(isset($id)){
 						//error_log("================>id");
 
-						/* $email_fa = array_filter($msg_obj, function($item) use($id){ 
-							if(isset($item['id_']) && $item['id_']==$id){return $item["value"]["value"];}					
-						});	 */
+			
 						foreach ($msg_obj as $key => $value) {
 							if(isset($value['id_']) && $value['id_']==$id){
 								$email_fa= $value["value"];
@@ -3740,7 +4042,7 @@ class _Public {
 			wp_send_json_success($response,$_POST);	
 		}
 
-	}//end function
+	}//end function */
 
 	public function send_email_Emsfb($to , $track ,$pro , $state,$link){
 		
@@ -5162,16 +5464,7 @@ class _Public {
       
     } 
 
-	public function refresh_user_efb() {
-		$user_id =get_current_user_id();
-		if($user_id==0) return ;
-		wp_set_current_user($user_id);
-		wp_set_auth_cookie($user_id);
 
-		error_log("refresh_user_efb=>");
-		error_log(get_current_user_id());
-
-	}
 
 
 
