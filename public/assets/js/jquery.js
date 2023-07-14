@@ -1,11 +1,3 @@
-/* jQuery (function() {
-    var multipleCancelButton = new Choices('.multiple-emsFormBuilder', {
-    maxItemCount:10,
-    searchResultLimit:10,
-    renderChoiceLimit:10,
-    removeItemButton: true
-    });
-    }); */
 
 
     document.getElementById("choices-multiple-remove-button").addEventListener("change", (e) => {

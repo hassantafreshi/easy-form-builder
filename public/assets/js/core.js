@@ -1046,27 +1046,6 @@ function actionSendData_emsFormBuilder() {
     post_api_forms_efb(data);
     //console.log(document.getElementById('prev_efb').className)
     //console.log(data);
-  /*   jQuery(function ($) {
-
-    $.ajax({
-      type: "POST",
-      async: false,
-      url: ajax_object_efm.ajax_url,
-      data: data,
-      success: function (res) {
-        //console.log(res);
-        response_fill_form_efb(res)
-        //localStorage.removeItem('PayId');
-      },
-      error: function (res) {
-        console.error(res);
-        response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } })
-      }
-
-    })
-    if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
-    if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
-  }); */
 
 
 
@@ -1304,30 +1283,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
         console.log('get_track_Emsfb');
         //reCaptch verified
         recaptcha_emsFormBuilder = response;
-        post_api_tracker_check_efb(data,innrBtn);
-      /*   jQuery(function ($) {
-          //pass data ,innrBtn
-          console.log(data);
-          $.ajax({
-            type: "POST",
-            async: false,
-            url: ajax_object_efm.ajax_url,
-            data: data,
-            success: function (res) {
-              document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
-              document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-              response_Valid_tracker_efb(res)
-              efb_var.nonce_msg = res.data.nonce_msg
-              efb_var.msg_id = res.data.id
-            },
-            error: function (res) {
-              
-              document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
-              document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
-              response_Valid_tracker_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } })
-            }
-          })
-        }); */
+        post_api_tracker_check_efb(data,innrBtn);    
       }
     }
   }
@@ -1632,32 +1588,7 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
 
   };
 
-  post_api_r_message_efb(data,message)
-  
-  /* jQuery(function ($) {
-    data = {
-      action: "set_rMessage_id_Emsfb",
-      type: "POST",
-      id: id,
-      valid: recaptcha_emsFormBuilder,
-      message: JSON.stringify(message),
-      nonce: ajax_object_efm.nonce,
-      type: form_type_emsFormBuilder,
-      nonce_msg:efb_var.nonce_msg,
-      sid:efb_var.sid
-
-    };
-    $.ajax({
-      type: "POST",
-      async: false,
-      url: ajax_object_efm.ajax_url,
-      data: data,
-      success: function (res) { response_rMessage_id(res, message); sendBack_emsFormBuilder_pub=[]; },
-      error: function (res) {console.log(res); response_rMessage_id({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } }) }
-
-    })
-
-  }); */
+  post_api_r_message_efb(data,message);
 }
 
 
