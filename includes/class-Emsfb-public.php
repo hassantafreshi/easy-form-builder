@@ -73,6 +73,11 @@ class _Public {
 		   'callback'=>  [$this,'get_track_public_api'],
 		   'permission_callback' => '__return_true'
 	   ]); 
+	   register_rest_route('Emsfb/v1','forms/response/add', [
+		'methods' => 'POST',
+		'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
+		'permission_callback' => '__return_true'
+	]); 
 
 		  //not complated start
 
@@ -82,11 +87,7 @@ class _Public {
 
 			
 
-		   register_rest_route('Emsfb/v1','forms/response/add', [
-			  'methods' => 'POST',
-			  'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
-			  'permission_callback' => '__return_true'
-		  ]); 
+		
 
 			//not work!
 			register_rest_route('Emsfb/v1','forms/file/upload', [
@@ -108,11 +109,11 @@ class _Public {
 		/* add_action('wp_ajax_mail_send_submited_Emsfb', array( $this,'mail_send_form_submit'));
 		add_action('wp_ajax_nopriv_mail_send_submited_Emsfb', array( $this,'mail_send_form_submit')); */		
 		
-		add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
-		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public'));
+	/* 	add_action('wp_ajax_nopriv_get_track_Emsfb', array( $this,'get_ajax_track_public'));
+		add_action('wp_ajax_get_track_Emsfb', array( $this,'get_ajax_track_public')); */
 		
-		add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
-		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
+		/* add_action( 'wp_ajax_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند
+		add_action( 'wp_ajax_nopriv_set_rMessage_id_Emsfb',  array($this, 'set_rMessage_id_Emsfb' )); // پاسخ را در دیتابیس ذخیره می کند */
 
 		/* add_action('wp_ajax_nopriv_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb'));
 		add_action('wp_ajax_pay_stripe_sub_efb', array( $this,'pay_stripe_sub_Emsfb')); */
@@ -3465,6 +3466,10 @@ class _Public {
 		
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
         $vl=null;
+
+		//validate sid here
+
+		
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -3478,6 +3483,7 @@ class _Public {
                 }
            
             }
+			error_log(json_encode($val));
         
         }
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
@@ -3522,38 +3528,40 @@ class _Public {
 		 
 	}//end function 
 
-	public function file_upload_api($data_POST_){
-		error_log("file_upload_api");
-		$data_POST = $data_POST_->get_json_params();
-		$data_POST['id']=sanitize_text_field($data_POST['id']);
-		$data_POST['pl']=sanitize_text_field($data_POST['pl']);
+	public function file_upload_api(){
+
+		error_log("file_upload_api==========>get_json_params");
+		error_log(json_encode($_POST));
+		error_log(json_encode($_FILES));
+		$_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['pl']=sanitize_text_field($_POST['pl']);
 		
+		$sid = sanitize_text_field($data_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		if ($s_sid !=1 || $sid==null){
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>__('Error Code','easy-form-builder') . "405"); 
+		wp_send_json_success($response,200);
+		} 
+        //check validate here
+        $vl=null;
+        if($_POST['pl']!="msg"){
+            $vl ='efb'. $_POST['id'];
+        }else{
+            $id = $_POST['id'];
+            $table_name = $this->db->prefix . "emsfb_form";
+            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            if($vl!=null){              
+                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
+                    $vl ='efb'.$id;
+                    //'efb'.$this->id
+                }
+           
+            }
+        
+        }
 		
-		$data_POST['nonce_msg']=sanitize_text_field($data_POST['nonce_msg']);
-		$vl=null;
-		if($data_POST['pl']!="msg"){
-			$vl ='efb'. $data_POST['id'];
-		}else{
-			$id = $data_POST['id'];
-			$table_name = $this->db->prefix . "emsfb_form";
-			$vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-			if($vl!=null){              
-				if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
-					$vl ='efb'.$id;
-					//'efb'.$this->id
-				}
-		   
-			}
-		
-		}
-		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
-			
-			
-			$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
-			return WP_REST_Response($response,400);
-			
-		}
-		error_log("after file_upload_api");
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -3569,23 +3577,22 @@ class _Public {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 		
-		if (in_array($_FILES['file']['type'], $arr_ext)) { 
+		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 						
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
 			
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));				
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
-			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['file']['type']); 
-			  WP_REST_Response($response,200);
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']); 
+			  wp_send_json_success($response,200);
 		}else{
 			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]); 
-			WP_REST_Response($response,400);
-			
+			wp_send_json_success($response,200);
+			die('invalid file '.$_FILES['async-upload']['type']);
 		}
-		
 		 
 	}//end function
 

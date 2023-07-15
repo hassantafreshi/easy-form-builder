@@ -1304,9 +1304,17 @@ class efbFunction {
 		// $status => visit , send , upd , del  =>  max len 5
 		//$tc => tracking code if exists 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$ip = $this->get_ip_address();
+		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
+		$result =$this->db->get_var($query);
+		error_log('=========> query');
+		error_log(json_encode($result));
+		if($result!=null) return $result;
+		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
 		$uid = get_current_user_id();
-		$ip = $this->get_ip_address();
+		;
 		$os = $this->getVisitorOS();
 		$browser =$this->getVisitorBrowser();
         $data = array(
@@ -1372,8 +1380,8 @@ class efbFunction {
 		error_log($sid);
 		error_log($fid);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
 		//error_log($date_limit);
+        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
         $result =$this->db->get_var($query);
 		error_log(json_encode($result));

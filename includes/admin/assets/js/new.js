@@ -2554,7 +2554,7 @@ function replaceContentMessageEfb(value){
 }
 
 
-function fun_upload_file_emsFormBuilder(id, type,tp) {
+/* function fun_upload_file_emsFormBuilder(id, type,tp) {
   
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -2649,9 +2649,9 @@ function fun_upload_file_emsFormBuilder(id, type,tp) {
   });
 
   return r;
-}
+} */
 function fun_upload_file_api_emsFormBuilder(id, type,tp) {
-  
+  console.log(id , type ,tp);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2669,24 +2669,210 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   //console.log(tp)
   //jQuery(function ($) {
     
-    var fd = new FormData();
-    var idn = '#' + id + '_'
-    var file = jQuery(document).find(idn);
-    var caption = jQuery(this).find(idn);
-    
-    var individual_file = file[0].files[0];
-    fd.append("file", individual_file);
-    var individual_capt = caption.val();
-    fd.append("caption", individual_capt);
-    fd.append('action', 'update_file_Emsfb');
-    fd.append('nonce', ajax_object_efm.nonce);
-    fd.append('id', id_nonce);
-    fd.append('pl', tp);
-    fd.append('nonce_msg', nonce_msg);
-    
-   
+  const fd = new FormData();
+	const idn = '#' + id + '_';
+	const file = document.querySelector(idn);
+	const caption = document.querySelector(idn);
 
-  return r;
+	const individual_file = file.files[0];
+  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
+	/* fd.append('async-upload', individual_file);
+
+	const individual_capt = caption.value;
+	fd.append('caption', individual_capt);
+
+	fd.append('action', 'update_file_Emsfb');
+	fd.append('nonce', ajax_object_efm.nonce);
+	fd.append('id', id_nonce);
+	fd.append('pl', tp);
+	fd.append('nonce_msg', nonce_msg);
+	fd.append('sid', efb_var.sid);
+
+  
+
+	const progressBar = document.querySelector('#progress-bar');
+	const url = efb_var.rest_url+'Emsfb/v1/forms/file/upload'; 
+  console.log(url);
+  const jsonData = JSON.stringify(fd);
+	fetch(url, {
+    method: 'POST',
+    body: jsonData,
+   
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success === true) {
+       console.log(data);
+        if (data.file.error) {
+          alert_message_efb('', data.file.error, 14, 'danger');
+          return;
+        }
+
+        // Update file information
+        files_emsFormBuilder[indx].url = fileUrl;
+        files_emsFormBuilder[indx].state = 2;
+        files_emsFormBuilder[indx].id = idn;
+
+        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+        const o = [{
+          id_: files_emsFormBuilder[indx].id_,
+          name: files_emsFormBuilder[indx].name,
+          amount: ob.amount,
+          type: files_emsFormBuilder[indx].type,
+          value: '@file@',
+          url: files_emsFormBuilder[indx].url,
+          session: sessionPub_emsFormBuilder
+        }];
+
+        fun_sendBack_emsFormBuilder(o[0]);
+
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100% = ' + file.name;
+
+        document.getElementById(id + '-prG').classList.add('d-none');
+      } else {
+        // Show message that file type is not correct
+      }
+    })
+    .catch(error => {
+      // Handle the error
+      console.error(error);
+    });
+    
+    */
+
+  return true;
+}
+
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
+  const progressBar = document.querySelector('#progress-bar');
+  var idB ='#'+id+'-prB';
+
+
+  fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
+    // Handle the response data
+    console.log(data, data.data.file);
+    if (data.success === true && data.data.success===true) {
+      files_emsFormBuilder[indx].url = data.data.file.url;
+        files_emsFormBuilder[indx].state = 2;
+        files_emsFormBuilder[indx].id = idn;
+
+        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+        const o = [{
+          id_: files_emsFormBuilder[indx].id_,
+          name: files_emsFormBuilder[indx].name,
+          amount: ob.amount,
+          type: files_emsFormBuilder[indx].type,
+          value: '@file@',
+          url: files_emsFormBuilder[indx].url,
+          session: sessionPub_emsFormBuilder
+        }];
+
+        fun_sendBack_emsFormBuilder(o[0]);
+        document.querySelector(idB).style.width = '100%';
+        document.querySelector(idB).textContent = '100% = ' + file.name;
+
+        if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+    } else {
+      const m = data.data.hasOwnProperty('file') ? data.data.file.error : data.data.m
+      alert_message_efb('', m, 30, 'danger');
+      document.querySelector(idB).style.width = '0%';
+      document.querySelector(idB).textContent = '0% = ' + file.name;
+      console.log(data);
+      return;
+    }
+  })
+  .catch((error) => {
+    // Handle the error
+    console.error(error);
+  }); 
+
+ /*  console.log('================>uploadFile_api');
+  const formData = new FormData();
+  formData.append('async-upload', file);
+  formData.append('id', id);
+  formData.append('pl', pl);
+  formData.append('nonce_msg', nonce_msg);
+
+  const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload'; */
+/* 
+  return fetch(url, {
+    method: 'POST',
+    body: formData,
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle the response data
+      console.log(data,data.data.file);
+      if (data.success === true) {
+        files_emsFormBuilder[indx].url = data.data.file.url;
+        files_emsFormBuilder[indx].state = 2;
+        files_emsFormBuilder[indx].id = idn;
+
+        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+        const o = [{
+          id_: files_emsFormBuilder[indx].id_,
+          name: files_emsFormBuilder[indx].name,
+          amount: ob.amount,
+          type: files_emsFormBuilder[indx].type,
+          value: '@file@',
+          url: files_emsFormBuilder[indx].url,
+          session: sessionPub_emsFormBuilder
+        }];
+
+        fun_sendBack_emsFormBuilder(o[0]);
+
+       if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+      } else {
+        alert_message_efb('', data.error, 14, 'danger');
+        console.error(data.error);
+         return;
+      }
+    })
+    .catch(error => {
+      // Handle the error
+      console.error(error);
+    }); */
+}
+
+function fetch_uploadFile(file, id, pl, nonce_msg) {
+  var idB ='#'+id+'-prB';
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append('async-upload', file);
+    formData.append('id', id);
+    formData.append('pl', pl);
+    formData.append('nonce_msg', nonce_msg);
+    formData.append('sid', efb_var.sid);
+
+    const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (event) => {
+    if (event.lengthComputable) {
+      const percent = Math.round((event.loaded / event.total) * 100);
+      document.querySelector(idB).style.width = percent + '%';
+      document.querySelector(idB).textContent = percent + '% = ' + file.name;
+    }
+    });
+
+    xhr.addEventListener('load', () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      const response = JSON.parse(xhr.responseText);
+      resolve(response);
+    } else {
+      reject(xhr.statusText);
+    }
+    });
+
+    xhr.addEventListener('error', () => {
+    reject(xhr.statusText);
+    });
+
+    xhr.open('POST', url, true);
+    xhr.send(formData);
+  });
 }
 
 function generatePDF_EFB(id) 

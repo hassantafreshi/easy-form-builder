@@ -1164,8 +1164,8 @@ function valid_file_emsFormBuilder(id,tp) {
   if (check > 0) {
     msgEl.innerHTML = "";
     
-    fun_upload_file_emsFormBuilder(id, file,tp);
-    //fun_upload_file_api_emsFormBuilder(id, file,tp);
+    //fun_upload_file_emsFormBuilder(id, file,tp);
+    fun_upload_file_api_emsFormBuilder(id, file,tp);
     
     rtrn = true;
   } else {
