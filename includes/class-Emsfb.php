@@ -65,8 +65,13 @@ class Emsfb {
         
 
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
+<<<<<<< HEAD
         //require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
         error_log("after class webhook");
+=======
+       // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
+        //error_log("after class webhook");
+>>>>>>> v3
     }
 
 

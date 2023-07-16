@@ -813,7 +813,7 @@ function show_setting_window_efb(idset) {
                 <i class="efb  bi-plus-circle  text-success"></i>
                   </button> 
                 </div>
-                <div class="efb col-md-6 text-capitalize text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onClick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
+                <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onClick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
                 </div>
                
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">

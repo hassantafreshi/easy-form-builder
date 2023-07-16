@@ -106,7 +106,7 @@ function fun_emsFormBuilder_render_view(x) {
             <th scope="col" class="efb">${efb_var.text.formCode}</th>
             <th scope="col" class="efb">${efb_var.text.formName}</th>
             <th scope="col" class="efb">${efb_var.text.createDate}</th>
-            <th scope="col" class="efb">${efb_var.text.edit}</th>
+            <th scope="col" class="efb">${efb_var.text.advanced}</th>
             </tr>
         </thead>
         <tbody class="efb">${rows}</tbody>
@@ -590,8 +590,8 @@ function fun_ws_show_list_messages(value) {
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
-    <th scope="col" class="efb">${efb_var.text.formDate}</th>
-    <th scope="col" class="efb">${efb_var.text.response}</th>
+    <th scope="col" class="efb">${efb_var.text.ddate}</th>
+    <th scope="col" class="efb">${efb_var.text.advanced}</th>
     </tr>
     </thead>
     <tbody class="efb">

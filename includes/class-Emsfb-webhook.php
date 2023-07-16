@@ -34,6 +34,7 @@ class webhook {
                   'permission_callback' => '__return_true'
               ]); 
 
+<<<<<<< HEAD
               //             //post filled forms => get_ajax_form_public
              //post upload file => file_upload_public
             
@@ -49,13 +50,19 @@ class webhook {
            //  register_rest_route('Emsfb/v1','forms/message/add/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
         
 
+=======
+>>>>>>> v3
           });
     }
 
 
     public function test_fun($slug){
 
+<<<<<<< HEAD
 
+=======
+        //error_log("test_fun");
+>>>>>>> v3
 
         $response = array(
             'success' => true,
@@ -72,6 +79,7 @@ class webhook {
     } 
 
 
+<<<<<<< HEAD
  /*    public function  get_ajax_form_public($request){
 		$data_POST = $request->get_json_params();
 
@@ -85,6 +93,8 @@ class webhook {
         $response=$data_POST;
         return new WP_REST_Response($response, 200);
 	  }//end function  */
+=======
+>>>>>>> v3
 
 }
 new webhook();

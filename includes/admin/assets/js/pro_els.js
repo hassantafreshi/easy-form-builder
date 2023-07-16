@@ -359,7 +359,9 @@ function viewfileReplyEfb(id, indx) {
       /* document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show') */
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
-      fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
+      //fun_upload_file_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
+      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
+      //fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;

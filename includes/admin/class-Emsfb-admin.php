@@ -141,11 +141,16 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
+<<<<<<< HEAD
                 wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.5.34' );
+=======
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.6.0' );
+>>>>>>> v3
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
+<<<<<<< HEAD
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.5.34');
             wp_enqueue_style('Emsfb-style-css');
 
@@ -156,6 +161,18 @@ class Admin {
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
             wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.5.34');
+=======
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.6.0');
+            wp_enqueue_style('Emsfb-style-css');
+
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.6.0');
+            wp_enqueue_style('Emsfb-bootstrap');
+
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.6.0');
+            wp_enqueue_style('Emsfb-bootstrap-icons-css');
+            
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.6.0');
+>>>>>>> v3
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -163,6 +180,7 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
+<<<<<<< HEAD
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.5.34');
                 wp_enqueue_script('efb-bootstrap-min-js'); 
 
@@ -170,6 +188,15 @@ class Admin {
                 wp_enqueue_script('efb-bootstrap-bundle-min-js');  
                 
                 wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.5.34');
+=======
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.6.0');
+                wp_enqueue_script('efb-bootstrap-min-js'); 
+
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.6.0');
+                wp_enqueue_script('efb-bootstrap-bundle-min-js');  
+                
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.6.0');
+>>>>>>> v3
                 wp_enqueue_script('efb-bootstrap-icon-js'); 
         }
     }
@@ -692,7 +719,7 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        
+        error_log('admin ====>set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -1095,6 +1122,9 @@ class Admin {
 
     public function get_not_read_message() {
         $table_name = $this->db->prefix . "emsfb_msg_";
+        /* if (  $this->db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == NULL ){
+            return 'null';
+        } */
         $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
         $rtrn       = 'null';
         return $value;
