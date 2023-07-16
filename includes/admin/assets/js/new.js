@@ -1622,7 +1622,6 @@ function noti_message_efb(message, alert ,id) {
   //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
   //window.scrollTo({ top: document.getElementById('noti_content_efb'), behavior: 'smooth' });
   
-s
 }
 
 
