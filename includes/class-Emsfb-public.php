@@ -79,19 +79,19 @@ class _Public {
 		'permission_callback' => '__return_true'
 		]); 
 
-			register_rest_route('Emsfb/v1','forms/file/upload', [
-				'methods' => 'POST',
-				'callback'=>  [$this,'file_upload_api'],
-				'permission_callback' => '__return_true'
-			]); 
+		register_rest_route('Emsfb/v1','forms/file/upload', [
+			'methods' => 'POST',
+			'callback'=>  [$this,'file_upload_api'],
+			'permission_callback' => '__return_true'
+		]); 
 
-		  //not complated end
+		
 
 		});
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_enqueue_scripts', array($this,'fun_footer'));
 		
-		add_action('wp_ajax_nopriv_update_file_Emsfb', array( $this,'file_upload_public'));
+		//add_action('wp_ajax_nopriv_update_file_Emsfb', array( $this,'file_upload_public'));
 		//add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));
 		/* add_action('wp_ajax_nopriv_get_form_Emsfb', array( $this,'get_ajax_form_public'));
 		add_action('wp_ajax_get_form_Emsfb', array( $this,'get_ajax_form_public')); */
