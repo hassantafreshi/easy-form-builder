@@ -77,19 +77,8 @@ class _Public {
 		'methods' => 'POST',
 		'callback'=>  [$this,'set_rMessage_id_Emsfb_api'],
 		'permission_callback' => '__return_true'
-	]); 
+		]); 
 
-		  //not complated start
-
-
-
-
-
-			
-
-		
-
-			//not work!
 			register_rest_route('Emsfb/v1','forms/file/upload', [
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
@@ -722,10 +711,11 @@ class _Public {
 		$type = sanitize_text_field($data_POST['type_']); //two type msg/rsp
 			
 		error_log($this->id);
-		if (wp_verify_nonce($data_POST["nonce"],$this->id)==false){
+		error_log($data_POST['sid']);
+		/* if (wp_verify_nonce($data_POST["nonce"],$this->id)==false){
 			$response = array( 'success' => false  , 'm'=>'error 403'); 
 			return wp_send_json_success($response,400);		
-		}
+		} */
 
 		error_log('mail_send_form_api after nonce');
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -3533,12 +3523,21 @@ class _Public {
 		error_log("file_upload_api==========>get_json_params");
 		error_log(json_encode($_POST));
 		error_log(json_encode($_FILES));
+
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
-		
-		$sid = sanitize_text_field($data_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+        $_POST['fid']=sanitize_text_field($_POST['fid']);
+
+		error_log("file_upload_api==========>fid");
+		error_log( $_POST['fid']);
+		error_log( $_POST['sid']);
+
+		$sid = sanitize_text_field($_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
+			
 			error_log('s_sid is not valid!!');
 			
 		$response = array( 'success' => false  , 'm'=>__('Error Code','easy-form-builder') . "405"); 
@@ -3563,7 +3562,7 @@ class _Public {
         }
 		
 		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 	
 		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',

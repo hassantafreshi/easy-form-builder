@@ -2756,7 +2756,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
       files_emsFormBuilder[indx].url = data.data.file.url;
         files_emsFormBuilder[indx].state = 2;
         files_emsFormBuilder[indx].id = idn;
-
+        
         const ob = valueJson_ws.find(x => x.id_ === id) || 0;
         const o = [{
           id_: files_emsFormBuilder[indx].id_,
@@ -2765,12 +2765,15 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
           type: files_emsFormBuilder[indx].type,
           value: '@file@',
           url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder
+          session: sessionPub_emsFormBuilder,
+        
         }];
 
         fun_sendBack_emsFormBuilder(o[0]);
-        document.querySelector(idB).style.width = '100%';
-        document.querySelector(idB).textContent = '100% = ' + file.name;
+        if(document.querySelector(idB)){
+          document.querySelector(idB).style.width = '100%';
+          document.querySelector(idB).textContent = '100% = ' + file.name;
+        }
 
         if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
     } else {
@@ -2839,12 +2842,16 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
   var idB ='#'+id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
+    const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
     formData.append('async-upload', file);
     formData.append('id', id);
     formData.append('pl', pl);
     formData.append('nonce_msg', nonce_msg);
     formData.append('sid', efb_var.sid);
+    formData.append('fid', fid);
+    
 
+    console.log(efb_var.rest_url);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
 
     const xhr = new XMLHttpRequest();
@@ -2852,8 +2859,11 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     xhr.upload.addEventListener('progress', (event) => {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
-      document.querySelector(idB).style.width = percent + '%';
-      document.querySelector(idB).textContent = percent + '% = ' + file.name;
+      if(document.querySelector(idB)){
+        document.querySelector(idB).style.width = percent + '%';
+        document.querySelector(idB).textContent = percent + '% = ' + file.name;
+      }
+      console.log(percent)
     }
     });
 
@@ -3011,30 +3021,6 @@ function check_msg_ext_resp_efb() {
 /* test code  */
 
 
-function fun_send_mail_ajax_emsFormBuilder(id,nonce,type) {
-  
-   jQuery(function ($) {
-     data = {
-       action: "mail_send_submited_Emsfb",
-       type: "POST",
-       id: id,
-       
-       type: type,
-       nonce:nonce
- 
-     };
-     $.ajax({
-       type: "POST",
-       async: false,
-       url: ajax_object_efm.ajax_url,
-       data: data,
-       success: function (res) {},
-       error: function (res) { console.error(res); }
- 
-     })
- 
-   });
- }
 
  function fun_show_val_range_efb(id ){
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
@@ -3228,10 +3214,9 @@ fun_captcha_load_efb = ()=>{
  const data = {
     action: "mail_send_submited_Emsfb",
     id: id,
-    
     type_: type_,
-    nonce:nonce
-
+    nonce:nonce,
+    sid:efb_var.sid
   };
   
   const headers = new Headers({

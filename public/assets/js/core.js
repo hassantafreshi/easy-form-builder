@@ -1780,7 +1780,7 @@ function response_fill_form_efb(res) {
   //console.log(document.getElementById('prev_efb').className)
   //console.log(res.data);
   if (res.data.success == true) {
-   // if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
+   
      if(res.data.track!=null) fun_send_mail_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `

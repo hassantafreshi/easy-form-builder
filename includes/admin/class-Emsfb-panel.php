@@ -18,7 +18,17 @@ class Panel_edit  {
 		if ( is_admin() ) {
 			$rtl = is_rtl();
 			
-
+		/* 	add_action('rest_api_init',  @function(){
+    
+      
+				register_rest_route('Emsfb/v1','forms/file/upload', [
+					'methods' => 'POST',
+					'callback'=>  [$this,'file_upload_api'],
+					'permission_callback' => '__return_true'
+				]); 
+	
+  
+			}); */
 		
 			
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
@@ -110,6 +120,8 @@ class Panel_edit  {
 			//$colors = $efbFunction->get_list_colores_template();
 			$colors =[];
 			$location ='';
+			//efb_code_validate_create( $fid, $type, $status, $tc)
+			$sid = $efbFunction->efb_code_validate_create(-7 , 1, 'admin' , -7);
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.5.34');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
@@ -129,6 +141,8 @@ class Panel_edit  {
 				'setting'=>$ac,
 				'v_efb'=>EMSFB_PLUGIN_VERSION,
 				'colors'=>$colors,
+				'sid'=>$sid,
+				'rest_url'=>get_rest_url(null),
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.5.34');
@@ -409,6 +423,83 @@ class Panel_edit  {
             //end test 
 			
 	}
+
+	public function file_upload_api(){
+
+		error_log("file_upload_api==========>get_json_params");
+		error_log(json_encode($_POST));
+		error_log(json_encode($_FILES));
+
+		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
+		$_POST['id']=sanitize_text_field($_POST['id']);
+        $_POST['pl']=sanitize_text_field($_POST['pl']);
+        $_POST['fid']=sanitize_text_field($_POST['fid']);
+
+		error_log("file_upload_api==========>fid");
+		error_log( $_POST['fid']);
+		error_log( $_POST['sid']);
+
+		$sid = sanitize_text_field($_POST['sid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
+		if ($s_sid !=1 || $sid==null){
+			
+			error_log('s_sid is not valid!!');
+			
+		$response = array( 'success' => false  , 'm'=>__('Error Code','easy-form-builder') . "405"); 
+		wp_send_json_success($response,200);
+		} 
+        //check validate here
+        $vl=null;
+        if($_POST['pl']!="msg"){
+            $vl ='efb'. $_POST['id'];
+        }else{
+            $id = $_POST['id'];
+            $table_name = $this->db->prefix . "emsfb_form";
+            $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
+            if($vl!=null){              
+                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
+                    $vl ='efb'.$id;
+                    //'efb'.$this->id
+                }
+           
+            }
+        
+        }
+		
+		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
+		
+		$this->lanText= $this->efbFunction->text_efb($this->text_);
+	
+		 $arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
+		 'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+		 'text/plain' ,
+		 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
+		 'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
+		 'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		 'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
+		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+		);
+		
+		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
+			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+						
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
+			
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));				
+			if(is_ssl()==true){
+				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
+			}
+			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']); 
+			  wp_send_json_success($response,200);
+		}else{
+			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]); 
+			wp_send_json_success($response,200);
+			die('invalid file '.$_FILES['async-upload']['type']);
+		}
+		 
+	}//end function
 
 
 

@@ -1303,6 +1303,8 @@ class efbFunction {
 		//$type => form 0 , response 1, sms 2, email 3
 		// $status => visit , send , upd , del  =>  max len 5
 		//$tc => tracking code if exists 
+		error_log('efb_code_validate_create====>fid');
+		error_log($fid);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
 		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
