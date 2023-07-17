@@ -856,9 +856,7 @@ function fun_sendBack_emsFormBuilder(ob) {
 
 
 
-/* function saveLocalStorage_emsFormBuilder_view() {
-  localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
-} */
+
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
