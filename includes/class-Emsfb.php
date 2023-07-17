@@ -33,6 +33,7 @@ class Emsfb {
             EMSFB_PLUGIN_FILE,
             ['\Emsfb\Install', 'install']
         );
+  
         //register_activation_hook(__FILE__ ,[$this, 'test_fun']);
 
         add_action('init', [$this, 'load_textdomain']);

@@ -1095,12 +1095,15 @@ class Admin {
 
     public function get_not_read_message() {
         $table_name = $this->db->prefix . "emsfb_msg_";
-        /* if (  $this->db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == NULL ){
-            return 'null';
-        } */
-        $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
-        $rtrn       = 'null';
-        return $value;
+        $sql = "SHOW TABLES LIKE %s";
+        $exists = $this->db->get_var($this->db->prepare($sql, $table_name));
+        if ($exists){
+            $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
+            $rtrn       = 'null';
+            return $value;
+        }
+        return false;
+
     }
    
 
