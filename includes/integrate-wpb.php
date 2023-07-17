@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
+/* add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
 add_shortcode('ems_form_builder', 'render_ems_Form_Builder');
 
 
@@ -73,3 +73,4 @@ function render_ems_Form_Builder($atts) {
 
   return $form_output;
 }
+ */
