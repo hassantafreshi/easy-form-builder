@@ -1303,15 +1303,41 @@ class efbFunction {
 		//$type => form 0 , response 1, sms 2, email 3
 		// $status => visit , send , upd , del  =>  max len 5
 		//$tc => tracking code if exists 
-		error_log('efb_code_validate_create====>fid');
-		error_log($fid);
+		/* 
+		 */
+		/* error_log('efb_code_validate_create====>fid');
+		error_log($fid); */
 		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$query =$this->db->prepare( 'SHOW TABLES LIKE %s',$this->db->esc_like( $table_name ) );
+		$check_test_table =$query!=null ?$this->db->get_var( $query ) :0;
+		if($check_test_table==0){
+			$charset_collate =$this->db->get_charset_collate();
+			$sql = "CREATE TABLE {$table_name} (
+				`id` int(20) NOT NULL AUTO_INCREMENT,
+				`sid` varchar(21) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`fid` int(11)   NOT NULL, 
+				`type_` int(8)  NOT NULL,
+				`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
+				`status` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`os` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`browser` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,						
+				`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
+				`uid` int(10)  NOT NULL, 
+				`tc` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL,	
+				`active` int(1)   NOT NULL,						
+				PRIMARY KEY  (id)
+			) {$charset_collate};";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $sql );
+		}
 		$ip = $this->get_ip_address();
 		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
 		$result =$this->db->get_var($query);
-		error_log('=========> query');
-		error_log(json_encode($result));
+	/* 	error_log('=========> query');
+		error_log(json_encode($result)); */
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
@@ -1332,7 +1358,7 @@ class efbFunction {
 			'active'=>1,
 			'date'=>wp_date('Y-m-d H:i:s')
         );
-		error_log(json_encode($data));
+		//error_log(json_encode($data));
        $this->db->insert($table_name, $data);
 	   return $sid;
     }

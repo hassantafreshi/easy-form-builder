@@ -36,8 +36,8 @@ class _Public {
 
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
-      		error_log('test=========>');
-			error_log($this->efb_uid);
+      		
+			//error_log($this->efb_uid);
 			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
 				'method'=> 'POST',
 				'callback'=>  [$this,'test_fun'],
@@ -135,8 +135,8 @@ class _Public {
 	}
 
 	public function EFB_Form_Builder($id){
-		error_log('user id============> public');
-		error_log(json_encode(wp_get_current_user()));
+		//error_log('user id============> public');
+		//error_log(json_encode(wp_get_current_user()));
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 		//error_log($_GET['user']);
@@ -208,6 +208,13 @@ class _Public {
 			
 			wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.6.0');
 			wp_enqueue_script('efb-bootstrap-bundle-min-js');  
+		}
+
+				//اگر پرو بود اگر پلاگین نصب بود 
+		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
+		if($this->pro_efb==1   ){
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.0');
+			wp_enqueue_script('efb-pro-els'); 
 		}
 		
 		
@@ -381,9 +388,9 @@ class _Public {
 				
 				);
 				
-				error_log("send -->");
-				error_log($code);
-				error_log(wp_create_nonce($code));
+				//error_log("send -->");
+				//error_log($code);
+				//error_log(wp_create_nonce($code));
 				
 				
 			if($typeOfForm=="payment"){
@@ -569,54 +576,10 @@ class _Public {
 		}
 		/* v2 */
 
-		//اگر پرو بود اگر پلاگین نصب بود 
-		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
-		if($this->pro_efb==1 ){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.0');
-			wp_enqueue_script('efb-pro-els'); 
-		}
-	
-	
-	
-		
-			
-	
-		if($bootstrap==false){
-			
 
-
-	 	/* wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.6.0');
-			wp_enqueue_script('efb-bootstrap-min-js');  */
 	
-		
-			/* wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.6.0');
-			wp_enqueue_script('efb-bootstrap-bundle-min-js');   */
-			
+	
 						
-		}else{
-			//$it = get_template_directory();
-	/* 		
-
-			$it = list_files($it); 
-
-			$s = false;
-			$minb = true;
-			$bund = true;
-			foreach($it as $path) {
-				if (preg_match("/\bbootstrap.min.js+/i", $path)) $minb = false;
-				if (preg_match("/\bbootstrap.bundle.min.js+/i", $path)) $bund = false;				
-			}
-			if($minb){
-				wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.6.0');
-				wp_enqueue_script('efb-bootstrap-min-js'); 
-			}
-			if($bund){
-				wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.6.0');
-				wp_enqueue_script('efb-bootstrap-bundle-min-js'); 
-			} */
-
-		}
-		
 		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.6.0');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 		
@@ -701,7 +664,7 @@ class _Public {
 	  } */
 
 	  public function mail_send_form_api($data_POST_){
-		error_log('mail_send_form_api');
+		//error_log('mail_send_form_api');
 		ignore_user_abort(true);
 		$data_POST = $data_POST_->get_json_params();
 	
@@ -710,14 +673,14 @@ class _Public {
 		$track = $this->id ;
 		$type = sanitize_text_field($data_POST['type_']); //two type msg/rsp
 			
-		error_log($this->id);
-		error_log($data_POST['sid']);
+		//error_log($this->id);
+		//error_log($data_POST['sid']);
 		/* if (wp_verify_nonce($data_POST["nonce"],$this->id)==false){
 			$response = array( 'success' => false  , 'm'=>'error 403'); 
 			return wp_send_json_success($response,400);		
 		} */
 
-		error_log('mail_send_form_api after nonce');
+		//error_log('mail_send_form_api after nonce');
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		$this->setting =$r;
@@ -1960,7 +1923,7 @@ class _Public {
 
 	  public function get_form_public_efb($data_POST_){
 		$data_POST = $data_POST_->get_json_params();
-		error_log(json_encode($data_POST));
+		//error_log(json_encode($data_POST));
 		
 		//error_log("get_form_public_efb");
 		$text_ =["pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
@@ -1971,8 +1934,8 @@ class _Public {
 		$this->id = sanitize_text_field($data_POST['id']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		error_log('$s_sid check===>');
-		error_log($s_sid);
+		//error_log('$s_sid check===>');
+		//error_log($s_sid);
 
 		if ($s_sid !=1){
 			error_log('s_sid is not valid!!');
@@ -2005,7 +1968,7 @@ class _Public {
 		
 		
 		
-		error_log(json_encode($data_POST));
+		//error_log(json_encode($data_POST));
 		
 		$r=  $this->get_setting_Emsfb('setting');
 		$pro = false;
@@ -2362,7 +2325,7 @@ class _Public {
 								case 'table_matrix':					
 									$t = strpos(strtolower($item['type']),'r_matrix');
 									if(gettype($t)!='boolean'){
-										
+										 
 									}
 									$stated=0;
 									if(isset($item['value'])){

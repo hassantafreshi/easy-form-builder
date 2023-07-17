@@ -1102,7 +1102,7 @@ class Admin {
             $rtrn       = 'null';
             return $value;
         }
-        return false;
+        return [];
 
     }
    

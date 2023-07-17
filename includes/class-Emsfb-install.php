@@ -17,7 +17,6 @@ class Install {
 	 */
 	
 	static function install() {
-		
 		global $wpdb;
 		$state="gi";
 		$table_name_stng = $wpdb->prefix . "emsfb_setting";
@@ -157,6 +156,7 @@ class Install {
 		add_option( 'Emsfb_db_version', 1.0 );
 		return $state;
 	}
+	
 
 
 
