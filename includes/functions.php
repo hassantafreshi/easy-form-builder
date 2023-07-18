@@ -799,7 +799,7 @@ class efbFunction {
 			$message ="<h2>"
 			.  $lang["yFreeVEnPro"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){	
 			//w_link;
 			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
