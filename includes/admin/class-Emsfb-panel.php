@@ -121,7 +121,7 @@ class Panel_edit  {
 			$colors =[];
 			$location ='';
 			//efb_code_validate_create( $fid, $type, $status, $tc)
-			$sid = $efbFunction->efb_code_validate_create(-7 , 1, 'admin' , -7);
+			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.0');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),

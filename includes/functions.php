@@ -1299,14 +1299,11 @@ class efbFunction {
 
 	/* section of generate validate code and status of visit and message [start] */
 	public function efb_code_validate_create( $fid, $type, $status, $tc) {
+		error_log($status);
 		//$fid => form Id
 		//$type => form 0 , response 1, sms 2, email 3
 		// $status => visit , send , upd , del  =>  max len 5
-		//$tc => tracking code if exists 
-		/* 
-		 */
-		/* error_log('efb_code_validate_create====>fid');
-		error_log($fid); */
+		//$tc => tracking code if exists 	
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$query =$this->db->prepare( 'SHOW TABLES LIKE %s',$this->db->esc_like( $table_name ) );
 		$check_test_table =$query!=null ?$this->db->get_var( $query ) :0;
@@ -1336,13 +1333,10 @@ class efbFunction {
 		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
 		$result =$this->db->get_var($query);
-	/* 	error_log('=========> query');
-		error_log(json_encode($result)); */
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
 		$uid = get_current_user_id();
-		;
 		$os = $this->getVisitorOS();
 		$browser =$this->getVisitorBrowser();
         $data = array(

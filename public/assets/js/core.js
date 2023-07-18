@@ -1347,6 +1347,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   
   
   if(content[(content.length)- 1].type=="w_link")content.pop();
+  console.log(setting_emsFormBuilder);
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -1542,10 +1543,10 @@ setTimeout(() => {
     //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
-    /* if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
+    if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
-    } */
+    }
     console.log(sendBack_emsFormBuilder_pub);
     fun_send_replayMessage_reast_emsFormBuilder(sendBack_emsFormBuilder_pub)
   }
@@ -1846,11 +1847,12 @@ function response_fill_form_efb(res) {
 }
 
 function response_Valid_tracker_efb(res) {
-
+  console.log('==========>response_Valid_tracker_efb')
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
     /* attachment reply */
     setTimeout(() => {
+      console.log(typeof reply_attach_efb)
      if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
      state_rply_btn_efb(100)
     }, 50);

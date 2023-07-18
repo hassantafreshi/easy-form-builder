@@ -211,7 +211,7 @@ class _Public {
 
 				//اگر پرو بود اگر پلاگین نصب بود 
 		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
-		if($this->pro_efb==1   ){
+		if($this->pro_efb==1){
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.0');
 			wp_enqueue_script('efb-pro-els'); 
 		}
@@ -496,6 +496,13 @@ class _Public {
 				wp_enqueue_script('googleMaps-js');
 			}
 		}
+
+					//اگر پرو بود اگر پلاگین نصب بود 
+		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
+		if($this->pro_efb==1){
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.0');
+			wp_enqueue_script('efb-pro-els'); 
+		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		$location = '';
 		//efb_code_validate_create( $fid, $type, $status, $tc)
@@ -605,7 +612,7 @@ class _Public {
 	  }
 
 
-	/*   public function mail_send_form_submit(){
+		/*   public function mail_send_form_submit(){
 		
 		$this->id = sanitize_text_field($_POST['id']);
 		$track = $this->id ;
@@ -3490,14 +3497,14 @@ class _Public {
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $_POST['fid']=sanitize_text_field($_POST['fid']);
+        $fid=sanitize_text_field($_POST['fid']);
 
 		error_log("file_upload_api==========>fid");
 		error_log( $_POST['fid']);
 		error_log( $_POST['sid']);
 
 		$sid = sanitize_text_field($_POST['sid']);
-		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
+		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 		if ($s_sid !=1 || $sid==null){
 			
 			error_log('s_sid is not valid!!');

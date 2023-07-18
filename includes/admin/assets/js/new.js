@@ -2674,6 +2674,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
 	//const caption = document.querySelector(idn);
 
 	const individual_file = file.files[0];
+  console.log(file.files[0], id, tp, nonce_msg ,indx ,idn);
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
 	/* fd.append('async-upload', individual_file);
 
