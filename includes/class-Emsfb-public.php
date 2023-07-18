@@ -3582,21 +3582,19 @@ class _Public {
 		if(empty($data_POST['message']) ){
 			$response = array( 'success' => false , "m"=>$this->lanText["pleaseEnterVaildValue"]); 
 			wp_send_json_success($response,200);
-			die();
 		}
-		if(empty($data_POST['id']) ){			
+		if(empty($this->id) ){			
 			$response = array( 'success' => false , "m"=>$this->lanText["errorSomthingWrong"]); 
 			wp_send_json_success($response,200);
-			die();
 		}
 
 		if($this->isHTML($data_POST['message'])){
 			$response = array( 'success' => false , "m"=>$this->lanText["nAllowedUseHtml"]); 
 			wp_send_json_success($response,200);
-			die();
 		}
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
+		error_log('==>"string"');
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
 			$setting =json_decode($r);
@@ -3610,6 +3608,7 @@ class _Public {
 				$id=number_format(sanitize_text_field($data_POST['id']));
 				$m=sanitize_text_field($data_POST['message']);
 				$m = str_replace("\\","",$m);	
+				error_log($m);
 				$message =json_decode($m);
 				$valobj=[];
 				$stated=1;
@@ -3719,7 +3718,7 @@ class _Public {
 					$email_usr = $usr->user_email;
 					
 				}
-				
+				error_log($email_usr);
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
 				
@@ -3744,6 +3743,13 @@ class _Public {
 					//error_log($link);
 					$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
 				}
+
+		/* 		if($this->efb_uid!=0){
+					$u_email = get_user_email_by_id($this->efb_uid);
+					if ( $email_usr !== $u_email ) {
+
+					}
+				} */
 				//error_log("===============>email of filled");
 				//error_log($email_usr);
 				//error_log("===============>email_fa");

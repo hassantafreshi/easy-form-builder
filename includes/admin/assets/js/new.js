@@ -2669,9 +2669,9 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   //jQuery(function ($) {
     
   const fd = new FormData();
-	const idn = '#' + id + '_';
-	const file = document.querySelector(idn);
-	const caption = document.querySelector(idn);
+	const idn =  id + '_';
+	const file = document.getElementById(idn);
+	//const caption = document.querySelector(idn);
 
 	const individual_file = file.files[0];
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
@@ -2745,7 +2745,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
 
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
   const progressBar = document.querySelector('#progress-bar');
-  var idB ='#'+id+'-prB';
+  const idB =id+'-prB';
 
 
   fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
@@ -2769,9 +2769,10 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
         }];
 
         fun_sendBack_emsFormBuilder(o[0]);
-        if(document.querySelector(idB)){
-          document.querySelector(idB).style.width = '100%';
-          document.querySelector(idB).textContent = '100% = ' + file.name;
+        const el = document.getElementById(idB)
+        if(el){
+          el.style.width = '100%';
+          el.textContent = '100% = ' + file.name;
         }
 
         if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
@@ -2838,7 +2839,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
 }
 
 function fetch_uploadFile(file, id, pl, nonce_msg) {
-  var idB ='#'+id+'-prB';
+  var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
@@ -2858,9 +2859,10 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     xhr.upload.addEventListener('progress', (event) => {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
-      if(document.querySelector(idB)){
-        document.querySelector(idB).style.width = percent + '%';
-        document.querySelector(idB).textContent = percent + '% = ' + file.name;
+      const el = document.getElementById(idB)
+      if(el){
+        el.style.width = percent + '%';
+        el.textContent = percent + '% = ' + file.name;
       }
       console.log(percent)
     }

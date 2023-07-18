@@ -769,7 +769,7 @@ class efbFunction {
 		 */
 		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
-		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
+		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
 		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
 		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
@@ -797,7 +797,7 @@ class efbFunction {
 			$l ="https://whitestudio.team/";
 			 if(get_locale()=="fa_IR") $l="https://easyformbuilder.ir/"  ;
 			$message ="<h2>"
-			.  $lang["proUnlockMsg"] ."</h2>
+			.  $lang["yFreeVEnPro"] ."</h2>
 			<p>". $lang["createdBy"] ." White Studio Team</p>
 			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
 		}elseif($state=="newMessage"){	

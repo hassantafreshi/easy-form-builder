@@ -1409,7 +1409,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
       
     } else if (c.type == "color") {
@@ -1418,7 +1418,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
     }else if (c.type == "maps") {
 
@@ -1439,7 +1439,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
     }else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
       let vc ='null';
@@ -1449,7 +1449,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
         }
       }
-      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
+      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
@@ -1465,7 +1465,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m+=`</p>`;
       }
 
@@ -1546,8 +1546,8 @@ setTimeout(() => {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
     } */
-    
-    fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
+    console.log(sendBack_emsFormBuilder_pub);
+    fun_send_replayMessage_reast_emsFormBuilder(sendBack_emsFormBuilder_pub)
   }
 }, 100);
   
@@ -1556,8 +1556,8 @@ setTimeout(() => {
 }
 
 
-function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
-  console.log('===>fun_send_replayMessage_ajax_emsFormBuilder');
+function fun_send_replayMessage_reast_emsFormBuilder(message) {
+  console.log('===>fun_send_replayMessage_emsFormBuilder');
   if (!navigator.onLine) {
    // alert_message_efb('',efb_var.text.offlineSend, 17, 'danger');
     noti_message_efb(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder` );       
@@ -1572,11 +1572,10 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     f_btn();
     return;
   }
-
   data = {
     action: "set_rMessage_id_Emsfb",
     type: "POST",
-    id: id,
+    id: efb_var.msg_id,
     valid: recaptcha_emsFormBuilder,
     message: JSON.stringify(message),
     nonce: ajax_object_efm.nonce,
