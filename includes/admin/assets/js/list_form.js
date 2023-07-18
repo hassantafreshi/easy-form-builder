@@ -341,7 +341,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
 
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -349,7 +349,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
 
     } else if (c.type == "maps") {
 
@@ -370,7 +370,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
       //console.log(checboxs.includes(c.id_))
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
@@ -384,7 +384,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }
       }
       
-      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
+      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }
     else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
       s = true;
@@ -417,7 +417,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
