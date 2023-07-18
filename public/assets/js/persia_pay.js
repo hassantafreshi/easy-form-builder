@@ -38,7 +38,7 @@ add_ui_persiaPay_efb=(rndm)=>{
         <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb">
           <span  class="efb totalpayEfb d-flex justify-content-evenly mx-1 ir">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })}</span>
           <!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span> -->
-          <!-- <span class="efb  text-labelEfb one text-capitalize" id="chargeEfb">${efb_var.text.onetime}</span>-->
+          <!-- <span class="efb  text-labelEfb one" id="chargeEfb">${efb_var.text.onetime}</span>-->
         </div>
       </div>
       <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>

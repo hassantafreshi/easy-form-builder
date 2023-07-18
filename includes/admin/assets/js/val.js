@@ -62,7 +62,7 @@ const fields_efb = [
 const paymentMethodEls =(idset)=>{
      
   return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
+  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
   <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
   <option value="day" ${valj_efb[0].paymentmethod=='day' ? 'selected' :''}>${efb_var.text.dayly}</option>                                                            
   <option value="week" ${valj_efb[0].paymentmethod=='week' ? 'selected' :''}>${efb_var.text.weekly}</option>                                                            
@@ -96,7 +96,7 @@ const currencyTypeEls=(idset)=>{
 const paymentPersianPayEls =(idset)=>{
       
   return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
+  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
   <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
   <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>وایت استادیو</option>
   <option disabled value="efb" ${valj_efb[0].persiaPay=='melt' ? 'selected' :''}>ملت</option>
@@ -819,7 +819,7 @@ function show_setting_window_efb(idset) {
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
                     <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
                     
-                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
+                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3">${efb_var.text.price}</div>`:''}
                 </div>
                
                 <div class="efb  mb-3"  id="optionListefb" data-idstate="false">

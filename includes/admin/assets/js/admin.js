@@ -510,7 +510,7 @@ function add_dasboard_emsFormBuilder() {
     
     cardtitles += `
     <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
-      <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
+      <a class="efb nav-link m-0 p-0 cat fs-6  ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
     </li>
     `
   }
@@ -2379,12 +2379,12 @@ const saveFormEfb = () => {
       }
       if (state == false) {
 
-        btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="${btnFun}">
+        btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
       <i class="efb  ${btnIcon} mx-2"></i> ${btnText} </button>`
         body = `
       <div class="efb pro-version-efb-modal efb"></div>
-        <h5 class="efb  txt-center text-darkb fs-6 text-capitalize">${message}</h5>
-        <div class="efb  text-center text-capitalize">
+        <h5 class="efb  txt-center text-darkb fs-6">${message}</h5>
+        <div class="efb  text-center ">
         ${btn}
         </div>
       `
@@ -2401,9 +2401,9 @@ const saveFormEfb = () => {
       btnIcon = 'bi-bug'
       body = `
     <div class="efb pro-version-efb-modal efb"></div>
-    <h5 class="efb  txt-center text-darkb fs-6 text-capitalize">${efb_var.text.pleaseReporProblem}</h5>
-    <div class="efb  text-center text-capitalize">
-    <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
+    <h5 class="efb  txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
+    <div class="efb  text-center">
+    <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
       <i class="efb  bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
     </div>
     `

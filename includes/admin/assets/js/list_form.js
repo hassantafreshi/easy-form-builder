@@ -1313,7 +1313,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="efb navbar-toggler-icon"></span></button>
                                   <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01">
                                   <ul class="efb navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
-                                    <li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize btn-outline-pink " onclick="email_template_efb('p')" >
+                                    <li class="efb nav-item"><a class="efb nav-link efb btn btn-outline-pink " onclick="email_template_efb('p')" >
                                      <i class="efb bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
                                     </li>                                  
                                     <li class="efb nav-item">
@@ -1321,12 +1321,12 @@ function fun_show_setting__emsFormBuilder() {
                                         <i class="efb bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
                                     </li>
                                     <li class="efb nav-item">
-                                        <a class="efb nav-link efb btn text-capitalize  " onclick="Link_emsFormBuilder('wiki')" >
+                                        <a class="efb nav-link efb btn  " onclick="Link_emsFormBuilder('wiki')" >
                                         <i class="efb bi-question mx-1 "></i>${efb_var.text.help}</a>
                                     </li>
 
                                     <li class="efb dropdown">
-                                    <a class="efb nav-link efb btn text-capitalize dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
+                                    <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
                                     <span class="efb caret"></span></a>
                                     <ul class="efb dropdown-menu">
                                       <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn">${efb_var.text.emailTemplate} 1</a></li>
@@ -1345,7 +1345,7 @@ function fun_show_setting__emsFormBuilder() {
                               <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                             </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 
-                            <h3 class="efb  card-title mt-3 mobile-title text-capitalize">${efb_var.text.info}</h3>
+                            <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
                             <p class="efb  m-2 fs-6">
                             ${efb_var.text.infoEmailTemplates}
                             </br></br>
