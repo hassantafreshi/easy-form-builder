@@ -2578,7 +2578,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
 
   fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
     // Handle the response data
-    console.log(data, data.data.file);
     if (data.success === true && data.data.success===true) {
       files_emsFormBuilder[indx].url = data.data.file.url;
         files_emsFormBuilder[indx].state = 2;
@@ -2609,7 +2608,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
       alert_message_efb('', m, 30, 'danger');
       document.querySelector(idB).style.width = '0%';
       document.querySelector(idB).textContent = '0% = ' + file.name;
-      console.log(data);
       return;
     }
   })
@@ -2631,8 +2629,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('sid', efb_var.sid);
     formData.append('fid', fid);
     
-
-    console.log(efb_var.rest_url);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
 
     const xhr = new XMLHttpRequest();
@@ -2645,7 +2641,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
         el.style.width = percent + '%';
         el.textContent = percent + '% = ' + file.name;
       }
-      console.log(percent)
     }
     });
 
@@ -2781,7 +2776,6 @@ window.addEventListener('online', (e) => { console.log('online'); });
 
 function check_msg_ext_resp_efb() {
   // Get the `replayM_emsFormBuilder` element.
-  console.log('new ===> check_msg_ext_resp_efb')
   const replayM_emsFormBuilder = document.querySelector("#replayM_emsFormBuilder");
   replayM_emsFormBuilder.addEventListener("keypress", (event) => {
     if (document.querySelector("#replayB_emsFormBuilder").classList.contains("disabled")) {
@@ -3003,26 +2997,22 @@ fun_captcha_load_efb = ()=>{
     'Content-Type': 'application/json',
   });
 
-  console.log('fun_send_mail_emsFormBuilder');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/email/send'; // Replace with your REST API endpoint URL
 
   const jsonData = JSON.stringify(data);
-  console.log(jsonData);
   const requestOptions = {
     method: 'POST', // Or any other HTTP method (POST, GET, etc.)
     headers,
     body: jsonData, // The JSON data as the request body
   };
 
-  console.log(requestOptions);
 fetch(url, requestOptions)
 .then(response => response.json())
 .then(responseData => {
   // Handle the response data
   //response_fill_form_efb(responseData)
   //console.log(`responseData`,responseData)
-  console.log(responseData);
+  console.table(responseData);
 })
 .catch(error => {
   // Handle errors
