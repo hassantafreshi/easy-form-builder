@@ -1928,14 +1928,12 @@ function convertToCSV_emsFormBuilder(objArray) {
   
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
-  console.log(array);
   for (var i = 0; i < array.length; i++) {
     var line = '';
     for (var index in array[i]) {
      // const l= array[i].length -1;
     for (let index=0 ; index<array[i].length ;index++) {
       if (line != '') line += ','
-      console.log(array[i][index]);
       line += array[i][index];
     }
 
