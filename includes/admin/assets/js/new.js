@@ -1324,21 +1324,6 @@ function handle_navbtn_efb(steps, device) {
           
           next_s_efb.classList.remove('d-none');
          // next_s_efb.style.display = "block";
-
-          /* current_s.animate(
-            { opacity_efb: 0 },
-            {
-              step: function (now) {
-                // for making fielset appear animation
-                opacity_efb = 1 - now;
-
-                current_s.style.display = "none";
-                current_s.style.position = "relative";
-                next_s_efb.style.opacity_efb = opacity_efb;
-              },
-              duration: 500
-            }
-          ); */
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
@@ -1477,19 +1462,6 @@ function prev_btn_efb() {
  // prev_s_efb.style.display = "block";
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove("d-none");
-/*   current_s.animate(
-    { opacity_efb: 0 },
-    {
-      step: function (now) {
-        opacity_efb = 1 - now;
-
-        current_s.style.display = "none";
-        current_s.style.position = "relative";
-        prev_s_efb.style.opacity_efb = opacity_efb;
-      },
-      duration: 500
-    }
-  ); */
 
   current_s_efb = current_s_efb - 1;
   localStorage.setItem("step", current_s_efb);
