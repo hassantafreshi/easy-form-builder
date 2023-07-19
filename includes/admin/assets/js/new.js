@@ -1273,7 +1273,7 @@ function validExtensions_efb_fun(type, fileType) {
 var steps_len_efb 
 
 function handle_navbtn_efb(steps, device) {
-  console.log('============>handle_navbtn_efb');
+
   var next_s_efb, prev_s_efb; //fieldsets
   var opacity_efb;
 
@@ -1312,12 +1312,9 @@ function handle_navbtn_efb(steps, device) {
           }
 
           var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-          console.log(current_s);
           current_s.classList.add("d-none");
-          console.log(current_s);
           next_s_efb = current_s.nextElementSibling;
           var nxt = "" + (current_s_efb + 1) + "";
-          console.log(`[data-step="icon-s-' + ${nxt} + '-efb"]`);
           if(Number(valj_efb[0].show_icon)!=1){
             document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
             
@@ -1439,7 +1436,6 @@ function handle_navbtn_efb(steps, device) {
 }
 
 function prev_btn_efb() {
-  console.log(`====>prev_btn_efb JS`);
   var cs = current_s_efb;
 
   if (cs == 2) {
@@ -1454,8 +1450,6 @@ function prev_btn_efb() {
     }
   }
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-  
-  console.log(current_s);
   if (valj_efb[0].type == "payment" && preview_efb != true) {
     let state = valj_efb.findIndex(x => x.type == "stripe");
     state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
@@ -1516,7 +1510,6 @@ function prev_btn_efb() {
 
 function setProgressBar_efb(curStep, steps_len_efb) {
   if(Number(valj_efb[0].show_pro_bar)==1) return
-  console.log(`====>setProgressBar_efb`);
   var percent = (curStep / steps_len_efb) * 100;
   percent = Math.round(percent * 100) / 100;
   document.querySelector(".progress-bar-efb").style.width = percent + "%";
@@ -1586,7 +1579,6 @@ function alert_message_efb(title, message, sec, alert) {
 
   setTimeout(() => {
     // Hide the alert element.
-    console.log('new code JS for close box');
    // const el = document.querySelector(".alert_efb");
     if(document.querySelector(".alert_efb")){
       document.querySelector(".alert_efb").style.display = "none";
@@ -1678,9 +1670,7 @@ function previewFormEfb(state) {
   try {
     let count =0;
     valj_efb.forEach((value, index) => {
-      //console.log(`indx[${index}] count[${count}]`)
       let t = value.type.toLowerCase();
-      //if(value.type!="option")  console.log(`==================> type !`,t , value.id_ ,value.type);
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1704,8 +1694,6 @@ function previewFormEfb(state) {
       if((value.hasOwnProperty('disabled') && value.disabled==true && value.hasOwnProperty('hidden')==false)
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
-      //add value to sendBack_emsFormBuilder
-      //if(value.type!="option") console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
@@ -2056,7 +2044,6 @@ function fun_prev_send() {
 
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
-  console.log(prev_s_efb);
   /* current_s.animate(
     { opacity_efb: 0 },
     {
@@ -2556,104 +2543,7 @@ function replaceContentMessageEfb(value){
 }
 
 
-/* function fun_upload_file_emsFormBuilder(id, type,tp) {
-  
-  if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
-    return;
-  }
-  //v3.3.5 updated
-  //این تابع فایل را به سمت سرور ارسال می کند
-  //console.log(id,type,tp)
-  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
-  files_emsFormBuilder[indx].state = 1;
-  files_emsFormBuilder[indx].type = type;
-  let r = ""
-  
-  
-  const nonce_msg = efb_var.nonce_msg ;
-  const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
-  //console.log(tp)
-  jQuery(function ($) {
-    
-    var fd = new FormData();
-    var idn = '#' + id + '_'
-    var file = jQuery(document).find(idn);
-    var caption = jQuery(this).find(idn);
-    
-    var individual_file = file[0].files[0];
-    fd.append("file", individual_file);
-    var individual_capt = caption.val();
-    fd.append("caption", individual_capt);
-    fd.append('action', 'update_file_Emsfb');
-    fd.append('nonce', ajax_object_efm.nonce);
-    fd.append('id', id_nonce);
-    fd.append('pl', tp);
-    fd.append('nonce_msg', nonce_msg);
-    
-    var idB ='#'+id+'-prB';
-    
-    jQuery.ajax({
-      type: 'POST',
-      url: ajax_object_efm.ajax_url,
-      data: fd,
-      contentType: false,
-      processData: false,
-      xhr: function(){
-        //upload Progress
-          var xhr = $.ajaxSettings.xhr();
-          if (xhr.upload) {
-          xhr.upload.addEventListener('progress', function(event) {
-          var percent = 0;
-          var position = event.loaded || event.position;
-          var total = event.total;
-          if (event.lengthComputable)
-          {
-          percent = Math.ceil(position / total * 100);
-          }
-          //update progressbar
-          
- 
-          
-          $(idB).css("width", + percent +"%");
-          $(idB).text(percent +"% = " + file[0].files[0].name);
-        
-          }, true);
-          }
-          return xhr;
-     
-        
-        },
-      success: function (response) {
-        //files_emsFormBuilder
-        if (response.data.success === true) {
-          r = response.data.file.url;
-          if (response.data.file.error) {
-            alert_message_efb("", response.data.file.error, 14, "danger");
-            return;
-          }
-          files_emsFormBuilder[indx].url = response.data.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          files_emsFormBuilder[indx].id = idn;
-          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
-          
-          fun_sendBack_emsFormBuilder(o[0]);
-           $(idB).css("width", + 100 +"%");
-          $(idB).text(100 +"% = " + file[0].files[0].name);
-
-          $("#"+id+"-prG").addClass("d-none");
-        } else {
-          //show message file type is not correct;        
-        }
-      }
-    });
-  });
-
-  return r;
-} */
 function fun_upload_file_api_emsFormBuilder(id, type,tp) {
-  console.log(id , type ,tp);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2677,73 +2567,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
 	//const caption = document.querySelector(idn);
 
 	const individual_file = file.files[0];
-  console.log(file.files[0], id, tp, nonce_msg ,indx ,idn);
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
-	/* fd.append('async-upload', individual_file);
-
-	const individual_capt = caption.value;
-	fd.append('caption', individual_capt);
-
-	fd.append('action', 'update_file_Emsfb');
-	fd.append('nonce', ajax_object_efm.nonce);
-	fd.append('id', id_nonce);
-	fd.append('pl', tp);
-	fd.append('nonce_msg', nonce_msg);
-	fd.append('sid', efb_var.sid);
-
-  
-
-	const progressBar = document.querySelector('#progress-bar');
-	const url = efb_var.rest_url+'Emsfb/v1/forms/file/upload'; 
-  console.log(url);
-  const jsonData = JSON.stringify(fd);
-	fetch(url, {
-    method: 'POST',
-    body: jsonData,
-   
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success === true) {
-       console.log(data);
-        if (data.file.error) {
-          alert_message_efb('', data.file.error, 14, 'danger');
-          return;
-        }
-
-        // Update file information
-        files_emsFormBuilder[indx].url = fileUrl;
-        files_emsFormBuilder[indx].state = 2;
-        files_emsFormBuilder[indx].id = idn;
-
-        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-        const o = [{
-          id_: files_emsFormBuilder[indx].id_,
-          name: files_emsFormBuilder[indx].name,
-          amount: ob.amount,
-          type: files_emsFormBuilder[indx].type,
-          value: '@file@',
-          url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder
-        }];
-
-        fun_sendBack_emsFormBuilder(o[0]);
-
-        progressBar.style.width = '100%';
-        progressBar.textContent = '100% = ' + file.name;
-
-        document.getElementById(id + '-prG').classList.add('d-none');
-      } else {
-        // Show message that file type is not correct
-      }
-    })
-    .catch(error => {
-      // Handle the error
-      console.error(error);
-    });
-    
-    */
-
   return true;
 }
 
@@ -2793,53 +2617,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
     // Handle the error
     console.error(error);
   }); 
-
- /*  console.log('================>uploadFile_api');
-  const formData = new FormData();
-  formData.append('async-upload', file);
-  formData.append('id', id);
-  formData.append('pl', pl);
-  formData.append('nonce_msg', nonce_msg);
-
-  const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload'; */
-/* 
-  return fetch(url, {
-    method: 'POST',
-    body: formData,
-  })
-    .then(response => response.json())
-    .then(data => {
-      // Handle the response data
-      console.log(data,data.data.file);
-      if (data.success === true) {
-        files_emsFormBuilder[indx].url = data.data.file.url;
-        files_emsFormBuilder[indx].state = 2;
-        files_emsFormBuilder[indx].id = idn;
-
-        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-        const o = [{
-          id_: files_emsFormBuilder[indx].id_,
-          name: files_emsFormBuilder[indx].name,
-          amount: ob.amount,
-          type: files_emsFormBuilder[indx].type,
-          value: '@file@',
-          url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder
-        }];
-
-        fun_sendBack_emsFormBuilder(o[0]);
-
-       if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
-      } else {
-        alert_message_efb('', data.error, 14, 'danger');
-        console.error(data.error);
-         return;
-      }
-    })
-    .catch(error => {
-      // Handle the error
-      console.error(error);
-    }); */
 }
 
 function fetch_uploadFile(file, id, pl, nonce_msg) {
