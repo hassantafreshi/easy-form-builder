@@ -1901,7 +1901,6 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
-
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
   var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1929,25 +1928,28 @@ function convertToCSV_emsFormBuilder(objArray) {
   
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
-
+  console.log(array);
   for (var i = 0; i < array.length; i++) {
     var line = '';
     for (var index in array[i]) {
+     // const l= array[i].length -1;
+    for (let index=0 ; index<array[i].length ;index++) {
       if (line != '') line += ','
-
+      console.log(array[i][index]);
       line += array[i][index];
     }
 
     str += line + '\r\n';
   }
-
+  
   return str;
+}
 }
 
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-
+console.log(exp);
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D
