@@ -1899,9 +1899,11 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
+  console.log(items);
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
+  console.log(csv)
   var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   if (navigator.msSaveBlob) { // IE 10+
@@ -1928,20 +1930,20 @@ function convertToCSV_emsFormBuilder(objArray) {
   
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
-  for (var i = 0; i < array.length; i++) {
-    var line = '';
-    for (var index in array[i]) {
-     // const l= array[i].length -1;
-    for (let index=0 ; index<array[i].length ;index++) {
-      if (line != '') line += ','
-      line += array[i][index];
+  for (const item of array) {
+    let line = '';
+    item.pop();
+   // for (const key in item) {
+    for (var k=0 ; k < item.length ; k++) {
+      if (line !== '') line += ',';
+      console.log(k ,item[k] );
+      line += item[k];
     }
 
     str += line + '\r\n';
-  }
-  
+  }  
   return str;
-}
+
 }
 
 
