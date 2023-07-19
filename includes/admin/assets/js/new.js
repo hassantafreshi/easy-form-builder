@@ -1587,8 +1587,11 @@ function alert_message_efb(title, message, sec, alert) {
   setTimeout(() => {
     // Hide the alert element.
     console.log('new code JS for close box');
-    document.querySelector(".alert_efb").style.display = "none";
-    document.getElementById("alert_efb").innerHTML = "";
+   // const el = document.querySelector(".alert_efb");
+    if(document.querySelector(".alert_efb")){
+      document.querySelector(".alert_efb").style.display = "none";
+      document.getElementById("alert_efb").innerHTML = "";
+    }
   }, sec);
  // window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
   //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
@@ -2958,8 +2961,6 @@ santize_string_efb=(str)=>{
 }
 
 state_rply_btn_efb=(t)=>{
-   /* new code */
-    /*  end new code */
     if(pro_efb ==false){return};
     
    setTimeout(() => {
