@@ -27,20 +27,7 @@ class Install {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$test_tabale = $wpdb->prefix . "Emsfb_form";
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $test_tabale ) );
-		$check_test_table =$query!=null ? $wpdb->get_var( $query ) :0;
-
-
-		if($check_test_table!=0){
-			if ( strcmp($table_name,$check_test_table)!=0 ) {
-				$state=1;
-				$renameOk = $wpdb->query("RENAME TABLE " . $wpdb->prefix . "Emsfb_setting" . " TO " . $table_name_stng);
-				$renameOk = $wpdb->query("RENAME TABLE " . $wpdb->prefix . "Emsfb_form" . " TO " . $table_name);
-				$renameOk = $wpdb->query("RENAME TABLE " . $wpdb->prefix . "Emsfb_msg_" . " TO " . $table_name_msg);
-				$renameOk = $wpdb->query("RENAME TABLE " . $wpdb->prefix . "Emsfb_rsp_" . " TO " . $table_name_rsp);			
-			}
-		}else{
+		
 			
 						$sql = "CREATE TABLE IF NOT EXISTS {$table_name_stng} (
 							`id` int(1) NOT NULL AUTO_INCREMENT,
@@ -77,7 +64,7 @@ class Install {
 							`content` MEDIUMTEXT COLLATE utf8mb4_unicode_ci NOT NULL,		
 							`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
 							`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-							`read_` int(10) NOT NULL,
+							`read_` int(10) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							PRIMARY KEY  (msg_id)
 						) {$charset_collate};";
@@ -150,7 +137,7 @@ class Install {
 						}
 					
 
-		}
+		
 	
 
 		add_option( 'Emsfb_db_version', 1.0 );
