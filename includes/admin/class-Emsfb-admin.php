@@ -79,7 +79,7 @@ class Admin {
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));               // بارگذاری فایل
 
            
-            $this->custom_ui_plugins();
+            //$this->custom_ui_plugins();
           
            
             /*    add_action( 'save_post', function ( $post_ID,$post,$update )
