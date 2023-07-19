@@ -753,7 +753,6 @@ function addMarker(position) {
 
   reply_upload_efb =(msg_id)=>{
       let btnC = '<!--efb.app-->'
-      console.log('==================>reply_upload_efb');
     if( pro_efb==true){
        if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
        <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
