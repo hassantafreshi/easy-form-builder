@@ -425,21 +425,11 @@ class Panel_edit  {
 	}
 
 	public function file_upload_api(){
-
-		error_log("file_upload_api==========>get_json_params");
-		error_log(json_encode($_POST));
-		error_log(json_encode($_FILES));
-
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['fid']=sanitize_text_field($_POST['fid']);
-
-		error_log("file_upload_api==========>fid");
-		error_log( $_POST['fid']);
-		error_log( $_POST['sid']);
-
 		$sid = sanitize_text_field($_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $_POST['fid']);
 		if ($s_sid !=1 || $sid==null){
