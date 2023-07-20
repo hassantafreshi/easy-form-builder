@@ -169,8 +169,8 @@ class Panel_edit  {
 			
 
 			$lng_ = get_locale();
-			if ( strlen( $lng ) > 0 ) {
-			$lng_ = explode( '_', $lng )[0];
+			if ( strlen( $lng_ ) > 0 ) {
+			$lng_ = explode( '_', $lng_ )[0];
 			}
 			if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;

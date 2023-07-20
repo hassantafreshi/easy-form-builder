@@ -2120,6 +2120,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
+  
   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
@@ -2135,6 +2136,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     })
     .catch(error => {
       // Handle errors
+      console.error(error);
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })

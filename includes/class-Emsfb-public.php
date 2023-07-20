@@ -3203,6 +3203,7 @@ class _Public {
 
 	  public function get_track_public_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
+		
 		//$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
