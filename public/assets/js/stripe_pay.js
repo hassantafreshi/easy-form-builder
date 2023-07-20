@@ -3,7 +3,6 @@
 
 
   post_api_stripe_apay_efb=()=>{
-    console.log('==========>post_api_stripe_apay_efb');
 
     if (!navigator.onLine) {
       alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -94,11 +93,9 @@
             headers,
             body: jsonData, // The JSON data as the request body
             };
-            console.log(url ,requestOptions )
               fetch(url, requestOptions)
               .then(response => response.json())
               .then(res => {
-                console.log(res);
                 if(res.data.success==true){
                   if(valj_efb[0].paymentmethod == "charge"){
                     stripe.confirmCardPayment(res.data.client_secret, {
@@ -117,7 +114,6 @@
               }
               })
               .catch(res => {
-                console.log(res);
                 // Handle errors
                 btnStripeEfb.classList.remove('disabled');
                 const m = `<p class="efb h4">${efb_var.text.error} ${res.status}</p> ${res.statusText} </br> ${res.responseText}`
@@ -148,7 +144,6 @@
                 
                 if(valj_efb[0].paymentmethod != "charge"){
                   stripe.createToken(numElm).then((transStat) => {
-                    console.log(transStat);
                     if (transStat.error) {
                       stsStripeEfb.innerHTML = `<p class="h4">${transStat.status}</p> ${transStat.statusText} </br> ${transStat.responseText}`
                       
@@ -162,7 +157,6 @@
                         token: transStat.token.id,
                         sid:efb_var.sid
                       };
-                      console.log(data);
                       fun_fetch_api(data,transStat);
                     }
                   });
@@ -176,7 +170,6 @@
                     sid:efb_var.sid
                   };
                  const transStat="";
-                  console.log(data);
                   fun_fetch_api(data,transStat);
                 }
               

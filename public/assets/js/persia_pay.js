@@ -101,14 +101,11 @@ function btnPersiaPayEfb(){
 
 
 post_api_persiapay_efb=(data)=>{
-  console.log('==========>post_api_persiapay_efb');
   let btnEfb = document.getElementById('persiaPayEfb');
   btnEfb.innerHTML="لطفا صبر کنید";
   btnEfb.classList.add('disabled');
   
   let PaymentState = document.getElementById('afterPayefb');
-  console.log('===post_api_persiapay_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -123,11 +120,9 @@ post_api_persiapay_efb=(data)=>{
   headers,
   body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
   fetch(url, requestOptions)
   .then(response => response.json())
   .then(res => {
-    console.log(res);
     if(res.data.success==true){
                             
       document.getElementById('beforePay').classList.add('d-none');
@@ -147,7 +142,6 @@ post_api_persiapay_efb=(data)=>{
   })
   .catch(error => {
     // Handle errors
-    console.log(`error`,error)
     console.error(error) ;  
         btnEfb.classList.remove('disabled'); 
         PaymentState.innerHTML =`<p class="h4">${efb_var.text.error}</p> ${error}`
