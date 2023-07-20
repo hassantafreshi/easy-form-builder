@@ -1040,7 +1040,7 @@ function actionSendData_emsFormBuilder() {
       }
 
     }
-    console.log(efb_var.sid);
+
     post_api_forms_efb(data);
     //console.log(document.getElementById('prev_efb').className)
     //console.log(data);
@@ -1278,7 +1278,6 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           nonce: ajax_object_efm.nonce,
           sid:efb_var.sid
         };
-        console.log('get_track_Emsfb');
         //reCaptch verified
         recaptcha_emsFormBuilder = response;
         post_api_tracker_check_efb(data,innrBtn);    
@@ -1347,7 +1346,6 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   
   
   if(content[(content.length)- 1].type=="w_link")content.pop();
-  console.log(setting_emsFormBuilder);
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
@@ -1547,7 +1545,6 @@ setTimeout(() => {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
     }
-    console.log(sendBack_emsFormBuilder_pub);
     fun_send_replayMessage_reast_emsFormBuilder(sendBack_emsFormBuilder_pub)
   }
 }, 100);
@@ -1558,7 +1555,6 @@ setTimeout(() => {
 
 
 function fun_send_replayMessage_reast_emsFormBuilder(message) {
-  console.log('===>fun_send_replayMessage_emsFormBuilder');
   if (!navigator.onLine) {
    // alert_message_efb('',efb_var.text.offlineSend, 17, 'danger');
     noti_message_efb(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder` );       
@@ -1771,7 +1767,6 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
   //pWRedirect
   let btn_prev ='';
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
@@ -1847,12 +1842,10 @@ function response_fill_form_efb(res) {
 }
 
 function response_Valid_tracker_efb(res) {
-  console.log('==========>response_Valid_tracker_efb')
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
     /* attachment reply */
     setTimeout(() => {
-      console.log(typeof reply_attach_efb)
      if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
      state_rply_btn_efb(100)
     }, 50);
@@ -2053,19 +2046,14 @@ window.addEventListener("popstate",e=>{
  fun_booking_avilable =(el)=>{
  let r =[true,''];
  // if(ob.)
- console.log(el.type);
  let id = el.id;
  if(el.type=='select' || el.type=='select-one'){
-  console.log(el.options[el.selectedIndex].dataset.id)
   id=el.options[el.selectedIndex].dataset.id;
  }
- console.log(id,el.dataset,el);
   const row = valj_efb.find(x=>x.id_==id)
   const ndate = new Date().toLocaleDateString("fr-CA", {year:"numeric", month: "2-digit", day:"2-digit"});
-  console.log(row ,ndate);
   uncheck =()=>{
     if(el.type=="radio" || el.type=="checkbox"){
-      console.log(el.checked);
       el.checked=false
     }
   }
@@ -2092,8 +2080,6 @@ window.addEventListener("popstate",e=>{
 
  
  post_api_forms_efb=(data)=>{
-    console.log('post_api_forms_efb');
-    console.log(data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add'; // Replace with your REST API endpoint URL
 
 const headers = new Headers({
@@ -2106,7 +2092,6 @@ const requestOptions = {
   headers,
   body: jsonData, // The JSON data as the request body
 };
-console.log(data);
 fetch(url, requestOptions)
   .then(response => response.json())
   .then(responseData => {
@@ -2116,7 +2101,6 @@ fetch(url, requestOptions)
   })
   .catch(error => {
     // Handle errors
-    console.log(`error`,error)
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
   });
   if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
@@ -2124,8 +2108,6 @@ fetch(url, requestOptions)
  
 }
 post_api_tracker_check_efb=(data,innrBtn)=>{
-  console.log('post_api_tracker_check_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/get'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -2138,13 +2120,11 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
       
-            console.log(`responseData`,responseData)
             if(document.getElementById('vaid_check_emsFormBuilder')){
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -2163,8 +2143,6 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   
 }//end function post_api_tracker_check_efb
 post_api_r_message_efb=(data,message)=>{
-  console.log('post_api_r_message_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -2177,18 +2155,14 @@ post_api_r_message_efb=(data,message)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
-      
-            console.log(`responseData`,responseData)
             response_rMessage_id(responseData, message); sendBack_emsFormBuilder_pub=[]; 
     })
     .catch(error => {
       // Handle errors
-      console.log(`error`,error)
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
     });
   
