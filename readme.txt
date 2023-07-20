@@ -369,6 +369,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 * Improved UX of Easy Form Builder
 
+* Remove dependency on jQuery
+
 =3.5.33=
 
 * Fixed issues

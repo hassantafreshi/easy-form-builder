@@ -168,15 +168,15 @@ class Panel_edit  {
 			}
 			
 
-
+			$lng_ = get_locale();
+			if ( strlen( $lng ) > 0 ) {
+			$lng_ = explode( '_', $lng )[0];
+			}
 			if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
-				$lng = get_locale();
-					if ( strlen( $lng ) > 0 ) {
-					$lng = explode( '_', $lng )[0];
-					}
 				
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
+				
+				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng_.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
 			}
 
@@ -348,7 +348,8 @@ class Panel_edit  {
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 					'ajax_value' => $value,
-					'language' => $lang,
+					'language' => $lng_,
+					'text' => $lang,
 					'nonce'=>wp_create_nonce("public-nonce"),
 					'user_name'=> wp_get_current_user()->display_name,
 					'user_ip'=> $ip,

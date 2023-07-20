@@ -301,7 +301,8 @@ function viewfileEfb(id, indx) {
       document.getElementById(`${id}_-message`).classList.remove('show')
       
     } else {
-      const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[valj_efb[indx].file]}`;
+      
+      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text[valj_efb[indx].file]}`;
       document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
       alert_message_efb('', m, 4, 'danger')
@@ -364,7 +365,7 @@ function viewfileReplyEfb(id, indx) {
       //fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
-      const m = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text['media']} | ${ajax_object_efm.text['document']} | ${ajax_object_efm.text['zip']} `;
+      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']} `;
       /* document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show'); */
       alert_message_efb('', m, 4, 'danger')
