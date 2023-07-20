@@ -2713,10 +2713,7 @@ class _Public {
 							$check=	$this->insert_message_db(3,false);
 							$nnc = wp_create_nonce($check);
 							$timed = time();									
-							$timed += 20;
-							error_log($check);
-							error_log($nnc);
-													
+							$timed += 20;													
 							//wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 							
 							$this->efbFunction->efb_code_validate_update($sid ,'send' ,$check );
 							$response = array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>$nnc); 
@@ -3206,19 +3203,12 @@ class _Public {
 
 	  public function get_track_public_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		error_log(json_encode($data_POST));
-		
-		error_log('=========>get_track_public_api');
-		error_log('=========>user id:');
-		error_log($this->efb_uid);
-
 		//$this->public_scripts_and_css_head();
 		$text_ = ['error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		if ($s_sid !=1 || $sid==null){
-			error_log('s_sid is not valid!!');
 			
 		$response = array( 'success' => false  , 'm'=>$lanText["error403"]); 
 		wp_send_json_success($response,$data_POST);
@@ -3444,8 +3434,6 @@ class _Public {
                 }
            
             }
-			error_log(json_encode($val));
-        
         }
 		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
 			
@@ -3490,21 +3478,11 @@ class _Public {
 	}//end function 
 
 	public function file_upload_api(){
-
-		error_log("file_upload_api==========>get_json_params");
-		error_log(json_encode($_POST));
-		error_log(json_encode($_FILES));
-
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=sanitize_text_field($_POST['fid']);
-
-		error_log("file_upload_api==========>fid");
-		error_log( $_POST['fid']);
-		error_log( $_POST['sid']);
-
 		$sid = sanitize_text_field($_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 		if ($s_sid !=1 || $sid==null){
@@ -3569,7 +3547,6 @@ class _Public {
 
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		error_log('===>set_rMessage_id_Emsfb_api');
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		
@@ -3603,7 +3580,6 @@ class _Public {
 		}
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
-		error_log('==>"string"');
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
 			$setting =json_decode($r);
@@ -3617,7 +3593,6 @@ class _Public {
 				$id=number_format(sanitize_text_field($data_POST['id']));
 				$m=sanitize_text_field($data_POST['message']);
 				$m = str_replace("\\","",$m);	
-				error_log($m);
 				$message =json_decode($m);
 				$valobj=[];
 				$stated=1;
@@ -3727,7 +3702,6 @@ class _Public {
 					$email_usr = $usr->user_email;
 					
 				}
-				error_log($email_usr);
 				$form_id  = $value[0]->form_id;
 				$table_name = $this->db->prefix . "emsfb_form";
 				
@@ -4421,12 +4395,9 @@ class _Public {
     } */
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		error_log(json_encode($data_POST));
-		error_log('=====>pay_stripe_sub_Emsfb_api');
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
-		error_log($uid);
 		/* if (check_ajax_referer('public-nonce', 'nonce') != 1) {
 			
 			$m = __('error', 'easy-form-builder') . ' 403';
@@ -4437,13 +4408,9 @@ class _Public {
 
 
 		$sid = sanitize_text_field($data_POST['sid']);	
-		error_log('=====>sid');
-		error_log($sid);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
-		error_log($s_sid);
 
 		if ($s_sid !=1){
-			error_log('s_sid is not valid!!');
 			$m = __('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$data_POST);
@@ -4464,7 +4431,6 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die("secure!");
 		}
-		error_log('=====> befor vendor stripe');
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
 			 $efbFunction->addon_adds_cron_efb();
 			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
@@ -4488,7 +4454,6 @@ class _Public {
 		$price_f=0;
 		$email ='';
 		$valobj=[];
-		error_log('=====> befor validation');
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
@@ -4544,7 +4509,6 @@ class _Public {
 
 			
 		}
-		error_log('=====> befor IP');
 		$ip =$this->get_ip_address();
 		if($price_c != $price_f) {
 			$t=time();
@@ -4627,9 +4591,6 @@ class _Public {
 				if(isset($item['price']))	return $item; 								
 			});
 			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-			
-			error_log('=====> after stripe product');
-
 			$response;	
 			
 			if($paymentmethod!='charge'){
@@ -4643,7 +4604,6 @@ class _Public {
 				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
 				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description,'total'=>$amount ];
 				 $filtered=array_merge($filtered , array($ar)); 
-				 error_log('==========>charge');
 				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
 			}else{
 				$amount = $paymentIntent->amount/100;
@@ -4652,8 +4612,7 @@ class _Public {
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
 				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
 				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
-				 $filtered=array_merge($filtered , array($ar)); 
-				 error_log('==========>Ncharge');
+				 $filtered=array_merge($filtered , array($ar));
 				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
 			}
 			//array_push($filtered,$ar);
@@ -4679,9 +4638,7 @@ class _Public {
 	}
 
 	public function pay_persia_sub_Emsfb_api($data_POST_){
-		error_log('=========>pay_persia_sub_Emsfb_api');
 		$data_POST = $data_POST_->get_json_params();
-		error_log(json_encode($data_POST));
 		
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 
@@ -4692,8 +4649,6 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$text_=['error405'];
 		$this->lanText= $this->efbFunction->text_efb($text_);
-		error_log('$s_sid check===>');
-		error_log($s_sid);
 
 		if ($s_sid !=1){
 			error_log('s_sid is not valid!!');
@@ -5430,8 +5385,6 @@ class _Public {
 
 	public function test_fun($data_POST_){
 		$data_POST = $data_POST_->get_json_params();
-		error_log(json_encode($data_POST));
-        error_log("test_fun");
 
         $response = array(
             'success' => true,
