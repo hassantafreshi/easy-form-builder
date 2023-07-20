@@ -2880,18 +2880,15 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
  // console.log(`filtered[${filtered}]`)
   filtered = filtered.trim();
   //console.log(`filtered[${filtered}]`)
-  filtered = encodeURIComponent(filtered); // Encode non-ASCII characters
-  filtered = decodeURIComponent(filtered); // Decode back to original text
-
   let found = false;
-/*   while (/%[a-f0-9]{2}/i.test(filtered)) {
+  while (/%[a-f0-9]{2}/i.test(filtered)) {
     filtered = filtered.replace(/%[a-f0-9]{2}/i, '');
     found = true;
   }
-
+  //console.log(`filtered[${filtered}]`)
   if (found) {
     filtered = filtered.trim().replace(/ +/g, ' ');
-  } */
+  }
   
   //console.log(`filtered[${filtered}]`)
   return filtered;
