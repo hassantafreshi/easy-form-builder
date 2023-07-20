@@ -1299,7 +1299,6 @@ class efbFunction {
 
 	/* section of generate validate code and status of visit and message [start] */
 	public function efb_code_validate_create( $fid, $type, $status, $tc) {
-		error_log($status);
 		//$fid => form Id
 		//$type => form 0 , response 1, sms 2, email 3
 		// $status => visit , send , upd , del  =>  max len 5
@@ -1359,10 +1358,6 @@ class efbFunction {
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		// $status => visit , send , upd , del => max len 5
-		error_log("efb_code_validate_update");
-		error_log($sid);
-		error_log($status);
-		error_log($tc);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
@@ -1389,24 +1384,16 @@ class efbFunction {
 
 		$stmt = $this->db->query($sql);
 		//$stmt->bindParam(':date_', $$date_limit);
-
-	
-	  
-	   error_log(json_encode($stmt));
 	  
 	   return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		error_log("===============> efb_code_validate_select");
-		error_log($sid);
-		error_log($fid);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		//error_log($date_limit);
         $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
         $result =$this->db->get_var($query);
-		error_log(json_encode($result));
         return $result === '1';
     }
 

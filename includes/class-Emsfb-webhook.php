@@ -17,7 +17,7 @@ class webhook {
      */
     public function __construct() {
 
-        error_log("test webhook");
+        //error_log("test webhook");
         $this->web_hooks();
     }
 

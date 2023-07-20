@@ -692,7 +692,6 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        error_log('admin ====>set_replyMessage_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -1221,11 +1220,6 @@ class Admin {
 		
 		 
 	}//end function
-
-
-    /* function test_call_efb(){
-        error_log('function===============>test_call_efb');
-    } */
 
     public function custom_ui_plugins(){
            //// Check if wpbakery available
