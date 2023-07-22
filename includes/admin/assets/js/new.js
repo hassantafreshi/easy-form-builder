@@ -2520,7 +2520,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  //v3.6.1  updated
+  //v3.6.2  updated
 
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;

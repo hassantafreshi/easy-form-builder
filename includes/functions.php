@@ -1329,7 +1329,7 @@ class efbFunction {
 			dbDelta( $sql );
 		}
 		$ip = $this->get_ip_address();
-		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+		$date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
 		$result =$this->db->get_var($query);
 		if($result!=null) return $result;
@@ -1349,9 +1349,8 @@ class efbFunction {
             'uid' => $uid,
             'tc' => $tc,
 			'active'=>1,
-			'date'=>wp_date('Y-m-d H:i:s')
+			'date'=>date('Y-m-d H:i:s')
         );
-		//error_log(json_encode($data));
        $this->db->insert($table_name, $data);
 	   return $sid;
     }
@@ -1359,9 +1358,9 @@ class efbFunction {
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		// $status => visit , send , upd , del => max len 5
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
-		$read_date =wp_date('Y-m-d H:i:s');
+		$read_date =date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 		/* $data_= $data = array(
 			'status' => $status,
@@ -1390,8 +1389,7 @@ class efbFunction {
 
     public function efb_code_validate_select($sid ,$fid) {
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-		//error_log($date_limit);
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
         $result =$this->db->get_var($query);
         return $result === '1';
