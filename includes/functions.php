@@ -1330,7 +1330,7 @@ class efbFunction {
 		}
 		$ip = $this->get_ip_address();
 		$date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
+        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %d AND active = %d AND fid = %s", $ip, $date_limit,1,$fid);
 		$result =$this->db->get_var($query);
 		if($result!=null) return $result;
 		

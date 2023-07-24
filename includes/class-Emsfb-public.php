@@ -146,6 +146,7 @@ class _Public {
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		$table_name = $this->db->prefix . "emsfb_form";
+
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 
 		$row_id = array_pop($id);
@@ -459,7 +460,7 @@ class _Public {
 	public function EMS_Form_Builder_track(){
 
 		if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
-		$this->id=0;;
+		$this->id=0;
 		
 		$this->public_scripts_and_css_head();
 		//Confirmation Code show
