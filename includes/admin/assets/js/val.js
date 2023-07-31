@@ -299,7 +299,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  
+  console.log(idset)
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');

@@ -257,7 +257,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                     <button type="button" class="efb  btn  btn-edit  btn-sm BtnSideEfb" id="settingElEFb"
                         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
                         onclick="show_setting_window_efb('${step_el_efb}')">
-                        <i class="efb  bi-gear-fill text-success" id="efbSetting"></i>
+                        <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div>
                     </button>
                 </div>
             </div>
@@ -622,7 +622,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"
         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
         onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')">
-        <i class="efb  bi-gear-fill text-success BtnSideEfb" ></i>
+        <i class="efb bi-gear-wide-connected  text-success BtnSideEfb" ></i>
         </button>
           ${del}
         </div>
@@ -988,14 +988,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
-    <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
+    <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>
     </button>
     
     <!--<button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}-id')">
     <i class="efb  bi-files text-warning"></i> -->
     </button>
     ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-x-lg text-danger"></i></button>`}
-    <span class="efb  btn btn-edit btn-sm " onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
+    <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
     `
     const proActiv = `⭐ 
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
@@ -1133,7 +1133,7 @@ let add_buttons_zone_efb = (state, id) => {
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
           data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
           onclick="show_setting_window_efb('button_group')">
-          <i class="efb  bi-gear-fill text-success" id="efbSetting"></i>
+          <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div>
       </button>
   </div>
   </div>`;

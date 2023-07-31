@@ -215,7 +215,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
               ${efb_var.text.noCodeAddedYet} <button type="button" class="efb BtnSideEfb btn efb btn-edit efb btn-sm" id="settingElEFb"
               data-id="${rndm}-id" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
               onclick="show_setting_window_efb('${rndm}-id')">
-              <i class="efb  bi-gear-fill text-success" id="efbSetting"></i></button>${efb_var.text.andAddingHtmlCode}
+              <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div></button>${efb_var.text.andAddingHtmlCode}
           </div></div></div>`;
       } else {
         ui = valj_efb[iVJ].value.replace(/@!/g, `"`) ;
@@ -663,7 +663,7 @@ function initMap(disabled) {
 
 googleMapsNOkEfb =()=>{
   return `<div class="efb  boxHtml-efb sign-efb h-100" >
-         <div class="efb  noCode-efb m-5 text-center">
+         <div class="efb  noCode-efb m-5 text-center text-light">
          <button type="button" class="efb  btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
           <i class="efb  bi-question-lg text-pinkEfb"></i></button> 
           <p class="efb fs-6">${efb_var.text.aPIkeyGoogleMapsError}</p> 

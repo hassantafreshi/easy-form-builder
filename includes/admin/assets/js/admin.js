@@ -2037,7 +2037,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(idhtml).innerHTML = `
             <div class="efb  noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
             ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
-            <i class="efb  bi-gear-fill text-success" id="efbSetting"></i></button> ${efb_var.text.andAddingHtmlCode}
+            <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
             </div>`
           valj_efb[postId].value = '';
 
@@ -2435,6 +2435,7 @@ let editFormEfb = () => {
        
           dropZoneEFB.innerHTML += el;
           //console.log(valj_efb[v].type,'!!!!!!')   ;
+       
           if (valj_efb[v].hasOwnProperty('type') &&  valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") {
             
             funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)}
@@ -2449,7 +2450,9 @@ let editFormEfb = () => {
               })
             }, (len * 2));
           }
+       
         }
+        
       } catch (error) {
         console.error('Error', error);
       }
@@ -3136,6 +3139,11 @@ fun_efb_add_el = (t) => {
     }
 
   }
+  setTimeout(() => {
+    const vl = dropZoneEFB.lastElementChild;
+    console.log('last child',vl)
+    active_element_efb(vl);
+  }, 80);
 }
 
 

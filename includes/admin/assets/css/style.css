@@ -410,6 +410,36 @@ i.efb {	font-size: 1.2rem;
    border-radius: 20px;
    animation: fadeInEFB 0.5s ease-in-out;
 }
+
+.icon-container {
+
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: -webkit-fill-available;
+ }
+ 
+ .icon-container i.efb {
+   animation: spin 3s linear infinite;
+ }
+
+@-webkit-keyframes spin{
+	0%{
+		transform:rotate(0deg)
+}
+	to{
+		transform:rotate(359deg)
+}
+}
+@keyframes spin{
+	0%{
+		transform:rotate(0deg)
+}
+	to{
+		transform:rotate(359deg)
+}
+}
+
 .hide-input.efb {	position: fixed;
    left: -9999px;
 }
@@ -501,6 +531,8 @@ i.efb {	font-size: 1.2rem;
 .text-colorDEfb {}
 .efb.btn-sm i {	font-size: 18px !important;
 }
+#settingElEFb.efb.btn-sm i {	font-size: 24px !important;
+}
 .efb.btn-edit-holder {	
   float: right;
    margin-top: -34px !important;
@@ -524,7 +556,7 @@ i.efb {	font-size: 1.2rem;
 }
 .efb.btn-edit {	height: 30px;
    width: 30px;
-   background-color: #f3f7ff !important;
+   background-color: #f9e0e0  !important;
    border-radius: 50% !important;
    padding: 0 !important;
 }
@@ -554,6 +586,9 @@ i.efb {	font-size: 1.2rem;
 }
 .efb.btn-action-edit:hover {	background-color: #7949d9 !important;
    color: white !important;
+}
+#deleteElEFb , #moveElEFb{
+   z-index: 50;
 }
 .efb.btn-comment {	height: 30px;
    width: 30px;
@@ -927,7 +962,7 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
 
 .efb.disabled .dadFile-efb.h-d-efb,.maps-efb.h-d-efb,.sign-efb.h-d-efb , .efb.disabled input{
   color:#bdbdbd78;
-  background:#ccc;
+  background:#6c757d;
 }
 
 input[type="textarea"].h-d-efb,textarea.h-d-efb {	height: 120px!important;
@@ -2454,6 +2489,8 @@ div#Listefb-150 {
 .efb.justify-content-right {
    justify-content: right;
 }
+
+
 
 
  
