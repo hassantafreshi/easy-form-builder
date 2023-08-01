@@ -169,6 +169,7 @@ class _Public {
 			$efb_m= "" ;
 				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.2');
 				wp_enqueue_script('efb-pro-els'); 
+		
 				if($typeOfForm=="payment"){
 					$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
 					$r = $this->setting;
