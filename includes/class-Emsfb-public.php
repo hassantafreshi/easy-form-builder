@@ -37,7 +37,12 @@ class _Public {
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
       		
-			
+			//error_log($this->efb_uid);
+			register_rest_route('Emsfb/v1','test/(?P<name>[a-zA-Z0-9_]+)/(?P<id>[a-zA-Z0-9_]+)', [
+				'method'=> 'POST',
+				'callback'=>  [$this,'test_fun'],
+				'permission_callback' => '__return_true'
+			]); 
 
 		
 			register_rest_route('Emsfb/v1','forms/message/add', [
@@ -79,16 +84,11 @@ class _Public {
 				'methods' => 'POST',
 				'callback'=>  [$this,'file_upload_api'],
 				'permission_callback' => '__return_true'
-			]); 
-
-		
-
-		
-
+			]); 		
 		});
 		
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
-		add_action('wp_enqueue_scripts', array($this,'fun_footer'));
+		add_action('wp_enqueue_scripts', array($this,'fun_footer'));	
 		add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
 		
 		$this->efbFunction = new efbFunction();  
@@ -537,29 +537,8 @@ class _Public {
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.6.2');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
-
-		
-		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		//$this->setting=$this->get_setting_Emsfb('setting');
 		
 		$googleCaptcha=false;
-		/* $bootstrap =false;
-		$pro=false;
-		if(gettype($this->setting)=="string"){
-			$setting =str_replace('\\', '', $this->setting);
-			$setting =json_decode($setting);
-			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);			
-			$bootstrap =isset($setting->bootstrap) ?$setting->bootstrap: false ;
-			$googleCaptcha = strlen($setting->siteKey) >5  && strlen($setting->secretKey) >5? true:false;
-			if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}			
-			$this->pro_efb = $pro;
-			$trackingCode = isset($setting->trackingCode) ? $setting->trackingCode : "";
-			$siteKey = isset($setting->siteKey) ? $setting->siteKey : "";
-			$mapKey = isset($setting->apiKeyMap) ? $setting->apiKeyMap : "";
-			$paymentKey = isset($setting->stripePKey) ? $setting->stripePKey : "";
-			$rtr=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey);
-			
-		} */
 		/* v2 */
 
 
@@ -575,10 +554,7 @@ class _Public {
 
 
 	
-		//change langugae recaptcha
-		//https://stackoverflow.com/questions/18859857/setting-recaptcha-in-a-different-language-other-than-english
 		
-		//	wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
 		if($googleCaptcha==true){
 			$lang = get_locale();
 			$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
@@ -592,64 +568,7 @@ class _Public {
 		}
 		
 	  }
-
-
-		/*   public function mail_send_form_submit(){
 		
-		$this->id = sanitize_text_field($_POST['id']);
-		$track = $this->id ;
-		$type = sanitize_text_field($_POST['type']); //two type msg/rsp
-
-		
-		if (check_ajax_referer($this->id,'nonce')==false){
-			$response = array( 'success' => false  , 'm'=>'error 403'); 
-			wp_send_json_success($response,$_POST);		
-		}
-
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
-		$this->setting =$r;
-		if(gettype($r)!="string"){return false;}
-		$r = str_replace("\\","",$r);
-		$setting =json_decode($r,true);;
-
-		//$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
-		$email = isset($setting["emailSupporter"]) ?$setting["emailSupporter"] :null  ;
-		$pro = isset($setting["activeCode"]) &&  strlen($setting["activeCode"])>5 ? $setting["activeCode"] :null ;
-		$table_msgs = $this->db->prefix . "emsfb_msg_";
-		$table_forms = $this->db->prefix . "emsfb_form";
-		
-		//error_log(json_encode($value_msgs));
-		//$value_msgs = $this->db->get_results( "SELECT * FROM `$table_msgs` INNER JOIN $table_forms ON $table_msgs.form_id = $table_forms.form_id   WHERE $table_msgs.read_ = 3" );
-		$value_msgs = $this->db->get_results( "SELECT * FROM `$table_msgs` INNER JOIN $table_forms ON $table_msgs.form_id = $table_forms.form_id   WHERE $table_msgs.read_ = 3" );
-
-		//error_log(json_encode($value_msgs));
-		$trackingCode ="";
-		$admin_email ="";
-		$user_email ="null";
-		$fs;
-		foreach ($value_msgs as $key => $value) {
-				$trackingCode = $value->track;
-				$fs = str_replace("\\","",$value->form_structer);			
-				$msg = str_replace("\\","", $value->content);
-				$msg_obj = json_decode($msg,true); //object of message
-				$fs_obj = json_decode($fs,true); // object of form_structer
-				//$this->id = $trackingCode;
-				
-			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );				
-				$admin_email = $fs_obj[0]["email"];
-				$w_ = end($msg_obj) ;
-				$link = $w_['type']=="w_link" ? $w_['value'] :'null';
-				
-				
-				//error_log(json_encode($w_));
-				$this->fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$track,$pro ,$admin_email,$link);
-				
-				
-			}
-				
-		$response = array( 'success' => true  , 'm'=>'mail ok'); 
-	  } */
 
 	  public function mail_send_form_api($data_POST_){
 		//error_log('mail_send_form_api');
@@ -659,16 +578,7 @@ class _Public {
 		
 		$this->id = sanitize_text_field($data_POST['id']);
 		$track = $this->id ;
-		$type = sanitize_text_field($data_POST['type_']); //two type msg/rsp
-			
-		//error_log($this->id);
-		//error_log($data_POST['sid']);
-		/* if (wp_verify_nonce($data_POST["nonce"],$this->id)==false){
-			$response = array( 'success' => false  , 'm'=>'error 403'); 
-			return wp_send_json_success($response,400);		
-		} */
-
-		//error_log('mail_send_form_api after nonce');
+		$type = sanitize_text_field($data_POST['type_']); //two type msg/rsp		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		$this->setting =$r;
@@ -1992,6 +1902,7 @@ class _Public {
 	  }//end function get_track_public_api
 
 
+
 	  public function fun_footer(){
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), true,'3.6.2');
 		wp_enqueue_script('jquery');
@@ -2176,7 +2087,8 @@ class _Public {
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
 		 
-	}//end functionn
+	}//end function
+
 
 
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
@@ -2564,20 +2476,12 @@ class _Public {
 	 return $rtrn;
 	}
 
+
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
 		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
-		/* if (check_ajax_referer('public-nonce', 'nonce') != 1) {
-			
-			$m = __('error', 'easy-form-builder') . ' 403';
-			$response = ['success' => false, 'm' => $m];
-			wp_send_json_success($response, 200);
-		} */
-
-
-
 		$sid = sanitize_text_field($data_POST['sid']);	
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 
@@ -3197,12 +3101,9 @@ class _Public {
 		$first = $form_[1];
 		array_filter($form_, function($item) use($first) { 
 			if(isset($item['id_'])!=true ){
-				
 				return false;
 			}
-			/* else if( $item['type']=='option'){
-				return false;
-			} */
+		
 			$dataTag = '';
 			$desc ='<!--efb.app-->';
 			$label ='<!--efb.app-->';
@@ -3378,7 +3279,6 @@ class _Public {
 		//s1 head
 		//s2 content new.js  1342
 		$str = '<div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">'.$str.'<form id="efbform">%s<div class="efb mt-1 px-2">%s</div> </form></div>';
-	
 		//buttons
 		$step_no = intval($form_[0]["steps"]) +1;		
 		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
@@ -3386,16 +3286,10 @@ class _Public {
 		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
 		  <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb">'.__('Waiting','easy-form-builder').'</h3></div>                
 		   <!-- final fieldset --></fieldset>';
-		 
-		   //print_r($this->value);
-
-		   //content = $this->value
-		   //head = $this->name
-		   //body =  $str 
-		   //sprintf($str,$this->value,$this->name,$this->value)
 	}
 
 	
+
 	public function load_textdomain(): void {
 		
         load_plugin_textdomain(
@@ -3513,6 +3407,22 @@ class _Public {
 		return 0;
 	}
 
+	public function test_fun($data_POST_){
+		$data_POST = $data_POST_->get_json_params();
+
+        $response = array(
+            'success' => true,
+            'value' => $slug["name"],
+            'content' => "content",
+            'nonce_msg' => "code",
+            'id' => $slug["id"]
+          );
+        
+        return new WP_REST_Response($response, 200);
+       // return $fs;
+    
+      
+    } 
 
 
 
