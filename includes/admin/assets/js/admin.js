@@ -3141,7 +3141,7 @@ fun_efb_add_el = (t) => {
   }
   setTimeout(() => {
     const vl = dropZoneEFB.lastElementChild;
-    console.log('last child',vl)
+    //console.log('last child',vl)
     active_element_efb(vl);
   }, 80);
 }

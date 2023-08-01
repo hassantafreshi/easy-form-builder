@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.6.3
+Stable tag: 			3.6.4
 Requires at least: 	      4.7
-Tested up to: 			6.2.2
+Tested up to: 			6.2.3
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html

@@ -763,18 +763,9 @@ class efbFunction {
 		}
 
 	public function email_template_efb($pro, $state, $m,$link){	
-		
-		
-		/* 
-		 */
-		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
+			
 		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
-		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
-		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
-		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	 */
-		//if($pro ==1){
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		//}   
 
@@ -1117,28 +1108,6 @@ class efbFunction {
 	}
 
 
-	/* function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
-        // The path to our plugin's main file
-        $our_plugin = plugin_basename( __FILE__ );
-		
-		$our_plugin = substr($our_plugin, 0, strpos($our_plugin, "/"));
-        // If an update has taken place and the updated type is plugins and the plugins element exists
-        if( $options['action'] == 'update' && $options['type'] == 'plugin' && isset( $options['plugins'] ) ) {
-         // Iterate through the plugins being updated and check if ours is there
-         foreach( $options['plugins'] as $plugin ) {
-			$plugin = substr($plugin, 0, strpos($plugin, "/"));		
-			//error_log($our_plugin);
-            //error_log($plugin);
-          if( $plugin == $our_plugin) {
-			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-				wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
-			  }
-          }
-         }
-        }
-       } */
-
-
 	   public function addon_adds_cron_efb(){
 		//error_log('addon_adds_cron_efb');
 		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
@@ -1330,7 +1299,7 @@ class efbFunction {
 		}
 		$ip = $this->get_ip_address();
 		$date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %d AND active = %d AND fid = %s", $ip, $date_limit,1,$fid);
+        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date < %d AND active = %d AND fid = %s", $ip, $date_limit,1,$fid);
 		$result =$this->db->get_var($query);
 		if($result!=null) return $result;
 		
@@ -1388,49 +1357,20 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
+		/* error_log("efb_code_validate_select");
+		error_log($sid);
+		error_log($fid); */
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
+		//error_log(json_encode(  $query));
         $result =$this->db->get_var($query);
+		//error_log(json_encode(  $result));
         return $result === '1';
     }
 
 	/* section of generate validate code and status of visit and message [end] */
 	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
-
-
-	/* public function get_list_colores_template(){
-		//list_files(get_template_directory())
-		//$template_name = get_template(); //get active template name
-		$template_path =list_files(get_template_directory()); //get active template path
-		//$files = scandir($template_path); //scan all files in template directory
-		$colors =[]; //create array to store colors
-		foreach ($template_path as $file) { //loop through each file
-
-			if (preg_match('/main.css$|style.css$|colors.css$|color.css$/', $file) || preg_match('/\.json$/', $file)) { //check if file is css file
-				//error_log($file);
-				$content = file_get_contents($file); //get content of css file
-				// '/#[a-fA-F0-9]{3,6}/'
-				//$pattern = '/#([a-fA-F0-9]{3,6})\b|rgba?\([^\)]+\)/i';
-				$pattern = '/#[a-fA-F0-9]{3,6}/i';
-				preg_match_all($pattern, $content, $matches); //find all colors in css file using regex 
-				//array_unique(array_merge($colors,$matches), SORT_REGULAR);
-				foreach ($matches as $match) { //loop through each color found in css file 
-					// if (!in_array($match, $colors)) { //check if color already exists in array or not 
-					//	array_push($colors, $match); //add color to array if it doesn't exist already 
-					//} 
-					//error_log(json_encode($match));
-					$colors=array_unique(array_merge($colors,$match), SORT_REGULAR);
-					//convert this obiject array to array : {"0":"#FCF5ED","1":"#3F67C6","2":"#FFFFFF","3":"#3556A5","4":"#374C80","5":"#CA2315","6":"#FFF6F6","7":"#000000","8":"#F5F5F5","9":"#1A1A1A","10":"#FF7179","11":"#F4F4F2","13":"#ffffff","15":"#ffe2c7","17":"#f6f6f6","18":"#1a4548","28":"#F6F6F6"} 
-				} 
-				//error_log(gettype($colors) );
-			} 
-		} 
-		$colors = array_values($colors);
-		//error_log("json_encodecolors");
-		//error_log(json_encode($colors));
-		return $colors; //print all colors found in active template
-	} */
 	public function getVisitorOS() {
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 		$os = "Unknown";

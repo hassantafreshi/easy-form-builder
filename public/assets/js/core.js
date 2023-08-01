@@ -1005,7 +1005,7 @@ function actionSendData_emsFormBuilder() {
     //console.log(document.getElementById('prev_efb').className)
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
-         console.log(`efb_var.id[${efb_var.id}]`);
+         //console.log(`efb_var.id[${efb_var.id}]`);
         data = {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendBack_emsFormBuilder_pub),
@@ -1207,7 +1207,7 @@ function fun_tracking_show_emsFormBuilder() {
 setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
-                <div class="efb  card card-public row mb-3 pb-3 px-1" id="body_efb-track">
+                <div class="efb row mb-3 pb-3 px-1" id="body_efb-track">
                     <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
@@ -2088,7 +2088,7 @@ const headers = new Headers({
   'Content-Type': 'application/json',
 
 });
-console.log(data);
+//console.log(data);
 const jsonData = JSON.stringify(data);
 const requestOptions = {
   method: 'POST', // Or any other HTTP method (POST, GET, etc.)
