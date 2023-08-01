@@ -1298,9 +1298,13 @@ class efbFunction {
 			dbDelta( $sql );
 		}
 		$ip = $this->get_ip_address();
-		$date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date < %d AND active = %d AND fid = %s", $ip, $date_limit,1,$fid);
+		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
+		$date_now = date('Y-m-d H:i:s');
+		/* error_log($date_now); */
+        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s", $ip, $date_now,1,$fid);
 		$result =$this->db->get_var($query);
+		/* error_log(json_encode($query));
+		error_log(json_encode($result)); */
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
@@ -1318,7 +1322,8 @@ class efbFunction {
             'uid' => $uid,
             'tc' => $tc,
 			'active'=>1,
-			'date'=>date('Y-m-d H:i:s')
+			'date'=>date('Y-m-d H:i:s'),
+			'read_date'=>$date_limit
         );
        $this->db->insert($table_name, $data);
 	   return $sid;
@@ -1362,8 +1367,9 @@ class efbFunction {
 		error_log($fid); */
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
-		//error_log(json_encode(  $query));
+        $date_now = date('Y-m-d H:i:s');
+        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
+		/* error_log(json_encode(  $query)); */
         $result =$this->db->get_var($query);
 		//error_log(json_encode(  $result));
         return $result === '1';
