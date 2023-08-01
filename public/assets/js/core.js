@@ -50,6 +50,7 @@ setTimeout(() => {
       localStorage.setItem('form_id', efb_var.id);
       setting_emsFormBuilder=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       if (ajax_object_efm.state != 'tracker') {
+        
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
@@ -82,6 +83,7 @@ setTimeout(() => {
         } else if (ajax_object_efm.state == 'userIsLogin') {
           document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
         }
+
       } else {
         fun_show_alert_setting_emsFormBuilder()
       }
@@ -995,8 +997,8 @@ function actionSendData_emsFormBuilder() {
       id: efb_var.id,
       valid: recaptcha_emsFormBuilder,
       type:  form_type_emsFormBuilder,
-      nonce: efb_var.nonce,
-      nonce_msg: efb_var.nonce_msg,
+      //nonce: efb_var.nonce,
+      //nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0],
       sid:efb_var.sid
     };
@@ -1013,10 +1015,10 @@ function actionSendData_emsFormBuilder() {
           id: sessionStorage.getItem("id"),
           valid: recaptcha_emsFormBuilder,
           type:  form_type_emsFormBuilder,
-          nonce: efb_var.nonce,
+          //nonce: efb_var.nonce,
           payment: 'persiaPay',
           auth:get_authority_efb,
-          nonce_msg: efb_var.nonce_msg,
+          //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
           sid:efb_var.sid
         };
@@ -1031,8 +1033,8 @@ function actionSendData_emsFormBuilder() {
           valid: recaptcha_emsFormBuilder ,
           type: form_type_emsFormBuilder,
           payment: 'stripe',
-          nonce: efb_var.nonce,
-          nonce_msg: efb_var.nonce_msg,
+          //nonce: efb_var.nonce,
+          //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
           sid:efb_var.sid
 
@@ -2086,6 +2088,7 @@ const headers = new Headers({
   'Content-Type': 'application/json',
 
 });
+console.log(data);
 const jsonData = JSON.stringify(data);
 const requestOptions = {
   method: 'POST', // Or any other HTTP method (POST, GET, etc.)
@@ -2169,40 +2172,8 @@ post_api_r_message_efb=(data,message)=>{
     });
   
   
-}//end function post_api_tracker_check_efb
+}
 
-/* post_api_efb=()=>{
-  //http://127.0.0.1/wp/wp-json/Emsfb/v1/test/name/45
-  console.log('run customendpoint',efb_var.rest_url);
-    const url = efb_var.rest_url+'Emsfb/v1/customendpoint'; // Replace with your REST API endpoint URL
 
-const headers = new Headers({
-  'Content-Type': 'application/json',
-});
-jsonData={};
-const requestOptions = {
-  method: 'POST', // Or any other HTTP method (POST, GET, etc.)
-  headers,
-  beforeSend: function ( xhr ) {
-    xhr.setRequestHeader( 'X-WP-Nonce', efb_var.rest_nonce );
-  },
-  // The JSON data as the request body
-};
-console.log(url);
-fetch(url, requestOptions)
-  .then(response => response.json())
-  .then(responseData => {
-    // Handle the response data
-    console.log(`responseData`,responseData)
-  })
-  .catch(error => {
-    // Handle errors
-    console.log(`error`,error)
-  });
-    
- } */
 
-/* setTimeout(() => {
-  post_api_efb();
- }, 2000); */
  

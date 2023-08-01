@@ -148,9 +148,15 @@ class Admin {
 
             wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.6.2');
             wp_enqueue_style('Emsfb-style-css');
-
+            
             wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.6.2');
             wp_enqueue_style('Emsfb-bootstrap');
+
+            /* wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-min.css',true,'3.6.2');
+            wp_enqueue_style('Emsfb-style-css');
+
+            wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css', true,'3.6.2');
+		    wp_enqueue_style('Emsfb-bootstrap-css'); */
 
             wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.6.2');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
