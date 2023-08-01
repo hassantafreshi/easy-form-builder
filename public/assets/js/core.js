@@ -1199,7 +1199,7 @@ function valid_file_emsFormBuilder(id,tp) {
 
 
 function fun_tracking_show_emsFormBuilder() {
-  const time = pro_efb==true ? 10 :3500;
+  const time = pro_efb==true ? 10 :2100;
   const getUrlparams = new URLSearchParams(location.search);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
