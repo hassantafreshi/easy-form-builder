@@ -107,11 +107,16 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
-        link += "s/offline-forms-addon/";
-        break;
-      case 'AdnOF':
-        //AdnOF == offline form
         link += 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
+        break;
+        case 'AdnOF':
+          //AdnOF == offline form
+          link += "s/offline-forms-addon/";
+       
+        break;
+        case 'AdnADP':
+          //AdnADP == Hijiri date
+          link += "s/how-to-install-islamic-date-in-easy-form-builder-plugin/";
        
         break;
       case 'wpbakery':
@@ -525,7 +530,7 @@ function add_dasboard_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` : ''}
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb fs-4"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` : ''}
           <div class="efb d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
             
@@ -566,7 +571,7 @@ function add_addons_emsFormBuilder() {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
                  'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
     //AdnSPF
-     if((efb_var.language!='fa_IR' && i.name!='AdnPPF') || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
+     if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
   }
   let cardtitles = `<!-- card titles -->`;
@@ -582,7 +587,7 @@ function add_addons_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
+          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
   
             <div class="efb row">
             ${cardtitles}
@@ -638,6 +643,7 @@ function FunfindCardAddonEFB() {
   document.getElementById('listFormCardsEFB').innerHTML = ''
  
   for (let row of addons_efb) {
+    
     if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
   }
   let result = '<!--Search-->'

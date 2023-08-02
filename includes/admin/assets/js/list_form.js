@@ -96,7 +96,7 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+   <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
             </h4>
     <div class="efb card efb">
@@ -583,7 +583,7 @@ function fun_ws_show_list_messages(value) {
 
 
   document.getElementById('content-efb').innerHTML = `<div class="efb head-efb">${head}</div>
-    <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+    <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
     <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
     <div class="efb card efb">
@@ -975,7 +975,7 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById('content-efb').innerHTML = `
   <img src="${efb_var.images.title}"  class="efb crcle-footer">
   <div class="efb container row">
-  <h4 class="efb title-holder efb">
+  <h4 class="efb title-holder efb fs-4">
       <img src="${efb_var.images.title}" class="efb title efb">
       <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
   </h4>
@@ -988,7 +988,7 @@ function fun_show_help__emsFormBuilder() {
                   <p class="efb  card-text efb pb-3 fs-6">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('price')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
+                  ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : `<a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('price')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>`}
                   <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
@@ -1082,7 +1082,7 @@ function fun_show_setting__emsFormBuilder() {
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
-            <h4 class="efb title-holder efb">
+            <h4 class="efb title-holder efb fs-4">
                 <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
@@ -1106,7 +1106,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>
+                                ${efb_var.pro == true ||  efb_var.pro == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>`}
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
