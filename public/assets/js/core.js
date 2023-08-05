@@ -1201,6 +1201,8 @@ function valid_file_emsFormBuilder(id,tp) {
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :2100;
   const getUrlparams = new URLSearchParams(location.search);
+  efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
+  console.log(efb_var);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   
@@ -1571,16 +1573,19 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     f_btn();
     return;
   }
+
+
   data = {
     action: "set_rMessage_id_Emsfb",
     type: "POST",
     id: efb_var.msg_id,
     valid: recaptcha_emsFormBuilder,
     message: JSON.stringify(message),
-    nonce: ajax_object_efm.nonce,
+    //nonce: ajax_object_efm.nonce,
     type: form_type_emsFormBuilder,
-    nonce_msg:efb_var.nonce_msg,
-    sid:efb_var.sid
+    //nonce_msg:efb_var.nonce_msg,
+    sid:efb_var.sid,
+    user_type : efb_var.user_type
 
   };
 

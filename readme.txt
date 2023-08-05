@@ -365,6 +365,17 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+=3.6.5=
+
+* Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
+
+=3.6.4=
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues of UI Easy Form Builder
+
+
 =3.6.3=
 
 * Improved Security of form builder of WordPress Plugin

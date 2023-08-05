@@ -622,7 +622,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"
         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
         onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')">
-        <i class="efb bi-gear-wide-connected  text-success BtnSideEfb" ></i>
+        <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb" ></i></div>
         </button>
           ${del}
         </div>
