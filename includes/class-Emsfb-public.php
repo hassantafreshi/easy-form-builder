@@ -1808,17 +1808,19 @@ class _Public {
 			   //error_log("=============>link_w ");
 			   //error_log($link_w );
 			   error_log($this->efb_uid);
-				$table_name = $this->db->prefix . "emsfb_rsp_";				
+				$table_name = $this->db->prefix . "emsfb_rsp_";	
+					
+				$read_s = $rsp_by=='admin' ? 1 :0;
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
 					'msg_id' => $id, 
 					'rsp_by' => $this->efb_uid, 
-					'read_' => 0,
+					'read_' => $read_s,
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));  
 				$track = $value[0]->track;
-				$this->db->update($table_name,array('read_'=>0), array('msg_id' => $id) );
+				//$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
 				$by=$this->lanText["guest"];
 				$email_usr ="";
 				//error_log(json_encode(wp_get_current_user()));
@@ -1839,22 +1841,25 @@ class _Public {
 				error_log($rsp_by);
 				error_log($link_w);
 				error_log(json_encode($valn[0]));
-				$id =$valn[0]["email_to"];
+				//$id =$valn[0]["email_to"];
+				error_log($valn[0]["email_to"]);
 				$users_email =null;
 				if(isset($id)){
 					error_log("================>id");
 					foreach ($msg_obj as $key => $value) {
-						if(isset($value['id_']) && $value['id_']==$id){
-							$$users_email= $value["value"];
+						
+						if(isset($value['id_']) && $value['id_']==$valn[0]["email_to"]){
+							$users_email= $value["value"];
 							break;
 						}
 					}
 					
 				}
-				error_log($users_email);
+				
 				if($rsp_by=='admin' && !is_null($users_email)){
 					//send email noti to users
-					$link = $link_w."?track=".$track;		
+					$link = $link_w."?track=".$track;	
+					$this->send_email_Emsfb($users_email,$track,$pro,"newMessage",$link);	
 					//$users_email
 				}else{
 					//send email noti to admins
@@ -1869,9 +1874,8 @@ class _Public {
 						$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
 					}
 					$link = $link_w."?track=".$track;		
-					if( !is_null($users_email)){
-						error_log($link);
-						error_log($users_email);
+					if( !is_null($users_email)){						
+						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link);
 					}
 				}
 				/* new code end */

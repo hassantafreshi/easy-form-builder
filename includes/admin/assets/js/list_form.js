@@ -103,6 +103,7 @@ function fun_emsFormBuilder_render_view(x) {
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
         <thead class="efb">
             <tr class="efb">
+            
             <th scope="col" class="efb">${efb_var.text.formCode}</th>
             <th scope="col" class="efb">${efb_var.text.formName}</th>
             <th scope="col" class="efb">${efb_var.text.createDate}</th>
@@ -553,9 +554,10 @@ function fun_ws_show_list_messages(value) {
     head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
   }
   if (value.length > 0) {
+    let no =1;
     for (const v of value) {
       let state = Number(v.read_);
-      
+     
       iconNotRead = `<div class="efb nmsgefb bi-envelope-fill"></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';
@@ -564,6 +566,7 @@ function fun_ws_show_list_messages(value) {
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
+      <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${no}</td>
          <th scope="row" class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.track}</th>
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
@@ -589,6 +592,7 @@ function fun_ws_show_list_messages(value) {
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
+    <th scope="col" class="efb">${efb_var.text.number}</th>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
     <th scope="col" class="efb">${efb_var.text.ddate}</th>
     <th scope="col" class="efb">${efb_var.text.advanced}</th>

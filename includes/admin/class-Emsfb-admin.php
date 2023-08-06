@@ -699,10 +699,10 @@ class Admin {
     public function set_replyMessage_id_Emsfb() {
         // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
         // با این مضنون که پاسخ شما داده شده است
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
-        $ac= $efbFunction->get_setting_Emsfb();
+        $this->efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $ac= $this->efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
-        $lang= $efbFunction->text_efb($text);
+        $lang= $this->efbFunction->text_efb($text);
 
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
                         
@@ -791,9 +791,6 @@ class Admin {
         
         $table_name = $this->db->prefix . "emsfb_msg_";
         if(strpos($m , '"type\":\"closed\"')){
-            /* 
-             */
-            //$id
             $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
             
         }else if(strpos($m , '"type\":\"opened\"')){
@@ -820,7 +817,7 @@ class Admin {
         //"rescl", "resop",
         $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
 
-        $efbFunction->response_to_user_by_msd_id($id ,$pro);
+        $this->efbFunction->response_to_user_by_msd_id($id ,$pro);
         wp_send_json_success($response, $_POST);
 
     }
