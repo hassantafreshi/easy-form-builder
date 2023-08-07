@@ -102,8 +102,7 @@ function fun_emsFormBuilder_render_view(x) {
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
         <thead class="efb">
-            <tr class="efb">
-            
+            <tr class="efb">            
             <th scope="col" class="efb">${efb_var.text.formCode}</th>
             <th scope="col" class="efb">${efb_var.text.formName}</th>
             <th scope="col" class="efb">${efb_var.text.createDate}</th>

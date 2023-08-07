@@ -763,18 +763,25 @@ class efbFunction {
 		}
 
 	public function email_template_efb($pro, $state, $m,$link){	
-			
-		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
+		$l ="https://whitestudio.team/";
+			 if(get_locale()=="fa_IR"){ $l="https://easyformbuilder.ir/"  ;}
+			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
+		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
+			
 		//}   
 
+		
 		$st = $this->get_setting_Emsfb();
 		if($st=="null") return;
+		//serverEmailAble
+		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". __('Created by','easy-form-builder') . " " . __('Easy Form Builder','easy-form-builder')."</a></small>";	}		
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
+		//error_log($footer);
 		$title=$lang["newMessage"];
-		$message ="<h2>".$m."</h2>";
+		$message ="<h3>".$m."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
 		 
@@ -784,13 +791,15 @@ class efbFunction {
 		
 		
 		if($state=="testMailServer"){
-			$title=$lang["goodJob"];
-			$l ="https://whitestudio.team/";
-			 if(get_locale()=="fa_IR") $l="https://easyformbuilder.ir/"  ;
-			$message ="<h2>"
-			.  $lang["yFreeVEnPro"] ."</h2>
-			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			$title= $lang["serverEmailAble"];
+			$message ="<h1>".  $footer ."</h1>";
+			 if(strlen($st->activeCode)<5){
+				$message ="<h2>"
+				.  $lang["yFreeVEnPro"] ."</h2>
+				<p>". $lang["createdBy"] ." WhiteStudio.team</p>
+				<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			 }
+			
 		}elseif($state=="newMessage"){	
 			//w_link;
 			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
@@ -838,13 +847,14 @@ class efbFunction {
 				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
+				//error_log($footer);
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
-		       
+		       //error_log($temp);
 				$val =  $temp;
 			}
-			
+			//error_log($footer);
 			return $val;
 	}
 

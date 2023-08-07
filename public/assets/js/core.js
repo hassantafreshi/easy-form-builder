@@ -1202,7 +1202,7 @@ function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :2100;
   const getUrlparams = new URLSearchParams(location.search);
   efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
-  console.log(efb_var);
+  //console.log(efb_var);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   
