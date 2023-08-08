@@ -442,7 +442,7 @@ class Panel_edit  {
 			
 			error_log('s_sid is not valid!! Panel');
 			
-		$response = array( 'success' => false  , 'm'=>__('Error Code','easy-form-builder') . "405"); 
+		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . " 403"); 
 		wp_send_json_success($response,200);
 		} 
         //check validate here

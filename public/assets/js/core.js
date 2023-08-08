@@ -1881,7 +1881,7 @@ function response_rMessage_id(res, message) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger">${res.data.m}</p>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
     //alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
    // document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }

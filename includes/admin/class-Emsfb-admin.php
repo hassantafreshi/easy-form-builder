@@ -641,7 +641,6 @@ class Admin {
             $m =   $lang["somethingWentWrongPleaseRefresh"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
-            die();
         }
         $id = sanitize_text_field(($_POST['id']));
         $code = 'efb'. $id;
@@ -672,7 +671,6 @@ class Admin {
             $m =   $lang["somethingWentWrongPleaseRefresh"];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
-            die();
         }
 
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -704,27 +702,20 @@ class Admin {
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $this->efbFunction->text_efb($text);
 
-        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-                        
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {                        
             $response = ['success' => false, 'm' => $lang["error403"]];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
-        if (empty($_POST['id'])) {
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
-            wp_send_json_success($response, $_POST);
-            die();
-        }
-        if (empty($_POST['message'])) {
+       
+        if (empty($_POST['message']) || empty($_POST['id'])) {
             $response = ['success' => false, "m" => $lang["somethingWentWrongPleaseRefresh"]];
             wp_send_json_success($response, $_POST);
-            die();
         }
 
         if ($this->isHTML(json_encode($_POST['message']))) {
             $response = ['success' => false, "m" => $lang["nAllowedUseHtml"]];
             wp_send_json_success($response, $_POST);
-            die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
         $id = preg_replace('/[,]+/','',$id);

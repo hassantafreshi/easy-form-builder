@@ -1180,9 +1180,15 @@ class efbFunction {
 			//show error message
 			//error_log(json_encode($r));
 		}else{
-			$r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
-			if(is_wp_error($r)){
+			$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
+			if(is_wp_error($v)){
+				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
+				if(is_wp_error($s)){
 				
+					error_log('EFB=>unzip addons error 1:');
+					error_log(json_encode($r));
+					return false;
+				}
 			}else{
 				
 				require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -1192,6 +1198,8 @@ class efbFunction {
 				
 					//error_log('error unzip');
 					//error_log(json_encode($r));
+					error_log('EFB=>unzip addons error 2:');
+					error_log(json_encode($r));
 					return false;
 				}
 			} 
