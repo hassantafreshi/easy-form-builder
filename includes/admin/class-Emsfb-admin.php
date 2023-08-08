@@ -791,6 +791,8 @@ class Admin {
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         $ip = $this->ip;
+        // 1 read
+        // 0 Nread
         $this->db->insert(
             $table_name,
             [
@@ -798,11 +800,13 @@ class Admin {
                 'content' => $m,
                 'msg_id'  => $id,
                 'rsp_by'  => get_current_user_id(),
-                'read_'   => 0,
+                'read_'   => 1,
                 'date'    => wp_date('Y-m-d H:i:s')
 
             ]
         );
+        $table_name = $this->db->prefix . "emsfb_msg_";
+        $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang["messageSent"];
         $response = ['success' => true, "m" => $m];
         //"rescl", "resop",

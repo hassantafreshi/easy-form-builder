@@ -1818,7 +1818,8 @@ class _Public {
 					'date'=>wp_date('Y-m-d H:i:s'),
 				));  
 				$track = $value[0]->track;
-				//$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
+				$table_name = $this->db->prefix . "emsfb_msg_";	
+				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
 				$by=$this->lanText["guest"];
 				$email_usr ="";
 				//error_log(json_encode(wp_get_current_user()));
