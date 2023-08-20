@@ -611,7 +611,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += ` 
-        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <setion class="efb ${sort}  row my-2 ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -690,7 +690,50 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case 'stateProvince':
-
+      
+    valj_efb.push(     
+      {
+        "id_": "NIR",
+        "dataId": "NIR-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Northern Ireland",
+        "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+      "id_": "ENG",
+      "dataId": "ENG-id",
+      "parent":rndm,
+      "type": "option",
+      "value": "England",
+      "id_op": "_E_n_g_l_a_n_d_",
+      "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+        "id_": "SCO",
+        "dataId": "SCO-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Scotland",
+        "id_op": "_S_c_o_t_l_a_n_d_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+        "id_": "WAL",
+        "dataId": "WAL-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Wales",
+        "id_op": "_W_a_l_e_s_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    }
+    );
+    
       optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, op_3, op_4, editState) :"null";
       ui = `
         ${label}
