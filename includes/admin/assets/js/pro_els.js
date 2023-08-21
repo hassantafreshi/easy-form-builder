@@ -119,49 +119,6 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
         }//end for 
       } else {
         if (typeof state_local != 'object') {
-          console.log(`typeof state_local != 'object'` ,valj_efb[indx_parent])
-          /* 
-          {
-        "id_": "ENG",
-        "dataId": "ENG-id",
-        "parent": "bewke6q84",
-        "type": "option",
-        "value": "England",
-        "id_op": "_E_n_g_l_a_n_d_",
-        "step": 1,
-        "amount": 3
-    },
-    {
-        "id_": "NIR",
-        "dataId": "NIR-id",
-        "parent": "bewke6q84",
-        "type": "option",
-        "value": "Northern Ireland",
-        "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
-        "step": 1,
-        "amount": 3
-    },
-    {
-        "id_": "SCO",
-        "dataId": "SCO-id",
-        "parent": "bewke6q84",
-        "type": "option",
-        "value": "Scotland",
-        "id_op": "_S_c_o_t_l_a_n_d_",
-        "step": 1,
-        "amount": 3
-    },
-    {
-        "id_": "WAL",
-        "dataId": "WAL-id",
-        "parent": "bewke6q84",
-        "type": "option",
-        "value": "Wales",
-        "id_op": "_W_a_l_e_s_",
-        "step": 1,
-        "amount": 3
-    }
-           */
           optn = `
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
             <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>

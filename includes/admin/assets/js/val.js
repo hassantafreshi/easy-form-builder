@@ -134,8 +134,9 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
   if (country==null){
-    country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
+    country  =  'GB';
   }
+  console.log(country);
   for (let i of counstries_list_efb) {
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }

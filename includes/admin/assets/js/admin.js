@@ -3513,14 +3513,14 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  //console.log(efb_var.pro , pro_ws)
+  console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
   if(efb_var.pro==false || efb_var.pro=="false" || efb_var.pro=="") {
     if(el.type=="button" && el.classList.contains('setting')==false){
       f_b();
-      pro_show_efb(efb_var.text.youUseProElements)  
+      pro_show_efb(efb_var.text.proUnlockMsg)  
     }else if(el.type=="button" && el.classList.contains('setting')==true){
       f_b();
       pro_show_efb(efb_var.text.proUnlockMsg)  
