@@ -1110,25 +1110,7 @@ const funSetPosElEfb = (dataId, position) => {
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 
 }
-const funSetAlignElEfb = (dataId, align, element) => {
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx == -1) { return }
-  switch (element) {
-    case 'label':
-      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
-      valj_efb[indx].label_align = align
-      break;
-    case 'description':
-      const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
-      elm.className = alignChangerElEfb(elm.className, align)
-      valj_efb[indx].message_align = align
-      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
-      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
-        elm.classList.add('mx-4')
-      }
-      break;
-  }
-}//justify-content-center
+
 
 
 const loadingShow_efb = (title) => {
@@ -1171,6 +1153,7 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
+  console.log('=================>btns')
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
@@ -1191,12 +1174,14 @@ let add_buttons_zone_efb = (state, id) => {
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
+  const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
+  console.log(btns_align);
   const s = `
-  <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
+  <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
     <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
-  <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
+  <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
   <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
   <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
@@ -1218,6 +1203,8 @@ const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); 
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
+const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, `${value}`); }
+const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, `${value}`); }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, `${value}`); }
 
 

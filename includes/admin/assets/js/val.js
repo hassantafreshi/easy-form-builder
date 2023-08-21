@@ -1080,10 +1080,13 @@ function show_setting_window_efb(idset) {
         ${SingleTextEls('',idset,indx)}
         ${iconEls('')}
         ${selectColorEls('el','text')}
-        ${cornerEls('Next',indx,idset)}
-        ${btnColorEls(idset,indx)}
         ${selectColorEls('icon','text')}
-        ${selectHeightEls(idset,indx)}`
+        ${btnColorEls(idset,indx)}
+        ${ElementAlignEls('buttons',indx,idset)}
+        ${cornerEls('Next',indx,idset)}
+        ${selectHeightEls(idset,indx)}
+        `
+       
   
         if (valj_efb[0].button_state != "single") {
           content = `
@@ -1092,9 +1095,10 @@ function show_setting_window_efb(idset) {
              ${SingleTextEls("Next",idset,indx)}
              ${iconEls("Next")}
              ${selectColorEls('el','text')}
-             ${cornerEls('Next',indx,idset)}
+             ${selectColorEls('icon','text')}             
              ${btnColorEls(idset,indx)}
-             ${selectColorEls('icon','text')}
+             ${ElementAlignEls('buttons',indx,idset)}
+             ${cornerEls('Next',indx,idset)}
              ${selectHeightEls(idset,indx)}
              `
         }
