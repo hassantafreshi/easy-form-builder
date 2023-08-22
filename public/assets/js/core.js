@@ -27,27 +27,29 @@ if (ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
-
+console.log('call core.js');
+ 
 setTimeout(() => {
   (function () {
 
     jQuery(function () {
+      console.log('=========>Jquery');
       if (typeof ajax_object_efm == 'undefined') return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       
       efb_var = ajax_object_efm;
      
-      if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+     /*  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
         //console.log('new version!',efb_var.v_efb)
         //setTimeout(() => {
           localStorage.setItem('v_efb',efb_var.v_efb);
-          location.reload(true);          
+         // location.reload(true);          
        // }, 3000);
-      }
+      } */
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
-      localStorage.setItem('form_id', efb_var.id);
+      //localStorage.setItem('form_id', efb_var.id);
       setting_emsFormBuilder=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       if (ajax_object_efm.state != 'tracker') {
         
@@ -72,6 +74,7 @@ setTimeout(() => {
       }    
       if (ajax_object_efm.state !== 'settingError') {
         if (ajax_object_efm.state == 'form') {
+          console.log('=========>inside if');
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
            //ajax_object_efm.ajax_value="";
         } else if (ajax_object_efm.state == 'tracker') {
@@ -110,6 +113,7 @@ setTimeout(() => {
 /* new code multiSelect end */
 
 function fun_render_view_efb(val, check) {
+  console.log('==============>fun_render_view_efb');
   var url = new URL(window.location);
  
  // url.searchParams.set('stepNo', 1);
@@ -124,6 +128,7 @@ function fun_render_view_efb(val, check) {
   
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
+  
   previewFormEfb('run');
   
   if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){

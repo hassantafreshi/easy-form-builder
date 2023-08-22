@@ -612,7 +612,7 @@ function show_setting_window_efb(idset) {
 
     const selectColorEls = (forEl ,f) => {
       //f ===> text , border,  bg 
-      //console.log(forEl,indx)
+      console.log(forEl,indx,f)
       let t = ''
       let color = '';
       let hex=''
@@ -637,30 +637,35 @@ function show_setting_window_efb(idset) {
         //console.log(color.slice(5));
         t = efb_var.text.field
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
-      }
-      else if (forEl == "clrdoniconEfb") {
+      } else if (forEl == "clrdoniconEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
         //console.log(color.slice(5));
         t = efb_var.text.icon
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
-      }
-      else if (forEl == "clrdoneMessageEfb") {
+      } else if (forEl == "clrdoneMessageEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
         //console.log(color.slice(5));
         t = efb_var.text.message
         cls="tnxmsg";
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
-      }
-      else if (forEl == "clrdoneTitleEfb") {
+      } else if (forEl == "clrdoneTitleEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
          //console.log(color);
         t = efb_var.text.title
         hex = color;
         if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
+      } else if (forEl == "progessbar"){
+        color = valj_efb[0].hasOwnProperty("prg_bar_color")==true? valj_efb[0].prg_bar_color :"#4636f1";
+         console.log(color);
+         t = efb_var.text.pgbar
+         hex = color;
+       if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
+      } else if (forEl == "btnStripe" || forEl == "btnPerisa"){
+
       }
       addColorTolistEfb(hex);
       return `<span class="efb ${cls}"> <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
@@ -1121,6 +1126,7 @@ function show_setting_window_efb(idset) {
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}
+          ${selectColorEls('progessbar','btn')}
          
          
          

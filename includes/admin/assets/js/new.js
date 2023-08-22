@@ -1856,7 +1856,7 @@ function previewFormEfb(state) {
     
 
   } else {
-    
+    console.log('====>add to content');
     //content is hold element and should added to a innerHTML
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
@@ -2238,7 +2238,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
-  
+ // console.log(val, key, indexVJ);
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2252,6 +2252,7 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
       case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
       case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
+      case 'prg_bar_color': type = "btn"; color = valj_efb[indexVJ].style_btn_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; break;
     }
     //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);

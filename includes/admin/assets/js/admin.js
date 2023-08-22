@@ -21,10 +21,10 @@ if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_w
 jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
-  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+  /* if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
     localStorage.setItem('v_efb',efb_var.v_efb);
     location.reload(true);
-  }
+  } */
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
   //historyload 1
@@ -1053,6 +1053,7 @@ let change_el_edit_Efb = (el) => {
     }
       if (el.value==null) return  valNotFound_efb()
     //console.log(el.id)
+    console.log(`index=====>${indx}`);
     switch (el.id) {
       case "labelEl":
         
@@ -1544,6 +1545,7 @@ let change_el_edit_Efb = (el) => {
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         break;
       case "btnColorEl":
+
         color = el.value;
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
@@ -1575,9 +1577,10 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "selectColorEl":
+        console.log('=============>selectColorEl')
         color = el.value;
         c = switch_color_efb(color);
-        //console.log(color, c ,el.dataset,el.dataset.tag)
+        console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
         }
@@ -1610,6 +1613,12 @@ let change_el_edit_Efb = (el) => {
         }
          else if (el.dataset.el == "clrdoniconEfb") {
           valj_efb[0].clrdoniconEfb = "text-" + c;
+          return;
+          //postId = '_'
+        }
+         else if (el.dataset.el == "progessbar") {
+          valj_efb[0].hasOwnProperty('pg_bar_color')==false ?  Object.assign(valj_efb[0],{'pg_bar_color':"btn-" + c}) : valj_efb[0].pg_bar_color = "btn-" + c;
+          console.log(valj_efb[0].pg_bar_color)
           return;
           //postId = '_'
         }
@@ -3857,7 +3866,7 @@ const funSetAlignElEfb = (dataId, align, element) => {
       const elm2 = document.getElementById('f_btn_send_efb');
       elm2.className = alignChangerElEfb(elm2.className, align)
       console.log(elm.className);
-      //if(!valj_efb[0].hasOwnProperty('btns_align')) obj.assign({'btns_align':align})
+      if(!valj_efb[0].hasOwnProperty('btns_align')) Object.assign(valj_efb[0],{'btns_align':align})
       valj_efb[0].btns_align = align
       console.log(valj_efb[0])
       if (align == 'justify-content-start') {

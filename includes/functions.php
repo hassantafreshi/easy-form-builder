@@ -688,7 +688,8 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
+			
+			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
