@@ -688,8 +688,17 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			
+			/* new phrase v3 */
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
+			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS Notification Text For New Message','easy-form-builder'),
+			"smsNotiR" => $state  &&  isset($ac->text->smsNotiR) ? $ac->text->smsNotiR : __('SMS Notification Text for New Responses','easy-form-builder'),
+			"adrss_vld" => $state  &&  isset($ac->text->adrss_vld) ? $ac->text->adrss_vld : __('Enable Postal Code Validation for Addresses','easy-form-builder'),
+			"adrss_pc" => $state  &&  isset($ac->text->adrss_pc) ? $ac->text->adrss_pc : __('Enable Postal Code Validation','easy-form-builder'),
+			"pc_inc_m" => $state  &&  isset($ac->text->pc_inc_m) ? $ac->text->pc_inc_m : __('The postal code is incorrect.','easy-form-builder'),
+			"adrss_inc_m" => $state  &&  isset($ac->text->adrss_inc_m) ? $ac->text->adrss_inc_m : __('The Address is incorrect.','easy-form-builder'),
+			"cities" => $state  &&  isset($ac->text->cities) ? $ac->text->cities : __('cities','easy-form-builder'),
+			"list" => $state  &&  isset($ac->text->list) ? $ac->text->list : __('NNN list','easy-form-builder'),
+
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

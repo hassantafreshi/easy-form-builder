@@ -908,6 +908,7 @@ switch_color_efb = (color) => {
 }
 
 ColorNameToHexEfbOfElEfb = (v, i, n) => {
+  console.log('ColorNameToHexEfbOfElEfb',v,i,n)
   let r
   let id;
   switch (n) {
@@ -938,7 +939,7 @@ ColorNameToHexEfbOfElEfb = (v, i, n) => {
       const len = `colorDEfb-`.length;
       if (v.includes(`colorDEfb`)) r = "#" + v.slice(len);
   }
-
+  console.log(r);
   return r;
 }
 
@@ -1617,8 +1618,8 @@ let change_el_edit_Efb = (el) => {
           //postId = '_'
         }
          else if (el.dataset.el == "progessbar") {
-          valj_efb[0].hasOwnProperty('pg_bar_color')==false ?  Object.assign(valj_efb[0],{'pg_bar_color':"btn-" + c}) : valj_efb[0].pg_bar_color = "btn-" + c;
-          console.log(valj_efb[0].pg_bar_color)
+          valj_efb[0].hasOwnProperty('prg_bar_color')==false ?  Object.assign(valj_efb[0],{'prg_bar_color':"btn-" + c}) : valj_efb[0].prg_bar_color = "btn-" + c;
+          console.log(valj_efb[0].prg_bar_color)
           return;
           //postId = '_'
         }

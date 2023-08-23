@@ -1813,10 +1813,12 @@ function previewFormEfb(state) {
 
 
 
-  if (content.length > 10) content += `</div>`
+  if (content.length > 10){
+    const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
+     content += `</div>`
     head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
-    `
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${bgc} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    `}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   
   document.getElementById(id).classList.add(idn)
@@ -2238,7 +2240,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
- // console.log(val, key, indexVJ);
+  console.log("fun_addStyle_costumize_efb",val, key, indexVJ);
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2252,9 +2254,9 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
       case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
       case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
-      case 'prg_bar_color': type = "btn"; color = valj_efb[indexVJ].style_btn_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; break;
+      case 'prg_bar_color': type = "btn"; color = valj_efb[0].prg_bar_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; break;
     }
-    //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
+    console.log(color, type, val,key,indexVJ ,valj_efb[0])
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }

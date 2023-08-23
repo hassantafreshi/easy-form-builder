@@ -687,7 +687,9 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
     if (document.getElementById(rndm+"_").value.trim()) {
       if (iti.isValidNumber()) {
         document.getElementById(rndm+"_").classList.add("border-success");
-          let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
+        const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
+          let value = `+${iti.s.dialCode}${mobile_no}`;
+          console.log(value);
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");
