@@ -690,14 +690,19 @@ class efbFunction {
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
 			/* new phrase v3 */
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
-			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS Notification Text For New Message','easy-form-builder'),
-			"smsNotiR" => $state  &&  isset($ac->text->smsNotiR) ? $ac->text->smsNotiR : __('SMS Notification Text for New Responses','easy-form-builder'),
+			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS Notification Texts','easy-form-builder'),
 			"adrss_vld" => $state  &&  isset($ac->text->adrss_vld) ? $ac->text->adrss_vld : __('Enable Postal Code Validation for Addresses','easy-form-builder'),
 			"adrss_pc" => $state  &&  isset($ac->text->adrss_pc) ? $ac->text->adrss_pc : __('Enable Postal Code Validation','easy-form-builder'),
 			"pc_inc_m" => $state  &&  isset($ac->text->pc_inc_m) ? $ac->text->pc_inc_m : __('The postal code is incorrect.','easy-form-builder'),
 			"adrss_inc_m" => $state  &&  isset($ac->text->adrss_inc_m) ? $ac->text->adrss_inc_m : __('The Address is incorrect.','easy-form-builder'),
 			"cities" => $state  &&  isset($ac->text->cities) ? $ac->text->cities : __('cities','easy-form-builder'),
-			"list" => $state  &&  isset($ac->text->list) ? $ac->text->list : __('NNN list','easy-form-builder'),
+			"list" => $state  &&  isset($ac->text->list) ? $ac->text->list : __('XXX list','easy-form-builder'),
+			"dftuwln" => $state  &&  isset($ac->text->dftuwln) ? $ac->text->dftuwln : __('Display forms to users who are logged in.','easy-form-builder'),
+			"dftuwp" => $state  &&  isset($ac->text->dftuwp) ? $ac->text->dftuwp : __('Display forms to users who have the password.','easy-form-builder'),
+			"fSiz_l_dy" => $state &&  isset($ac->text->fSiz_l_dy) ? $ac->text->fSiz_l_dy : __('The uploaded file exceeds the allowable limit of  XXX MB.','easy-form-builder'),
+			"fSiz_s_dy" => $state &&  isset($ac->text->fSiz_s_dy) ? $ac->text->fSiz_s_dy : __('The uploaded file is below the required minimum size of XXX MB.','easy-form-builder'),
+			"lb_m_fSiz" => $state &&  isset($ac->text->lb_m_fSiz) ? $ac->text->lb_m_fSiz : __('Maximum File Size','easy-form-builder'),
+			"lb_mi_fSiz" => $state &&  isset($ac->text->lb_mi_fSiz) ? $ac->text->lb_mi_fSiz : __('Minmum File Size','easy-form-builder'),
 
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							

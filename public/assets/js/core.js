@@ -1353,7 +1353,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   
-  
+  stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
@@ -2063,7 +2063,8 @@ window.addEventListener("popstate",e=>{
   id=el.options[el.selectedIndex].dataset.id;
  }
   const row = valj_efb.find(x=>x.id_==id)
-  const ndate = new Date().toLocaleDateString("fr-CA", {year:"numeric", month: "2-digit", day:"2-digit"});
+  const lan = wp_lan.replaceAll(`_`, "-")
+  const ndate = new Date().toLocaleDateString(lan, {year:"numeric", month: "2-digit", day:"2-digit"});
   uncheck =()=>{
     if(el.type=="radio" || el.type=="checkbox"){
       el.checked=false
