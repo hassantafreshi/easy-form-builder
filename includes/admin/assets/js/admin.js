@@ -834,7 +834,7 @@ function head_introduce_efb(state) {
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
-  ${efb_var.text.yFreeVEnPro}
+  ${efb_var.text.yFreeVEnPro.replace('NN',"19.5")}
   </div>`;
   if (state != "create") {
     cont = `
@@ -2517,10 +2517,25 @@ let sampleElpush_efb = (rndm, elementId) => {
   switch (elementId) {
     case "firstName":
     case "lastName":
-      size = 100;
+      size = "50";
       type = "text";
       break;
-
+    case "country":
+      size = "50";
+      type = "conturyList";
+      break;
+      case "statePro":
+        size = "50";
+        type = "stateProvince";
+      break;
+      case "city":
+        size = "50";
+        type = "cityList";
+      break;
+      case "zipcode":
+        size = "50";
+        type = "select";
+      break;
     default:
       size = 100;
       break;
@@ -2603,6 +2618,9 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
     });
 
+  }else if (elementId == "contury" || elementId == "statePro" ){
+    console.log('==================>',elementId);
+    
   } else {
     
     valj_efb.push({
@@ -3103,7 +3121,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-  
+  console.log(t);
   const rndm = Math.random().toString(36).substr(2, 9);
 
   
@@ -3112,8 +3130,15 @@ fun_efb_add_el = (t) => {
   if (valj_efb.length < 2) { dropZoneEFB.innerHTML = "", dropZoneEFB.classList.add('pb') }
 
   if (t == "address" || t == "name") {
-    const olist = [{ n: 'name', t: "firstName" }, { n: 'name', t: "lastName" }]
+    console.log('log address' , 'first if ');
+    const olist = [
+      { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
+      { n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }, { n: 'address', t: "zipcode" } , { n: 'address', t: "address_line" }   
+    
+    ]
+    //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
     for (const ob of olist) {
+      console.log('log address' , 'first if ' , ob);
       if (ob.n == t) {
         let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
         dropZoneEFB.innerHTML += el;
@@ -3165,6 +3190,8 @@ fun_efb_add_el = (t) => {
 
 
 function active_element_efb(el) {
+  console.log(el);
+  console.log(activeEl_efb);
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
  if (el.id != activeEl_efb ) {

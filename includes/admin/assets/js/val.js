@@ -8,7 +8,7 @@ const fields_efb = [
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
-  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, */
+  
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
   { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},
@@ -17,6 +17,7 @@ const fields_efb = [
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false, tag:'advance all' }, 
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false, tag:'basic all' },
   { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true, tag:'advance all' },
+  { name: efb_var.text.address, icon: 'bi-geo-alt-fill', id: 'address', pro: true, tag:'advance all' },
 
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },

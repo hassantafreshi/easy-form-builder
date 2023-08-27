@@ -719,22 +719,27 @@ i.efb {	font-size: 1.2rem;
 .efb.star.h-d-efb {	
   font-size: 50px !important;
   padding: 10px 0px !important;
+  height: auto!important;
 }
 
-.efb.star.h-l-efb {	height: auto;
+.efb.star.h-l-efb {	
+   height: auto!important;
    font-size: 65px !important;
    padding: 10px 0px !important;
 }
-.efb.star.h-xl-efb {	height: auto;
+.efb.star.h-xl-efb {	
+   height: auto!important;
    font-size: 90px !important;
    padding: 20px 0px !important;
 }
-.efb.star.h-xxl-efb {	height: auto;
+.efb.star.h-xxl-efb {	
+   height: auto!important;
    font-size: 115px !important;
   
    padding: 30px 0px !important;
 }
-.efb.star.h-xxxl-efb {	height: auto;
+.efb.star.h-xxxl-efb {	
+   height: auto!important;
    font-size: 135px !important;
    padding: 35px 0px !important;
    margin: -15px;

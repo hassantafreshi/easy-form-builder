@@ -92,7 +92,7 @@ function pro_show_efb(state) {
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
   <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr} </button>
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',"19.5")} </button>
   </div>
     <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
@@ -203,7 +203,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 
 
 function addNewElement(elementId, rndm, editState, previewSate) {
-
+  console.log(elementId, rndm, editState, previewSate);
   //editState == true when form is edit method
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
@@ -309,7 +309,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  
+  let ps =  elementId == "html" ? 'col-md-12' : 'col-md-12'
+  if(pos[3]==""){
+     if( elementId=="firstName" || elementId=="lastName" 
+     || elementId=="country" || elementId=="statePro" || elementId=="city" || elementId=="zipcode") ps = 'col-md-6';
+  }
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
   //console.log(elementId);
   switch (elementId) {
@@ -325,8 +329,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'firstName':
     case 'lastName':
     case 'datetime-local':
-
-      const type = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
+    case 'zipcode':
+    case 'address_line':
+      
+     
+      
+      const type = elementId == "firstName" || elementId == "lastName" || elementId == "zipcode" || elementId == "address_line" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
       maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
@@ -636,7 +644,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'select':
     case 'paySelect':
-
+    case 'city':
+    case 'cityList':
       if (elementId == "select") pay = "";
       if (editState != false) {
         // if edit mode
@@ -670,6 +679,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
 
     case 'conturyList':
+    case 'country':
 
        optn= typeof countryList_el_pro_efb =="function"? countryList_el_pro_efb(rndm,rndm_1,op_3,op_4,editState) : "null";
        //ui =typeof headning_el_pro_efb =="function" ?headning_el_pro_efb (rndm,iVJ) :public_pro_message();
@@ -690,6 +700,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case 'stateProvince':
+    case 'statePro':
       
     valj_efb.push(     
       {
@@ -1046,15 +1057,16 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
   
 
-    ps = elementId == "html" ? 'col-md-12' : 'col-md-12'
+   
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     //data-toggle="tooltip" data-placement="top" title="Tooltip on top !!! " data-bs-custom-class="custom-tooltip" 
+    console.log(`ps[${ps}]`);
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `col-md-12 row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -1817,7 +1829,7 @@ function previewFormEfb(state) {
     const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
      content += `</div>`
     head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${bgc} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100 ${bgc}"><div class="efb  progress-bar-efb   progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
     `}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   
@@ -2175,9 +2187,10 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
+  console.log("addStyleColorBodyEfb",t, c, type, id);
   let ttype = "text";
   if(id==-1){
-    ttype ="text";
+    ttype =type;
   }else{
     ttype = valj_efb[id].type
   }
@@ -2204,6 +2217,9 @@ addStyleColorBodyEfb = (t, c, type, id) => {
     case 'radiobutton':
       tag = "input"
       break;
+    case 'btn':
+      tag = "btn"
+      break;
 
     default:
       tag = ""
@@ -2222,6 +2238,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 
 
 efb_add_costum_color=(t, c ,v , type)=>{
+  console.log('===>efb_add_costum_color',t, c ,v , type)
   //t colorDEfb-000e24
   //c #000e24
   //v = ""
@@ -2254,9 +2271,9 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
       case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
       case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
-      case 'prg_bar_color': type = "btn"; color = valj_efb[0].prg_bar_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; break;
+      case 'prg_bar_color': type = "btn"; color = valj_efb[0].prg_bar_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; indexVJ=-1; break;
     }
-    console.log(color, type, val,key,indexVJ ,valj_efb[0])
+    //console.error(color, type, val,key,indexVJ ,valj_efb[0])
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
