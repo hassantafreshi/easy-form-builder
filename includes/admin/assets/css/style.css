@@ -1,4 +1,5 @@
-/* //Copyright 2021//Easy Form Builder//WhiteStudio.team//EFB.APP */.efb {	font-weight: 400 !important;
+/* //Copyright 2021//Easy Form Builder//WhiteStudio.team//EFB.APP */
+.efb {	font-weight: 400 !important;
 }
 
 /* test code */
@@ -1133,44 +1134,7 @@ label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label
 .h-xxxl-efb:-ms-input-placeholder {	font-size: 49px !important;
    font-weight: 400 !important;
 }
-/* 
-.efb-switch {	height: inherit !important;
-   background-repeat: no-repeat !important;
-}
-.efb-switch.form-check-input:checked::before {	content: none !important;
-}
-.efb-switch.form-check-input:checked::after {	content: none !important;
-}
-.form-switch.h-d-efb {	height: 19px!important;
-   width: calc(19px + 12px);;
-   border-radius: 19px;
-   margin-top: 15px !important;
-}
-.form-switch.h-l-efb {height: 28px!important;
-  width: calc(38px + 12px);
-  border-radius: 38px;
-  margin-top: 12px !important;
-  margin-bottom: 12px!important;
-}
-.form-switch.h-xl-efb {	    height: 38px!important;
-  width: calc(42px + 12px);
-  border-radius: 57px;
-  margin-top: 10px !important;
-  margin-bottom: 12px!important;
-}
-.form-switch.h-xxl-efb {	   
-   height: 52px!important;
-  width: calc(76px + 12px);
-  border-radius: 95px;
-  margin-top: 3px !important;
-  margin-bottom: 12px!important;
-}
-.form-switch.h-xxxl-efb {	height: 66px!important;
-   width: calc(76px + 12px);
-   border-radius: 95px;
-   margin-top: 3px !important;
-  margin-bottom: 12px!important;
-} */
+
 /* end height */.noCode-efb {	height: fit-content;
 }
 /* html elemetns *//* option buttons (toggle button) */.opButtonEfb {	position: fixed;
@@ -1866,32 +1830,7 @@ a.efb.btn {	text-decoration: none;
 }
 .efb.pro-bg {	background-color: #f3b807 !important;
 }
-/*  .custom-tooltip {	--bs-tooltip-bg: var(--bs-primary);
-} */
-/* .ttEfb .ttiptext {	visibility: hidden;
-   width: fit-content!important;
-   background-color: #1b1e21;
-   text-align: center;
-   border-radius: 6px;
-   padding: 5px 0;
-   position: absolute;
-   z-index: 1;
-   margin: -26px 84px;
-   transition: opacity 0.3s;
-}
-.ttEfb .ttiptext::after {	content: "";
-   position: absolute;
-   top: 100%;
-   left: 50%;
-   margin-left: -5px;
-   border-width: 5px;
-   border-style: solid;
-   border-color: #1b1e21 transparent transparent transparent;
-}
-.ttiptext.show {	visibility: visible;
-   opacity: 1;
-}
-*/.efb.modal {	background: #33353169;
+.efb.modal {	background: #33353169;
 }
 @media screen and (min-width: 1000px) {		/* .col-md-6 .efb.ttiptext.show {		margin: 0% 0% 0% 16% }
    .col-md-12 .efb.ttiptext.show {		margin: -26px 0 0 70px}
