@@ -1135,16 +1135,16 @@ let change_el_edit_Efb = (el) => {
           }
           else {
             if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-            document.getElementById("adminFormEmailEl").value = "";
+            if(document.getElementById("adminFormEmailEl")) document.getElementById("adminFormEmailEl").value = "";
             valj_efb[0].email="";
           }
         } else if (efb_var.smtp == '-1') {
-          document.getElementById("adminFormEmailEl").value = "";
+          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
           //console.log(efb_var.text.goToEFBAddEmailM);
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
           // trackingCodeEl.checked=false;
-          document.getElementById("adminFormEmailEl").value = "";
+          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
         valj_efb[0].sendEmail=false;

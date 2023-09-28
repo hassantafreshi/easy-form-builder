@@ -1478,7 +1478,7 @@ align-items: center;}
  .efb.form-check-input {
 	width: 1em;
  	height: 1em;
- 	margin-top: .25em;
+ 	margin-top: .25em!important;
  	vertical-align: top;
  	background-color: #fff;
  	background-repeat: no-repeat;
@@ -1489,6 +1489,7 @@ align-items: center;}
  	-moz-appearance: none;
  	appearance: none;
  	-webkit-print-color-adjust: exact;
+	
  	color-adjust: exact}
  .efb.form-check-input[type=checkbox] {
 	border-radius: .25em}

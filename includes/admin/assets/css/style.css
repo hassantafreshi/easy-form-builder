@@ -504,6 +504,9 @@ i.efb {	font-size: 1.2rem;
    border-radius: 50%;
    padding: 0 !important;
 }
+.efb.form-check-input{
+   position: inherit!important;
+}
 .efb.form-check-input:checked {	background-color: #a2b0d5 !important;
    border-color: #a2b0d5 !important;
    color: #4e5f96 !important;
@@ -878,36 +881,41 @@ input[type=radio].efb:checked+label:before {	color: #ffc700 !important;
    height: 17px;
    margin-top: 3px;
 }
+
+.radio.efb label , .checkbox.efb label , .form-check-input label {
+   margin-top: 0.25em;
+   margin-bottom: 0em;
+}
 .efb.fs-7.form-check-input {	/*font-size: smaller;
    */	font-size: 20px !important;
    min-width: 20px;
    height: 20;
-   margin-top: 4px;
+  
 }
 .efb.fs-6.form-check-input {	font-size: 22px !important;
    min-width: 22px;
    height: 22px;
-   margin-top: 6px;
+  
 }
 .efb.fs-5.form-check-input {	font-size: 25px !important;
    min-width: 25px;
    height: 25px;
-   margin-top: 8px;
+   
 }
 .efb.fs-4.form-check-input {	font-size: 35px !important;
    min-width: 35px;
    height: 35px;
-   margin-top: 10px;
+  
 }
 .efb.fs-3.form-check-input {	font-size: 50px !important;
    min-width: 50px;
    height: 50px;
-   margin-top: 12px;
+  
 }
 .efb.fs-2.form-check-input {	font-size: 70px !important;
    min-width: 70px;
    height: 70px;
-   margin-top: 14px;
+  
 }
 /* font size of label end *//* modal */.modal-new-efb {	left: 25%;
 }
@@ -1442,7 +1450,7 @@ input[type=radio].efb.fs-6.form-check-input,input[type=checkbox].efb.fs-6.form-c
   height: 22px !important;
   max-height: 22px !important;
   min-height: 22px !important;
-  margin: 1px;
+  
    
 }
 

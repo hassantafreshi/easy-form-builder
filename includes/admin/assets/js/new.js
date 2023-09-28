@@ -505,7 +505,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
-          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
+          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)} mt-1" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-tag="${dataTag}" data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}"${previewSate != true ? 'readonly' : ''} ${disabled} ${checked}>
           ${elementId!='imgRadio'?` <label class="efb ${valj_efb[iVJ].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>`: fun_imgRadio_efb(i.id_,i.src,i)}
           ${elementId.includes('chl')!=false?`<input type="text" class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${i.id_}" data-type="${dataTag}" data-vid="" id="${i.id_}_chl" placeholder="${valj_efb[iVJ].pholder_chl_value}"  disabled>` :''}

@@ -195,7 +195,7 @@ class Panel_edit  {
 			wp_enqueue_script('stripe_js');
 			
 		
-			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.6.7' );
+			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',array('jquery'), true,'3.6.7' );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("admin-nonce"),
 					'check' => 0
