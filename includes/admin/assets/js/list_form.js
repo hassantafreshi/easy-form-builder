@@ -58,7 +58,7 @@ function fun_emsFormBuilder_render_view(x) {
     
     return ` <tr class="efb pointer-efb efb" id="emsFormBuilder-tr-${i.form_id}" >                    
    <th scope="row" class="efb emsFormBuilder-tr" data-id="${i.form_id}" >
-     [EMS_form_builder id=${Number(i.form_id)}]  
+     [EMS_Form_Builder id=${Number(i.form_id)}]  
    </th>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_name}</td>
    <td class="efb emsFormBuilder-tr" data-id="${i.form_id}">${i.form_create_date}</td>
@@ -66,7 +66,7 @@ function fun_emsFormBuilder_render_view(x) {
    <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
    <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
-   <input type="text"  class="efb  d-none" value='[EMS_form_builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
+   <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
    <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
      onClick ="copyCodeEfb('${i.form_id}-fc')" 
      data-bs-toggle="tooltip" data-bs-placement="bottom"
@@ -96,13 +96,13 @@ function fun_emsFormBuilder_render_view(x) {
 
 
     document.getElementById('content-efb').innerHTML = `
-   <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+   <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
             </h4>
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
         <thead class="efb">
-            <tr class="efb">
+            <tr class="efb">            
             <th scope="col" class="efb">${efb_var.text.formCode}</th>
             <th scope="col" class="efb">${efb_var.text.formName}</th>
             <th scope="col" class="efb">${efb_var.text.createDate}</th>
@@ -278,6 +278,7 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   
   
@@ -341,7 +342,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
 
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
@@ -349,7 +350,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
 
     } else if (c.type == "maps") {
 
@@ -370,7 +371,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
       //console.log(checboxs.includes(c.id_))
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
@@ -384,7 +385,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }
       }
       
-      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
+      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }
     else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
       s = true;
@@ -417,7 +418,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
@@ -553,9 +554,10 @@ function fun_ws_show_list_messages(value) {
     head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
   }
   if (value.length > 0) {
+    let no =1;
     for (const v of value) {
       let state = Number(v.read_);
-      
+     
       iconNotRead = `<div class="efb nmsgefb bi-envelope-fill"></div>`;
       if(state==2){
          iconRead = 'bi-bag-x';
@@ -564,6 +566,7 @@ function fun_ws_show_list_messages(value) {
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
+      <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${no}</td>
          <th scope="row" class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.track}</th>
          <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
@@ -583,12 +586,13 @@ function fun_ws_show_list_messages(value) {
 
 
   document.getElementById('content-efb').innerHTML = `<div class="efb head-efb">${head}</div>
-    <h4 class="efb title-holder efb"> <img src="${efb_var.images.title}" class="efb title efb">
+    <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
     <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
     </h4>
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
+    <th scope="col" class="efb">${efb_var.text.number}</th>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
     <th scope="col" class="efb">${efb_var.text.ddate}</th>
     <th scope="col" class="efb">${efb_var.text.advanced}</th>
@@ -975,7 +979,7 @@ function fun_show_help__emsFormBuilder() {
   document.getElementById('content-efb').innerHTML = `
   <img src="${efb_var.images.title}"  class="efb crcle-footer">
   <div class="efb container row">
-  <h4 class="efb title-holder efb">
+  <h4 class="efb title-holder efb fs-4">
       <img src="${efb_var.images.title}" class="efb title efb">
       <i class="efb  bi-info-circle title-icon mx-2"></i>${efb_var.text.help}
   </h4>
@@ -988,7 +992,7 @@ function fun_show_help__emsFormBuilder() {
                   <p class="efb  card-text efb pb-3 fs-6">
                   ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
                   </p>
-                  <a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('price')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>
+                  ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : `<a class="efb btn text-dark btn-r btn-warning  btn-lg"  onclick="Link_emsFormBuilder('price')"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>`}
                   <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
               </div>
   </div>
@@ -1082,7 +1086,7 @@ function fun_show_setting__emsFormBuilder() {
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
-            <h4 class="efb title-holder efb">
+            <h4 class="efb title-holder efb fs-4">
                 <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
             </h4>
@@ -1106,7 +1110,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-gem m-3"></i>${efb_var.text.proVersion}
                                 </h5>
-                                <a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>
+                                ${efb_var.pro == true ||  efb_var.pro == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>`}
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
@@ -1313,7 +1317,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"><span class="efb navbar-toggler-icon"></span></button>
                                   <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01">
                                   <ul class="efb navbar-nav me-auto mb-2 mb-lg-0"><!--efb.app-->
-                                    <li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize btn-outline-pink " onclick="email_template_efb('p')" >
+                                    <li class="efb nav-item"><a class="efb nav-link efb btn btn-outline-pink " onclick="email_template_efb('p')" >
                                      <i class="efb bi-play-fill mx-1 "></i>${efb_var.text.preview}</a>
                                     </li>                                  
                                     <li class="efb nav-item">
@@ -1321,12 +1325,12 @@ function fun_show_setting__emsFormBuilder() {
                                         <i class="efb bi-arrow-counterclockwise mx-1 "></i>${efb_var.text.reset}</a>
                                     </li>
                                     <li class="efb nav-item">
-                                        <a class="efb nav-link efb btn text-capitalize  " onclick="Link_emsFormBuilder('wiki')" >
+                                        <a class="efb nav-link efb btn  " onclick="Link_emsFormBuilder('wiki')" >
                                         <i class="efb bi-question mx-1 "></i>${efb_var.text.help}</a>
                                     </li>
 
                                     <li class="efb dropdown">
-                                    <a class="efb nav-link efb btn text-capitalize dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
+                                    <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
                                     <span class="efb caret"></span></a>
                                     <ul class="efb dropdown-menu">
                                       <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn">${efb_var.text.emailTemplate} 1</a></li>
@@ -1345,7 +1349,7 @@ function fun_show_setting__emsFormBuilder() {
                               <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
                             </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 
-                            <h3 class="efb  card-title mt-3 mobile-title text-capitalize">${efb_var.text.info}</h3>
+                            <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
                             <p class="efb  m-2 fs-6">
                             ${efb_var.text.infoEmailTemplates}
                             </br></br>
@@ -1901,7 +1905,6 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
   //source code :https://codepen.io/danny_pule/pen/WRgqNx
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
-
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
   var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1929,25 +1932,24 @@ function convertToCSV_emsFormBuilder(objArray) {
   
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
-
-  for (var i = 0; i < array.length; i++) {
-    var line = '';
-    for (var index in array[i]) {
-      if (line != '') line += ','
-
-      line += array[i][index];
+  for (const item of array) {
+    let line = '';
+    item.pop();
+   // for (const key in item) {
+    for (var k=0 ; k < item.length ; k++) {
+      if (line !== '') line += ',';
+      line += item[k];
     }
 
     str += line + '\r\n';
-  }
-
+  }  
   return str;
+
 }
 
 
 function generat_csv_emsFormBuilder() {
   const exp = JSON.parse(localStorage.getItem("rows_ws_p"));
-
   const filename = `EasyFormBuilder-${form_type_emsFormBuilder}-export-${Math.random().toString(36).substr(2, 3)}`
   exportCSVFile_emsFormBuilder(exp, filename); // create csv file
   //convert_to_dataset_emsFormBuilder(); //create dataset for chart :D

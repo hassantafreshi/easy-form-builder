@@ -1,7 +1,7 @@
 <?php
 
-add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
-add_shortcode('ems_form_builder', 'render_ems_Form_Builder');
+/* add_action( 'vc_before_init', 'ems_Form_Builders_visual_composer_shortcode' );
+add_shortcode('EMS_Form_Builder', 'render_ems_Form_Builder');
 
 
 function ems_Form_Builders_visual_composer_shortcode() {
@@ -11,7 +11,7 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
   vc_map(array(
     'name' => 'Easy Form Builder',
-    'base' => 'ems_form_builder',
+    'base' => 'EMS_Form_Builder',
     'category' => 'Content',
     'icon' => EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
     'description' => 'Choose a form to display',
@@ -31,11 +31,7 @@ function ems_Form_Builders_visual_composer_shortcode() {
 
 
 function ems_Form_Builders_visual_composer_shortcode_css() {
-<<<<<<< HEAD
-  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', array(), '3.5.24');
-=======
-  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', array(), '3.6.0');
->>>>>>> v3
+  wp_enqueue_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', array(), '3.6.7');
   // Load CSS per global setting or any additional styles if required.
 }
 add_action( 'vc_load_iframe_jscss', 'ems_Form_Builders_visual_composer_shortcode_css' );
@@ -77,3 +73,4 @@ function render_ems_Form_Builder($atts) {
 
   return $form_output;
 }
+ */

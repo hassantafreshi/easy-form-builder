@@ -38,7 +38,7 @@ add_ui_persiaPay_efb=(rndm)=>{
         <div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb">
           <span  class="efb totalpayEfb d-flex justify-content-evenly mx-1 ir">${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })}</span>
           <!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span> -->
-          <!-- <span class="efb  text-labelEfb one text-capitalize" id="chargeEfb">${efb_var.text.onetime}</span>-->
+          <!-- <span class="efb  text-labelEfb one" id="chargeEfb">${efb_var.text.onetime}</span>-->
         </div>
       </div>
       <a class="efb btn my-2 efb p-2 efb-square h-l-efb btn-primary text-white text-decoration-none disabled w-100" onClick="pay_persia_efb()" id="persiaPayEfb">${efb_var.text.payment}</a>
@@ -101,14 +101,11 @@ function btnPersiaPayEfb(){
 
 
 post_api_persiapay_efb=(data)=>{
-  console.log('==========>post_api_persiapay_efb');
   let btnEfb = document.getElementById('persiaPayEfb');
   btnEfb.innerHTML="لطفا صبر کنید";
   btnEfb.classList.add('disabled');
   
   let PaymentState = document.getElementById('afterPayefb');
-  console.log('===post_api_persiapay_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/payment/persia/add'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -123,11 +120,9 @@ post_api_persiapay_efb=(data)=>{
   headers,
   body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
   fetch(url, requestOptions)
   .then(response => response.json())
   .then(res => {
-    console.log(res);
     if(res.data.success==true){
                             
       document.getElementById('beforePay').classList.add('d-none');
@@ -147,7 +142,6 @@ post_api_persiapay_efb=(data)=>{
   })
   .catch(error => {
     // Handle errors
-    console.log(`error`,error)
     console.error(error) ;  
         btnEfb.classList.remove('disabled'); 
         PaymentState.innerHTML =`<p class="h4">${efb_var.text.error}</p> ${error}`

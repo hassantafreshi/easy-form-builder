@@ -8,7 +8,7 @@ const fields_efb = [
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
-  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, */
+  
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
   { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},
@@ -17,6 +17,7 @@ const fields_efb = [
   { name: efb_var.text.multiselect, icon: 'bi-check-all', id: 'multiselect', pro: false, tag:'advance all' }, 
   { name: efb_var.text.tel, icon: 'bi-telephone', id: 'tel', pro: false, tag:'basic all' },
   { name: efb_var.text.mobile, icon: 'bi-phone', id: 'mobile', pro: true, tag:'advance all' },
+  { name: efb_var.text.address, icon: 'bi-geo-alt-fill', id: 'address', pro: true, tag:'advance all' },
 
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
@@ -62,7 +63,7 @@ const fields_efb = [
 const paymentMethodEls =(idset)=>{
      
   return`<label for="paymentMethodEl" class="efb mt-3 bi-wallet2 mx-2 efb"> ${efb_var.text.methodPayment}</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
+  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">                                            
   <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>                                                            
   <option value="day" ${valj_efb[0].paymentmethod=='day' ? 'selected' :''}>${efb_var.text.dayly}</option>                                                            
   <option value="week" ${valj_efb[0].paymentmethod=='week' ? 'selected' :''}>${efb_var.text.weekly}</option>                                                            
@@ -96,7 +97,7 @@ const currencyTypeEls=(idset)=>{
 const paymentPersianPayEls =(idset)=>{
       
   return`<label for="paymentPersianPayEl" class="efb mt-3 bi-wallet2 mx-2 efb">درگاه</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded text-capitalize"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
+  <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">                                            
   <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>                                                            
   <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>وایت استادیو</option>
   <option disabled value="efb" ${valj_efb[0].persiaPay=='melt' ? 'selected' :''}>ملت</option>
@@ -134,8 +135,9 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
   if (country==null){
-    country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
+    country  =  'GB';
   }
+  console.log(country);
   for (let i of counstries_list_efb) {
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
@@ -299,7 +301,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  
+  console.log(idset)
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -611,7 +613,7 @@ function show_setting_window_efb(idset) {
 
     const selectColorEls = (forEl ,f) => {
       //f ===> text , border,  bg 
-      //console.log(forEl,indx)
+      console.log(forEl,indx,f)
       let t = ''
       let color = '';
       let hex=''
@@ -623,7 +625,7 @@ function show_setting_window_efb(idset) {
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
       } else if (forEl == 'description') {
         color = valj_efb[indx].message_text_color;
-        //console.log(color.slice(5));
+        console.log(color,color.slice(5));
         t = efb_var.text.description
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
       } else if (forEl == 'label') {
@@ -636,30 +638,39 @@ function show_setting_window_efb(idset) {
         //console.log(color.slice(5));
         t = efb_var.text.field
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
-      }
-      else if (forEl == "clrdoniconEfb") {
+      } else if (forEl == "clrdoniconEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"#ff4b93" ;
         //console.log(color.slice(5));
         t = efb_var.text.icon
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
-      }
-      else if (forEl == "clrdoneMessageEfb") {
+      } else if (forEl == "clrdoneMessageEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneMessageEfb") ? valj_efb[0].clrdoneMessageEfb :"#000000";
         //console.log(color.slice(5));
         t = efb_var.text.message
         cls="tnxmsg";
         hex = color;
         if(color!="" && color.includes('#')==false)  hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
-      }
-      else if (forEl == "clrdoneTitleEfb") {
+      } else if (forEl == "clrdoneTitleEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
          //console.log(color);
         t = efb_var.text.title
         hex = color;
         if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
         cls="tnxmsg";
+      } else if (forEl == "progessbar"){
+        color = valj_efb[0].hasOwnProperty("prg_bar_color")==true? valj_efb[0].prg_bar_color :"#4636f1";
+        
+         console.log(color);
+         t = efb_var.text.pgbar
+         hex = color;
+       if(color!="" && color.includes('#')==false){
+        
+         hex=ColorNameToHexEfbOfElEfb(color.slice(4),indx,'btn')}
+
+      } else if (forEl == "btnStripe" || forEl == "btnPerisa"){
+
       }
       addColorTolistEfb(hex);
       return `<span class="efb ${cls}"> <label for="selectColorEl" class="efb mt-3 bi-paint-bucket mx-2 efb">${t} ${efb_var.text.clr}</label>
@@ -819,7 +830,7 @@ function show_setting_window_efb(idset) {
                 <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
                     <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
                     
-                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3 text-capitalize">${efb_var.text.price}</div>`:''}
+                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3">${efb_var.text.price}</div>`:''}
                 </div>
                
                 <div class="efb  mb-3"  id="optionListefb" data-idstate="false">
@@ -1079,10 +1090,13 @@ function show_setting_window_efb(idset) {
         ${SingleTextEls('',idset,indx)}
         ${iconEls('')}
         ${selectColorEls('el','text')}
-        ${cornerEls('Next',indx,idset)}
-        ${btnColorEls(idset,indx)}
         ${selectColorEls('icon','text')}
-        ${selectHeightEls(idset,indx)}`
+        ${btnColorEls(idset,indx)}
+        ${ElementAlignEls('buttons',indx,idset)}
+        ${cornerEls('Next',indx,idset)}
+        ${selectHeightEls(idset,indx)}
+        `
+       
   
         if (valj_efb[0].button_state != "single") {
           content = `
@@ -1091,9 +1105,10 @@ function show_setting_window_efb(idset) {
              ${SingleTextEls("Next",idset,indx)}
              ${iconEls("Next")}
              ${selectColorEls('el','text')}
-             ${cornerEls('Next',indx,idset)}
+             ${selectColorEls('icon','text')}             
              ${btnColorEls(idset,indx)}
-             ${selectColorEls('icon','text')}
+             ${ElementAlignEls('buttons',indx,idset)}
+             ${cornerEls('Next',indx,idset)}
              ${selectHeightEls(idset,indx)}
              `
         }
@@ -1116,6 +1131,7 @@ function show_setting_window_efb(idset) {
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}
+          ${selectColorEls('progessbar','btn')}
          
          
          

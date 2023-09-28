@@ -92,7 +92,7 @@ function pro_show_efb(state) {
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
   <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr} </button>
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',"19.5")} </button>
   </div>
     <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
@@ -203,7 +203,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 
 
 function addNewElement(elementId, rndm, editState, previewSate) {
-
+  console.log(elementId, rndm, editState, previewSate);
   //editState == true when form is edit method
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
@@ -257,7 +257,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
                     <button type="button" class="efb  btn  btn-edit  btn-sm BtnSideEfb" id="settingElEFb"
                         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
                         onclick="show_setting_window_efb('${step_el_efb}')">
-                        <i class="efb  bi-gear-fill text-success" id="efbSetting"></i>
+                        <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div>
                     </button>
                 </div>
             </div>
@@ -309,7 +309,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  
+  let ps =  elementId == "html" ? 'col-md-12' : 'col-md-12'
+  if(pos[3]==""){
+     if( elementId=="firstName" || elementId=="lastName" 
+     || elementId=="country" || elementId=="statePro" || elementId=="city" || elementId=="zipcode") ps = 'col-md-6';
+  }
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
   //console.log(elementId);
   switch (elementId) {
@@ -325,8 +329,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'firstName':
     case 'lastName':
     case 'datetime-local':
-
-      const type = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
+    case 'zipcode':
+    case 'address_line':
+      
+     
+      
+      const type = elementId == "firstName" || elementId == "lastName" || elementId == "zipcode" || elementId == "address_line" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
       maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
@@ -497,7 +505,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
-          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
+          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)} mt-1" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-tag="${dataTag}" data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}"${previewSate != true ? 'readonly' : ''} ${disabled} ${checked}>
           ${elementId!='imgRadio'?` <label class="efb ${valj_efb[iVJ].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>`: fun_imgRadio_efb(i.id_,i.src,i)}
           ${elementId.includes('chl')!=false?`<input type="text" class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${i.id_}" data-type="${dataTag}" data-vid="" id="${i.id_}_chl" placeholder="${valj_efb[iVJ].pholder_chl_value}"  disabled>` :''}
@@ -611,7 +619,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += ` 
-        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <setion class="efb ${sort}  row my-2 ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -622,7 +630,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"
         data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
         onclick="show_setting_window_efb('${valj_efb[iVJ].id_}')">
-        <i class="efb  bi-gear-fill text-success BtnSideEfb" ></i>
+        <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb" ></i></div>
         </button>
           ${del}
         </div>
@@ -636,7 +644,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'select':
     case 'paySelect':
-
+    case 'city':
+    case 'cityList':
       if (elementId == "select") pay = "";
       if (editState != false) {
         // if edit mode
@@ -670,6 +679,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
 
     case 'conturyList':
+    case 'country':
 
        optn= typeof countryList_el_pro_efb =="function"? countryList_el_pro_efb(rndm,rndm_1,op_3,op_4,editState) : "null";
        //ui =typeof headning_el_pro_efb =="function" ?headning_el_pro_efb (rndm,iVJ) :public_pro_message();
@@ -690,7 +700,51 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case 'stateProvince':
-
+    case 'statePro':
+      
+    valj_efb.push(     
+      {
+        "id_": "NIR",
+        "dataId": "NIR-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Northern Ireland",
+        "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+      "id_": "ENG",
+      "dataId": "ENG-id",
+      "parent":rndm,
+      "type": "option",
+      "value": "England",
+      "id_op": "_E_n_g_l_a_n_d_",
+      "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+        "id_": "SCO",
+        "dataId": "SCO-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Scotland",
+        "id_op": "_S_c_o_t_l_a_n_d_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    },
+    {
+        "id_": "WAL",
+        "dataId": "WAL-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Wales",
+        "id_op": "_W_a_l_e_s_",
+        "step": valj_efb[iVJ].step,
+        "amount": valj_efb[iVJ].amount
+    }
+    );
+    
       optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, op_3, op_4, editState) :"null";
       ui = `
         ${label}
@@ -988,14 +1042,14 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     
     const contorl = ` <div class="efb btn-edit-holder d-none efb" id="btnSetting-${rndm}-id">
     <button type="button" class="efb  btn btn-edit btn-sm BtnSideEfb" id="settingElEFb"  data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.edit}" onclick="show_setting_window_efb('${rndm}-id')">
-    <i class="efb  bi-gear-fill text-success BtnSideEfb"></i>
+    <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>
     </button>
     
     <!--<button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}-id')">
     <i class="efb  bi-files text-warning"></i> -->
     </button>
     ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-x-lg text-danger"></i></button>`}
-    <span class="efb  btn btn-edit btn-sm " onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
+    <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
     `
     const proActiv = `⭐ 
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">
@@ -1003,15 +1057,16 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
   
 
-    ps = elementId == "html" ? 'col-md-12' : 'col-md-12'
+   
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     //data-toggle="tooltip" data-placement="top" title="Tooltip on top !!! " data-bs-custom-class="custom-tooltip" 
+    console.log(`ps[${ps}]`);
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `col-md-12 row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -1067,25 +1122,7 @@ const funSetPosElEfb = (dataId, position) => {
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 
 }
-const funSetAlignElEfb = (dataId, align, element) => {
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  if (indx == -1) { return }
-  switch (element) {
-    case 'label':
-      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
-      valj_efb[indx].label_align = align
-      break;
-    case 'description':
-      const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
-      elm.className = alignChangerElEfb(elm.className, align)
-      valj_efb[indx].message_align = align
-      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
-      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
-        elm.classList.add('mx-4')
-      }
-      break;
-  }
-}//justify-content-center
+
 
 
 const loadingShow_efb = (title) => {
@@ -1128,12 +1165,13 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
+  console.log('=================>btns')
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
           data-id="id1" data-bs-toggle="tooltip" title="${efb_var.text.edit}"
           onclick="show_setting_window_efb('button_group')">
-          <i class="efb  bi-gear-fill text-success" id="efbSetting"></i>
+          <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting"></i></div>
       </button>
   </div>
   </div>`;
@@ -1148,12 +1186,14 @@ let add_buttons_zone_efb = (state, id) => {
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
+  const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
+  console.log(btns_align);
   const s = `
-  <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 ? `<i class="efb  ${valj_efb[0].icon != 'bi-undefined' ? `${valj_efb[0].icon} mx-2` : ''}  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+  <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
+    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
-  <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
+  <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
   <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
   <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
@@ -1175,6 +1215,8 @@ const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); 
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
+const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, `${value}`); }
+const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, `${value}`); }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, `${value}`); }
 
 
@@ -1273,7 +1315,7 @@ function validExtensions_efb_fun(type, fileType) {
 var steps_len_efb 
 
 function handle_navbtn_efb(steps, device) {
-  console.log('============>handle_navbtn_efb');
+
   var next_s_efb, prev_s_efb; //fieldsets
   var opacity_efb;
 
@@ -1312,12 +1354,9 @@ function handle_navbtn_efb(steps, device) {
           }
 
           var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-          console.log(current_s);
           current_s.classList.add("d-none");
-          console.log(current_s);
           next_s_efb = current_s.nextElementSibling;
           var nxt = "" + (current_s_efb + 1) + "";
-          console.log(`[data-step="icon-s-' + ${nxt} + '-efb"]`);
           if(Number(valj_efb[0].show_icon)!=1){
             document.querySelector('[data-step="icon-s-' + nxt + '-efb"]').classList.add("active");
             
@@ -1327,21 +1366,6 @@ function handle_navbtn_efb(steps, device) {
           
           next_s_efb.classList.remove('d-none');
          // next_s_efb.style.display = "block";
-
-          /* current_s.animate(
-            { opacity_efb: 0 },
-            {
-              step: function (now) {
-                // for making fielset appear animation
-                opacity_efb = 1 - now;
-
-                current_s.style.display = "none";
-                current_s.style.position = "relative";
-                next_s_efb.style.opacity_efb = opacity_efb;
-              },
-              duration: 500
-            }
-          ); */
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
           setProgressBar_efb(current_s_efb, steps_len_efb);
@@ -1439,7 +1463,6 @@ function handle_navbtn_efb(steps, device) {
 }
 
 function prev_btn_efb() {
-  console.log(`====>prev_btn_efb JS`);
   var cs = current_s_efb;
 
   if (cs == 2) {
@@ -1454,75 +1477,18 @@ function prev_btn_efb() {
     }
   }
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-  
-  console.log(current_s);
   if (valj_efb[0].type == "payment" && preview_efb != true) {
     let state = valj_efb.findIndex(x => x.type == "stripe");
     state = state == -1 ? valj_efb.findIndex(x => x.type == "persiaPay") : state;
 
-<<<<<<< HEAD
-      } else if (cs == valj_efb[0].steps) {
-        var val = `<span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height}  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color} " id="button_group_Next_icon"></i>`
-        jQuery("#next_efb").html(val);
-        if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1") ) jQuery("#next_efb").removeClass('disabled');
-      }
-      var current_s = jQuery('[data-step="step-' + (current_s_efb) + '-efb"]');
-      //console.log(valueJson_ws[0].captcha, sitekye_emsFormBuilder)
-      if (valj_efb[0].type == "payment" && preview_efb != true)
-      {
-        let state= valj_efb.findIndex(x => x.type == "stripe");
-        state =state ==-1 ?valj_efb.findIndex(x => x.type == "persiaPay") :state;
-        
-        if(valj_efb[state].step == current_s) { jQuery("#next_efb").removeClass('disabled'); }
-      }  
-      //if (valj_efb[0].type == "payment" && (valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step == current_s || valj_efb[valj_efb.findIndex(x => x.type == "persiaPay")].step == current_s) && preview_efb != true) { jQuery("#next_efb").addClass('disabled'); }
-      //if (valj_efb[0].type == "payment" && valj_efb[valj_efb.findIndex(x => x.type == "stripe")].step != current_s) { jQuery("#next_efb").removeClass('disabled'); }
-      prev_s_efb = current_s.prev();
-      jQuery('[data-step="icon-s-' + (current_s_efb) + '-efb"]').removeClass("active");
-      jQuery('[data-step="step-' + (current_s_efb) + '-efb"]').toggleClass("d-none");
-      //bug here
-      var s = "" + (current_s_efb - 1) + ""
-      var val = valj_efb.find(x => x.step == s)
-      jQuery("#title_efb").attr('class', val['label_text_color']);
-      jQuery("#desc_efb").attr('class', val['message_text_color']);
-      jQuery("#title_efb").text(val['name']);
-      jQuery("#desc_efb").text(val['message']);
-      jQuery("#title_efb").addClass('text-center efb mt-1');
-      jQuery("#desc_efb").addClass('text-center efb fs-7');
-      prev_s_efb.show();
-=======
     if (valj_efb[state].step == current_s) {
       document.getElementById("next_efb").classList.remove("disabled");
     }
   }
->>>>>>> v3
 
   prev_s_efb = current_s.previousElementSibling;
   
 
-<<<<<<< HEAD
-          current_s.css({
-            'display': 'none',
-            'position': 'relative'
-          });
-          prev_s_efb.css({ 'opacity_efb': opacity_efb });
-        },
-        duration: 500
-      });
-      current_s_efb = current_s_efb - 1;
-      localStorage.setItem('step', current_s_efb);
-      setProgressBar_efb(current_s_efb, steps_len_efb);
-      if (current_s_efb == 1) {
-        jQuery("#prev_efb").toggleClass("d-none");
-        jQuery("#next_efb").toggleClass("d-none");
-      }
-     
-        console.log(valj_efb[0].captcha);
-      
-      if(Number(valj_efb[0].captcha) == 1 && current_s_efb<steps_len_efb) jQuery("#next_efb").removeClass('disabled');
-      
-      if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-=======
   var s = "" + (current_s_efb - 1) + "";
   var val = valj_efb.find(x => x.step == s);
   if(Number(valj_efb[0].show_icon)!=1){
@@ -1538,19 +1504,6 @@ function prev_btn_efb() {
  // prev_s_efb.style.display = "block";
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove("d-none");
-/*   current_s.animate(
-    { opacity_efb: 0 },
-    {
-      step: function (now) {
-        opacity_efb = 1 - now;
-
-        current_s.style.display = "none";
-        current_s.style.position = "relative";
-        prev_s_efb.style.opacity_efb = opacity_efb;
-      },
-      duration: 500
-    }
-  ); */
 
   current_s_efb = current_s_efb - 1;
   localStorage.setItem("step", current_s_efb);
@@ -1567,12 +1520,10 @@ function prev_btn_efb() {
   if (document.getElementById("body_efb")) {
     document.getElementById("body_efb").scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   }
->>>>>>> v3
 }
 
 function setProgressBar_efb(curStep, steps_len_efb) {
   if(Number(valj_efb[0].show_pro_bar)==1) return
-  console.log(`====>setProgressBar_efb`);
   var percent = (curStep / steps_len_efb) * 100;
   percent = Math.round(percent * 100) / 100;
   document.querySelector(".progress-bar-efb").style.width = percent + "%";
@@ -1642,19 +1593,15 @@ function alert_message_efb(title, message, sec, alert) {
 
   setTimeout(() => {
     // Hide the alert element.
-    console.log('new code JS for close box');
-    document.querySelector(".alert_efb").style.display = "none";
-    document.getElementById("alert_efb").innerHTML = "";
+   // const el = document.querySelector(".alert_efb");
+    if(document.querySelector(".alert_efb")){
+      document.querySelector(".alert_efb").style.display = "none";
+      document.getElementById("alert_efb").innerHTML = "";
+    }
   }, sec);
  // window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth', block: "center", inline: "center" });
   //window.scrollTo({ top: document.getElementById(id).scrollHeight, behavior: 'smooth' });
 
-}
-function close_msg_efb(){
-  const v=document.getElementById('alert_content_efb')
-  if (v) {
-    v.remove();
-  }
 }
 function close_msg_efb(){
   const v=document.getElementById('alert_content_efb')
@@ -1737,9 +1684,7 @@ function previewFormEfb(state) {
   try {
     let count =0;
     valj_efb.forEach((value, index) => {
-      //console.log(`indx[${index}] count[${count}]`)
       let t = value.type.toLowerCase();
-      //if(value.type!="option")  console.log(`==================> type !`,t , value.id_ ,value.type);
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
         step_no += 1;
@@ -1763,8 +1708,6 @@ function previewFormEfb(state) {
       if((value.hasOwnProperty('disabled') && value.disabled==true && value.hasOwnProperty('hidden')==false)
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
-      //add value to sendBack_emsFormBuilder
-      //if(value.type!="option") console.log(value);
       if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
          // console.log(`type[${value.type}] value[${value.value}]`);
@@ -1882,10 +1825,12 @@ function previewFormEfb(state) {
 
 
 
-  if (content.length > 10) content += `</div>`
+  if (content.length > 10){
+    const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
+     content += `</div>`
     head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
-    `
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100 ${bgc}"><div class="efb  progress-bar-efb   progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    `}
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   
   document.getElementById(id).classList.add(idn)
@@ -1925,7 +1870,7 @@ function previewFormEfb(state) {
     
 
   } else {
-    
+    console.log('====>add to content');
     //content is hold element and should added to a innerHTML
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
@@ -2115,7 +2060,6 @@ function fun_prev_send() {
 
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
-  console.log(prev_s_efb);
   /* current_s.animate(
     { opacity_efb: 0 },
     {
@@ -2243,9 +2187,10 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
+  console.log("addStyleColorBodyEfb",t, c, type, id);
   let ttype = "text";
   if(id==-1){
-    ttype ="text";
+    ttype =type;
   }else{
     ttype = valj_efb[id].type
   }
@@ -2272,6 +2217,9 @@ addStyleColorBodyEfb = (t, c, type, id) => {
     case 'radiobutton':
       tag = "input"
       break;
+    case 'btn':
+      tag = "btn"
+      break;
 
     default:
       tag = ""
@@ -2290,6 +2238,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 
 
 efb_add_costum_color=(t, c ,v , type)=>{
+  console.log('===>efb_add_costum_color',t, c ,v , type)
   //t colorDEfb-000e24
   //c #000e24
   //v = ""
@@ -2308,7 +2257,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
-  
+  console.log("fun_addStyle_costumize_efb",val, key, indexVJ);
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2322,8 +2271,9 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
       case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
       case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
+      case 'prg_bar_color': type = "btn"; color = valj_efb[0].prg_bar_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; indexVJ=-1; break;
     }
-    //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
+    //console.error(color, type, val,key,indexVJ ,valj_efb[0])
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
@@ -2615,120 +2565,13 @@ function replaceContentMessageEfb(value){
 }
 
 
-/* function fun_upload_file_emsFormBuilder(id, type,tp) {
-  
-  if (!navigator.onLine) {
-    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
-    return;
-  }
-  //v3.3.5 updated
-  //این تابع فایل را به سمت سرور ارسال می کند
-  //console.log(id,type,tp)
-  let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
-  files_emsFormBuilder[indx].state = 1;
-  files_emsFormBuilder[indx].type = type;
-  let r = ""
-  
-  
-  const nonce_msg = efb_var.nonce_msg ;
-  const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
-  //console.log(tp)
-  jQuery(function ($) {
-    
-    var fd = new FormData();
-    var idn = '#' + id + '_'
-    var file = jQuery(document).find(idn);
-    var caption = jQuery(this).find(idn);
-    
-    var individual_file = file[0].files[0];
-    fd.append("file", individual_file);
-    var individual_capt = caption.val();
-    fd.append("caption", individual_capt);
-    fd.append('action', 'update_file_Emsfb');
-    fd.append('nonce', ajax_object_efm.nonce);
-    fd.append('id', id_nonce);
-    fd.append('pl', tp);
-    fd.append('nonce_msg', nonce_msg);
-    
-    var idB ='#'+id+'-prB';
-    
-    jQuery.ajax({
-      type: 'POST',
-      url: ajax_object_efm.ajax_url,
-      data: fd,
-      contentType: false,
-      processData: false,
-      xhr: function(){
-        //upload Progress
-          var xhr = $.ajaxSettings.xhr();
-          if (xhr.upload) {
-          xhr.upload.addEventListener('progress', function(event) {
-          var percent = 0;
-          var position = event.loaded || event.position;
-          var total = event.total;
-          if (event.lengthComputable)
-          {
-          percent = Math.ceil(position / total * 100);
-          }
-          //update progressbar
-          
- 
-          
-          $(idB).css("width", + percent +"%");
-          $(idB).text(percent +"% = " + file[0].files[0].name);
-        
-          }, true);
-          }
-          return xhr;
-     
-        
-        },
-      success: function (response) {
-        //files_emsFormBuilder
-        if (response.data.success === true) {
-          r = response.data.file.url;
-          if (response.data.file.error) {
-            alert_message_efb("", response.data.file.error, 14, "danger");
-            return;
-          }
-          files_emsFormBuilder[indx].url = response.data.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          files_emsFormBuilder[indx].id = idn;
-          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
-          
-          fun_sendBack_emsFormBuilder(o[0]);
-           $(idB).css("width", + 100 +"%");
-          $(idB).text(100 +"% = " + file[0].files[0].name);
-
-          $("#"+id+"-prG").addClass("d-none");
-        } else {
-          //show message file type is not correct;        
-        }
-      }
-    });
-  });
-
-  return r;
-} */
-<<<<<<< HEAD
-function fun_upload_file_emsFormBuilder(id, type,tp) {
-  
-=======
 function fun_upload_file_api_emsFormBuilder(id, type,tp) {
-  console.log(id , type ,tp);
->>>>>>> v3
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  //v3.6.0  updated
-<<<<<<< HEAD
-  //این تابع فایل را به سمت سرور ارسال می کند
-  //console.log(id,type,tp)
-=======
+  //v3.6.2  updated
 
->>>>>>> v3
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
@@ -2740,192 +2583,23 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   //console.log(tp)
   //jQuery(function ($) {
     
-<<<<<<< HEAD
-    var fd = new FormData();
-    var idn = '#' + id + '_'
-    var file = jQuery(document).find(idn);
-    var caption = jQuery(this).find(idn);
-    
-    var individual_file = file[0].files[0];
-    fd.append("file", individual_file);
-    var individual_capt = caption.val();
-    fd.append("caption", individual_capt);
-    fd.append('action', 'update_file_Emsfb');
-    fd.append('nonce', ajax_object_efm.nonce);
-    fd.append('id', id_nonce);
-    fd.append('pl', tp);
-    fd.append('nonce_msg', nonce_msg);
-    
-    var idB ='#'+id+'-prB';
-    var request = new XMLHttpRequest();
-    request.open('POST', '/wp-json/Emsfb/v1/forms/file/upload/');
-  const headers = new Headers({
-      'Content-Type': 'application/json',
-    });
-
-  const jsonData = JSON.stringify(fd);
-  const requestOptions = {
-      method: 'POST', // Or any other HTTP method (POST, GET, etc.)
-      headers,
-      body: jsonData, // The JSON data as the request body
-    };
-    fetch('/wp-json/Emsfb/v1/forms/file/upload/',requestOptions )
-      .then(response  )
-      .then(data => {
-        
-        if (data.success) {
-          // File uploaded successfully
-          console.log('File uploaded:', data.file);
-        } else {
-          // Error occurred during file upload
-          console.error('File upload error:', data.error);
-        }
-      })
-      .catch(error => {
-        console.error('File upload failed:', error);
-      });
-    /* jQuery.ajax({
-      type: 'POST',
-      url: ajax_object_efm.ajax_url,
-      data: fd,
-      contentType: false,
-      processData: false,
-      xhr: function(){
-        //upload Progress
-          var xhr = $.ajaxSettings.xhr();
-          if (xhr.upload) {
-          xhr.upload.addEventListener('progress', function(event) {
-          var percent = 0;
-          var position = event.loaded || event.position;
-          var total = event.total;
-          if (event.lengthComputable)
-          {
-          percent = Math.ceil(position / total * 100);
-          }
-          //update progressbar
-          
- 
-          
-          $(idB).css("width", + percent +"%");
-          $(idB).text(percent +"% = " + file[0].files[0].name);
-        
-          }, true);
-          }
-          return xhr;
-     
-        
-        },
-      success: function (response) {
-        //files_emsFormBuilder
-        if (response.data.success === true) {
-          r = response.data.file.url;
-          if (response.data.file.error) {
-            alert_message_efb("", response.data.file.error, 14, "danger");
-            return;
-          }
-          files_emsFormBuilder[indx].url = response.data.file.url;
-          files_emsFormBuilder[indx].state = 2;
-          files_emsFormBuilder[indx].id = idn;
-          const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-          const o = [{ id_: files_emsFormBuilder[indx].id_, name: files_emsFormBuilder[indx].name, amount: ob.amount, type: files_emsFormBuilder[indx].type, value: "@file@", url: files_emsFormBuilder[indx].url, session: sessionPub_emsFormBuilder }];
-          
-          fun_sendBack_emsFormBuilder(o[0]);
-           $(idB).css("width", + 100 +"%");
-          $(idB).text(100 +"% = " + file[0].files[0].name);
-
-          $("#"+id+"-prG").addClass("d-none");
-        } else {
-          //show message file type is not correct;        
-        }
-      }
-    }); */
- // });
-
-  return r;
-=======
   const fd = new FormData();
-	const idn = '#' + id + '_';
-	const file = document.querySelector(idn);
-	const caption = document.querySelector(idn);
+	const idn =  id + '_';
+	const file = document.getElementById(idn);
+	//const caption = document.querySelector(idn);
 
 	const individual_file = file.files[0];
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
-	/* fd.append('async-upload', individual_file);
-
-	const individual_capt = caption.value;
-	fd.append('caption', individual_capt);
-
-	fd.append('action', 'update_file_Emsfb');
-	fd.append('nonce', ajax_object_efm.nonce);
-	fd.append('id', id_nonce);
-	fd.append('pl', tp);
-	fd.append('nonce_msg', nonce_msg);
-	fd.append('sid', efb_var.sid);
-
-  
-
-	const progressBar = document.querySelector('#progress-bar');
-	const url = efb_var.rest_url+'Emsfb/v1/forms/file/upload'; 
-  console.log(url);
-  const jsonData = JSON.stringify(fd);
-	fetch(url, {
-    method: 'POST',
-    body: jsonData,
-   
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success === true) {
-       console.log(data);
-        if (data.file.error) {
-          alert_message_efb('', data.file.error, 14, 'danger');
-          return;
-        }
-
-        // Update file information
-        files_emsFormBuilder[indx].url = fileUrl;
-        files_emsFormBuilder[indx].state = 2;
-        files_emsFormBuilder[indx].id = idn;
-
-        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-        const o = [{
-          id_: files_emsFormBuilder[indx].id_,
-          name: files_emsFormBuilder[indx].name,
-          amount: ob.amount,
-          type: files_emsFormBuilder[indx].type,
-          value: '@file@',
-          url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder
-        }];
-
-        fun_sendBack_emsFormBuilder(o[0]);
-
-        progressBar.style.width = '100%';
-        progressBar.textContent = '100% = ' + file.name;
-
-        document.getElementById(id + '-prG').classList.add('d-none');
-      } else {
-        // Show message that file type is not correct
-      }
-    })
-    .catch(error => {
-      // Handle the error
-      console.error(error);
-    });
-    
-    */
-
   return true;
 }
 
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
   const progressBar = document.querySelector('#progress-bar');
-  var idB ='#'+id+'-prB';
+  const idB =id+'-prB';
 
 
   fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
     // Handle the response data
-    console.log(data, data.data.file);
     if (data.success === true && data.data.success===true) {
       files_emsFormBuilder[indx].url = data.data.file.url;
         files_emsFormBuilder[indx].state = 2;
@@ -2944,9 +2618,10 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
         }];
 
         fun_sendBack_emsFormBuilder(o[0]);
-        if(document.querySelector(idB)){
-          document.querySelector(idB).style.width = '100%';
-          document.querySelector(idB).textContent = '100% = ' + file.name;
+        const el = document.getElementById(idB)
+        if(el){
+          el.style.width = '100%';
+          el.textContent = '100% = ' + file.name;
         }
 
         if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
@@ -2955,7 +2630,6 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
       alert_message_efb('', m, 30, 'danger');
       document.querySelector(idB).style.width = '0%';
       document.querySelector(idB).textContent = '0% = ' + file.name;
-      console.log(data);
       return;
     }
   })
@@ -2963,57 +2637,10 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
     // Handle the error
     console.error(error);
   }); 
-
- /*  console.log('================>uploadFile_api');
-  const formData = new FormData();
-  formData.append('async-upload', file);
-  formData.append('id', id);
-  formData.append('pl', pl);
-  formData.append('nonce_msg', nonce_msg);
-
-  const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload'; */
-/* 
-  return fetch(url, {
-    method: 'POST',
-    body: formData,
-  })
-    .then(response => response.json())
-    .then(data => {
-      // Handle the response data
-      console.log(data,data.data.file);
-      if (data.success === true) {
-        files_emsFormBuilder[indx].url = data.data.file.url;
-        files_emsFormBuilder[indx].state = 2;
-        files_emsFormBuilder[indx].id = idn;
-
-        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-        const o = [{
-          id_: files_emsFormBuilder[indx].id_,
-          name: files_emsFormBuilder[indx].name,
-          amount: ob.amount,
-          type: files_emsFormBuilder[indx].type,
-          value: '@file@',
-          url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder
-        }];
-
-        fun_sendBack_emsFormBuilder(o[0]);
-
-       if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
-      } else {
-        alert_message_efb('', data.error, 14, 'danger');
-        console.error(data.error);
-         return;
-      }
-    })
-    .catch(error => {
-      // Handle the error
-      console.error(error);
-    }); */
 }
 
 function fetch_uploadFile(file, id, pl, nonce_msg) {
-  var idB ='#'+id+'-prB';
+  var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
@@ -3024,8 +2651,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('sid', efb_var.sid);
     formData.append('fid', fid);
     
-
-    console.log(efb_var.rest_url);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
 
     const xhr = new XMLHttpRequest();
@@ -3033,11 +2658,11 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     xhr.upload.addEventListener('progress', (event) => {
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
-      if(document.querySelector(idB)){
-        document.querySelector(idB).style.width = percent + '%';
-        document.querySelector(idB).textContent = percent + '% = ' + file.name;
+      const el = document.getElementById(idB)
+      if(el){
+        el.style.width = percent + '%';
+        el.textContent = percent + '% = ' + file.name;
       }
-      console.log(percent)
     }
     });
 
@@ -3057,7 +2682,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     xhr.open('POST', url, true);
     xhr.send(formData);
   });
->>>>>>> v3
 }
 
 function generatePDF_EFB(id) 
@@ -3131,8 +2755,6 @@ santize_string_efb=(str)=>{
 }
 
 state_rply_btn_efb=(t)=>{
-   /* new code */
-    /*  end new code */
     if(pro_efb ==false){return};
     
    setTimeout(() => {
@@ -3176,7 +2798,6 @@ window.addEventListener('online', (e) => { console.log('online'); });
 
 function check_msg_ext_resp_efb() {
   // Get the `replayM_emsFormBuilder` element.
-  console.log('new ===> check_msg_ext_resp_efb')
   const replayM_emsFormBuilder = document.querySelector("#replayM_emsFormBuilder");
   replayM_emsFormBuilder.addEventListener("keypress", (event) => {
     if (document.querySelector("#replayB_emsFormBuilder").classList.contains("disabled")) {
@@ -3389,46 +3010,31 @@ fun_captcha_load_efb = ()=>{
  const data = {
     action: "mail_send_submited_Emsfb",
     id: id,
-<<<<<<< HEAD
-    
-    type_: type_,
-    nonce:nonce
-
-=======
     type_: type_,
     nonce:nonce,
     sid:efb_var.sid
->>>>>>> v3
   };
   
   const headers = new Headers({
     'Content-Type': 'application/json',
   });
 
-  console.log('fun_send_mail_emsFormBuilder');
-  console.log(data);
-<<<<<<< HEAD
-  const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/email/send/'; // Replace with your REST API endpoint URL
-=======
   const url = efb_var.rest_url+'Emsfb/v1/forms/email/send'; // Replace with your REST API endpoint URL
->>>>>>> v3
 
   const jsonData = JSON.stringify(data);
-  console.log(jsonData);
   const requestOptions = {
     method: 'POST', // Or any other HTTP method (POST, GET, etc.)
     headers,
     body: jsonData, // The JSON data as the request body
   };
 
-  console.log(requestOptions);
 fetch(url, requestOptions)
 .then(response => response.json())
 .then(responseData => {
   // Handle the response data
   //response_fill_form_efb(responseData)
   //console.log(`responseData`,responseData)
-  console.log(responseData);
+  console.table(responseData);
 })
 .catch(error => {
   // Handle errors

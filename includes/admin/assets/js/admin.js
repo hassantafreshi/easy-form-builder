@@ -21,10 +21,10 @@ if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_w
 jQuery(function () {
   state_check_ws_p = Number(efb_var.check);
   setting_emsFormBuilder=efb_var.setting;
-  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+  /* if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
     localStorage.setItem('v_efb',efb_var.v_efb);
     location.reload(true);
-  }
+  } */
   pro_ws = (efb_var.pro == '1' || efb_var.pro == true) ? true : false;
   if (typeof pro_whitestudio !== 'undefined') { pro_ws = pro_whitestudio; } else { pro_ws = false; }
   //historyload 1
@@ -107,11 +107,16 @@ function Link_emsFormBuilder(state) {
       break;
       case 'AdnSPF':
         //AdnSPF == strip payment
-        link += "s/offline-forms-addon/";
-        break;
-      case 'AdnOF':
-        //AdnOF == offline form
         link += 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
+        break;
+        case 'AdnOF':
+          //AdnOF == offline form
+          link += "s/offline-forms-addon/";
+       
+        break;
+        case 'AdnADP':
+          //AdnADP == Hijiri date
+          link += "s/how-to-install-islamic-date-in-easy-form-builder-plugin/";
        
         break;
       case 'wpbakery':
@@ -510,7 +515,7 @@ function add_dasboard_emsFormBuilder() {
     
     cardtitles += `
     <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
-      <a class="efb nav-link m-0 p-0 cat fs-6 text-capitalize ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
+      <a class="efb nav-link m-0 p-0 cat fs-6  ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
     </li>
     `
   }
@@ -525,7 +530,7 @@ function add_dasboard_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` : ''}
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb fs-4"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1"></i>${efb_var.text.forms}</h4>` : ''}
           <div class="efb d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control efb-rounded efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onClick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
             
@@ -566,7 +571,7 @@ function add_addons_emsFormBuilder() {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
                  'title':efb_var.text[i.title],'desc':efb_var.text[i.desc],'v_required':i.v_required , 'pro':i.pro}
     //AdnSPF
-     if((efb_var.language!='fa_IR' && i.name!='AdnPPF') || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
+     if((efb_var.language!='fa_IR' && (i.name!='AdnPPF') ) || efb_var.language=='fa_IR' ) value += createCardAddoneEfb(v)
     }
   }
   let cardtitles = `<!-- card titles -->`;
@@ -582,7 +587,7 @@ function add_addons_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
+          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon mx-1"></i>${efb_var.text.addons}</h4>` : ''}
   
             <div class="efb row">
             ${cardtitles}
@@ -638,6 +643,7 @@ function FunfindCardAddonEFB() {
   document.getElementById('listFormCardsEFB').innerHTML = ''
  
   for (let row of addons_efb) {
+    
     if (row["title"].toLowerCase().includes(v) == true || row["desc"].toLowerCase().includes(v) == true) { cards.push(row); }
   }
   let result = '<!--Search-->'
@@ -828,7 +834,7 @@ function head_introduce_efb(state) {
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
-  ${efb_var.text.yFreeVEnPro}
+  ${efb_var.text.yFreeVEnPro.replace('NN',"19.5")}
   </div>`;
   if (state != "create") {
     cont = `
@@ -902,6 +908,7 @@ switch_color_efb = (color) => {
 }
 
 ColorNameToHexEfbOfElEfb = (v, i, n) => {
+  console.log('ColorNameToHexEfbOfElEfb',v,i,n)
   let r
   let id;
   switch (n) {
@@ -932,7 +939,7 @@ ColorNameToHexEfbOfElEfb = (v, i, n) => {
       const len = `colorDEfb-`.length;
       if (v.includes(`colorDEfb`)) r = "#" + v.slice(len);
   }
-
+  console.log(r);
   return r;
 }
 
@@ -1047,6 +1054,7 @@ let change_el_edit_Efb = (el) => {
     }
       if (el.value==null) return  valNotFound_efb()
     //console.log(el.id)
+    console.log(`index=====>${indx}`);
     switch (el.id) {
       case "labelEl":
         
@@ -1127,16 +1135,16 @@ let change_el_edit_Efb = (el) => {
           }
           else {
             if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-            document.getElementById("adminFormEmailEl").value = "";
+            if(document.getElementById("adminFormEmailEl")) document.getElementById("adminFormEmailEl").value = "";
             valj_efb[0].email="";
           }
         } else if (efb_var.smtp == '-1') {
-          document.getElementById("adminFormEmailEl").value = "";
+          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
           //console.log(efb_var.text.goToEFBAddEmailM);
           alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddEmailM, 30, "danger");
         } else {
           // trackingCodeEl.checked=false;
-          document.getElementById("adminFormEmailEl").value = "";
+          if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
           alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
         }
         valj_efb[0].sendEmail=false;
@@ -1538,6 +1546,7 @@ let change_el_edit_Efb = (el) => {
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         break;
       case "btnColorEl":
+
         color = el.value;
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;
 
@@ -1569,9 +1578,10 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "selectColorEl":
+        console.log('=============>selectColorEl')
         color = el.value;
         c = switch_color_efb(color);
-        //console.log(color, c ,el.dataset,el.dataset.tag)
+        console.log(color, c ,el.dataset,el.dataset.tag)
         if (c.includes('colorDEfb')) {
           addStyleColorBodyEfb(c, color, "text", indx);
         }
@@ -1604,6 +1614,12 @@ let change_el_edit_Efb = (el) => {
         }
          else if (el.dataset.el == "clrdoniconEfb") {
           valj_efb[0].clrdoniconEfb = "text-" + c;
+          return;
+          //postId = '_'
+        }
+         else if (el.dataset.el == "progessbar") {
+          valj_efb[0].hasOwnProperty('prg_bar_color')==false ?  Object.assign(valj_efb[0],{'prg_bar_color':"btn-" + c}) : valj_efb[0].prg_bar_color = "btn-" + c;
+          console.log(valj_efb[0].prg_bar_color)
           return;
           //postId = '_'
         }
@@ -2037,7 +2053,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(idhtml).innerHTML = `
             <div class="efb  noCode-efb m-5 text-center" id="${el.dataset.id}_noCode">
             ${efb_var.text.noCodeAddedYet}  <button type="button" class="efb  btn btn-edit btn-sm" id="settingElEFb" data-id="${el.dataset.id}-id" data-bs-toggle="tooltip" title="Edit" onclick="show_setting_window_efb('${el.dataset.id}-id')">
-            <i class="efb  bi-gear-fill text-success" id="efbSetting"></i></button> ${efb_var.text.andAddingHtmlCode}
+            <div class="icon-container efb"><i class="efb   bi-gear-wide-connected text-success" id="efbSetting" ></i></div></button> ${efb_var.text.andAddingHtmlCode}
             </div>`
           valj_efb[postId].value = '';
 
@@ -2379,12 +2395,12 @@ const saveFormEfb = () => {
       }
       if (state == false) {
 
-        btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="${btnFun}">
+        btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
       <i class="efb  ${btnIcon} mx-2"></i> ${btnText} </button>`
         body = `
       <div class="efb pro-version-efb-modal efb"></div>
-        <h5 class="efb  txt-center text-darkb fs-6 text-capitalize">${message}</h5>
-        <div class="efb  text-center text-capitalize">
+        <h5 class="efb  txt-center text-darkb fs-6">${message}</h5>
+        <div class="efb  text-center ">
         ${btn}
         </div>
       `
@@ -2401,9 +2417,9 @@ const saveFormEfb = () => {
       btnIcon = 'bi-bug'
       body = `
     <div class="efb pro-version-efb-modal efb"></div>
-    <h5 class="efb  txt-center text-darkb fs-6 text-capitalize">${efb_var.text.pleaseReporProblem}</h5>
-    <div class="efb  text-center text-capitalize">
-    <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3 text-capitalize" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
+    <h5 class="efb  txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
+    <div class="efb  text-center">
+    <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
       <i class="efb  bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
     </div>
     `
@@ -2435,6 +2451,7 @@ let editFormEfb = () => {
        
           dropZoneEFB.innerHTML += el;
           //console.log(valj_efb[v].type,'!!!!!!')   ;
+       
           if (valj_efb[v].hasOwnProperty('type') &&  valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") {
             
             funSetPosElEfb(valj_efb[v].dataId, valj_efb[v].label_position)}
@@ -2449,7 +2466,9 @@ let editFormEfb = () => {
               })
             }, (len * 2));
           }
+       
         }
+        
       } catch (error) {
         console.error('Error', error);
       }
@@ -2498,10 +2517,25 @@ let sampleElpush_efb = (rndm, elementId) => {
   switch (elementId) {
     case "firstName":
     case "lastName":
-      size = 100;
+      size = "50";
       type = "text";
       break;
-
+    case "country":
+      size = "50";
+      type = "conturyList";
+      break;
+      case "statePro":
+        size = "50";
+        type = "stateProvince";
+      break;
+      case "city":
+        size = "50";
+        type = "cityList";
+      break;
+      case "zipcode":
+        size = "50";
+        type = "select";
+      break;
     default:
       size = 100;
       break;
@@ -2584,6 +2618,9 @@ let sampleElpush_efb = (rndm, elementId) => {
       el_text_color: 'text-dark', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
     });
 
+  }else if (elementId == "contury" || elementId == "statePro" ){
+    console.log('==================>',elementId);
+    
   } else {
     
     valj_efb.push({
@@ -3084,7 +3121,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-  
+  console.log(t);
   const rndm = Math.random().toString(36).substr(2, 9);
 
   
@@ -3093,8 +3130,15 @@ fun_efb_add_el = (t) => {
   if (valj_efb.length < 2) { dropZoneEFB.innerHTML = "", dropZoneEFB.classList.add('pb') }
 
   if (t == "address" || t == "name") {
-    const olist = [{ n: 'name', t: "firstName" }, { n: 'name', t: "lastName" }]
+    console.log('log address' , 'first if ');
+    const olist = [
+      { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
+      { n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }, { n: 'address', t: "zipcode" } , { n: 'address', t: "address_line" }   
+    
+    ]
+    //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
     for (const ob of olist) {
+      console.log('log address' , 'first if ' , ob);
       if (ob.n == t) {
         let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
         dropZoneEFB.innerHTML += el;
@@ -3136,11 +3180,18 @@ fun_efb_add_el = (t) => {
     }
 
   }
+  setTimeout(() => {
+    const vl = dropZoneEFB.lastElementChild;
+    //console.log('last child',vl)
+    active_element_efb(vl);
+  }, 80);
 }
 
 
 
 function active_element_efb(el) {
+  console.log(el);
+  console.log(activeEl_efb);
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
  if (el.id != activeEl_efb ) {
@@ -3499,14 +3550,14 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  //console.log(efb_var.pro , pro_ws)
+  console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
   if(efb_var.pro==false || efb_var.pro=="false" || efb_var.pro=="") {
     if(el.type=="button" && el.classList.contains('setting')==false){
       f_b();
-      pro_show_efb(efb_var.text.youUseProElements)  
+      pro_show_efb(efb_var.text.proUnlockMsg)  
     }else if(el.type=="button" && el.classList.contains('setting')==true){
       f_b();
       pro_show_efb(efb_var.text.proUnlockMsg)  
@@ -3814,3 +3865,54 @@ add_new_logic_efb = (newId , step_id) =>{
     }
   }
 }
+
+
+const funSetAlignElEfb = (dataId, align, element) => {
+  console.log(dataId, align, element)
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  let elm =""
+  if (indx == -1 && element!="buttons") { return }
+  switch (element) {
+    case 'label':
+      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
+      valj_efb[indx].label_align = align
+      break;
+    case 'description':
+      elm = document.getElementById(`${valj_efb[indx].id_}-des`)
+      elm.className = alignChangerElEfb(elm.className, align)
+      valj_efb[indx].message_align = align
+      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
+      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
+        elm.classList.add('mx-4')
+      }
+      break;
+    case 'buttons':
+      console.log(elm);
+      elm = document.getElementById('f_button_form_np');
+       elm.className = alignChangerElEfb(elm.className, align)
+      console.log(elm.className);
+      const elm2 = document.getElementById('f_btn_send_efb');
+      elm2.className = alignChangerElEfb(elm2.className, align)
+      console.log(elm.className);
+      if(!valj_efb[0].hasOwnProperty('btns_align')) Object.assign(valj_efb[0],{'btns_align':align})
+      valj_efb[0].btns_align = align
+      console.log(valj_efb[0])
+      if (align == 'justify-content-start') {
+          elm.classList.remove('px-4');
+         elm2.classList.remove('px-4');
+         elm.classList.add('px-2');
+         elm2.classList.add('px-2');
+      }else if(align == 'justify-content-end'){
+         elm.classList.remove('px-2');
+         elm2.classList.remove('px-2');
+         elm.classList.add('px-4');
+         elm2.classList.add('px-4'); 
+         
+      }else{
+        elm.className= PxChangerEfb(elm.className,'')
+        elm2.className= PxChangerEfb(elm2.className,'')
+      }
+    break;
+     
+  }
+}//justify-content-center

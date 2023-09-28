@@ -553,7 +553,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('Activate the Pro version.','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $12.09/yearly.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $NN/year.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('Stripe Payment Addon','easy-form-builder'),				
@@ -582,7 +582,7 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
-			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('12.09$/year','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('$NN/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I would like to localize Easy Form Builder.','easy-form-builder'),				
@@ -688,7 +688,24 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
+			/* new phrase v3 */
+			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
+			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS notification texts','easy-form-builder'),
+			"smsNotiMA" => $state  &&  isset($ac->text->smsNotiMA) ? $ac->text->smsNotiMA : __('The SMS should include your website address','easy-form-builder'),
+			"adrss_vld" => $state  &&  isset($ac->text->adrss_vld) ? $ac->text->adrss_vld : __('Enable Postal Code validation for addresses','easy-form-builder'),
+			"adrss_pc" => $state  &&  isset($ac->text->adrss_pc) ? $ac->text->adrss_pc : __('Enable Postal Code validation','easy-form-builder'),
+			"pc_inc_m" => $state  &&  isset($ac->text->pc_inc_m) ? $ac->text->pc_inc_m : __('The postal code is incorrect.','easy-form-builder'),
+			"adrss_inc_m" => $state  &&  isset($ac->text->adrss_inc_m) ? $ac->text->adrss_inc_m : __('The Address is incorrect.','easy-form-builder'),
+			"cities" => $state  &&  isset($ac->text->cities) ? $ac->text->cities : __('cities','easy-form-builder'),
+			"list" => $state  &&  isset($ac->text->list) ? $ac->text->list : __('XXX list','easy-form-builder'),
+			"dftuwln" => $state  &&  isset($ac->text->dftuwln) ? $ac->text->dftuwln : __('Display forms to users who are logged in.','easy-form-builder'),
+			"dftuwp" => $state  &&  isset($ac->text->dftuwp) ? $ac->text->dftuwp : __('Display forms to users who have the password.','easy-form-builder'),
+			"fSiz_l_dy" => $state &&  isset($ac->text->fSiz_l_dy) ? $ac->text->fSiz_l_dy : __('The uploaded file exceeds the allowable limit of  XXX MB.','easy-form-builder'),
+			"fSiz_s_dy" => $state &&  isset($ac->text->fSiz_s_dy) ? $ac->text->fSiz_s_dy : __('The uploaded file is below the required minimum size of XXX MB.','easy-form-builder'),
+			"lb_m_fSiz" => $state &&  isset($ac->text->lb_m_fSiz) ? $ac->text->lb_m_fSiz : __('Maximum File Size','easy-form-builder'),
+			"lb_mi_fSiz" => $state &&  isset($ac->text->lb_mi_fSiz) ? $ac->text->lb_mi_fSiz : __('Minmum File Size','easy-form-builder'),
+			"pss" => $state &&  isset($ac->text->pss) ? $ac->text->pss : __('Passwords','easy-form-builder'),
+
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -763,27 +780,25 @@ class efbFunction {
 		}
 
 	public function email_template_efb($pro, $state, $m,$link){	
-		
-		
-		/* 
-		 */
-		/* $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		if( gettype($pro)=="string" && $pro==md5($server_name)){ $pro=1;} */		
-		$text = ["clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "proUnlockMsg"];
+		$l ="https://whitestudio.team/";
+			 if(get_locale()=="fa_IR"){ $l="https://easyformbuilder.ir/"  ;}
+			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
+		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
-		/* $footer= "<a class='efb subtle-link' target='_blank' href='https://wordpress.org/plugins/easy-form-builder/'><img src='https://whitestudio.team/img/easy-form-builder.png' style='margin:0px 5px; width:16px;height:16px' >".__('Easy Form Builder','easy-form-builder')."</a> 
-		<br><a class='efb subtle-link' target='_blank' href='https://whitestudio.team/'><img src='https://whitestudio.team/img/favicon.png' style='margin:0px 5px'>WhiteStudio.team</a>
-		<br><a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";	 */
-		//if($pro ==1){
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
+			
 		//}   
 
+		
 		$st = $this->get_setting_Emsfb();
 		if($st=="null") return;
+		//serverEmailAble
+		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". __('Created by','easy-form-builder') . " " . __('Easy Form Builder','easy-form-builder')."</a></small>";	}		
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
+		//error_log($footer);
 		$title=$lang["newMessage"];
-		$message ="<h2>".$m."</h2>";
+		$message ="<h3>".$m."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
 		 
@@ -793,13 +808,15 @@ class efbFunction {
 		
 		
 		if($state=="testMailServer"){
-			$title=$lang["goodJob"];
-			$l ="https://whitestudio.team/";
-			 if(get_locale()=="fa_IR") $l="https://easyformbuilder.ir/"  ;
-			$message ="<h2>"
-			.  $lang["proUnlockMsg"] ."</h2>
-			<p>". $lang["createdBy"] ." White Studio Team</p>
-			<button style='background-color: #0b0176;'><a href='".$l."?loc=".get_locale()."&url=".home_url()."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			$title= $lang["serverEmailAble"];
+			$message ="<h1>".  $footer ."</h1>";
+			 if(strlen($st->activeCode)<5){
+				$message ="<h2>"
+				. str_replace('NN', '19.5', $lang["yFreeVEnPro"])."</h2>
+				<p>". $lang["createdBy"] ." WhiteStudio.team</p>
+				<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+			 }
+			
 		}elseif($state=="newMessage"){	
 			//w_link;
 			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
@@ -847,13 +864,14 @@ class efbFunction {
 				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
+				//error_log($footer);
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
-		       
+		       //error_log($temp);
 				$val =  $temp;
 			}
-			
+			//error_log($footer);
 			return $val;
 	}
 
@@ -1117,28 +1135,6 @@ class efbFunction {
 	}
 
 
-	/* function wp_up_upgrade_completed_efb( $upgrader_object, $options ) {
-        // The path to our plugin's main file
-        $our_plugin = plugin_basename( __FILE__ );
-		
-		$our_plugin = substr($our_plugin, 0, strpos($our_plugin, "/"));
-        // If an update has taken place and the updated type is plugins and the plugins element exists
-        if( $options['action'] == 'update' && $options['type'] == 'plugin' && isset( $options['plugins'] ) ) {
-         // Iterate through the plugins being updated and check if ours is there
-         foreach( $options['plugins'] as $plugin ) {
-			$plugin = substr($plugin, 0, strpos($plugin, "/"));		
-			//error_log($our_plugin);
-            //error_log($plugin);
-          if( $plugin == $our_plugin) {
-			if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-				wp_schedule_single_event( time() + 2, 'download_all_addons_efb' );
-			  }
-          }
-         }
-        }
-       } */
-
-
 	   public function addon_adds_cron_efb(){
 		//error_log('addon_adds_cron_efb');
 		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
@@ -1201,9 +1197,15 @@ class efbFunction {
 			//show error message
 			//error_log(json_encode($r));
 		}else{
-			$r = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
-			if(is_wp_error($r)){
+			$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
+			if(is_wp_error($v)){
+				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
+				if(is_wp_error($s)){
 				
+					error_log('EFB=>unzip addons error 1:');
+					error_log(json_encode($r));
+					return false;
+				}
 			}else{
 				
 				require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -1213,6 +1215,8 @@ class efbFunction {
 				
 					//error_log('error unzip');
 					//error_log(json_encode($r));
+					error_log('EFB=>unzip addons error 2:');
+					error_log(json_encode($r));
 					return false;
 				}
 			} 
@@ -1297,28 +1301,49 @@ class efbFunction {
 			return $value;
 	}
 
-<<<<<<< HEAD
-=======
 	/* section of generate validate code and status of visit and message [start] */
 	public function efb_code_validate_create( $fid, $type, $status, $tc) {
 		//$fid => form Id
 		//$type => form 0 , response 1, sms 2, email 3
 		// $status => visit , send , upd , del  =>  max len 5
-		//$tc => tracking code if exists 
-		error_log('efb_code_validate_create====>fid');
-		error_log($fid);
+		//$tc => tracking code if exists 	
 		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$query =$this->db->prepare( 'SHOW TABLES LIKE %s',$this->db->esc_like( $table_name ) );
+		$check_test_table =$query!=null ?$this->db->get_var( $query ) :0;
+		if($check_test_table==0){
+			$charset_collate =$this->db->get_charset_collate();
+			$sql = "CREATE TABLE {$table_name} (
+				`id` int(20) NOT NULL AUTO_INCREMENT,
+				`sid` varchar(21) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`fid` int(11)   NOT NULL, 
+				`type_` int(8)  NOT NULL,
+				`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
+				`status` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`os` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+				`browser` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,						
+				`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
+				`uid` int(10)  NOT NULL, 
+				`tc` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL,	
+				`active` int(1)   NOT NULL,						
+				PRIMARY KEY  (id)
+			) {$charset_collate};";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $sql );
+		}
 		$ip = $this->get_ip_address();
-		$date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND date > %s AND active = 1 AND fid = %s", $ip, $date_limit,$fid);
+		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
+		$date_now = date('Y-m-d H:i:s');
+		/* error_log($date_now); */
+        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s", $ip, $date_now,1,$fid);
 		$result =$this->db->get_var($query);
-		error_log('=========> query');
-		error_log(json_encode($result));
+		/* error_log(json_encode($query));
+		error_log(json_encode($result)); */
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
 		$uid = get_current_user_id();
-		;
 		$os = $this->getVisitorOS();
 		$browser =$this->getVisitorBrowser();
         $data = array(
@@ -1332,23 +1357,19 @@ class efbFunction {
             'uid' => $uid,
             'tc' => $tc,
 			'active'=>1,
-			'date'=>wp_date('Y-m-d H:i:s')
+			'date'=>date('Y-m-d H:i:s'),
+			'read_date'=>$date_limit
         );
-		error_log(json_encode($data));
        $this->db->insert($table_name, $data);
 	   return $sid;
     }
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		// $status => visit , send , upd , del => max len 5
-		error_log("efb_code_validate_update");
-		error_log($sid);
-		error_log($status);
-		error_log($tc);
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
-		$read_date =wp_date('Y-m-d H:i:s');
+		$read_date =date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 		/* $data_= $data = array(
 			'status' => $status,
@@ -1371,67 +1392,26 @@ class efbFunction {
 
 		$stmt = $this->db->query($sql);
 		//$stmt->bindParam(':date_', $$date_limit);
-
-	
-	  
-	   error_log(json_encode($stmt));
 	  
 	   return $stmt > 0;
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		error_log("===============> efb_code_validate_select");
+		/* error_log("efb_code_validate_select");
 		error_log($sid);
-		error_log($fid);
+		error_log($fid); */
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-		//error_log($date_limit);
-        $date_limit = wp_date('Y-m-d H:i:s', strtotime('-24 hours'));
-        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND date > %s AND active = 1 AND fid = %s", $sid, $date_limit,$fid);
+        $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
+        $date_now = date('Y-m-d H:i:s');
+        $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
+		/* error_log(json_encode(  $query)); */
         $result =$this->db->get_var($query);
-		error_log(json_encode($result));
+		//error_log(json_encode(  $result));
         return $result === '1';
     }
 
 	/* section of generate validate code and status of visit and message [end] */
 	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
-
-
->>>>>>> v3
-	/* public function get_list_colores_template(){
-		//list_files(get_template_directory())
-		//$template_name = get_template(); //get active template name
-		$template_path =list_files(get_template_directory()); //get active template path
-		//$files = scandir($template_path); //scan all files in template directory
-		$colors =[]; //create array to store colors
-		foreach ($template_path as $file) { //loop through each file
-
-			if (preg_match('/main.css$|style.css$|colors.css$|color.css$/', $file) || preg_match('/\.json$/', $file)) { //check if file is css file
-				//error_log($file);
-				$content = file_get_contents($file); //get content of css file
-				// '/#[a-fA-F0-9]{3,6}/'
-				//$pattern = '/#([a-fA-F0-9]{3,6})\b|rgba?\([^\)]+\)/i';
-				$pattern = '/#[a-fA-F0-9]{3,6}/i';
-				preg_match_all($pattern, $content, $matches); //find all colors in css file using regex 
-				//array_unique(array_merge($colors,$matches), SORT_REGULAR);
-				foreach ($matches as $match) { //loop through each color found in css file 
-					// if (!in_array($match, $colors)) { //check if color already exists in array or not 
-					//	array_push($colors, $match); //add color to array if it doesn't exist already 
-					//} 
-					//error_log(json_encode($match));
-					$colors=array_unique(array_merge($colors,$match), SORT_REGULAR);
-					//convert this obiject array to array : {"0":"#FCF5ED","1":"#3F67C6","2":"#FFFFFF","3":"#3556A5","4":"#374C80","5":"#CA2315","6":"#FFF6F6","7":"#000000","8":"#F5F5F5","9":"#1A1A1A","10":"#FF7179","11":"#F4F4F2","13":"#ffffff","15":"#ffe2c7","17":"#f6f6f6","18":"#1a4548","28":"#F6F6F6"} 
-				} 
-				//error_log(gettype($colors) );
-			} 
-		} 
-		$colors = array_values($colors);
-		//error_log("json_encodecolors");
-		//error_log(json_encode($colors));
-		return $colors; //print all colors found in active template
-	} */
-<<<<<<< HEAD
-	
-=======
 	public function getVisitorOS() {
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 		$os = "Unknown";
@@ -1475,5 +1455,4 @@ class efbFunction {
 	
 		return $browser;
 	}
->>>>>>> v3
 }

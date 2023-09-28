@@ -27,29 +27,32 @@ if (ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
-
+console.log('call core.js');
+ 
 setTimeout(() => {
   (function () {
 
     jQuery(function () {
+      console.log('=========>Jquery');
       if (typeof ajax_object_efm == 'undefined') return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       
       efb_var = ajax_object_efm;
      
-      if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+     /*  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
         //console.log('new version!',efb_var.v_efb)
         //setTimeout(() => {
           localStorage.setItem('v_efb',efb_var.v_efb);
-          location.reload(true);          
+         // location.reload(true);          
        // }, 3000);
-      }
+      } */
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
-      localStorage.setItem('form_id', efb_var.id);
+      //localStorage.setItem('form_id', efb_var.id);
       setting_emsFormBuilder=JSON.parse(ajax_object_efm.form_setting.replace(/[\\]/g, ''));
       if (ajax_object_efm.state != 'tracker') {
+        
         const ajax_value = typeof (ajax_object_efm.ajax_value) == "string" ? JSON.parse(ajax_object_efm.ajax_value.replace(/[\\]/g, '')) : ajax_object_efm.ajax_value;
         if (ajax_object_efm.form_setting && ajax_object_efm.form_setting.length > 0 && ajax_object_efm.form_setting !== ajax_object_efm.text.settingsNfound) {
           form_type_emsFormBuilder = ajax_object_efm.type;
@@ -71,6 +74,7 @@ setTimeout(() => {
       }    
       if (ajax_object_efm.state !== 'settingError') {
         if (ajax_object_efm.state == 'form') {
+          console.log('=========>inside if');
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
            //ajax_object_efm.ajax_value="";
         } else if (ajax_object_efm.state == 'tracker') {
@@ -82,6 +86,7 @@ setTimeout(() => {
         } else if (ajax_object_efm.state == 'userIsLogin') {
           document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(ajax_object_efm.ajax_value);
         }
+
       } else {
         fun_show_alert_setting_emsFormBuilder()
       }
@@ -108,6 +113,7 @@ setTimeout(() => {
 /* new code multiSelect end */
 
 function fun_render_view_efb(val, check) {
+  console.log('==============>fun_render_view_efb');
   var url = new URL(window.location);
  
  // url.searchParams.set('stepNo', 1);
@@ -122,6 +128,7 @@ function fun_render_view_efb(val, check) {
   
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
+  
   previewFormEfb('run');
   
   if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
@@ -856,9 +863,7 @@ function fun_sendBack_emsFormBuilder(ob) {
 
 
 
-/* function saveLocalStorage_emsFormBuilder_view() {
-  localStorage.setItem('valueJson_ws', JSON.stringify(valueJson_ws));
-} */
+
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
@@ -997,15 +1002,15 @@ function actionSendData_emsFormBuilder() {
       id: efb_var.id,
       valid: recaptcha_emsFormBuilder,
       type:  form_type_emsFormBuilder,
-      nonce: efb_var.nonce,
-      nonce_msg: efb_var.nonce_msg,
+      //nonce: efb_var.nonce,
+      //nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0],
       sid:efb_var.sid
     };
     //console.log(document.getElementById('prev_efb').className)
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){
       if(valj_efb[0].getway=="persiaPay"){
-         console.log(`efb_var.id[${efb_var.id}]`);
+         //console.log(`efb_var.id[${efb_var.id}]`);
         data = {
           action: "get_form_Emsfb",
           value: JSON.stringify(sendBack_emsFormBuilder_pub),
@@ -1015,10 +1020,10 @@ function actionSendData_emsFormBuilder() {
           id: sessionStorage.getItem("id"),
           valid: recaptcha_emsFormBuilder,
           type:  form_type_emsFormBuilder,
-          nonce: efb_var.nonce,
+          //nonce: efb_var.nonce,
           payment: 'persiaPay',
           auth:get_authority_efb,
-          nonce_msg: efb_var.nonce_msg,
+          //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
           sid:efb_var.sid
         };
@@ -1033,8 +1038,8 @@ function actionSendData_emsFormBuilder() {
           valid: recaptcha_emsFormBuilder ,
           type: form_type_emsFormBuilder,
           payment: 'stripe',
-          nonce: efb_var.nonce,
-          nonce_msg: efb_var.nonce_msg,
+          //nonce: efb_var.nonce,
+          //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
           sid:efb_var.sid
 
@@ -1042,37 +1047,10 @@ function actionSendData_emsFormBuilder() {
       }
 
     }
-<<<<<<< HEAD
-    post_api_efb_2(data);
-    //console.log(document.getElementById('prev_efb').className)
-    //console.log(data);
-  /*   jQuery(function ($) {
 
-    $.ajax({
-      type: "POST",
-      async: false,
-      url: ajax_object_efm.ajax_url,
-      data: data,
-      success: function (res) {
-        //console.log(res);
-        response_fill_form_efb(res)
-        //localStorage.removeItem('PayId');
-      },
-      error: function (res) {
-        console.error(res);
-        response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 } })
-      }
-
-    })
-    if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
-    if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
-  }); */
-=======
-    console.log(efb_var.sid);
     post_api_forms_efb(data);
     //console.log(document.getElementById('prev_efb').className)
     //console.log(data);
->>>>>>> v3
 
 
 
@@ -1226,15 +1204,17 @@ function valid_file_emsFormBuilder(id,tp) {
 
 
 function fun_tracking_show_emsFormBuilder() {
-  const time = pro_efb==true ? 10 :3500;
+  const time = pro_efb==true ? 10 :2100;
   const getUrlparams = new URLSearchParams(location.search);
+  efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
+  //console.log(efb_var);
   let get_track = getUrlparams.get('track') !=null ? sanitize_text_efb(getUrlparams.get('track')) :null;
   if(get_track){ get_track= `value="${get_track}"`; change_url_back_persia_pay_efb()}else{get_track='';}
   
 setTimeout(() => {
   document.getElementById("body_tracker_emsFormBuilder").innerHTML = ` 
   <div class="efb  ${ajax_object_efm.rtl == 1 ? 'rtl-text' : ''}" >
-                <div class="efb  card card-public row mb-3 pb-3 px-1" id="body_efb-track">
+                <div class="efb row mb-3 pb-3 px-1" id="body_efb-track">
                     <h4 class="efb  title-holder  col-12 mt-4 fs-3"><i class="efb  bi-check2-square title-icon mx-1 fs-3"></i> ${ajax_object_efm.text.pleaseEnterTheTracking}</h4>
                 <div class="efb  row col-md-12">
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
@@ -1307,7 +1287,6 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           nonce: ajax_object_efm.nonce,
           sid:efb_var.sid
         };
-        console.log('get_track_Emsfb');
         //reCaptch verified
         recaptcha_emsFormBuilder = response;
         post_api_tracker_check_efb(data,innrBtn);    
@@ -1374,7 +1353,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_emsFormBuilder_show_messages(content, by, track, date) {
   
-  
+  stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
   if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
@@ -1438,7 +1417,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       title = efb_var.text[title] || c.name ;
       s = true;
       value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
       
     } else if (c.type == "color") {
@@ -1447,7 +1426,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       s = true;
       //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
 
     }else if (c.type == "maps") {
 
@@ -1468,7 +1447,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value += `<i class="efb bi bi-star-fill"></i>`
       }
       value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check text-capitalize">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
+      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
     }else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
       let vc ='null';
@@ -1478,7 +1457,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
         }
       }
-      m += `<p class="efb fs-6 my-0 efb text-capitalize">${c.name}:</p>${vc}`;
+      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
@@ -1494,7 +1473,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb text-capitalize ">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
        //m+=`</p>`;
       }
 
@@ -1571,12 +1550,11 @@ setTimeout(() => {
     //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 7 , 'danger')
     return;
   } else {
-    /* if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
+    if(setting_emsFormBuilder.hasOwnProperty('dsupfile')==true && setting_emsFormBuilder.dsupfile !=true) {
       for(const s in sendBack_emsFormBuilder_pub ){ if(sendBack_emsFormBuilder_pub[s].name=="file") sendBack_emsFormBuilder_pub.splice(s,1)  }
       // sendBack_emsFormBuilder_pub.findIndex(x=>x.name =='file');
-    } */
-    
-    fun_send_replayMessage_ajax_emsFormBuilder(sendBack_emsFormBuilder_pub, id)
+    }
+    fun_send_replayMessage_reast_emsFormBuilder(sendBack_emsFormBuilder_pub)
   }
 }, 100);
   
@@ -1585,8 +1563,7 @@ setTimeout(() => {
 }
 
 
-function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
-  console.log('===>fun_send_replayMessage_ajax_emsFormBuilder');
+function fun_send_replayMessage_reast_emsFormBuilder(message) {
   if (!navigator.onLine) {
    // alert_message_efb('',efb_var.text.offlineSend, 17, 'danger');
     noti_message_efb(efb_var.text.offlineSend , 'danger' , `replay_state__emsFormBuilder` );       
@@ -1602,16 +1579,18 @@ function fun_send_replayMessage_ajax_emsFormBuilder(message, id) {
     return;
   }
 
+
   data = {
     action: "set_rMessage_id_Emsfb",
     type: "POST",
-    id: id,
+    id: efb_var.msg_id,
     valid: recaptcha_emsFormBuilder,
     message: JSON.stringify(message),
-    nonce: ajax_object_efm.nonce,
+    //nonce: ajax_object_efm.nonce,
     type: form_type_emsFormBuilder,
-    nonce_msg:efb_var.nonce_msg,
-    sid:efb_var.sid
+    //nonce_msg:efb_var.nonce_msg,
+    sid:efb_var.sid,
+    user_type : efb_var.user_type
 
   };
 
@@ -1800,18 +1779,13 @@ function Show_recovery_pass_efb() {
 
 
 function response_fill_form_efb(res) {
-  console.log(res);
   //pWRedirect
   let btn_prev ='';
   if(valj_efb.length>1) btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   //console.log(document.getElementById('prev_efb').className)
   //console.log(res.data);
   if (res.data.success == true) {
-<<<<<<< HEAD
-   // if(res.data.track!=null) fun_send_mail_ajax_emsFormBuilder(res.data.track,res.data.nonce,'msg');
-=======
    
->>>>>>> v3
      if(res.data.track!=null) fun_send_mail_emsFormBuilder(res.data.track,res.data.nonce,'msg');
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
@@ -1880,7 +1854,6 @@ function response_fill_form_efb(res) {
 }
 
 function response_Valid_tracker_efb(res) {
-
   if (res.data.success == true) {
     document.getElementById('body_efb-track').innerHTML = emsFormBuilder_show_content_message(res.data.value, res.data.content)
     /* attachment reply */
@@ -1913,7 +1886,7 @@ function response_rMessage_id(res, message) {
     chatHistory.scrollTop = chatHistory.scrollHeight;
   } else {
     document.getElementById('replayB_emsFormBuilder').innerHTML =ajax_object_efm.text.reply;
-    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger">${res.data.m}</p>`;
+    document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
     //alert_message_efb(ajax_object_efm.text.error, res.data.m, 15, 'danger')
    // document.getElementById('replayB_emsFormBuilder').classList.remove('disabled');
   }
@@ -2085,19 +2058,15 @@ window.addEventListener("popstate",e=>{
  fun_booking_avilable =(el)=>{
  let r =[true,''];
  // if(ob.)
- console.log(el.type);
  let id = el.id;
  if(el.type=='select' || el.type=='select-one'){
-  console.log(el.options[el.selectedIndex].dataset.id)
   id=el.options[el.selectedIndex].dataset.id;
  }
- console.log(id,el.dataset,el);
   const row = valj_efb.find(x=>x.id_==id)
-  const ndate = new Date().toLocaleDateString("fr-CA", {year:"numeric", month: "2-digit", day:"2-digit"});
-  console.log(row ,ndate);
+  const lan = wp_lan.replaceAll(`_`, "-")
+  const ndate = new Date().toLocaleDateString(lan, {year:"numeric", month: "2-digit", day:"2-digit"});
   uncheck =()=>{
     if(el.type=="radio" || el.type=="checkbox"){
-      console.log(el.checked);
       el.checked=false
     }
   }
@@ -2122,63 +2091,21 @@ window.addEventListener("popstate",e=>{
   return  r;
  }
 
-<<<<<<< HEAD
-
-/* post_api_efb=()=>{
-
-    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/test/name/45'; // Replace with your REST API endpoint URL
-
-const headers = new Headers({
-  'Content-Type': 'application/json',
-});
-jsonData={};
-const requestOptions = {
-  method: 'GET', // Or any other HTTP method (POST, GET, etc.)
-  headers,
-  // The JSON data as the request body
-};
-
-fetch(url, requestOptions)
-  .then(response => response.json())
-  .then(responseData => {
-    // Handle the response data
-    console.log(`responseData`,responseData)
-  })
-  .catch(error => {
-    // Handle errors
-    console.log(`error`,error)
-  });
-    
- }
- post_api_efb(); */
-post_api_efb_2=(data)=>{
-    console.log('post_api_efb_2');
-    const url = 'http://127.0.0.1/wp/wp-json/Emsfb/v1/forms/message/add/'; // Replace with your REST API endpoint URL
-
-const headers = new Headers({
-  'Content-Type': 'application/json',
-});
-
-
-=======
  
  post_api_forms_efb=(data)=>{
-    console.log('post_api_forms_efb');
-    console.log(data);
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add'; // Replace with your REST API endpoint URL
 
 const headers = new Headers({
   'Content-Type': 'application/json',
 
 });
->>>>>>> v3
+//console.log(data);
 const jsonData = JSON.stringify(data);
 const requestOptions = {
   method: 'POST', // Or any other HTTP method (POST, GET, etc.)
   headers,
   body: jsonData, // The JSON data as the request body
 };
-console.log(data);
 fetch(url, requestOptions)
   .then(response => response.json())
   .then(responseData => {
@@ -2188,23 +2115,13 @@ fetch(url, requestOptions)
   })
   .catch(error => {
     // Handle errors
-    console.log(`error`,error)
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
   });
   if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
   if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
  
 }
-<<<<<<< HEAD
-
-
-/*  setTimeout(() => {
-  post_api_efb_2(data);
- }, 2000); */
-=======
 post_api_tracker_check_efb=(data,innrBtn)=>{
-  console.log('post_api_tracker_check_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/get'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -2217,13 +2134,12 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
+  
   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
       
-            console.log(`responseData`,responseData)
             if(document.getElementById('vaid_check_emsFormBuilder')){
               document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
               document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -2234,6 +2150,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     })
     .catch(error => {
       // Handle errors
+      console.error(error);
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
@@ -2242,8 +2159,6 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   
 }//end function post_api_tracker_check_efb
 post_api_r_message_efb=(data,message)=>{
-  console.log('post_api_r_message_efb');
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add'; // Replace with your REST API endpoint URL
 
   const headers = new Headers({
@@ -2256,57 +2171,20 @@ post_api_r_message_efb=(data,message)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
-  console.log(data);
   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
-      
-            console.log(`responseData`,responseData)
             response_rMessage_id(responseData, message); sendBack_emsFormBuilder_pub=[]; 
     })
     .catch(error => {
       // Handle errors
-      console.log(`error`,error)
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
     });
   
   
-}//end function post_api_tracker_check_efb
+}
 
-/* post_api_efb=()=>{
-  //http://127.0.0.1/wp/wp-json/Emsfb/v1/test/name/45
-  console.log('run customendpoint',efb_var.rest_url);
-    const url = efb_var.rest_url+'Emsfb/v1/customendpoint'; // Replace with your REST API endpoint URL
 
-const headers = new Headers({
-  'Content-Type': 'application/json',
-});
-jsonData={};
-const requestOptions = {
-  method: 'POST', // Or any other HTTP method (POST, GET, etc.)
-  headers,
-  beforeSend: function ( xhr ) {
-    xhr.setRequestHeader( 'X-WP-Nonce', efb_var.rest_nonce );
-  },
-  // The JSON data as the request body
-};
-console.log(url);
-fetch(url, requestOptions)
-  .then(response => response.json())
-  .then(responseData => {
-    // Handle the response data
-    console.log(`responseData`,responseData)
-  })
-  .catch(error => {
-    // Handle errors
-    console.log(`error`,error)
-  });
-    
- } */
 
-/* setTimeout(() => {
-  post_api_efb();
- }, 2000); */
  
->>>>>>> v3

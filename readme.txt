@@ -2,13 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-<<<<<<< HEAD
-Stable tag: 			3.5.34
-=======
-Stable tag: 			3.6.0
->>>>>>> v3
+Stable tag: 			3.6.7
 Requires at least: 	      4.7
-Tested up to: 			6.2.2
+Tested up to: 			6.3
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -369,13 +365,39 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
-<<<<<<< HEAD
-=======
-=3.6.0=
+=3.6.7=
+
+* email structer of easy form builder is improved  
 
 * Improved UX of Easy Form Builder
 
->>>>>>> v3
+=3.6.6=
+
+* Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
+
+=3.6.4=
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues of UI Easy Form Builder
+
+
+=3.6.3=
+
+* Improved Security of form builder of WordPress Plugin
+
+=3.6.2=
+
+* Fixed issues of UI Easy Form Builder
+
+* Improved Security of form builder of WordPress Plugin
+
+=3.6.1=
+
+* Improved UX of Easy Form Builder
+
+* Remove dependency on jQuery
+
 =3.5.33=
 
 * Fixed issues
