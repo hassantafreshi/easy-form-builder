@@ -27,23 +27,21 @@ if (ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
-console.log('call core.js');
- 
+
 setTimeout(() => {
   (function () {
 
     jQuery(function () {
-      console.log('=========>Jquery');
       if (typeof ajax_object_efm == 'undefined') return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       
       efb_var = ajax_object_efm;
      
-     /*  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
+      /*  if(localStorage.getItem('v_efb')==null ||localStorage.getItem('v_efb')!=efb_var.v_efb ){
         //console.log('new version!',efb_var.v_efb)
         //setTimeout(() => {
           localStorage.setItem('v_efb',efb_var.v_efb);
-         // location.reload(true);          
+          // location.reload(true);          
        // }, 3000);
       } */
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
@@ -74,7 +72,6 @@ setTimeout(() => {
       }    
       if (ajax_object_efm.state !== 'settingError') {
         if (ajax_object_efm.state == 'form') {
-          console.log('=========>inside if');
           fun_render_view_efb(ajax_object_efm.ajax_value, 1);
            //ajax_object_efm.ajax_value="";
         } else if (ajax_object_efm.state == 'tracker') {
@@ -113,7 +110,6 @@ setTimeout(() => {
 /* new code multiSelect end */
 
 function fun_render_view_efb(val, check) {
-  console.log('==============>fun_render_view_efb');
   var url = new URL(window.location);
  
  // url.searchParams.set('stepNo', 1);
@@ -128,7 +124,6 @@ function fun_render_view_efb(val, check) {
   
   formNameEfb = valj_efb[0].formName;
   state_efb = "run";
-  
   previewFormEfb('run');
   
   if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
@@ -2106,7 +2101,7 @@ const requestOptions = {
   headers,
   body: jsonData, // The JSON data as the request body
 };
-fetch(url, requestOptions)
+/* fetch(url, requestOptions)
   .then(response => response.json())
   .then(responseData => {
     // Handle the response data
@@ -2116,7 +2111,27 @@ fetch(url, requestOptions)
   .catch(error => {
     // Handle errors
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
+  }); */
+
+  fetch(url, requestOptions)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(responseData => {
+    // Handle the response data
+    //console.log(responseData);
+    response_fill_form_efb(responseData);
+    if(localStorage.getItem('sendback'))localStorage.removeItem('sendback')
+  })
+  .catch(error => {
+    // Handle errors
+    console.log(error);
+    response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
   });
+
   if(document.getElementById('prev_efb') && document.getElementById('prev_efb').classList.contains('d-none')==false)document.getElementById('prev_efb').classList.add('d-none')
   if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('d-none')==false)document.getElementById('next_efb').classList.add('d-none')
  
@@ -2135,7 +2150,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     body: jsonData, // The JSON data as the request body
   };
   
-  fetch(url, requestOptions)
+/*   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
@@ -2154,7 +2169,34 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
-    });
+    }); */
+
+  fetch(url, requestOptions)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+    }
+    return response.json();
+  })
+  .then(responseData => {
+    // Handle the response data
+    if (document.getElementById('vaid_check_emsFormBuilder')) {
+      document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn;
+      document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
+    }
+    response_Valid_tracker_efb(responseData);
+    efb_var.nonce_msg = responseData.data.nonce_msg;
+    efb_var.msg_id = responseData.data.id;
+  })
+  .catch(error => {
+    // Handle errors
+    console.error(error.message); // Log the error message
+    if (document.getElementById('vaid_check_emsFormBuilder')) {
+      document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn;
+      document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
+    }
+    response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
+  });
   
   
 }//end function post_api_tracker_check_efb
@@ -2171,7 +2213,7 @@ post_api_r_message_efb=(data,message)=>{
     headers,
     body: jsonData, // The JSON data as the request body
   };
-  fetch(url, requestOptions)
+/*   fetch(url, requestOptions)
     .then(response => response.json())
     .then(responseData => {
       // Handle the response data
@@ -2180,10 +2222,78 @@ post_api_r_message_efb=(data,message)=>{
     .catch(error => {
       // Handle errors
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error } })
+    }); */
+    fetch(url, requestOptions)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Network response was not ok (HTTP ${response.status})`);
+      }
+      return response.json();
+    })
+    .then(responseData => {
+      // Handle the response data
+      response_rMessage_id(responseData, message);
+      sendBack_emsFormBuilder_pub = [];
+    })
+    .catch(error => {
+      // Handle errors
+      console.error(error.message); // Log the error message
+      response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
     });
   
   
 }
+
+
+
+/* log error */
+/* function parseConsoleLogsForErrors() {
+  const logHistory = [];
+  
+  // Capture console.log and console.error messages
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  console.log = function (...args) {
+    originalLog.apply(console, args);
+    logHistory.push({ type: 'log', message: args.join(' ') });
+  };
+
+  console.error = function (...args) {
+    originalError.apply(console, args);
+    logHistory.push({ type: 'error', message: args.join(' ') });
+  };
+
+  // Function to check for errors in the log history
+  function checkForErrors() {
+    const errorLogs = logHistory.filter(entry => entry.type === 'error');
+
+    if (errorLogs.length > 0) {
+      console.error('Errors detected:');
+      errorLogs.forEach(entry => {
+        console.error(entry.message);
+      });
+    } else {
+      console.log('No errors found in the last 2 minutes.');
+     
+    }
+
+    // Clear the log history
+    logHistory.length = 0;
+  }
+
+  // Set up a timer to run the error check every 2 minutes (120,000 milliseconds)
+  const interval = 15000; // 2 minutes
+  setInterval(checkForErrors, interval);
+} */
+
+// Start parsing console logs for errors
+/* parseConsoleLogsForErrors(); */
+
+// Example usage:
+/* console.log('This is a normal log message.');
+console.error('This is an error message.'); */
+
 
 
 

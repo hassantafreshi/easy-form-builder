@@ -123,14 +123,10 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
             <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
             <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
            `
-           if(valj_efb[indx_parent].type!='stateProvince'){
-
-             optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
-           }
-         // optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
+          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
         } else {
           state_local.sort();
-          console.log(state_local);
           let optn = '<!-- list of states -->'
           let count =0;
           for (let i = 0; i < state_local.length; i++) {
@@ -432,8 +428,8 @@ function fun_clear_esign_efb(id) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  /* map section */
-let map;
+  /* map_efb section */
+let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
 function initMap(disabled) {
@@ -448,14 +444,14 @@ function initMap(disabled) {
       alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
       return 0;
     }
-    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
+    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map_efb = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
       zoom: zoom,
       center: location,
       mapTypeId: "roadmap",
     });
     if (mark != 0 && mark != -1) {
       if (disabled)return;
-      map.addListener("click", (event) => {
+      map_efb.addListener("click", (event) => {
         const latlng = event.latLng.toJSON();
         if (mark_maps_efb.length < mark) {
           mark_maps_efb.push(latlng);
@@ -473,7 +469,7 @@ function initMap(disabled) {
         const marker = new google.maps.Marker({
           position,
           label: lab,
-          map,
+          map_efb,
         });
         markers_maps_efb.push(marker);
       }
@@ -498,7 +494,7 @@ function addMarker(position) {
     const marker = new google.maps.Marker({
       position,
       label: lab,
-      map,
+      map_efb,
     });
     markers_maps_efb.push(marker);
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -507,10 +503,10 @@ function addMarker(position) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  // Sets the map on all markers_maps_efb in the array.
-  function setMapOnAll(map) {
+  // Sets the map_efb on all markers_maps_efb in the array.
+  function setMapOnAll(map_efb) {
     for (let i = 0; i < markers_maps_efb.length; i++) {
-      markers_maps_efb[i].setMap(map);
+      markers_maps_efb[i].setMap(map_efb);
     }
   }
   // Removes the markers_maps_efb from the map, but keeps them in the array.
@@ -519,7 +515,7 @@ function addMarker(position) {
   }
   // Shows any markers_maps_efb currently in the array.
   function showmarkers_maps_efb() {
-    setMapOnAll(map);
+    setMapOnAll(map_efb);
   }
   // Deletes all markers_maps_efb in the array by removing references to them.
   function deletemarkers_maps_efb_efb() {
@@ -687,9 +683,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
     if (document.getElementById(rndm+"_").value.trim()) {
       if (iti.isValidNumber()) {
         document.getElementById(rndm+"_").classList.add("border-success");
-        const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
-          let value = `+${iti.s.dialCode}${mobile_no}`;
-          console.log(value);
+          let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");

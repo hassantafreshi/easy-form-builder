@@ -553,7 +553,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : __('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : __('Persia payment','easy-form-builder'),				
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : __('Activate the Pro version.','easy-form-builder'),				
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $NN/year.','easy-form-builder'),				
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : __('You are using the free version.  Activate pro version now to get access to more and Advanced Professional features for only $12.09/yearly.','easy-form-builder'),				
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : __('Add-on','easy-form-builder'),				
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : __('Add-ons','easy-form-builder'),				
 			"stripeTAddon" => $state  &&  isset($ac->text->stripeTAddon) ? $ac->text->stripeTAddon : __('Stripe Payment Addon','easy-form-builder'),				
@@ -582,7 +582,7 @@ class efbFunction {
 			"clsdrspn" => $state  &&  isset($ac->text->clsdrspn) ? $ac->text->clsdrspn : __('The response has been closed by Admin.','easy-form-builder'),				
 			"clsdrspo" => $state  &&  isset($ac->text->clsdrspo) ? $ac->text->clsdrspo : __('The response has been opened by Admin.','easy-form-builder'),				
 			"open" => $state  &&  isset($ac->text->open) ? $ac->text->open : __('Open','easy-form-builder'),				
-			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('$NN/year','easy-form-builder'),				
+			"priceyr" => $state  &&  isset($ac->text->priceyr) ? $ac->text->priceyr : __('12.09$/year','easy-form-builder'),				
 			"cols" => $state  &&  isset($ac->text->cols) ? $ac->text->cols : __('columns','easy-form-builder'),				
 			"col" => $state  &&  isset($ac->text->col) ? $ac->text->col : __('column','easy-form-builder'),				
 			"ilclizeFfb" => $state  &&  isset($ac->text->ilclizeFfb) ? $ac->text->ilclizeFfb : __('I would like to localize Easy Form Builder.','easy-form-builder'),				
@@ -688,24 +688,7 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			/* new phrase v3 */
-			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
-			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS notification texts','easy-form-builder'),
-			"smsNotiMA" => $state  &&  isset($ac->text->smsNotiMA) ? $ac->text->smsNotiMA : __('The SMS should include your website address','easy-form-builder'),
-			"adrss_vld" => $state  &&  isset($ac->text->adrss_vld) ? $ac->text->adrss_vld : __('Enable Postal Code validation for addresses','easy-form-builder'),
-			"adrss_pc" => $state  &&  isset($ac->text->adrss_pc) ? $ac->text->adrss_pc : __('Enable Postal Code validation','easy-form-builder'),
-			"pc_inc_m" => $state  &&  isset($ac->text->pc_inc_m) ? $ac->text->pc_inc_m : __('The postal code is incorrect.','easy-form-builder'),
-			"adrss_inc_m" => $state  &&  isset($ac->text->adrss_inc_m) ? $ac->text->adrss_inc_m : __('The Address is incorrect.','easy-form-builder'),
-			"cities" => $state  &&  isset($ac->text->cities) ? $ac->text->cities : __('cities','easy-form-builder'),
-			"list" => $state  &&  isset($ac->text->list) ? $ac->text->list : __('XXX list','easy-form-builder'),
-			"dftuwln" => $state  &&  isset($ac->text->dftuwln) ? $ac->text->dftuwln : __('Display forms to users who are logged in.','easy-form-builder'),
-			"dftuwp" => $state  &&  isset($ac->text->dftuwp) ? $ac->text->dftuwp : __('Display forms to users who have the password.','easy-form-builder'),
-			"fSiz_l_dy" => $state &&  isset($ac->text->fSiz_l_dy) ? $ac->text->fSiz_l_dy : __('The uploaded file exceeds the allowable limit of  XXX MB.','easy-form-builder'),
-			"fSiz_s_dy" => $state &&  isset($ac->text->fSiz_s_dy) ? $ac->text->fSiz_s_dy : __('The uploaded file is below the required minimum size of XXX MB.','easy-form-builder'),
-			"lb_m_fSiz" => $state &&  isset($ac->text->lb_m_fSiz) ? $ac->text->lb_m_fSiz : __('Maximum File Size','easy-form-builder'),
-			"lb_mi_fSiz" => $state &&  isset($ac->text->lb_mi_fSiz) ? $ac->text->lb_mi_fSiz : __('Minmum File Size','easy-form-builder'),
-			"pss" => $state &&  isset($ac->text->pss) ? $ac->text->pss : __('Passwords','easy-form-builder'),
-
+			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -733,10 +716,10 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-		
-				
+				//error_log('===>send_email_state');
+				//error_log(json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-			   $mailResult = "n";
+			   	$mailResult = "n";
 			
 				$support="";
 				
@@ -752,7 +735,35 @@ class efbFunction {
 				   
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
 				if($to!=$support && $state!="reportProblem"){
-					 $mailResult =  wp_mail( $to,$sub, $message, $headers ) ;}
+					 $to_ ="";
+					 if(gettype($to)!='string'){
+						foreach ($to as $key => $value) {
+							//error_log('val email========>');
+							if (strlen($value)>2 ) {
+								//error_log($value);
+								if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
+								}else{
+									//$reply_to_emails .=$value .' <'.$value .'>';
+									$mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+								}
+
+							}
+
+						}
+
+						//if($reply_to_emails!=""){$reply_to_emails =substr($reply_to_emails, 0, -1); array_push($headers, 'Reply-To:' .$reply_to_emails);}
+						/* error_log(json_encode($headers));
+						error_log(json_encode($to)); */
+					 }else{
+						//error_log('===>to string');
+						$to_=$to;
+					 }
+					 //error_log($state);
+					 /* error_log(json_encode($to_));
+					 error_log("=============>headers");
+					 error_log(json_encode($headers)); */
+					 $mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+				}
 				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
 				
 				if($state=="reportProblem" || $state =="testMailServer" )
@@ -812,7 +823,7 @@ class efbFunction {
 			$message ="<h1>".  $footer ."</h1>";
 			 if(strlen($st->activeCode)<5){
 				$message ="<h2>"
-				. str_replace('NN', '19.5', $lang["yFreeVEnPro"])."</h2>
+				.  $lang["yFreeVEnPro"] ."</h2>
 				<p>". $lang["createdBy"] ." WhiteStudio.team</p>
 				<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
 			 }
@@ -1145,14 +1156,14 @@ class efbFunction {
 
 
 	   public function addon_add_efb($value){
-		if($value!="AdnOF"){
+				if($value!="AdnOF"){
 
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             $request = wp_remote_get($u);
-            
+           
             if( is_wp_error( $request ) ) {
 				//sample_admin_notice__success
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );

@@ -278,7 +278,6 @@ function fun_emsFormBuilder_back() {
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-  stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   
   

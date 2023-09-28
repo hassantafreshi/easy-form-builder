@@ -92,7 +92,7 @@ function pro_show_efb(state) {
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
   <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',"19.5")} </button>
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr} </button>
   </div>
     <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
@@ -203,7 +203,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 
 
 function addNewElement(elementId, rndm, editState, previewSate) {
-  console.log(elementId, rndm, editState, previewSate);
+
   //editState == true when form is edit method
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
@@ -309,11 +309,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let minlen,maxlen,temp,col;
   let hidden =  previewSate == true  && valj_efb[iVJ].hasOwnProperty('hidden') &&  valj_efb[iVJ].hidden==1 ? 'd-none' : ''
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
-  let ps =  elementId == "html" ? 'col-md-12' : 'col-md-12'
-  if(pos[3]==""){
-     if( elementId=="firstName" || elementId=="lastName" 
-     || elementId=="country" || elementId=="statePro" || elementId=="city" || elementId=="zipcode") ps = 'col-md-6';
-  }
+  
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
   //console.log(elementId);
   switch (elementId) {
@@ -329,12 +325,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'firstName':
     case 'lastName':
     case 'datetime-local':
-    case 'zipcode':
-    case 'address_line':
-      
-     
-      
-      const type = elementId == "firstName" || elementId == "lastName" || elementId == "zipcode" || elementId == "address_line" ? 'text' : elementId;
+
+      const type = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
       maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
@@ -505,7 +497,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
           const prc = i.hasOwnProperty('price') ? Number(i.price):0;
-          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)} mt-1" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
+          optn += `<div class="efb  form-check ${col} ${elementId} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-parent="${i.parent}" data-id="${i.id_}" id="${i.id_}-v">
           <input class="efb  form-check-input emsFormBuilder_v ${pay}  ${valj_efb[iVJ].el_text_size} " data-tag="${dataTag}" data-type="${vtype}" data-vid='${rndm}' type="${vtype}" name="${i.parent}" value="${i.value}" id="${i.id_}" data-id="${i.id_}-id" data-op="${i.id_}"${previewSate != true ? 'readonly' : ''} ${disabled} ${checked}>
           ${elementId!='imgRadio'?` <label class="efb ${valj_efb[iVJ].hasOwnProperty('pholder_chl_value') ? 'col-8' :''}  ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].label_text_size} hStyleOpEfb " id="${i.id_}_lab" for="${i.id_}">${i.value}</label>`: fun_imgRadio_efb(i.id_,i.src,i)}
           ${elementId.includes('chl')!=false?`<input type="text" class="efb ${valj_efb[iVJ].el_text_color}  ${valj_efb[iVJ].el_height} checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="${i.id_}" data-type="${dataTag}" data-vid="" id="${i.id_}_chl" placeholder="${valj_efb[iVJ].pholder_chl_value}"  disabled>` :''}
@@ -619,7 +611,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += ` 
-        <setion class="efb ${sort}  row my-2 ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -644,8 +636,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'select':
     case 'paySelect':
-    case 'city':
-    case 'cityList':
+
       if (elementId == "select") pay = "";
       if (editState != false) {
         // if edit mode
@@ -679,7 +670,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
 
     case 'conturyList':
-    case 'country':
 
        optn= typeof countryList_el_pro_efb =="function"? countryList_el_pro_efb(rndm,rndm_1,op_3,op_4,editState) : "null";
        //ui =typeof headning_el_pro_efb =="function" ?headning_el_pro_efb (rndm,iVJ) :public_pro_message();
@@ -700,51 +690,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       break;
     case 'stateProvince':
-    case 'statePro':
-      
-    valj_efb.push(     
-      {
-        "id_": "NIR",
-        "dataId": "NIR-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "Northern Ireland",
-        "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
-        "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-      "id_": "ENG",
-      "dataId": "ENG-id",
-      "parent":rndm,
-      "type": "option",
-      "value": "England",
-      "id_op": "_E_n_g_l_a_n_d_",
-      "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-        "id_": "SCO",
-        "dataId": "SCO-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "Scotland",
-        "id_op": "_S_c_o_t_l_a_n_d_",
-        "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-        "id_": "WAL",
-        "dataId": "WAL-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "Wales",
-        "id_op": "_W_a_l_e_s_",
-        "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    }
-    );
-    
+
       optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, op_3, op_4, editState) :"null";
       ui = `
         ${label}
@@ -1057,16 +1003,15 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
   
 
-   
+    ps = elementId == "html" ? 'col-md-12' : 'col-md-12'
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     //data-toggle="tooltip" data-placement="top" title="Tooltip on top !!! " data-bs-custom-class="custom-tooltip" 
-    console.log(`ps[${ps}]`);
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `col-md-12 row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -1122,7 +1067,25 @@ const funSetPosElEfb = (dataId, position) => {
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 
 }
-
+const funSetAlignElEfb = (dataId, align, element) => {
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx == -1) { return }
+  switch (element) {
+    case 'label':
+      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
+      valj_efb[indx].label_align = align
+      break;
+    case 'description':
+      const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
+      elm.className = alignChangerElEfb(elm.className, align)
+      valj_efb[indx].message_align = align
+      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
+      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
+        elm.classList.add('mx-4')
+      }
+      break;
+  }
+}//justify-content-center
 
 
 const loadingShow_efb = (title) => {
@@ -1165,7 +1128,6 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
-  console.log('=================>btns')
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
@@ -1186,14 +1148,12 @@ let add_buttons_zone_efb = (state, id) => {
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
-  const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
-  console.log(btns_align);
   const s = `
-  <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
+  <div class="efb d-flex justify-content-center ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
     <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
-  <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
+  <div class="efb d-flex justify-content-center ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
   <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
   <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
@@ -1215,8 +1175,6 @@ const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); 
 const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, `${color}`); }
 const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded)/, `${value}`); }
 const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, `${value}`); }
-const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, `${value}`); }
-const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, `${value}`); }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, `${value}`); }
 
 
@@ -1825,12 +1783,10 @@ function previewFormEfb(state) {
 
 
 
-  if (content.length > 10){
-    const bgc = valj_efb[0].hasOwnProperty('prg_bar_color') ?valj_efb[0].prg_bar_color: 'btn-primary'
-     content += `</div>`
+  if (content.length > 10) content += `</div>`
     head = `${Number(valj_efb[0].show_icon)!=1 ? `<ul id="steps-efb" class="efb mb-2 px-2">${head}</ul>` : ''}
-    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100 ${bgc}"><div class="efb  progress-bar-efb   progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
-    `}
+    ${valj_efb[0].show_pro_bar == 0 || valj_efb[0].show_pro_bar == false ? `<div class="efb d-flex justify-content-center" id="f-progress-efb"><div class="efb progress mx-3 w-100"><div class="efb  progress-bar-efb  ${valj_efb[0].button_color} progress-bar-striped progress-bar-animated" role="progressbar"aria-valuemin="0" aria-valuemax="100"></div></div></div><br> ` : ``}
+    `
   const idn = state == "pre" ? "pre-form-efb" : "pre-efb";
   
   document.getElementById(id).classList.add(idn)
@@ -1870,7 +1826,7 @@ function previewFormEfb(state) {
     
 
   } else {
-    console.log('====>add to content');
+    
     //content is hold element and should added to a innerHTML
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
@@ -2187,10 +2143,9 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
-  console.log("addStyleColorBodyEfb",t, c, type, id);
   let ttype = "text";
   if(id==-1){
-    ttype =type;
+    ttype ="text";
   }else{
     ttype = valj_efb[id].type
   }
@@ -2217,9 +2172,6 @@ addStyleColorBodyEfb = (t, c, type, id) => {
     case 'radiobutton':
       tag = "input"
       break;
-    case 'btn':
-      tag = "btn"
-      break;
 
     default:
       tag = ""
@@ -2238,7 +2190,6 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 
 
 efb_add_costum_color=(t, c ,v , type)=>{
-  console.log('===>efb_add_costum_color',t, c ,v , type)
   //t colorDEfb-000e24
   //c #000e24
   //v = ""
@@ -2257,7 +2208,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
-  console.log("fun_addStyle_costumize_efb",val, key, indexVJ);
+  
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2271,9 +2222,8 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
       case 'clrdoneTitleEfb': type = "text"; color = valj_efb[indexVJ].clrdoneTitleEfb ? valj_efb[indexVJ].clrdoneTitleEfb.slice(-7) : ''; break;
       case 'clrdoniconEfb': type = "text"; color = valj_efb[indexVJ].clrdoniconEfb ? valj_efb[indexVJ].clrdoniconEfb.slice(-7) : ''; break;
       case 'clrdoneMessageEfb': type = "text"; color = valj_efb[indexVJ].clrdoneMessageEfb ? valj_efb[indexVJ].clrdoneMessageEfb.slice(-7) : ''; break;
-      case 'prg_bar_color': type = "btn"; color = valj_efb[0].prg_bar_color ? valj_efb[indexVJ].prg_bar_color.slice(-7) : ''; indexVJ=-1; break;
     }
-    //console.error(color, type, val,key,indexVJ ,valj_efb[0])
+    //console.log(color, type, val,key,indexVJ ,valj_efb[indexVJ])
     if (color != "") addStyleColorBodyEfb((`colorDEfb-${color.slice(1)}`), color.length>6 ? color.slice(-6) : color, type, indexVJ);
     //t=>[colorDEfb-tn-colorDEfb-ff5900] c=>[btn-colorDEfb-ff5900] btn
   }
@@ -2283,7 +2233,8 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 
 fun_offline_Efb = () => {
   let el = '';
-  const values = JSON.parse(localStorage.getItem('sendback'))
+  if(localStorage.hasOwnProperty('sendback')==false) return;
+  const values =   JSON.parse(localStorage.getItem('sendback'))
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
 

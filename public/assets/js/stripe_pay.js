@@ -93,7 +93,7 @@
             headers,
             body: jsonData, // The JSON data as the request body
             };
-              fetch(url, requestOptions)
+             /*  fetch(url, requestOptions)
               .then(response => response.json())
               .then(res => {
                 if(res.data.success==true){
@@ -120,7 +120,41 @@
             
                 alert_message_efb('Stripe', m, 120, 'danger')
                 btnStripeEfb.innerHTML = efb_var.text.payNow;
-              });
+              }); */
+
+  fetch(url, requestOptions)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+    }
+    return response.json();
+  })
+  .then(res => {
+    if (res && res.data && res.data.success === true) {
+      if (valj_efb[0].paymentmethod === "charge") {
+        stripe.confirmCardPayment(res.data.client_secret, {
+          payment_method: { card: numElm }
+        }).then(transStat => {
+          fun_trans_efb(transStat, res.data.transStat, res.data.id);
+        });
+      } else {
+        fun_trans_efb(transStat, res.data.transStat, res.data.id);
+      }
+    } else {
+      stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
+      btnStripeEfb.classList.remove('disabled');
+      btnStripeEfb.innerHTML = efb_var.text.payNow;
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    console.error(error.message);
+    btnStripeEfb.classList.remove('disabled');
+    const errorMessage = `<p class="efb h4">${efb_var.text.error} ${error.message}</p>`;
+    alert_message_efb('Stripe', errorMessage, 120, 'danger');
+    btnStripeEfb.innerHTML = efb_var.text.payNow;
+  });
+
                
             }//emd fun fetch api
       

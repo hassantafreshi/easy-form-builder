@@ -120,33 +120,67 @@ post_api_persiapay_efb=(data)=>{
   headers,
   body: jsonData, // The JSON data as the request body
   };
+  /* 
   fetch(url, requestOptions)
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+    }
+    return response.json();
+  })
   .then(res => {
-    if(res.data.success==true){
-                            
+    if (res && res.data && res.data.success === true) {
       document.getElementById('beforePay').classList.add('d-none');
-      window.open(res.data.url ,'_self');
-      PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb  fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
+      window.open(res.data.url, '_self');
+      PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
       <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
-    // efb_var.id= responseData.data.id;
-      localStorage.setItem('PayId',res.data.id);
-    // efb_var.payId= responseData.data.id;
-    sessionStorage.setItem("payId", res.data.id);
-  }else{                   
-      PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;                                 
+      localStorage.setItem('PayId', res.data.id);
+      sessionStorage.setItem("payId", res.data.id);
+    } else {
+      PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;
       btnEfb.classList.remove('disabled');
-      btnEfb.innerHTML="پرداخت";
-  }
-  PaymentState.classList.remove('d-none');
+      btnEfb.innerHTML = "پرداخت";
+    }
+    PaymentState.classList.remove('d-none');
   })
   .catch(error => {
     // Handle errors
-    console.error(error) ;  
-        btnEfb.classList.remove('disabled'); 
-        PaymentState.innerHTML =`<p class="h4">${efb_var.text.error}</p> ${error}`
-        btnEfb.innerHTML="پرداخت" 
-        PaymentState.classList.remove('d-none');
+    console.error(error.message);
+    btnEfb.classList.remove('disabled');
+    PaymentState.innerHTML = `<p class="h4">${efb_var.text.error}</p> ${error.message}`;
+    btnEfb.innerHTML = "پرداخت";
+    PaymentState.classList.remove('d-none');
+  });
+   */
+  fetch(url, requestOptions)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`پاسخ نتورک صحیح نیست (HTTP ${response.status})`);
+    }
+    return response.json();
+  })
+  .then(res => {
+    if (res && res.data && res.data.success === true) {
+      document.getElementById('beforePay').classList.add('d-none');
+      window.open(res.data.url, '_self');
+      PaymentState.innerHTML = `<div class="my-5"><h2 class="efb text-center mt-4 text-darkb fs-4">لطفا صبر کنید در حال انتقال به درگاه بانک</h2>
+      <h3 class="efb text-dark p-0 m-0 mt-1 text-center fs-5">برای انتقال سریعتر به درگاه بانک <a href="${res.data.url}">اینجا را کلیک کنید</a> </h3></div>`;
+      localStorage.setItem('PayId', res.data.id);
+      sessionStorage.setItem("payId", res.data.id);
+    } else {
+      PaymentState.innerHTML = `<div class="text-danger efb"> ${res.data.m}</div>`;
+      btnEfb.classList.remove('disabled');
+      btnEfb.innerHTML = "پرداخت";
+    }
+    PaymentState.classList.remove('d-none');
+  })
+  .catch(error => {
+    // Handle errors
+    console.error(error.message);
+    btnEfb.classList.remove('disabled');
+    PaymentState.innerHTML = `<p class="h4">${efb_var.text.error}</p> ${error.message}`;
+    btnEfb.innerHTML = "پرداخت";
+    PaymentState.classList.remove('d-none');
   });
  
   
