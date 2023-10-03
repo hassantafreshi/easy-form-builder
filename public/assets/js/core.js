@@ -1,5 +1,6 @@
 
 
+
 let exportView_emsFormBuilder = [];
 let stepsCount;
 let sendBack_emsFormBuilder_pub = [];
@@ -2246,55 +2247,4 @@ post_api_r_message_efb=(data,message)=>{
 
 
 
-/* log error */
-/* function parseConsoleLogsForErrors() {
-  const logHistory = [];
-  
-  // Capture console.log and console.error messages
-  const originalLog = console.log;
-  const originalError = console.error;
 
-  console.log = function (...args) {
-    originalLog.apply(console, args);
-    logHistory.push({ type: 'log', message: args.join(' ') });
-  };
-
-  console.error = function (...args) {
-    originalError.apply(console, args);
-    logHistory.push({ type: 'error', message: args.join(' ') });
-  };
-
-  // Function to check for errors in the log history
-  function checkForErrors() {
-    const errorLogs = logHistory.filter(entry => entry.type === 'error');
-
-    if (errorLogs.length > 0) {
-      console.error('Errors detected:');
-      errorLogs.forEach(entry => {
-        console.error(entry.message);
-      });
-    } else {
-      console.log('No errors found in the last 2 minutes.');
-     
-    }
-
-    // Clear the log history
-    logHistory.length = 0;
-  }
-
-  // Set up a timer to run the error check every 2 minutes (120,000 milliseconds)
-  const interval = 15000; // 2 minutes
-  setInterval(checkForErrors, interval);
-} */
-
-// Start parsing console logs for errors
-/* parseConsoleLogsForErrors(); */
-
-// Example usage:
-/* console.log('This is a normal log message.');
-console.error('This is an error message.'); */
-
-
-
-
- 
