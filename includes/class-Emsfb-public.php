@@ -188,10 +188,12 @@ class _Public {
 		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		if($this->pro_efb==1){
 			$efb_m= "" ;
+			if(strpos($value , '\"pro\":\"1\"') ){
 				/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.7');
 				wp_enqueue_script('efb-pro-els');  */
 				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.7');
 				wp_enqueue_script('efb-pro-els'); 
+				}
 		
 				if($typeOfForm=="payment"){
 					$this->setting= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  $this->get_setting_Emsfb('setting');
@@ -200,6 +202,7 @@ class _Public {
 						$setting =str_replace('\\', '', $r);
 						$setting =json_decode($setting);
 						$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+						
 						if(isset($setting->activeCode) &&  md5($server_name) ==$setting->activeCode){$pro=true;}
 						if(strpos($value , '\"type\":\"stripe\"') || strpos($value , '"type":"stripe"')){$paymentType="stripe";}
 						else if(strpos($value , '\"type\":\"persiaPay\"') || strpos($value , '"type":"persiaPay"')){
@@ -220,6 +223,8 @@ class _Public {
 									wp_enqueue_script('parsipay_js');
 								}
 						}
+
+						
 					}//end if payment
 					$ar_core = array_merge($ar_core , array(
 						'paymentGateway' =>$paymentType,
@@ -445,8 +450,8 @@ class _Public {
 		wp_enqueue_script('core_js'); */
 		wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), true,'3.6.11');
 		wp_enqueue_script('core_js');
-		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.6.11');
-		wp_enqueue_style('Emsfb-bootstrap-icons-css');
+		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.6.11');
+		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
 		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), true,'3.6.11');
 		wp_enqueue_script('efb-main-js'); */ 		
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), true,'3.6.11');

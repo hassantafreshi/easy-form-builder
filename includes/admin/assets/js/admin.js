@@ -2514,7 +2514,7 @@ function obj_resort_row(step) {
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  //console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
+  console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
   
   const testb = valj_efb.length;
   amount_el_efb = amount_el_efb ?amount_el_efb: (valj_efb[testb-1].amount +1);
@@ -2523,6 +2523,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   const txt_color = elementId != "yesNo" ? pub_el_text_color_efb : pub_txt_button_color_efb
   p=()=>{const l =fields_efb.find(x=>x.id == elementId);  return l && l.hasOwnProperty('pro')? l.pro :0} ;
   let pro = p();
+  console.log(`pro[${pro}]`);
   let size = 100;
   
   let type = elementId;
