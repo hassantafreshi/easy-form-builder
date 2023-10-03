@@ -3,6 +3,7 @@
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
+let interval_log_check_Efb =1000;
 let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
@@ -37,7 +38,7 @@ let pub_txt_button_color_efb='text-white';
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
-
+parseConsoleLogsForErrors_efb();
 efb_var_waitng = (time) => {
   setTimeout(() => {
 
@@ -203,7 +204,7 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 
 
 function addNewElement(elementId, rndm, editState, previewSate) {
-  console.log(elementId, rndm, editState, previewSate);
+
   //editState == true when form is edit method
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
@@ -619,7 +620,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const clss = valj_efb[iVJ].classes!="" ? 'efb1 '+valj_efb[iVJ].classes.replace(`,`, ` `) : "";
         const sort = iVJ<3 ? 'unsortable'  : 'sortable';
         newElement += ` 
-        <setion class="efb ${sort}  row my-2 ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
+        <setion class="efb ${sort}  row my-2  ${shwBtn} efbField stepNavEfb stepNo ${clss}" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}">
        <!-- <div class="efb  row my-2  ${shwBtn} efbField ${valj_efb[iVJ].classes.replace(`,`, ` `)} stepNavEfb" data-step="${valj_efb[iVJ].id_}" id="${valj_efb[iVJ].id_}" data-amount="${step_el_efb}" data-id="${valj_efb[iVJ].id_}" data-tag="${elementId}"> -->
         <h2 class="efb  col-md-10 col-sm-12 mx-2 my-0"><i class="efb  ${valj_efb[iVJ].icon} ${valj_efb[iVJ].label_text_size} ${valj_efb[iVJ].icon_color} "
         id="${valj_efb[iVJ].id_}_icon"></i> <span id="${valj_efb[iVJ].id_}_lab" class="efb  ${valj_efb[iVJ].label_text_size}  ${valj_efb[iVJ].label_text_color}  ">${valj_efb[iVJ].name}</span></span></h2>
@@ -1066,7 +1067,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
-    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `col-md-12 row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
+    <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps} row`} col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
@@ -2283,7 +2284,8 @@ fun_addStyle_costumize_efb = (val, key, indexVJ) => {
 
 fun_offline_Efb = () => {
   let el = '';
-  const values = JSON.parse(localStorage.getItem('sendback'))
+  if(localStorage.hasOwnProperty('sendback')==false) return;
+  const values =   JSON.parse(localStorage.getItem('sendback'))
   for (let value of values) {
     sendBack_emsFormBuilder_pub.push(value);
 
@@ -3005,7 +3007,7 @@ fun_captcha_load_efb = ()=>{
 
 
  function fun_send_mail_emsFormBuilder(id,nonce,type_) {
-  
+  console.log('fun_send_mail_emsFormBuilder');
 
  const data = {
     action: "mail_send_submited_Emsfb",
@@ -3044,3 +3046,65 @@ fetch(url, requestOptions)
 
 
 }
+
+
+
+/* log error */
+function parseConsoleLogsForErrors_efb() {
+  
+  const logHistory = [];
+ 
+  // Capture console.log and console.error messages
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  console.log = function (...args) {
+    originalLog.apply(console, args);
+    logHistory.push({ type: 'log', message: args.join(' ') });
+  };
+
+  console.error = function (...args) {
+    originalError.apply(console, args);
+    logHistory.push({ type: 'error', message: args.join(' ') });
+  };
+
+  // Function to check for errors in the log history
+  function checkForErrors() {
+    //console.log('checkForErrors');
+    interval_log_check_Efb += interval_log_check_Efb *2;
+    //console.log(interval_log_check_Efb);
+    const errorLogs = logHistory.filter(entry => entry.type === 'error');
+
+    if (errorLogs.length > 0) {
+      //console.error('Errors detected:');
+      //
+      let messages = `<!--efb --> <div> <div class="efb fs-6">${efb_var.text.wlogs} </div>`;
+     let count = 0;
+      errorLogs.forEach(entry => {
+        count += 1;
+      //  console.error(`Easy Form builder find this error:` + entry.message);
+        messages += `<div class="efb text-danger fs-7 mt-1"> ${count}- ${entry.message} </div>`;
+      });
+      if(document.querySelector('#wp-admin-bar-new-content')) alert_message_efb('', messages, 90, "warning")
+    } /* else {
+      console.log('No errors found in the last 2 minutes.');
+    } */
+
+    // Clear the log history
+    logHistory.length = 0;
+    //setInterval(checkForErrors, interval_log_check_Efb);
+    setTimeout(() => {
+      checkForErrors()
+    }, interval_log_check_Efb);
+  }
+
+  // Set up a timer to run the error check every 2 minutes (120,000 milliseconds)
+   // 2 minutes
+  checkForErrors()
+  
+}
+
+// Start parsing console logs for errors
+
+
+

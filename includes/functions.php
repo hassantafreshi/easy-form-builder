@@ -689,6 +689,8 @@ class efbFunction {
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
 			/* new phrase v3 */
+			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
+			"wlogs" => $state  &&  isset($ac->text->wlogs) ? $ac->text->wlogs : __('Warning:</br><i> This message is only displayed for site administrators. </i></br>  Easy Form Builder has detected errors in the console log that may potentially impact the functionality of Easy Form Builder. If this make issues with Easy Form Builder, contact the support <b>(whitestudio.team/support)</b> for assistance. errors:','easy-form-builder'),
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
 			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS notification texts','easy-form-builder'),
 			"smsNotiMA" => $state  &&  isset($ac->text->smsNotiMA) ? $ac->text->smsNotiMA : __('The SMS should include your website address','easy-form-builder'),
@@ -733,15 +735,12 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-		
-				
+				//error_log('===>send_email_state');
+				//error_log(json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-			   $mailResult = "n";
+			   	$mailResult = "n";
 			
-				$support="";
 				
-				$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
-				foreach($a as $i){$support .=chr($i);}
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
@@ -749,15 +748,46 @@ class efbFunction {
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
-				   
+				   error_log($state);
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
-				if($to!=$support && $state!="reportProblem"){
-					 $mailResult =  wp_mail( $to,$sub, $message, $headers ) ;}
+				if( $state!="reportProblem"){
+					 $to_ ="";
+					 if(gettype($to)!='string'){
+						foreach ($to as $key => $value) {
+							//error_log('val email========>');
+							if (strlen($value)>2 ) {
+								//error_log($value);
+								if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
+								}else{
+									//$reply_to_emails .=$value .' <'.$value .'>';
+									$mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+								}
+
+							}
+
+						}
+
+						//if($reply_to_emails!=""){$reply_to_emails =substr($reply_to_emails, 0, -1); array_push($headers, 'Reply-To:' .$reply_to_emails);}
+						/* error_log(json_encode($headers));
+						error_log(json_encode($to)); */
+					 }else{
+						//error_log('===>to string');
+						$to_=$to;
+					 }
+					 //error_log($state);
+					 /* error_log(json_encode($to_));
+					 error_log("=============>headers");
+					 error_log(json_encode($headers)); */
+					 $mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					 
+				}
 				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
 				
-				if($state=="reportProblem" || $state =="testMailServer" )
-				{
-					
+				if($state=="reportProblem" || $state =="testMailServer" ){
+					$support="";
+				
+					$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
+					foreach($a as $i){$support .=chr($i);}	
 					
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
@@ -776,6 +806,7 @@ class efbFunction {
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    //error_log('done!');
 			   return $mailResult;
 		}
 
@@ -1145,14 +1176,14 @@ class efbFunction {
 
 
 	   public function addon_add_efb($value){
-		if($value!="AdnOF"){
+				if($value!="AdnOF"){
 
             // اگر لینک دانلود داشت
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             $request = wp_remote_get($u);
-            
+           
             if( is_wp_error( $request ) ) {
 				//sample_admin_notice__success
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );
@@ -1265,7 +1296,7 @@ class efbFunction {
 	public function update_message_admin_side_efb(){
 		$text = ["wmaddon"];
         $lang= $this->text_efb($text);
-		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'>⚠️</h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
 	}
 
 	function admin_notice_msg_efb($s) {

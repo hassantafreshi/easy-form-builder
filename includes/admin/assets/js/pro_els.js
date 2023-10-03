@@ -432,8 +432,8 @@ function fun_clear_esign_efb(id) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  /* map section */
-let map;
+  /* map_efb section */
+let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
 function initMap(disabled) {
@@ -448,14 +448,14 @@ function initMap(disabled) {
       alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
       return 0;
     }
-    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
+    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map_efb = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
       zoom: zoom,
       center: location,
       mapTypeId: "roadmap",
     });
     if (mark != 0 && mark != -1) {
       if (disabled)return;
-      map.addListener("click", (event) => {
+      map_efb.addListener("click", (event) => {
         const latlng = event.latLng.toJSON();
         if (mark_maps_efb.length < mark) {
           mark_maps_efb.push(latlng);
@@ -473,7 +473,7 @@ function initMap(disabled) {
         const marker = new google.maps.Marker({
           position,
           label: lab,
-          map,
+          map_efb,
         });
         markers_maps_efb.push(marker);
       }
@@ -498,7 +498,7 @@ function addMarker(position) {
     const marker = new google.maps.Marker({
       position,
       label: lab,
-      map,
+      map_efb,
     });
     markers_maps_efb.push(marker);
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -507,10 +507,10 @@ function addMarker(position) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  // Sets the map on all markers_maps_efb in the array.
-  function setMapOnAll(map) {
+  // Sets the map_efb on all markers_maps_efb in the array.
+  function setMapOnAll(map_efb) {
     for (let i = 0; i < markers_maps_efb.length; i++) {
-      markers_maps_efb[i].setMap(map);
+      markers_maps_efb[i].setMap(map_efb);
     }
   }
   // Removes the markers_maps_efb from the map, but keeps them in the array.
@@ -519,7 +519,7 @@ function addMarker(position) {
   }
   // Shows any markers_maps_efb currently in the array.
   function showmarkers_maps_efb() {
-    setMapOnAll(map);
+    setMapOnAll(map_efb);
   }
   // Deletes all markers_maps_efb in the array by removing references to them.
   function deletemarkers_maps_efb_efb() {

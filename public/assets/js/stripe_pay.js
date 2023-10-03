@@ -93,7 +93,7 @@
             headers,
             body: jsonData, // The JSON data as the request body
             };
-              fetch(url, requestOptions)
+             /*  fetch(url, requestOptions)
               .then(response => response.json())
               .then(res => {
                 if(res.data.success==true){
@@ -120,7 +120,41 @@
             
                 alert_message_efb('Stripe', m, 120, 'danger')
                 btnStripeEfb.innerHTML = efb_var.text.payNow;
-              });
+              }); */
+
+  fetch(url, requestOptions)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Network response was not ok (HTTP ${response.status})`);
+    }
+    return response.json();
+  })
+  .then(res => {
+    if (res && res.data && res.data.success === true) {
+      if (valj_efb[0].paymentmethod === "charge") {
+        stripe.confirmCardPayment(res.data.client_secret, {
+          payment_method: { card: numElm }
+        }).then(transStat => {
+          fun_trans_efb(transStat, res.data.transStat, res.data.id);
+        });
+      } else {
+        fun_trans_efb(transStat, res.data.transStat, res.data.id);
+      }
+    } else {
+      stsStripeEfb.innerHTML = `<div class="text-danger"><strong>${efb_var.text.error}</strong></div>`;
+      btnStripeEfb.classList.remove('disabled');
+      btnStripeEfb.innerHTML = efb_var.text.payNow;
+    }
+  })
+  .catch(error => {
+    // Handle errors
+    console.error(error.message);
+    btnStripeEfb.classList.remove('disabled');
+    const errorMessage = `<p class="efb h4">${efb_var.text.error} ${error.message}</p>`;
+    alert_message_efb('Stripe', errorMessage, 120, 'danger');
+    btnStripeEfb.innerHTML = efb_var.text.payNow;
+  });
+
                
             }//emd fun fetch api
       
@@ -178,89 +212,7 @@
           }else{
             if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
           }
-<<<<<<< HEAD
-  
-  
-        }
-  
-        
-        fun_trans_efb = (transStat, data, trackid) => {
-          /*             
-                       */
-          if (transStat.error) {
-            stsStripeEfb.innerHTML = `
-                <strong>${efb_var.text.error}  </string> ${transStat.error.message}
-                `
-            alert_message_efb(efb_var.text.error, transStat.error.message, 10, 'warning')
-            btnStripeEfb.classList.remove('disabled');
-            btnStripeEfb.innerHTML = efb_var.text.payNow
-          }
-          else {
-            const id = valj_efb[0].steps == 1 ? 'btn_send_efb' : 'next_efb';
-            
-            
-            if (((valueJson_ws[0].captcha == true && sitekye_emsFormBuilder.length > 1 &&
-              grecaptcha.getResponse().length > 2) || valueJson_ws[0].captcha == false)) document.getElementById(id).classList.remove('disabled')
-            fun_disabled_all_pay_efb()
-            // efb_var.id = data.uid;  
-            val = `            
-                
-                <p class="efb  text-muted p-0 m-0"><b>${efb_var.text.transctionId}:</b> ${data.paymentIntent}</p>
-                <!-- <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : ${data.total} ${data.paymentcurrency.toUpperCase()}</p>-->
-                <p class="efb  text-muted p-0 m-0 "><b>${efb_var.text.payAmount}</b> : 
-                ${Number(data.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: data.paymentcurrency })}</p>
-                <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.ddate}</b>: ${data.paymentCreated}</p>
-                `;
-            if (valj_efb[0].paymentmethod != "charge") {
-              val += `             
-                   <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.interval}</b>: ${data.interval}</p>
-                   <p class="efb text-muted p-0 m-0 mb-1"><b>${efb_var.text.nextBillingD}</b> : ${data.nextDate}</p>`
-            }
-            
-            stsStripeEfb.innerHTML = `
-                <h3 class="efb  text-darkb p-0 m-0 mt-1 text-center"><i class="efb bi-check2-circle"></i> ${efb_var.text.successPayment}</h3>
-                <p class="efb  text-muted p-0  m-0 mb-2 text-center">${data.description}</p>
-                <div class="m-3">${val}</div>`;
-  
-            let o = [{
-              amount: 0,
-              id_: "payment",
-              name: "Payment",
-              paymentAmount: data.amount,
-              paymentCreated: data.created,
-              paymentGateway: "stripe",
-              paymentIntent: data.paymentIntent,
-              paymentcurrency: data.currency,
-              payment_method: 'card',
-              type: "payment",
-              paymentmethod: data.paymentmethod,
-              value: `${data.val}`
-            }];
-            efb_var.id = trackid;
-            localStorage.setItem('PayId',trackid);
-            //console.log(id)
-            //console.log(o)
-            sendBack_emsFormBuilder_pub.push(o[0])
-            btnStripeEfb.innerHTML = "Done"
-            btnStripeEfb.style.display = "none";
-            jQuery("#statusStripEfb").show("slow")
-            //active next or send button !!
-            //disable button
-          }
-          stsStripeEfb.style.display = 'block'
-        }
-      })//end  btnStripeEfb
-  
-  
-    }else{
-      if (efb_var.pro==true || efb_var.pro=="true") alert_message_efb(efb_var.text.error, `${efb_var.text.errorCode}: ${efb_var.text.payment}->${efb_var.text.proVersion}`, 100, 'danger');
-    }
-  
-  
-  }//end fun_add_stripe_efb
-=======
           fun_trans_efb = (transStat, data, trackid) => {
->>>>>>> v3
 
             if (transStat.error) {
               stsStripeEfb.innerHTML = `
