@@ -128,7 +128,10 @@ class _Public {
 				$this->id =-1;
 				return $this->EMS_Form_Builder_track();
 			}
+		}else{
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
 		}
+		
 		$this->public_scripts_and_css_head();
 		$state="";
 		$pro=  $this->pro_efb;
@@ -137,11 +140,7 @@ class _Public {
 		$ar_core = array( 'sid'=>$sid);
 		/* $table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$row_id'" ); */
-		if($value_form==null){
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
-		}/* else{
-			$this->fun_convert_form_structer($value_form[0]->form_structer);
-		} */
+	
 		$typeOfForm =$value_form[0]->form_type;
 		$value = $value_form[0]->form_structer;
 		//error_log($value);
@@ -162,14 +161,15 @@ class _Public {
 		]];
 	
 		$pattern = '/bi-[a-zA-Z0-9-]+/';
-		 preg_match_all($pattern, $value, $icons_);
+		 preg_match_all($pattern, $value, $icons_ );
 
 		$value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
 		//error_log(json_encode($icons_));
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
 		$state="form";		
-		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
+		$multi_exist = strpos($value , '"type\":\"multiselect\"');
+		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.6.11');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.6.11' );
@@ -188,11 +188,13 @@ class _Public {
 		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		if($this->pro_efb==1){
 			$efb_m= "" ;
-			if(strpos($value , '\"pro\":\"1\"') ){
-				/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.7');
-				wp_enqueue_script('efb-pro-els');  */
-				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.7');
-				wp_enqueue_script('efb-pro-els'); 
+			
+				$el_pro_load= strpos($value , '\"pro\":\"1\"');
+				if($el_pro_load==true){
+					/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.7');
+					wp_enqueue_script('efb-pro-els');  */
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.7');
+					wp_enqueue_script('efb-pro-els'); 
 				}
 		
 				if($typeOfForm=="payment"){
@@ -347,7 +349,9 @@ class _Public {
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
 		 if($formObj[0]["stateForm"]==true ){
-			$content ="<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
+			$content ="
+			".$this->bootstrap_icon_efb($icons_)."		 
+			<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
 			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
 			</div> </div>";
@@ -358,10 +362,9 @@ class _Public {
 			 ".$this->style_style_css()."
 			 ".$this->bootstrap_style_efb_(0)."
 			*/
-			 $content="
+			 $content="	
 			
 			 ".$this->bootstrap_icon_efb($icons_)."
-			
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
 			 <div class='efb lds-hourglass efb text-center my-2' style='display:inline-block'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
@@ -440,7 +443,10 @@ class _Public {
 			   'rest_url'=>get_rest_url(null),
 		 ));  
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
-	 	$content="<script>let sitekye_emsFormBuilder='' </script><div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
+	 	$content="<script>let sitekye_emsFormBuilder='' </script>
+		 ".$this->bootstrap_icon_efb($icons_)."
+		
+		<div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
