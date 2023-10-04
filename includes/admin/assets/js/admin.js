@@ -2,7 +2,7 @@
 // Created by: Hassan Tafreshi
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
-
+console.log('admin.js');
 let state_check_ws_p = 1;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
@@ -2969,8 +2969,10 @@ const obj_delete_row = (dataid, is_step) => {
 
   let step = 0
   let foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
-
-  if (foundIndex != -1 && is_step == true) { step = valj_efb[foundIndex].step }
+  if (foundIndex != -1 && is_step == true) {
+    step = Number(valj_efb[foundIndex].step)-1 ;
+   step_el_efb =step}
+  console.log(dataid , is_step ,foundIndex ,`steps[${step}]`);
   if (foundIndex != -1) {
     if (valj_efb[foundIndex].type == "maps") {
       document.getElementById('maps').draggable = true;
@@ -2987,15 +2989,35 @@ const obj_delete_row = (dataid, is_step) => {
       obj_delete_options(valj_efb[foundIndex].id_)
       //  foundIndex = Object.keys(valj_efb).length > 0 ? valj_efb.findIndex(x => x.dataId == dataid) : -1
     } else if (valj_efb[foundIndex].type == 'email' && valj_efb[0].email_to == valj_efb[foundIndex].id_) {
-      valj_efb[0].sendEmail = 0
+      //valj_efb[0].sendEmail = 0
+    // const vnoti = valj_efb.finda(x => x.noti == 1);
+     const vnoti = valj_efb.filter(obj => {
+      return obj.noti == 1
+    })
+     
+     let count =0;
+     if (Object.keys(vnoti).length === 0){
+      console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
       valj_efb[0].email_to = ''
+      valj_efb[0].sendEmail =0
+     }else{
+      console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
+       for(let i in vnoti){
+        //console.log('==============>',vnoti[i].noti, vnoti[i].id_);
+        if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 )count+=1;
+       }
+
+     }
+     valj_efb[0].sendEmail =count>0 ? 1 : 0;
+     valj_efb[0].email_to = ''
+     //console.log(`valj_efb[0].sendEmail[${valj_efb[0].sendEmail}]` ,count);
     }
 
     valj_efb.splice(foundIndex, 1);
   }
   if (is_step == true) {
     for (let ob of valj_efb) {
-      if (ob.step == step) ob.step = step - 1;
+      if (ob.step == step) ob.step = step ;
 
     }
   }
