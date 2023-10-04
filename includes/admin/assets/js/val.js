@@ -1296,7 +1296,7 @@ function show_setting_window_efb(idset) {
 
   
 
-  jQuery(document).ready(function(){jQuery("body").addClass("folded")})
+  //jQuery(document).ready(function(){jQuery("body").addClass("folded")})
 function remove_other_noti_Efb(){
   window.onload=(()=>{
     // remove all notifications from other plugins or wordpress
