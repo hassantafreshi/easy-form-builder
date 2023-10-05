@@ -831,7 +831,7 @@ function head_introduce_efb(state) {
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
 
   let cont = ``;
-  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('price')">
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
   ${efb_var.text.yFreeVEnPro}

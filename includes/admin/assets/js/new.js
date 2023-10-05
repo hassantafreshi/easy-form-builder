@@ -38,7 +38,7 @@ let pub_txt_button_color_efb='text-white';
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
-parseConsoleLogsForErrors_efb();
+//parseConsoleLogsForErrors_efb();
 efb_var_waitng = (time) => {
   setTimeout(() => {
 
@@ -3000,7 +3000,7 @@ fetch(url, requestOptions)
 
 
 /* log error */
-function parseConsoleLogsForErrors_efb() {
+/* function parseConsoleLogsForErrors_efb() {
   
   const logHistory = [];
  
@@ -3036,9 +3036,7 @@ function parseConsoleLogsForErrors_efb() {
         messages += `<div class="efb text-danger fs-7 mt-1"> ${count}- ${entry.message} </div>`;
       });
       if(document.querySelector('#wp-admin-bar-new-content')) alert_message_efb('', messages, 90, "warning")
-    } /* else {
-      console.log('No errors found in the last 2 minutes.');
-    } */
+    } 
 
     // Clear the log history
     logHistory.length = 0;
@@ -3052,7 +3050,7 @@ function parseConsoleLogsForErrors_efb() {
    // 2 minutes
   checkForErrors()
   
-}
+} */
 
 // Start parsing console logs for errors
 

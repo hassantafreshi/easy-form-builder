@@ -2433,6 +2433,10 @@ div#Listefb-150 {
    justify-content: right;
 }
 
+.efb.buy-noti {
+   background-color: #fefefeb5!important;
+   z-index: 100;
+}
 
 
 

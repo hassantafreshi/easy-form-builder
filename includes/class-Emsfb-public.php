@@ -113,6 +113,12 @@ class _Public {
 		wp_enqueue_script('efb_js'); */
 	}
 	public function EFB_Form_Builder($id){
+		//wp_deregister_script('jquery');
+		if (!wp_script_is('jquery', 'enqueued')) {
+			//When jQuery is not defined, run this if statement
+			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
+			wp_enqueue_script('jquery');
+		}
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 		if($admin_form==true && is_user_logged_in()==false){
@@ -339,6 +345,11 @@ class _Public {
 	}
 	public function EMS_Form_Builder_track(){
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
+		if (!wp_script_is('jquery', 'enqueued')) {
+			//When jQuery is not defined, run this if statement
+			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
+			wp_enqueue_script('jquery');
+		}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
 		//Confirmation Code show
@@ -425,6 +436,8 @@ class _Public {
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css' , true,'3.6.12' );
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
+
+		
 		$googleCaptcha=false;
 		/* v2 */
 		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.6.12' );
@@ -1514,8 +1527,7 @@ class _Public {
 			wp_send_json_success($response,$data_POST);
 		}
 	  }//end function 
-	  public function get_track_public_api($data_POST_) {	
-		//error_log('get_track_public_api')	;
+	  public function get_track_public_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
 		//$this->public_scripts_and_css_head();
 		if(empty($this->efbFunction)) $this->efbFunction =new efbFunction();
