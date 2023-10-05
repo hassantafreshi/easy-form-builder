@@ -690,7 +690,7 @@ class efbFunction {
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
 			/* new phrase v3 */
 			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
-			"wlogs" => $state  &&  isset($ac->text->wlogs) ? $ac->text->wlogs : __('Warning:</br><i> This message is only displayed for site administrators. </i></br>  Easy Form Builder has detected errors in the console log that may potentially impact the functionality of Easy Form Builder. If this make issues with Easy Form Builder, contact the support <b>(whitestudio.team/support)</b> for assistance. errors:','easy-form-builder'),
+			
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
 			"smsNotiM" => $state  &&  isset($ac->text->smsNotiM) ? $ac->text->smsNotiM : __('SMS notification texts','easy-form-builder'),
 			"smsNotiMA" => $state  &&  isset($ac->text->smsNotiMA) ? $ac->text->smsNotiMA : __('The SMS should include your website address','easy-form-builder'),

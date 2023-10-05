@@ -247,7 +247,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.5.18> WhiteStudio.team');
+console.info('Easy Form Builder 3.6.12> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -831,7 +831,7 @@ function head_introduce_efb(state) {
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
 
   let cont = ``;
-  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb" onclick="Link_emsFormBuilder('price')">
+  let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
   ${efb_var.text.yFreeVEnPro.replace('NN',"19.5")}
