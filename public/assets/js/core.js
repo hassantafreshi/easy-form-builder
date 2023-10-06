@@ -1200,7 +1200,7 @@ function valid_file_emsFormBuilder(id,tp) {
 
 
 function fun_tracking_show_emsFormBuilder() {
-  const time = pro_efb==true ? 10 :2100;
+  const time = pro_efb==true ? 10 :800;
   const getUrlparams = new URLSearchParams(location.search);
   efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
   //console.log(efb_var);
