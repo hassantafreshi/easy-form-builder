@@ -184,15 +184,15 @@ class Panel_edit  {
 				wp_enqueue_script('googleMaps-js');
 			}
 
-			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'), '3.6.12', true);
+			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.6.12' , true);
 			wp_enqueue_script('pay_js');
 	
 			if("fa_IR"==get_locale()){
-				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'), '3.6.12', true);
+				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.6.12' , true);
 				wp_enqueue_script('persia_pay');
 			}
 	
-			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'), '3.6.12', true);
+			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'),'3.6.12' , true);
 			wp_enqueue_script('stripe_js');
 			
 		
@@ -211,9 +211,9 @@ class Panel_edit  {
 			
 				/* new code v4 */
 			
-				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), '3.6.12', true);	
+				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.6.12');	
 				wp_enqueue_script('jquery-ui');
-				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), '3.6.12', true);	
+				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.6.12');	
 				wp_enqueue_script('jquery-dd'); 
 				/*end new code v4 */
 

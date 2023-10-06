@@ -146,9 +146,9 @@ class Addon {
 
 			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'), '3.6.12', true);	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.6.12', true);	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'), '3.6.12', true);	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.6.12' , true);	
 			wp_enqueue_script('jquery-dd'); 
 			/*end new code v4 */
 
@@ -226,8 +226,8 @@ class Addon {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 
-		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.12');
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.12');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.12');
+		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.12');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
