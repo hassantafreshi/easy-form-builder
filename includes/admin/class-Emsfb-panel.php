@@ -29,8 +29,14 @@ class Panel_edit  {
 	
   
 			}); */
-		
-			
+			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0];
+			$plugins_get = get_plugins();
+			error_log(gettype($plugins_get));
+			if (is_plugin_active('wp-sms/wp-sms.php')) {
+				error_log('finded');
+				$plugins['wpsms']=1;
+			}
+			$plugins_get =null;
 			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, true);	
 			wp_enqueue_script('gchart-js');
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
@@ -144,6 +150,7 @@ class Panel_edit  {
 				'colors'=>$colors,
 				'sid'=>$sid,
 				'rest_url'=>get_rest_url(null),
+				'plugins'=>$plugins
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.6.12');
@@ -349,7 +356,7 @@ class Panel_edit  {
 
 
 
-			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.6.12');
+			wp_register_script('Emsfb-list_form-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form.js', null, true,'3.6.13');
 			wp_enqueue_script('Emsfb-list_form-js');
 			wp_localize_script( 'Emsfb-list_form-js', 'ajax_object_efm',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			

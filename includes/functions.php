@@ -707,7 +707,14 @@ class efbFunction {
 			"lb_m_fSiz" => $state &&  isset($ac->text->lb_m_fSiz) ? $ac->text->lb_m_fSiz : __('Maximum File Size','easy-form-builder'),
 			"lb_mi_fSiz" => $state &&  isset($ac->text->lb_mi_fSiz) ? $ac->text->lb_mi_fSiz : __('Minmum File Size','easy-form-builder'),
 			"pss" => $state &&  isset($ac->text->pss) ? $ac->text->pss : __('Passwords','easy-form-builder'),
-
+			"sms_config" => $state &&  isset($ac->text->sms_config) ? $ac->text->sms_config : __('SMS Configuration','easy-form-builder'),
+			"sms_mp" => $state  &&  isset($ac->text->sms_mp) ? $ac->text->sms_mp : __('If you want to use SMS notifications in your forms, you must choose the SMS notification sending method.','easy-form-builder'),
+			"sms_ct" => $state  &&  isset($ac->text->sms_ct) ? $ac->text->sms_ct : __('Select the method to send SMS notifications','easy-form-builder'),
+			"sms_efbs" => $state  &&  isset($ac->text->sms_efbs) ? $ac->text->sms_efbs : __('Easy Form Builder SMS service','easy-form-builder'),
+			"sms_wpsmss" => $state  &&  isset($ac->text->sms_wpsmss) ? $ac->text->sms_wpsmss : __('WP SMS plugin','easy-form-builder'),
+			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : __('WP SMS plugin By VeronaLabs is not installed or activated. Please select another option, or install and configure WP SMS.','easy-form-builder'),
+			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : __('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s Add-ons page.','easy-form-builder'),
+			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : __('SMS notifications','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

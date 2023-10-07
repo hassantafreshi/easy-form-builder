@@ -7,6 +7,7 @@ let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
 let response_state_efb;
+let sms_config_efb ='null'
 
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
@@ -1101,10 +1102,11 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                             <button class="efb  nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
+                            <button class="efb  nav-link" id="nav-smsconfig-tab" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
                         </div>
                         </nav>
                         <div class="efb tab-content" id="nav-tabContent">
-                        <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
+                          <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
                             <!--General-->
                             <div class="efb m-3">
                                 <h5 class="efb  card-title mt-3 mobile-title">
@@ -1343,36 +1345,61 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
                         <div class="efb  mx-3 row col-12 mb-2">
                             <!--EmailTemplate-->
-                            <div class="efb  col-md-8 bg-back">
-                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                              <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp : ''}</textarea>                        
-                              <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
-                            </div>
+                              <div class="efb  col-md-8 bg-back">
+                                <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
+                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp : ''}</textarea>                        
+                                <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
+                              </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 
-                            <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
-                            <p class="efb  m-2 fs-6">
-                            ${efb_var.text.infoEmailTemplates}
-                            </br></br>
-                            <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
-                            </br></br> 
-                            <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
-                             </br></br>
-                            <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
-                            </p>
-                            </br></br>
-                            <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
+                              <p class="efb  m-2 fs-6">
+                              ${efb_var.text.infoEmailTemplates}
+                              </br></br>
+                              <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
+                              </br></br> 
+                              <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
+                              </p>
+                              </br></br>
+                              <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
                             </div>
                          
                             <!--End EmailTemplate-->
                         </div>
                     </div>
-                      
+                        <!-- smsconfig Section -->
+                        <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
+                          <div class="efb mx-3 my-2">
+                          
+                            <h5 class="efb  card-title mt-3 ">
+                              <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
+                            </h5>
+                            <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('smsconfig')" >${efb_var.text.help}</a></p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
+                                <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>      
+                                <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
+                                  <div class="efb     efb1 " data-css="sms_config_select" id="sms_config_select_options">
+                                       <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="efb_sms_service" id="efb_sms_service-v" >
+                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled " data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="efb_sms_service" id="efb_sms_service" data-id="efb_sms_service-id" data-op="efb_sms_service" onchange="checkRadio(this)">
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="efb_sms_service_lab" for="efb_sms_service">${efb_var.text.sms_efbs}</label>
+                                      </div>
+                                      <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
+                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="checkRadio(this)">
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
+                                      </div>
+                                  </div>
+                                </div>                                                                                         
+                              </div>
+                          </div>
+                        </div>
+                        <!-- smsconfig Section end-->
                         <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
                             <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>                  
@@ -1568,7 +1595,7 @@ function fun_set_setting_emsFormBuilder() {
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, 
          stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
-          scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,
+          scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
          AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP
@@ -2280,6 +2307,34 @@ function act_local_efb_event(t){
   }, 80);
 }
 
+
+function checkRadio(el){
+  console.log('test' ,el);
+  if(Number(efb_var.pro)!=1){
+    pro_show_efb(efb_var.text.proUnlockMsg) 
+    el.checked = false;
+    return;
+  } else if(valueJson_ws_setting.AdnSS!=1){
+    let m = efb_var.text.msg_adons.replace('NN',`<b>${efb_var.text.sms_noti}</b>`);
+    noti_message_efb(m, 'danger' , `content-efb` );
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 20000);
+    el.checked = false;
+    return;
+  }else if( efb_var.plugins.wpsms ==0 && el.id=="wp_sms_plugin"){
+   
+    noti_message_efb(efb_var.text.wpsms_nm, 'danger' , `content-efb` );
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 5000);
+    el.checked = false;
+    return;
+  }
+
+  if(el.id=="efb_sms_service"){
+    sms_config_efb='efb'
+  }else if(el.id=="wp_sms_plugin"){
+    sms_config_efb='wpsms'
+  }
+  
+}
 
 
 

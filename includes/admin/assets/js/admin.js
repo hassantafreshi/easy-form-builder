@@ -3585,7 +3585,7 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  //console.log(efb_var.pro , pro_ws)
+  console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
