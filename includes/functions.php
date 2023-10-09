@@ -1150,9 +1150,10 @@ class efbFunction {
 	   public function addon_adds_cron_efb(){
 		//error_log('addon_adds_cron_efb');
 		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
-		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
-		  }
+		//if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
+		//	wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
+		//  }
+		    $this->download_all_addons_efb();
 	   }//addon_adds_cron_efb
 
 
