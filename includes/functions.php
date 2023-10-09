@@ -688,8 +688,7 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
-			"wlogs" => $state  &&  isset($ac->text->wlogs) ? $ac->text->wlogs : __('Warning:</br><i> This message is only displayed for site administrators. </i></br>  Easy Form Builder has detected errors in the console log that may potentially impact the functionality of Easy Form Builder. If this make issues with Easy Form Builder, contact the support <b>(whitestudio.team/support)</b> for assistance. errors:','easy-form-builder'),
+			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -730,7 +729,7 @@ class efbFunction {
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
-				   error_log($state);
+				  //error_log($state);
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
 				if( $state!="reportProblem"){
 					 $to_ ="";

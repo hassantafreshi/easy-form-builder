@@ -3,7 +3,6 @@
 //Easy Form Builder
 //WhiteStudio.team
 //EFB.APP
-let interval_log_check_Efb =1000;
 let activeEl_efb = 0;
 let amount_el_efb = 1; //تعداد المان ها را نگه می دارد
 let step_el_efb = 0; // تعداد استپ ها
@@ -38,7 +37,7 @@ let pub_txt_button_color_efb='text-white';
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 
-//parseConsoleLogsForErrors_efb();
+
 efb_var_waitng = (time) => {
   setTimeout(() => {
 
@@ -1323,7 +1322,8 @@ function handle_navbtn_efb(steps, device) {
           }
           document.querySelector('[data-step="step-' + nxt + '-efb"]').classList.toggle("d-none");
           
-          next_s_efb.classList.remove('d-none');
+         if(next_s_efb) next_s_efb.classList.remove('d-none');
+        
          // next_s_efb.style.display = "block";
           current_s_efb += 1;
           localStorage.setItem("step", current_s_efb);
@@ -1386,7 +1386,8 @@ function handle_navbtn_efb(steps, device) {
           var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
           next_s_efb = current_s.nextElementSibling;
           current_s.classList.add('d-none');
-          next_s_efb.classList.remove('d-none');
+          if(next_s_efb)next_s_efb.classList.remove('d-none');
+          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
           //next_s_efb.style.display = "block";
           /* current_s.animate(
             { opacity_efb: 0 },
@@ -1445,7 +1446,7 @@ function prev_btn_efb() {
     }
   }
 
-  prev_s_efb = current_s.previousElementSibling;
+  prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
   
 
   var s = "" + (current_s_efb - 1) + "";
@@ -1992,14 +1993,19 @@ function previewFormEfb(state) {
 
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
+  console.log(stp,valj_efb[0].steps,current_s_efb )
+  //current_s_efb -=1;
+  console.log(stp,valj_efb[0].steps,current_s_efb )
   var wtn = loading_messge_efb();
   document.getElementById('efb-final-step').innerHTML = wtn;
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
-  prev_s_efb = current_s.previousElementSibling;
+  prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
+  console.log(prev_s_efb);
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
   document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
   if (stp == 2) {
     document.getElementById("btn_send_efb").classList.toggle("d-none");
+    if(document.getElementById("gRecaptcha")) document.getElementById("gRecaptcha").classList.toggle("d-none");
   } else {
     document.getElementById("next_efb").classList.toggle("d-none");
   }
@@ -2996,63 +3002,3 @@ fetch(url, requestOptions)
 
 
 }
-
-
-
-/* log error */
-/* function parseConsoleLogsForErrors_efb() {
-  
-  const logHistory = [];
- 
-  // Capture console.log and console.error messages
-  const originalLog = console.log;
-  const originalError = console.error;
-
-  console.log = function (...args) {
-    originalLog.apply(console, args);
-    logHistory.push({ type: 'log', message: args.join(' ') });
-  };
-
-  console.error = function (...args) {
-    originalError.apply(console, args);
-    logHistory.push({ type: 'error', message: args.join(' ') });
-  };
-
-  // Function to check for errors in the log history
-  function checkForErrors() {
-    //console.log('checkForErrors');
-    interval_log_check_Efb += interval_log_check_Efb *2;
-    //console.log(interval_log_check_Efb);
-    const errorLogs = logHistory.filter(entry => entry.type === 'error');
-
-    if (errorLogs.length > 0) {
-      //console.error('Errors detected:');
-      //
-      let messages = `<!--efb --> <div> <div class="efb fs-6">${efb_var.text.wlogs} </div>`;
-     let count = 0;
-      errorLogs.forEach(entry => {
-        count += 1;
-      //  console.error(`Easy Form builder find this error:` + entry.message);
-        messages += `<div class="efb text-danger fs-7 mt-1"> ${count}- ${entry.message} </div>`;
-      });
-      if(document.querySelector('#wp-admin-bar-new-content')) alert_message_efb('', messages, 90, "warning")
-    } 
-
-    // Clear the log history
-    logHistory.length = 0;
-    //setInterval(checkForErrors, interval_log_check_Efb);
-    setTimeout(() => {
-      checkForErrors()
-    }, interval_log_check_Efb);
-  }
-
-  // Set up a timer to run the error check every 2 minutes (120,000 milliseconds)
-   // 2 minutes
-  checkForErrors()
-  
-} */
-
-// Start parsing console logs for errors
-
-
-
