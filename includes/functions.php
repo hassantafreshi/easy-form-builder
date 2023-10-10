@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
-
+	public $val_state;
 	protected $db;
 	
 	public function __construct() {  
@@ -1150,10 +1150,10 @@ class efbFunction {
 	   public function addon_adds_cron_efb(){
 		//error_log('addon_adds_cron_efb');
 		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
-		//if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-		//	wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
-		//  }
-		    $this->download_all_addons_efb();
+		 if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
+			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
+			}
+		   
 	   }//addon_adds_cron_efb
 
 
@@ -1251,7 +1251,8 @@ class efbFunction {
 
 	public function download_all_addons_efb(){
 		//error_log("run download_all_addons_efb");
-		
+		if($this->val_state=='download_all_addons_efb'){return;}
+		$this->val_state='download_all_addons_efb';
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=$ac->AdnSPF;
 		$addons["AdnOF"]=$ac->AdnOF;
