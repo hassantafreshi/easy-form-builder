@@ -1052,7 +1052,7 @@ let change_el_edit_Efb = (el) => {
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
       if (el.value==null) return  valNotFound_efb()
-    //console.log(el.id)
+    console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1125,17 +1125,37 @@ let change_el_edit_Efb = (el) => {
       case "adminFormEmailEl":
         
         if (efb_var.smtp == "1") {
-          if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
-          {
-            valj_efb[0].email = el.value;
-            valj_efb[0].sendEmail=true;
-            return true;
-          }
-          else {
-            if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-            document.getElementById("adminFormEmailEl").value = "";
-            valj_efb[0].email="";
-          }
+          // if el.value have , then split it and check all of them
+           if(el.value.includes(',')){
+            
+            let emails=el.value.split(',');
+            let isEmail=true;
+              emails.forEach((email)=>{
+                email=email.trim();
+                if (email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)==null) isEmail=false;
+                if(isEmail==false) {
+                  alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail+ ` (${email})`, 10, "danger");
+                  valj_efb[0].email="";
+                  return false;
+                }
+              })
+              valj_efb[0].email = el.value.trim();
+              valj_efb[0].sendEmail=true;
+            }else{
+            
+              if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
+              {
+                valj_efb[0].email = el.value;
+                valj_efb[0].sendEmail=true;
+                return true;
+              }
+              else {
+                if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
+                document.getElementById("adminFormEmailEl").value = "";
+                valj_efb[0].email="";
+
+              }
+            }
         } else if (efb_var.smtp == '-1') {
           document.getElementById("adminFormEmailEl").value = "";
           //console.log(efb_var.text.goToEFBAddEmailM);
@@ -1299,6 +1319,12 @@ let change_el_edit_Efb = (el) => {
       case "showformLoggedEl":
         
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
+        break;
+      case 'emailNotiContainsEl':
+
+        if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
+        valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
+        //console.log(valj_efb[0].emailNotiType);
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);

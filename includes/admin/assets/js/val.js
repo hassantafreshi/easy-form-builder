@@ -388,6 +388,18 @@ function show_setting_window_efb(idset) {
     </div>`;
     const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
+
+    const EmailNotiContainsEls =() =>{
+      const val = valj_efb[0].hasOwnProperty('email_noti_type') ? valj_efb[indx].email_noti_type : 'cc';
+      
+      return `
+    <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
+                        <select  class="efb elEdit form-select efb border-d efb-rounded mb-1" data-id="${idset}"  id="emailNotiContainsEl" >                                            
+                            <option value="cc" ${val == 'cc' ? `selected` : ''}>${efb_var.text.emlacl}</option>
+                            <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>                            
+                        </select>
+
+    `};
     const trackingCodeEls = `<div class="efb mx-1 my-3 efb">    
     <button type="button" id="trackingCodeEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('trackingCode') && Number(valj_efb[indx].trackingCode) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
@@ -1116,6 +1128,7 @@ function show_setting_window_efb(idset) {
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}
+          ${EmailNotiContainsEls()}
          
          
          

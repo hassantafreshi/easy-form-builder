@@ -689,6 +689,9 @@ class efbFunction {
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
 			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
+			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Email notification contains','easy-form-builder'),
+			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('Confirmation Code & link','easy-form-builder'),
+			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('message contains & link','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -736,15 +739,31 @@ class efbFunction {
 					 if(gettype($to)!='string'){
 						foreach ($to as $key => $value) {
 							//error_log('val email========>');
-							if (strlen($value)>2 ) {
-								//error_log($value);
-								if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
-								}else{
-									//$reply_to_emails .=$value .' <'.$value .'>';
-									$mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
-								}
-
-							}
+						
+							 if(strpos($value, ',') !== false){
+								 $emails = explode(',', $value);
+								 foreach ($emails as $key => $val) {
+									 if (strlen($val)>2 ) {
+										// error_log($val);
+										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $val;
+										 }else{
+											 //$reply_to_emails .=$value .' <'.$value .'>';
+											 $mailResult =  wp_mail( $val,$sub, $message, $headers ) ;
+										 }
+		 
+									 }								
+								 }
+							 }else{
+								 if (strlen($value)>2 ) {
+									 //error_log($value);
+									 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
+									 }else{
+										 //$reply_to_emails .=$value .' <'.$value .'>';
+										 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+									 }
+	 
+								 }								
+							 }
 
 						}
 

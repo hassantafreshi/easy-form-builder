@@ -2001,6 +2001,7 @@ class _Public {
 		//error_log('send_email_Emsfb===> function public');
 		//error_log($state);
 		//error_log(json_encode($to));
+		       
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		//$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
@@ -2859,8 +2860,15 @@ class _Public {
 			//error_log("=============>2803");
 		//error_log($email);
 		//error_log($admin_email);
+			error_log('fs_obj');
+			error_log(json_encode($fs_obj));
+			error_log('msg_obj');
+			error_log(json_encode($msg_obj));
 			$user_email=[];
 			$notis_id=[];
+			$msg_content ='null';
+			$to=[];
+			$msg_type ="notiToUserFormFilled";
 			 array_filter($fs_obj , function($fs_row) use($fs_obj,&$notis_id , &$user_email){
 
 				if(isset($fs_row['id_']) &&  $fs_row['type']=='email' 
@@ -2888,9 +2896,12 @@ class _Public {
 					if((  in_array($item['id_'] ,$notis_id)))return $item["value"];
 				}
 				
-			});		
-			$to=[];
-			$msg_type ="notiToUserFormFilled";
+			});	
+			if(isset($fs_obj[0]["email_noti_type"]) && $fs_obj[0]["email_noti_type"]=='msg'){
+					$msg_content =$this->email_get_content($msg_obj);
+					error_log($msg_content);
+			}	
+		
 			//error_log(json_encode($user_email));
 			if(sizeof($user_email) >0){
 				foreach($user_email as $key => $val){	
@@ -2907,9 +2918,14 @@ class _Public {
 			}
 			$link = $link. "?user=admin";
 			$to=[];
-			if(isset($admin_email)==true){
+			if(isset($admin_email)==true && strlen($admin_email)>5){
 				//$this->send_email_Emsfb($admin_email,$trackingCode,$pro,"newMessage",$link);
 				//error_log('2842');
+				//check $admin_email have , then explode
+				$admin_emails = explode(",",$admin_email);
+				foreach ($admin_emails as $key => $value) {
+					array_push($to,$value);
+				}
 				array_push($to,$admin_email);
 			}
 			if($email!=null) array_push($to,$email);
@@ -2976,6 +2992,226 @@ class _Public {
         return new WP_REST_Response($response, 200);
        // return $fs;
     } 
+
+	function replaceContentMessageEfb($value) {
+		$value = preg_replace('/[\\\\]/', '', $value);
+		$value = preg_replace('/(\\"|"\\\\)/', '"', $value);
+		$value = preg_replace('/(\\\\\\\\n|\\\\\\\\r)/', '<br>', $value);
+		$value = str_replace('@efb@sq#', "'", $value);
+		// $value = str_replace('@efb@bsq#', "\\", $value);
+		$value = str_replace('@efb@vq#', "`", $value);
+		$value = str_replace('@efb@dq#', "''", $value);
+		$value = str_replace('@efb@nq#', "<br>", $value);
+		return $value;
+	}
+
+
+	function email_get_content($content){
+		$m ='<!-- efb -->';
+		$text_ =['videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+		if (empty($this->efbFunction))  $this->efbFunction =new efbFunction();
+		$lanText= $this->efbFunction->text_efb($text_);
+		foreach ($content as $c){
+			
+			error_log($m);
+			// Check if the current item has a value property and is not of type maps
+			if (isset($c['value']) && $c['type'] != "maps") {
+			  $c['value'] = $this->replaceContentMessageEfb($c['value']);
+			}
+			// Check if the current item has a qty property
+			if (isset($c['qty']) != false) {
+			  //$c.qty = $this->replaceContentMessageEfb($c.qty);
+			  $c['qty'] = $this->replaceContentMessageEfb($c['qty']);
+			}
+			
+			
+			$s = false;
+			$value = '';
+			// Check if the current item's value is a string
+			if (is_string($c['value'])) {
+			  $value = '<b>' . str_replace('@efb!', ',', $c['value']) . '</b>';
+			}
+		
+			  if(isset($c['qty']) != false){
+			  $value .= ': <b>' . $c['qty'] . '</b>';
+			}
+			// Check if the current item's value is "@file@"
+
+			  if(isset($c['value']) && $c['value'] == "@file@" && !in_array($c['url'], $list)){
+			  $s = true;
+			  array_push($list, $c['url']);
+		  
+			  $name = substr($c['url'], strrpos($c['url'], '/') + 1, strrpos($c['url'], '.') - strrpos($c['url'], '/') - 1);
+			  // Check the current item's type
+		  
+			   if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){
+			   // $value = '<br><img src="' . $c.url . '" alt="' . $c.name . '" class="efb img-thumbnail m-1">';
+				  $value = '<br><img src="' . $c['url'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail m-1">';
+				}else if(isset($c['type']) && ($c['type'] == "Document" || $c['type'] == "document" || $c['type'] == "allformat")){
+				  $value = '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>';
+				}else if(isset($c['type']) && ($c['type'] == "Media" || $c['type'] == "media")){
+				$audios = ['mp3', 'wav', 'ogg'];
+				$media = "video";
+				foreach ($audios as $aud) {
+				  if (strpos($c['url'], $aud) !== false) {
+					$media = 'audio';
+				  }
+				}
+				if ($media == "video") {
+				  $poster_emsFormBuilder =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';							
+				  $value = $type !== 'avi' ? '<br><div class="efb px-1"><video poster="' . $poster_emsFormBuilder . '" src="' . $c['url'] . '" type="video/' . $type . '" controls></video></div><p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['videoDownloadLink'] . '</a></p>' : '<p class="efb text-center"><a href="' . $c['url'] . '">' . $lanText['downloadViedo'] . '</a></p>';
+				
+				} else {
+				  $value = '<div><audio controls><source src="' . $c['url'] . '"></audio></div>';
+				}
+				  
+			  } else {
+				  $value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
+				//$value = strlen($c.url) > 1 ? '<br><a class="efb btn btn-primary" href="' . $c.url . '" target="_blank">' . $c.name . '</a>' : '<span class="efb fs-5">💤</span>';
+			  }
+
+			} else if ($c['type'] == "esign") {
+			  $titile =isset($c['name'])? $c['name'] : '';
+			  //$title = $lanText[$title] || $c.name;
+			  $title =  $c['name'];
+			  $s = true;
+			  $value = '<img src="' . $c['value'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail">';
+			  
+			  $m.= '<p class="efb fs-6 my-0 efb form-check">' . $title . ':</p><p class="efb my-1 mx-3 fs-7 form-check">' . $value . '</span>';
+			} else if ($c['type'] == "color") {
+			  $title =isset($c['name'])? $c['name'] : '';
+		  
+			  $title =  $c['name'];
+			  $s = true;
+			  $value = '<div class="efb img-thumbnail" style="background-color:' . $c['value'] . '; height: 50px;">' . $c['value'] . '</div>';
+			  //$value = '<div class="efb img-thumbnail" style="background-color:' . $c.value . '; height: 50px;">' . $c.value . '</div>';
+			  $m .= '<p class="efb fs-6 my-0 efb form-check">' . $title . ':</p><p class="efb my-1 mx-3 fs-7 form-check">' . $value . '</p>';
+			} else if ($c['type'] == "maps") {
+			  
+			  //if (is_array($c.value)) {
+			  if (is_array($c['value'])) {
+				$s = true;
+			  //  $value = '<div id="' . $c.id_ . '-map" data-type="maps" class="efb maps-efb h-d-efb required" data-id="' . $c.id_ . '-el" data-name="maps"><h1>maps</h1></div>';
+				$value = '<div id="' . $c['id_'] . '-map" data-type="maps" class="efb maps-efb h-d-efb required" data-id="' . $c['id_'] . '-el" data-name="maps"><h1>maps</h1></div>';
+				array_push($valj_efb, array('id_' => $c['id_'], 'mark' => -1, 'lat' => $c['value'][0]['lat'], 'lng' => $c['value'][0]['lng'], 'zoom' => 9, 'type' => "maps"));
+				$marker_maps_efb = $c['value'];
+				//$marker_maps_efb = $c.value;
+
+			   $m.='<script> initMap(false); </script>';
+				$m .= $value;
+			  }
+				   
+		  
+			  } else if ($c['type'] == "rating") {
+			  $s = true;
+			  
+			  $title =isset($c['name'])? $c['name'] : '';
+			  $value = '<div class="efb fs-4 star-checked star-efb mx-1 ' . ($efb_var['rtl'] == 1 ? 'text-end' : 'text-start') . '">';
+			  for ($i = 0; $i < intval($c['value']); $i++) {
+				$value .= '<i class="efb bi bi-star-fill"></i>';
+			  }
+			  $value .= '</div>';
+			  $m .= '<p class="efb fs-6 my-0 efb form-check">' . $title . ':</p><p class="efb my-1 mx-3 fs-7 form-check">' . $value . '</p>';
+			} else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") {
+			  //} else if ($c.type == "checkbox" && !in_array($c.id_, $checboxs)) {
+			  $s = true;
+			  $vc = 'null';
+			  //array_push($checboxs, $c.id_);
+			  array_push($checboxs, $c['id_']);
+			  foreach ($content as $op) {
+				//if ($op.type == "checkbox" && $op.id_ == $c.id_) {
+				if ($op['type'] == "checkbox" && $op['id_'] == $c['id_']) {
+			  //	$vc == 'null' ? $vc = '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op.value . '</b></p>' : $vc .= '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op.value . '</b></p>';
+				  $vc == 'null' ? $vc = '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op['value'] . '</b></p>' : $vc .= '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op['value'] . '</b></p>';
+				}
+			  }
+			  //$m .= '<p class="efb fs-6 my-0 efb">' . $c.name . ':</p>' . $vc;
+			  $m .= '<p class="efb fs-6 my-0 efb">' . $c['name'] . ':</p>' . $vc;
+			
+		  
+			  } else if ($c['type'] == "r_matrix" && !in_array($c['id_'], $checboxs)) {
+			  $s = true;
+			  $vc = 'null';
+			  //array_push($checboxs, $c.id_);
+			  array_push($checboxs, $c['id_']);
+			  foreach ($content as $op) {
+				//if ($op.type == "r_matrix" && $op.id_ == $c.id_) {
+				if ($op['type'] == "r_matrix" && $op['id_'] == $c['id_']) {
+				  $vc == 'null' ? $vc = '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op['value'] . '</b></p>' : $vc .= '<p class="efb my-1 mx-3 fs-7 form-check"><b>' . $op['value'] . '</b></p>';
+				}
+			  }
+			  $m .= $vc;
+			}
+
+			if (isset($c['id_']) && $c['id_'] == 'passwordRegisterEFB') {
+			  $m .= $value;
+			  $value = '**********';
+			}
+
+			
+				if(isset($c['id_'])){
+					error_log($c['id_']);
+					error_log('=========>s');
+					error_log($s);
+					error_log($c['value']);
+					error_log($c['type']);
+					error_log($value);
+				}
+			if (((($s == true && $c['value'] == "@file@") || ($s == false && $c['value'] != "@file@")) && (isset($c['id_']) &&  $c['id_'] != "payment") && $c['type'] != "checkbox")) {
+				e('innnnnnnnnnnnnn');
+			  //$title = $c.hasOwnProperty('name') ? strtolower($c.name) : '';
+			  $title =isset($c['name'])? $c['name'] : '';
+			  if ($title == "file") {
+				$title = "atcfle";
+			  }
+			
+			 
+			  $q = $value !== '<b>@file@</b>' ? $value : '';
+			  //if (strpos($c.type, 'pay') !== false) {
+			  if (strpos($c['type'], 'pay') !== false) {
+				//$q .= '<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">' . number_format($c.price, 0, '.', ',') . ' ' . $currency . '</span>';
+				$q .= '<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">' . number_format($c['price'], 0, '.', ',') . ' ' . $currency . '</span>';
+			  //} else if (strpos($c.type, 'checkbox') !== false) {
+			  } else if (strpos($c['type'], 'checkbox') !== false) {
+				//checboxs.push
+			  //} else if (strpos($c.type, 'imgRadio') !== false) {
+			  } else if (strpos($c['type'], 'imgRadio') !== false) {
+			   $q='<div class="efb w-25">' . fun_imgRadio_efb($c['id_'], $c['src'], $c) . '</div>';	
+				//$q = '<div class="efb w-25">' . fun_imgRadio_efb($c.id_, $c.src, $c) . '</div>';
+			  }
+			  $m .= '<p class="efb fs-6 my-0 efb">' . $title . ':</p><p class="efb my-1 mx-3 fs-7 test form-check">' . $q . '</p>';
+			}
+
+			if ($c['type'] == "payment") {
+
+			  if ($c['paymentGateway'] == "stripe") {				
+				  $m .= '<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
+				  <p class="efb fs-6 my-0">' . $lanText['payment'] . ' ' . $lanText['id'] . ':<span class="efb mb-1"> ' . $c['paymentIntent'] . '</span></p>
+				  <p class="efb my-0">' . $lanText['payAmount'] . ':<span class="efb mb-1"> ' . number_format($c['total'], 0, '.', ',') . ' ' . $currency . '</span></p>
+				  <p class="efb my-0">' . $lanText['ddate'] . ':<span class="efb mb-1"> ' . $c['paymentCreated'] . '</span></p>
+				  <p class="efb my-0">' . $lanText['updated'] . ':<span class="efb mb-1"> ' . $c['updatetime'] . '</span></p>
+				  <p class="efb my-0">' . $lanText['methodPayment'] . ':<span class="efb mb-1"> ' . $c['paymentmethod'] . '</span></p>' . ($c['paymentmethod'] != 'charge' ? '<p class="efb fs-6 my-0">' . $lanText['interval'] . ':<span class="efb mb-1 text-capitalize"> ' . $c['interval'] . '</span></p>' : '') . '</div>';
+			  } else {
+				
+				$m .= '<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
+				  <p class="efb my-0">' . $lanText['payment'] . ' ' .  $lanText['id'] . ':<span class="efb mb-1"> ' . $c['paymentIntent'] . '</span></p>
+				  <p class="efb my-0">' . $lanText['payAmount'] . ':<span class="efb mb-1"> ' . number_format($c['total'], 0, '.', ',') . ' ریال</span></p>
+				  <p class="efb my-0">' . $lanText['methodPayment'] . ':<span class="efb mb-1"> ' . $c['paymentmethod'] . '</span></p>
+				  <p class="efb my-0">' . $lanText['ddate'] . ':<span class="efb mb-1"> ' . $c['paymentCreated'] . '</span></p>
+				  <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ' . $c['paymentCard'] . '</span></p>
+				  <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ' . $c['refId'] . '</span></p>
+				  </div>';
+							
+			  }
+			}
+			error_log( $c['value']);
+			error_log( $c['type']);
+			
+		  }
+		  return $m;
+		}
+	
+	
 
 
 	

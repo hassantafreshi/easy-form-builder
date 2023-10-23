@@ -1993,9 +1993,9 @@ function previewFormEfb(state) {
 
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
-  console.log(stp,valj_efb[0].steps,current_s_efb )
+  //console.log(stp,valj_efb[0].steps,current_s_efb )
   //current_s_efb -=1;
-  console.log(stp,valj_efb[0].steps,current_s_efb )
+  //console.log(stp,valj_efb[0].steps,current_s_efb )
   var wtn = loading_messge_efb();
   document.getElementById('efb-final-step').innerHTML = wtn;
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
