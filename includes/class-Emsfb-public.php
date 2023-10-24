@@ -1266,7 +1266,7 @@ class _Public {
 										$email = $setting->emailSupporter;
 									}
 									//error_log('1238');
-									$this->send_email_Emsfb($email,$trackId,$pro,"newMessage",$url);
+									$this->send_email_Emsfb($email,$trackId,$pro,"newMessage",$url ,'null');
 									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && sizeof($email_user)>0){
 										//$to =[];
 										$msg_type ="notiToUserFormFilled";
@@ -1278,7 +1278,7 @@ class _Public {
 											$msg_type = "notiToUserFormFilled_TrackingCode";
 											}
 										//error_log('1250');
-										$this->send_email_Emsfb($email_user ,$trackId,$pro,$msg_type,$url);
+										$this->send_email_Emsfb($email_user ,$trackId,$pro,$msg_type,$url ,'null');
 											}
 										 								}
 							}else{
@@ -1287,7 +1287,7 @@ class _Public {
 							}
 							if(strlen($email_fa)>4){
 								//error_log("=============>1251");
-								$this->send_email_Emsfb($email_fa,$trackId,$pro,"newMessage",$url);
+								$this->send_email_Emsfb($email_fa,$trackId,$pro,"newMessage",$url ,'null');
 							}
 							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$this->id ,'nonce'=>wp_create_nonce($this->id)  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
@@ -1348,7 +1348,7 @@ class _Public {
 										$to = $email;								
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
-											$this->send_email_Emsfb($to,$ms,$pro,"register",$url);
+											$this->send_email_Emsfb($to,$ms,$pro,"register",$url ,'null');
 											//$this->send_email_Emsfb($email_user,$ms,$pro,"register");
 									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
@@ -1474,12 +1474,12 @@ class _Public {
 									/* foreach($email_user as $key => $val){
 										array_push($to ,$val['value']);
 									}	 */								
-									if(sizeof($email_user) > 0)$this->send_email_Emsfb($email_user,'',$pro,"subscribe",$url);
+									if(sizeof($email_user) > 0)$this->send_email_Emsfb($email_user,'',$pro,"subscribe",$url,'null');
 								}
 							}
 							if(strlen($email_fa)>4){
 								//error_log('1448');		
-								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url);
+								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url,'null');
 							}
 							$response = array( 'success' => true , 'm' =>$this->lanText["done"]); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
@@ -1502,12 +1502,12 @@ class _Public {
 									} */
 									if(sizeof($email_user) > 0){
 										//error_log('1469');		
-										$this->send_email_Emsfb($email_user,'',$pro,"survey",$url);}
+										$this->send_email_Emsfb($email_user,'',$pro,"survey",$url,'null');}
 									//$this->send_email_Emsfb($email_user,"",$pro,"survey");
 							    }
 							}
 							if(strlen($email_fa)>4){
-								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url);
+								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url,'null');
 							}
 							$response = array( 'success' => true , 'm' =>$this->lanText["surveyComplatedM"]);
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); } 
@@ -1907,7 +1907,7 @@ class _Public {
 					//send email noti to users
 					$link = $link_w."?track=".$track;	
 					//error_log('1871');		
-					$this->send_email_Emsfb($users_email,$track,$pro,"newMessage",$link);	
+					$this->send_email_Emsfb($users_email,$track,$pro,"newMessage",$link ,'null');	
 					//$users_email
 				}else{
 					//send email noti to admins
@@ -1927,13 +1927,13 @@ class _Public {
 
 					if(sizeof($to)>0){
 						//error_log('1890');		
-						$this->send_email_Emsfb($to,$track,$pro,"newMessage",$link);
+						$this->send_email_Emsfb($to,$track,$pro,"newMessage",$link ,'null');
 					}
 
 					$link = $link_w."?track=".$track;		
 					if( !is_null($users_email)){	
 						//error_log('1895');					
-						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link);
+						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link ,"null");
 					} 
 					/*2 end new code email */
 
@@ -1997,9 +1997,9 @@ class _Public {
 			wp_send_json_success($response,200);	
 		}
 	}//end function
-	public function send_email_Emsfb($to , $track ,$pro , $state,$link){
-		//error_log('send_email_Emsfb===> function public');
-		//error_log($state);
+	public function send_email_Emsfb($to , $track ,$pro , $state,$link ,$content ='null'){
+		error_log('send_email_Emsfb===> function public');
+		error_log($content);
 		//error_log(json_encode($to));
 		       
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
@@ -2049,6 +2049,10 @@ class _Public {
 			";
 			$cont=$message;
 		}   
+
+		if($content!="null"){
+			$cont = [$track, $content] ;
+		}
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		//error_log($link);
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
@@ -2899,6 +2903,7 @@ class _Public {
 			});	
 			if(isset($fs_obj[0]["email_noti_type"]) && $fs_obj[0]["email_noti_type"]=='msg'){
 					$msg_content =$this->email_get_content($msg_obj);
+					$msg_content = str_replace("\"","'",$msg_content);
 					error_log($msg_content);
 			}	
 		
@@ -2931,8 +2936,10 @@ class _Public {
 			if($email!=null) array_push($to,$email);
 			
 			if(sizeof($to)>0) {
-				//error_log('2848');
-				$this->send_email_Emsfb($to,$trackingCode,$pro,"newMessage",$link);}
+				error_log('2848');
+				error_log(json_encode($to));
+				error_log($msg_type);
+				$this->send_email_Emsfb($to,$trackingCode,$pro,"newMessage",$link,$msg_content);}
 
 			// old coede start
 			/* $user_email = array_filter($msg_obj, function($item) use($fs_obj){ 
@@ -3007,13 +3014,13 @@ class _Public {
 
 
 	function email_get_content($content){
-		$m ='<!-- efb -->';
+		$m ='<!-- efb-v3 -->';
 		$text_ =['videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 		if (empty($this->efbFunction))  $this->efbFunction =new efbFunction();
 		$lanText= $this->efbFunction->text_efb($text_);
 		foreach ($content as $c){
 			
-			error_log($m);
+			//error_log($m);
 			// Check if the current item has a value property and is not of type maps
 			if (isset($c['value']) && $c['type'] != "maps") {
 			  $c['value'] = $this->replaceContentMessageEfb($c['value']);
@@ -3158,7 +3165,7 @@ class _Public {
 					error_log($value);
 				}
 			if (((($s == true && $c['value'] == "@file@") || ($s == false && $c['value'] != "@file@")) && (isset($c['id_']) &&  $c['id_'] != "payment") && $c['type'] != "checkbox")) {
-				e('innnnnnnnnnnnnn');
+				
 			  //$title = $c.hasOwnProperty('name') ? strtolower($c.name) : '';
 			  $title =isset($c['name'])? $c['name'] : '';
 			  if ($title == "file") {

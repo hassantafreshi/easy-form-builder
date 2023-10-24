@@ -691,7 +691,7 @@ class efbFunction {
 			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
 			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Email notification contains','easy-form-builder'),
 			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('Confirmation Code & link','easy-form-builder'),
-			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('message contains & link','easy-form-builder'),
+			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('Form filled & link','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -719,8 +719,8 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-				//error_log('===>send_email_state');
-				//error_log(json_encode($to));
+				error_log('===>send_email_state');
+				error_log(json_encode($cont));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -734,6 +734,8 @@ class efbFunction {
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				  //error_log($state);
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
+				error_log("=========>json_encode(message)");
+				error_log(json_encode($message));
 				if( $state!="reportProblem"){
 					 $to_ ="";
 					 if(gettype($to)!='string'){
@@ -817,7 +819,12 @@ class efbFunction {
 		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
-			
+		$align ="left";
+		$d =  "ltr" ;
+		if(is_rtl()){
+			$d =  "rtl" ;
+			$align ="right";
+		}
 		//}   
 
 		
@@ -829,7 +836,7 @@ class efbFunction {
 		
 		//error_log($footer);
 		$title=$lang["newMessage"];
-		$message ="<h3>".$m."</h3>";
+		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
 		 
@@ -850,11 +857,17 @@ class efbFunction {
 			
 		}elseif($state=="newMessage"){	
 			//w_link;
-			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-			$message ="<h2>".$lang["newMessageReceived"]."</h2>
-			<p>". $lang["trackingCode"].": ".$m." </p>
-			<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>
-			";
+			if(gettype($m)=='string'){
+				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
+				$message ="<h2>".$lang["newMessageReceived"]."</h2>
+				<p>". $lang["trackingCode"].": ".$m." </p>
+				<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>";
+			}else{
+				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
+				$message ="<h2>".$lang["newMessageReceived"]."</h2>
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 5px;'>".$m[1]." </div>
+				<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>";
+			}
 		}else{
 
 			$title =$lang["hiUser"];
@@ -871,7 +884,7 @@ class efbFunction {
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
-				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
+				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%'' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
 					</td></tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;'><td>
