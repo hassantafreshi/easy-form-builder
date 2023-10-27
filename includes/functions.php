@@ -689,9 +689,9 @@ class efbFunction {
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
 			//"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
-			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Email notification contains','easy-form-builder'),
-			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('Confirmation Code & link','easy-form-builder'),
-			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('Form filled & link','easy-form-builder'),
+			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Choose Email notification content','easy-form-builder'),
+			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('The email includes the confirmation code and link','easy-form-builder'),
+			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('The email includes the filled form and link','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -739,10 +739,14 @@ class efbFunction {
 				if( $state!="reportProblem"){
 					 $to_ ="";
 					 if(gettype($to)!='string'){
+						error_log(json_encode($to));
 						foreach ($to as $key => $value) {
-							//error_log('val email========>');
-						
-							 if(strpos($value, ',') !== false){
+							 error_log('val email========>');
+								error_log($value);
+								error_log($key);
+
+							if(empty($value)==true) continue;
+							 if( strpos($value, ',') !== false){
 								 $emails = explode(',', $value);
 								 foreach ($emails as $key => $val) {
 									 if (strlen($val)>2 ) {
@@ -861,12 +865,12 @@ class efbFunction {
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2>".$lang["newMessageReceived"]."</h2>
 				<p>". $lang["trackingCode"].": ".$m." </p>
-				<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>";
+				<button><a href='".$link."' target='_blank' style='color: black;padding: 5px;'>".$lang['clcdetls']."</a></button>";
 			}else{
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
-				$message ="<h2>".$lang["newMessageReceived"]."</h2>
+				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 5px;'>".$m[1]." </div>
-				<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>";
+				<button><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button>";
 			}
 		}else{
 

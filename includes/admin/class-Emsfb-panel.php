@@ -122,8 +122,8 @@ class Panel_edit  {
 			$location ='';
 			//efb_code_validate_create( $fid, $type, $status, $tc)
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
-			//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.13');
-			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.13');
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.13');
+			//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.13');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,

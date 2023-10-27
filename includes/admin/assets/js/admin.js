@@ -1321,10 +1321,10 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-
+       console.log('emailNotiContainsEl');
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
         valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
-        //console.log(valj_efb[0].emailNotiType);
+        console.log(`valj_efb[0].emailNotiType[${valj_efb[0].emailNotiType}]`,el.options[el.selectedIndex].value);
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
