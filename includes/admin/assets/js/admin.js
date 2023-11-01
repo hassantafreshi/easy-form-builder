@@ -247,7 +247,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.6.13> WhiteStudio.team');
+console.info('Easy Form Builder 3.6.15> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1052,7 +1052,7 @@ let change_el_edit_Efb = (el) => {
       el.value = el.type!="url" ? sanitize_text_efb(el.value) :el.value.replace(/[<>()[\ ]]/g, '');
     }
       if (el.value==null) return  valNotFound_efb()
-    console.log(el.id)
+    //console.log(el.id)
     switch (el.id) {
       case "labelEl":
         
@@ -1321,10 +1321,10 @@ let change_el_edit_Efb = (el) => {
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
         break;
       case 'emailNotiContainsEl':
-       console.log('emailNotiContainsEl');
+       //console.log('emailNotiContainsEl');
         if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
         valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
-        console.log(`valj_efb[0].emailNotiType[${valj_efb[0].emailNotiType}]`,el.options[el.selectedIndex].value);
+        //console.log(`valj_efb[0].emailNotiType[${valj_efb[0].emailNotiType}]`,el.options[el.selectedIndex].value);
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
@@ -2971,7 +2971,7 @@ const obj_delete_row = (dataid, is_step) => {
   if (foundIndex != -1 && is_step == true) {
     step = Number(valj_efb[foundIndex].step)-1 ;
    step_el_efb =step}
-  console.log(dataid , is_step ,foundIndex ,`steps[${step}]`);
+  //console.log(dataid , is_step ,foundIndex ,`steps[${step}]`);
   if (foundIndex != -1) {
     if (valj_efb[foundIndex].type == "maps") {
       document.getElementById('maps').draggable = true;
@@ -2996,11 +2996,11 @@ const obj_delete_row = (dataid, is_step) => {
      
      let count =0;
      if (Object.keys(vnoti).length === 0){
-      console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
+      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
       valj_efb[0].email_to = ''
       valj_efb[0].sendEmail =0
      }else{
-      console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
+      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
        for(let i in vnoti){
         //console.log('==============>',vnoti[i].noti, vnoti[i].id_);
         if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 )count+=1;

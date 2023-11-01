@@ -2000,7 +2000,7 @@ function fun_prev_send() {
   document.getElementById('efb-final-step').innerHTML = wtn;
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
-  console.log(prev_s_efb);
+  //console.log(prev_s_efb);
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
   document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
   if (stp == 2) {
@@ -2963,7 +2963,7 @@ fun_captcha_load_efb = ()=>{
 
 
  function fun_send_mail_emsFormBuilder(id,nonce,type_) {
-  console.log('fun_send_mail_emsFormBuilder');
+  //console.log('fun_send_mail_emsFormBuilder');
 
  const data = {
     action: "mail_send_submited_Emsfb",

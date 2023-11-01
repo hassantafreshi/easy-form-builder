@@ -155,9 +155,9 @@ class _Public {
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
 		$state="form";		
 		if(strpos($value , '"type\":\"multiselect\"') || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.6.13' );
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.6.15' );
 			wp_enqueue_script('efb-bootstrap-select-js'); 
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.6.13' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.6.15' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$stng= $this->get_setting_Emsfb('pub');
@@ -173,9 +173,9 @@ class _Public {
 		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		if($this->pro_efb==1){
 			$efb_m= "" ;
-				/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.13' );
+				/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.15' );
 				wp_enqueue_script('efb-pro-els');  */
-				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.13');
+				wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.15');
 				wp_enqueue_script('efb-pro-els'); 
 		
 				if($typeOfForm=="payment"){
@@ -191,17 +191,17 @@ class _Public {
 							$paymentType="zarinPal";
 						}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 							if($paymentType!="null" && $pro==true){
-								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.6.13' , true);
+								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.6.15' , true);
 								wp_enqueue_script('pay_js');
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.6.13', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.6.15', true);
 									wp_enqueue_script('parsipay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.6.13' , true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.6.15' , true);
 									wp_enqueue_script('parsipay_js');
 								}
 						}
@@ -211,11 +211,11 @@ class _Public {
 						'paymentKey' => $paymentKey
 					));
 				}else if((strpos($value , '\"type\":\"pay') || strpos($value , '"type":"pay'))){
-					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.6.13' , true);
+					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.6.15' , true);
 					wp_enqueue_script('pay_js');
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),'3.6.13' , true);
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),'3.6.15' , true);
 					wp_enqueue_script('efb-bootstrap-bundle-min-js');  
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -240,7 +240,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.6.13');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.6.15');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -388,9 +388,9 @@ class _Public {
 					//اگر پرو بود اگر پلاگین نصب بود 
 		//اگر یکی از پرو ها وجود داشت این لینک لود شود اگر نبود لود نشود
 		if($this->pro_efb==1){
-			/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.13' );
+			/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.15' );
 			wp_enqueue_script('efb-pro-els'); */ 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.13' );
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.15' );
 			wp_enqueue_script('efb-pro-els'); 
 		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
@@ -419,30 +419,30 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.6.13');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.6.15');
 		wp_enqueue_style('Emsfb-style-css');
-		/* wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'),'3.6.13' , true);
+		/* wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'),'3.6.15' , true);
 		wp_enqueue_script('core_js'); */
-		wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'),'3.6.13', true);
+		wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'),'3.6.15', true);
 		wp_enqueue_script('core_js');
 		wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css','3.6.11' , true);
 		wp_enqueue_style('Emsfb-bootstrap-icons-css');
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.6.13',true);
+		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.6.15',true);
 		wp_enqueue_script('efb-main-js'); */ 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.6.13' ,true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.6.15' ,true);
 		wp_enqueue_script('efb-main-js'); 		
 		/* end v2 */
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css' , true,'3.6.13' );
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css' , true,'3.6.15' );
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 
 		
 		$googleCaptcha=false;
 		/* v2 */
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.6.13' );
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.6.15' );
 		wp_enqueue_style('Emsfb-bootstrap-css');
-		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css','3.6.13' );
+		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css','3.6.15' );
 		wp_enqueue_style('Emsfb-bootstrap-css'); */
 	  }
 	  public function mail_send_form_api($data_POST_){
@@ -1174,6 +1174,7 @@ class _Public {
 								});
 								$amount =0;
 								foreach ($vv as $k => $v) {
+									if(isset($v['price'])) error_log(json_encode($v));
 									if(isset($v['price'])) $amount +=$v['price'];
 								}								
 								$result;
@@ -1256,17 +1257,18 @@ class _Public {
 								}
 								array_push($fs,array('type'=>'w_link' , 'id_'=>'w_link' , 'id'=>'w_link','value'=>$url,'amount'=>-1));
 								$filtered=json_encode($fs ,JSON_UNESCAPED_UNICODE);	
-								$fs=str_replace('"', '\\"', $filtered);
-								$this->value = sanitize_text_field($fs);									
+								$fss=str_replace('"', '\\"', $filtered);
+								$this->value = sanitize_text_field($fss);									
 								$this->id = sanitize_text_field($data_POST['payid']);			
 								$check=$this->update_message_db();	
-								
+								//error_log(json_encode($filtered));
 								/* new email payment code */
-								//+ $admin_email = $formObj[0]["email"];
-								//+ $this->fun_send_email_noti_efb($formObj,$msg_obj, $email,$track,$pro ,$admin_email,$url);
+								 $admin_email = $formObj[0]["email"];
+								 $this->fun_send_email_noti_efb($formObj,$fs, $email,$trackId,$pro ,$admin_email,$url);
+								 $fs=[];
 								/* End new email payment code */
 
-								if(!empty($r)){
+								/* if(!empty($r)){
 									//$setting =json_decode($r->setting);	
 									if (isset($setting) && strlen($setting->emailSupporter)>2){
 										$email = $setting->emailSupporter;
@@ -1276,6 +1278,9 @@ class _Public {
 									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && sizeof($email_user)>0){
 										//$to =[];
 										$msg_type ="notiToUserFormFilled";
+										foreach($email_user as $key => $val){											
+											array_push($to,$val['value']);
+										} 
 										if($trackingCode=="true"||$trackingCode==true)
 										{
 											$msg_type = "notiToUserFormFilled_TrackingCode";
@@ -1283,7 +1288,7 @@ class _Public {
 										//error_log('1250');
 										$this->send_email_Emsfb($email_user ,$trackId,$pro,$msg_type,$url ,'null');
 											}
-								}
+								} */
 							}else{
 								$response = array( 'success' => false  ,'m'=>__('Error Code','easy-form-builder').'</br>'. __('Payment Form','easy-form-builder')); 
 								wp_send_json_success($response,$data_POST);
@@ -1602,7 +1607,7 @@ class _Public {
 			//send_email to admin of page
 	  }//end function get_track_public_api
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'),'3.6.13', true);
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'),'3.6.15', true);
 		wp_enqueue_script('jquery');
 		return "<script>console.log('Easy Form Builder v3.5.9')</script>";
 	  }//end function
@@ -2001,9 +2006,9 @@ class _Public {
 		}
 	}//end function
 	public function send_email_Emsfb($to , $track ,$pro , $state,$link ,$content ='null'){
-		error_log('send_email_Emsfb===> function public');
-		error_log($content);
-		error_log(json_encode($to));
+		//error_log('send_email_Emsfb===> function public');
+		//error_log($content);
+		//error_log(json_encode($to));
 		       
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -2023,7 +2028,7 @@ class _Public {
 			$subject =$this->lanText["WeRecivedUrM"];
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
 					<p>". $this->lanText["trackNo"].":<br> ".$cont." </p>
-					<button><a href='".$link_w."' style='color: black;'>". $this->lanText["clcdetls"]."</a></button>
+					<div style='text-align:center'><button><a href='".$link_w."' style='color: black;'>". $this->lanText["clcdetls"]."</a></button></div>
 					";
 			$cont=$message;
 		}elseif($state=="notiToUserFormFilled"){
@@ -2867,10 +2872,10 @@ class _Public {
 			//error_log("=============>2803");
 		//error_log($email);
 		//error_log($admin_email);
-			error_log('fs_obj');
-			error_log(json_encode($fs_obj));
-			error_log('msg_obj');
-			error_log(json_encode($msg_obj));
+			//error_log('fs_obj');
+			//error_log(json_encode($fs_obj));
+			//error_log('msg_obj');
+			//error_log(json_encode($msg_obj));
 			$user_email=[];
 			$notis_id=[];
 			$msg_content ='null';
@@ -2907,7 +2912,7 @@ class _Public {
 			if(isset($fs_obj[0]["email_noti_type"]) && $fs_obj[0]["email_noti_type"]=='msg'){
 					$msg_content =$this->email_get_content($msg_obj);
 					$msg_content = str_replace("\"","'",$msg_content);
-					error_log($msg_content);
+					//error_log($msg_content);
 			}	
 		
 			//error_log(json_encode($user_email));
@@ -2939,9 +2944,9 @@ class _Public {
 			if($email!=null) array_push($to,$email);
 			
 			if(sizeof($to)>0) {
-				error_log('2848');
-				error_log(json_encode($to));
-				error_log($msg_type);
+				//error_log('2848');
+				//error_log(json_encode($to));
+				//error_log($msg_type);
 				$this->send_email_Emsfb($to,$trackingCode,$pro,"newMessage",$link,$msg_content);}
 
 			// old coede start
@@ -3018,12 +3023,35 @@ class _Public {
 
 	function email_get_content($content){
 		$m ='<!-- efb-v3 -->';
-		$text_ =['videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+		$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 		$list=[];
+	
+		  $s = false;
+		  $checboxs = [];
+		  $total_amount =0;
+
+		  $lst = end($content);
+		  $link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+		  if(strlen($link)>5){
+			$link_w =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+		}else{
+			$link_w = home_url();
+		}
+	
+		  //error_log($content[0]['paymentcurrency']);
+		  $currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] : 'usd';
 		if (empty($this->efbFunction))  $this->efbFunction =new efbFunction();
+		
+		usort($content, function($a, $b) {
+			return $a['amount'] <=> $b['amount'];
+		});
 		$lanText= $this->efbFunction->text_efb($text_);
 		foreach ($content as $c){
 			
+			if(isset($c['type']) && $c['type'] == "w_link"){
+			 continue;
+			}
+
 			//error_log($m);
 			// Check if the current item has a value property and is not of type maps
 			if (isset($c['value']) && $c['type'] != "maps") {
@@ -3055,8 +3083,7 @@ class _Public {
 			  $name = substr($c['url'], strrpos($c['url'], '/') + 1, strrpos($c['url'], '.') - strrpos($c['url'], '/') - 1);
 			  // Check the current item's type
 		  
-			   if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){
-			   // $value = '<br><img src="' . $c.url . '" alt="' . $c.name . '" class="efb img-thumbnail m-1">';
+			   if(isset($c['type']) && ($c['type'] == "Image" || $c['type'] == "image")){			
 				  $value = '<br><img src="' . $c['url'] . '" alt="' . $c['name'] . '" class="efb img-thumbnail m-1">';
 				}else if(isset($c['type']) && ($c['type'] == "Document" || $c['type'] == "document" || $c['type'] == "allformat")){
 				  $value = '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>';
@@ -3076,10 +3103,10 @@ class _Public {
 				  $value = '<div><audio controls><source src="' . $c['url'] . '"></audio></div>';
 				}
 				  
-			  } else {
-				  $value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
-				//$value = strlen($c.url) > 1 ? '<br><a class="efb btn btn-primary" href="' . $c.url . '" target="_blank">' . $c.name . '</a>' : '<span class="efb fs-5">💤</span>';
-			  }
+				} else {
+					$value = strlen($c['url']) > 1 ? '<br><a class="efb btn btn-primary m-1" href="' . $c['url'] . '" target="_blank">' . $c['name'] . '</a>' : '<span class="efb fs-5">💤</span>';
+					//$value = strlen($c.url) > 1 ? '<br><a class="efb btn btn-primary" href="' . $c.url . '" target="_blank">' . $c.name . '</a>' : '<span class="efb fs-5">💤</span>';
+				}
 
 			} else if ($c['type'] == "esign") {
 			  $titile =isset($c['name'])? $c['name'] : '';
@@ -3103,12 +3130,12 @@ class _Public {
 			  if (is_array($c['value'])) {
 				$s = true;
 			  //  $value = '<div id="' . $c.id_ . '-map" data-type="maps" class="efb maps-efb h-d-efb required" data-id="' . $c.id_ . '-el" data-name="maps"><h1>maps</h1></div>';
-				$value = '<div id="' . $c['id_'] . '-map" data-type="maps" class="efb maps-efb h-d-efb required" data-id="' . $c['id_'] . '-el" data-name="maps"><h1>maps</h1></div>';
-				array_push($valj_efb, array('id_' => $c['id_'], 'mark' => -1, 'lat' => $c['value'][0]['lat'], 'lng' => $c['value'][0]['lng'], 'zoom' => 9, 'type' => "maps"));
+				$value = '<a style="margin: 0px 10px;" href='.$link_w.'>'.$lanText['msgemlmp'].'</a>';
+			/* 	array_push($valj_efb, array('id_' => $c['id_'], 'mark' => -1, 'lat' => $c['value'][0]['lat'], 'lng' => $c['value'][0]['lng'], 'zoom' => 9, 'type' => "maps"));
 				$marker_maps_efb = $c['value'];
 				//$marker_maps_efb = $c.value;
 
-			   $m.='<script> initMap(false); </script>';
+			   $m.='<script> initMap(false); </script>'; */
 				$m .= $value;
 			  }
 				   
@@ -3123,21 +3150,26 @@ class _Public {
 			  }
 			  $value .= '</div>';
 			  $m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $value . '</p>';
-			} else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") {
+			} else if ($c['type'] == "payCheckbox" || $c['type'] == "payRadio") { 
 			  //} else if ($c.type == "checkbox" && !in_array($c.id_, $checboxs)) {
+				//error_log('===========================>payCheckbox|| payRadio');
+				//error_log(json_encode($c));
 			  $s = true;
 			  $vc = 'null';
 			  //array_push($checboxs, $c.id_);
+			  $total_amount = $total_amount+ intval( $c['price']);
 			  array_push($checboxs, $c['id_']);
-			  foreach ($content as $op) {
+			 /*  foreach ($content as $op) {
 				//if ($op.type == "checkbox" && $op.id_ == $c.id_) {
 				if ($op['type'] == "checkbox" && $op['id_'] == $c['id_']) {
 			  //	$vc == 'null' ? $vc = '<p ><b>' . $op.value . '</b></p>' : $vc .= '<p ><b>' . $op.value . '</b></p>';
-				  $vc == 'null' ? $vc = '<p ><b>' . $op['value'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $op['value'] . '</b></p>';
-				}
-			  }
+			}
+		} */
+				$vc == 'null' ? $vc = '<p ><b>' . $c['price'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $c['price'] . '</b></p>';
+			
 			  //$m .= '<p >' . $c.name . ':</p>' . $vc;
-			  $m .= '<p >' . $c['name'] . ':</p>' . $vc;
+			  
+			  $m .= '<p >' . $c['name'] . ':</p>'. $vc.' ' . strtoupper($currency);
 			
 		  
 			  } else if ($c['type'] == "r_matrix" && !in_array($c['id_'], $checboxs)) {
@@ -3169,45 +3201,49 @@ class _Public {
 			
 			 
 			  $q = $value !== '<b>@file@</b>' ? $value : '';
+			  if($q=='<b>@file@</b>') continue;
 			  //if (strpos($c.type, 'pay') !== false) {
-			  if (strpos($c['type'], 'pay') !== false) {
-				//$q .= '<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">' . number_format($c.price, 0, '.', ',') . ' ' . $currency . '</span>';
-				$q .= '<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">' . number_format($c['price'], 0, '.', ',') . ' ' . $currency . '</span>';
-			  //} else if (strpos($c.type, 'checkbox') !== false) {
+			  if (strpos($c['type'], 'pay')) {
+				$vc = 'null';
+				//error_log('===========================>pay');
+				$total_amount = $total_amount+ intval( $c['price']);
+				//error_log(json_encode($c));
+				$q = '<b >'. number_format($c['price'], 0, '.', ',') . ' ' . ($currency) . '</b>';
+				$title =$c['value'] ;
 			  } else if (strpos($c['type'], 'checkbox') !== false) {
 				//checboxs.push
-			  //} else if (strpos($c.type, 'imgRadio') !== false) {
+			  
 			  } else if (strpos($c['type'], 'imgRadio') !== false) {
-			   $q='<div class="efb w-25">' . $this->fun_imgRadio_efb($c['id_'], $c['src'], $c) . '</div>';	
+				//error_log(json_encode($c));
+			   //$q='<div class="efb w-25">' . $this->fun_imgRadio_efb($c['id_'], $c['src'], $c) . '</div>';	
 				//$q = '<div class="efb w-25">' . fun_imgRadio_efb($c.id_, $c.src, $c) . '</div>';
+				$q= $c['value'];
 			  }
 			  $m .= '<p >' . $title . ':</p><p  style="margin: 0px 10px;">' . $q . '</p>';
 			}
 
 			if ($c['type'] == "payment") {
-
+				//error_log(json_encode($c));
 			  if ($c['paymentGateway'] == "stripe") {				
-				  $m .= '<div style="color: #fdfdfd;margin: 10px 10px;" bgcolor="#000">
-				  <p style="margin: 0px 5px;">' . $lanText['payment'] . ' ' . $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['total'], 0, '.', ',') . ' ' . $currency . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['ddate'] . ':<span > ' . $c['paymentCreated'] . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['updated'] . ':<span > ' . $c['updatetime'] . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['methodPayment'] . ':<span > ' . $c['paymentmethod'] . '</span></p>' . ($c['paymentmethod'] != 'charge' ? '<p style="margin: 0px 5px;">' . $lanText['interval'] . ':<span class="efb mb-1 text-capitalize"> ' . $c['interval'] . '</span></p>' : '') . '</div>';
+				  $m .= '<div style="margin: 10px 0px;">
+				  <p style="margin:5px;">' . $lanText['payment'] . ' ' . $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</span></p>
+				  <p style="margin: 5px;">' . $lanText['methodPayment'] . ':<span > ' . $c['paymentmethod'] . '</p>' . ($c['paymentmethod'] != 'charge' ? '<p style="margin: 5px;">' . $lanText['interval'] . ':<span class="efb mb-1 text-capitalize"> ' . $c['interval'] . '</span></p>' : '') . '</div>
+				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['paymentAmount'], 0, '.', ',') .' '. strtoupper($c['paymentcurrency']). '</span></p>
+				  <p style="margin: 5px;">' . $lanText['ddate']  . ':<span > ' . $c['paymentCreated'] . '</span></p>
+				  </div>
+				 
+				  ';
 			  } else {
 				
-				$m .= '<div style="color: #fdfdfd;margin: 10px 10px;" bgcolor="#000">
-				  <p style="margin: 0px 5px;">' . $lanText['payment'] . ' ' .  $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['total'], 0, '.', ',') . ' ریال</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['methodPayment'] . ':<span > ' . $c['paymentmethod'] . '</span></p>
-				  <p style="margin: 0px 5px;">' . $lanText['ddate'] . ':<span > ' . $c['paymentCreated'] . '</span></p>
-				  <p style="margin: 0px 5px;">شماره کارت:<span > ' . $c['paymentCard'] . '</span></p>
-				  <p style="margin: 0px 5px;">کد پیگیری زرین پال<span > ' . $c['refId'] . '</span></p>
+				$m .= '<div style="margin: 10px 0px;">
+				  <p style="margin: 5px;">' . $lanText['payment'] . ' ' .  $lanText['id'] . ':<span > ' . $c['paymentIntent'] . '</p>
+				  <p style="margin: 5px;">' . $lanText['payAmount'] . ':<span > ' . number_format($c['total'], 0, '.', ',') . ' ریال</p>				
 				  </div>';
 							
 			  }
 			}
-			error_log( $c['value']);
-			error_log( $c['type']);
+			//error_log( $c['value']);
+			//error_log( $c['type']);
 			
 		  }
 		  return $m;
@@ -3215,6 +3251,8 @@ class _Public {
 
 
 		function fun_imgRadio_efb($id ,$link,$row){
+			//error_log('------>link');
+			//error_log($link);
 			$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 			$u = function($url){
 			  $url = preg_replace('/(http:@efb@)+/g', 'http://', $url);
