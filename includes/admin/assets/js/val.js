@@ -1128,7 +1128,7 @@ function show_setting_window_efb(idset) {
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}
-          ${EmailNotiContainsEls()}
+          ${valj_efb[0].type=="form" || valj_efb[0].type=="payment" ?  EmailNotiContainsEls() :'<!--efb-->'}
          
          
          

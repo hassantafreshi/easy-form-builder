@@ -1174,7 +1174,7 @@ class _Public {
 								});
 								$amount =0;
 								foreach ($vv as $k => $v) {
-									if(isset($v['price'])) error_log(json_encode($v));
+									
 									if(isset($v['price'])) $amount +=$v['price'];
 								}								
 								$result;
@@ -1267,28 +1267,7 @@ class _Public {
 								 $this->fun_send_email_noti_efb($formObj,$fs, $email,$trackId,$pro ,$admin_email,$url);
 								 $fs=[];
 								/* End new email payment code */
-
-								/* if(!empty($r)){
-									//$setting =json_decode($r->setting);	
-									if (isset($setting) && strlen($setting->emailSupporter)>2){
-										$email = $setting->emailSupporter;
-									}
-									//error_log('1238');
-									$this->send_email_Emsfb($email,$trackId,$pro,"newMessage",$url ,'null');
-									if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && sizeof($email_user)>0){
-										//$to =[];
-										$msg_type ="notiToUserFormFilled";
-										foreach($email_user as $key => $val){											
-											array_push($to,$val['value']);
-										} 
-										if($trackingCode=="true"||$trackingCode==true)
-										{
-											$msg_type = "notiToUserFormFilled_TrackingCode";
-											}
-										//error_log('1250');
-										$this->send_email_Emsfb($email_user ,$trackId,$pro,$msg_type,$url ,'null');
-											}
-								} */
+								
 							}else{
 								$response = array( 'success' => false  ,'m'=>__('Error Code','easy-form-builder').'</br>'. __('Payment Form','easy-form-builder')); 
 								wp_send_json_success($response,$data_POST);
