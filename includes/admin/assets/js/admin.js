@@ -1568,10 +1568,7 @@ let change_el_edit_Efb = (el) => {
         for (const l of document.querySelectorAll(".totalpayEfb")) {
          if(l.classList.contains('ir')==false) l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
         }
-        for (const l of document.querySelectorAll(".efb-crrncy")) {
-         l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
-        }
-        
+        funRefreshPricesEfb();
         
         break;
       case "fileTypeEl":
@@ -3387,7 +3384,9 @@ addons_btn_state_efb=(id)=>{
 
 funRefreshPricesEfb=()=>{
   for (const l of document.querySelectorAll(".efb-crrncy")) {
-    l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+    const id = l.id.replace("-price", "");
+    v = valj_efb.find(x => x.id_ == id);
+    l.innerHTML = Number(v.price ).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
    }  
 }
 state_modal_show_efb=(i)=>{

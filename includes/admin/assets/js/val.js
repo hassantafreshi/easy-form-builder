@@ -81,8 +81,8 @@ const textEls=(id , name ,el_type,value ,attr ,idset) =>{
 const currencyTypeEls=(idset)=>{
   //const c =currency_efb;
   let op = `<-- options -->`;
-  for(let i of currency_efb){
-    op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i ? 'selected' :''}>${i}</option>`
+  for(let i of currency_efb){    
+    op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i.slice(0, 3) ? 'selected' :''}>${i}</option>`
   }
   return `
   <label for="currencyTypeEl" class="efb mt-3 bi-cash mx-2 efb"> ${efb_var.text.currency}</label>
