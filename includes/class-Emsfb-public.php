@@ -2889,7 +2889,7 @@ class _Public {
 				
 			});	
 			if(isset($fs_obj[0]["email_noti_type"]) && $fs_obj[0]["email_noti_type"]=='msg'){
-					$msg_content =$this->email_get_content($msg_obj);
+					$msg_content =$this->email_get_content($msg_obj ,$trackingCode);
 					$msg_content = str_replace("\"","'",$msg_content);
 					//error_log($msg_content);
 			}	
@@ -3000,7 +3000,7 @@ class _Public {
 	}
 
 
-	function email_get_content($content){
+	function email_get_content($content ,$track){
 		$m ='<!-- efb-v3 -->';
 		$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
 		$list=[];
@@ -3011,8 +3011,9 @@ class _Public {
 
 		  $lst = end($content);
 		  $link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-		  if(strlen($link)>5){
-			$link_w =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+		  if(strlen($link_w)>5){
+			//error_log($link_w);
+			$link_w =strpos($link_w,'?')!=false ? $link.'&track='.$track : $link_w.'?track='.$track;
 		}else{
 			$link_w = home_url();
 		}

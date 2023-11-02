@@ -722,6 +722,7 @@ class efbFunction {
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
 				//error_log('===>send_email_state');
 				//error_log(json_encode($cont));
+				//error_log(json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -739,7 +740,10 @@ class efbFunction {
 				//error_log(json_encode($message));
 				if( $state!="reportProblem"){
 					 $to_ ="";
-					 if(gettype($to)!='string'){
+					 $sent = [];
+					 if(gettype($to)!='string'){					
+						/* error_log('to array');
+						error_log(json_encode($to)); */
 						//error_log(json_encode($to));
 						foreach ($to as $key => $value) {
 							 //error_log('val email========>');
@@ -749,27 +753,45 @@ class efbFunction {
 							if(empty($value)==true) continue;
 							 if( strpos($value, ',') !== false){
 								 $emails = explode(',', $value);
+								 //error_log('========>emails');
+								 //error_log(json_encode($emails));
+								 if(gettype($emails)=='array') $emails = array_unique($emails);
+								 //error_log(json_encode($emails));
 								 foreach ($emails as $key => $val) {
-									 if (strlen($val)>2 ) {
+									 if (strlen($val)>2 && !in_array($val, $sent)) {
 										// error_log($val);
-										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $val;
+										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) )
+										 { 
+											$to_ = $val;
 										 }else{
 											 //$reply_to_emails .=$value .' <'.$value .'>';
+											 array_push($sent,$val);
+											 //error_log('email is send ========>');
+											 //error_log(json_encode($sent));
 											 $mailResult =  wp_mail( $val,$sub, $message, $headers ) ;
 										 }
 		 
 									 }								
 								 }
-							 }else{
-								 if (strlen($value)>2 ) {
-									 //error_log($value);
+							 }else{								
+								 if (strlen($value)>2   ) {
 									 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
 									 }else{
+										 //error_log("ele tooo");
+										 //error_log(json_encode(!in_array($value, $sent)));
+										
 										 //$reply_to_emails .=$value .' <'.$value .'>';
-										 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+										 if(!in_array($value, $sent)){
+											 //error_log('value===> to');
+											 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+											 array_push($sent,$value);
+											 //error_log(json_encode($sent));
+										 }
 									 }
 	 
-								 }								
+								 }	
+								 //error_log('======>email sented list');
+								 //error_log(json_encode($sent));							
 							 }
 
 						}
@@ -785,7 +807,11 @@ class efbFunction {
 					 /* error_log(json_encode($to_));
 					 error_log("=============>headers");
 					 error_log(json_encode($headers)); */
-					 $mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					 if(!in_array($to_, $sent)) {
+						//error_log('first to_');
+						//error_log($to_);
+						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					}
 					 
 				}
 				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
@@ -857,7 +883,7 @@ class efbFunction {
 				$message ="<h2 style='text-align:center'>"
 				.  $lang["yFreeVEnPro"] ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button></div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
