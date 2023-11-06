@@ -1659,7 +1659,7 @@ function previewFormEfb(state) {
         
         steps_index_efb.push(index)
         //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="efb m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="efb m-2 content-efb row">` 
-      } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
+      } else if (value.type != 'step' && value.type != 'form' && value.type != 'option' && index>0) {
         content += addNewElement(value.type, value.id_, true, true);
         if (value.type == "html") content += "<!--testHTML-->"
         
@@ -1797,7 +1797,7 @@ function previewFormEfb(state) {
 
     ${Number(valj_efb[0].show_icon)!=1 ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
     
-     <form id="efbform"> ${head} <div class="efb mt-1 px-2">${content}</div> </form>
+     <form id="efbform"> ${head} <div class="efb mt-1 px-2 vv">${content}</div> </form>
     </div>
     `
 

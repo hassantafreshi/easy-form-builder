@@ -28,6 +28,10 @@ label.hStyleOpEfb {
   cursor: pointer;
 }
 
+.efb#undefined {
+   display: none!important;
+}
+
 
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
