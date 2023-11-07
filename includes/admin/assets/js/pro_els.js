@@ -737,3 +737,12 @@ add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
   ${temp}
   </div>`;
 }
+
+function terms_el_pro_efb(previewSate, rndm,iVJ){
+  let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
+  return `<div class="efb  form-check">
+  <textarea class="efb  form-control ${valj_efb[iVJ].el_border_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" ${previewSate != true ? 'readonly' : ''} ${disabled}>${valj_efb[iVJ].value_text}</textarea>
+  <input class="efb  form-check-input ${valj_efb[iVJ].el_border_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" type="checkbox" ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <label class="efb  form-check-label" for="${rndm}_">${valj_efb[iVJ].value}</label>
+  </div>`;
+}
