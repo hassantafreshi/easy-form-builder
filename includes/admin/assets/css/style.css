@@ -28,6 +28,10 @@ label.hStyleOpEfb {
   cursor: pointer;
 }
 
+.efb#undefined {
+   display: none!important;
+}
+
 
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
@@ -1030,7 +1034,7 @@ input[type=file].h-xxxl-efb {	height: fit-content!important;
 .hStyleOpEfb {	
    display: inline !important;
    margin-left:  5px !important;
-   padding-left: 0PX;
+   padding-left: 5PX;
    height: fit-content!important;
 }
 

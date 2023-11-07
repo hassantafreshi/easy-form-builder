@@ -13,9 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
-
-	protected $db;
 	public $val_state;
+	protected $db;
+	
 	public function __construct() {  
 		
 		global $wpdb;
@@ -715,6 +715,11 @@ class efbFunction {
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : __('WP SMS plugin By VeronaLabs is not installed or activated. Please select another option, or install and configure WP SMS.','easy-form-builder'),
 			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : __('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s Add-ons page.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : __('SMS notifications','easy-form-builder'),
+			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Choose Email notification content','easy-form-builder'),
+			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('The email includes the confirmation code and link','easy-form-builder'),
+			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('The email includes the filled form and link','easy-form-builder'),
+			"msgemlmp" => $state  &&  isset($ac->text->msgemlmp) ? $ac->text->msgemlmp : __('To view the map and selected points, simply click here to navigate to the received message page','easy-form-builder'),
+
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -743,6 +748,7 @@ class efbFunction {
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
 				//error_log('===>send_email_state');
+				//error_log(json_encode($cont));
 				//error_log(json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
@@ -755,22 +761,65 @@ class efbFunction {
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
-				   error_log($state);
+				  //error_log($state);
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
+				//error_log("=========>json_encode(message)");
+				//error_log(json_encode($message));
 				if( $state!="reportProblem"){
 					 $to_ ="";
-					 if(gettype($to)!='string'){
+					 $sent = [];
+					 if(gettype($to)!='string'){					
+						/* error_log('to array');
+						error_log(json_encode($to)); */
+						//error_log(json_encode($to));
 						foreach ($to as $key => $value) {
-							//error_log('val email========>');
-							if (strlen($value)>2 ) {
+							 //error_log('val email========>');
 								//error_log($value);
-								if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
-								}else{
-									//$reply_to_emails .=$value .' <'.$value .'>';
-									$mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
-								}
+								//error_log($key);
 
-							}
+							if(empty($value)==true) continue;
+							 if( strpos($value, ',') !== false){
+								 $emails = explode(',', $value);
+								 //error_log('========>emails');
+								 //error_log(json_encode($emails));
+								 if(gettype($emails)=='array') $emails = array_unique($emails);
+								 //error_log(json_encode($emails));
+								 foreach ($emails as $key => $val) {
+									 if (strlen($val)>2 && !in_array($val, $sent)) {
+										// error_log($val);
+										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) )
+										 { 
+											$to_ = $val;
+										 }else{
+											 //$reply_to_emails .=$value .' <'.$value .'>';
+											 array_push($sent,$val);
+											 //error_log('email is send ========>');
+											 //error_log(json_encode($sent));
+											 $mailResult =  wp_mail( $val,$sub, $message, $headers ) ;
+										 }
+		 
+									 }								
+								 }
+							 }else{								
+								 if (strlen($value)>2   ) {
+									 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
+									 }else{
+										 //error_log("ele tooo");
+										 //error_log(json_encode(!in_array($value, $sent)));
+										
+										 //$reply_to_emails .=$value .' <'.$value .'>';
+										 if(!in_array($value, $sent)){
+											 //error_log('value===> to');
+											 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
+											 array_push($sent,$value);
+											 //error_log(json_encode($sent));
+										 }
+									 }
+	 
+								 }	
+								 //error_log('======>email sented list');
+								 //error_log(json_encode($sent));							
+							 }
 
 						}
 
@@ -785,7 +834,11 @@ class efbFunction {
 					 /* error_log(json_encode($to_));
 					 error_log("=============>headers");
 					 error_log(json_encode($headers)); */
-					 $mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					 if(!in_array($to_, $sent)) {
+						//error_log('first to_');
+						//error_log($to_);
+						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					}
 					 
 				}
 				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
@@ -824,7 +877,12 @@ class efbFunction {
 		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
-			
+		$align ="left";
+		$d =  "ltr" ;
+		if(is_rtl()){
+			$d =  "rtl" ;
+			$align ="right";
+		}
 		//}   
 
 		
@@ -836,7 +894,7 @@ class efbFunction {
 		
 		//error_log($footer);
 		$title=$lang["newMessage"];
-		$message ="<h3>".$m."</h3>";
+		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
 		 
@@ -849,23 +907,29 @@ class efbFunction {
 			$title= $lang["serverEmailAble"];
 			$message ="<h1>".  $footer ."</h1>";
 			 if(strlen($st->activeCode)<5){
-				$message ="<h2>"
-				. str_replace('NN', '19.5', $lang["yFreeVEnPro"])."</h2>
-				<p>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button>";
+				$message ="<h2 style='text-align:center'>"
+				.  $lang["yFreeVEnPro"] ."</h2>
+				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
+				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button></div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
 			//w_link;
-			$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-			$message ="<h2>".$lang["newMessageReceived"]."</h2>
-			<p>". $lang["trackingCode"].": ".$m." </p>
-			<button><a href='".$link."' target='_blank' style='color: black;'>".$lang['clcdetls']."</a></button>
-			";
+			if(gettype($m)=='string'){
+				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
+				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
+				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
+				<div style='text-align:center'><button><a href='".$link."' target='_blank' style='color: black;padding: 5px;'>".$lang['clcdetls']."</a></button></div>";
+			}else{
+				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
+				$message ="
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button></div>";
+			}
 		}else{
 
 			$title =$lang["hiUser"];
-			$message=$m;
+			$message='<div style="text-align:center">'.$m.'</div>';
 		}	
 		$d =  "ltr" ;
 		$align ="left";
@@ -878,10 +942,10 @@ class efbFunction {
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
-				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
+				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%'' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
-					</td></tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;'><td>
+					</td></tr><tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'><td>
 							<span>".$message." </span>
 				</td> </tr>
 				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 

@@ -2,7 +2,7 @@
 // Created by: Hassan Tafreshi
 // Email: hasan.tafreshi@gmail.com
 // WhiteStudio.team
-console.log('admin.js');
+
 let state_check_ws_p = 1;
 let valueJson_ws_p = [];
 let exportJson_ws = [];
@@ -247,7 +247,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.6.12> WhiteStudio.team');
+console.info('Easy Form Builder 3.6.16> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1127,17 +1127,37 @@ let change_el_edit_Efb = (el) => {
       case "adminFormEmailEl":
         
         if (efb_var.smtp == "1") {
-          if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
-          {
-            valj_efb[0].email = el.value;
-            valj_efb[0].sendEmail=true;
-            return true;
-          }
-          else {
-            if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
-            if(document.getElementById("adminFormEmailEl")) document.getElementById("adminFormEmailEl").value = "";
-            valj_efb[0].email="";
-          }
+          // if el.value have , then split it and check all of them
+           if(el.value.includes(',')){
+            
+            let emails=el.value.split(',');
+            let isEmail=true;
+              emails.forEach((email)=>{
+                email=email.trim();
+                if (email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)==null) isEmail=false;
+                if(isEmail==false) {
+                  alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail+ ` (${email})`, 10, "danger");
+                  valj_efb[0].email="";
+                  return false;
+                }
+              })
+              valj_efb[0].email = el.value.trim();
+              valj_efb[0].sendEmail=true;
+            }else{
+            
+              if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
+              {
+                valj_efb[0].email = el.value;
+                valj_efb[0].sendEmail=true;
+                return true;
+              }
+              else {
+                if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
+                document.getElementById("adminFormEmailEl").value = "";
+                valj_efb[0].email="";
+
+              }
+            }
         } else if (efb_var.smtp == '-1') {
           if(document.getElementById("adminFormEmailEl"))document.getElementById("adminFormEmailEl").value = "";
           //console.log(efb_var.text.goToEFBAddEmailM);
@@ -1301,6 +1321,12 @@ let change_el_edit_Efb = (el) => {
       case "showformLoggedEl":
         
         valj_efb[0].stateForm = el.classList.contains('active')==true ? true : false
+        break;
+      case 'emailNotiContainsEl':
+       //console.log('emailNotiContainsEl');
+        if(valj_efb[0].hasOwnProperty('email_noti_type')==false) Object.assign(valj_efb[0],{'email_noti_type':el.options[el.selectedIndex].value})
+        valj_efb[0].email_noti_type = el.options[el.selectedIndex].value;
+        //console.log(`valj_efb[0].emailNotiType[${valj_efb[0].emailNotiType}]`,el.options[el.selectedIndex].value);
         break;
       case "placeholderEl":
         document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).placeholder = sanitize_text_efb(el.value);
@@ -1544,10 +1570,7 @@ let change_el_edit_Efb = (el) => {
         for (const l of document.querySelectorAll(".totalpayEfb")) {
          if(l.classList.contains('ir')==false) l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
         }
-        for (const l of document.querySelectorAll(".efb-crrncy")) {
-         l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
-        }
-        
+        funRefreshPricesEfb();
         
         break;
       case "fileTypeEl":
@@ -3397,7 +3420,9 @@ addons_btn_state_efb=(id)=>{
 
 funRefreshPricesEfb=()=>{
   for (const l of document.querySelectorAll(".efb-crrncy")) {
-    l.innerHTML = Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+    const id = l.id.replace("-price", "");
+    v = valj_efb.find(x => x.id_ == id);
+    l.innerHTML = Number(v.price ).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
    }  
 }
 state_modal_show_efb=(i)=>{
@@ -3949,3 +3974,30 @@ const funSetAlignElEfb = (dataId, align, element) => {
      
   }
 }//justify-content-center
+
+
+colors_from_template = ()=>{
+  get_colors =()=>{
+    let r =`<!--colors-->`
+    for(let i of efb_var.colors){
+      r +=`<div class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 30px;height: 30px;border-radius: 20%;cursor: pointer;" onClick="colors_template_picker_efb(this)"></div>`;
+    }
+    return `<div class="efb row col">${r}</div>`;
+  }
+  
+  let colorsDiv 
+  if(efb_var.hasOwnProperty('colors')){
+    c= get_colors();
+    div = `<div class="efb text-dark"> ${efb_var.text.wylpfucat} </div><a class="btn btn-darkb text-white efb w-100 mt-1" onclick="open_setting_colors_efb(this)">${efb_var.text.yes}</a>`
+    alert_message_efb("",div ,35, 'info');
+  }
+
+
+
+
+
+
+
+
+ 
+}

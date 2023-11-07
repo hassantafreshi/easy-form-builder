@@ -904,7 +904,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'booking':
       dataTag = elementId;
-        
       break;
     case 'pointr10':
       //console.log('pointr5')
@@ -1067,7 +1066,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const tagId = elementId == "firstName" || elementId == "lastName" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     //data-toggle="tooltip" data-placement="top" title="Tooltip on top !!! " data-bs-custom-class="custom-tooltip" 
-    console.log(`ps[${ps}]`);
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
@@ -1122,12 +1120,30 @@ const funSetPosElEfb = (dataId, position) => {
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   if (indx != -1) {
     valj_efb[indx].label_position = position
-    if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
-    //&& valj_efb[indx].type != "heading" && valj_efb[indx].type != "link"
   }
+//&& valj_efb[indx].type != "heading" && valj_efb[indx].type != "link"
+  if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 
 }
-
+const funSetAlignElEfb = (dataId, align, element) => {
+  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  if (indx == -1) { return }
+  switch (element) {
+    case 'label':
+      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
+      valj_efb[indx].label_align = align
+      break;
+    case 'description':
+      const elm = document.getElementById(`${valj_efb[indx].id_}-des`)
+      elm.className = alignChangerElEfb(elm.className, align)
+      valj_efb[indx].message_align = align
+      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
+      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
+        elm.classList.add('mx-4')
+      }
+      break;
+  }
+}//justify-content-center
 
 
 const loadingShow_efb = (title) => {
@@ -1170,7 +1186,6 @@ let fun_handle_buttons_efb = (state) => {
 }
 
 let add_buttons_zone_efb = (state, id) => {
-  console.log('=================>btns')
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
       <button type="button" class="efb btn efb btn-edit efb btn-sm" id="settingElEFb"
@@ -1705,7 +1720,7 @@ function previewFormEfb(state) {
         
         steps_index_efb.push(index)
         //steps_index_efb.length<2 ? content =`<div data-step="${step_no}" class="efb m-2 content-efb row">` : content +=`</div><div data-step="${step_no}"  class="efb m-2 content-efb row">` 
-      } else if (value.type != 'step' && value.type != 'form' && value.type != 'option') {
+      } else if (value.type != 'step' && value.type != 'form' && value.type != 'option' && index>0) {
         content += addNewElement(value.type, value.id_, true, true);
         if (value.type == "html") content += "<!--testHTML-->"
         
@@ -1876,7 +1891,7 @@ function previewFormEfb(state) {
     
 
   } else {
-    console.log('====>add to content');
+    
     //content is hold element and should added to a innerHTML
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
@@ -2041,14 +2056,18 @@ function previewFormEfb(state) {
 
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
-  
+  //console.log(stp,valj_efb[0].steps,current_s_efb )
+  //current_s_efb -=1;
+  //console.log(stp,valj_efb[0].steps,current_s_efb )
   var wtn = loading_messge_efb();
   document.getElementById('efb-final-step').innerHTML = wtn;
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
+  //console.log(prev_s_efb);
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
   document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
   if (stp == 2) {
+    document.getElementById("btn_send_efb").classList.toggle("d-none");
     if(document.getElementById("gRecaptcha")) document.getElementById("gRecaptcha").classList.toggle("d-none");
   } else {
     document.getElementById("next_efb").classList.toggle("d-none");
