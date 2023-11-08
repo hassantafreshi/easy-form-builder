@@ -3925,55 +3925,7 @@ add_new_logic_efb = (newId , step_id) =>{
 }
 
 
-const funSetAlignElEfb = (dataId, align, element) => {
-  console.log(dataId, align, element)
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
-  let elm =""
-  if (indx == -1 && element!="buttons") { return }
-  switch (element) {
-    case 'label':
-      document.getElementById(`${valj_efb[indx].id_}_labG`).className = alignChangerEfb(document.getElementById(`${valj_efb[indx].id_}_labG`).className, align)
-      valj_efb[indx].label_align = align
-      break;
-    case 'description':
-      elm = document.getElementById(`${valj_efb[indx].id_}-des`)
-      elm.className = alignChangerElEfb(elm.className, align)
-      valj_efb[indx].message_align = align
-      if (align != 'justify-content-start' && elm.classList.contains('mx-4') == true) { elm.classList.remove('mx-4') }
-      else if (align == 'justify-content-start' && elm.classList.contains('mx-4') == false) {
-        elm.classList.add('mx-4')
-      }
-      break;
-    case 'buttons':
-      console.log(elm);
-      elm = document.getElementById('f_button_form_np');
-       elm.className = alignChangerElEfb(elm.className, align)
-      console.log(elm.className);
-      const elm2 = document.getElementById('f_btn_send_efb');
-      elm2.className = alignChangerElEfb(elm2.className, align)
-      console.log(elm.className);
-      if(!valj_efb[0].hasOwnProperty('btns_align')) Object.assign(valj_efb[0],{'btns_align':align})
-      valj_efb[0].btns_align = align
-      console.log(valj_efb[0])
-      if (align == 'justify-content-start') {
-          elm.classList.remove('px-4');
-         elm2.classList.remove('px-4');
-         elm.classList.add('px-2');
-         elm2.classList.add('px-2');
-      }else if(align == 'justify-content-end'){
-         elm.classList.remove('px-2');
-         elm2.classList.remove('px-2');
-         elm.classList.add('px-4');
-         elm2.classList.add('px-4'); 
-         
-      }else{
-        elm.className= PxChangerEfb(elm.className,'')
-        elm2.className= PxChangerEfb(elm2.className,'')
-      }
-    break;
-     
-  }
-}//justify-content-center
+
 
 
 colors_from_template = ()=>{
