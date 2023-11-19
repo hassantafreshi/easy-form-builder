@@ -1200,7 +1200,7 @@ function valid_file_emsFormBuilder(id,tp) {
 
 
 function fun_tracking_show_emsFormBuilder() {
-  const time = pro_efb==true ? 10 :800;
+  const time = pro_efb==true ? 10 :900;
   const getUrlparams = new URLSearchParams(location.search);
   efb_var.user_type = location.href.includes("user=admin") ? 'admin' : 'user';
   //console.log(efb_var);
@@ -1958,6 +1958,7 @@ window.addEventListener("popstate",e=>{
 
 
  fun_gets_url_efb =()=>{
+   console.log('fun_gets_url_efb');
    //if(efb_var.pro!=true && efb_var.pro!="true"){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
    //iefb --> id 
    //hefb --> hidden of element f==show / null or t === hidden
@@ -1973,7 +1974,7 @@ window.addEventListener("popstate",e=>{
   if(iefb.length>0){
     for(let i in iefb){
       // آی ذی را جستجو کند و مقدار دیفالت ولیو برای آن اضافه کند اگر وجود نداشت و مقدار قبلی را تغییر بدهد
-      
+      console.log(iefb[i] , i , iefb.length , valj_efb);
       const id =iefb[i];
       const i_ = valj_efb.findIndex(x=>x.id_==id);
       let i_p = -1;
@@ -1983,7 +1984,7 @@ window.addEventListener("popstate",e=>{
         t_e = valj_efb[i_p].type.toLowerCase();
         t_e = (t_e.includes('select')==true && t_e.includes('multi')==false) ||t_e.includes('radio')==true ? "string" :'array';
       }
-      //console.log(id , i_ , i_p ,t_e,valj_efb[i_] ,valj_efb[i_].hasOwnProperty('parent') ,sefb[i] )
+      console.log(id , i_ , i_p ,t_e,valj_efb[i_] ,valj_efb[i_].hasOwnProperty('parent') ,sefb[i] )
       if(sefb.length>0 && sefb.length>i){
          //Selected field 1 add / 0 remove
          //run just for options

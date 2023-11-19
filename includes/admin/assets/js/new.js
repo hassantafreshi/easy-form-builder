@@ -1448,7 +1448,8 @@ function handle_navbtn_efb(steps, device) {
           var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
           next_s_efb = current_s.nextElementSibling;
           current_s.classList.add('d-none');
-          next_s_efb.classList.remove('d-none');
+          if(next_s_efb)next_s_efb.classList.remove('d-none');
+          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
           //next_s_efb.style.display = "block";
           /* current_s.animate(
             { opacity_efb: 0 },
@@ -1715,7 +1716,7 @@ function previewFormEfb(state) {
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
       }
-
+       console.log(index,value);
       if (value.type == 'step' && value.type != 'html') {
         
         steps_index_efb.push(index)
@@ -1729,8 +1730,8 @@ function previewFormEfb(state) {
       if((value.hasOwnProperty('disabled') && value.disabled==true && value.hasOwnProperty('hidden')==false)
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
-      if(value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
-        || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range'){
+      if( value.hasOwnProperty('value') && (value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
+        || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range')){
          // console.log(`type[${value.type}] value[${value.value}]`);
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 && value.type !='option' ){
