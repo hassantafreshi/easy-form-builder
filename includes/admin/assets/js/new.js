@@ -701,49 +701,52 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'stateProvince':
     case 'statePro':
-      
-    valj_efb.push(     
+       optn =valj_efb.findIndex(x=>x.id_=='NIR')
+    if (editState==false && optn==-1) { 
+      valj_efb[iVJ].country = "GB";
+      valj_efb.push(     
+        {
+          "id_": "NIR",
+          "dataId": "NIR-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Northern Ireland",
+          "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
       {
-        "id_": "NIR",
-        "dataId": "NIR-id",
+        "id_": "ENG",
+        "dataId": "ENG-id",
         "parent":rndm,
         "type": "option",
-        "value": "Northern Ireland",
-        "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+        "value": "England",
+        "id_op": "_E_n_g_l_a_n_d_",
         "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-      "id_": "ENG",
-      "dataId": "ENG-id",
-      "parent":rndm,
-      "type": "option",
-      "value": "England",
-      "id_op": "_E_n_g_l_a_n_d_",
-      "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-        "id_": "SCO",
-        "dataId": "SCO-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "Scotland",
-        "id_op": "_S_c_o_t_l_a_n_d_",
-        "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
-    },
-    {
-        "id_": "WAL",
-        "dataId": "WAL-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "Wales",
-        "id_op": "_W_a_l_e_s_",
-        "step": valj_efb[iVJ].step,
-        "amount": valj_efb[iVJ].amount
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "SCO",
+          "dataId": "SCO-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Scotland",
+          "id_op": "_S_c_o_t_l_a_n_d_",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "WAL",
+          "dataId": "WAL-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Wales",
+          "id_op": "_W_a_l_e_s_",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      }
+      );
     }
-    );
     
       optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, op_3, op_4, editState) :"null";
       ui = `
@@ -1126,7 +1129,9 @@ const funSetPosElEfb = (dataId, position) => {
 
 }
 const funSetAlignElEfb = (dataId, align, element) => {
-  const indx = valj_efb.findIndex(x => x.dataId == dataId);
+  console.log(dataId, align, `element: [${element}]`);
+  const indx = dataId!='button_group_' && dataId!='Next_' ? valj_efb.findIndex(x => x.dataId == dataId) :0;
+
   if (indx == -1) { return }
   switch (element) {
     case 'label':
@@ -1142,6 +1147,18 @@ const funSetAlignElEfb = (dataId, align, element) => {
         elm.classList.add('mx-4')
       }
       break;
+    case 'buttons':
+      console.log('========>buttons')
+      const id = valj_efb[0].steps<2 ? 'f_btn_send_efb' : 'f_button_form_np';
+      const elm_ = document.getElementById(id)
+      elm_.className = alignChangerElEfb(elm_.className, align)
+      valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align = align : Object.assign(valj_efb[0], { btns_align: align });
+      console.log(id, elm_ , align ,valj_efb[0]);
+      break;
+      default:
+        console.log('========>default')
+        console.log(`element: [${element}]`);
+        break;
   }
 }//justify-content-center
 

@@ -133,6 +133,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   
   let opt =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
+  //console.error(country);
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
