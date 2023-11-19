@@ -514,7 +514,7 @@ function add_dasboard_emsFormBuilder() {
   for (let i of tag_efb) {
     
     cardtitles += `
-    <li class="efb col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
+    <li class="efb efb-col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
       <a class="efb nav-link m-0 p-0 cat fs-6  ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
     </li>
     `
