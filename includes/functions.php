@@ -708,18 +708,24 @@ class efbFunction {
 			"lb_mi_fSiz" => $state &&  isset($ac->text->lb_mi_fSiz) ? $ac->text->lb_mi_fSiz : __('Minmum File Size','easy-form-builder'),
 			"pss" => $state &&  isset($ac->text->pss) ? $ac->text->pss : __('Passwords','easy-form-builder'),
 			"sms_config" => $state &&  isset($ac->text->sms_config) ? $ac->text->sms_config : __('SMS Configuration','easy-form-builder'),
-			"sms_mp" => $state  &&  isset($ac->text->sms_mp) ? $ac->text->sms_mp : __('If you want to use SMS notifications in your forms, you must choose the SMS notification sending method.','easy-form-builder'),
+			"sms_mp" => $state  &&  isset($ac->text->sms_mp) ? $ac->text->sms_mp : __('To enable SMS notifications in your forms, select the SMS notification delivery method.','easy-form-builder'),
 			"sms_ct" => $state  &&  isset($ac->text->sms_ct) ? $ac->text->sms_ct : __('Select the method to send SMS notifications','easy-form-builder'),
+			"sms_admn_no" => $state  &&  isset($ac->text->sms_admn_no) ? $ac->text->sms_admn_no : __('Enter the admins\' mobile numbers','easy-form-builder'),
+
 			"sms_efbs" => $state  &&  isset($ac->text->sms_efbs) ? $ac->text->sms_efbs : __('Easy Form Builder SMS service','easy-form-builder'),
 			"sms_wpsmss" => $state  &&  isset($ac->text->sms_wpsmss) ? $ac->text->sms_wpsmss : __('WP SMS plugin','easy-form-builder'),
 			"wpsms_nm" => $state  &&  isset($ac->text->wpsms_nm) ? $ac->text->wpsms_nm : __('WP SMS plugin By VeronaLabs is not installed or activated. Please select another option, or install and configure WP SMS.','easy-form-builder'),
 			"msg_adons" => $state  &&  isset($ac->text->msg_adons) ? $ac->text->msg_adons : __('To use this option, please install the NN add-ons from the Easy Form Builder plugin\'s Add-ons page.','easy-form-builder'),
 			"sms_noti" => $state  &&  isset($ac->text->sms_noti) ? $ac->text->sms_noti : __('SMS notifications','easy-form-builder'),
+			"sms_dnoti" => $state  &&  isset($ac->text->sms_dnoti) ? $ac->text->sms_dnoti : __('To send informational text messages, such as notifications or new messages, please enter the mobile numbers of the administrators here.','easy-form-builder'),
+			"sms_ndnoti" => $state  &&  isset($ac->text->sms_ndnoti) ? $ac->text->sms_ndnoti : __(' Note that by entering mobile numbers, all notification messages for all forms and other informational texts will be sent to the provided numbers.','easy-form-builder'),
 			"emlc" => $state  &&  isset($ac->text->emlc) ? $ac->text->emlc : __('Choose Email notification content','easy-form-builder'),
 			"emlacl" => $state  &&  isset($ac->text->emlacl) ? $ac->text->emlacl : __('The email includes the confirmation code and link','easy-form-builder'),
 			"emlml" => $state  &&  isset($ac->text->emlml) ? $ac->text->emlml : __('The email includes the filled form and link','easy-form-builder'),
 			"msgemlmp" => $state  &&  isset($ac->text->msgemlmp) ? $ac->text->msgemlmp : __('To view the map and selected points, simply click here to navigate to the received message page','easy-form-builder'),
+			"msgchckvt" => $state  &&  isset($ac->text->msgchckvt) ? $ac->text->msgchckvt : __('Review the entered values in the XXX tab.this message appeared because an error is detected.','easy-form-builder'),
 
+			"sms" => $state  &&  isset($ac->text->sms) ? $ac->text->sms : __('SMS','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

@@ -61,6 +61,10 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-admin.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
+            if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+                //error_log("class sms exists");
+                require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/smssended/class-Emsfb-sms.php';
+            }
             
         }
         

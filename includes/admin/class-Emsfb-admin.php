@@ -109,7 +109,9 @@ class Admin {
         $role->add_cap('Emsfb_panel');
         $role->add_cap('Emsfb_addon');
 
-        
+        if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+            $role->add_cap('Emsfb_sms_efb');
+        }
 
     }
 
