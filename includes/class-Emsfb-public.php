@@ -195,7 +195,13 @@ class _Public {
 		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		if($this->pro_efb==1){
 			$efb_m= "" ;
-			
+
+			//smssend : after filed forms check if sms send enable and send sms to admin and users
+			if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
+				require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+				$smssendefb = new smssendefb() ; 
+			}
+
 			$el_pro_load = strpos($value , '\"pro\":\"1\"');
 			if($el_pro_load==false){
 					$el_pro_load = strpos($value , '"pro":"1"');
@@ -279,7 +285,8 @@ class _Public {
 					wp_register_script('logic-efb',EMSFB_PLUGIN_URL.'/vendor/logic/assets/js/logic.js', null, null, true);	
 					wp_enqueue_script('logic-efb');
 				}
-		}
+		
+			}
 				$poster =  EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg';
 				$send=array();
 				//translate v3
@@ -369,7 +376,7 @@ class _Public {
 		 }else{
 			/* 
 			 ".$this->bootstrap_style_efb($width)."
-			 ".$this->style_style_css()."
+			 ".$this->style_style_css_efb()."
 			 ".$this->bootstrap_style_efb_(0)."
 			*/
 			 $content="	
@@ -395,6 +402,7 @@ class _Public {
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
+	
 		//Confirmation Code show
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
@@ -457,6 +465,24 @@ class _Public {
 			   'sid'=>$sid,
 			   'rest_url'=>get_rest_url(null),
 		 ));  
+
+		 $icons_ =[[
+			'bi-clipboard-check','bi-hand-thumbs-up',
+			'bi-exclamation-triangle-fill',
+			"bi-exclamation-diamond-fill",		
+			"bi-check2-square",
+			"bi-hourglass-split",
+			"bi-chat-square-text",
+			"bi-download",
+			"bi-star-fill",
+			"bi-hourglass-split",
+			"bi-hand-thumbs-up",
+			"bi-envelope",
+			"bi-arrow-right",
+			"bi-arrow-left",
+			"bi-search",
+			'bi-paperclip',
+		]];
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
@@ -3306,6 +3332,7 @@ class _Public {
 
 	
 	public function bootstrap_icon_efb($w){
+		if($w==null || sizeof($w)==0) return;
 		/* array_push($w[0],'bi-clipboard-check');
 		array_push($w[0],'bi-hand-thumbs-up');
 		array_push($w[0],'bi-exclamation-triangle-fill'); */
@@ -3344,7 +3371,7 @@ class _Public {
 			</style>
 			';
 	}
-	public function style_style_css(){
+	public function style_style_css_efb(){
 	   return '
 	   <style>
 	   /* //Copyright 2021//Easy Form Builder//WhiteStudio.team//EFB.APP */

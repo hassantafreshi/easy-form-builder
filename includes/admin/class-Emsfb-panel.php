@@ -14,7 +14,7 @@ class Panel_edit  {
 	public function __construct() {
 		global $wpdb;
 		$this->db = $wpdb;
-
+		
 		if ( is_admin() ) {
 			$rtl = is_rtl();
 			
