@@ -167,13 +167,16 @@ class Create {
 				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 			}
+
+			
+
 		}
 
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					//wmaddon
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r; 
+						//echo $r; 
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
@@ -183,12 +186,22 @@ class Create {
 				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r; 
+						//echo $r; 
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 					$arabicDatePicker = new arabicDatePickerEfb() ; 
+				}
+
+				if(isset($ac->AdnSS) && $ac->AdnSS==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
+						$r = $efbFunction->update_message_admin_side_efb();
+						//echo $r; 
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					
 				}
 
 					
@@ -348,10 +361,11 @@ class Create {
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		
-		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		
 		//error_log("====>valx");
 		//error_log($valx);
-		$this->value=str_replace('"', '\\"', $valx);
+		
+
 
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
@@ -361,7 +375,53 @@ class Create {
 		}
 		//error_log("====>this->value");
 		//error_log($this->value);
+		error_log(json_encode($valp[0]));
+		//check if smsnoti axist then call add_sms_contact_efb
+		$sms_msg_new_noti="";
+		$sms_msg_responsed_noti="";
+		$sms_msg_recived_user="";
+		$sms_admins_phoneno="";
+
+		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
+			
+			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
+			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
+			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
+			$sms_admins_phoneno = isset($valp[0]['smsAdminsPhoneNo']) ? $valp[0]['smsAdminsPhoneNo'] : "";
+
+
+			unset($valp[0]['sms_msg_new_noti']);
+			unset($valp[0]['sms_msg_responsed_noti']);
+			unset($valp[0]['sms_msg_recived_user']);
+			if(isset($valp[0]['smsAdminsPhoneNo'])){unset($valp[0]['smsAdminsPhoneNo']);}
+
+			
+
+		}
+		
+		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
+		
+		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
+			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
+			//require smsefb.php and call add_sms_contact_efb
+			error_log("before add_sms_contact_efb");
+			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+			$smsefb = new smssendefb();
+			error_log('sms_msg_new_noti');
+			error_log($sms_msg_new_noti);
+
+			$smsefb->add_sms_contact_efb(
+				$this->id_,
+				$sms_admins_phoneno,
+				$sms_msg_recived_user,
+				$sms_msg_new_noti,
+				$sms_msg_new_noti,
+				$sms_msg_responsed_noti);
+		}
+		
+		
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}

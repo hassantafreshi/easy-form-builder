@@ -96,6 +96,10 @@ class Panel_edit  {
 					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 				}
 
+				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
+					$addons["AdnSS"] =1;
+				}
+
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					//wmaddon
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	

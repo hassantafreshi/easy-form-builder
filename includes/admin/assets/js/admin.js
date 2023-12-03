@@ -1268,6 +1268,94 @@ let change_el_edit_Efb = (el) => {
         }
 
         break;
+      case "smsEnableEl":
+       //console.log('noti');
+       //check pro version activate
+       if(pro_efb!=true){        
+          pro_show_efb(1);
+          document.getElementById("smsEnableEl").checked = false;
+          document.getElementById("smsEnableEl").classList.remove('active') ;
+       }
+       if(Number(efb_var.setting.AdnSS)!=1){
+        console.log('addons sms not active!');
+        document.getElementById("smsEnableEl").classList.remove('active') ;
+        //alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddSMSM, 20, "danger")
+        let m = efb_var.text.msg_adons.replace('NN',`<b>${efb_var.text.sms_noti}</b>`);
+        console.log(m)
+        //noti_message_efb(m, 'danger' , `content-efb` );
+        alert_message_efb(efb_var.text.error, m, 20, "danger")
+        return false;
+       }
+       if(indx==-1){indx=0};
+          c = el.classList.contains('active')==true ? 1 :0
+        
+        valj_efb[indx].hasOwnProperty('smsnoti')==false ? Object.assign(valj_efb[indx],{'smsnoti':c}) : valj_efb[indx].smsnoti = c;
+        console.log(indx);
+        if(indx==0){
+          if (c==1){
+            //remove disabled class from all input has sms-efb
+            console.log('remove disbaled!')
+            const smsEls = document.querySelectorAll('.sms-efb')
+            smsEls.forEach((el)=>{
+              console.log(el.id);
+              el.disabled=false;
+              el.classList.remove('disabled');
+            })
+          }else{
+            //add disabled class from all input has sms-efb
+            console.log('add disbaled!')
+            const smsEls = document.querySelectorAll('.sms-efb')
+            smsEls.forEach((el)=>{
+              console.log(el.id);
+              el.disabled=true;
+              el.classList.add('disabled');
+            })
+          }
+          if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')==false){
+            //get document by dataset.id
+            c= document.querySelector(`[data-id="WeRecivedUrM`).value
+            Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
+            c= document.querySelector(`[data-id="newMessageReceived`).value
+            Object.assign(valj_efb[0], { sms_msg_new_noti: c });
+            c= document.querySelector(`[data-id="responsedMessage`).value
+            Object.assign(valj_efb[0], { sms_msg_responsed_noti:c });
+
+          }
+        }
+        console.log(c,valj_efb[indx].smsnoti);
+        break;
+      case "smsAdminsPhoneNoEl":
+        //validate el.value for international phone number and seprate them by comma
+        //console.log(el.value);
+        if(el.value.includes(',')){
+          let phones=el.value.split(',');
+          let isPhone=true;
+            phones.forEach((phone)=>{
+              phone=phone.trim();
+              //start with + and have 8 to 15 digit
+              if (phone.match(/^\+[0-9]{8,15}$/)==null) isPhone=false;
+              if(isPhone==false) {
+                alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
+                valj_efb[0].smsAdminsPhoneNo="";
+                return false;
+              }
+            })
+            valj_efb[0].smsAdminsPhoneNo = el.value.trim();
+          }
+          else{
+            if (el.value.match(/^\+[0-9]{8,15}$/)) // phone validation
+            {
+              valj_efb[0].smsAdminsPhoneNo = el.value;
+              return true;
+            }
+            else {
+              alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue, 10, "danger");             
+              valj_efb[0].smsAdminsPhoneNo="";
+              return false;
+            }
+          }
+            
+        break;
       case "formNameEl":
         valj_efb[0].formName = sanitize_text_efb(el.value)
         break;
@@ -2191,7 +2279,7 @@ let change_el_edit_Efb = (el) => {
           }
         }        
           break;
-        case "optiontSmartforOptionsEls":
+      case "optiontSmartforOptionsEls":
           c=-1;
           //console.log(el.options[el.selectedIndex].dataset);
           const step = (el.options[el.selectedIndex].dataset.idset);
@@ -2202,6 +2290,25 @@ let change_el_edit_Efb = (el) => {
           if(c!=-1)valj_efb[0].conditions[n].condition[c].two = sanitize_text_efb(el.options[el.selectedIndex].value);
           //console.log(`step[${step}] n[${n}] no[${no}] c[${c}] value[${el.options[el.selectedIndex].value}]`);
         break;
+      case 'smsContentEl':
+         //check pro version
+         if(pro_efb!=true){
+           pro_show_efb(1);
+           return;
+         }
+         console.log(`[${el.dataset.id}]` , el.value);
+         if(el.dataset.id=="WeRecivedUrM"){
+          console.log('WeRecivedUrM')
+          valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr = el.value : Object.assign(valj_efb[0], { sms_msg_recived_usr: el.value })
+         }else if(el.dataset.id=="responsedMessage"){
+          console.log('responsedMessage')
+          valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti = el.value : Object.assign(valj_efb[0], { sms_msg_responsed_noti: el.value })
+         }else if(el.dataset.id=="newMessageReceived"){
+           console.log('newMessageReceived')
+            valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti = el.value : Object.assign(valj_efb[0], { sms_msg_new_noti: el.value })
+         }
+
+      break;
     }
 
   }, len_Valj * 6)

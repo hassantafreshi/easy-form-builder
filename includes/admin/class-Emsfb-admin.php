@@ -76,7 +76,10 @@ class Admin {
             add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل    
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //Add new addons
             add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //Remove a addon
-            add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public'));               // بارگذاری فایل
+            add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public')); 
+            
+            add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);
+            // بارگذاری فایل
 
            
             //$this->custom_ui_plugins();
@@ -302,13 +305,56 @@ class Admin {
 
         $valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
-		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
+		
+        //,`form_name` =>
+
+        error_log(json_encode($valp[0]));
+		//check if smsnoti axist then call add_sms_contact_efb
+		$sms_msg_new_noti="";
+		$sms_msg_responsed_noti="";
+		$sms_msg_recived_user="";
+		$sms_admins_phoneno="";
+        if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
+			
+			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
+			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
+			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
+			$sms_admins_phoneno = isset($valp[0]['smsAdminsPhoneNo']) ? $valp[0]['smsAdminsPhoneNo'] : "";
+
+
+			unset($valp[0]['sms_msg_new_noti']);
+			unset($valp[0]['sms_msg_responsed_noti']);
+			unset($valp[0]['sms_msg_recived_user']);
+			if(isset($valp[0]['smsAdminsPhoneNo'])){unset($valp[0]['smsAdminsPhoneNo']);}
+
+			
+
+		}
+        $valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         //$value      = ($_POST['value']); 
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "emsfb_form";
-        //,`form_name` =>
+
         $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
+
+        if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
+			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
+			//require smsefb.php and call add_sms_contact_efb
+			error_log("before add_sms_contact_efb");
+			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+			$smsefb = new smssendefb();
+			error_log('sms_msg_new_noti');
+			error_log($sms_msg_new_noti);
+
+			$smsefb->add_sms_contact_efb(
+                $id,
+				$sms_admins_phoneno,
+				$sms_msg_recived_user,
+				$sms_msg_new_noti,
+				$sms_msg_new_noti,
+				$sms_msg_responsed_noti);
+		}
         $m = $lang["updated"];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         wp_send_json_success($response, $_POST);
@@ -1245,6 +1291,21 @@ class Admin {
                     //error_log("directory gutenberg not exist");
                 }
              }
+    }
+    public function send_sms_admin_Emsfb(){
+
+       if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            error_log($m);
+            $response = ['success' => false, 'm' =>'Security Error'];
+            wp_send_json_success($response, 200);
+        }
+
+       require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+        $smssendefb = new smssendefb();
+        $smssendefb->send_sms_Emsfb($_POST);
+
+        
+
     }
 
 

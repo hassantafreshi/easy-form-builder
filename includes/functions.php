@@ -727,6 +727,8 @@ class efbFunction {
 
 			"sms" => $state  &&  isset($ac->text->sms) ? $ac->text->sms : __('SMS','easy-form-builder'),
 			"smscw" => $state  &&  isset($ac->text->smscw) ? $ac->text->smscw : __('Click on the Settings button on the panel page of Easy Form Builder Plugin and configure the SMS sending method. Then, try again.','easy-form-builder'),
+			"to" => $state  &&  isset($ac->text->to) ? $ac->text->thank : __('To','easy-form-builder'),
+			"esmsno" => $state  &&  isset($ac->text->esmsno) ? $ac->text->esmsno : __('Enable SMS notifications','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

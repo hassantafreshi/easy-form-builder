@@ -453,6 +453,14 @@ function show_setting_window_efb(idset) {
     </div>`;
 
 
+    const smsEnableEls = `<div class="efb mx-1 my-3 efb">
+    <button type="button" id="smsEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('smsnoti') && Number(valj_efb[indx].smsnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
+    </div>`;
+
+
 
     const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="number"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
   
@@ -609,7 +617,41 @@ function show_setting_window_efb(idset) {
     }
   
   
+    const smsContentEls=(type)=>{
 
+      //check pro version
+    
+      if(type=="WeRecivedUrM"){
+        value = valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr : efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+      }else if(type == 'responsedMessage'){
+        value = valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti : efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+      }else if (type == "newMessageReceived"){
+        value = valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti : efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+      }
+      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
+      const content =`
+      <div class="efb tnxmsg">
+      <textarea type="text" data-id="${type}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb ${disable} sms-efb" placeholder="${value}" id="smsContentEl" required ${disable}>${value}</textarea>  
+      </div>
+      `
+      return content;
+    }
+
+    //textinput for mulitple mobile number of admins
+    const smsAdminsPhoneNoEls =()=>{
+      let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admn_no : '';
+      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
+      const content =`
+      <div class="efb tnxmsg">
+      <label for="smsAdminsPhoneNoEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.sms_admn_no}</label>
+      <input type="text" data-id="smsAdminsPhoneNoEl" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb sms-efb" placeholder="+11234567890, +11234567891" id="smsAdminsPhoneNoEl" required value="${value}" ${disable}>
+      </div>
+      `
+      
+      return content;
+    }
+
+    
   
   
     const fileTypeEls = `
@@ -722,6 +764,7 @@ function show_setting_window_efb(idset) {
                 <!--  not   advanced-->
                 ${Nadvanced}
                 ${placeholderEls}
+                ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
                 <!--  not   advanced-->
@@ -1150,13 +1193,31 @@ function show_setting_window_efb(idset) {
           ${selectColorEls('progessbar','btn')}
          
          
-         
+          <!-- sms section --!>
+            <div class="efb  d-grid gap-2">
+              <button class="efb btn btn-outline-light mt-3" id="sms_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSMS" aria-expanded="false" aria-controls="collapseSMS">
+              <i class="efb   bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.sms}
+              </button>
+            </div>
+            <div class="efb mb-3 mt-3 collapse" id="collapseSMS">
+                <div class="efb  mb-3 px-3 row">  
+                ${smsEnableEls}
+                ${smsAdminsPhoneNoEls()}
+                ${`<span class="efb  my-3 fs-7">${efb_var.text.messages}</span>`}
+                ${smsContentEls('newMessageReceived')}
+                ${smsContentEls('WeRecivedUrM')}
+                ${smsContentEls('responsedMessage')}
+          
+                </div>
+                </div>        
+            </div>
+        <!-- sms section  end --!>
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
             </button>
           </div>
-      <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+          <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
               <div class="efb  mb-3 px-3 row">   
           ${thankYouTypeEls}
           ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
@@ -1171,6 +1232,7 @@ function show_setting_window_efb(idset) {
           </div>
           </div>        
       </div>
+       
       <div class="efb  clearfix"></div>
         
           `

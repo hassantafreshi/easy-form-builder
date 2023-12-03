@@ -109,15 +109,14 @@ Features:
 
 
 
-## Documentation
+## Documentation 📄
 
 The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
 
 
-## Requirements
+## Requirements 🔨
 * [WordPress](https://wordpress.org/) >= `4.7`
 * [PHP](https://secure.php.net/manual/en/install.php) >= `6`
-
 
 
 
@@ -167,12 +166,30 @@ Thanks goes to these wonderful people
 </tbody>
 </table>
 
+This project follows the [Easy Form builder](https://whitestudio.team) specification.
+Contributions of any kind are welcome!
+
+## Roadmap 🎯
+ ### SMS Notifications:
+  #### Notification System for Form Submissions.
+ * Seamless Integration with Wp-SMS.
+ * White Studio SMS Service:
+
+### Telegram Notifications:
+* Real-time Telegram Updates for Admins.
+
+### PayPal Add-ons for Payment Forms:
+* PayPal Integration for Secure Payments.
+
+### Interactive Quiz Forms .
+### Smart Forms
+
+
 <!--   markdownlint-restore -->
 <!--   prettier-ignore-end -->
 
 <!--   ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [Easy Form builder](https://whitestudio.team) specification.
-Contributions of any kind are welcome!
+
 
 
