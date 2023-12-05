@@ -622,12 +622,13 @@ function show_setting_window_efb(idset) {
       //check pro version
     
       if(type=="WeRecivedUrM"){
-        value = valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr : efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+        if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){ value = efb_text_nr(valj_efb[0].sms_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
       }else if(type == 'responsedMessage'){
-        value = valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti : efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+        if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = efb_text_nr(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
       }else if (type == "newMessageReceived"){
-        value = valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti : efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`;
+      if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =efb_text_nr(valj_efb[0].sms_msg_new_noti,0) }else{ value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
       }
+      console.log(value);
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
       const content =`
       <div class="efb tnxmsg">
@@ -639,7 +640,7 @@ function show_setting_window_efb(idset) {
 
     //textinput for mulitple mobile number of admins
     const smsAdminsPhoneNoEls =()=>{
-      let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admn_no : '';
+      let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admins_phone_no : '';
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
       const content =`
       <div class="efb tnxmsg">

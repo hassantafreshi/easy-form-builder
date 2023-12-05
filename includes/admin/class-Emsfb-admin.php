@@ -302,7 +302,7 @@ class Admin {
             die();
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
-
+        error_log($_POST['value']);
         $valp =str_replace('\\', '', $_POST['value']);
 		$valp = json_decode($valp,true);
 		
@@ -320,7 +320,12 @@ class Admin {
 			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
 			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
 			$sms_admins_phoneno = isset($valp[0]['smsAdminsPhoneNo']) ? $valp[0]['smsAdminsPhoneNo'] : "";
-
+            error_log('sms_msg_new_noti');
+            error_log($sms_msg_new_noti);
+            error_log('sms_msg_responsed_noti');
+            error_log($sms_msg_responsed_noti);
+            error_log('sms_msg_recived_user');
+            error_log($sms_msg_recived_user);
 
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
@@ -332,12 +337,14 @@ class Admin {
 		}
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
+        $value_ =str_replace('"', '\"', $value);
         //$value      = ($_POST['value']); 
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "emsfb_form";
 
-        $r = $this->db->update($table_name, ['form_structer' => $value, 'form_name' => $name], ['form_id' => $id]);
-
+        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name], ['form_id' => $id]);
+        $value_="";
+        $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			//require smsefb.php and call add_sms_contact_efb
@@ -646,6 +653,7 @@ class Admin {
     }
 
     public function get_form_id_Emsfb() {
+        error_log('get_form_id_Emsfb');
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
@@ -666,7 +674,33 @@ class Admin {
 
         $table_name = $this->db->prefix . "emsfb_form";
         $value      = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$id'");
-
+         //error_log(json_encode($value));
+        //check if smsnoti axist then call get_sms_contact_efb from smsefb.php
+        //check $value with regix "smsnoti":"1" is exists
+        error_log($value);
+        $smsnoti = strpos($value,'\"smsnoti\":\"1\"') !==false ? 1 : 0;
+        error_log($smsnoti);
+        if($smsnoti){
+            //require smsefb.php and call get_sms_contact_efb
+            //check smsefb.php is exists
+            if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
+                require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+                $smsefb = new smssendefb();
+                $sms = $smsefb->get_sms_contact_efb($id);
+                error_log('=========>sms');
+                error_log(json_encode($sms));
+                
+                $value = str_replace('\"smsnoti\":\"1\"', '\"smsnoti\":\"1\",\"sms_msg_new_noti\":\"'.$sms->new_message_noti_user.'\",\"sms_msg_responsed_noti\":\"'.$sms->new_response_noti.'\",\"sms_msg_recived_usr\":\"'.$sms->recived_message_noti_user.'\",\"sms_admins_phone_no\":\"'.$sms->admin_numbers.'\"',$value);
+               
+                error_log($value);
+            }
+        }
+       /*  error_log(json_encode($value[0]));
+        $smsnoti=strpos(json_encode($value),'"smsnoti":"1"')!==false ? 1 : 0;
+        error_log($smsnoti);
+        if($smsnoti){
+          
+        } */
         $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
         wp_send_json_success($response, $_POST);
 
@@ -699,7 +733,7 @@ class Admin {
        
         $table_name = $this->db->prefix . "emsfb_msg_";
         $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
-        //error_log(json_encode($value));
+       
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
         wp_send_json_success($response, $_POST);
     }

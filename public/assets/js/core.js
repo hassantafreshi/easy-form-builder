@@ -1469,7 +1469,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,true,1)}</p>`
        //m+=`</p>`;
       }
 

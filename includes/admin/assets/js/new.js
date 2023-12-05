@@ -430,12 +430,13 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
       //console.log(minlen , valj_efb[iVJ].milen)  ;
+      console.log(valj_efb[iVJ].value);
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
                 <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f' >
                 ${ttip}
-                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'readonly' : ''} ${disabled} ${minlen}>${valj_efb[iVJ].value}</textarea>
+                <textarea  id="${rndm}_"  placeholder="${valj_efb[iVJ].placeholder}"  class="efb  px-2 input-efb emsFormBuilder_v form-control w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el"  value="${valj_efb[iVJ].value}" rows="5" ${previewSate != true ? 'readonly' : ''} ${disabled} ${minlen}>${efb_text_nr(valj_efb[iVJ].value,0)}</textarea>
                 ${desc}
             `
       dataTag = "textarea";
@@ -2952,7 +2953,7 @@ const stripAllTags_efb=(string, removeBreaks = false)=>{
 }
 
 const sanitize_text_efb=(str, keep_newlines = false)=>{
-  //console.log(`sanitize_text_efb[${str}]`);
+  console.log(`sanitize_text_efb[${str}]`);
   if (typeof str === 'object' || Array.isArray(str)) {
     return '';
   }else if(str==null || str==undefined){
@@ -2971,6 +2972,9 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
 
   if (!keep_newlines) {
     filtered = filtered.replace(/[\r\n\t ]+/g, ' ');
+  }else{
+    filtered = filtered.replace(/[\t ]+/g, ' ');
+    filtered = filtered.replace(/[\r\n]+/g, '@n#');
   }
  // console.log(`filtered[${filtered}]`)
   filtered = filtered.trim();
@@ -3089,6 +3093,15 @@ fetch(url, requestOptions)
 
 
 }
+
+function efb_text_nr(text , type){
+  const val = type ==1 ?'<br>': '\n';
+  console.log(`efb_text_nr[${text}]`)
+  text = text.replace(/@n#/g, val);
+  console.log(`efb_text_nr after[${text}]`);
+  return text;
+}
+
 
 
 

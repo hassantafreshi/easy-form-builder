@@ -387,8 +387,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       
       m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
-    }
-    else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
+    }else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
       s = true;
       //console.log(390 ,checboxs.includes(c.id_));
       let vc ='null';
@@ -419,7 +418,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           //console.log(q);
         } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,1)}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
@@ -487,6 +486,7 @@ function fun_emsFormBuilder_more() {
 function fun_ws_show_edit_form(id) {
   //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
+  console.log(valj_efb);
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()

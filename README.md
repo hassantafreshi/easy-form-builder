@@ -105,6 +105,19 @@ Features:
 - You can building forms by smartphones, tablets or other devices
 - Offline forms
 - Payment forms
+- International Telephone Input
+- Net Promot Score Input
+- 5 Point Scale Input
+- Yes/No Question Input
+- Switch Button Input
+- Countries drop-down Field
+- state/province drop-down Field
+- Label(Header) Field
+- Signature Input
+- Link Field
+- Image Picker(Image Card) Field
+- Multiple select drop-down list
+- File Upload Input
 - +30 field types for building forms
 
 
@@ -183,6 +196,7 @@ Contributions of any kind are welcome!
 
 ### Interactive Quiz Forms .
 ### Smart Forms
+### sms OTP form login
 
 
 <!--   markdownlint-restore -->

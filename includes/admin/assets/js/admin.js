@@ -251,6 +251,7 @@ console.info('Easy Form Builder 3.6.16> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
+  console.log('actionSendData_emsFormBuilder')
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -258,22 +259,26 @@ function actionSendData_emsFormBuilder() {
   
   data = {};
   var name = formName_Efb
-  //console.log(localStorage.getItem("valj_efb"));
+  console.log(localStorage.getItem("valj_efb"));
+  // replace \" to "
+  const ls_val=  localStorage.getItem("valj_efb").replace(/\\\"/g, '"');
   jQuery(function ($) {
 
-
+    
     if (state_check_ws_p == 1) {
+      console.log(ls_val);
       data = {
         action: "add_form_Emsfb",
-        value: localStorage.getItem("valj_efb"),
+        value: ls_val,
         name: name,
         type: form_type_emsFormBuilder,
         nonce: efb_var.nonce
       };
     } else {
+    
       data = {
         action: "update_form_Emsfb",
-        value: localStorage.getItem("valj_efb"),
+        value: ls_val,
         name: name,
         nonce: efb_var.nonce,
         id: form_ID_emsFormBuilder
@@ -1291,6 +1296,14 @@ let change_el_edit_Efb = (el) => {
         
         valj_efb[indx].hasOwnProperty('smsnoti')==false ? Object.assign(valj_efb[indx],{'smsnoti':c}) : valj_efb[indx].smsnoti = c;
         console.log(indx);
+        if(indx!=0){
+          if(c==1){
+            indx=0;
+          }else{
+            clss=-1;
+            clss= valj_efb.findIndex(x => x.smsnoti == 1);
+          }
+         }
         if(indx==0){
           if (c==1){
             //remove disabled class from all input has sms-efb
@@ -1311,13 +1324,16 @@ let change_el_edit_Efb = (el) => {
               el.classList.add('disabled');
             })
           }
-          if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')==false){
+
+          if(valj_efb[0].hasOwnProperty('smsnoti')==false){
             //get document by dataset.id
             c= document.querySelector(`[data-id="WeRecivedUrM`).value
             Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
             c= document.querySelector(`[data-id="newMessageReceived`).value
+            c= sanitize_text_efb(c ,true);
             Object.assign(valj_efb[0], { sms_msg_new_noti: c });
             c= document.querySelector(`[data-id="responsedMessage`).value
+            c= sanitize_text_efb(c ,true);
             Object.assign(valj_efb[0], { sms_msg_responsed_noti:c });
 
           }
@@ -1474,18 +1490,21 @@ let change_el_edit_Efb = (el) => {
         if (el.dataset.tag != 'yesNo' && el.dataset.tag != 'heading' && el.dataset.tag != 'textarea' && el.dataset.tag != 'link') {
 
           //document.querySelector(`[data-id="${valj_efb[indx].id_}-el"]`).value = el.value;
-          document.getElementById(`${valj_efb[indx].id_}_`).value = sanitize_text_efb(el.value);
-          valj_efb[indx].value = sanitize_text_efb(el.value);
+          c= sanitize_text_efb(el.value);
+          document.getElementById(`${valj_efb[indx].id_}_`).value = c;
+          valj_efb[indx].value = c;
         } else if (el.dataset.tag == 'heading' ||el.dataset.tag == 'link' ||el.dataset.tag == 'textarea') {
           //console.log(valj_efb[indx].id_,document.getElementById(`${valj_efb[indx].id_}_`) );
-          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = sanitize_text_efb(el.value);
-          valj_efb[indx].value = sanitize_text_efb(el.value);
+          c= el.dataset.tag=='textarea' ? sanitize_text_efb(el.value ,true) : sanitize_text_efb(el.value);
+          document.getElementById(`${valj_efb[indx].id_}_`).innerHTML = efb_text_nr(c,0);
+          valj_efb[indx].value = c;
         } else {
           //yesNo
+          c= sanitize_text_efb(el.value); 
           id = `${valj_efb[indx].id_}_${el.dataset.no}`
-          document.getElementById(id).value = sanitize_text_efb(el.value);
-          document.getElementById(`${id}_lab`).innerHTML =sanitize_text_efb(el.value);
-          el.dataset.no == 1 ? valj_efb[indx].button_1_text = sanitize_text_efb(el.value) : valj_efb[indx].button_2_text = sanitize_text_efb(el.value)
+          document.getElementById(id).value = c;
+          document.getElementById(`${id}_lab`).innerHTML =c;
+          el.dataset.no == 1 ? valj_efb[indx].button_1_text = c : valj_efb[indx].button_2_text = c
         }
         break;
       case "classesEl":
@@ -2297,15 +2316,19 @@ let change_el_edit_Efb = (el) => {
            return;
          }
          console.log(`[${el.dataset.id}]` , el.value);
+         c = sanitize_text_efb(el.value ,true);
          if(el.dataset.id=="WeRecivedUrM"){
           console.log('WeRecivedUrM')
-          valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr = el.value : Object.assign(valj_efb[0], { sms_msg_recived_usr: el.value })
+          valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr = c : Object.assign(valj_efb[0], { sms_msg_recived_usr: c })
+          console.log(`valj_efb[0].sms_msg_recived_usr===>[${valj_efb[0].sms_msg_recived_usr}]`);
          }else if(el.dataset.id=="responsedMessage"){
           console.log('responsedMessage')
-          valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti = el.value : Object.assign(valj_efb[0], { sms_msg_responsed_noti: el.value })
+          valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti = c : Object.assign(valj_efb[0], { sms_msg_responsed_noti: c })
+          console.log(`valj_efb[0].sms_msg_responsed_noti===>[${valj_efb[0].sms_msg_responsed_noti}]`);
          }else if(el.dataset.id=="newMessageReceived"){
            console.log('newMessageReceived')
-            valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti = el.value : Object.assign(valj_efb[0], { sms_msg_new_noti: el.value })
+            valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti = c : Object.assign(valj_efb[0], { sms_msg_new_noti: c })
+            console.log(`valj_efb[0].sms_msg_new_noti===>[${valj_efb[0].sms_msg_new_noti}]`);
          }
 
       break;
