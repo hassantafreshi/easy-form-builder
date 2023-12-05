@@ -570,6 +570,7 @@ class _Public {
 		$this->id = sanitize_text_field($data_POST['id']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
+		$setting;
 		//error_log('$s_sid check===>');
 		//error_log($s_sid);
 		if ($s_sid !=1){
@@ -595,7 +596,7 @@ class _Public {
 		$pro = false;
 		$type =sanitize_text_field($data_POST['type']);
 		$email=get_option('admin_email');
-		$setting;
+		
 		$rePage ="null";
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
@@ -605,8 +606,21 @@ class _Public {
 		$this->value = $data_POST['value'];
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
+		$smsnoti=0;
+		$phone_numbers=[[],[]];
+		if(isset($setting['sms_config']) && $setting['sms_config']=="wpsms"){
+			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] :[];
+			//seprate string numbers by comma
+			$phone_numbers[0] = explode(',',$numbers);
+			$smsnoti=1;
+			error_log('===>added admins numbers from settings');
+			error_log(json_encode($phone_numbers));
+		}
+		$smsnoti = strpos($fs,'\"smsnoti\":\"1\"') !==false || $smsnoti==1 ? 1 : 0;
 		//error_log($data_POST['value']);
 		//error_log($this->value);
+		//check if smsnoti is active in string $fs
+
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
@@ -647,12 +661,13 @@ class _Public {
 				$stated = 1;
 				$form_condition = '';
 				if(isset($formObj[0]['booking']) && $formObj[0]['booking']==1) $form_condition='booking';
+				
 				foreach ($formObj as $key =>$f){
 						$rt =null;	
 						$in_loop=true;						
 						if($key<2) continue;
 						if($stated==0){break;}
-						$it= array_filter($valo, function($item) use ($f,$key,&$stated ,&$email_user,&$rt,&$formObj,&$in_loop,&$mr,$form_condition) { 
+						$it= array_filter($valo, function($item) use ($f,$key,&$stated ,&$email_user,&$rt,&$formObj,&$in_loop,&$mr,$form_condition,&$smsnoti,&$phone_numbers) { 
 							if($in_loop==false){
 								return;
 							}
@@ -724,9 +739,20 @@ class _Public {
 									//error_log($item['value']);
 									//error_log(json_encode($f));
 									$stated=0;
+									
 									if(isset($item['value'])){
 										$stated=0;
 										$item['value'] = sanitize_text_field($item['value']);	
+										error_log('==>mobile');
+										error_log($item['value']);
+										error_log(json_encode(($f)));
+										error_log($f['smsnoti']);
+
+										if(isset($f['smsnoti']) && intval($f['smsnoti'])==1 ){
+											$smsnoti=1;
+											array_push($phone_numbers[1],$item['value']);
+											//error_log('===========> smsnoti');
+										}
 										//error_log("====>stated");
 										//error_log($stated);
 										$l = isset($f["c_n"]) ? $f["c_n"] : ['all'];
@@ -1121,6 +1147,13 @@ class _Public {
 				if($count==0){
 					$stated=0;
 					$mr=$this->lanText["pleaseMakeSureAllFields"];
+				}
+				error_log('phonenumebrs');
+				error_log(json_encode($phone_numbers));
+				//+ قبل از هر ارسال این تابع زیر فراخوانی شود
+				if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
+					//call smsefb function get by form Id for recived admin numbers and messges
+					//$this->sms_ready_for_send($form_id , $phone_numbers,>$url ,$tracking_code);
 				}
 				//$this->url =$url;
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
@@ -5694,6 +5727,17 @@ class _Public {
 		
 		</script>
 		';
+	}
+
+	public function sms_ready_for_send($form_id , $numbers ,$page_url ,$tracking_code = null){
+		//included smsefb
+		//get admin numbers from smsefb
+		//get messages from smsefb
+		//if [confirmation_code] exist in sms content replace it with $tracking_code
+		//if  [link_page] exist in sms content replace it with $page_url
+		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
+		//add admin numbers for numbers[0]
+		//write a function for 
 	}
 }
 

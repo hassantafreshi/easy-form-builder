@@ -319,7 +319,7 @@ class Admin {
 			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
 			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
 			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
-			$sms_admins_phoneno = isset($valp[0]['smsAdminsPhoneNo']) ? $valp[0]['smsAdminsPhoneNo'] : "";
+			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
             error_log('sms_msg_new_noti');
             error_log($sms_msg_new_noti);
             error_log('sms_msg_responsed_noti');
@@ -330,7 +330,7 @@ class Admin {
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
 			unset($valp[0]['sms_msg_recived_user']);
-			if(isset($valp[0]['smsAdminsPhoneNo'])){unset($valp[0]['smsAdminsPhoneNo']);}
+			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
 
 			
 

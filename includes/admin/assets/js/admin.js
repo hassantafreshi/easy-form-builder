@@ -1295,6 +1295,8 @@ let change_el_edit_Efb = (el) => {
           c = el.classList.contains('active')==true ? 1 :0
         
         valj_efb[indx].hasOwnProperty('smsnoti')==false ? Object.assign(valj_efb[indx],{'smsnoti':c}) : valj_efb[indx].smsnoti = c;
+        //add sms message to valj_efb
+        
         console.log(indx);
         if(indx!=0){
           if(c==1){
@@ -1325,7 +1327,7 @@ let change_el_edit_Efb = (el) => {
             })
           }
 
-          if(valj_efb[0].hasOwnProperty('smsnoti')==false){
+          if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
             //get document by dataset.id
             c= document.querySelector(`[data-id="WeRecivedUrM`).value
             Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
@@ -1352,24 +1354,25 @@ let change_el_edit_Efb = (el) => {
               if (phone.match(/^\+[0-9]{8,15}$/)==null) isPhone=false;
               if(isPhone==false) {
                 alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");
-                valj_efb[0].smsAdminsPhoneNo="";
+                valj_efb[0].sms_admins_phone_no="";
                 return false;
               }
             })
-            valj_efb[0].smsAdminsPhoneNo = el.value.trim();
+            valj_efb[0].sms_admins_phone_no = el.value.trim();
           }
           else{
             if (el.value.match(/^\+[0-9]{8,15}$/)) // phone validation
             {
-              valj_efb[0].smsAdminsPhoneNo = el.value;
+              valj_efb[0].sms_admins_phone_no = el.value;
               return true;
             }
             else {
               alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue, 10, "danger");             
-              valj_efb[0].smsAdminsPhoneNo="";
+              valj_efb[0].sms_admins_phone_no="";
               return false;
             }
           }
+          console.log(valj_efb[0].sms_admins_phone_no);
             
         break;
       case "formNameEl":
