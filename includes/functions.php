@@ -1569,4 +1569,94 @@ class efbFunction {
 	
 		return $browser;
 	}
+
+	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
+		error_log($page_url);
+		//send_sms_efb($number,$message,$form_id,$severType)
+		//included smsefb
+		//get admin numbers from smsefb
+		//get messages from smsefb
+		//if [confirmation_code] exist in sms content replace it with $tracking_code
+		//if  [link_page] exist in sms content replace it with $page_url
+		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
+		//add admin numbers for numbers[0]
+		//write a function for 
+
+		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")==false) {
+			error_log('Easy Form Builder: SMS Addon is not installed');
+			return false;
+		}
+		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
+		$smssendefb = new smssendefb() ; 
+		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
+
+		if(isset($sms_content->id)==false) return false;		
+		error_log(json_encode($sms_content));
+		$recived_your_message = $sms_content->recived_message_noti_user;
+		$new_message = $sms_content->new_message_noti_user;
+		$news_response = $sms_content->new_response_noti;
+			if(!empty($sms_content->admin_numbers )){
+				$admin_numbers = explode(',',$sms_content->admin_numbers);
+				$numbers[0] = array_merge($numbers[0],$admin_numbers);
+				//error_log(json_encode($numbers));
+				$numbers[0]= array_unique($numbers[0]);
+				$numbers[1]= array_unique($numbers[1]);
+				//error_log(json_encode($numbers));
+			}
+			$rp = [['[confirmation_code]','[link_page]','[link_domain]'],
+					[$tracking_code, $page_url, get_site_url()]]; 
+			foreach($rp[0] as $key=>$val){
+				
+				$recived_your_message = str_replace($rp[0][$key],$rp[1][$key],$recived_your_message);
+				$new_message = str_replace($rp[0][$key],$rp[1][$key],$new_message);
+				$news_response = str_replace($rp[0][$key],$rp[1][$key],$news_response);
+			
+
+
+			}
+			
+		if($state=="fform"){
+			//send sms to user for recived your message
+			//send sms to admin for new message
+			error_log('function.php->redysms->state');
+			error_log($state);
+			if(count($numbers[1])>0){
+				foreach($numbers[1] as$val){
+					
+					
+					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
+				}
+			}
+			if(count($numbers[0])>0){
+				foreach($numbers[0] as$val){
+					$smssendefb->send_sms_efb($val,$new_message,$form_id,$severType);
+				}
+			}
+			
+		}else if($state=="respp"){
+			//send sms to user for recived your message
+			//send sms to admin for new response
+			if(count($numbers[1])>0){
+				foreach($numbers[1] as$val){
+					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
+				}
+			}
+			if(count($numbers[0])>0){
+				foreach($numbers[0] as$val){
+					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
+				}
+			}
+		}else if ($state=="resppa" || $state=="respadmin"){
+			//send sms to user for new response
+			if(count($numbers[1])>0){
+				foreach($numbers[1] as$val){
+					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
+				}
+			}
+			
+		}
+			
+		
+		return true;
+	}
 }

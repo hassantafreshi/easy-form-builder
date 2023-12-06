@@ -742,14 +742,12 @@ class _Public {
 									
 									if(isset($item['value'])){
 										$stated=0;
-										$item['value'] = sanitize_text_field($item['value']);	
-										error_log('==>mobile');
-										error_log($item['value']);
-										error_log(json_encode(($f)));
-										error_log($f['smsnoti']);
-
+										$item['value'] = sanitize_text_field($item['value']);
+										$item['value'] = preg_replace('/\s+/', '', $item['value']);	
+										
 										if(isset($f['smsnoti']) && intval($f['smsnoti'])==1 ){
 											$smsnoti=1;
+
 											array_push($phone_numbers[1],$item['value']);
 											//error_log('===========> smsnoti');
 										}
@@ -1148,13 +1146,7 @@ class _Public {
 					$stated=0;
 					$mr=$this->lanText["pleaseMakeSureAllFields"];
 				}
-				error_log('phonenumebrs');
-				error_log(json_encode($phone_numbers));
-				//+ قبل از هر ارسال این تابع زیر فراخوانی شود
-				if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
-					//call smsefb function get by form Id for recived admin numbers and messges
-					//$this->sms_ready_for_send($form_id , $phone_numbers,>$url ,$tracking_code);
-				}
+				
 				//$this->url =$url;
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 				/* 	//test return
@@ -1253,6 +1245,20 @@ class _Public {
 							$this->efbFunction->efb_code_validate_update($sid ,'send' ,$check );
 							$response = array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>$nnc); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
+
+						
+							//+ قبل از هر ارسال این تابع زیر فراخوانی شود
+							if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
+								error_log('==>phonenumebrs');
+								error_log(json_encode($phone_numbers));
+								
+								//call smsefb function get by form Id for recived admin numbers and messges
+								error_log('===>check');
+								error_log($check);
+								// $form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code
+								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform','wpsms' ,$check);
+
+							}
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "payment":								
@@ -5729,16 +5735,7 @@ class _Public {
 		';
 	}
 
-	public function sms_ready_for_send($form_id , $numbers ,$page_url ,$tracking_code = null){
-		//included smsefb
-		//get admin numbers from smsefb
-		//get messages from smsefb
-		//if [confirmation_code] exist in sms content replace it with $tracking_code
-		//if  [link_page] exist in sms content replace it with $page_url
-		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
-		//add admin numbers for numbers[0]
-		//write a function for 
-	}
+	
 }
 
 new _Public();

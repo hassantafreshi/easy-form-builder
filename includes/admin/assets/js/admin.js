@@ -1330,6 +1330,7 @@ let change_el_edit_Efb = (el) => {
           if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
             //get document by dataset.id
             c= document.querySelector(`[data-id="WeRecivedUrM`).value
+            c= sanitize_text_efb(c ,true);
             Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
             c= document.querySelector(`[data-id="newMessageReceived`).value
             c= sanitize_text_efb(c ,true);

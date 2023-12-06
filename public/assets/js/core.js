@@ -549,7 +549,7 @@ function handle_change_event_efb(el){
         return
       }
     }
-    //console.log(el.type);
+    console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
@@ -560,6 +560,9 @@ function handle_change_event_efb(el){
         value = sanitize_text_efb(el.value,outp);
         
         if(el.classList.contains("intlPhone")==true){
+          //remove space between numbers
+          el.value = el.value.replace(/\s/g, '');
+          value = el.value;
          return;
         }
         if(validate_len()==0){
