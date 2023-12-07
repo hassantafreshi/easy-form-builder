@@ -1041,6 +1041,41 @@ class efbFunction {
 				}
 			}
 		}
+
+		//send smsnoti
+		error_log("===>befor if smsnoti");
+		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
+			error_log("===>smsnoti");	
+			$phone_numbers=[[],[]];		
+			$setting = $this->get_setting_Emsfb('setting');	
+			error_log(gettype($setting));
+			//$numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
+			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
+			$phone_numbers[0]= $numbers;
+			
+			error_log('----------->user');
+			error_log(json_encode($user_res));
+			$have_noti_id =[];
+			foreach($data as $key=>$val){
+				if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
+					array_push($have_noti_id,$val['id_']);
+				}
+			}
+			if(!empty($have_noti_id)){
+				foreach ($user_res as $value) {
+					error_log(json_encode($value));
+					error_log(gettype($value));
+					error_log(json_encode($have_noti_id));
+					if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
+						error_log('----------->');
+						array_push($phone_numbers[1],$value['value']);
+						error_log(json_encode($phone_numbers));
+					}
+				}
+			}
+			//$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+			if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respp' ,'wpsms' ,$trackingCode);
+		}
 		return 0;
 	}//end function
 	
@@ -1571,7 +1606,15 @@ class efbFunction {
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
+		error_log('======>sms_ready_for_send_efb');
 		error_log($page_url);
+		error_log($state);
+		error_log($severType);
+		error_log($tracking_code);
+		error_log(json_encode($numbers));
+		error_log($form_id);
+
+
 		//send_sms_efb($number,$message,$form_id,$severType)
 		//included smsefb
 		//get admin numbers from smsefb
@@ -1598,10 +1641,10 @@ class efbFunction {
 			if(!empty($sms_content->admin_numbers )){
 				$admin_numbers = explode(',',$sms_content->admin_numbers);
 				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				//error_log(json_encode($numbers));
+				error_log(json_encode($numbers));
 				$numbers[0]= array_unique($numbers[0]);
 				$numbers[1]= array_unique($numbers[1]);
-				//error_log(json_encode($numbers));
+				error_log(json_encode($numbers));
 			}
 			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
 					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
@@ -1609,16 +1652,14 @@ class efbFunction {
 				
 				$recived_your_message = str_replace($rp[0][$key],$rp[1][$key],$recived_your_message);
 				$new_message = str_replace($rp[0][$key],$rp[1][$key],$new_message);
-				$news_response = str_replace($rp[0][$key],$rp[1][$key],$news_response);
-			
-
-
+				$news_response = str_replace($rp[0][$key],$rp[1][$key],$news_response);		
 			}
 			
 		if($state=="fform"){
 			//send sms to user for recived your message
 			//send sms to admin for new message
 			if(count($numbers[1])>0 && $new_message!=null){
+				
 				foreach($numbers[1] as$val){
 					
 					
@@ -1626,13 +1667,14 @@ class efbFunction {
 				}
 			}
 			if(count($numbers[0])>0 && $new_message!=null){
+				$new_message = str_replace($page_url."?track=".$tracking_code,$page_url."?track=".$tracking_code.'&user=admin',$new_message);
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$new_message,$form_id,$severType);
 				}
 			}
 			return true;
 			
-		}else if($state=="respp"){
+		}else if($state=="resppa"){
 			//send sms to user for recived your message
 			//send sms to admin for new response
 			if(count($numbers[1])>0 && $recived_your_message!=""){
@@ -1641,6 +1683,8 @@ class efbFunction {
 				}
 			}
 			if(count($numbers[0])>0 && $news_response!=""){
+				//$page_url."?track=".$tracking_code
+				$news_response = str_replace($page_url."?track=".$tracking_code, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
@@ -1648,8 +1692,13 @@ class efbFunction {
 			return true;
 		}else if ($state=="resppa" || $state=="respadmin"){
 			//send sms to user for new response
+			error_log("==>resppa || respadmin");
+			error_log(count($numbers[1]));
+		
+			error_log($news_response);
 			if(count($numbers[1])>0 && $news_response!=""){
-				foreach($numbers[1] as$val){
+				foreach($numbers[1] as $val){
+					error_log($val);
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}

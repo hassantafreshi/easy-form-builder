@@ -622,14 +622,16 @@ function show_setting_window_efb(idset) {
       //check pro version
     
       if(type=="WeRecivedUrM"){
-        if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){ value = efb_text_nr(valj_efb[0].sms_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
+        if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){
+           value = efb_text_nr(valj_efb[0].sms_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if(type == 'responsedMessage'){
         if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = efb_text_nr(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if (type == "newMessageReceived"){
       if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =efb_text_nr(valj_efb[0].sms_msg_new_noti,0) }else{
-        if(valj_efb[0].type=="survey"){ value = efb_var.text.thanksFillingOutform + `\n ${efb_var.text.trackNo}: [confirmation_code] \n ${efb_var.text.url}: [link_response]` ;}
+       /*  if(valj_efb[0].type=="survey"){ value = efb_var.text.thanksFillingOutform + `\n ${efb_var.text.trackNo}: [confirmation_code] \n ${efb_var.text.url}: [link_response]` ;
         else if(valj_efb[0].type=="register") {value = efb_var.text.createAcountDoneM + `\n ${efb_var.text.url}: [link_domain]` ;}
-        else {value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};}
+        else {} */
+          value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
       }
       console.log(value);
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';

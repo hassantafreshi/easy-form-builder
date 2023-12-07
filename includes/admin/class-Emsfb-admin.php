@@ -887,6 +887,7 @@ class Admin {
 
             ]
         );
+         
         $table_name = $this->db->prefix . "emsfb_msg_";
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
         $m        = $lang["messageSent"];

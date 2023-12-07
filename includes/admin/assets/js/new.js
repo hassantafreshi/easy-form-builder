@@ -2932,6 +2932,7 @@ const preKsesLessThanCallback_efb=(matches)=>{
 
 function escHtml(unsafe)
 {
+    console.log(`escHtml[${unsafe}]`)
     return unsafe
          .replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
@@ -2942,13 +2943,14 @@ function escHtml(unsafe)
 
 
 const stripAllTags_efb=(string, removeBreaks = false)=>{
-  string = string.replace(/@<(script|style)[^>]*?>.*?<\/\1>@si/g, "");
-  string = string.replace(/<[^>]*>/g, "");
+  
+  string = string.replace(/</g, '＜');
+  string = string.replace(/>/g, '＞');
 
   if (removeBreaks) {
     string = string.replace(/[\r\n\t ]+/g, " ");
   }
-
+  console.log(string);
   return string.trim();
 }
 
@@ -2965,9 +2967,11 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   //let filtered = checkInvalidUTF8_efb(str);
   //console.log(`filtered[${filtered}]`)
   if (filtered.indexOf('<') !== -1) {
-    filtered = preKsesLessThan_efb(filtered);
+    console.log('sanit <');
+   // filtered = preKsesLessThan_efb(filtered);
     filtered = stripAllTags_efb(filtered, false);
     filtered = filtered.replace(/<\n/g, '&lt;\n');
+    console.log(`filtered[${filtered}]`)
   }
 
   if (!keep_newlines) {

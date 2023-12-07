@@ -1993,6 +1993,7 @@ class _Public {
 				/* new code start */
 				//$id =$valn[0]["email_to"];
 				$users_email =null;
+				
 				if(isset($id)){
 					foreach ($msg_obj as $key => $value) {
 						
@@ -2003,7 +2004,46 @@ class _Public {
 					}
 					
 				}
+				$smsnoti = (isset($valn[0]['smsnoti']) && intval($valn[0]['smsnoti'])==1) ? 1 :0; 
+				if($smsnoti){
+					$phone_numbers=[[],[]];
+					
+					if(isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5){
+						$phone_numbers[0] =explode(',',$setting->phnNo);					
+					}
+					
+					$have_noti_id=[];
+					//parsing form structer for find mobile input and active smsnoti attrebute
+					foreach($valn as $val){
+						if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
+							array_push($have_noti_id,$val['id_']);
+						}
+					}
+
+					//parsing message recived 
+					if(!empty($have_noti_id)){
+						foreach ($msg_obj as $value) {
+							error_log(json_encode($value));
+							error_log(gettype($value));
+							error_log(json_encode($have_noti_id));
+							if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
+								error_log('----------->');
+								array_push($phone_numbers[1],$value['value']);
+								error_log(json_encode($phone_numbers));
+							}
+						}
+					}
+				//if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respadmin' ,'wpsms' ,$trackingCode);
+				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
+					//$efbFunction
+				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
 				
+
+				//parsing from_Structer for find type="mobile" and smsnoti=1
+
+			
+					
+				}
 				if($rsp_by=='admin' && !is_null($users_email)){
 					//error_log("=============>1852");
 					//send email noti to users
@@ -2037,56 +2077,9 @@ class _Public {
 						//error_log('1895');					
 						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link ,"null");
 					} 
-					/*2 end new code email */
-
-					/* if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-						$this->send_email_Emsfb($setting->emailSupporter,$track,$pro,"newMessage",$link);
-					}
 					
-					if (isset($email_fa) && strlen($email_fa)>5){
-						$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
-					}
-					$link = $link_w."?track=".$track;		
-					if( !is_null($users_email)){						
-						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link);
-					} */
 				}
-				/* new code end */
 				
-				/* comment this section start */
-				/*
-				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-					$email = $setting->emailSupporter;
-				}
-				if($email!= null  && gettype($email)=="string" && $email != $email_usr) {
-					$link = $link_w. "?user=admin";
-					//error_log($link);
-					$this->send_email_Emsfb($email,$track,$pro,"newMessage",$link);
-				}
-				if(strlen($email_fa)>4 && $email_usr!=$email_fa){
-					$link = $link_w. "?user=admin";
-					//error_log($link);
-					$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
-				}
-				if($email == $email_usr || $email_usr==$email_fa){
-					//error_log('==============> ارسال پاسخ به کاربری که فرم را پر کرده است');
-					//error_log($value[0]->content);
-					$id =$valn[0]["email_to"];
-					//error_log($id);
-					//error_log($valn[0]["email_to"]);
-					if(isset($id)){
-						//error_log("================>id");
-						foreach ($msg_obj as $key => $value) {
-							if(isset($value['id_']) && $value['id_']==$id){
-								$email_fa= $value["value"];
-								break;
-							}
-						}
-						//error_log($email_fa);
-						if($email_fa!="") $this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link_w);
-					}
-				} */
-				/* comment this section end  */
 				//messageSent s78
 				$response = array( 
 				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
