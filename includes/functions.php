@@ -1603,8 +1603,8 @@ class efbFunction {
 				$numbers[1]= array_unique($numbers[1]);
 				//error_log(json_encode($numbers));
 			}
-			$rp = [['[confirmation_code]','[link_page]','[link_domain]'],
-					[$tracking_code, $page_url, get_site_url()]]; 
+			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
+					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
 			foreach($rp[0] as $key=>$val){
 				
 				$recived_your_message = str_replace($rp[0][$key],$rp[1][$key],$recived_your_message);
@@ -1618,45 +1618,46 @@ class efbFunction {
 		if($state=="fform"){
 			//send sms to user for recived your message
 			//send sms to admin for new message
-			error_log('function.php->redysms->state');
-			error_log($state);
-			if(count($numbers[1])>0){
+			if(count($numbers[1])>0 && $new_message!=null){
 				foreach($numbers[1] as$val){
 					
 					
 					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
 				}
 			}
-			if(count($numbers[0])>0){
+			if(count($numbers[0])>0 && $new_message!=null){
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$new_message,$form_id,$severType);
 				}
 			}
+			return true;
 			
 		}else if($state=="respp"){
 			//send sms to user for recived your message
 			//send sms to admin for new response
-			if(count($numbers[1])>0){
+			if(count($numbers[1])>0 && $recived_your_message!=""){
 				foreach($numbers[1] as$val){
 					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
 				}
 			}
-			if(count($numbers[0])>0){
+			if(count($numbers[0])>0 && $news_response!=""){
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
+			return true;
 		}else if ($state=="resppa" || $state=="respadmin"){
 			//send sms to user for new response
-			if(count($numbers[1])>0){
+			if(count($numbers[1])>0 && $news_response!=""){
 				foreach($numbers[1] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
+			return true;
 			
 		}
 			
 		
-		return true;
+		
 	}
 }

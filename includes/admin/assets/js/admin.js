@@ -1310,34 +1310,44 @@ let change_el_edit_Efb = (el) => {
           if (c==1){
             //remove disabled class from all input has sms-efb
             console.log('remove disbaled!')
-            const smsEls = document.querySelectorAll('.sms-efb')
+            const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
               console.log(el.id);
               el.disabled=false;
               el.classList.remove('disabled');
+              el.classList.remove('d-none');
             })
           }else{
             //add disabled class from all input has sms-efb
             console.log('add disbaled!')
-            const smsEls = document.querySelectorAll('.sms-efb')
+            const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
               console.log(el.id);
               el.disabled=true;
               el.classList.add('disabled');
+              el.classList.add('d-none');
             })
           }
 
           if(valj_efb[0].hasOwnProperty('smsnoti')!=false){
             //get document by dataset.id
-            c= document.querySelector(`[data-id="WeRecivedUrM`).value
-            c= sanitize_text_efb(c ,true);
-            Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
+           
             c= document.querySelector(`[data-id="newMessageReceived`).value
             c= sanitize_text_efb(c ,true);
             Object.assign(valj_efb[0], { sms_msg_new_noti: c });
+
+            if(valj_efb[0].type!="register" && valj_efb[0].type!="login"){
+            c= document.querySelector(`[data-id="WeRecivedUrM`).value
+            c= sanitize_text_efb(c ,true);
+            Object.assign(valj_efb[0], { sms_msg_recived_usr: c });
+            
             c= document.querySelector(`[data-id="responsedMessage`).value
             c= sanitize_text_efb(c ,true);
             Object.assign(valj_efb[0], { sms_msg_responsed_noti:c });
+            }else{
+              Object.assign(valj_efb[0], { sms_msg_responsed_noti:'' });
+              Object.assign(valj_efb[0], { sms_msg_recived_usr: '' });
+            }
 
           }
         }

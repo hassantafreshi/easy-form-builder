@@ -622,17 +622,20 @@ function show_setting_window_efb(idset) {
       //check pro version
     
       if(type=="WeRecivedUrM"){
-        if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){ value = efb_text_nr(valj_efb[0].sms_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
+        if(valj_efb[0].hasOwnProperty('sms_msg_recived_usr')){ value = efb_text_nr(valj_efb[0].sms_msg_recived_usr,0) }else{ value = efb_var.text.WeRecivedUrM + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if(type == 'responsedMessage'){
-        if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = efb_text_nr(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
+        if( valj_efb[0].hasOwnProperty('sms_msg_responsed_noti')){value = efb_text_nr(valj_efb[0].sms_msg_responsed_noti,0)}else{value =efb_var.text.newResponse + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_response]`};
       }else if (type == "newMessageReceived"){
-      if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =efb_text_nr(valj_efb[0].sms_msg_new_noti,0) }else{ value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n${efb_var.text.url}: [link_page]`};
+      if(valj_efb[0].hasOwnProperty('sms_msg_new_noti')) { value =efb_text_nr(valj_efb[0].sms_msg_new_noti,0) }else{
+        if(valj_efb[0].type=="survey"){ value = efb_var.text.thanksFillingOutform + `\n ${efb_var.text.trackNo}: [confirmation_code] \n ${efb_var.text.url}: [link_response]` ;}
+        else if(valj_efb[0].type=="register") {value = efb_var.text.createAcountDoneM + `\n ${efb_var.text.url}: [link_domain]` ;}
+        else {value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};}
       }
       console.log(value);
-      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
+      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
       const content =`
-      <div class="efb tnxmsg">
-      <textarea type="text" data-id="${type}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb ${disable} sms-efb" placeholder="${value}" id="smsContentEl" required ${disable}>${value}</textarea>  
+      <div class="efb smsmsg ${disable}">
+      <textarea type="text" data-id="${type}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb  sms-efb" placeholder="${value}" id="smsContentEl" required >${value}</textarea>  
       </div>
       `
       return content;
@@ -641,11 +644,11 @@ function show_setting_window_efb(idset) {
     //textinput for mulitple mobile number of admins
     const smsAdminsPhoneNoEls =()=>{
       let value = valj_efb[0].hasOwnProperty('sms_admins_phone_no') ? valj_efb[0].sms_admins_phone_no : '';
-      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled';
+      const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
       const content =`
-      <div class="efb tnxmsg">
+      <div class="efb smsmsg ${disable}">
       <label for="smsAdminsPhoneNoEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.sms_admn_no}</label>
-      <input type="text" data-id="smsAdminsPhoneNoEl" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb sms-efb" placeholder="+11234567890, +11234567891" id="smsAdminsPhoneNoEl" required value="${value}" ${disable}>
+      <input type="text" data-id="smsAdminsPhoneNoEl" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb sms-efb" placeholder="+11234567890, +11234567891" id="smsAdminsPhoneNoEl" required value="${value}" >
       </div>
       `
       
@@ -1204,10 +1207,10 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3 px-3 row">  
                 ${smsEnableEls}
                 ${smsAdminsPhoneNoEls()}
-                ${`<span class="efb  my-3 fs-7">${efb_var.text.messages}</span>`}
+                ${`<span class="efb  my-3 fs-7 smsmsg ${valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages}</span>`}
                 ${smsContentEls('newMessageReceived')}
-                ${smsContentEls('WeRecivedUrM')}
-                ${smsContentEls('responsedMessage')}
+                ${valj_efb[0].type!="login" && valj_efb[0].type!="register" ? smsContentEls('WeRecivedUrM') :''}
+                ${valj_efb[0].type!="login" && valj_efb[0].type!="register" ? smsContentEls('responsedMessage') :''}
           
                 </div>
                 </div>        
@@ -1225,9 +1228,9 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
           ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
           ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
-          ${selectColorEls('clrdoneTitleEfb','text')}
-          ${selectColorEls('clrdoniconEfb','text')}
-          ${selectColorEls('clrdoneMessageEfb','text')}
+          ${valj_efb[0].type!="login" ?selectColorEls('clrdoneTitleEfb','text'):''}
+          ${valj_efb[0].type!="login" ?selectColorEls('clrdoniconEfb','text'):''}
+          ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
           ${thankYouredirectEls}
          <!-- content_colors_setting_efb() -->
           </div>
