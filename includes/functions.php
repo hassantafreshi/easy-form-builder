@@ -1389,14 +1389,14 @@ class efbFunction {
 		$this->val_state='download_all_addons_efb';
 		
 		$ac=$this->get_setting_Emsfb();
-		$addons["AdnSPF"]=$ac->AdnSPF;
-		$addons["AdnOF"]=$ac->AdnOF;
-		$addons["AdnATC"]=$ac->AdnATC;
-		$addons["AdnPPF"]=$ac->AdnPPF;
-		$addons["AdnSS"]=$ac->AdnSS;
-		$addons["AdnSPF"]=$ac->AdnSPF;
-		$addons["AdnESZ"]=$ac->AdnESZ;
-		$addons["AdnSE"]=$ac->AdnSE;
+		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
+		$addons["AdnOF"]=isset($ac->AdnOF)?$ac->AdnOF:0;
+		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
+		$addons["AdnPPF"]=isset($ac->AdnPPF)?$ac->AdnPPF:0;
+		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;
+		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
+		$addons["AdnESZ"]=isset($ac->AdnESZ)?$ac->AdnESZ:0;
+		$addons["AdnSE"]=isset($ac->AdnSE)?$ac->AdnSE:0;
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 		foreach ($addons as $key => $value) {
