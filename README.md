@@ -182,7 +182,7 @@ Thanks goes to these wonderful people
 This project follows the [Easy Form builder](https://whitestudio.team) specification.
 Contributions of any kind are welcome!
 
-## Roadmap 🎯
+## Roadmap for 2024 🎯
  ### SMS Notifications:
   #### Notification System for Form Submissions.
  * Seamless Integration with Wp-SMS.
@@ -198,6 +198,7 @@ Contributions of any kind are welcome!
 ### Smart Forms
 * Conditional logic.
 ### SMS OTP form login
+### Booking and calendars Forms
 
 
 <!--   markdownlint-restore -->
