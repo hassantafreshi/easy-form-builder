@@ -1394,7 +1394,8 @@ function fun_show_setting__emsFormBuilder() {
                                       </div> -->
                                       <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
                                         <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
-                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i></label>
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
+                                        <i class="mx-1 efb bi-info-circle efb fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i>
                                       </div>
                                   </div>
                                 </div>                                                                                         
