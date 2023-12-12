@@ -1394,7 +1394,7 @@ function fun_show_setting__emsFormBuilder() {
                                       </div> -->
                                       <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
                                         <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
-                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss} <i class="efb bi-info-circle efb fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i></label>
                                       </div>
                                   </div>
                                 </div>                                                                                         
@@ -1465,6 +1465,10 @@ function fun_set_setting_emsFormBuilder() {
     m =efb_var.text.msgchckvt.replace('XXX', val );
     console.log(val,m);
     noti_message_efb(m, 'danger' , `content-efb` );
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    });
     setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 20000);
   }
   const f = (id) => {
@@ -2390,9 +2394,15 @@ function check_server_sms_method_efb(el){
     el.checked = false;
     return;
   }else if( efb_var.plugins.wpsms ==0 && el.id=="wp_sms_plugin"){
+   //scroll down and montion
+   noti_message_efb(efb_var.text.wpsms_nm, 'danger' , `content-efb` );
+   window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+  });
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 15000);
+    
    
-    noti_message_efb(efb_var.text.wpsms_nm, 'danger' , `content-efb` );
-    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 5000);
     el.checked = false;
     return;
   }

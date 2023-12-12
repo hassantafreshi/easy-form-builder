@@ -131,17 +131,25 @@ function Link_emsFormBuilder(state) {
         break;
       case 'AdnATC':
         // AdnATC == advance tracking code
+        break;
       case 'AdnSS':
+      case 'smsconfig':
+      
         //AdnSS == sms service
+        break;
       case 'AdnCPF':
-     // AdnCPF == crypto payment
+       // AdnCPF == crypto payment
+       break;
       case 'AdnESZ':
-     //AdnESZ == zone picker
+       //AdnESZ == zone picker
+       break;
       case 'AdnSE':
         //AdnSE == email service
         //console.log(state)
         link = 'https://whitestudio.team/addons';
         break;
+      case 'wpsmss':
+        link ='https://wordpress.org/plugins/wp-sms/'
       
     }
   }else{
