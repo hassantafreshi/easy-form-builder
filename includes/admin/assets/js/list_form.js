@@ -1544,9 +1544,12 @@ function fun_set_setting_emsFormBuilder() {
           //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
           return false;
         }
-      } else if(id=="pno_emsFormBuilder"){
+      } else if(id=="pno_emsFormBuilder" && Number(efb_var.pro)==1){
         
-        if (el.value.length < 5 && el.value.length != 0) {
+        
+        if (  el.value.length < 5 && el.value.length == 0) {
+          console.log(el.value.length);
+          if(el.value.length==0){console.log(el.value.length); el.value=""; return true;}
           console.log('test!')
           el.classList.add('invalid');
           document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue;
@@ -1625,7 +1628,9 @@ function fun_set_setting_emsFormBuilder() {
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
     const payToken = f('payToken_emsFormBuilder');
-    const phoneNumbers = f('pno_emsFormBuilder');
+    let temp = f('pno_emsFormBuilder');
+    console.log(temp)
+    const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
     AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=0
     if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
