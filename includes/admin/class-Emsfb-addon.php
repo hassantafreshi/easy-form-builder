@@ -85,8 +85,7 @@ class Addon {
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 
-		//wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
-		wp_register_script('whiteStudioAddone', 'https://127.0.0.1/ws2/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
 	?>
 	<!-- new code ddd -->
