@@ -11,6 +11,7 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version =3.6;
 let wpbakery_emsFormBuilder =false;
+let pro_price_efb =19
 
 //let state_view_efb = 0;
 if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
@@ -247,7 +248,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.6.16> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.0> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -840,7 +841,7 @@ function head_introduce_efb(state) {
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti" onclick="Link_emsFormBuilder('price')">
   <i class="efb bi-diamond text-pinkEfb mx-1"></i>
   <span class="efb text-dark">${efb_var.text.getPro}</span><br>
-  ${efb_var.text.yFreeVEnPro.replace('NN',"19.5")}
+  ${efb_var.text.yFreeVEnPro.replace('NN', pro_price_efb)}
   </div>`;
   if (state != "create") {
     cont = `

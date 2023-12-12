@@ -92,7 +92,7 @@ function pro_show_efb(state) {
   <h5 class="efb  txt-center">${message}</h5>
   <div class="efb row">
   <div class="efb  col-md-6  text-center">
-  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',"19.5")} </button>
+  <button class="efb btn mt-3 efb btn-r h-d-efb btn-outline-pink "  onClick ="open_whiteStudio_efb('pro')">${efb_var.text.priceyr.replace('NN',pro_price_efb)} </button>
   </div>
     <div class="efb  text-center col-md-6"><button type="button" class="efb btn btn-r efb btn-primary efb-btn-lg mt-3 mb-3" onClick ="open_whiteStudio_efb('pro')">
       <i class="efb  bi-gem mx-1 pro"></i>
