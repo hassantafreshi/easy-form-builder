@@ -3493,7 +3493,7 @@ function emsFormBuilder_delete(id, type,value) {
   //v2
   let val =id;
   
-  
+  console.log(id);
   switch (type) {
     case "addon":
       val = efb_var.text[id];

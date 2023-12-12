@@ -650,6 +650,7 @@ class efbFunction {
 			"AdnPDP" => $state  &&  isset($ac->text->AdnPDP) ? $ac->text->AdnPDP : __('Jalali date Addon','easy-form-builder'),
 			"AdnADP" => $state  &&  isset($ac->text->AdnADP) ? $ac->text->AdnADP : __('Hijri date Addon','easy-form-builder'),
 			"AdnPPF" => $state  &&  isset($ac->text->AdnPPF) ? $ac->text->AdnPPF : __('Persia Payment Addon','easy-form-builder'),
+			"AdnSS" => $state  &&  isset($ac->text->AdnSS) ? $ac->text->AdnSS : __('SMS service Addon','easy-form-builder'),
 			"tfnapca" => $state  &&  isset($ac->text->tfnapca) ? $ac->text->tfnapca : __('Please contact the administrator as the field is currently unavailable.','easy-form-builder'),
 			"wylpfucat" => $state  &&  isset($ac->text->wylpfucat) ? $ac->text->wylpfucat : __('Would you like to customize  the form using the colors of the active template?','easy-form-builder'),
 			"efbmsgctm" => $state  &&  isset($ac->text->efbmsgctm) ? $ac->text->efbmsgctm : __('Easy Form Builder has utilized the colors of the active template. Please choose a color for each option below to customize the form you are creating based on the colors of your template.By selecting a color for each option below, the color of all form fields associated with that feature will change accordingly.','easy-form-builder'),
