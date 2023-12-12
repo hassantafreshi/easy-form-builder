@@ -1292,7 +1292,7 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="efb mx-3 my-2">
                             <!-- Text Section -->
                                <h5 class="efb  card-title mt-3 mobile-title">
-                                 <i class="efb  bi-credit-card m-3"></i>${efb_var.text.stripe}
+                                 <i class="efb  bi-stripe m-3"></i>${efb_var.text.stripe}
                                </h5>
                                <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
@@ -1401,7 +1401,7 @@ function fun_show_setting__emsFormBuilder() {
                               </div>
                           </div>   
                           <h5 class="efb  card-title mt-3 ">
-                              <i class="efb  bi-telephone m-3"></i>${efb_var.text.sms_noti}
+                              <i class="efb bi-phone m-3"></i>${efb_var.text.sms_noti}
                             </h5>                                        
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">

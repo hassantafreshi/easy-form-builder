@@ -571,6 +571,7 @@ function add_addons_emsFormBuilder() {
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
     //778899 addonTest => change below 
+    console.log(i);
    if(i.state==true) {
     //if(i.state==true || i.state==false) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
