@@ -9,7 +9,7 @@ let exportJson_ws = [];
 let pro_ws = false;
 let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
-const efb_version =3.6;
+const efb_version =3.7;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
 
