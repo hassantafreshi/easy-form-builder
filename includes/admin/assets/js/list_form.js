@@ -1022,7 +1022,7 @@ function fun_show_setting__emsFormBuilder() {
   let payToken="null";
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
-  let phoneNumbers = 'null';
+  let phoneNumbers=sms_method = 'null';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -1045,7 +1045,8 @@ function fun_show_setting__emsFormBuilder() {
     smtp = f('smtp') == 'null' ? false : f('smtp');
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
-
+    sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
+    console.log(sms_method);
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     //console.log(f('scaptcha'),scaptcha)
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
@@ -1393,9 +1394,9 @@ function fun_show_setting__emsFormBuilder() {
                                         <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="efb_sms_service_lab" for="efb_sms_service">${efb_var.text.sms_efbs}</label>
                                       </div> -->
                                       <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
-                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
+                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}" ${sms_method=="wpsms" ? 'checked' :''}>
                                         <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
-                                        <i class="mx-1 efb bi-info-circle efb fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i>
+                                        <i class="mx-1 efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i>
                                       </div>
                                   </div>
                                 </div>                                                                                         
