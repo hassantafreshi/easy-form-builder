@@ -1570,7 +1570,7 @@ function fun_set_setting_emsFormBuilder() {
         //write a foreach for check phoneNoArr
           for(let i=0;i<phoneNoArrLen;i++){
             //use regix for validation phone number
-            if( !phoneNoArr[i].match(/^\+\d{11,14}$/)){
+            if( !phoneNoArr[i].match(/^\+\d{8,14}$/)){
               returnError(`<b>${el.dataset.tab}</b>`);
               el.classList.add('invalid');
               //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
