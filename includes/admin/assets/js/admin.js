@@ -1720,6 +1720,10 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].value = el.options[el.selectedIndex].value;
         let nfile = el.options[el.selectedIndex].value.toLowerCase();
         nfile = efb_var.text[nfile];
+        console.log(el.options[el.selectedIndex].value)
+        if(el.options[el.selectedIndex].value=='customize'){nfile =valj_efb[indx].file_ctype}
+          
+
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         if(valj_efb[indx].file=='customize'){
           document.getElementById(`fileCustomizeTypleEls`).classList.remove('d-none');
@@ -1752,8 +1756,9 @@ let change_el_edit_Efb = (el) => {
         }
         
         //check last chracters is comma remove it
-        
+        console.error(c);
         valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
+
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${c}`
         console.log(valj_efb[indx]);
         break;
@@ -2870,6 +2875,9 @@ let sampleElpush_efb = (rndm, elementId) => {
       //console.log (valj_efb[(valj_efb.length) - 1])
       Object.assign(valj_efb[(valj_efb.length) - 1], { icon: 'bi-cloud-arrow-up-fill', icon_color:pub_icon_color_efb, button_color: pub_bg_button_color_efb })
       
+    }else if(elementId == "file"){
+      valj_efb[(valj_efb.length) - 1].value = 'zip';
+      valj_efb[(valj_efb.length) - 1].file = 'zip';
     }
 
   }

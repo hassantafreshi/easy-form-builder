@@ -1140,6 +1140,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
+  console.log(id,tp)
 
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
@@ -1150,31 +1151,46 @@ function valid_file_emsFormBuilder(id,tp) {
   if (true) {
     const f = valueJson_ws.find(x => x.id_ === id);
     file = f.file && f.file.length > 3 ? f.file : 'Zip';
+    file = file.toLocaleLowerCase();
   }
   let check = 0;
   let rtrn = false;
   let fileName = ''
   const i = `${id}_`;
   let message = "";
+  let file_size = 8*1024*1024;
+  const indx = valj_efb.findIndex(x => x.id_ === id);
+  let val_in = valj_efb[indx];
+  if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
+    file_size = Number(val_in.max_fsize) * 1024 * 1024;
+  }
+
   const el = document.getElementById(i);
-  if (el.files[0] && el.files[0].size < fileSizeLimite_emsFormBuilder) {
+  if (el.files[0] && el.files[0].size < file_size) {
     const filetype = el.files[0].type.length > 1 ? el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".") - 1) * -1))
-    const r = validExtensions_efb_fun(file, filetype)
+    const r = validExtensions_efb_fun(file, filetype,indx)
+    
     if (r == true) {
       check = +1;
-      message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
+      //message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
+      message  = efb_var.text.pleaseUploadA.replace('NN', ajax_object_efm.text[file]);
     }
   }
   if (check > 0) {
     msgEl.innerHTML = "";
     
     //fun_upload_file_emsFormBuilder(id, file,tp);
+    console.log(id, file,tp)
     fun_upload_file_api_emsFormBuilder(id, file,tp);
     
     rtrn = true;
   } else {
-    if (el.files[0] && message.length < 2) message = el.files[0].size < fileSizeLimite_emsFormBuilder ? `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}` : ajax_object_efm.text.fileSizeIsTooLarge;
-      
+    console.error(file)
+    const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[file]);
+    const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', val_in.max_fsize);
+   console.log(`file size limited [${val_in.max_fsize}]`,size_m);
+    if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
+      console.log(message);
     const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
     //console.log(newClass,typeof newClass,newClass!=false)
     newClass!=false ? msgEl.className=newClass:0;

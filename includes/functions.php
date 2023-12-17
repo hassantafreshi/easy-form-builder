@@ -146,7 +146,7 @@ class efbFunction {
 			"registered" => $state ? $ac->text->registered : __('Registered','easy-form-builder'),
 			"yourInformationRegistered" => $state ? $ac->text->yourInformationRegistered : __('Your information is successfully registered','easy-form-builder'),
 			"youNotPermissionUploadFile" => $state ? $ac->text->youNotPermissionUploadFile : __('You do not have permission to upload this file:','easy-form-builder'),
-			"pleaseUploadA" => $state ? $ac->text->pleaseUploadA : __('Please upload the','easy-form-builder'),
+			"pleaseUploadA" => $state ? $ac->text->pleaseUploadA : __('Please upload NN file','easy-form-builder'),
 			"please" => $state ? $ac->text->please : __('Please','easy-form-builder'),
 			"trackingForm" => $state ? $ac->text->trackingForm : __('Tracking Form','easy-form-builder'),
 			"trackingCodeIsNotValid" => $state ? $ac->text->trackingCodeIsNotValid : __('The confirmation Code is not valid.','easy-form-builder'),
@@ -369,7 +369,7 @@ class efbFunction {
 			"enterThePhone" => $state ? $ac->text->enterThePhone : __('Please enter a valid phone number.','easy-form-builder'),
 			"pleaseMakeSureAllFields" => $state ? $ac->text->pleaseMakeSureAllFields : __('Please ensure that all fields are filled correctly.','easy-form-builder'),
 			"enterTheEmail" => $state ? $ac->text->enterTheEmail : __('Please enter an email address.','easy-form-builder'),			
-			"fileSizeIsTooLarge" => $state ? $ac->text->fileSizeIsTooLarge : __('The file size exceeds the maximum allowed limit of 8MB','easy-form-builder'),
+			"fileSizeIsTooLarge" => $state ? $ac->text->fileSizeIsTooLarge : __('The file size exceeds the maximum allowed limit of NN MB','easy-form-builder'),
 			"documents" => $state ? $ac->text->documents : __('Documents','easy-form-builder'),
 			"document" => $state ? $ac->text->document : __('Document','easy-form-builder'),
 			"image" => $state ? $ac->text->image : __('Image','easy-form-builder'),
@@ -1552,16 +1552,16 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		/* error_log("efb_code_validate_select");
+		error_log("efb_code_validate_select");
 		error_log($sid);
-		error_log($fid); */
+		error_log($fid); 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
 		/* error_log(json_encode(  $query)); */
         $result =$this->db->get_var($query);
-		//error_log(json_encode(  $result));
+		error_log(json_encode($result));
         return $result === '1';
     }
 

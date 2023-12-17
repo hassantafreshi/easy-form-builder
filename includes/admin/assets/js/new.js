@@ -1336,15 +1336,17 @@ function copyCodeEfb(id) {
 
 
 
-function validExtensions_efb_fun(type, fileType) {
+function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
-  //console.log(type , fileType);
+  console.log(type , valj_efb[indx].file_ctype);
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
   'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
   'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
-  'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime'
+  'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime',
+  'customize':valj_efb[indx].file_ctype
   }
+  console.log( filetype_efb[type].includes(fileType));
   return filetype_efb[type].includes(fileType) ;
 }
 
@@ -2612,81 +2614,90 @@ function replaceContentMessageEfb(value){
 
 
 function fun_upload_file_api_emsFormBuilder(id, type,tp) {
+  console.log('fun_upload_file_api_emsFormBuilder',id, type,tp)
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //v3.6.2  updated
-
+  console.log(`tp===>[${tp}]`);
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
+  console.log(`tp===>[${tp}]`);
   
   
   const nonce_msg = efb_var.nonce_msg ;
-  const id_nonce = tp=="msg" ? efb_var.id : efb_var.msg_id
+  console.log(`tp===>[${tp}]`);
+  
   //console.log(tp)
   //jQuery(function ($) {
     
-  const fd = new FormData();
-	const idn =  id + '_';
-	const file = document.getElementById(idn);
-	//const caption = document.querySelector(idn);
+    const fd = new FormData();
+    const idn =  id + '_';
+    const file = document.getElementById(idn);
+    //const caption = document.querySelector(idn);
+    console.log(`tp===>[${tp}]`);
 
 	const individual_file = file.files[0];
+  console.log('before ===> uploadFile_api',`tp===>[${tp}]` ,id, type, nonce_msg ,indx,idn)
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
   return true;
 }
 
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
+  console.log('uploadFile_api',file, id, pl, nonce_msg ,indx,idn)
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
+  setTimeout(() => {
+      fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
+        // Handle the response data
+        if (data.success === true && data.data.success===true) {
+          files_emsFormBuilder[indx].url = data.data.file.url;
+            files_emsFormBuilder[indx].state = 2;
+            files_emsFormBuilder[indx].id = idn;
+            
+            const ob = valueJson_ws.find(x => x.id_ === id) || 0;
+            const o = [{
+              id_: files_emsFormBuilder[indx].id_,
+              name: files_emsFormBuilder[indx].name,
+              amount: ob.amount,
+              type: files_emsFormBuilder[indx].type,
+              value: '@file@',
+              url: files_emsFormBuilder[indx].url,
+              session: sessionPub_emsFormBuilder,
+            
+            }];
 
+            fun_sendBack_emsFormBuilder(o[0]);
+            const el = document.getElementById(idB)
+            if(el){
+              el.style.width = '100%';
+              el.textContent = '100% = ' + file.name;
+            }
 
-  fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
-    // Handle the response data
-    if (data.success === true && data.data.success===true) {
-      files_emsFormBuilder[indx].url = data.data.file.url;
-        files_emsFormBuilder[indx].state = 2;
-        files_emsFormBuilder[indx].id = idn;
-        
-        const ob = valueJson_ws.find(x => x.id_ === id) || 0;
-        const o = [{
-          id_: files_emsFormBuilder[indx].id_,
-          name: files_emsFormBuilder[indx].name,
-          amount: ob.amount,
-          type: files_emsFormBuilder[indx].type,
-          value: '@file@',
-          url: files_emsFormBuilder[indx].url,
-          session: sessionPub_emsFormBuilder,
-        
-        }];
-
-        fun_sendBack_emsFormBuilder(o[0]);
-        const el = document.getElementById(idB)
-        if(el){
-          el.style.width = '100%';
-          el.textContent = '100% = ' + file.name;
+            if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
+        } else {
+          const m = data.data.hasOwnProperty('file') ? data.data.file.error : data.data.m
+          alert_message_efb('', m, 30, 'danger');
+          document.querySelector(idB).style.width = '0%';
+          document.querySelector(idB).textContent = '0% = ' + file.name;
+          return;
         }
+      })
+      .catch((error) => {
+        // Handle the error
+        console.error(error);
+      }); 
 
-        if(document.getElementById(id + '-prG')) document.getElementById(id + '-prG').classList.add('d-none');
-    } else {
-      const m = data.data.hasOwnProperty('file') ? data.data.file.error : data.data.m
-      alert_message_efb('', m, 30, 'danger');
-      document.querySelector(idB).style.width = '0%';
-      document.querySelector(idB).textContent = '0% = ' + file.name;
-      return;
-    }
-  })
-  .catch((error) => {
-    // Handle the error
-    console.error(error);
-  }); 
+  }, 800);
 }
 
 function fetch_uploadFile(file, id, pl, nonce_msg) {
+  console.log('fetch_uploadFile',file, id, pl, nonce_msg)
   var idB =id+'-prB';
+  
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     const fid = efb_var.hasOwnProperty('id') ? efb_var.id :0;
@@ -2698,10 +2709,11 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('fid', fid);
     
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
-
+    console.log(formData);
     const xhr = new XMLHttpRequest();
 
     xhr.upload.addEventListener('progress', (event) => {
+      
     if (event.lengthComputable) {
       const percent = Math.round((event.loaded / event.total) * 100);
       const el = document.getElementById(idB)

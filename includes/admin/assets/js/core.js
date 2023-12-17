@@ -88,6 +88,16 @@ function fun_render_view_core_emsFormBuilder(check) {
         } else if (v.file == "Zip") {
           acception = `.zip,.rar`;
           typeFile = v.file;
+        } else if (v.file == "customize") {
+          acception =  `.zip ,.rar`;
+          if(v.hasOwnProperty('file_ctype') ){
+            //seprate string to array by comma
+            const arr = v.file_ctype.split(',');
+            for (let i = 0; i < arr.length; i++) {
+              acception += `.${arr[i]},`;
+            }
+          }
+          typeFile = acception;
         }
         classData = drog == true ? "form-control-file text-secondary " : "";
         el = ` <div class="efb row emsFormBuilder ${drog == true ? `inputDnD` : ``}" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog == true ? ` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"` : ``}>`
@@ -710,8 +720,9 @@ function valid_file_emsFormBuilder(id) {
   } else {
 
 
-
-    let message = `${efb_var.text.pleaseUploadA} ${file}`;
+    //in string find NN and replase with value
+    let message  = efb_var.text.pleaseUploadA.replace('NN', file);
+    
     el.classList.add('text-warning');
     el.classList.remove('text-secondary');
     if (el.files[0]) message = el.files[0].size < 15000000 ? `Please upload the ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;

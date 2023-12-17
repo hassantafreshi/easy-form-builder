@@ -189,14 +189,20 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
  function ui_dadfile_efb(indx, previewSate) {
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
+    if(valj_efb[indx].file=='customize'){
+      n = valj_efb[indx].file_ctype;
+    }
     let types = ""
     let disabled =  valj_efb[indx].hasOwnProperty('disabled') &&  valj_efb[indx].disabled==true? 'disabled' : ''
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
     'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
-    'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime'
+    'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+    'customize':`${valj_efb[indx].file_ctype}`
+   
       }
+      console.log(filetype_efb[valj_efb[indx].value]);
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1 fs-6">${efb_var.text.dragAndDropA} ${n} </h6> <span class="efb fs-7">${efb_var.text.or}</span>
     <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b" ${disabled}>
@@ -223,13 +229,14 @@ function viewfileEfb(id, indx) {
     let box_v = `<div class="efb ">
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
-         <div class="efb card efb">
+         <div class="efb card efb px-2 py-5">
           <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center fs-2"></i>
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
     fun_addProgessiveEl_efb(id ,0);
-    if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
+    if (validExtensions_efb_fun(valj_efb[indx].file, fileType ,indx)) {
+      console.log('validate extintion files!');
       let fileReader = new FileReader();
       fileReader.onload = () => {
         let fileURL = fileReader.result;
@@ -248,7 +255,9 @@ function viewfileEfb(id, indx) {
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
     } else {
-      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text[valj_efb[indx].file]}`;
+      const t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
+      const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
+      //const m = `${efb_var.text.pleaseUploadA} ${t_m}`;
       document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
       alert_message_efb('', m, 4, 'danger')
@@ -259,7 +268,7 @@ function viewfileEfb(id, indx) {
 function viewfileReplyEfb(id, indx) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
-    if (validExtensions_efb_fun('allformat',fileType)) {
+    if (validExtensions_efb_fun('allformat',fileType,indx)) {
       fun_addProgessiveEl_efb('resp_file_efb' ,1);
       let fileReader = new FileReader();
       fileReader.onload = () => {
@@ -270,7 +279,9 @@ function viewfileReplyEfb(id, indx) {
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
-      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']} `;      
+      const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
+      //const m = `${efb_var.text.pleaseUploadA} ${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']} `;      
+      
       alert_message_efb('', m, 4, 'danger')
       fileEfb = [];
     }
@@ -281,7 +292,7 @@ function removeFileEfb(id, indx) {
     setTimeout(() => {
       create_dadfile_efb(id, indx);
       document.getElementById(`${id}_`).addEventListener('change', () => {
-        valid_file_emsFormBuilder(id);
+        valid_file_emsFormBuilder(id ,'msg');
       })
     }, 500)
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -342,7 +353,7 @@ set_dadfile_fun_efb = (id, indx) => {
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
       dropAreaEfb.classList.add("active");
       viewfileEfb(id, indx);
-      valid_file_emsFormBuilder(id)     
+      valid_file_emsFormBuilder(id ,'msg')     
     });
   }
     /* attachment reply */
