@@ -383,7 +383,7 @@ function show_setting_window_efb(idset) {
     </div>`;
   
     const emailEls = `<div class="efb mx-1 my-3 efb">
-    <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ ( valj_efb[0].hasOwnProperty('email_to') && valj_efb[0].email_to == valj_efb[indx].id_ ) || (valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
+    <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
     <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
@@ -657,6 +657,19 @@ function show_setting_window_efb(idset) {
       return content;
     }
 
+
+    //file size
+    const fileSizeMaxEls =()=>{ 
+      const file_size = valj_efb[indx].hasOwnProperty('max_fsize') ? valj_efb[indx].max_fsize : 8;
+      return`
+      <div class="efb  mt-3">
+      <label for="fileSizeMaxEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
+      
+      <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1 efb" placeholder=""${efb_var.text.exDot} 8" id="fileSizeMaxEl" required value="${file_size}">
+      </div>
+      `}
+      
+
     
   
   
@@ -668,8 +681,27 @@ function show_setting_window_efb(idset) {
           <option value="image" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
           <option value="media" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
           <option value="zip" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
+          <option value="customize" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'customize' ? `selected` : ''} >${efb_var.text.cstm_rd}</option>
           </select>
       `
+
+    const fileCustomizeTypleEls =()=>{
+      let value =  'jpg, png, pdf';
+      let show = 'd-none';
+      //valj_efb[indx].file
+      if(valj_efb[indx].file=="customize"){
+        value = valj_efb[indx].file_ctype;
+        show = 'd-block';
+      }
+
+      return`
+      <div class="efb mt-3 ${show}" id="fileCustomizeTypleEls">
+      <label for="fileCustomizeTypleEl" class="efb  mt-3 bi-file-earmark-medical mx-2 ">${efb_var.text.file_cstm}</label>
+      <input type="text" data-id="${idset}" class="efb  elEdit form-control text-muted border-d efb-rounded h-d-efb mb-1 efb" placeholder="${efb_var.text.exDot} jpg, png, pdf" id="fileCustomizeTypleEl" required value="${value}">
+      </div>
+      `
+
+    }
 
     const selectColorEls = (forEl ,f) => {
       //f ===> text , border,  bg 
@@ -991,6 +1023,8 @@ function show_setting_window_efb(idset) {
         <!--  not   advanced-->
         ${Nadvanced}
         ${el.dataset.tag == 'dadfile' ? fileTypeEls : '<!--efb.app-->'}
+        ${el.dataset.tag == 'dadfile' ? fileCustomizeTypleEls() : '<!--efb.app-->'}
+        ${fileSizeMaxEls()}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">

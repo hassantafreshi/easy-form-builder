@@ -149,7 +149,11 @@ function Link_emsFormBuilder(state) {
         link = 'https://whitestudio.team/addons';
         break;
       case 'wpsmss':
-        link ='https://wordpress.org/plugins/wp-sms/'
+        link ='https://wordpress.org/plugins/wp-sms/';
+        break;
+      case 'file_size':
+        link += "s"
+        break;
       
     }
   }else{
@@ -1256,21 +1260,26 @@ let change_el_edit_Efb = (el) => {
           //console.log(c ,document.getElementById(c).classList )
           break;
       case "SendemailEl":
-       //console.log('noti');
-        if (efb_var.smtp == "true" || efb_var.smtp == 1 ) {
+       console.log('noti' ,efb_var.smtp);
+        if (efb_var.smtp == "true" || Number(efb_var.smtp) == 1 ) {
+          console.log('s,ttttttttt');
           //valj_efb[0].sendEmail = el.checked
           postId= valj_efb[indx].id_;
           valj_efb[0].email_to = el.dataset.vid;
           c= el.classList.contains('active')==true ? 1 :0
           clss= document.getElementById(postId).classList;
-          Object.assign(valj_efb[indx],{'noti':c})
-          //console.log(valj_efb[indx]);
+          valj_efb[indx].hasOwnProperty('noti')==false?  Object.assign(valj_efb[indx],{'noti':c}) : valj_efb[indx].noti = c;
+          console.error(valj_efb[indx]);
           //valj_efb[0].sendEmail=true;
           if(valj_efb[0].email.length<2){
             for(let v of valj_efb){
-                if(v.hasOwnProperty('noti') && v.noti ==1){
+                if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
                   valj_efb[0].sendEmail=true;
                   //console.log( valj_efb[0].sendEmail);
+                }else{
+                  if(valj_efb[0].email_to==v.id_){
+                    valj_efb[0].email_to="";                    
+                  }
                 }
             }
           }
@@ -1388,7 +1397,7 @@ let change_el_edit_Efb = (el) => {
               return true;
             }
             else {
-              alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue, 10, "danger");             
+              alert_message_efb(efb_var.text.error, efb_var.text.pleaseEnterVaildValue + ` (${phone})`, 10, "danger");             
               valj_efb[0].sms_admins_phone_no="";
               return false;
             }
@@ -1707,12 +1716,48 @@ let change_el_edit_Efb = (el) => {
       case "fileTypeEl":
         valj_efb[indx].file = el.options[el.selectedIndex].value;
 
-        //console.log(valj_efb[indx].file)
+        console.log(valj_efb[indx].file)
         valj_efb[indx].value = el.options[el.selectedIndex].value;
         let nfile = el.options[el.selectedIndex].value.toLowerCase();
         nfile = efb_var.text[nfile];
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
+        if(valj_efb[indx].file=='customize'){
+          document.getElementById(`fileCustomizeTypleEls`).classList.remove('d-none');
+          document.getElementById(`fileCustomizeTypleEls`).classList.add('d-block');
+          c= document.getElementById(`fileCustomizeTypleEl`).value;
+          valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
+          nfile = c.toLowerCase();
+        }else{
+          document.getElementById(`fileCustomizeTypleEls`).classList.remove('d-block');
+          document.getElementById(`fileCustomizeTypleEls`).classList.add('d-none');
+        }
+
+        if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
         break;
+      case 'fileSizeMaxEl':
+        valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;       
+        console.log(valj_efb[indx]);
+        break;
+      case'fileCustomizeTypleEl':
+        c= el.value.trim();
+        if(c.slice(-1)==',') c=c.slice(0,-1);
+        for(let v of c.split(',')){
+          console.log(v);
+          
+          v=v.trim();
+          if(v.match(/^[a-zA-Z0-9]+$/)==null){
+            alert_message_efb(efb_var.text.error,efb_var.text.editField +'>'+efb_var.text.file_cstm +'</br>'+ efb_var.text.pleaseEnterVaildValue + ` (${v})`, 15, "danger");            
+            return false;
+          }
+        }
+        
+        //check last chracters is comma remove it
+        
+        valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
+        if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${c}`
+        console.log(valj_efb[indx]);
+        break;
+
       case "btnColorEl":
         color = el.value;
         //valj_efb[indx].button_color = el.options[el.selectedIndex].value;

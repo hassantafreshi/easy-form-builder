@@ -732,6 +732,9 @@ class efbFunction {
 			"esmsno" => $state  &&  isset($ac->text->esmsno) ? $ac->text->esmsno : __('Enable SMS notifications','easy-form-builder'),
 			"payPalTAddon" => $state  &&  isset($ac->text->payPalTAddon) ? $ac->text->payPalTAddon : __('PayPal Payment Addon','easy-form-builder'),				
 			"payPalDAddon" => $state  &&  isset($ac->text->payPaleDAddon) ? $ac->text->payPaleDAddon : __('The PayPal add-on for Easy Form Builder enables you to integrate your WordPress site with PayPal for payment processing, donations, and online orders.','easy-form-builder'),				
+			"file_cstm" => $state  &&  isset($ac->text->file_cstm) ? $ac->text->file_cstm : __('Acceptable file types','easy-form-builder'),
+			"cstm_rd" => $state  &&  isset($ac->text->cstm_rd) ? $ac->text->cstm_rd : __('Customized Ordering','easy-form-builder'),
+			"maxfs" => $state  &&  isset($ac->text->maxfs) ? $ac->text->maxfs : __('Max File Size','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

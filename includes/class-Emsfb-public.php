@@ -165,13 +165,16 @@ class _Public {
 			"bi-envelope",
 			"bi-arrow-right",
 			"bi-arrow-left",
+			"bi-upload"
 		]];
-	
+		
 		$pattern = '/bi-[a-zA-Z0-9-]+/';
 		 preg_match_all($pattern, $value, $icons_ );
 
 		$value = preg_replace('/\\\"email\\\":\\\"(.*?)\\\"/', '\"email\":\"\"', $value);
-		//error_log(json_encode($icons_));
+		error_log(json_encode($value));
+		error_log('oooooooooooo');
+		error_log(json_encode($icons_));
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
 		$state="form";		
@@ -365,6 +368,7 @@ class _Public {
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
+		error_log(json_encode($icons_));
 		 if($formObj[0]["stateForm"]==true ){
 			$content ="
 			".$this->bootstrap_icon_efb($icons_)."		 
@@ -482,6 +486,7 @@ class _Public {
 			"bi-arrow-left",
 			"bi-search",
 			'bi-paperclip',
+			"bi-upload"
 		]];
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
