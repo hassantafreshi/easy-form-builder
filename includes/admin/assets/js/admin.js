@@ -2117,7 +2117,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'EditOption':
-          //console.log('EditOption',el.dataset)
+          console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
         
         if (iindx != -1) {
@@ -2132,6 +2132,9 @@ let change_el_edit_Efb = (el) => {
           }else if(el.dataset.tag == "imgRadio"){
             //console.log(el.dataset.id,valj_efb[iindx].id_op);
             document.getElementById(`${valj_efb[iindx].id_op}_value`).innerHTML = el.value;
+          }else if(el.dataset.tag == "table_matrix"){
+            console.log(valj_efb[iindx].id_op ,el.value ,document.getElementById(`${valj_efb[iindx].id_op}_label`));
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
             //radio || checkbox       
              document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
@@ -3758,6 +3761,7 @@ window.addEventListener("popstate",e=>{
   const getUrlparams = new URLSearchParams(location.search);
   let v =g_page =getUrlparams.get('page') ? sanitize_text_efb(getUrlparams.get('page')) :"";
   if (v==null) return  valNotFound_efb();
+  console.log(e.state , v);
   switch(e.state){
     case 'templates':
       add_dasboard_emsFormBuilder();
@@ -3769,6 +3773,7 @@ window.addEventListener("popstate",e=>{
       add_sms_emsFormBuilder();
     break;
     case 'panel':
+      document.getElementById('sideBoxEfb').classList.remove('show');
       fun_emsFormBuilder_render_view(25);
       fun_hande_active_page_emsFormBuilder(1);
     break;
