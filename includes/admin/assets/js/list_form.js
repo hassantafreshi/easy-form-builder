@@ -392,6 +392,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       //console.log(390 ,checboxs.includes(c.id_));
       let vc ='null';
       checboxs.push(c.id_);
+      console.log(c , content);
       for(let op of content){
         
         if(op.type=="r_matrix" && op.id_ == c.id_){

@@ -688,7 +688,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${label}
         <div class="efb ${pos[3]} col-sm-12 efb  px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
         ${ttip}
-        <select class="efb form-select efb w-100 emsFormBuilder_v w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'readonly' : ''} ${disabled}>
+        <select data-type="conturyList" class="efb form-select efb w-100 emsFormBuilder_v w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'readonly' : ''} ${disabled}>
         <option selected disabled>${efb_var.text.nothingSelected}</option>
         ${optn}
         </select>
@@ -754,7 +754,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${label}
         <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
         ${ttip}
-        <select class="efb form-select emsFormBuilder_v w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'readonly' : ''} ${disabled}>
+        <select data-type="stateProvince" class="efb form-select emsFormBuilder_v w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'readonly' : ''} ${disabled}>
         <option selected disabled>${efb_var.text.nothingSelected}</option>
         ${optn}
         </select>
@@ -3049,19 +3049,24 @@ const add_r_matrix_view_select = (idin, value, id_ob, tag, parentsID) => {
 async  function  fetch_json_from_url_efb(url){
   temp_efb="null";
  let r = {s:false ,r:"false"}
- fetch(url)
+ return fetch(url)
   .then(response => response.json())
   .then(data => {
     // use the parsed JSON data here
     r.s=true ;
     r.r =data
-    //console.log(data);
+    temp_efb=r;
+    console.log(data);
+    return r;
   })
   .catch(error => {
     console.error('Error:', error);
     r.r =error
+    temp_efb=r;
+    return r;
   });
-  temp_efb=r;
+  
+  
 }
 
 

@@ -685,6 +685,16 @@ function handle_change_event_efb(el){
           if (typeof v.price == "string") price_efb = v.price;
         }
         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+        console.log(el);
+        if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
+          let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
+          console.log(temp);
+        
+           
+              fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
+        
+          //if(v.type=="conturyList"){ fun_check_link_state_efb(el , v)}
+        }
         break;
       case "range":
           value = sanitize_text_efb(el.value);
