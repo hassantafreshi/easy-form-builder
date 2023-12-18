@@ -721,6 +721,7 @@ function valid_file_emsFormBuilder(id) {
 
 
     //in string find NN and replase with value
+    file = file.replaceAll(',',` ${efb_var.text.or} `);
     let message  = efb_var.text.pleaseUploadA.replace('NN', file);
     
     el.classList.add('text-warning');

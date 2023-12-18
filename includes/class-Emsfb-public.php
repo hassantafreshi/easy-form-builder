@@ -167,6 +167,7 @@ class _Public {
 			"bi-arrow-left",
 			"bi-upload",
 			"bi-x-lg",
+			"bi-file-earmark-richtext",
 			
 			
 		]];
@@ -678,7 +679,10 @@ class _Public {
 						$in_loop=true;						
 						if($key<2) continue;
 						if($stated==0){break;}
+						//error_log("P:form row type =>" . $f["type"] ."key:".$key);
 						$it= array_filter($valo, function($item) use ($f,$key,&$stated ,&$email_user,&$rt,&$formObj,&$in_loop,&$mr,$form_condition,&$smsnoti,&$phone_numbers) { 
+
+							//error_log("D:form row type =>" . $f["type"] ."key:".$key);
 							if($in_loop==false){
 								return;
 							}
@@ -693,13 +697,17 @@ class _Public {
 								return;
 							}
 							$t =strpos(strtolower($item['type']),'checkbox');
+					
 							if(isset($f['id_']) && isset($item['id_']) && ( $f['id_']==$item['id_'] 
 							||  gettype($t)=="integer" && $f['id_']==$item['id_ob'])
-							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')) {   							
+							||( ( $f['type']=="persiaPay" ||$f['type']=="persiapay" || $f['type']=="payment") && $formObj[0]["type"]=='payment')
+							|| ( $item['type']=='r_matrix' && $f['id_']==$item['id_ob'])
+						
+							) {   							
 							if(isset($f['name'])){
 						    $mr = $this->lanText["mnvvXXX"];
 							$mr =str_replace('XXX', $f['name'], $mr );}
-							//error_log($f["type"]);
+							error_log("form row type =>" . $f["type"] ."key:".$key);
 							//error_log(json_encode($f));	
 							switch ($f['type']) {
 								case 'email':
@@ -917,14 +925,21 @@ class _Public {
 									}
 									$in_loop=false;
 									break;
-								case 'table_matrix':					
+								/* case 'table_matrix':					
 									$t = strpos(strtolower($item['type']),'r_matrix');
 									if(gettype($t)!='boolean'){
 									}
 									$stated=0;
 									if(isset($item['value'])){
+										error_log("table_matrix value:".$item['value']);
 										$item['value'] = sanitize_text_field($item['value']);
 										$item['name'] = sanitize_text_field($item['name']);
+
+										if($item['value']<1 || $item['value']>5){
+											$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 600';
+											$response = array( 'success' => false  , 'm'=>$m); 
+											wp_send_json_success($response,$data_POST);
+										}
 										//error_log(json_encode($item));
 										//error_log(json_encode($f));								
 										//array_filter($formObj, function($fr) use($item,&$rt,&$stated) { 											
@@ -944,7 +959,37 @@ class _Public {
 										//});
 									}
 									$in_loop=false;
+									break; */
+								case 'r_matrix':
+									error_log("r_matrix ==> name". $item['value']);
+									$stated=0;
+									$item['value'] = sanitize_text_field($item['value']);
+									if($item['value']<1 || $item['value']>5){
+										$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 600';
+										$response = array( 'success' => false  , 'm'=>$m); 
+										wp_send_json_success($response,$data_POST);
+									}
+									$stated=1;
+									$item['name'] = $f['value'];
+									$item['label']="";
+									error_log('==================item=============');
+									error_log(json_encode($item));
+									error_log('==================f=============');
+									error_log(json_encode($f));
+									//find form $formObj row type =='table_matrix';
+									foreach($formObj as $k=>$v){
+										if($v['type']=='table_matrix' && $v['id_']==$item['id_']){										
+											$item['label']=$v['name'];
+											break;
+										}
+									}
+									error_log('=================::item::===============');
+									error_log(json_encode($item));
+									
+									$rt= $item;
+									$in_loop=false;
 									break;
+
 								case 'multiselect':
 									$stated=0;
 									if(isset($item['value'])){
@@ -1159,6 +1204,7 @@ class _Public {
 				}
 				
 				//$this->url =$url;
+				error_log(json_encode($valobj));
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 				/* 	//test return
 				return ; */
@@ -1823,6 +1869,7 @@ class _Public {
 		} 
         //check validate here
         $vl=null;
+		$have_validate =0;
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1831,15 +1878,23 @@ class _Public {
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
 			error_log($vl);
-			$have_validate =false;
-            if($vl!=null){              
-                if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
-                    $vl ='efb'.$id;
-                    //'efb'.$this->id
-                }
+			
+            if($vl!=null){    
+				$tmep = strpos($vl , '\"value\":\"customize\"');
+				error_log('=======>vl is validate file:'.$tmep);
 				if(strpos($vl , '\"value\":\"customize\"')){
-					$have_validate=true;
+					error_log('=======>have_validate');
+					$have_validate=1;
 				}
+				   
+				$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+				error_log('=======>vl is file upload:'.$tmep);
+                if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
+
+                    $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
+					wp_send_json_success($response,200);
+                }
+				
             }
         }
 		$valid=false;
@@ -1847,23 +1902,64 @@ class _Public {
 				
 			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
-			$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
-			'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
-			'text/plain' ,
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
-			'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
-			'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-			'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-			'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
-			);
-			$valid = in_array($_FILES['async-upload']['type'], $arr_ext);
+			if($have_validate!=1){
+				$arr_ext = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif' , 'application/pdf','audio/mpeg' ,'image/heic',
+				'audio/wav','audio/ogg','video/mp4','video/webm','video/x-matroska','video/avi' , 'video/mpeg', 'video/mpg', 'audio/mpg','video/mov','video/quicktime',
+				'text/plain' ,
+				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/msword',
+				'application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel',
+				'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
+				'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+				'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
+				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+				);
+				$valid = in_array($_FILES['async-upload']['type'], $arr_ext);
+				error_log($_FILES['async-upload']['type']);
+				error_log($valid);
+				//validate file type secure way
+
+				/* //get file type form $file_name find last dot in the string and get after chrecters as type
+				//find in string from end chrechters to first dot
+				$ext = substr($file_name, strrpos($file_name, '.') + 1);
+				error_log('ext is =>'.$ext);
+				
+				$valid = in_array($ext, $arr_ext); */
+			}
+			
 		//}
-		if($valid==false){
+
+		if($have_validate==1){
+			error_log('validate needed');
 			//convert $vl to object
-			$val_ = str_replace('\\', '', $val);
-			$val = json_decode($val_);
+			//$_POST['id']
+			//$valid 
+			$val_ = str_replace('\\', '', $vl);
+			$vl = json_decode($val_);
+			foreach($vl as $key=>$val){
+				
+				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+					//convert to lower case
+					$val->file_ctype = strtolower($val->file_ctype);
+					
+					$valid_types= explode(',', $val->file_ctype);
+
+					
+					
+					error_log('valid type is =>');
+					error_log(json_encode($valid_types));
+					error_log(json_encode($_FILES['async-upload']['name']));
+
+					$file_name = $_FILES['async-upload']['name'];
+					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
+					$valid = in_array($ext, $valid_types);
+					error_log('ext is =>'.$ext);
+					error_log('valid is =>'.$valid);
+					break;
+				}
+			}
 			//find row by 
+			//find inside $vl by id == $_POST['id']
+
 		}
 		error_log('valid is '.$valid);
 		if ($valid) { 

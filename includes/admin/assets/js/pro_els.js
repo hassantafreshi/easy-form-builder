@@ -255,9 +255,10 @@ function viewfileEfb(id, indx) {
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
     } else {
-      const t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
+      let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
+      t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
       const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
-      //const m = `${efb_var.text.pleaseUploadA} ${t_m}`;
+
       document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
       alert_message_efb('', m, 4, 'danger')

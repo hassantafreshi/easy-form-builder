@@ -1331,9 +1331,11 @@ function show_setting_window_efb(idset) {
                 </button> 
                 
               </div>`
-              r_matrixs += `<div id="${ob.id_op}-v" class="efb  col-md-12">
+              r_matrixs += `<div id="${ob.id_op}-gs" class="efb mx-0 col-sm-12 row opt">
+              <div id="${ob.id_op}-v" class="efb col-sm-12 mx-0 px-0">
               <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
               ${cont}
+              </div>
               </div>`
             }
           }
@@ -1740,13 +1742,24 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d efb-rounded elEdit col-sm-9">
     
     </div>`
+    row_col_size ='col-sm-11'
+    const selected_options =() =>{
+      if(tag=="table_matrix"){
+        row_col_size ='col-sm-12'
+        return `<!--efb--!>`;
+      }
+      return    `
+      <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
+      <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0 elEdit" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions" ${checked}>
+      <label  for="ElvalueOptions" class="efb form-label mx-1 my-0 py-0 ${l_b} fs-6" >${efb_var.text.dslctd}</label>
+      </div>
+      `
+          
+        }
   
   return `<div class="efb mx-0 col-sm-12 row opt" id="${idin}-gs"> 
-  <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
-  <input class="efb  emsFormBuilder_v form-check-input  fs-6 m-0 p-0 elEdit" name="${parentsID}-g" type="${t}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" id="ElvalueOptions" ${checked}>
-  <label  for="ElvalueOptions" class="efb form-label mx-1 my-0 py-0 ${l_b} fs-6" >${efb_var.text.dslctd}</label>
-  </div>
-  <div id="${id_ob}-v" class="efb  col-sm-11 mx-0 px-0">
+  ${selected_options()}
+  <div id="${id_ob}-v" class="efb ${row_col_size} mx-0 px-0">
   <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
   ${imgRadio}
   ${booking}

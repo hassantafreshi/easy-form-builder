@@ -1177,13 +1177,15 @@ function valid_file_emsFormBuilder(id,tp) {
 
   const el = document.getElementById(i);
   if (el.files[0] && el.files[0].size < file_size) {
-    const filetype = el.files[0].type.length > 1 ? el.files[0].type : el.files[0].name.slice(((el.files[0].name.lastIndexOf(".") - 1) * -1))
+    const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
+    console.log(`file[${file}]`, filetype ,indx);
     const r = validExtensions_efb_fun(file, filetype,indx)
-    
+    console.log(`r==>${r}`);
     if (r == true) {
       check = +1;
       //message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
-      message  = efb_var.text.pleaseUploadA.replace('NN', ajax_object_efm.text[file]);
+    /*  let t_m = ajax_object_efm.text[file].replaceAll(',',` ${efb_var.text.or} `);
+      message  = efb_var.text.pleaseUploadA.replace('NN', t_m); */
     }
   }
   if (check > 0) {
@@ -1483,6 +1485,12 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         }
       }
       m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
+    }else if (c.type=="r_matrix"){
+      s = true;
+      //console.log(390 ,checboxs.includes(c.id_));
+      vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
+      
+      m += `${vc}`;
     }
     if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
     if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
