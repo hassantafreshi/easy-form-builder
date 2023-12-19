@@ -1198,7 +1198,8 @@ function valid_file_emsFormBuilder(id,tp) {
     rtrn = true;
   } else {
     console.error(file)
-    const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[file]);
+    const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
+    const m =ajax_object_efm.text.pleaseUploadA.replace('NN', f_s_l);
     const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', val_in.max_fsize);
    console.log(`file size limited [${val_in.max_fsize}]`,size_m);
     if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;

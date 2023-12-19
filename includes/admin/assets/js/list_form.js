@@ -313,6 +313,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
+      //console.log(c);
       $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
       
       if (c.type == "Image" || c.type == "image") {

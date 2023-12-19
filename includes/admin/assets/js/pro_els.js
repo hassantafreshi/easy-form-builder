@@ -211,31 +211,29 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
   }
 function viewfileEfb(id, indx) {
-    let fileType = fileEfb.type;
+  //find last dost and slice from that in a string varible
+    
+
+    console.log(fileEfb);
     const filename = fileEfb.name;
+    let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : fileEfb.type;
     let icon = ``;
-    switch (valj_efb[indx].file) {
-      case 'document':
-      case 'allformat':
-        icon = `bi-file-earmark-richtext`;
-        break;
-      case 'media':
-        icon = `bi-file-earmark-play`;
-        break;
-      case 'zip':
-        icon = `bi-file-earmark-zip`;
-        break;
-    }
+   
+    const svg_file = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
+    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+    <text x="50%" y="67%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">${filename.slice(filename.lastIndexOf('.') + 1)}</text>
+  </svg>`
     let box_v = `<div class="efb ">
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
          <div class="efb card efb px-2 py-5">
-          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center fs-2"></i>
+          <i class="efb  ico-file ${valj_efb[indx].icon_color} text-center fs-2">${svg_file}</i>
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
-    fun_addProgessiveEl_efb(id ,0);
+    //console.log(valj_efb[indx].file, fileType ,indx);
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType ,indx)) {
+      fun_addProgessiveEl_efb(id ,0);
       console.log('validate extintion files!');
       let fileReader = new FileReader();
       fileReader.onload = () => {
@@ -257,6 +255,7 @@ function viewfileEfb(id, indx) {
     } else {
       let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
       t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
+      //console.log(`pleaseUploadA`);
       const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
 
       document.getElementById(`${id}_-message`).innerHTML = m;
@@ -272,16 +271,19 @@ function viewfileReplyEfb(id, indx) {
     if (validExtensions_efb_fun('allformat',fileType,indx)) {
       fun_addProgessiveEl_efb('resp_file_efb' ,1);
       let fileReader = new FileReader();
+      let fileURL = ''
       fileReader.onload = () => {
-        let fileURL = fileReader.result;
+         fileURL = fileReader.result;
       }
       fileReader.readAsDataURL(fileEfb);  
+      
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
+      console.log(`pleaseUploadA`);
       const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
-      //const m = `${efb_var.text.pleaseUploadA} ${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']} `;      
+      
       
       alert_message_efb('', m, 4, 'danger')
       fileEfb = [];
