@@ -809,12 +809,12 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   /* let v = country_el.options[country_el.selectedIndex];
   const iso2_country = v.dataset.iso; */
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
-  state_el.disabled = true;
+ // state_el.disabled = true;
   valj_efb[indx_state].country=iso2_country;
   //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
 
   
-  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+ // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
   //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
   console.log(`indx_state ${indx_state}`);
   for(let i =indx_state; i < valj_efb.length; i++){    
@@ -840,56 +840,10 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     console.log('get_states_efb')
 
 
-    async function callFetchFunction() {
-      let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
-     
-      if(result.s==false){
-        alert_message_efb('',efb_var.text.offlineSend,5,'danger')
-        return;
-      }
-      console.log(result);
-     
-      for (const key in result.r) {
-        console.log(result.r[key]);
-      /*   const value = r.data[key];
-        const nValue = value.n.trim();
-        const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
-        const sValue = value.s */
-        
-       /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
-        optionElpush_efb = (parent, value, rndm, op, tag) 
-        valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
-        const n = efb_remove_forbidden_chrs(result.r[key].n);
-        const l = efb_remove_forbidden_chrs(result.r[key].l);
-        let value = result.r[key].n==result.r[key].l ? n : `${l} (${n})`;
-       
-        let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
-        id_op = efb_remove_forbidden_chrs(id_op);
-        const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
-        valj_efb.push(     
-          {
-            "id_": id,
-            "dataId":  id+"-id",
-            "parent":valj_efb[indx_state].id_,
-            "type": "option",
-            "value": value,
-            "id_op": id_op,
-            "step": valj_efb[indx_state].step,
-            "amount": valj_efb[indx_state].amount
-        });
-      
-      }
-      editState=true;
-      let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
-      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState)
-      console.log(opt);
-      state_el.innerHTML=opt;
-      state_el.disabled = false;
-
-    }
+   
   
     
-    callFetchFunction();
+    callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
 
   
 
@@ -978,6 +932,7 @@ fun_check_link_city_efb=(iso2_country , indx)=>{
         let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
         id_op = efb_remove_forbidden_chrs(id_op);
         const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
+        let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
         valj_efb.push(     
           {
             "id_": id,
@@ -1008,4 +963,71 @@ fun_check_link_city_efb=(iso2_country , indx)=>{
 
 
  
+}
+
+
+async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {
+  console.error(idField,iso2_country, indx_state,fieldType)
+  state_el= document.getElementById(idField)
+  state_el.innerHTML = "";
+  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  state_el.disabled=true;
+
+  let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
+ 
+  if(result.s==false){
+    alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+    return;
+  }
+  console.log(result);
+ // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
+  let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+  
+  for (const key in result.r) {
+    console.log(result.r[key]);
+  /*   const value = r.data[key];
+    const nValue = value.n.trim();
+    const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+    const sValue = value.s */
+    
+   /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+    optionElpush_efb = (parent, value, rndm, op, tag) 
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
+    const n = efb_remove_forbidden_chrs(result.r[key].n);
+    const l = efb_remove_forbidden_chrs(result.r[key].l);
+    let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
+   
+    let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+    id_op = efb_remove_forbidden_chrs(id_op);
+    const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
+    
+    if(fieldType=="pubSelect"){
+      valj_efb.push(     
+        {
+          "id_": id,
+          "dataId":  id+"-id",
+          "parent":valj_efb[indx_state].id_,
+          "type": "option",
+          "value": value,
+          's2': id,
+          "id_op": id_op,
+          "step": valj_efb[indx_state].step,
+          "amount": valj_efb[indx_state].amount
+      });
+      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState);
+    }else if(fieldType=="getStatesPovEfb"){
+      opt +=`<option value="${id.toLowerCase()}" >${value}</option>`
+      console.log(value);
+    }
+  }
+  editState=true;
+ 
+  
+  console.log(opt);
+  state_el.innerHTML=opt;
+  console.log(state_el.innerHTML)
+  
+  state_el.disabled = false;
+  return result;
+  
 }

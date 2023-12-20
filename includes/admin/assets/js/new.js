@@ -710,6 +710,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
 
       break;
+    case 'city':
     case 'cityList':
        optn =valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey');
        

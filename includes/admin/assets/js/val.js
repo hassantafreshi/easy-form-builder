@@ -151,6 +151,37 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   </div>
   `
 }
+const state_list_el_select=(el_type ,idset,indx)=>{
+  console.log('=============>state_list_el_select');
+  let opt =`<!--efb---!>`;
+  let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
+  let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
+  country= country.toLowerCase();
+  
+  //console.error(country);
+  if (country==null){
+    country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
+  }
+  console.log(`======================>country:[${country}] statePov:[${statePov}]`)
+  console.log(statePov);
+    if(country=='gb'){
+      state_list_efb=fun_state_of_UK(idset,indx) ;
+    for (let i of state_list_efb) {
+      console.log(i);
+      opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
+    }
+  }else{
+    opt= callFetchStatesPovEfb(idset,country,indx,'getStatesPovEfb');
+  }
+  return ` 
+  <div class="efb mx-1 mt-3">
+  <label for="statePovListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb"> ${efb_var.text.sctdlocp}</label> 
+  <select  data-id="${idset}" data-type="${el_type}" class="efb elEdit form-select efb border-d efb-rounded"  id="statePovListEl"  data-tag="${valj_efb[indx].type}">
+  ${opt}
+  </select>
+  </div>
+  `
+}
 const SingleTextEls = (side,idset,indx) => {
   let text = "";
   let t = ""
@@ -869,6 +900,7 @@ function show_setting_window_efb(idset) {
       case "multiselect":
       case "conturyList":
       case "stateProvince":
+      case "cityList":
       case "payCheckbox":
       case "payRadio":
       case "paySelect":
@@ -913,7 +945,8 @@ function show_setting_window_efb(idset) {
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
                 ${Nadvanced}
-                ${el.dataset.tag=="stateProvince" ? countries_list_el_select("stateProvince",idset,indx):""}
+                ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
+                ${el.dataset.tag=='cityList' ? state_list_el_select(el.dataset.tag,idset,indx):""}
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
                 <div class="efb m-0 p-0 col-md-12 row">
                 <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options} 
@@ -1878,46 +1911,51 @@ const test=fun_translate_check_efb();
 
 
 const fun_state_of_UK =(rndm,iVJ)=>{
-  return    [{
-    "id_": "NIR",
-    "dataId": "NIR-id",
-    "parent":rndm,
-    "type": "option",
-    "value": "Northern Ireland",
-    "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
-    "step": valj_efb[iVJ].step,
-    "amount": valj_efb[iVJ].amount
-},
-{
-  "id_": "ENG",
-  "dataId": "ENG-id",
-  "parent":rndm,
-  "type": "option",
-  "value": "England",
-  "id_op": "_E_n_g_l_a_n_d_",
-  "step": valj_efb[iVJ].step,
-    "amount": valj_efb[iVJ].amount
-},
-{
-    "id_": "SCO",
-    "dataId": "SCO-id",
-    "parent":rndm,
-    "type": "option",
-    "value": "Scotland",
-    "id_op": "_S_c_o_t_l_a_n_d_",
-    "step": valj_efb[iVJ].step,
-    "amount": valj_efb[iVJ].amount
-},
-{
-    "id_": "WAL",
-    "dataId": "WAL-id",
-    "parent":rndm,
-    "type": "option",
-    "value": "Wales",
-    "id_op": "_W_a_l_e_s_",
-    "step": valj_efb[iVJ].step,
-    "amount": valj_efb[iVJ].amount
-}];
+  return [{
+      "id_": "NIR",
+      "dataId": "NIR-id",
+      "parent": rndm,
+      "type": "option",
+      "s2": "NIR",
+      "value": "Northern Ireland",
+      "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+      "step": valj_efb[iVJ].step,
+      "amount": valj_efb[iVJ].amount
+    },
+    {
+      "id_": "ENG",
+      "dataId": "ENG-id",
+      "parent": rndm,
+      "type": "option",
+      "s2": "ENG",
+      "value": "England",
+      "id_op": "_E_n_g_l_a_n_d_",
+      "step": valj_efb[iVJ].step,
+      "amount": valj_efb[iVJ].amount
+    },
+    {
+      "id_": "SCO",
+      "dataId": "SCO-id",
+      "parent": rndm,
+      "type": "option",
+      "s2": "SCO",
+      "value": "Scotland",
+      "id_op": "_S_c_o_t_l_a_n_d_",
+      "step": valj_efb[iVJ].step,
+      "amount": valj_efb[iVJ].amount
+    },
+    {
+      "id_": "WAL",
+      "dataId": "WAL-id",
+      "parent": rndm,
+      "type": "option",
+      "s2": "WAL",
+      "value": "Wales",
+      "id_op": "_W_a_l_e_s_",
+      "step": valj_efb[iVJ].step,
+      "amount": valj_efb[iVJ].amount
+    }
+  ];
 }
 
   

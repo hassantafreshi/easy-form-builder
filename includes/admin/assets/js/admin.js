@@ -2300,6 +2300,47 @@ let change_el_edit_Efb = (el) => {
           }
         break;
       case "countriesListEl":
+        valj_efb[indx].country =  el.options[el.selectedIndex].value
+        //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
+        if(el.dataset.tag =="stateProvince" && document.getElementById('optionListefb')!=null){
+         
+          document.getElementById('optionListefb').innerHTML=loading_messge_efb();
+          fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`);
+          let  opetions;
+          setTimeout(() => {
+              
+            if(temp_efb.s==false ||temp_efb=="null" ) {
+              alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
+              return;
+            }
+            obj_delete_options(valj_efb[indx].id_);
+            for (const key in temp_efb.r) {
+              const value = temp_efb.r[key];
+              const nValue = value.n.trim();
+              const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+              const sValue = value.s
+              
+              optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+              
+            
+            }
+            const objOptions = valj_efb.filter(obj => {
+              return obj.parent === valj_efb[indx].id_
+            })
+            const newRndm = Math.random().toString(36).substr(2, 9);
+            opetions= efb_add_opt_setting(objOptions, el ,false ,newRndm ,"")
+            if(document.getElementById('optionListefb')) document.getElementById('optionListefb').innerHTML=opetions
+          }, 4000);
+
+          valj_efb[indx].country =  el.options[el.selectedIndex].value
+        }else if(el.dataset.tag =="cityList" && document.getElementById('optionListefb')!=null){
+          document.getElementById('optionListefb').innerHTML=loading_messge_efb();
+            callFetchStatesPovEfb('statePovListEl', valj_efb[indx].country, indx,'getStatesPovEfb');
+            valj_efb[indx].country =  el.options[el.selectedIndex].value
+        }
+       
+        break;
+      case "statePovListEl":
         //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         if(el.dataset.tag =="stateProvince" && document.getElementById('optionListefb')!=null){

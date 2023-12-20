@@ -644,6 +644,7 @@ class efbFunction {
 			"dField" => $state  &&  isset($ac->text->dField) ? $ac->text->dField : __('Disabled Field','easy-form-builder'),				
 			"hField" => $state  &&  isset($ac->text->hField) ? $ac->text->hField : __('Hidden Field','easy-form-builder'),							
 			"sctdlosp" => $state  &&  isset($ac->text->sctdlosp) ? $ac->text->sctdlosp : __('Select a country to display a list of states/provinces.','easy-form-builder'),				
+			"sctdlocp" => $state  &&  isset($ac->text->sctdlocp) ? $ac->text->sctdlocp : __('Select a states/provinces to display a list of city.','easy-form-builder'),				
 			//don't remove (used in delete message)						
 			"AdnOF" => $state  &&  isset($ac->text->AdnOf) ? $ac->text->AdnOf : __('Offline Forms Addon','easy-form-builder'),
 			"AdnSPF" => $state  &&  isset($ac->text->AdnSPF) ? $ac->text->AdnSPF : __('Stripe Payment Addon','easy-form-builder'),
