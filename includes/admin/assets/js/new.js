@@ -645,27 +645,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'select':
     case 'paySelect':
-    case 'city':
-    case 'cityList':
-      if (elementId == "select") pay = "";
-      if (editState != false) {
-        // if edit mode
-        const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
-        const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
-        const id_selected = valj_efb[indx_parent].value;
-        for (const i of optns_obj) {
-          const selected = i.id_==id_selected ? "selected" : "";
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color}  emsFormBuilder_v efb" ${selected}>${i.value}</option>`
-        }//end for 
-
-      } else {
-        optn = `
-        <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb  " >${efb_var.text.newOption} 1</option>
-        <option value="${efb_var.text.newOption} 2" id="${rndm_2}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb " >${efb_var.text.newOption} 2</option>
-       `
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,dataTag);
-        optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_2, op_4 ,dataTag);
-      }
+ 
       ui = `
       ${label}
       <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1  ${valj_efb[iVJ].classes.replace(`,`, ` `)}"  data-css="${rndm}"   id='${rndm}-f'  data-id="${rndm}-el" >
@@ -702,54 +682,19 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'stateProvince':
     case 'statePro':
-       optn =valj_efb.findIndex(x=>x.id_=='NIR')
+      temp=false
+       optn =valj_efb.findIndex(x=>x.id_=='EC')
     if (editState==false && optn==-1) { 
       valj_efb[iVJ].country = "GB";
+      const uk =  fun_state_of_UK(rndm,iVJ);
+      for(u of uk){
       valj_efb.push(     
-        {
-          "id_": "NIR",
-          "dataId": "NIR-id",
-          "parent":rndm,
-          "type": "option",
-          "value": "Northern Ireland",
-          "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
-          "step": valj_efb[iVJ].step,
-          "amount": valj_efb[iVJ].amount
-      },
-      {
-        "id_": "ENG",
-        "dataId": "ENG-id",
-        "parent":rndm,
-        "type": "option",
-        "value": "England",
-        "id_op": "_E_n_g_l_a_n_d_",
-        "step": valj_efb[iVJ].step,
-          "amount": valj_efb[iVJ].amount
-      },
-      {
-          "id_": "SCO",
-          "dataId": "SCO-id",
-          "parent":rndm,
-          "type": "option",
-          "value": "Scotland",
-          "id_op": "_S_c_o_t_l_a_n_d_",
-          "step": valj_efb[iVJ].step,
-          "amount": valj_efb[iVJ].amount
-      },
-      {
-          "id_": "WAL",
-          "dataId": "WAL-id",
-          "parent":rndm,
-          "type": "option",
-          "value": "Wales",
-          "id_op": "_W_a_l_e_s_",
-          "step": valj_efb[iVJ].step,
-          "amount": valj_efb[iVJ].amount
-      }
-      );
+        u
+      );}
+      temp=true;
     }
     
-      optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, op_3, op_4, editState) :"null";
+      optn = typeof statePrevion_el_pro_efb =="function"? statePrevion_el_pro_efb(rndm, rndm_1, temp, op_4, editState) :"null";
       ui = `
         ${label}
         <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
@@ -760,6 +705,147 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </select>
         ${desc}
         `
+      dataTag = elementId;
+      if (optn=="null") ui = public_pro_message();
+
+
+      break;
+    case 'cityList':
+       optn =valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey');
+       
+        temp=false
+    if (editState==false && optn==-1) { 
+      console.error(optn,valj_efb.findIndex(x=>x.id_=='Antrim_Newtownabbey'));
+      valj_efb[iVJ].country = "GB";
+      valj_efb[iVJ].statePov = "Antrim_Newtownabbey";
+      valj_efb.push(     
+        {
+          "id_": "Antrim_Newtownabbey",
+          "dataId": "Antrim_Newtownabbey-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Antrim and Newtownabbey",
+          "id_op": "Antrim_Newtownabbey",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+        "id_": "Ards_and_North_Down",
+        "dataId": "Ards_and_North_Down-id",
+        "parent":rndm,
+        "type": "option",
+        "value": "Ards and North Down",
+        "id_op": "Ards_and_North_Down",
+        "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Armagh_Banbridge_Craigavon",
+          "dataId": "Armagh_Banbridge_Craigavon-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Armagh City, Banbridge and Craigavon",
+          "id_op": "Armagh_Banbridge_Craigavon",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Belfast",
+          "dataId": "Belfast-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Belfast",
+          "id_op": "Belfast",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Causeway_Coast_Glens",
+          "dataId": "Causeway_Coast_Glens-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Causeway Coast and Glens",
+          "id_op": "Causeway_Coast_Glens",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Derry_City_Strabane",
+          "dataId": "Derry_City_Strabane-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Derry City and Strabane",
+          "id_op": "Derry_City_Strabane",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Fermanagh_Omagh",
+          "dataId": "Fermanagh_Omagh-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Fermanagh and Omagh",
+          "id_op": "Fermanagh_Omagh",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Lisburn_Castlereagh",
+          "dataId": "Lisburn_Castlereagh-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Lisburn and Castlereagh",
+          "id_op": "Lisburn_Castlereagh",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Mid_East_Antrim",
+          "dataId": "Mid_East_Antrim-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Mid and East Antrim",
+          "id_op": "Mid_East_Antrim",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Mid_Ulster",
+          "dataId": "Mid_Ulster-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Mid Ulster",
+          "id_op": "Mid_Ulster",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      {
+          "id_": "Newry_Mourne_Down",
+          "dataId": "Newry_Mourne_Down-id",
+          "parent":rndm,
+          "type": "option",
+          "value": "Newry, Mourne and Down",
+          "id_op": "Newry_Mourne_Down",
+          "step": valj_efb[iVJ].step,
+          "amount": valj_efb[iVJ].amount
+      },
+      );
+      temp=true;
+    }
+      console.log(valj_efb);
+      optn = typeof cityList_el_pro_efb =="function"? cityList_el_pro_efb(rndm, rndm_1, temp, op_4, editState) :"null";
+      console.log(valj_efb);
+      ui = `
+        ${label}
+        <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
+        ${ttip}
+        <select data-type="citylist" class="efb form-select emsFormBuilder_v w-100 ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}  " data-vid='${rndm}' id="${rndm}_options" ${previewSate != true ? 'readonly' : ''} ${disabled}>
+        <option selected disabled>${efb_var.text.nothingSelected}</option>
+        ${optn}
+        </select>
+        ${desc}
+        `
+        console.log(valj_efb);
       dataTag = elementId;
       if (optn=="null") ui = public_pro_message();
 
@@ -3018,7 +3104,7 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
 
 valNotFound_efb=()=>{
         //console.error('message not Found');
-        alert_message_efb("Security Error",'Varible value is empty!', 30,'danger');
+        alert_message_efb(efb_var.text.error,efb_var.text.empty, 30,'danger');
 }
 
 
@@ -3131,6 +3217,9 @@ function efb_text_nr(text , type){
   return text;
 }
 
+function efb_remove_forbidden_chrs(text){
+return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
+}
 
 
 

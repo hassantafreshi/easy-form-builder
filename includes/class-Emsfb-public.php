@@ -583,7 +583,7 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
-		//error_log('$s_sid check===>');
+		error_log('$s_sid check===>'.$s_sid);
 		//error_log($s_sid);
 		if ($s_sid !=1){
 			error_log('s_sid is not valid!!');
@@ -640,7 +640,10 @@ class _Public {
 				$trackingCode = $formObj[0]["trackingCode"];
 				$send_email_to_user_state =$formObj[0]["sendEmail"];			
 				//$type = $formObj[0]["type"];
+				error_log('type===>'.$type);
+				error_log('formObj[0]["type"]===>'.$formObj[0]["type"]);
 				if($type!=$formObj[0]["type"]){
+					error_log('=?????? type!');
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 					wp_send_json_success($response,$data_POST);
 				}

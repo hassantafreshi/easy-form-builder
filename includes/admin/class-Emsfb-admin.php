@@ -336,13 +336,15 @@ class Admin {
 
 		}
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
+        $form_type = $valp[0]['type'];
+        //error_log(`form_type======> `.$form_type);
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
         //$value      = ($_POST['value']); 
         $name       = sanitize_text_field($_POST['name']);
         $table_name = $this->db->prefix . "emsfb_form";
 
-        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name], ['form_id' => $id]);
+        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
         $value_="";
         $value="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){

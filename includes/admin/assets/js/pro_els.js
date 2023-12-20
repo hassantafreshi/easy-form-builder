@@ -99,6 +99,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
           let optn = '<!-- list of counries -->'
           let count =0;
           for (let i of counstries_list_efb) {
+            console.log(i);
             count+=1;
             let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
@@ -109,28 +110,19 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
       }
       return optn;
 }
-statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
+statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
+  console.log(rndm,rndm_1,temp,op_4,editState);
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
-        
+        console.log('optns===>',optns_obj,indx_parent);
     if (editState != false) {
         for (const i of optns_obj) {
+
           optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
         }//end for 
       } else {
-        if (typeof state_local != 'object') {
-          optn = `
-            <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
-            <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
-           `
-           
-           if(valj_efb[indx_parent].type!='stateProvince'){
-
-             optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
-           }
-         // optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
-        } else {
+          state_local=optns_obj;
           state_local.sort();
           console.log(state_local);
           let optn = '<!-- list of states -->'
@@ -139,10 +131,39 @@ statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
             count+=1;
             let id = rndm_1 +count
             optn += `<option value="${state_local[i]} 1" id="${id}" data-iso='${id}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
-            optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
+            if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
+          }
+        
+      }
+      return optn;
+}
+cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
+  console.log(rndm,rndm_1,temp,op_4,editState);
+    let optn ='<!--states-->'
+    const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
+        const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+        console.log('optns===>',optns_obj,indx_parent);
+    if (editState != false) {
+        for (const i of optns_obj) {
+
+          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
+        }//end for 
+      } else {
+          state_local=optns_obj;
+          state_local.sort();
+          console.log(state_local);
+          let optn = '<!-- list of states -->'
+          let count =0;
+          
+          for (let i = 0; i < state_local.length; i++) {
+            count+=1;
+            let id = rndm_1 +count
+            optn += `<option value="${state_local[i]} 1" id="${id}" data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
           }
         }
-      }
+      
       return optn;
 }
 headning_el_pro_efb = (rndm,pos,iVJ)=>{
@@ -789,6 +810,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   const iso2_country = v.dataset.iso; */
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
   state_el.disabled = true;
+  valj_efb[indx_state].country=iso2_country;
   //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
 
   
@@ -826,6 +848,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
         return;
       }
       console.log(result);
+     
       for (const key in result.r) {
         console.log(result.r[key]);
       /*   const value = r.data[key];
@@ -836,10 +859,144 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
        /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
         optionElpush_efb = (parent, value, rndm, op, tag) 
         valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
-        
+        const n = efb_remove_forbidden_chrs(result.r[key].n);
+        const l = efb_remove_forbidden_chrs(result.r[key].l);
+        let value = result.r[key].n==result.r[key].l ? n : `${l} (${n})`;
+       
+        let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+        id_op = efb_remove_forbidden_chrs(id_op);
+        const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
+        valj_efb.push(     
+          {
+            "id_": id,
+            "dataId":  id+"-id",
+            "parent":valj_efb[indx_state].id_,
+            "type": "option",
+            "value": value,
+            "id_op": id_op,
+            "step": valj_efb[indx_state].step,
+            "amount": valj_efb[indx_state].amount
+        });
       
       }
+      editState=true;
+      let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
+      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState)
+      console.log(opt);
+      state_el.innerHTML=opt;
+      state_el.disabled = false;
 
+    }
+  
+    
+    callFetchFunction();
+
+  
+
+
+
+ 
+}
+fun_check_link_city_efb=(iso2_country , indx)=>{
+  //const country = country_el.value;
+ // const iso2 = country_el.id_op;
+ // const country_el_partent_id = valj_efb[indx].parent;
+ console.log(`fun_check_link_state_efb ${iso2_country} [${indx}]`);
+ let indx_state =-1;
+  for (let i = indx+1; i < valj_efb.length; i++) {
+   
+    if(valj_efb[i].type=='option'){
+      
+    }else if(valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince'){
+      indx_state =i;
+      break;
+    }else{
+      return;
+    }
+  }
+  
+  console.log(valj_efb[indx_state] ,indx_state ,indx);
+ 
+  
+  /* let v = country_el.options[country_el.selectedIndex];
+  const iso2_country = v.dataset.iso; */
+  let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+  state_el.disabled = true;
+  valj_efb[indx_state].country=iso2_country;
+  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
+
+  
+  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
+  console.log(`indx_state ${indx_state}`);
+  for(let i =indx_state; i < valj_efb.length; i++){    
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }
+   
+  //call ajax to get states of 
+  //add new rows to valj_efb
+  //add new options to state_el
+  //enable state_el
+  //state_el.disabled = false;
+ //call function and await for get data from fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`);
+  //const states = await get_states_efb(iso2_country.toLowerCase());
+  //console.log(states);
+  //add new rows to valj_efb
+  //add new options to state_el
+  //enable state_el
+  //state_el.disabled = false;
+
+    console.log('get_states_efb')
+
+
+    async function callFetchFunction() {
+      let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
+     
+      if(result.s==false){
+        alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+        return;
+      }
+      console.log(result);
+     
+      for (const key in result.r) {
+        console.log(result.r[key]);
+      /*   const value = r.data[key];
+        const nValue = value.n.trim();
+        const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+        const sValue = value.s */
+        
+       /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+        optionElpush_efb = (parent, value, rndm, op, tag) 
+        valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
+        const n = efb_remove_forbidden_chrs(result.r[key].n);
+        const l = efb_remove_forbidden_chrs(result.r[key].l);
+        let value = result.r[key].n==result.r[key].l ? n : `${l} (${n})`;
+       
+        let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+        id_op = efb_remove_forbidden_chrs(id_op);
+        const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
+        valj_efb.push(     
+          {
+            "id_": id,
+            "dataId":  id+"-id",
+            "parent":valj_efb[indx_state].id_,
+            "type": "option",
+            "value": value,
+            "id_op": id_op,
+            "step": valj_efb[indx_state].step,
+            "amount": valj_efb[indx_state].amount
+        });
+      
+      }
+      editState=true;
+      let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
+      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState)
+      console.log(opt);
+      state_el.innerHTML=opt;
+      state_el.disabled = false;
 
     }
   

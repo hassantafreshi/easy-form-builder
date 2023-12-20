@@ -33,6 +33,7 @@ const fields_efb = [
   { name: efb_var.text.url, icon: 'bi-link-45deg', id: 'url', pro: false, tag:'basic all' },
   { name: efb_var.text.conturyList, icon: 'bi-flag', id: 'conturyList', pro: true, tag:'advance all' },
   { name: efb_var.text.stateProvince, icon: 'bi-triangle-fill', id: 'stateProvince', pro: true, tag:'advance all' },
+  { name: efb_var.text.cityList, icon: 'bi-circle', id: 'cityList', pro: true, tag:'advance all' },
   { name: efb_var.text.esign, icon: 'bi-pen', id: 'esign', pro: true, tag:'advance all' }, 
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
@@ -1874,5 +1875,49 @@ fun_translate_check_efb=()=>{
 
 const test=fun_translate_check_efb();
 //console.log("test=>",test ,efb_var.wp_lan);
+
+
+const fun_state_of_UK =(rndm,iVJ)=>{
+  return    [{
+    "id_": "NIR",
+    "dataId": "NIR-id",
+    "parent":rndm,
+    "type": "option",
+    "value": "Northern Ireland",
+    "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+    "step": valj_efb[iVJ].step,
+    "amount": valj_efb[iVJ].amount
+},
+{
+  "id_": "ENG",
+  "dataId": "ENG-id",
+  "parent":rndm,
+  "type": "option",
+  "value": "England",
+  "id_op": "_E_n_g_l_a_n_d_",
+  "step": valj_efb[iVJ].step,
+    "amount": valj_efb[iVJ].amount
+},
+{
+    "id_": "SCO",
+    "dataId": "SCO-id",
+    "parent":rndm,
+    "type": "option",
+    "value": "Scotland",
+    "id_op": "_S_c_o_t_l_a_n_d_",
+    "step": valj_efb[iVJ].step,
+    "amount": valj_efb[iVJ].amount
+},
+{
+    "id_": "WAL",
+    "dataId": "WAL-id",
+    "parent":rndm,
+    "type": "option",
+    "value": "Wales",
+    "id_op": "_W_a_l_e_s_",
+    "step": valj_efb[iVJ].step,
+    "amount": valj_efb[iVJ].amount
+}];
+}
 
   
