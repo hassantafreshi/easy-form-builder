@@ -2455,4 +2455,17 @@ div#Listefb-150 {
 
 
 
+.efb.emsFormBuilder_v.is-loading {
+ 	padding-right: calc(1.5em + .75rem);
+ 	background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22currentColor%22%20class%3D%22bi%20bi-cloud-arrow-down%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M7.646%2010.854a.5.5%200%200%200%20.708%200l2-2a.5.5%200%200%200-.708-.708L8.5%209.293V5.5a.5.5%200%200%200-1%200v3.793L6.354%208.146a.5.5%200%201%200-.708.708l2%202z%22%2F%3E%3Cpath%20d%3D%22M4.406%203.342A5.53%205.53%200%200%201%208%202c2.69%200%204.923%202%205.166%204.579C14.758%206.804%2016%208.137%2016%209.773%2016%2011.569%2014.502%2013%2012.687%2013H3.781C1.708%2013%200%2011.366%200%209.318c0-1.763%201.266-3.223%202.942-3.593.143-.863.698-1.723%201.464-2.383zm.653.757c-.757.653-1.153%201.44-1.153%202.056v.448l-.445.049C2.064%206.805%201%207.952%201%209.318%201%2010.785%202.23%2012%203.781%2012h8.906C13.98%2012%2015%2010.988%2015%209.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188%204.825%2010.328%203%208%203a4.53%204.53%200%200%200-2.941%201.1z%22%3E%3Canimate%20attributeName%3D%22opacity%22%20values%3D%221%3B0%3B1%22%20dur%3D%222s%22%20repeatCount%3D%22indefinite%22%20%2F%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+ 	background-repeat: no-repeat;
+ 	background-position: right calc(.375em + .1875rem) center;
+ 	background-size: calc(.75em + .375rem) calc(.75em + .375rem)}
+
+ textarea.efb.emsFormBuilder_v .is-loading {
+	padding-right: calc(1.5em + .75rem);
+ 	background-position: top calc(.375em + .1875rem) right calc(.375em + .1875rem)}
+
+
+
  

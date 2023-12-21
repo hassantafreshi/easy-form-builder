@@ -115,11 +115,13 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
-        console.log('optns===>',optns_obj,indx_parent);
+        console.log('optns===>',optns_obj,valj_efb[indx_parent]);
+    const iso_con = valj_efb[indx_parent].country;
+    
     if (editState != false) {
         for (const i of optns_obj) {
 
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          optn += `<option id="${i.id_}" value="${i.value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
         }//end for 
       } else {
           state_local=optns_obj;
@@ -130,7 +132,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
           for (let i = 0; i < state_local.length; i++) {
             count+=1;
             let id = rndm_1 +count
-            optn += `<option value="${state_local[i]} 1" id="${id}" data-iso='${id}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            optn += `<option id="${id}" value="${state_local[i]} 1" data-iso="${i.s2}"  data-isoc='${iso_con}'  data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
             if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
           }
         
@@ -146,7 +148,7 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
     if (editState != false) {
         for (const i of optns_obj) {
 
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          optn += `<option value="${i.value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
           //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
         }//end for 
       } else {
@@ -159,7 +161,7 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
           for (let i = 0; i < state_local.length; i++) {
             count+=1;
             let id = rndm_1 +count
-            optn += `<option value="${state_local[i]} 1" id="${id}" data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            optn += `<option value="${state_local[i]} 1" data-iso="${i.id_}" id="${id}" data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
             if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
           }
         }
@@ -785,6 +787,145 @@ function terms_el_pro_efb(previewSate, rndm,iVJ){
 }
 
 
+fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
+  //const country = country_el.value;
+ // const iso2 = country_el.id_op;
+ // const country_el_partent_id = valj_efb[indx].parent;
+ console.log(`fun_check_link_cities_efb ${iso2_country} [${indx}]`);
+ let indx_state =-1;
+  for (let i = indx+1; i < valj_efb.length; i++) {
+   
+    if(valj_efb[i].type=='option'){
+      
+    }else if(valj_efb[i].type=='city' || valj_efb[i].type=='cityList'){
+      indx_state =i;
+      break;
+    }else{
+      return;
+    }
+  }
+  
+  console.log(valj_efb[indx_state] ,indx_state ,indx);
+ 
+  
+  /* let v = country_el.options[country_el.selectedIndex];
+  const iso2_country = v.dataset.iso; */
+  let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+  //+ condition logic: check if the statement for this element is hide then write the code to return from this function
+ // state_el.disabled = true;
+  Object.assign(valj_efb[indx_state], {country:iso2_country,statePov:iso2_statePove});
+  
+  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
+
+  
+ // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
+  console.log(`indx_state ${indx_state}`);
+  for(let i =indx_state; i < valj_efb.length; i++){    
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }   
+    console.log('get_states_efb')
+
+
+   
+  
+    
+    callFetchCitiesEfb(valj_efb[indx_state].id_+'_options', iso2_country,iso2_statePove, indx_state,'pubSelect');
+
+  
+
+
+
+ 
+}
+
+
+async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType ) {
+  console.error(idField,iso2_country, indx_state,fieldType)
+  let state_el= document.getElementById(idField)
+  if(state_el!=null){
+  state_el.innerHTML = "";
+  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  state_el.classList.add('is-loading');
+  state_el.disabled=true;
+  }
+
+  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`)
+ 
+  if(result.s==false){
+    alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+    return;
+  }
+  console.log(result);
+ // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
+  let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+  
+  for (const key in result.r) {
+    console.log(result.r[key]);
+  /*   const value = r.data[key];
+    const nValue = value.n.trim();
+    const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+    const sValue = value.s */
+    
+   /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+    optionElpush_efb = (parent, value, rndm, op, tag) 
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
+    const n = efb_remove_forbidden_chrs(result.r[key].n);
+    const l = efb_remove_forbidden_chrs(result.r[key].l);
+    let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
+   
+    let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+    id_op = efb_remove_forbidden_chrs(id_op);
+    //genreate random code 5 lenght
+    const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
+    const id = efb_remove_forbidden_chrs(result.r[key].n.toLowerCase()) ;
+    
+    if(fieldType=="pubSelect"){
+      valj_efb.push(     
+        {
+          "id_": id +'-efb'+rnd,
+          "dataId": id+'-efb'+rnd+"-id",
+          "parent":valj_efb[indx_state].id_,
+          "type": "option",
+          "value": value,
+          's2': id,
+          "id_op": id_op,
+          "step": valj_efb[indx_state].step,
+          "amount": valj_efb[indx_state].amount
+      });
+    }else if(fieldType=="getCitiesEfb"){
+      opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
+      //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
+      console.log(value);
+    }
+  }
+
+  if(fieldType=="pubSelect"){
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+  }
+ 
+  if(state_el!=null){
+    console.log(opt);
+    state_el.innerHTML=opt;
+    state_el.classList.remove('is-loading');
+  state_el.disabled = false;
+  }else{
+    console.log('state_el is null',idField);
+    setTimeout(() => {
+      state_el = document.getElementById(idField);
+      state_el.innerHTML=opt;
+      state_el.classList.remove('is-loading');
+    }, 2000);
+  }
+  
+  
+  
+  return state_el!=null ? result : opt;
+  
+}
 fun_check_link_state_efb=(iso2_country , indx)=>{
   //const country = country_el.value;
  // const iso2 = country_el.id_op;
@@ -809,6 +950,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   /* let v = country_el.options[country_el.selectedIndex];
   const iso2_country = v.dataset.iso; */
   let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+   //+ condition logic: check if the statement for this element is hide then write the code to return from this function
  // state_el.disabled = true;
   valj_efb[indx_state].country=iso2_country;
   //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
@@ -824,18 +966,6 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     }
   }
    
-  //call ajax to get states of 
-  //add new rows to valj_efb
-  //add new options to state_el
-  //enable state_el
-  //state_el.disabled = false;
- //call function and await for get data from fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`);
-  //const states = await get_states_efb(iso2_country.toLowerCase());
-  //console.log(states);
-  //add new rows to valj_efb
-  //add new options to state_el
-  //enable state_el
-  //state_el.disabled = false;
 
     console.log('get_states_efb')
 
@@ -851,127 +981,16 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
 
  
 }
-fun_check_link_city_efb=(iso2_country , indx)=>{
-  //const country = country_el.value;
- // const iso2 = country_el.id_op;
- // const country_el_partent_id = valj_efb[indx].parent;
- console.log(`fun_check_link_state_efb ${iso2_country} [${indx}]`);
- let indx_state =-1;
-  for (let i = indx+1; i < valj_efb.length; i++) {
-   
-    if(valj_efb[i].type=='option'){
-      
-    }else if(valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince'){
-      indx_state =i;
-      break;
-    }else{
-      return;
-    }
-  }
-  
-  console.log(valj_efb[indx_state] ,indx_state ,indx);
- 
-  
-  /* let v = country_el.options[country_el.selectedIndex];
-  const iso2_country = v.dataset.iso; */
-  let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
-  state_el.disabled = true;
-  valj_efb[indx_state].country=iso2_country;
-  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
-
-  
-  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
-  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
-  console.log(`indx_state ${indx_state}`);
-  for(let i =indx_state; i < valj_efb.length; i++){    
-    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
-      valj_efb.splice(i,1);
-      i--;
-    }
-  }
-   
-  //call ajax to get states of 
-  //add new rows to valj_efb
-  //add new options to state_el
-  //enable state_el
-  //state_el.disabled = false;
- //call function and await for get data from fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`);
-  //const states = await get_states_efb(iso2_country.toLowerCase());
-  //console.log(states);
-  //add new rows to valj_efb
-  //add new options to state_el
-  //enable state_el
-  //state_el.disabled = false;
-
-    console.log('get_states_efb')
-
-
-    async function callFetchFunction() {
-      let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
-     
-      if(result.s==false){
-        alert_message_efb('',efb_var.text.offlineSend,5,'danger')
-        return;
-      }
-      console.log(result);
-     
-      for (const key in result.r) {
-        console.log(result.r[key]);
-      /*   const value = r.data[key];
-        const nValue = value.n.trim();
-        const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
-        const sValue = value.s */
-        
-       /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
-        optionElpush_efb = (parent, value, rndm, op, tag) 
-        valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
-        const n = efb_remove_forbidden_chrs(result.r[key].n);
-        const l = efb_remove_forbidden_chrs(result.r[key].l);
-        let value = result.r[key].n==result.r[key].l ? n : `${l} (${n})`;
-       
-        let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
-        id_op = efb_remove_forbidden_chrs(id_op);
-        const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
-        let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
-        valj_efb.push(     
-          {
-            "id_": id,
-            "dataId":  id+"-id",
-            "parent":valj_efb[indx_state].id_,
-            "type": "option",
-            "value": value,
-            "id_op": id_op,
-            "step": valj_efb[indx_state].step,
-            "amount": valj_efb[indx_state].amount
-        });
-      
-      }
-      editState=true;
-      let opt = ` <option selected disabled>${efb_var.text.nothingSelected}</option>`;
-      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState)
-      console.log(opt);
-      state_el.innerHTML=opt;
-      state_el.disabled = false;
-
-    }
-  
-    
-    callFetchFunction();
-
-  
-
-
-
- 
-}
 
 
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {
   console.error(idField,iso2_country, indx_state,fieldType)
-  state_el= document.getElementById(idField)
-  state_el.innerHTML = "";
+  let state_el= document.getElementById(idField)
+  if(state_el!=null){
   state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  state_el.classList.add('is-loading');
   state_el.disabled=true;
+  }
 
   let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
  
@@ -999,13 +1018,14 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
    
     let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
     id_op = efb_remove_forbidden_chrs(id_op);
+    const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
     const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
     
     if(fieldType=="pubSelect"){
       valj_efb.push(     
         {
-          "id_": id,
-          "dataId":  id+"-id",
+          "id_": id+'-efb'+rnd,
+          "dataId":  id+'-efb'+rnd+"-id",
           "parent":valj_efb[indx_state].id_,
           "type": "option",
           "value": value,
@@ -1014,20 +1034,33 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
           "step": valj_efb[indx_state].step,
           "amount": valj_efb[indx_state].amount
       });
-      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', editState);
     }else if(fieldType=="getStatesPovEfb"){
-      opt +=`<option value="${id.toLowerCase()}" >${value}</option>`
+      opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
+      //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
       console.log(value);
     }
   }
-  editState=true;
+
+  if(fieldType=="pubSelect"){
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+  }
  
-  
-  console.log(opt);
-  state_el.innerHTML=opt;
-  console.log(state_el.innerHTML)
-  
+  if(state_el!=null){
+    console.log(opt);
+    state_el.innerHTML=opt;
+    state_el.classList.remove('is-loading');
   state_el.disabled = false;
-  return result;
+  }else{
+    console.log('state_el is null',idField);
+    setTimeout(() => {
+      state_el = document.getElementById(idField);
+      state_el.innerHTML=opt;
+      state_el.classList.remove('is-loading');
+    }, 2000);
+  }
+  
+  
+  
+  return state_el!=null ? result : opt;
   
 }

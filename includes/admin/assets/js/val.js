@@ -140,6 +140,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   }
   console.log(country);
   for (let i of counstries_list_efb) {
+    console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return ` 
@@ -171,10 +172,11 @@ const state_list_el_select=(el_type ,idset,indx)=>{
       opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
     }
   }else{
-    opt= callFetchStatesPovEfb(idset,country,indx,'getStatesPovEfb');
+    opt=  callFetchStatesPovEfb('statePovListEl',country,indx,'getStatesPovEfb');
+    console.log(`opt[${opt}]`);
   }
   return ` 
-  <div class="efb mx-1 mt-3">
+  <div class="efb mx-1 mt-1">
   <label for="statePovListEl" class="efb mt-3 bi-aspect-ratio mx-2 efb"> ${efb_var.text.sctdlocp}</label> 
   <select  data-id="${idset}" data-type="${el_type}" class="efb elEdit form-select efb border-d efb-rounded"  id="statePovListEl"  data-tag="${valj_efb[indx].type}">
   ${opt}
@@ -946,7 +948,7 @@ function show_setting_window_efb(idset) {
                 <!--notAdvanced-->
                 ${Nadvanced}
                 ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
-                ${el.dataset.tag=='cityList' ? state_list_el_select(el.dataset.tag,idset,indx):""}
+                ${el.dataset.tag=='cityList' ? state_list_el_select('statePovListEl',idset,indx):""}
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
                 <div class="efb m-0 p-0 col-md-12 row">
                 <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options} 
