@@ -85,7 +85,15 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-iso="${i.id_op}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (i.stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(i.stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }          
+          optn += `<option value="${value}" id="${i.id_}" data-iso="${i.id_op}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
         }//end for 
       } else {
         if (typeof counstries_list_efb  != 'object') {
@@ -120,8 +128,15 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
     
     if (editState != false) {
         for (const i of optns_obj) {
-
-          optn += `<option id="${i.id_}" value="${i.value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (i.stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(i.stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }
+          optn += `<option id="${i.id_}" value="${value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
         }//end for 
       } else {
           state_local=optns_obj;
@@ -878,10 +893,10 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
    
     let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
-    id_op = efb_remove_forbidden_chrs(id_op);
+    id_op = efb_remove_forbidden_chrs(id_op).replaceAll(' ','_');
     //genreate random code 5 lenght
     const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
-    const id = efb_remove_forbidden_chrs(result.r[key].n.toLowerCase()) ;
+    const id = efb_remove_forbidden_chrs(result.r[key].n.toLowerCase()).replaceAll(' ','_') ;
     
     if(fieldType=="pubSelect"){
       valj_efb.push(     
@@ -894,7 +909,9 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
           's2': id,
           "id_op": id_op,
           "step": valj_efb[indx_state].step,
-          "amount": valj_efb[indx_state].amount
+          "amount": valj_efb[indx_state].amount,
+          "n":n,
+          "l": l,
       });
     }else if(fieldType=="getCitiesEfb"){
       opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
@@ -904,6 +921,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   }
 
   if(fieldType=="pubSelect"){
+    Object.assign(valj_efb[indx_state],{'linked':true});
      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
   }
  
@@ -992,7 +1010,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
   state_el.disabled=true;
   }
 
-  let result = await  fetch_json_from_url_efb(`https://raw.githubusercontent.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world/main/json/states/${iso2_country.toLowerCase()}.json`)
+  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`)
  
   if(result.s==false){
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
@@ -1017,11 +1035,12 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
     let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
    
     let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
-    id_op = efb_remove_forbidden_chrs(id_op);
+    id_op = efb_remove_forbidden_chrs(id_op).replaceAll(' ','_');
     const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
-    const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase());
+    const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase()).replaceAll(' ','_');
     
     if(fieldType=="pubSelect"){
+      
       valj_efb.push(     
         {
           "id_": id+'-efb'+rnd,
@@ -1032,7 +1051,9 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
           's2': id,
           "id_op": id_op,
           "step": valj_efb[indx_state].step,
-          "amount": valj_efb[indx_state].amount
+          "amount": valj_efb[indx_state].amount,
+          "n":n,
+          "l": l,
       });
     }else if(fieldType=="getStatesPovEfb"){
       opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
@@ -1042,6 +1063,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
   }
 
   if(fieldType=="pubSelect"){
+     Object.assign(valj_efb[indx_state],{'linked':true});
      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
   }
  

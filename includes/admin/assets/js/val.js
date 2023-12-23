@@ -8,7 +8,7 @@ const fields_efb = [
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
-  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, */
+  { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, 
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
   { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},
@@ -155,7 +155,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
 const state_list_el_select=(el_type ,idset,indx)=>{
   console.log('=============>state_list_el_select');
   let opt =`<!--efb---!>`;
-  let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : null;
+  let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : 'GB';
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
   country= country.toLowerCase();
   
@@ -493,6 +493,15 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
     </div>`;
+
+    const languageSelectPresentEls = `
+                     <label for="languageSelectPresentEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.stsd}</label>
+                      <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">                                            
+                      <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>                      
+                      <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>
+                      <option value="3" ${ valj_efb[indx].stylish == 3 ? `selected` : ''}>${efb_var.text.elan}</option>
+                                              
+                      </select>`;
 
 
 
@@ -919,7 +928,7 @@ function show_setting_window_efb(idset) {
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
         const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
-  
+          console.log(objOptions);
         if (objOptions.length > 0) {
 
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
@@ -949,6 +958,7 @@ function show_setting_window_efb(idset) {
                 ${Nadvanced}
                 ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
                 ${el.dataset.tag=='cityList' ? state_list_el_select('statePovListEl',idset,indx):""}
+                ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? languageSelectPresentEls:""}
                 ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
                 <div class="efb m-0 p-0 col-md-12 row">
                 <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options} 
@@ -1369,7 +1379,7 @@ function show_setting_window_efb(idset) {
               </div>`
               r_matrixs += `<div id="${ob.id_op}-gs" class="efb mx-0 col-sm-12 row opt">
               <div id="${ob.id_op}-v" class="efb col-sm-12 mx-0 px-0">
-              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
+              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-op="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d efb-rounded elEdit">
               ${cont}
               </div>
               </div>`
@@ -1796,7 +1806,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   return `<div class="efb mx-0 col-sm-12 row opt" id="${idin}-gs"> 
   ${selected_options()}
   <div id="${id_ob}-v" class="efb ${row_col_size} mx-0 px-0">
-  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
+  <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${value}" data-value="${value}" data-parent="${parentsID}" data-op="${idin}" data-id="${idin}" data-tag="${tag}" class="efb  ${col}  text-muted mb-1 fs-6 border-d efb-rounded elEdit" >
   ${imgRadio}
   ${booking}
   ${s==true ? `<label  for="paymentOption" class="efb form-label mx-1 ${l_b} fs-6 col-sm-6 my-0 py-0"">${efb_var.text.price}</label><input type="number" placeholder="$"  value='${typeof price=="string" ? price : 0}' data-value="" min="0" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  ${ mobile_view_efb ? "col-sm-6" :"col-sm-2"} text-muted mb-1 fs-6 border-d efb-rounded elEdit">` :''}
@@ -1920,7 +1930,7 @@ const fun_state_of_UK =(rndm,iVJ)=>{
       "type": "option",
       "s2": "NIR",
       "value": "Northern Ireland",
-      "id_op": "_N_o_r_t_h_e_r_n_ _I_r_e_l_a_n_d_",
+      "id_op": "_N_o_r_t_h_e_r_n_ I_r_e_l_a_n_d_",
       "step": valj_efb[iVJ].step,
       "amount": valj_efb[iVJ].amount
     },

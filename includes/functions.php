@@ -737,6 +737,9 @@ class efbFunction {
 			"cstm_rd" => $state  &&  isset($ac->text->cstm_rd) ? $ac->text->cstm_rd : __('Customized Ordering','easy-form-builder'),
 			"maxfs" => $state  &&  isset($ac->text->maxfs) ? $ac->text->maxfs : __('Max File Size','easy-form-builder'),
 			"cityList" => $state  &&  isset($ac->text->cityList) ? $ac->text->cityList : __('Cities Drop-Down','easy-form-builder'),
+			"elan" => $state  &&  isset($ac->text->elan) ? $ac->text->elan : __('English language','easy-form-builder'),
+			"nlan" => $state  &&  isset($ac->text->nlan) ? $ac->text->nlan : __('National language','easy-form-builder'),
+			"stsd" => $state  &&  isset($ac->text->stsd) ? $ac->text->stsd : __('Select display language','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			

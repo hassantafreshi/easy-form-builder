@@ -71,7 +71,16 @@ function alarm_emsFormBuilder(val) {
 }
 
 
-
+donwload_event_icon_efb =(color)=>{
+  return `<div class="efb m-0 p-0 ${color}"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16" style="width: 100%; height: 100%;">
+  <path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708l2 2z"/>
+  <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z">
+    <animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite" />
+  </path>
+</svg>
+</div>
+`
+}
 function Link_emsFormBuilder(state) {
   let link = 'https://whitestudio.team/document'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
@@ -1073,7 +1082,7 @@ let change_el_edit_Efb = (el) => {
     }
       if (el.value==null) return  valNotFound_efb()
     //console.log(el.id)
-    console.log(`index=====>${indx}`);
+    console.log(`index=====>${indx}` ,el.id);
     switch (el.id) {
       case "labelEl":
         
@@ -2126,9 +2135,16 @@ let change_el_edit_Efb = (el) => {
           if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
 
             //Select
+            console.log(el.dataset.id);
             let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
+            c =vl.dataset.id;
+            temp = valj_efb.findIndex(x=>x.id_op == c);
+            
+            valj_efb[temp].value = el.value;
+            console.log(c,temp,valj_efb[temp].value)
+
           }else if(el.dataset.tag == "imgRadio"){
             //console.log(el.dataset.id,valj_efb[iindx].id_op);
             document.getElementById(`${valj_efb[iindx].id_op}_value`).innerHTML = el.value;
@@ -2304,8 +2320,10 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
         if(el.dataset.tag =="stateProvince" && document.getElementById('optionListefb')!=null){
-         
-          document.getElementById('optionListefb').innerHTML=loading_messge_efb();
+          el.classList.add('is-loading');
+          console.log(el);
+          document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
+          
           fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
@@ -2315,14 +2333,25 @@ let change_el_edit_Efb = (el) => {
               alert_message_efb(efb_var.text.error, temp_efb.r ,15 , "danger")
               return;
             }
+           
             obj_delete_options(valj_efb[indx].id_);
+            console.error(valj_efb[indx]);
             for (const key in temp_efb.r) {
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
               const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
               const sValue = value.s +newRndm;
-              
-              optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+              let rowValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+              if(valj_efb[indx].hasOwnProperty('stylish')){
+                if(Number(valj_efb[indx].stylish)==2){
+                  rowValue = value.l.trim();
+                }else if(Number(valj_efb[indx].stylish)==3){
+                  rowValue = value.n.trim();
+                }
+                console.log(rowValue);
+              }
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              //optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
               
             
             }
@@ -2331,12 +2360,14 @@ let change_el_edit_Efb = (el) => {
             })
             
             opetions= efb_add_opt_setting(objOptions, el ,false ,newRndm ,"")
+            el.classList.remove('is-loading');
             if(document.getElementById('optionListefb')) document.getElementById('optionListefb').innerHTML=opetions
           }, 4000);
 
           valj_efb[indx].country =  el.options[el.selectedIndex].value
         }else if(el.dataset.tag =="cityList" && document.getElementById('optionListefb')!=null){
-          document.getElementById('optionListefb').innerHTML=loading_messge_efb();
+          //document.getElementById('optionListefb').classList.add('is-loading');
+          document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
             callFetchStatesPovEfb('statePovListEl', valj_efb[indx].country, indx,'getStatesPovEfb');
             valj_efb[indx].country =  el.options[el.selectedIndex].value
         }
@@ -2348,8 +2379,9 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].statePov =  el.options[el.selectedIndex].value.toLowerCase();
         temp = valj_efb[indx].country.toLowerCase();
         if( document.getElementById('optionListefb')!=null){
+          el.classList.add('is-loading');
           console.log(`================>test`);
-          document.getElementById('optionListefb').innerHTML=loading_messge_efb();
+          document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
           fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${temp}/${valj_efb[indx].statePov}.json`);
           let  opetions;
           const newRndm = Math.random().toString(36).substr(2, 9);
@@ -2361,13 +2393,25 @@ let change_el_edit_Efb = (el) => {
               return;
             }
             obj_delete_options(valj_efb[indx].id_)
+            console.error(indx, valj_efb[indx] ,valj_efb[indx].hasOwnProperty('stylish'))
             for (const key in temp_efb.r) {
+              console.log(key);
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
-              const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+              //const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
               const sValue = nValue.replaceAll(' ','_') +newRndm;
               
-              optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
+              let rowValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+              if(valj_efb[indx].hasOwnProperty('stylish')){
+                if(Number(valj_efb[indx].stylish)==2){
+                  rowValue = value.l.trim();
+                }else if(Number(valj_efb[indx].stylish)==3){
+                  rowValue = value.n.trim();
+                }
+                console.log(rowValue);
+              }
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              //optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
               
             
             }
@@ -2376,6 +2420,7 @@ let change_el_edit_Efb = (el) => {
             })
             
             opetions= efb_add_opt_setting(objOptions, el ,false ,newRndm ,"")
+            el.classList.remove('is-loading');
             if(document.getElementById('optionListefb')) document.getElementById('optionListefb').innerHTML=opetions
           }, 4000);
         }
@@ -2456,6 +2501,45 @@ let change_el_edit_Efb = (el) => {
             console.log(`valj_efb[0].sms_msg_new_noti===>[${valj_efb[0].sms_msg_new_noti}]`);
          }
 
+      break;
+      case 'languageSelectPresentEl':
+         console.log(valj_efb[indx] ,el.options[el.selectedIndex].value);
+         temp = el.options[el.selectedIndex].value;
+         Object.assign(valj_efb[indx], { stylish: el.options[el.selectedIndex].value })
+         //1 n+e
+         //2 n
+         // e 
+        // obj_delete_options(valj_efb[indx].id_)
+         c =valj_efb.filter(item => item.parent == valj_efb[indx].id_);
+         console.log(c);
+         const newRndm = Math.random().toString(36).substr(2, 9);
+         for (const value of valj_efb) {
+         
+          if(value.parent == valj_efb[indx].id_){
+            console.log(value ,value.n ,value.l)
+            let nameofErows = value.value;
+            if(value.hasOwnProperty('n')){
+              const eng = value.n.trim();
+              const  notion = value.l.trim();
+              nameofErows =  value.l.length>1 && eng!=notion  ?`${notion} (${eng})`  : notion;   
+              if(Number(temp)==2){
+                nameofErows =notion
+               }else if(Number(temp)==3){
+                nameofErows =eng
+               }
+            }
+            value.value = nameofErows;
+          }
+           
+           
+          // optionElpush_efb(valj_efb[indx].id_, nameofErows, sValue, nValue.replaceAll('','_'));
+           
+         
+         }
+            opetions= efb_add_opt_setting(c, el ,false ,newRndm ,"")
+            console.log(opetions);
+            document.getElementById('optionListefb').innerHTML="";
+            document.getElementById('optionListefb').innerHTML=opetions
       break;
     }
 
@@ -3305,11 +3389,12 @@ const obj_delete_row = (dataid, is_step) => {
   obj_resort_row(step_el_efb);
 }
 const obj_delete_options = (parentId) => {
-  while (valj_efb.findIndex(x => x.parent == parentId) != -1) {
+/*   while (valj_efb.findIndex(x => x.parent == parentId) != -1) {
     let indx = valj_efb.findIndex(x => x.parent == parentId);
 
     valj_efb.splice(indx, 1);
-  }
+  } */
+  valj_efb = valj_efb.filter(item => item.parent !== parentId);
 
 }
 const obj_delete_the_option = (id) => {
@@ -3449,7 +3534,7 @@ fun_efb_add_el = (t) => {
     console.log('log address' , 'first if ');
     const olist = [
       { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
-      { n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }, { n: 'address', t: "zipcode" } , { n: 'address', t: "address_line" }   
+      { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "zipcode" } 
     
     ]
     //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
@@ -4206,6 +4291,10 @@ colors_from_template = ()=>{
     div = `<div class="efb text-dark"> ${efb_var.text.wylpfucat} </div><a class="btn btn-darkb text-white efb w-100 mt-1" onclick="open_setting_colors_efb(this)">${efb_var.text.yes}</a>`
     alert_message_efb("",div ,35, 'info');
   }
+
+
+
+  
 
 
 

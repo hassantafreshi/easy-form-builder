@@ -1015,7 +1015,11 @@ class _Public {
 								case 'select':
 								case 'paySelect':
 								case 'stateProvince':
+								case 'statePro':
 								case 'conturyList':
+								case 'country':
+								case 'city':
+								case 'cityList':
 									// این بخش از نظر امنیتی تغییر کند
 									// find in the obj of forms  id_ == $item["id_ob"] return value;
 									$stated=0;
@@ -1023,44 +1027,78 @@ class _Public {
 										$item['value'] = sanitize_text_field($item['value']);
 										error_log(json_encode($item));
 										error_log(json_encode($f));
-										array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition,&$mr) { 											
-											if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
-												$stated=1;
-												$item['value']=$fr['value'];
-												$rt = $item;
-												$in_loop=false;
-												if($form_condition=='booking')	{
-													error_log('booking con inside select');
-													error_log($ki);
-													error_log(wp_date('Y-m-d'));
-													if(isset($fr['dateExp'])==true){
-														error_log($fr['dateExp']);													
-														error_log(strtotime($fr['dateExp']));
-														error_log(strtotime(wp_date('Y-m-d')));
-														if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
-															$stated=0;
-															$mr = $this->lanText["bkXpM"];
-															$mr =str_replace('XXX', $fr['value'], $mr );
+										if($item['type']=='paySelect' || $item['select'] || empty($item['linked']) ){
+										
+											array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition,&$mr) { 											
+												if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
+													$stated=1;
+													$item['value']=$fr['value'];
+													$rt = $item;
+													$in_loop=false;
+													if($form_condition=='booking')	{
+														error_log('booking con inside select');
+														error_log($ki);
+														error_log(wp_date('Y-m-d'));
+														if(isset($fr['dateExp'])==true){
+															error_log($fr['dateExp']);													
+															error_log(strtotime($fr['dateExp']));
+															error_log(strtotime(wp_date('Y-m-d')));
+															if(strtotime($fr['dateExp'])<strtotime(wp_date('Y-m-d'))){
+																$stated=0;
+																$mr = $this->lanText["bkXpM"];
+																$mr =str_replace('XXX', $fr['value'], $mr );
+															}
 														}
-													}
-													if(isset($fr['mlen'])==true){
-														if($fr['mlen']<=$fr['registered_count']){
-															$stated=0;
-															$mr = $this->lanText["bkFlM"];
-															$mr =str_replace('XXX', $fr['value'], $mr );
-														}else{
-															error_log($formObj[$ki]['registered_count']);
-															$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
-															error_log($formObj[$ki]['registered_count']);
+														if(isset($fr['mlen'])==true){
+															if($fr['mlen']<=$fr['registered_count']){
+																$stated=0;
+																$mr = $this->lanText["bkFlM"];
+																$mr =str_replace('XXX', $fr['value'], $mr );
+															}else{
+																error_log($formObj[$ki]['registered_count']);
+																$formObj[$ki]['registered_count'] =(int) $formObj[$ki]['registered_count'] +1;
+																error_log($formObj[$ki]['registered_count']);
+															}
 														}
+														//if time exists check
+														//if time biger $stated
+														//if mlen biger then 1 check registered_count
 													}
-													//if time exists check
-													//if time biger $stated
-													//if mlen biger then 1 check registered_count
+													return;
 												}
-												return;
+											},ARRAY_FILTER_USE_BOTH);
+										}else{
+											if(empty($item['country'])){
+												$stated=0;
+												$in_loop=false;
 											}
-										},ARRAY_FILTER_USE_BOTH);
+
+											$iso2_country = strtolower($item['country']);
+											if($item['type']=="stateProvince" || $item['type']=="statePro"){
+												$url = "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/".$iso2_country.".json";
+											}else if($item['type']=="cityList" || $item['type']=="city"){
+												if(empty($item['statePov'])){
+													$stated=0;
+													$in_loop=false;
+												}
+												$statePove= strtolower($item['statePov']);
+												$url = "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/".$iso2_country."/".$statePove.".json";
+											}
+
+											
+											$result = file_get_contents($url);
+											if ($result === false) {
+												// Handle error when file_get_contents fails
+												$error = error_get_last();
+												// Log or display the error message
+												
+												$response = array( 'success' => false  , 'm'=>'CND error of '.$item['type'].' Error: '.$error['message']); 
+												wp_send_json_success($response,200);
+											} 
+											
+											
+
+										}
 									}
 									$in_loop=false;
 									break;
