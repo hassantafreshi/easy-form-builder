@@ -25,6 +25,12 @@ class efbFunction {
 		//error_log('called function.php');
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
+
+
+		add_filter('itespeed_cache_excludes', function ($excludes) {
+			$excludes[] = EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-public.php';
+			return $excludes;
+		});
     }
 
 	public function test_Efb(){
