@@ -10,7 +10,7 @@
  * Domain Path:         /languages
  */
 
-/** Prevent this file from being accessed directly */
+/** t Prevent this file from being accessed directly */
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
