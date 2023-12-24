@@ -31,7 +31,7 @@ class _Public {
 		$this->id =-1;
 		$this->pro_efb =false;
 		
-		
+		//test
 
 
 		add_action('rest_api_init',  @function(){
