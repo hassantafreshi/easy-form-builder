@@ -1596,8 +1596,9 @@ class efbFunction {
 		/* error_log($date_now); */
         $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s", $ip, $date_now,1,$fid);
 		$result =$this->db->get_var($query);
-		/* error_log(json_encode($query));
-		error_log(json_encode($result)); */
+		/* error_log(json_encode($query)); */
+		error_log('------------->sid');
+		error_log(json_encode($result));
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
