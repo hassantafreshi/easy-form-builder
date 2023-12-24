@@ -31,7 +31,7 @@ class _Public {
 		$this->id =-1;
 		$this->pro_efb =false;
 		
-		//test
+		//vvv
 
 
 		add_action('rest_api_init',  @function(){
@@ -575,7 +575,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		//error_log(json_encode($data_POST));
 		//error_log("get_form_public_efb");
-		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound"];
+		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
 		$sid = sanitize_text_field($data_POST['sid']);
@@ -613,8 +613,8 @@ class _Public {
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		$not_captcha=$formObj= $email_fa = $trackingCode = $send_email_to_user_state =  $check = "";
-		$email_user=[];
+		$not_captcha=$formObj= $email_fa = $trackingCode_state = $send_email_to_user_state =  $check = "";
+		$email_user=[[],[]];
 		$this->value = $data_POST['value'];
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
@@ -629,6 +629,7 @@ class _Public {
 			error_log(json_encode($phone_numbers));
 		}
 		$smsnoti = strpos($fs,'\"smsnoti\":\"1\"') !==false || $smsnoti==1 ? 1 : 0;
+
 		//error_log($data_POST['value']);
 		//error_log($this->value);
 		//check if smsnoti is active in string $fs
@@ -637,8 +638,11 @@ class _Public {
 				$formObj=  json_decode($fs,true);
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
 				$email_fa = $formObj[0]["email"];
-				$trackingCode = $formObj[0]["trackingCode"];
-				$send_email_to_user_state =$formObj[0]["sendEmail"];			
+				
+				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
+				$send_email_to_user_state =$formObj[0]["sendEmail"];	
+				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
+				;
 				//$type = $formObj[0]["type"];
 				error_log('type===>'.$type);
 				error_log('formObj[0]["type"]===>'.$formObj[0]["type"]);
@@ -721,7 +725,7 @@ class _Public {
 										$rt= $item;
 										$l=strlen($item['value']);
 										if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
-										if(isset($f['noti'])== true && intval($f['noti'])==1) array_push($email_user,$item['value']);
+										if(isset($f['noti'])== true && intval($f['noti'])==1) array_push($email_user[1],$item['value']);
 										
 									}
 									$in_loop=false;
@@ -1302,7 +1306,11 @@ class _Public {
 			$r= $this->setting ;
 			if(gettype($r)=="string" && $fs!=''){
 				$setting =str_replace('\\', '', $r);
+				error_log('------------------>seting');
+				error_log($setting);			
 				$setting =json_decode($setting);
+				$this->setting=$setting;
+				 strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
 				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
@@ -1349,18 +1357,17 @@ class _Public {
 				//error_log("===>emailuser");
 				
 					
-				if(in_array($emailuser,$email_user)==false){
-					array_push($email_user,$emailuser);
+				if(in_array($emailuser,$email_user[1])==false){
+					array_push($email_user[1],$emailuser);
 				}
 			}
 							$ip = $this->ip=$this->get_ip_address();						
 							//$this->location = $efbFunction->iplocation_efb($ip,1);
 					switch($type){
 						case "form":						
-							$check=	$this->insert_message_db(3,false);
+							$check=	$this->insert_message_db(0,false);
 							$nnc = wp_create_nonce($check);
-							$timed = time();									
-							$timed += 20;													
+																			
 							//wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 							
 							$this->efbFunction->efb_code_validate_update($sid ,'send' ,$check );
 							$response = array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>$nnc); 
@@ -1371,14 +1378,22 @@ class _Public {
 							if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
 								error_log('==>phonenumebrs');
 								error_log(json_encode($phone_numbers));
-								
-								//call smsefb function get by form Id for recived admin numbers and messges
 								error_log('===>check');
-								error_log($check);
-								// $form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code
-								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+								error_log($check);								
+								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check );
 
 							}
+
+							
+							error_log('------------>form send');
+							error_log(json_encode($email_user));
+							error_log(json_encode($email_fa));
+							$email_user[0]=$email_fa;
+							$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+							$state_of_email = ['newMessage',$state_email_user];
+							//$to , $track ,$pro , $state,$link ,$content ='null'
+							if($send_email_to_user_state==true || $send_email_to_user_state=="true") $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,'null' );
+							//$this->send_json_success_efb($response);
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "payment":								
@@ -1682,7 +1697,7 @@ class _Public {
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "subscribe":
-							$check=	$this->insert_message_db(3,false);
+							$check=	$this->insert_message_db(0,false);
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>2){
@@ -1708,7 +1723,7 @@ class _Public {
 						break;
 						case "survey":
 							//$ip = $this->ip;
-							$check=	$this->insert_message_db(3,false);
+							$check=	$this->insert_message_db(0,false);
 							if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
@@ -2281,8 +2296,12 @@ class _Public {
 				$response = array( 
 				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
 				'track'=>$track,
-				'nonce_msg'=>wp_create_nonce($track)); 										
-				wp_send_json_success($response,200);	
+				'nonce_msg'=>wp_create_nonce($track)); 	
+				error_log('test---------->new send json');
+				//$this->send_json_success_efb($response);
+				
+				wp_send_json_success($response,200);
+					
 		}else{
 			$m = $this->lanText["settingsNfound"] . '</br>' . $this->lanText["MMessageNSendEr"] ;
 			$response = array( 'success' => false , "m"=>$m, "by"=>$by);
@@ -2348,6 +2367,78 @@ class _Public {
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		//error_log($link);
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
+	}
+	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null'){
+		error_log($link);
+		
+		//error_log('send_email_Emsfb===> function public');
+		//error_log($content);
+		//error_log(json_encode($to));
+		       
+		//$this->text_ = empty($this->text_)==false ? $this->text_ :["clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll"];
+
+		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		//$link_w = strlen($link)>5 ? $link.'?track='.$track : home_url();
+		$link_w=[];
+		$cont=[];
+		$subject=[];
+		$message=[];
+		for($i=0;$i<2;$i++){
+			if(strlen($link)>5){
+				$link_w[$i] =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+				if($i==0){
+					$link_w[$i] .='&user=admin';
+				}
+			}else{
+				$link_w[$i] = home_url();
+			}
+			//error_log($to);
+			//error_log($link_w);
+			//$this->lanText= $this->efbFunction->text_efb($this->text_);
+			//error_log(json_encode($this->lanText));
+			$cont[$i] = $track;
+			$subject[$i] ="📮 ". $this->lanText["youRecivedNewMessage"];
+			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"];
+				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
+						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
+						<div style='text-align:center'><button><a href='".$link_w[$i]."' style='color: black;'>". $this->lanText["clcdetls"]."</a></button></div>
+						";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=="notiToUserFormFilled"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
+				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
+				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="register"){  
+				$subject[$i] =$this->lanText["thankRegistering"];   	
+				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
+				".$cont[$i]."
+				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="subscribe"){
+				$subject[$i] =$this->lanText["welcome"];   
+				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
+				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="survey"){
+				$subject[$i] =$this->lanText["welcome"];   
+				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
+				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				";
+				$cont[$i]=$message[$i];
+			}
+
+			if($content!="null"){
+				$cont[$i] = [$track, $content] ;
+			}
+		}
+		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		//error_log($link);
+		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link,$this->setting);
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function get_setting_Emsfb($state){
@@ -5928,6 +6019,16 @@ class _Public {
 		
 		</script>
 		';
+	}
+
+	public function send_json_success_efb($response, $arg=null,){
+		error_log('------------------->send_json_success_efb');
+		header('Content-Type: application/json; charset=' . get_option('blog_charset'));
+		print(json_encode(array('success' => true, 'data' => $response)));
+		
+		error_log('------------------->test after timeout');
+		//code here
+		die;
 	}
 
 	
