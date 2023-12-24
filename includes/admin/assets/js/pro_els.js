@@ -812,7 +812,8 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
    
     if(valj_efb[i].type=='option'){
       
-    }else if(valj_efb[i].type=='city' || valj_efb[i].type=='cityList'){
+    }else if((valj_efb[i].type=='city' || valj_efb[i].type=='cityList') && valj_efb[i].amount>valj_efb[indx].amount){
+      
       indx_state =i;
       break;
     }else{
@@ -822,10 +823,10 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
   
   console.log(valj_efb[indx_state] ,indx_state ,indx);
  
-  
+  if(indx_state==-1)return;
   /* let v = country_el.options[country_el.selectedIndex];
   const iso2_country = v.dataset.iso; */
-  let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+  //let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
   //+ condition logic: check if the statement for this element is hide then write the code to return from this function
  // state_el.disabled = true;
   Object.assign(valj_efb[indx_state], {country:iso2_country,statePov:iso2_statePove});
@@ -897,6 +898,10 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     //genreate random code 5 lenght
     const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
     const id = efb_remove_forbidden_chrs(result.r[key].n.toLowerCase()).replaceAll(' ','_') ;
+    if(valj_efb[indx_state].hasOwnProperty('stylish') && Number(valj_efb[indx_state].stylish)>1){
+
+      value =  Number(valj_efb[indx_state].stylish)==2 && l.length>1 ? l : n;
+     }
     
     if(fieldType=="pubSelect"){
       valj_efb.push(     
@@ -954,7 +959,8 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
    
     if(valj_efb[i].type=='option'){
       
-    }else if(valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince'){
+    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && valj_efb[i].amount>valj_efb[indx].amount){
+      console.log(`valj_efb[i].amount[${valj_efb[i].amount}]>valj_efb[indx][${valj_efb[indx].amount}]`)
       indx_state =i;
       break;
     }else{
@@ -1038,6 +1044,10 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
     id_op = efb_remove_forbidden_chrs(id_op).replaceAll(' ','_');
     const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
     const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase()).replaceAll(' ','_');
+    if(valj_efb[indx_state].hasOwnProperty('stylish') && Number(valj_efb[indx_state].stylish)>1){
+
+     value =  Number(valj_efb[indx_state].stylish)==2 && l.length>1 ? l : n;
+    }
     
     if(fieldType=="pubSelect"){
       

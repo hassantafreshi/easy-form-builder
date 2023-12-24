@@ -1014,20 +1014,17 @@ class _Public {
 									break;
 								case 'select':
 								case 'paySelect':
-								case 'stateProvince':
-								case 'statePro':
-								case 'conturyList':
-								case 'country':
-								case 'city':
-								case 'cityList':
+								
 									// این بخش از نظر امنیتی تغییر کند
 									// find in the obj of forms  id_ == $item["id_ob"] return value;
 									$stated=0;
 									if(isset($item['value'])){
 										$item['value'] = sanitize_text_field($item['value']);
+										error_log('=========================>item');
 										error_log(json_encode($item));
+										error_log('=========================>f');
 										error_log(json_encode($f));
-										if($item['type']=='paySelect' || $item['select'] || empty($item['linked']) ){
+										
 										
 											array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition,&$mr) { 											
 												if(isset($item['type'])  && $fr['type']=="option" && isset($fr['value']) && isset($item['value']) && $fr['value']==$item['value'] &&  $fr['parent']==$item['id_']){
@@ -1067,13 +1064,31 @@ class _Public {
 													return;
 												}
 											},ARRAY_FILTER_USE_BOTH);
-										}else{
-											if(empty($item['country'])){
-												$stated=0;
-												$in_loop=false;
-											}
+										
+											
+											
 
+										
+									}
+									$in_loop=false;
+									break;
+									case 'stateProvince':
+										case 'statePro':
+										case 'conturyList':
+										case 'country':
+										case 'city':
+										case 'cityList':
+											$stated=0;
+											if(isset($item['value'])){
+												$stated=1;
+											$item['value']= sanitize_text_field($item['value']);
+											$rt=$item;
+											}
+											
+											/* 
 											$iso2_country = strtolower($item['country']);
+											$stylish = 1;
+											if(isset($f['stylish'])) $stylish=intval($f['stylish']);
 											if($item['type']=="stateProvince" || $item['type']=="statePro"){
 												$url = "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/".$iso2_country.".json";
 											}else if($item['type']=="cityList" || $item['type']=="city"){
@@ -1095,13 +1110,18 @@ class _Public {
 												$response = array( 'success' => false  , 'm'=>'CND error of '.$item['type'].' Error: '.$error['message']); 
 												wp_send_json_success($response,200);
 											} 
-											
-											
+											error_log(json_encode($result));
+											foreach ($result as $key => $value) {
+												$val_state_n_l = trim($value['n']) == trim($value['l']) ? $value['n'] : $value['l'].'('.$value['n'] .')';
+												if($stylish==1){
+													if($item['value']==$val_state_n_l){
 
-										}
-									}
-									$in_loop=false;
-									break;
+													}
+												}
+
+											} */
+											$in_loop=false;
+										break;
 								case 'sample':									
 									$rt= $item;
 									$in_loop=false;

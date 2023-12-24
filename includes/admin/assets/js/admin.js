@@ -3389,13 +3389,13 @@ const obj_delete_row = (dataid, is_step) => {
   obj_resort_row(step_el_efb);
 }
 const obj_delete_options = (parentId) => {
-/*   while (valj_efb.findIndex(x => x.parent == parentId) != -1) {
+  /* while (valj_efb.findIndex(x => x.parent == parentId) != -1) {
     let indx = valj_efb.findIndex(x => x.parent == parentId);
 
     valj_efb.splice(indx, 1);
   } */
-  valj_efb = valj_efb.filter(item => item.parent !== parentId);
-
+  valj_efb_ = valj_efb.filter(item => item.parent !== parentId);
+  valj_efb = valj_efb_;
 }
 const obj_delete_the_option = (id) => {
   //Just Delete the option with ID

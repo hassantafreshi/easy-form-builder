@@ -888,7 +888,66 @@ class efbFunction {
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    //error_log('done!');
 			   return $mailResult;
-		}
+	}
+	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link){
+				//error_log('===>send_email_state');
+				//error_log(json_encode($cont));
+				//error_log(json_encode($to));
+				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+			   	$mailResult = "n";
+			
+				
+				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+				$headers = array(
+				   'MIME-Version: 1.0\r\n',
+				   'From:'.$from.'',
+				);
+			
+				//if($to=="null" || is_null($to)<5 ){$to=$support;}
+				  //error_log($state);
+				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
+				//error_log("=========>json_encode(message)");
+				//error_log(json_encode($message));
+				if( $state!="reportProblem"){
+					$to_ = gettype($to)=='string' ? $to : implode(',', array_unique($sent));	
+					$headers = array(
+						'MIME-Version: 1.0\r\n',
+						'From:'.$from.'',
+						'Bcc:'.$to_.''
+					 );				
+					$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
+					remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
+					return $mailResult;
+				}
+					 
+								
+				
+				if($state=="reportProblem" || $state =="testMailServer" ){
+					$support="";
+				
+					$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
+					foreach($a as $i){$support .=chr($i);}	
+					
+					$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
+					$name ="";
+					$mail="";
+					$role ="";
+					if($id){
+						$usr = get_user_by('id',$id);
+						$mail= $usr->user_email;
+						$name = $usr->display_name;
+						$role = $usr->roles[0];
+					}	
+				
+					$cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
+					" role:".$role." name:".$name."";                      
+					$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
+				
+				}
+				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    //error_log('done!');
+			   return $mailResult;
+	}
 
 	public function email_template_efb($pro, $state, $m,$link){	
 		$l ="https://whitestudio.team/";
