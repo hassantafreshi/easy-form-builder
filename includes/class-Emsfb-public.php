@@ -633,7 +633,7 @@ class _Public {
 		//error_log($data_POST['value']);
 		//error_log($this->value);
 		//check if smsnoti is active in string $fs
-
+		//test-efb
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
