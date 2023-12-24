@@ -577,7 +577,7 @@ class _Public {
 		//error_log("get_form_public_efb");
 		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","clcdetls",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
-		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
+		 $this->efbFunction =$efbFunction;
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
