@@ -2440,7 +2440,7 @@ class _Public {
 		}
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		//error_log($link);
-		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link,$this->setting);
+		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
 	}
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function get_setting_Emsfb($state){

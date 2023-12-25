@@ -902,6 +902,7 @@ class efbFunction {
 				error_log(json_encode($st));
 				error_log(json_encode($sub));
 				error_log(json_encode($cont));
+				error_log('==========>link');
 				error_log(json_encode($link));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
