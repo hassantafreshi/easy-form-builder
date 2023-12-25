@@ -2104,8 +2104,10 @@ class _Public {
 	}//end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo",'error403',"pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr"];
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
+		"youRecivedNewMessage","trackNo","clcdetls","WeRecivedUrM","thankFillForm"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = sanitize_text_field($data_POST['user_type']);
@@ -2135,6 +2137,7 @@ class _Public {
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
 			$setting =json_decode($r);
+			$this->setting = $setting;
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
@@ -2292,7 +2295,7 @@ class _Public {
 							}
 						}
 					}
-				//if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $this->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,'respadmin' ,'wpsms' ,$trackingCode);
+					
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 					//$efbFunction
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
@@ -2303,41 +2306,63 @@ class _Public {
 			
 					
 				}
-				if($rsp_by=='admin' && !is_null($users_email)){
+				$user_eamil=[[],[]];
+				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
+					//array_push($to ,$setting->emailSupporter);
+					$user_eamil[0]=$setting->emailSupporter.",";
+				}
+				$email_fa = $valn[0]["email"];				
+				if (isset($email_fa) && strlen($email_fa)>5){
+					//$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
+					$user_eamil[0]==null ? $user_eamil[0]=$email_fa : $user_eamil[0].=$email_fa.",";
+				}
+
+				$links=$link_w."?track=".$track;
+				
+				$email_status =["",""];
+				!is_null($users_email) ? $user_eamil[1]= $users_email : 0;
+				if($rsp_by=='admin'){
 					//error_log("=============>1852");
 					//send email noti to users
-					$link = $link_w."?track=".$track;	
+					//$links[1] = $link_w."?track=".$track;	
+					$email_status[1]= "newMessage";
+					$email_status[0] ='notiToUserFormFilled_TrackingCode';
+					
+					
+					error_log('====================================>emails');
+					$current_user = wp_get_current_user();
+					
+					$current_user_email = $current_user->user_email;
+					error_log('current email of user:'.$current_user_email);
+					$ems = str_replace($current_user_email, "", $user_eamil[0]);
+					$ems = str_replace(",,", ",", $ems);
+					$user_eamil[1]!=[null] ? $user_eamil[1].=','.$ems : $user_eamil[1]=$ems;
+						// Use $current_user_email as needed
+					error_log(json_encode($user_eamil));
+					error_log($current_user_email);
+					$user_eamil[0]=$current_user_email;
+					error_log(json_encode($user_eamil));
+
+				
+					//array_push
 					//error_log('1871');		
-					$this->send_email_Emsfb($users_email,$track,$pro,"newMessage",$link ,'null');	
+					//$this->send_email_Emsfb_($users_email,$track,$pro,"newMessage",$link ,'null');	
+					
 					//$users_email
 				}else{
 					//send email noti to admins
 					//error_log("=============>1858");
-					$link = $link_w. "?user=admin&"."track=".$track;
+					//$link = $link_w. "?user=admin&"."track=".$track;
 
 					/*2 new code email */
-					$to = [];
-					if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-						array_push($to ,$setting->emailSupporter);
-					}
-					$email_fa = $valn[0]["email"];				
-					if (isset($email_fa) && strlen($email_fa)>5){
-						//$this->send_email_Emsfb($email_fa,$track,$pro,"newMessage",$link);
-						array_push($to ,$email_fa);
-					}
+					$email_status[1]= "notiToUserFormFilled";
+					$email_status[0] ='newMessage';
+					
 
-					if(sizeof($to)>0){
-						//error_log('1890');		
-						$this->send_email_Emsfb($to,$track,$pro,"newMessage",$link ,'null');
-					}
-
-					$link = $link_w."?track=".$track;		
-					if( !is_null($users_email)){	
-						//error_log('1895');					
-						$this->send_email_Emsfb($users_email,$track,$pro,"notiToUserFormFilled",$link ,"null");
-					} 
+					 
 					
 				}
+				$this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null');
 				
 				//messageSent s78
 				$response = array( 

@@ -974,6 +974,19 @@ class efbFunction {
 								$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
 								//replace
 								$to_ = str_replace(',,', ',', $to_);
+								if (substr($to_, -1) === ',') {
+									$to_ = substr($to_, 0, -1);
+								}
+
+								$headers = array(
+									'MIME-Version: 1.0\r\n',
+									'From:'.$from.'',
+									'Bcc:'.$to_.''
+								);		
+								error_log($message);	
+								$mailResult =  wp_mail('', $sub[$i], $message, $headers);
+								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
+								//end loop
 								error_log('======>to');
 								error_log($to_);
 								$headers = array(
@@ -1159,7 +1172,8 @@ class efbFunction {
 				if($user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
 					$subject ="📮 ".$lang["youRecivedNewMessage"];
-					$this->send_email_state($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w);
+					$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
+					//send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null")
 					return 1;
 				}
 			}
