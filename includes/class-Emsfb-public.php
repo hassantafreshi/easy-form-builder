@@ -2220,8 +2220,8 @@ class _Public {
 				$vv_="";
 				$lst = end($msg_obj);
 				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-			   error_log("=============>link_w ");
-			   error_log($link_w );
+			   //error_log("=============>link_w ");
+			   //error_log($link_w );
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
@@ -2355,7 +2355,7 @@ class _Public {
 					//$link = $link_w. "?user=admin&"."track=".$track;
 
 					/*2 new code email */
-					$email_status[1]= "notiToUserFormFilled";
+					$email_status[1]= "notiToUserFormFilled_TrackingCode";
 					$email_status[0] ='newMessage';
 					
 
