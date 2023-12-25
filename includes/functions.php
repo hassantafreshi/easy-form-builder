@@ -969,21 +969,21 @@ class efbFunction {
 						if( $state!="reportProblem"){
 	
 							//loop start
-							$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to));	
+							$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
 							//replace
-							$to = str_replace(',,', ',', $to_);
+							$to_ = str_replace(',,', ',', $to_);
 							error_log('======>to');
-							error_log($to);
+							error_log($to_);
 							$headers = array(
 								'MIME-Version: 1.0\r\n',
 								'From:'.$from.'',
-								'Bcc:'.$to.''
+								'Bcc:'.$to_.''
 							);				
 							$mailResult =  wp_mail( '',$sub[$i], $message, $headers ) ;
 							remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
 							//end loop
 	
-							return $mailResult;
+							
 						}
 					}
 					

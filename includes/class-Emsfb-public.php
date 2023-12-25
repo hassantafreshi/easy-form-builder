@@ -1389,6 +1389,7 @@ class _Public {
 							error_log('------------>form send');
 							error_log(json_encode($email_user));
 							error_log(json_encode($email_fa));
+							error_log($send_email_to_user_state);
 							$email_user[0]=$email_fa;
 							$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 							$state_of_email = ['newMessage',$state_email_user];
