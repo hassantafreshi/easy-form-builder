@@ -2327,21 +2327,23 @@ class _Public {
 					//$links[1] = $link_w."?track=".$track;	
 					$email_status[1]= "newMessage";
 					$email_status[0] ='respRecivedMessage';
+					$user_eamil[0]=[null];
 					
-					
-					error_log('====================================>emails');
-					$current_user = wp_get_current_user();
-					
-					$current_user_email = $current_user->user_email;
-					error_log('current email of user:'.$current_user_email);
-					$ems = str_replace($current_user_email, "", $user_eamil[0]);
+					//error_log('====================================>emails');
+					//$current_user = wp_get_current_user();
+					/* $current_id = get_current_user_id();
+					error_log('current id of user:'.$current_id); */
+					//$current_user = get_userdata($current_id);
+					//$current_user_email = $current_user->user_email;
+					//error_log('current email of user:'.$current_user_email);
+					/* $ems = str_replace($current_user_email, "", $user_eamil[0]);
 					$ems = str_replace(",,", ",", $ems);
-					$user_eamil[1]!=[null] ? $user_eamil[1].=','.$ems : $user_eamil[1]=$ems;
+					$user_eamil[1]!=[null] ? $user_eamil[1].=','.$ems : $user_eamil[1]=$ems; */
 						// Use $current_user_email as needed
-					error_log(json_encode($user_eamil));
+					/* error_log(json_encode($user_eamil));
 					error_log($current_user_email);
 					$user_eamil[0]=$current_user_email;
-					error_log(json_encode($user_eamil));
+					error_log(json_encode($user_eamil)); */
 
 				
 					//array_push
