@@ -1459,6 +1459,10 @@ class efbFunction {
 			//show error message
 			//error_log(json_encode($r));
 		}else{
+			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
+			if (!file_exists($directory)) {
+				mkdir($directory, 0755, true);
+			}
 			$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
 			if(is_wp_error($v)){
 				$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
