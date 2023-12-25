@@ -139,7 +139,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 **New Forms Field of Easy Form Builder**
 
-- *SMS Notification*: Easy Form Builder offers a robust SMS notification feature, enabling real-time communication with your users upon form submission. Ideal for businesses seeking to enhance customer engagement, SMS notification addon of Easy Form Builder allows you to send customized SMS alerts to your clients. You can personalize the message content, ensuring it aligns with your brand voice, and even include a link to the submitted form for easy access. Leverage Easy Form Builder's SMS notification feature to keep your customers informed and engaged.
+- *SMS Notification*: Easy Form Builder offers a robust SMS notification (text message) feature, enabling real-time communication with your users upon form submission. Ideal for businesses seeking to enhance customer engagement, SMS notification addon of Easy Form Builder allows you to send customized SMS alerts to your clients. You can personalize the message content, ensuring it aligns with your brand voice, and even include a link to the submitted form for easy access. Leverage Easy Form Builder's SMS notification or text message feature to keep your customers informed and engaged.
 
 - *File Uploads*: With our **free** File Uploads feature, effortlessly collect and manage files and media through your contact forms or other forms, saving you time and boosting the overall effectiveness of your online forms.
 
@@ -377,7 +377,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 3.7.0 =
 
-* Added new features of SMS notification for forms
+* Added new features of SMS notification or text message for forms
 
 * Bootstrap Icons v1.11.2 added to Easy Form Builder
 

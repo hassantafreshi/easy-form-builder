@@ -183,10 +183,10 @@ This project follows the [Easy Form builder](https://whitestudio.team) specifica
 Contributions of any kind are welcome!
 
 ## Roadmap for 2024 🎯
- ### SMS Notifications:
+ ### SMS (text message) Notifications :
   #### Notification System for Form Submissions.
  * Seamless Integration with Wp-SMS.
- * White Studio SMS Service:
+ * White Studio SMS Service.
 
 ### Telegram Notifications:
 * Real-time Telegram Updates for Admins.
