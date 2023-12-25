@@ -2220,8 +2220,8 @@ class _Public {
 				$vv_="";
 				$lst = end($msg_obj);
 				$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-			   //error_log("=============>link_w ");
-			   //error_log($link_w );
+			   error_log("=============>link_w ");
+			   error_log($link_w );
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
@@ -2317,7 +2317,7 @@ class _Public {
 					$user_eamil[0]==null ? $user_eamil[0]=$email_fa : $user_eamil[0].=$email_fa.",";
 				}
 
-				$links=$link_w."?track=".$track;
+				$links=$link_w;
 				
 				$email_status =["",""];
 				!is_null($users_email) ? $user_eamil[1]= $users_email : 0;
