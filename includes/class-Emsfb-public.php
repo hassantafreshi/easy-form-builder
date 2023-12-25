@@ -89,7 +89,7 @@ class _Public {
 		
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
 		add_action('wp_enqueue_scripts', array($this,'fun_footer'));	
-		add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
+		//add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
 		
 		$this->efbFunction = new efbFunction();  
 		add_shortcode( 'EMS_Form_Builder',  array( $this, 'EFB_Form_Builder' ) );
@@ -153,7 +153,7 @@ class _Public {
 		$value = $value_form[0]->form_structer;
 		//error_log($value);
 		$icons=[[
-			'bi-clipboard-check','bi-hand-thumbs-up',
+			'bi-clipboard-check',
 			'bi-exclamation-triangle-fill',
 			"bi-exclamation-diamond-fill",		
 			"bi-check2-square",
@@ -1393,7 +1393,6 @@ class _Public {
 							$email_user[0]=$email_fa;
 							$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 							$state_of_email = ['newMessage',$state_email_user];
-							//$to , $track ,$pro , $state,$link ,$content ='null'
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true") $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,'null' );
 							//$this->send_json_success_efb($response);
 							wp_send_json_success($response,$data_POST);
@@ -3218,7 +3217,7 @@ class _Public {
 			$rePage =preg_replace('/(@efb@)+/','/',$rePage);
 		return $rePage;
 	}
-	public function corn_email_new_message_recived_Emsfb(){		
+/* 	public function corn_email_new_message_recived_Emsfb(){		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 		if(gettype($r)!="string"){return false;}
@@ -3244,7 +3243,7 @@ class _Public {
 				//$this->id = $trackingCode;
 			    $this->db->update( $table_msgs, array('read_' =>0), array( 'track' => $trackingCode ) );									
 		}
-	}
+	} */
 	public function  fun_send_email_noti_efb($fs_obj,$msg_obj, $email,$trackingCode,$pro,$admin_email,$link){
 			//error_log("=============>2803");
 		//error_log($email);
