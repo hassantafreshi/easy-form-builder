@@ -37,6 +37,10 @@ class Create {
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
+
+		//call check_for_active_plugins
+		
+		
 		
 		
 	}
@@ -273,6 +277,7 @@ class Create {
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 		$location ='';
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.0');
+		$cache_plugin = $efbFunction->check_for_active_plugins_cache();
 		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -293,6 +298,7 @@ class Create {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$ac,
 			'colors'=>$colors,
+			'plugin_cache'=>$cache_plugin
 			
 		));
 
