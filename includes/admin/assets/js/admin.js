@@ -48,6 +48,16 @@ jQuery(function () {
     }
     fun_timeout();
   }
+
+  //cache message alert section start
+  let count_show_efb_cache = localStorage.hasOwnProperty('efb_cache') ? Number(localStorage.getItem('efb_cache'))+1 : 0;
+  if(efb_var.hasOwnProperty('plugins') && efb_var.plugins.cache != 0 && count_show_efb_cache<6){
+    $val_noti = efb_var.text.excefb.replaceAll('XX', `<b>${efb_var.plugins.cache} </b>`);
+    alert_message_efb('' ,$val_noti,  120 ,'warning' )
+   
+    localStorage.setItem('efb_cache',count_show_efb_cache);
+  }
+  //cache message alert section end
 })
 
 
@@ -908,8 +918,11 @@ window.onload = (() => {
     for (const el of document.querySelectorAll(".notice")) {
       el.remove()
     }
+   
   }, 50)
 
+
+  
   document.body.scrollTop;
 })
 

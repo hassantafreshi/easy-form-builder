@@ -29,7 +29,7 @@ class Panel_edit  {
 	
   
 			}); */
-			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0];
+			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
 			error_log(gettype($plugins_get));
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
@@ -132,7 +132,7 @@ class Panel_edit  {
 			$location ='';
 			//efb_code_validate_create( $fid, $type, $status, $tc)
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
-			$cache_plugin = $efbFunction->check_for_active_plugins_cache();
+			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.0');
 			//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -156,7 +156,7 @@ class Panel_edit  {
 				'sid'=>$sid,
 				'rest_url'=>get_rest_url(null),
 				'plugins'=>$plugins,
-				'plugin_cache'=>$cache_plugin,
+				
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.0');

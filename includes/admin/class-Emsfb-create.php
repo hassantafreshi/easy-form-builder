@@ -275,9 +275,19 @@ class Create {
 		//error_log(json_encode($colors));
 
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+		$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
+			$plugins_get = get_plugins();
+			error_log(gettype($plugins_get));
+			if (is_plugin_active('wp-sms/wp-sms.php')) {
+				error_log('finded');
+				$plugins['wpsms']=1;
+			}
+
+			
+		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
+		
 		$location ='';
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.0');
-		$cache_plugin = $efbFunction->check_for_active_plugins_cache();
 		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -298,7 +308,7 @@ class Create {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$ac,
 			'colors'=>$colors,
-			'plugin_cache'=>$cache_plugin
+			'plugins'=>$plugins
 			
 		));
 

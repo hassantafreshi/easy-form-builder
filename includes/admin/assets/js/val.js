@@ -8,7 +8,7 @@ const fields_efb = [
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
-  { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' }, 
+  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' },  */
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
   { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},

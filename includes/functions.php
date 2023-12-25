@@ -735,7 +735,7 @@ class efbFunction {
 
 			"sms" => $state  &&  isset($ac->text->sms) ? $ac->text->sms : __('SMS','easy-form-builder'),
 			"smscw" => $state  &&  isset($ac->text->smscw) ? $ac->text->smscw : __('Click on the Settings button on the panel page of Easy Form Builder Plugin and configure the SMS sending method. Then, try again.','easy-form-builder'),
-			"to" => $state  &&  isset($ac->text->to) ? $ac->text->thank : __('To','easy-form-builder'),
+			"to" => $state  &&  isset($ac->text->to) ? $ac->text->to : __('To','easy-form-builder'),
 			"esmsno" => $state  &&  isset($ac->text->esmsno) ? $ac->text->esmsno : __('Enable SMS notifications','easy-form-builder'),
 			"payPalTAddon" => $state  &&  isset($ac->text->payPalTAddon) ? $ac->text->payPalTAddon : __('PayPal Payment Addon','easy-form-builder'),				
 			"payPalDAddon" => $state  &&  isset($ac->text->payPaleDAddon) ? $ac->text->payPaleDAddon : __('The PayPal add-on for Easy Form Builder enables you to integrate your WordPress site with PayPal for payment processing, donations, and online orders.','easy-form-builder'),				
@@ -746,6 +746,7 @@ class efbFunction {
 			"elan" => $state  &&  isset($ac->text->elan) ? $ac->text->elan : __('English language','easy-form-builder'),
 			"nlan" => $state  &&  isset($ac->text->nlan) ? $ac->text->nlan : __('National language','easy-form-builder'),
 			"stsd" => $state  &&  isset($ac->text->stsd) ? $ac->text->stsd : __('Select display language','easy-form-builder'),
+			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : __('The XX plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the XX plugin\'s settings.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -1872,6 +1873,6 @@ class efbFunction {
 			}
 		}
 	
-		return false;
+		return 0;
 	}
 }
