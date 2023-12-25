@@ -965,28 +965,32 @@ class efbFunction {
 					}
 				}else{
 					for($i=0 ; $i<2 ; $i++){
-						
-						$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
-						if( $state!="reportProblem"){
-	
-							//loop start
-							$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
-							//replace
-							$to_ = str_replace(',,', ',', $to_);
-							error_log('======>to');
-							error_log($to_);
-							$headers = array(
-								'MIME-Version: 1.0\r\n',
-								'From:'.$from.'',
-								'Bcc:'.$to_.''
-							);				
-							$mailResult =  wp_mail( '',$sub[$i], $message, $headers ) ;
-							remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-							//end loop
-	
-							
+						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
+							error_log('is empty:'.intval(empty($to[$i])) .'json:'.json_encode($to[$i]));
+							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
+							if( $state!="reportProblem"){
+		
+								//loop start
+								$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
+								//replace
+								$to_ = str_replace(',,', ',', $to_);
+								error_log('======>to');
+								error_log($to_);
+								$headers = array(
+									'MIME-Version: 1.0\r\n',
+									'From:'.$from.'',
+									'Bcc:'.$to_.''
+								);		
+								error_log($message);	
+								$mailResult =  wp_mail( '',$sub[$i], $message, $headers ) ;
+								remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
+								//end loop
+		
+								
+							}
 						}
 					}
+					
 					
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
@@ -999,7 +1003,7 @@ class efbFunction {
 		$l ="https://whitestudio.team/";
 			 if(get_locale()=="fa_IR"){ $l="https://easyformbuilder.ir/"  ;}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro"];
+		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		$align ="left";
@@ -1052,16 +1056,19 @@ class efbFunction {
 				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button></div>";
 			}
 		}else{
-
+			if(gettype($m)=='string'){
+				error_log('$lang["WeRecivedUrM"]:'.$lang["WeRecivedUrM"]);
 			$title =$lang["hiUser"];
 			$message='<div style="text-align:center">'.$m.'</div>';
-		}	
-		$d =  "ltr" ;
-		$align ="left";
-		if(is_rtl()){
-			$d =  "rtl" ;
-			$align ="right";
-		}
+			}else{
+				$title =$lang["hiUser"];
+				$message="
+				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button></div>
+				";
+			}
+		}		
 		
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>

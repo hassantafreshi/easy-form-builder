@@ -1390,10 +1390,18 @@ class _Public {
 							error_log(json_encode($email_user));
 							error_log(json_encode($email_fa));
 							error_log($send_email_to_user_state);
-							$email_user[0]=$email_fa;
-							$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
-							$state_of_email = ['newMessage',$state_email_user];
-							if($send_email_to_user_state==true || $send_email_to_user_state=="true") $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,'null' );
+							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+								$email_user[0]=$email_fa;
+								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+								$state_of_email = ['newMessage',$state_email_user];
+								$msg_content='null';
+								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
+									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content = str_replace("\"","'",$msg_content);
+									error_log($msg_content);
+								}
+								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
+							}
 							//$this->send_json_success_efb($response);
 							wp_send_json_success($response,$data_POST);
 						break;
@@ -1508,9 +1516,21 @@ class _Public {
 								$check=$this->update_message_db();	
 								//error_log(json_encode($filtered));
 								/* new email payment code */
-								 $admin_email = $formObj[0]["email"];
-								 $this->fun_send_email_noti_efb($formObj,$fs, $email,$trackId,$pro ,$admin_email,$url);
-								 $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+								// $admin_email = $formObj[0]["email"];
+								 if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+									$email_user[0]=$email_fa;
+									$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
+									$state_of_email = ['newMessage',$state_email_user];
+									$msg_content='null';
+									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
+										$msg_content =$this->email_get_content($valobj ,$track);
+										$msg_content = str_replace("\"","'",$msg_content);
+										error_log($msg_content);
+									}
+									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$msg_content );
+								}
+								 //$this->fun_send_email_noti_efb($formObj,$fs, $email,$trackId,$pro ,$admin_email,$url);
+								 if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
 								 $fs=[];
 								/* End new email payment code */
 								
@@ -1518,10 +1538,10 @@ class _Public {
 								$response = array( 'success' => false  ,'m'=>__('Error Code','easy-form-builder').'</br>'. __('Payment Form','easy-form-builder')); 
 								wp_send_json_success($response,$data_POST);
 							}
-							if(strlen($email_fa)>4){
+							/* if(strlen($email_fa)>4){
 								//error_log("=============>1251");
 								$this->send_email_Emsfb($email_fa,$trackId,$pro,"newMessage",$url ,'null');
-							}
+							} */
 							$m = "Error 500";
 							$response = $check == 1 ? array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$this->id ,'nonce'=>wp_create_nonce($this->id)  , 'ip'=>$ip) :  array( 'success' => false  ,'m'=>$m);
 							$this->efbFunction->efb_code_validate_update($sid ,'pay' ,$check );
@@ -1578,11 +1598,17 @@ class _Public {
 									$check=	$this->insert_message_db(0,false);
 									//$state= get_user_by( 'email', $email);
 									//if(gettype($state)=="object"){
-										$to = $email;								
+										$to = $email;
+										$email_user[1]=$email;
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
-											$this->send_email_Emsfb($to,$ms,$pro,"register",$url ,'null');
-											$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+											//$this->send_email_Emsfb($to,$ms,$pro,"register",$url ,'null');
+											$email_user[0]=$email_fa;
+											
+											$state_of_email = ['newMessage','register'];
+											if($send_email_to_user_state==true || $send_email_to_user_state=="true") $this->send_email_Emsfb_( $email_user,$ms ,$pro,$state_of_email,$url,'null' );
+
+											if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
 											//$this->send_email_Emsfb($email_user,$ms,$pro,"register");
 									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
@@ -1640,7 +1666,7 @@ class _Public {
 									$response = array( 'success' => true  ,'m'=>$rePage); 
 								}		
 								$this->efbFunction->efb_code_validate_update($sid ,'login' ,'login' );		
-								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,'');				
+								if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,'');				
 								wp_send_json_success($response,$data_POST);
 							}else{
 								// user not login
@@ -1699,24 +1725,35 @@ class _Public {
 						break;
 						case "subscribe":
 							$check=	$this->insert_message_db(0,false);
-							if(!empty($r)){
+							/*if(!empty($r)){
 								//$setting =json_decode($r->setting);
-								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>2){
+								 if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>2){
 								//	
 									$email = $setting->emailSupporter;
 								}													
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && sizeof($email_user)>0 ){
 									//$to =[];
-									/* foreach($email_user as $key => $val){
-										array_push($to ,$val['value']);
-									}	 */								
+																
 									if(sizeof($email_user) > 0)$this->send_email_Emsfb($email_user,'',$pro,"subscribe",$url,'null');
+								} 
+
+							}*/
+							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+								$email_user[0]=$email_fa;
+								//$state_email_user = $trackingCode_state=='subscribe';
+								$state_of_email = ['newMessage','subscribe'];
+								$msg_content='null';
+								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
+									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content = str_replace("\"","'",$msg_content);
+									error_log($msg_content);
 								}
+								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
-							if(strlen($email_fa)>4){
+							/* if(strlen($email_fa)>4){
 								//error_log('1448');		
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url,'null');
-							}
+							} */
 							$response = array( 'success' => true , 'm' =>$this->lanText["done"]); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 							$this->efbFunction->efb_code_validate_update($sid ,'nwltr' ,'nwltr' );
@@ -1725,17 +1762,14 @@ class _Public {
 						case "survey":
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(0,false);
-							if(!empty($r)){
+							/* if(!empty($r)){
 								//$setting =json_decode($r->setting);
 								if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 									$email = $setting->emailSupporter;
 								}
 								if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && sizeof($email_user)>0 ){
 									//$to =[];
-									/* foreach($email_user as $key => $val){
-										error_log($val);
-										array_push($to ,$val);
-									} */
+									
 									if(sizeof($email_user) > 0){
 										//error_log('1469');		
 										$this->send_email_Emsfb($email_user,'',$pro,"survey",$url,'null');}
@@ -1744,8 +1778,20 @@ class _Public {
 							}
 							if(strlen($email_fa)>4){
 								$this->send_email_Emsfb($email_fa,$check,$pro,"newMessage",$url,'null');
+							} */
+							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+								$email_user[0]=$email_fa;
+								//$state_email_user = $trackingCode_state=='subscribe';
+								$state_of_email = ['newMessage',"survey"];
+								$msg_content='null';
+								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
+									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content = str_replace("\"","'",$msg_content);
+									error_log($msg_content);
+								}
+								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
-							$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
+							if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
 							$response = array( 'success' => true , 'm' =>$this->lanText["surveyComplatedM"]);
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); } 
 							$this->efbFunction->efb_code_validate_update($sid ,'poll' ,'poll' );
@@ -3289,7 +3335,8 @@ class _Public {
 					$msg_content =$this->email_get_content($msg_obj ,$trackingCode);
 					$msg_content = str_replace("\"","'",$msg_content);
 					//error_log($msg_content);
-			}	
+			}
+
 		
 			//error_log(json_encode($user_email));
 			if(sizeof($user_email) >0){
