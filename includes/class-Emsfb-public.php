@@ -2441,6 +2441,7 @@ class _Public {
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
 	}
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null'){
+		error_log('send_email_Emsfb_===> function public');
 		error_log($link);
 		
 		//error_log('send_email_Emsfb===> function public');
