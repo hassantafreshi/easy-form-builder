@@ -2326,7 +2326,7 @@ class _Public {
 					//send email noti to users
 					//$links[1] = $link_w."?track=".$track;	
 					$email_status[1]= "newMessage";
-					$email_status[0] ='notiToUserFormFilled_TrackingCode';
+					$email_status[0] ='respRecivedMessage';
 					
 					
 					error_log('====================================>emails');
@@ -2355,7 +2355,7 @@ class _Public {
 					//$link = $link_w. "?user=admin&"."track=".$track;
 
 					/*2 new code email */
-					$email_status[1]= "notiToUserFormFilled_TrackingCode";
+					$email_status[1]= "respRecivedMessage";
 					$email_status[0] ='newMessage';
 					
 
@@ -2469,7 +2469,7 @@ class _Public {
 			//$this->lanText= $this->efbFunction->text_efb($this->text_);
 			//error_log(json_encode($this->lanText));
 			$cont[$i] = $track;
-			$subject[$i] ="📮 ". $this->lanText["youRecivedNewMessage"];
+			$subject[$i] ="📮 ". $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
@@ -2482,6 +2482,13 @@ class _Public {
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
 				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
 				";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=="respRecivedMessage"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
+				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
+						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
+						<div style='text-align:center'><button><a href='".$link_w[$i]."' style='color: black;'>". $this->lanText["clcdetls"]."</a></button></div>
+						";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="register"){  
 				$subject[$i] =$this->lanText["thankRegistering"];   	
