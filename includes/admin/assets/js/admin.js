@@ -283,7 +283,7 @@ console.info('Easy Form Builder 3.7.0> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
-  console.log('actionSendData_emsFormBuilder')
+  //console.log('actionSendData_emsFormBuilder')
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -291,14 +291,14 @@ function actionSendData_emsFormBuilder() {
   
   data = {};
   var name = formName_Efb
-  console.log(localStorage.getItem("valj_efb"));
+  //console.log(localStorage.getItem("valj_efb"));
   // replace \" to "
   const ls_val=  localStorage.getItem("valj_efb").replace(/\\\"/g, '"');
   jQuery(function ($) {
 
     
     if (state_check_ws_p == 1) {
-      console.log(ls_val);
+      //console.log(ls_val);
       data = {
         action: "add_form_Emsfb",
         value: ls_val,
@@ -603,7 +603,7 @@ function add_addons_emsFormBuilder() {
   let value = `<!-- boxs -->`;
   for (let i of addons_efb) {
     //778899 addonTest => change below 
-    console.log(i);
+    //console.log(i);
    if(i.state==true) {
     //if(i.state==true || i.state==false) {
       const v = {'name':i.name,'id':i.id,'tag':i.tag,'icon':i.icon,
@@ -949,7 +949,7 @@ switch_color_efb = (color) => {
 }
 
 ColorNameToHexEfbOfElEfb = (v, i, n) => {
-  console.log('ColorNameToHexEfbOfElEfb',v,i,n)
+  //console.log('ColorNameToHexEfbOfElEfb',v,i,n)
   let r
   let id;
   switch (n) {
@@ -980,7 +980,7 @@ ColorNameToHexEfbOfElEfb = (v, i, n) => {
       const len = `colorDEfb-`.length;
       if (v.includes(`colorDEfb`)) r = "#" + v.slice(len);
   }
-  console.log(r);
+  //console.log(r);
   return r;
 }
 
@@ -1095,7 +1095,7 @@ let change_el_edit_Efb = (el) => {
     }
       if (el.value==null) return  valNotFound_efb()
     //console.log(el.id)
-    console.log(`index=====>${indx}` ,el.id);
+    //console.log(`index=====>${indx}` ,el.id);
     switch (el.id) {
       case "labelEl":
         
@@ -1282,9 +1282,9 @@ let change_el_edit_Efb = (el) => {
           //console.log(c ,document.getElementById(c).classList )
           break;
       case "SendemailEl":
-       console.log('noti' ,efb_var.smtp);
+       //console.log('noti' ,efb_var.smtp);
         if (efb_var.smtp == "true" || Number(efb_var.smtp) == 1 ) {
-          console.log('s,ttttttttt');
+          //console.log('s,ttttttttt');
           //valj_efb[0].sendEmail = el.checked
           postId= valj_efb[indx].id_;
           valj_efb[0].email_to = el.dataset.vid;
@@ -1323,11 +1323,11 @@ let change_el_edit_Efb = (el) => {
           document.getElementById("smsEnableEl").classList.remove('active') ;
        }
        if(Number(efb_var.setting.AdnSS)!=1){
-        console.log('addons sms not active!');
+        //console.log('addons sms not active!');
         document.getElementById("smsEnableEl").classList.remove('active') ;
         //alert_message_efb(efb_var.text.error, efb_var.text.goToEFBAddSMSM, 20, "danger")
         let m = efb_var.text.msg_adons.replace('NN',`<b>${efb_var.text.sms_noti}</b>`);
-        console.log(m)
+        //console.log(m)
         //noti_message_efb(m, 'danger' , `content-efb` );
         alert_message_efb(efb_var.text.error, m, 20, "danger")
         return false;
@@ -1338,7 +1338,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].hasOwnProperty('smsnoti')==false ? Object.assign(valj_efb[indx],{'smsnoti':c}) : valj_efb[indx].smsnoti = c;
         //add sms message to valj_efb
         
-        console.log(indx);
+        //console.log(indx);
         if(indx!=0){
           if(c==1){
             indx=0;
@@ -1350,20 +1350,20 @@ let change_el_edit_Efb = (el) => {
         if(indx==0){
           if (c==1){
             //remove disabled class from all input has sms-efb
-            console.log('remove disbaled!')
+            //console.log('remove disbaled!')
             const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
-              console.log(el.id);
+              //console.log(el.id);
               el.disabled=false;
               el.classList.remove('disabled');
               el.classList.remove('d-none');
             })
           }else{
             //add disabled class from all input has sms-efb
-            console.log('add disbaled!')
+            //console.log('add disbaled!')
             const smsEls = document.querySelectorAll('.smsmsg')
             smsEls.forEach((el)=>{
-              console.log(el.id);
+              //console.log(el.id);
               el.disabled=true;
               el.classList.add('disabled');
               el.classList.add('d-none');
@@ -1392,7 +1392,7 @@ let change_el_edit_Efb = (el) => {
 
           }
         }
-        console.log(c,valj_efb[indx].smsnoti);
+        //console.log(c,valj_efb[indx].smsnoti);
         break;
       case "smsAdminsPhoneNoEl":
         //validate el.value for international phone number and seprate them by comma
@@ -1424,7 +1424,7 @@ let change_el_edit_Efb = (el) => {
               return false;
             }
           }
-          console.log(valj_efb[0].sms_admins_phone_no);
+          //console.log(valj_efb[0].sms_admins_phone_no);
             
         break;
       case "formNameEl":
@@ -1726,7 +1726,7 @@ let change_el_edit_Efb = (el) => {
         break;
       //paymentMethodEl
       case "currencyTypeEl":
-        //console.log('currencyTypeEl')
+        ////console.log('currencyTypeEl')
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
         //document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
         for (const l of document.querySelectorAll(".totalpayEfb")) {
@@ -1738,11 +1738,11 @@ let change_el_edit_Efb = (el) => {
       case "fileTypeEl":
         valj_efb[indx].file = el.options[el.selectedIndex].value;
 
-        console.log(valj_efb[indx].file)
+        //console.log(valj_efb[indx].file)
         valj_efb[indx].value = el.options[el.selectedIndex].value;
         let nfile = el.options[el.selectedIndex].value.toLowerCase();
         nfile = efb_var.text[nfile];
-        console.log(el.options[el.selectedIndex].value)
+        //console.log(el.options[el.selectedIndex].value)
         if(el.options[el.selectedIndex].value=='customize'){nfile =valj_efb[indx].file_ctype}
           
 
@@ -1762,13 +1762,13 @@ let change_el_edit_Efb = (el) => {
         break;
       case 'fileSizeMaxEl':
         valj_efb[indx].hasOwnProperty('max_fsize')==false ? Object.assign(valj_efb[indx],{'max_fsize':el.value}) : valj_efb[indx].max_fsize = el.value;       
-        console.log(valj_efb[indx]);
+        //console.log(valj_efb[indx]);
         break;
       case'fileCustomizeTypleEl':
         c= el.value.trim();
         if(c.slice(-1)==',') c=c.slice(0,-1);
         for(let v of c.split(',')){
-          console.log(v);
+          //console.log(v);
           
           v=v.trim();
           if(v.match(/^[a-zA-Z0-9]+$/)==null){
@@ -1782,7 +1782,7 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
 
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${c}`
-        console.log(valj_efb[indx]);
+        //console.log(valj_efb[indx]);
         break;
 
       case "btnColorEl":
@@ -1857,7 +1857,7 @@ let change_el_edit_Efb = (el) => {
         }
          else if (el.dataset.el == "progessbar") {
           valj_efb[0].hasOwnProperty('prg_bar_color')==false ?  Object.assign(valj_efb[0],{'prg_bar_color':"btn-" + c}) : valj_efb[0].prg_bar_color = "btn-" + c;
-          console.log(valj_efb[0].prg_bar_color)
+          //console.log(valj_efb[0].prg_bar_color)
           return;
           //postId = '_'
         }
@@ -2139,7 +2139,7 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'EditOption':
-          console.log('EditOption',el.dataset)
+          //console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
         
         if (iindx != -1) {
@@ -2148,7 +2148,7 @@ let change_el_edit_Efb = (el) => {
           if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
 
             //Select
-            console.log(el.dataset.id);
+            //console.log(el.dataset.id);
             let vl = document.querySelector(`[data-op="${el.dataset.id}"]`);
             if (vl) vl.innerHTML = el.value;
             if (vl) vl.value = el.value;
@@ -2156,13 +2156,13 @@ let change_el_edit_Efb = (el) => {
             temp = valj_efb.findIndex(x=>x.id_op == c);
             
             valj_efb[temp].value = el.value;
-            console.log(c,temp,valj_efb[temp].value)
+            //console.log(c,temp,valj_efb[temp].value)
 
           }else if(el.dataset.tag == "imgRadio"){
             //console.log(el.dataset.id,valj_efb[iindx].id_op);
             document.getElementById(`${valj_efb[iindx].id_op}_value`).innerHTML = el.value;
           }else if(el.dataset.tag == "table_matrix"){
-            console.log(valj_efb[iindx].id_op ,el.value ,document.getElementById(`${valj_efb[iindx].id_op}_label`));
+            //console.log(valj_efb[iindx].id_op ,el.value ,document.getElementById(`${valj_efb[iindx].id_op}_label`));
             document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
           } else if (el.dataset.tag != "multiselect" && el.dataset.tag != 'payMultiselect') {
             //radio || checkbox       
@@ -2329,12 +2329,12 @@ let change_el_edit_Efb = (el) => {
           }
         break;
       case "countriesListEl":
-        console.log("12x countriesListEl",el.options[el.selectedIndex].value ,el)
+        //console.log("12x countriesListEl",el.options[el.selectedIndex].value ,el)
         valj_efb[indx].country =  el.options[el.selectedIndex].value
         //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
         if(el.dataset.tag =="stateProvince" && document.getElementById('optionListefb')!=null){
           el.classList.add('is-loading');
-          console.log(el);
+          //console.log(el);
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
           
           fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${valj_efb[indx].country.toLowerCase()}.json`);
@@ -2361,7 +2361,7 @@ let change_el_edit_Efb = (el) => {
                 }else if(Number(valj_efb[indx].stylish)==3){
                   rowValue = value.n.trim();
                 }
-                console.log(rowValue);
+                //console.log(rowValue);
               }
               valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
               //optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
@@ -2387,13 +2387,13 @@ let change_el_edit_Efb = (el) => {
        
         break;
       case "statePovListEl":
-        console.log("12x statePovListEl",el.options[el.selectedIndex].value ,el)
+        //console.log("12x statePovListEl",el.options[el.selectedIndex].value ,el)
         //console.log("countriesListEl",el.options[el.selectedIndex].value ,el)
         valj_efb[indx].statePov =  el.options[el.selectedIndex].value.toLowerCase();
         temp = valj_efb[indx].country.toLowerCase();
         if( document.getElementById('optionListefb')!=null){
           el.classList.add('is-loading');
-          console.log(`================>test`);
+          //console.log(`================>test`);
           document.getElementById('optionListefb').innerHTML=donwload_event_icon_efb('text-darkb');
           fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${temp}/${valj_efb[indx].statePov}.json`);
           let  opetions;
@@ -2408,7 +2408,7 @@ let change_el_edit_Efb = (el) => {
             obj_delete_options(valj_efb[indx].id_)
             console.error(indx, valj_efb[indx] ,valj_efb[indx].hasOwnProperty('stylish'))
             for (const key in temp_efb.r) {
-              console.log(key);
+              //console.log(key);
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
               //const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
@@ -2421,7 +2421,7 @@ let change_el_edit_Efb = (el) => {
                 }else if(Number(valj_efb[indx].stylish)==3){
                   rowValue = value.n.trim();
                 }
-                console.log(rowValue);
+                //console.log(rowValue);
               }
               valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
               //optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
@@ -2498,25 +2498,25 @@ let change_el_edit_Efb = (el) => {
            pro_show_efb(1);
            return;
          }
-         console.log(`[${el.dataset.id}]` , el.value);
+         //console.log(`[${el.dataset.id}]` , el.value);
          c = sanitize_text_efb(el.value ,true);
          if(el.dataset.id=="WeRecivedUrM"){
-          console.log('WeRecivedUrM')
+          //console.log('WeRecivedUrM')
           valj_efb[0].hasOwnProperty('sms_msg_recived_usr') ? valj_efb[0].sms_msg_recived_usr = c : Object.assign(valj_efb[0], { sms_msg_recived_usr: c })
-          console.log(`valj_efb[0].sms_msg_recived_usr===>[${valj_efb[0].sms_msg_recived_usr}]`);
+          //console.log(`valj_efb[0].sms_msg_recived_usr===>[${valj_efb[0].sms_msg_recived_usr}]`);
          }else if(el.dataset.id=="responsedMessage"){
-          console.log('responsedMessage')
+          //console.log('responsedMessage')
           valj_efb[0].hasOwnProperty('sms_msg_responsed_noti') ? valj_efb[0].sms_msg_responsed_noti = c : Object.assign(valj_efb[0], { sms_msg_responsed_noti: c })
-          console.log(`valj_efb[0].sms_msg_responsed_noti===>[${valj_efb[0].sms_msg_responsed_noti}]`);
+          //console.log(`valj_efb[0].sms_msg_responsed_noti===>[${valj_efb[0].sms_msg_responsed_noti}]`);
          }else if(el.dataset.id=="newMessageReceived"){
-           console.log('newMessageReceived')
+           //console.log('newMessageReceived')
             valj_efb[0].hasOwnProperty('sms_msg_new_noti') ? valj_efb[0].sms_msg_new_noti = c : Object.assign(valj_efb[0], { sms_msg_new_noti: c })
-            console.log(`valj_efb[0].sms_msg_new_noti===>[${valj_efb[0].sms_msg_new_noti}]`);
+            //console.log(`valj_efb[0].sms_msg_new_noti===>[${valj_efb[0].sms_msg_new_noti}]`);
          }
 
       break;
       case 'languageSelectPresentEl':
-         console.log(valj_efb[indx] ,el.options[el.selectedIndex].value);
+         //console.log(valj_efb[indx] ,el.options[el.selectedIndex].value);
          temp = el.options[el.selectedIndex].value;
          Object.assign(valj_efb[indx], { stylish: el.options[el.selectedIndex].value })
          //1 n+e
@@ -2524,12 +2524,12 @@ let change_el_edit_Efb = (el) => {
          // e 
         // obj_delete_options(valj_efb[indx].id_)
          c =valj_efb.filter(item => item.parent == valj_efb[indx].id_);
-         console.log(c);
+         //console.log(c);
          const newRndm = Math.random().toString(36).substr(2, 9);
          for (const value of valj_efb) {
          
           if(value.parent == valj_efb[indx].id_){
-            console.log(value ,value.n ,value.l)
+            //console.log(value ,value.n ,value.l)
             let nameofErows = value.value;
             if(value.hasOwnProperty('n')){
               const eng = value.n.trim();
@@ -2550,7 +2550,7 @@ let change_el_edit_Efb = (el) => {
          
          }
             opetions= efb_add_opt_setting(c, el ,false ,newRndm ,"")
-            console.log(opetions);
+            //console.log(opetions);
             document.getElementById('optionListefb').innerHTML="";
             document.getElementById('optionListefb').innerHTML=opetions
       break;
@@ -2889,7 +2889,7 @@ function obj_resort_row(step) {
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
 let sampleElpush_efb = (rndm, elementId) => {
-  console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
+  //console.log(`sampleElpush_efb ===> rndm[${rndm}], elementId[${elementId}] amount_el_efb[${amount_el_efb}]`)
   
   const testb = valj_efb.length;
   amount_el_efb = amount_el_efb ?amount_el_efb: (valj_efb[testb-1].amount +1);
@@ -2898,7 +2898,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   const txt_color = elementId != "yesNo" ? pub_el_text_color_efb : pub_txt_button_color_efb
   p=()=>{const l =fields_efb.find(x=>x.id == elementId);  return l && l.hasOwnProperty('pro')? l.pro :0} ;
   let pro = p();
-  console.log(`pro[${pro}]`);
+  //console.log(`pro[${pro}]`);
   let size = 100;
   
   let type = elementId;
@@ -3007,7 +3007,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     });
 
   }else if (elementId == "contury" || elementId == "statePro" ){
-    console.log('==================>',elementId);
+    //console.log('==================>',elementId);
     
   } else {
     
@@ -3350,7 +3350,7 @@ const obj_delete_row = (dataid, is_step) => {
   if (foundIndex != -1 && is_step == true) {
     step = Number(valj_efb[foundIndex].step)-1 ;
    step_el_efb =step}
-  console.log(dataid , is_step ,foundIndex ,`steps[${step}]`);
+  //console.log(dataid , is_step ,foundIndex ,`steps[${step}]`);
   if (foundIndex != -1) {
     if (valj_efb[foundIndex].type == "maps") {
       document.getElementById('maps').draggable = true;
@@ -3375,11 +3375,11 @@ const obj_delete_row = (dataid, is_step) => {
      
      let count =0;
      if (Object.keys(vnoti).length === 0){
-      console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
+      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length);
       valj_efb[0].email_to = ''
       valj_efb[0].sendEmail =0
      }else{
-      console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
+      //console.log('vd',typeof(vnoti),Object.keys(vnoti).length ,vnoti);
        for(let i in vnoti){
         //console.log('==============>',vnoti[i].noti, vnoti[i].id_);
         if(vnoti[i].hasOwnProperty('id_') && vnoti[i].id_!= valj_efb[foundIndex].id_ && Number(vnoti[i].noti)==1 )count+=1;
@@ -3535,7 +3535,7 @@ const delete_option_efb = (id) => {
 
 
 fun_efb_add_el = (t) => {
-  console.log(t);
+  //console.log(t);
   const rndm = Math.random().toString(36).substr(2, 9);
 
   
@@ -3544,7 +3544,7 @@ fun_efb_add_el = (t) => {
   if (valj_efb.length < 2) { dropZoneEFB.innerHTML = "", dropZoneEFB.classList.add('pb') }
 
   if (t == "address" || t == "name") {
-    console.log('log address' , 'first if ');
+    //console.log('log address' , 'first if ');
     const olist = [
       { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
       { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "zipcode" } 
@@ -3552,7 +3552,7 @@ fun_efb_add_el = (t) => {
     ]
     //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
     for (const ob of olist) {
-      console.log('log address' , 'first if ' , ob);
+      //console.log('log address' , 'first if ' , ob);
       if (ob.n == t) {
         let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
         dropZoneEFB.innerHTML += el;
@@ -3604,8 +3604,8 @@ fun_efb_add_el = (t) => {
 
 
 function active_element_efb(el) {
-  console.log(el);
-  console.log(activeEl_efb);
+  //console.log(el);
+  //console.log(activeEl_efb);
   // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
  if (el.id != activeEl_efb ) {
@@ -3703,7 +3703,7 @@ function emsFormBuilder_delete(id, type,value) {
   //v2
   let val =id;
   
-  console.log(id);
+  //console.log(id);
   switch (type) {
     case "addon":
       val = efb_var.text[id];
@@ -3907,7 +3907,7 @@ window.addEventListener("popstate",e=>{
   const getUrlparams = new URLSearchParams(location.search);
   let v =g_page =getUrlparams.get('page') ? sanitize_text_efb(getUrlparams.get('page')) :"";
   if (v==null) return  valNotFound_efb();
-  console.log(e.state , v);
+  //console.log(e.state , v);
   switch(e.state){
     case 'templates':
       add_dasboard_emsFormBuilder();
@@ -3971,7 +3971,7 @@ window.addEventListener("popstate",e=>{
 
 
 function efb_check_el_pro(el){
-  console.log(efb_var.pro , pro_ws)
+  //console.log(efb_var.pro , pro_ws)
   f_b=()=>{
     el.classList.contains('active') ? el.classList.remove('active') :  el.classList.add('active');
   }
@@ -4096,7 +4096,7 @@ function colors_template_picker_efb(el){
   //type = text, border , bg , btn
   
 /*   for(let i in valj_efb){
-    console.log(valj_efb[i]);
+    //console.log(valj_efb[i]);
     switch(el.dataset.id){
       case 'label':
         // ویژگی ها باتن
@@ -4148,7 +4148,7 @@ content_colors_setting_efb=()=>{
       case 'form':
       break
     }
-    console.log(`d[${d}]`);
+    //console.log(`d[${d}]`);
     for(let i of efb_var.colors){
       const c = d==i ? '#c60000' : '#ccc';
       r +=`<p id="${name}" data-id="${name}" title="${i}" class="efb coloritem col-1 m-1" data-color="${i}" style="background:${i};width: 25px;height: 25px;border-radius: 20%;cursor: pointer; border: 1.5px solid ${c};" onClick="colors_template_picker_efb(this)"></p>`;
