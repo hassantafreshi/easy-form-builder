@@ -140,13 +140,13 @@ class _Public {
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
 		}
 		error_log('------------------>before litespeed_purge_post');
-		if (defined('LSCWP_V')){			
+		/* if (defined('LSCWP_V')){			
 			error_log('------------------>litespeed_purge_post');
 			$page_id = get_the_ID();
 			error_log('$page_id===>'.$page_id);
 			do_action( 'litespeed_purge_post', $page_id );
 			//do_action( 'litespeed_purge_post', $data_POST['url'] );
-		}
+		} */
 		$this->public_scripts_and_css_head();
 		$state="";
 		$pro=  $this->pro_efb;
