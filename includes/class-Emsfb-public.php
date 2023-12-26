@@ -31,7 +31,7 @@ class _Public {
 		$this->id =-1;
 		$this->pro_efb =false;
 		
-		//vvv
+
 
 
 		add_action('rest_api_init',  @function(){
@@ -115,7 +115,7 @@ class _Public {
 
 
 	public function EFB_Form_Builder($id){
-		error_log('EFB_Form_Builder');
+		//error_log('EFB_Form_Builder');
 		if (!wp_script_is('jquery', 'enqueued')) {
 			//When jQuery is not defined, run this if statement
 			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
@@ -375,7 +375,7 @@ class _Public {
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
-		error_log(json_encode($icons_));
+		//error_log(json_encode($icons_));
 		 if($formObj[0]["stateForm"]==true ){
 			$content ="
 			".$this->bootstrap_icon_efb($icons_)."		 
@@ -589,7 +589,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 		
-		error_log('$s_sid check===>'.$s_sid);
+		//error_log('$s_sid check===>'.$s_sid);
 		//error_log($s_sid);
 		if ($s_sid !=1){
 			error_log('s_sid is not valid!!');
@@ -650,10 +650,10 @@ class _Public {
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				;
 				//$type = $formObj[0]["type"];
-				error_log('type===>'.$type);
-				error_log('formObj[0]["type"]===>'.$formObj[0]["type"]);
+				//error_log('type===>'.$type);
+				//error_log('formObj[0]["type"]===>'.$formObj[0]["type"]);
 				if($type!=$formObj[0]["type"]){
-					error_log('=?????? type!');
+					//error_log('=?????? type!');
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 					wp_send_json_success($response,$data_POST);
 				}
@@ -720,7 +720,7 @@ class _Public {
 							if(isset($f['name'])){
 						    $mr = $this->lanText["mnvvXXX"];
 							$mr =str_replace('XXX', $f['name'], $mr );}
-							error_log("form row type =>" . $f["type"] ."key:".$key);
+							//error_log("form row type =>" . $f["type"] ."key:".$key);
 							//error_log(json_encode($f));	
 							switch ($f['type']) {
 								case 'email':
@@ -974,7 +974,7 @@ class _Public {
 									$in_loop=false;
 									break; */
 								case 'r_matrix':
-									error_log("r_matrix ==> name". $item['value']);
+									//error_log("r_matrix ==> name". $item['value']);
 									$stated=0;
 									$item['value'] = sanitize_text_field($item['value']);
 									if($item['value']<1 || $item['value']>5){
@@ -985,10 +985,10 @@ class _Public {
 									$stated=1;
 									$item['name'] = $f['value'];
 									$item['label']="";
-									error_log('==================item=============');
-									error_log(json_encode($item));
-									error_log('==================f=============');
-									error_log(json_encode($f));
+									//error_log('==================item=============');
+									//error_log(json_encode($item));
+									//error_log('==================f=============');
+									//error_log(json_encode($f));
 									//find form $formObj row type =='table_matrix';
 									foreach($formObj as $k=>$v){
 										if($v['type']=='table_matrix' && $v['id_']==$item['id_']){										
@@ -996,8 +996,8 @@ class _Public {
 											break;
 										}
 									}
-									error_log('=================::item::===============');
-									error_log(json_encode($item));
+									//error_log('=================::item::===============');
+									//error_log(json_encode($item));
 									
 									$rt= $item;
 									$in_loop=false;
@@ -1030,10 +1030,10 @@ class _Public {
 									$stated=0;
 									if(isset($item['value'])){
 										$item['value'] = sanitize_text_field($item['value']);
-										error_log('=========================>item');
-										error_log(json_encode($item));
-										error_log('=========================>f');
-										error_log(json_encode($f));
+										//error_log('=========================>item');
+										//error_log(json_encode($item));
+										//error_log('=========================>f');
+										//error_log(json_encode($f));
 										
 										
 											array_filter($formObj, function($fr,$ki) use($item,&$rt,&$stated,&$formObj,$form_condition,&$mr) { 											
@@ -1277,7 +1277,7 @@ class _Public {
 				}
 				
 				//$this->url =$url;
-				error_log(json_encode($valobj));
+				//error_log(json_encode($valobj));
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 				/* 	//test return
 				return ; */
@@ -1310,8 +1310,8 @@ class _Public {
 		if(true){
 
 			if (defined('LSCWP_V')){			
-				error_log('------------------>litespeed_purge_post');
-				error_log($page_id);
+				//error_log('------------------>litespeed_purge_post');
+				//error_log($page_id);
 				do_action( 'litespeed_purge_post', $page_id );
 				//do_action( 'litespeed_purge_post', $data_POST['url'] );
 			}
@@ -1319,8 +1319,8 @@ class _Public {
 			$r= $this->setting ;
 			if(gettype($r)=="string" && $fs!=''){
 				$setting =str_replace('\\', '', $r);
-				error_log('------------------>seting');
-				error_log($setting);			
+				//error_log('------------------>seting');
+				//error_log($setting);			
 				$setting =json_decode($setting);
 				$this->setting=$setting;
 				 strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
@@ -1389,19 +1389,19 @@ class _Public {
 						
 							//+ قبل از هر ارسال این تابع زیر فراخوانی شود
 							if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
-								error_log('==>phonenumebrs');
-								error_log(json_encode($phone_numbers));
-								error_log('===>check');
-								error_log($check);								
+								//error_log('==>phonenumebrs');
+								//error_log(json_encode($phone_numbers));
+								//error_log('===>check');
+								//error_log($check);								
 								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check );
 
 							}
 
 							
-							error_log('------------>form send');
-							error_log(json_encode($email_user));
-							error_log(json_encode($email_fa));
-							error_log($send_email_to_user_state);
+							//error_log('------------>form send');
+							//error_log(json_encode($email_user));
+							//error_log(json_encode($email_fa));
+							//error_log($send_email_to_user_state);
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 								$email_user[0]=$email_fa;
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -1410,7 +1410,7 @@ class _Public {
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
 									$msg_content =$this->email_get_content($valobj ,$track);
 									$msg_content = str_replace("\"","'",$msg_content);
-									error_log($msg_content);
+									//error_log($msg_content);
 								}
 								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
@@ -1758,7 +1758,7 @@ class _Public {
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
 									$msg_content =$this->email_get_content($valobj ,$track);
 									$msg_content = str_replace("\"","'",$msg_content);
-									error_log($msg_content);
+									//error_log($msg_content);
 								}
 								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
@@ -1799,7 +1799,7 @@ class _Public {
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
 									$msg_content =$this->email_get_content($valobj ,$track);
 									$msg_content = str_replace("\"","'",$msg_content);
-									error_log($msg_content);
+									//error_log($msg_content);
 								}
 								$this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
@@ -1931,7 +1931,7 @@ class _Public {
         return $ip;
     }
 	public function file_upload_public(){
-		error_log('file_upload_public');
+		//error_log('file_upload_public');
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
@@ -1990,14 +1990,14 @@ class _Public {
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
-		error_log('file_upload_api');
-		error_log($fid);
-		error_log($sid);
-		error_log($_POST['id']);
-		error_log($_POST['pl']);
+		//error_log('file_upload_api');
+		//error_log($fid);
+		//error_log($sid);
+		//error_log($_POST['id']);
+		//error_log($_POST['pl']);
 
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
-		error_log($s_sid);
+		//error_log($s_sid);
 		if ($s_sid !=1 || $sid==null){
 			error_log('=======>not secure@');
 			//error_log('s_sid is not valid!! ==>file_upload_api');
@@ -2010,22 +2010,22 @@ class _Public {
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
-			error_log('=======>else done');
+			//error_log('=======>else done');
             $id = $_POST['id'];
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
-			error_log($vl);
+			//error_log($vl);
 			
             if($vl!=null){    
 				$tmep = strpos($vl , '\"value\":\"customize\"');
-				error_log('=======>vl is validate file:'.$tmep);
+				//error_log('=======>vl is validate file:'.$tmep);
 				if(strpos($vl , '\"value\":\"customize\"')){
-					error_log('=======>have_validate');
+					//error_log('=======>have_validate');
 					$have_validate=1;
 				}
 				   
 				$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
-				error_log('=======>vl is file upload:'.$tmep);
+				//error_log('=======>vl is file upload:'.$tmep);
                 if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
 
                     $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
@@ -2051,8 +2051,8 @@ class _Public {
 				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 				);
 				$valid = in_array($_FILES['async-upload']['type'], $arr_ext);
-				error_log($_FILES['async-upload']['type']);
-				error_log($valid);
+				//error_log($_FILES['async-upload']['type']);
+				//error_log($valid);
 				//validate file type secure way
 
 				/* //get file type form $file_name find last dot in the string and get after chrecters as type
@@ -2066,7 +2066,7 @@ class _Public {
 		//}
 
 		if($have_validate==1){
-			error_log('validate needed');
+			//error_log('validate needed');
 			//convert $vl to object
 			//$_POST['id']
 			//$valid 
@@ -2082,15 +2082,15 @@ class _Public {
 
 					
 					
-					error_log('valid type is =>');
-					error_log(json_encode($valid_types));
-					error_log(json_encode($_FILES['async-upload']['name']));
+					//error_log('valid type is =>');
+					//error_log(json_encode($valid_types));
+					//error_log(json_encode($_FILES['async-upload']['name']));
 
 					$file_name = $_FILES['async-upload']['name'];
 					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
 					$valid = in_array($ext, $valid_types);
-					error_log('ext is =>'.$ext);
-					error_log('valid is =>'.$valid);
+					//error_log('ext is =>'.$ext);
+					//error_log('valid is =>'.$valid);
 					break;
 				}
 			}
@@ -2098,7 +2098,7 @@ class _Public {
 			//find inside $vl by id == $_POST['id']
 
 		}
-		error_log('valid is '.$valid);
+		//error_log('valid is '.$valid);
 		if ($valid) { 
 			
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
@@ -2148,8 +2148,8 @@ class _Public {
 		}
 
 		if (defined('LSCWP_V')){			
-			error_log('------------------>litespeed_purge_post response form');
-			error_log($page_id);
+			//error_log('------------------>litespeed_purge_post response form');
+			//error_log($page_id);
 			do_action( 'litespeed_purge_post', $page_id );
 		}
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
@@ -2391,7 +2391,7 @@ class _Public {
 				'success' => true , "m"=>$this->lanText["messageSent"] , "by"=>$by,
 				'track'=>$track,
 				'nonce_msg'=>wp_create_nonce($track)); 	
-				error_log('test---------->new send json');
+				//error_log('test---------->new send json');
 				//$this->send_json_success_efb($response);
 				
 				wp_send_json_success($response,200);
