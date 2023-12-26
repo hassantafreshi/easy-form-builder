@@ -26,11 +26,6 @@ class efbFunction {
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 
-
-		/* add_filter('litespeed_cache_excludes', function ($excludes) {
-			$excludes[] = EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-public.php';
-			return $excludes;
-		}); */
     }
 
 	public function test_Efb(){
@@ -897,14 +892,14 @@ class efbFunction {
 			   return $mailResult;
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-				error_log('===>send_email_state_new');
+				//error_log('===>send_email_state_new');
 				//error_log(json_encode($cont));
-				error_log(json_encode($to));
-				error_log(json_encode($st));
-				error_log(json_encode($sub));
-				error_log(json_encode($cont));
-				error_log('==========>link');
-				error_log(json_encode($link));
+				//error_log(json_encode($to));
+				//error_log(json_encode($st));
+				//error_log(json_encode($sub));
+				//error_log(json_encode($cont));
+				//error_log('==========>link');
+				//error_log(json_encode($link));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -926,8 +921,8 @@ class efbFunction {
 						$to_ = gettype($to)=='string' ? $to : implode(',', array_unique($to));	
 						//replace
 						$to = str_replace(',,', ',', $to_);
-						error_log('======>to_');
-						error_log($to_);
+						//error_log('======>to_');
+						//error_log($to_);
 						$headers = array(
 							'MIME-Version: 1.0\r\n',
 							'From:'.$from.'',
@@ -1061,7 +1056,7 @@ class efbFunction {
 			}
 		}else{
 			if(gettype($m)=='string'){
-				error_log('$lang["WeRecivedUrM"]:'.$lang["WeRecivedUrM"]);
+				//error_log('$lang["WeRecivedUrM"]:'.$lang["WeRecivedUrM"]);
 			$title =$lang["hiUser"];
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
@@ -1171,18 +1166,18 @@ class efbFunction {
 		}
 
 		//send smsnoti
-		error_log("===>befor if smsnoti");
+		//error_log("===>befor if smsnoti");
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
 			error_log("===>smsnoti");	
 			$phone_numbers=[[],[]];		
 			$setting = $this->get_setting_Emsfb('setting');	
-			error_log(gettype($setting));
+			//error_log(gettype($setting));
 			//$numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
 			
-			error_log('----------->user');
-			error_log(json_encode($user_res));
+			//error_log('----------->user');
+			//error_log(json_encode($user_res));
 			$have_noti_id =[];
 			foreach($data as $key=>$val){
 				if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
@@ -1191,13 +1186,13 @@ class efbFunction {
 			}
 			if(!empty($have_noti_id)){
 				foreach ($user_res as $value) {
-					error_log(json_encode($value));
-					error_log(gettype($value));
-					error_log(json_encode($have_noti_id));
+					//error_log(json_encode($value));
+					//error_log(gettype($value));
+					//error_log(json_encode($have_noti_id));
 					if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
-						error_log('----------->');
+						//error_log('----------->');
 						array_push($phone_numbers[1],$value['value']);
-						error_log(json_encode($phone_numbers));
+						//error_log(json_encode($phone_numbers));
 					}
 				}
 			}
@@ -1516,7 +1511,7 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		error_log("run download_all_addons_efb");
+		//error_log("run download_all_addons_efb");
 		if($this->val_state=='download_all_addons_efb'){return;}
 		$this->val_state='download_all_addons_efb';
 		
@@ -1620,8 +1615,8 @@ class efbFunction {
         $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s", $ip, $date_now,1,$fid);
 		$result =$this->db->get_var($query);
 		/* error_log(json_encode($query)); */
-		error_log('------------->sid');
-		error_log(json_encode($result));
+		//error_log('------------->sid');
+		//error_log(json_encode($result));
 		if($result!=null) return $result;
 		
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
@@ -1679,16 +1674,16 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		error_log("efb_code_validate_select");
-		error_log($sid);
-		error_log($fid); 
+		//error_log("efb_code_validate_select");
+		//error_log($sid);
+		//error_log($fid); 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
 		/* error_log(json_encode(  $query)); */
         $result =$this->db->get_var($query);
-		error_log(json_encode($result));
+		//error_log(json_encode($result));
         return $result === '1';
     }
 
@@ -1739,13 +1734,13 @@ class efbFunction {
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-		error_log('======>sms_ready_for_send_efb');
-		error_log($page_url);
-		error_log($state);
-		error_log($severType);
-		error_log($tracking_code);
-		error_log(json_encode($numbers));
-		error_log($form_id);
+		//error_log('======>sms_ready_for_send_efb');
+		//error_log($page_url);
+		//error_log($state);
+		//error_log($severType);
+		//error_log($tracking_code);
+		//error_log(json_encode($numbers));
+		//error_log($form_id);
 
 
 		//send_sms_efb($number,$message,$form_id,$severType)
@@ -1767,7 +1762,7 @@ class efbFunction {
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(isset($sms_content->id)==false) return false;		
-		error_log(json_encode($sms_content));
+		//error_log(json_encode($sms_content));
 		$recived_your_message = $sms_content->recived_message_noti_user;
 		$new_message = $sms_content->new_message_noti_user;
 		$news_response = $sms_content->new_response_noti;
@@ -1825,13 +1820,13 @@ class efbFunction {
 			return true;
 		}else if ($state=="resppa" || $state=="respadmin"){
 			//send sms to user for new response
-			error_log("==>resppa || respadmin");
-			error_log(count($numbers[1]));
+			//error_log("==>resppa || respadmin");
+			//error_log(count($numbers[1]));
 		
-			error_log($news_response);
+			//error_log($news_response);
 			if(count($numbers[1])>0 && $news_response!=""){
 				foreach($numbers[1] as $val){
-					error_log($val);
+					//error_log($val);
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
