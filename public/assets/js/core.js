@@ -549,7 +549,7 @@ function handle_change_event_efb(el){
         return
       }
     }
-    console.log(el.type);
+    //console.log(el.type);
     switch (el.type) {
       case "text":
       case "color":
@@ -685,10 +685,10 @@ function handle_change_event_efb(el){
           if (typeof v.price == "string") price_efb = v.price;
         }
         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
-        console.log(el);
+        //console.log(el);
         if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
           let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
-          console.log(temp);
+          //console.log(temp);
         
            
               fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
@@ -1161,7 +1161,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
-  console.log(id,tp)
+  //console.log(id,tp)
 
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
@@ -1189,9 +1189,9 @@ function valid_file_emsFormBuilder(id,tp) {
   const el = document.getElementById(i);
   if (el.files[0] && el.files[0].size < file_size) {
     const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
-    console.log(`file[${file}]`, filetype ,indx);
+    //console.log(`file[${file}]`, filetype ,indx);
     const r = validExtensions_efb_fun(file, filetype,indx)
-    console.log(`r==>${r}`);
+    //console.log(`r==>${r}`);
     if (r == true) {
       check = +1;
       //message = `${ajax_object_efm.text.pleaseUploadA} ${ajax_object_efm.text[file]}`;
@@ -1203,18 +1203,18 @@ function valid_file_emsFormBuilder(id,tp) {
     msgEl.innerHTML = "";
     
     //fun_upload_file_emsFormBuilder(id, file,tp);
-    console.log(id, file,tp)
+    //console.log(id, file,tp)
     fun_upload_file_api_emsFormBuilder(id, file,tp);
     
     rtrn = true;
   } else {
-    console.error(file)
+    //console.error(file)
     const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
     const m =ajax_object_efm.text.pleaseUploadA.replace('NN', f_s_l);
     const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', val_in.max_fsize);
-   console.log(`file size limited [${val_in.max_fsize}]`,size_m);
+   //console.log(`file size limited [${val_in.max_fsize}]`,size_m);
     if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
-      console.log(message);
+      //console.log(message);
     const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
     //console.log(newClass,typeof newClass,newClass!=false)
     newClass!=false ? msgEl.className=newClass:0;
@@ -2008,7 +2008,7 @@ window.addEventListener("popstate",e=>{
 
 
  fun_gets_url_efb =()=>{
-   console.log('fun_gets_url_efb');
+   //console.log('fun_gets_url_efb');
    //if(efb_var.pro!=true && efb_var.pro!="true"){console.error(`${efb_var.text.fieldAvailableInProversion}`);return;}
    //iefb --> id 
    //hefb --> hidden of element f==show / null or t === hidden
@@ -2024,7 +2024,7 @@ window.addEventListener("popstate",e=>{
   if(iefb.length>0){
     for(let i in iefb){
       // آی ذی را جستجو کند و مقدار دیفالت ولیو برای آن اضافه کند اگر وجود نداشت و مقدار قبلی را تغییر بدهد
-      console.log(iefb[i] , i , iefb.length , valj_efb);
+      //console.log(iefb[i] , i , iefb.length , valj_efb);
       const id =iefb[i];
       const i_ = valj_efb.findIndex(x=>x.id_==id);
       let i_p = -1;
@@ -2034,7 +2034,7 @@ window.addEventListener("popstate",e=>{
         t_e = valj_efb[i_p].type.toLowerCase();
         t_e = (t_e.includes('select')==true && t_e.includes('multi')==false) ||t_e.includes('radio')==true ? "string" :'array';
       }
-      console.log(id , i_ , i_p ,t_e,valj_efb[i_] ,valj_efb[i_].hasOwnProperty('parent') ,sefb[i] )
+      //console.log(id , i_ , i_p ,t_e,valj_efb[i_] ,valj_efb[i_].hasOwnProperty('parent') ,sefb[i] )
       if(sefb.length>0 && sefb.length>i){
          //Selected field 1 add / 0 remove
          //run just for options
@@ -2167,7 +2167,7 @@ const requestOptions = {
 
   fetch(url, requestOptions)
   .then(response => {
-    console.log(response);
+    //console.log(response);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
