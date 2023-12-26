@@ -1306,6 +1306,8 @@ class _Public {
 
 			if (defined('LSCWP_V')){
 				$post_id = get_the_ID();
+				error_log('------------------>litespeed_purge_post');
+				error_log($post_id);
 				do_action( 'litespeed_purge_post', $post_id );
 			}
 			$captcha_success="null";
