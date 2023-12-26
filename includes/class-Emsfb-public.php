@@ -139,7 +139,14 @@ class _Public {
 		}else{
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
 		}
-		
+		error_log('------------------>before litespeed_purge_post');
+		if (defined('LSCWP_V')){			
+			error_log('------------------>litespeed_purge_post');
+			$page_id = get_the_ID();
+			error_log('$page_id===>'.$page_id);
+			do_action( 'litespeed_purge_post', $page_id );
+			//do_action( 'litespeed_purge_post', $data_POST['url'] );
+		}
 		$this->public_scripts_and_css_head();
 		$state="";
 		$pro=  $this->pro_efb;
@@ -587,6 +594,7 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
+		
 		error_log('$s_sid check===>'.$s_sid);
 		//error_log($s_sid);
 		if ($s_sid !=1){
