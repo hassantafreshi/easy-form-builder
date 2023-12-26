@@ -1303,6 +1303,11 @@ class _Public {
 			}
 		}
 		if(true){
+
+			if (defined('LSCWP_V')){
+				$post_id = get_the_ID();
+				do_action( 'litespeed_purge_post', $post_id );
+			}
 			$captcha_success="null";
 			$r= $this->setting ;
 			if(gettype($r)=="string" && $fs!=''){
