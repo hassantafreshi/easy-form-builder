@@ -475,6 +475,7 @@ class _Public {
 			   'location'=>$location,
 			   'sid'=>$sid,
 			   'rest_url'=>get_rest_url(null),
+			   'page_id'=>get_the_ID(),
 		 ));  
 
 		 $icons_ =[
@@ -583,7 +584,6 @@ class _Public {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
 		$page_id = sanitize_text_field($data_POST['page_id']);
-		error_log('page_id===>'.$page_id);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
@@ -2121,6 +2121,7 @@ class _Public {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = sanitize_text_field($data_POST['user_type']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
+		$page_id = sanitize_text_field($data_POST['page_id']);
 		if ($s_sid !=1 || $sid==null){
 			//error_log('s_sid is not valid!!  ==>set_rMessage_id_Emsfb_api');
 			//error_log($this->lanText["somethingWentWrongPleaseRefresh"]);
@@ -2142,7 +2143,14 @@ class _Public {
 			$response = array( 'success' => false , "m"=>$this->lanText["nAllowedUseHtml"]); 
 			wp_send_json_success($response,200);
 		}
+
+		if (defined('LSCWP_V')){			
+			error_log('------------------>litespeed_purge_post response form');
+			error_log($page_id);
+			do_action( 'litespeed_purge_post', $page_id );
+		}
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
+
 		if(gettype($r)=="string"){
 			$r =str_replace('\\', '', $r);
 			$setting =json_decode($r);

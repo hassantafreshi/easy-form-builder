@@ -1635,7 +1635,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     type: form_type_emsFormBuilder,
     //nonce_msg:efb_var.nonce_msg,
     sid:efb_var.sid,
-    user_type : efb_var.user_type
+    user_type : efb_var.user_type,
+    page_id: ajax_object_efm.page_id
 
   };
 

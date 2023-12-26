@@ -1848,7 +1848,6 @@ class efbFunction {
 		$classes = [
 			'WP Rocket' => 'wp-rocket/wp-rocket.php',
 			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
-			'LiteSpeed Cache' => 'litespeed-cache/litespeed-cache.php',
 			'W3 Total Cache' => 'w3-total-cache/w3-total-cache.php',
 			'WP Super Cache' => 'wp-super-cache/wp-cache.php',
 			'WP Fastest Cache' => 'wp-fastest-cache/wpFastestCache.php',
