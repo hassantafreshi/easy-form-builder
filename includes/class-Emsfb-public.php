@@ -1309,9 +1309,9 @@ class _Public {
 
 			if (defined('LSCWP_V')){			
 				error_log('------------------>litespeed_purge_post');
-				error_log($data_POST['url']);
-				//do_action( 'litespeed_purge_post', $page_id );
-				do_action( 'litespeed_purge_post', $data_POST['url'] );
+				error_log($page_id);
+				do_action( 'litespeed_purge_post', $page_id );
+				//do_action( 'litespeed_purge_post', $data_POST['url'] );
 			}
 			$captcha_success="null";
 			$r= $this->setting ;
