@@ -1022,7 +1022,8 @@ function actionSendData_emsFormBuilder() {
       //nonce: efb_var.nonce,
       //nonce_msg: efb_var.nonce_msg,
       url:location.href.split('?')[0],
-      sid:efb_var.sid
+      sid:efb_var.sid,
+      page_id: ajax_object_efm.page_id
     };
     //console.log(document.getElementById('prev_efb').className)
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('type') && valj_efb[0].type=="payment" ){

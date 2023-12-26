@@ -583,6 +583,7 @@ class _Public {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
 		$page_id = sanitize_text_field($data_POST['page_id']);
+		error_log('page_id===>'.$page_id);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
