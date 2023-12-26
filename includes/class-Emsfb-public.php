@@ -344,6 +344,7 @@ class _Public {
 					//'nonce_msg'=> wp_create_nonce($code),
 					'images' => $img,
 					'rest_url'=>get_rest_url(null),
+					'page_id'=>get_the_ID(),
 				) );
 				wp_localize_script( 'core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
@@ -581,6 +582,7 @@ class _Public {
 		if(empty($this->efbFunction)) $this->efbFunction =$efbFunction;
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
+		$page_id = sanitize_text_field($data_POST['page_id']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
@@ -1304,11 +1306,10 @@ class _Public {
 		}
 		if(true){
 
-			if (defined('LSCWP_V')){
-				$post_id = get_the_ID();
+			if (defined('LSCWP_V')){			
 				error_log('------------------>litespeed_purge_post');
-				error_log($post_id);
-				do_action( 'litespeed_purge_post', $post_id );
+				error_log($page_id);
+				do_action( 'litespeed_purge_post', $page_id );
 			}
 			$captcha_success="null";
 			$r= $this->setting ;

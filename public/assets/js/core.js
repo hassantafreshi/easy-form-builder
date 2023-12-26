@@ -1042,7 +1042,8 @@ function actionSendData_emsFormBuilder() {
           auth:get_authority_efb,
           //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
-          sid:efb_var.sid
+          sid:efb_var.sid,
+          page_id: ajax_object_efm.page_id
         };
       }else if(valj_efb[0].getway=="stripe"){
         data = {
@@ -1058,7 +1059,8 @@ function actionSendData_emsFormBuilder() {
           //nonce: efb_var.nonce,
           //nonce_msg: efb_var.nonce_msg,
           url:location.href.split('?')[0],
-          sid:efb_var.sid
+          sid:efb_var.sid,
+          page_id: ajax_object_efm.page_id
 
         };
       }
