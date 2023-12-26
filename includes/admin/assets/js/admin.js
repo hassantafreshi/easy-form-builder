@@ -94,7 +94,8 @@ donwload_event_icon_efb =(color)=>{
 function Link_emsFormBuilder(state) {
   let link = 'https://whitestudio.team/document'
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
-  if(efb_var.language != "fa_IR"){
+  //console.log(state);
+  if(efb_var.language != "fa_IR" ){
     switch (state) {
       case 'publishForm':
         link = "https://youtu.be/AnkhmZ5Cz9w";
@@ -153,7 +154,7 @@ function Link_emsFormBuilder(state) {
         break;
       case 'AdnSS':
       case 'smsconfig':
-      
+        link += "/settingup-sms-notifications-wordpress-easy-form-builder/";
         //AdnSS == sms service
         break;
       case 'AdnCPF':
@@ -171,7 +172,8 @@ function Link_emsFormBuilder(state) {
         link ='https://wordpress.org/plugins/wp-sms/';
         break;
       case 'file_size':
-        link += "s"
+        //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
+        link += "/guide-advanced-file-upload-forms-wordpress/"
         break;
       
     }
@@ -226,6 +228,9 @@ function Link_emsFormBuilder(state) {
       case 'AdnATC':
         // AdnATC == advance tracking code
       case 'AdnSS':
+      case 'smsconfig':
+        link +=`تنظیم-اطلاع-رسانی-پیامک-وردپرس-فرم-ساز/`;
+         break;
         //AdnSS == sms service
       case 'AdnCPF':
      // AdnCPF == crypto payment
@@ -236,6 +241,10 @@ function Link_emsFormBuilder(state) {
         //console.log(state)
         link = 'https://easyformbuilder.ir/';
         //"AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF"
+        break;
+      case 'file_size':
+        //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
+        link += "/ایجاد-فرم-آپلود-فایل-پیشرفته-وردپرس";
         break;
     }
   }
