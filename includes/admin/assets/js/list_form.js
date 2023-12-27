@@ -1631,7 +1631,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     let text = act_local_efb==true ? efb_var.text :'';
     const payToken = f('payToken_emsFormBuilder');
     let temp = f('pno_emsFormBuilder');
-    console.log(temp)
+    //console.log(temp)
     const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
     AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=0

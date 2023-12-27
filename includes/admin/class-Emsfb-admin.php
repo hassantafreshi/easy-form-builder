@@ -1134,16 +1134,19 @@ class Admin {
         
         $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer" , home_url());
                 if($check==true){           
-                    $newAc["activeCode"] = isset($ac->activeCode) ? $ac->activeCode :'';
+                    $ac->smtp = "true";
+                    $ac->emailSupporter = $to;
+                  /*   $newAc["activeCode"] = isset($ac->activeCode) ? $ac->activeCode :'';
                     $newAc["siteKey"] = isset($ac->siteKey)? $ac->siteKey :"";
                     $newAc["secretKey"] =isset($ac->secretKey)?  $ac->secretKey :"";
                     $newAc["emailSupporter"] = $to;
                     $newAc["apiKeyMap"] = isset($ac->apiKeyMap) ? $ac->apiKeyMap:"";
                     $newAc["emailTemp"] = isset($ac->emailTemp) ? $ac->emailTemp:"";
                     $newAc["smtp"] = "true";
-                    $newAc["text"] = isset($ac->text) ? $ac->text  : $efbFunction->text_efb(0); //change78 باید لیست جملات اینجا ذخیره شود
+                    $newAc["smsnoti"] = isset($ac->smsnoti) ? $ac->smsnoti:"";
+                    $newAc["text"] = isset($ac->text) ? $ac->text  : $efbFunction->text_efb(0); //change78 باید لیست جملات اینجا ذخیره شود */
                     $table_name = $this->db->prefix . "emsfb_setting";
-                    $newAc= json_encode( $newAc ,JSON_UNESCAPED_UNICODE );
+                    $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
                     $newAc= str_replace('"', '\"', $newAc);                   
                     $this->db->insert(
                         $table_name,
@@ -1154,7 +1157,6 @@ class Admin {
                             'email'   => $to,
                         ]
                     );
-                //}
                 }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
