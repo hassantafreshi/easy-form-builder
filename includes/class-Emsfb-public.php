@@ -629,7 +629,7 @@ class _Public {
 		if(isset($setting['sms_config']) && $setting['sms_config']=="wpsms"){
 			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] :[];
 			//seprate string numbers by comma
-			$phone_numbers[0] = explode(',',$numbers);
+			if(strlen($numbers)>5)$phone_numbers[0] = explode(',',$numbers);
 			$smsnoti=1;
 			error_log('===>added admins numbers from settings');
 			error_log(json_encode($phone_numbers));
