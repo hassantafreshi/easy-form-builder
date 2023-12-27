@@ -253,7 +253,10 @@ function viewfileEfb(id, indx) {
     
 
     console.log(fileEfb);
-    const filename = fileEfb.name;
+    if(fileEfb==undefined) {
+      document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
+      return;}
+    const filename =  fileEfb.name ;
     let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : fileEfb.type;
     let icon = ``;
    
