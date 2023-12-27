@@ -1039,8 +1039,8 @@ function fun_show_setting__emsFormBuilder() {
     smtp = f('smtp') == 'null' ? false : f('smtp');
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
-    sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
-    console.log(sms_method);
+    sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
+    //console.log(sms_method);
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     //console.log(f('scaptcha'),scaptcha)
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
@@ -1408,7 +1408,7 @@ function fun_show_setting__emsFormBuilder() {
                           </div>
                         </div>
                         <!-- smsconfig Section end-->
-                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
+                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder(0)">
                             <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>                  
                 </div>
