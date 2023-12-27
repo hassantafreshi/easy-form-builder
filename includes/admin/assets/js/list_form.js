@@ -2215,7 +2215,7 @@ function clickToCheckEmailServer() {
         if (res.data.success == true) {
           alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 5);
          if(el.classList.contains('active')==false) el.classList.add('active') ;
-         fun_set_setting_emsFormBuilder(1);
+         //fun_set_setting_emsFormBuilder(1);
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
