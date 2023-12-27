@@ -635,8 +635,8 @@ class _Public {
 			//seprate string numbers by comma
 			if(strlen($numbers)>5)$phone_numbers[0] = explode(',',$numbers);
 			$smsnoti=1;
-			error_log('===>added admins numbers from settings');
-			error_log(json_encode($phone_numbers));
+			//error_log('===>added admins numbers from settings');
+			//error_log(json_encode($phone_numbers));
 		}
 		$smsnoti = strpos($fs,'\"smsnoti\":\"1\"') !==false || $smsnoti==1 ? 1 : 0;
 
@@ -1541,7 +1541,7 @@ class _Public {
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
 										$msg_content =$this->email_get_content($valobj ,$track);
 										$msg_content = str_replace("\"","'",$msg_content);
-										error_log($msg_content);
+										//error_log($msg_content);
 									}
 									 $this->send_email_Emsfb_( $email_user,$trackId ,$pro,$state_of_email,$url,$msg_content );
 								}
@@ -2309,13 +2309,13 @@ class _Public {
 					//parsing message recived 
 					if(!empty($have_noti_id)){
 						foreach ($msg_obj as $value) {
-							error_log(json_encode($value));
-							error_log(gettype($value));
-							error_log(json_encode($have_noti_id));
+							//error_log(json_encode($value));
+							//error_log(gettype($value));
+							//error_log(json_encode($have_noti_id));
 							if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
-								error_log('----------->');
+								//error_log('----------->');
 								array_push($phone_numbers[1],$value['value']);
-								error_log(json_encode($phone_numbers));
+								//error_log(json_encode($phone_numbers));
 							}
 						}
 					}
@@ -2467,8 +2467,8 @@ class _Public {
 		$check =  $efbFunction->send_email_state( $to,$subject ,$cont,$pro,$state,$link);
 	}
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null'){
-		error_log('send_email_Emsfb_===> function public');
-		error_log($link);
+		//error_log('send_email_Emsfb_===> function public');
+		//error_log($link);
 		
 		//error_log('send_email_Emsfb===> function public');
 		//error_log($content);
@@ -6128,11 +6128,11 @@ class _Public {
 	}
 
 	public function send_json_success_efb($response, $arg=null,){
-		error_log('------------------->send_json_success_efb');
+		//error_log('------------------->send_json_success_efb');
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'));
 		print(json_encode(array('success' => true, 'data' => $response)));
 		
-		error_log('------------------->test after timeout');
+		//error_log('------------------->test after timeout');
 		//code here
 		die;
 	}

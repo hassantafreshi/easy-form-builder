@@ -33,7 +33,7 @@ class Panel_edit  {
 			$plugins_get = get_plugins();
 			//error_log(gettype($plugins_get));
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
-				error_log('finded');
+				//error_log('finded');
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;

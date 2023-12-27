@@ -1032,7 +1032,7 @@ class efbFunction {
 		
 		
 		if($state=="testMailServer"){
-			error_log('=========>testMailServer');
+			//error_log('=========>testMailServer');
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'><h1>".  $footer ."</h1></div>";
 			 if(strlen($st->activeCode)<5){
