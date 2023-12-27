@@ -876,7 +876,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       );
       temp=true;
     }
-      console.log(valj_efb);
+      console.log(rndm, rndm_1);
       optn = typeof cityList_el_pro_efb =="function"? cityList_el_pro_efb(rndm, rndm_1, temp, op_4, editState) :"null";
       console.log(valj_efb);
       ui = `

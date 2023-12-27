@@ -882,6 +882,15 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
  // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
   let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   
+  for(let i =0; i < valj_efb.length; i++){    
+    console.log(i ,valj_efb[i].parent ,valj_efb[indx_state].id_ ,valj_efb[i]);
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      console.log(valj_efb[i].n);
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }
+
   for (const key in result.r) {
     console.log(result.r[key]);
   /*   const value = r.data[key];
@@ -928,13 +937,21 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     }
   }
 
+
+
+
   if(fieldType=="pubSelect"){
+
+    
+
     Object.assign(valj_efb[indx_state],{'linked':true});
      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
   }
  
+  
   if(state_el!=null){
     console.log(opt);
+    state_el.innerHTML='';
     state_el.innerHTML=opt;
     state_el.classList.remove('is-loading');
   state_el.disabled = false;
@@ -946,6 +963,8 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
       state_el.classList.remove('is-loading');
     }, 2000);
   }
+
+
   
   
   
@@ -986,7 +1005,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
  // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
   //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
   console.log(`indx_state ${indx_state}`);
-  for(let i =indx_state; i < valj_efb.length; i++){    
+  for(let i =0; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
       valj_efb.splice(i,1);
       i--;
