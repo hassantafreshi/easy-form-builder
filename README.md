@@ -119,6 +119,7 @@ Features:
 - Multiple select drop-down list
 - File Upload Input
 - +30 field types for building forms
+- SMS notification 
 
 
 
@@ -185,8 +186,8 @@ Contributions of any kind are welcome!
 ## Roadmap for 2024 🎯
  ### SMS (Text message) Notifications :
   #### Notification System for Form Submissions.
- * Seamless Integration with Wp-SMS.
- * White Studio SMS Service.
+ ✔️ Seamless Integration with Wp-SMS.
+ *  White Studio SMS Service.
 
 ### Telegram Notifications:
 * Real-time Telegram Updates for Admins.
@@ -199,6 +200,7 @@ Contributions of any kind are welcome!
 * Conditional logic.
 ### SMS OTP form login
 ### Booking and calendars Forms
+### Email Template Editor
 
 
 <!--   markdownlint-restore -->
