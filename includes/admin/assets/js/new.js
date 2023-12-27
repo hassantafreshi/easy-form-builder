@@ -3118,11 +3118,11 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   //let filtered = checkInvalidUTF8_efb(str);
   //console.log(`filtered[${filtered}]`)
   if (filtered.indexOf('<') !== -1) {
-    console.log('sanit <');
+    //console.log('sanit <');
    // filtered = preKsesLessThan_efb(filtered);
     filtered = stripAllTags_efb(filtered, false);
     filtered = filtered.replace(/<\n/g, '&lt;\n');
-    console.log(`filtered[${filtered}]`)
+    //console.log(`filtered[${filtered}]`)
   }
 
   if (!keep_newlines) {

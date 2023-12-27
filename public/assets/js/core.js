@@ -1161,7 +1161,7 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id,tp) {
-  console.log(id,tp)
+  //console.log(id,tp)
 
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
@@ -1214,7 +1214,7 @@ function valid_file_emsFormBuilder(id,tp) {
     const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', val_in.max_fsize);
    //console.log(`file size limited [${val_in.max_fsize}]`,size_m);
     if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
-      console.log(message);
+      //console.log(message);
     const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
     //console.log(newClass,typeof newClass,newClass!=false)
     newClass!=false ? msgEl.className=newClass:0;
@@ -2181,7 +2181,7 @@ const requestOptions = {
   })
   .catch(error => {
     // Handle errors
-    console.log(error);
+    console.error(error);
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.eJQ500 }});
   });
 

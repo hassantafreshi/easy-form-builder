@@ -676,7 +676,7 @@ function show_setting_window_efb(idset) {
         else {} */
           value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
       }
-      console.log(value);
+      //console.log(value);
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
       const content =`
       <div class="efb smsmsg ${disable}">
