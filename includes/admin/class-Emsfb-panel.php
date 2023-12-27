@@ -31,7 +31,7 @@ class Panel_edit  {
 			}); */
 			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
-			error_log(gettype($plugins_get));
+			//error_log(gettype($plugins_get));
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
 				error_log('finded');
 				$plugins['wpsms']=1;
