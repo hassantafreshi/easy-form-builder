@@ -169,6 +169,8 @@ class _Public {
 			"bi-upload",
 			"bi-x-lg",
 			"bi-file-earmark-richtext",
+			"bi-check-square",
+			"bi-check-square-fill",
 			
 			
 		]];
