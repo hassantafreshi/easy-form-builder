@@ -38,7 +38,6 @@ class Create {
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
 		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
 		
-		
 	}
 
 	public function add_Create_menu() {
@@ -133,14 +132,7 @@ class Create {
 			if (md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
-			if(	$pro==true){
-					/* wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
-					wp_enqueue_script('whitestudio-admin-pro-js'); */
-
-					/* wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-					wp_enqueue_script('stripe-js'); */
-					
-			}
+		
 
 			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
@@ -166,14 +158,14 @@ class Create {
 				$addons["AdnSE"]=$ac->AdnSE;
 				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
-			}
+			}	
 		}
 
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					//wmaddon
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r; 
+						//echo $r; 
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
@@ -183,7 +175,7 @@ class Create {
 				if(isset($ac->AdnPDP) && $ac->AdnADP==1){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
 						$r = $efbFunction->update_message_admin_side_efb();
-						echo $r; 
+						//echo $r; 
 						$efbFunction->download_all_addons_efb();
 						return 0;
 					}
@@ -191,22 +183,28 @@ class Create {
 					$arabicDatePicker = new arabicDatePickerEfb() ; 
 				}
 
+				if(isset($ac->AdnSS) && $ac->AdnSS==1){
+					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
+						$r = $efbFunction->update_message_admin_side_efb();
+						//echo $r; 
+						$efbFunction->download_all_addons_efb();
+						return 0;
+					}
+					
+				}
+
 					
 
 
-			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.6.16',true);	
+			
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.0',true);	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.6.16',true);	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.0',true);	
 			wp_enqueue_script('jquery-dd'); 
-			/*end new code v4 */
+			
 
-		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js'); */
-		/* error_log(get_locale());
-		wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js'); */
+	
 		wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 		wp_enqueue_script('countries-js');
 
@@ -215,7 +213,7 @@ class Create {
 		wp_enqueue_script('intlTelInput-js');
 
 		
-		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.6.16');
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.0');
         wp_enqueue_style('intlTelInput-css');
 		
 		if( false){
@@ -241,26 +239,37 @@ class Create {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.6.16',true);
+		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.7.0',true);
 		wp_enqueue_script('pay_js');
 
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.6.16',true);
+			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.7.0',true);
 			wp_enqueue_script('persia_pay');
 		}
 
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'),'3.6.16',true);
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'),'3.7.0',true);
 		wp_enqueue_script('stripe_js');
 
 
 		//$colors = $efbFunction->get_list_colores_template();
 		$colors =[];
-		//error_log(json_encode($colors));
+		
 
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
+		$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
+			$plugins_get = get_plugins();
+			
+			if (is_plugin_active('wp-sms/wp-sms.php')) {
+				
+				$plugins['wpsms']=1;
+			}
+
+			
+		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
+		
 		$location ='';
-		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.16');
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.16');
+		
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -280,31 +289,30 @@ class Create {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>$ac,
 			'colors'=>$colors,
+			'plugins'=>$plugins
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.6.16');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.0');
 		wp_enqueue_script('efb-val-js'); 
 		
-		/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.16');
-		wp_enqueue_script('efb-pro-els'); */ 
 
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.6.16');
+
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.0');
 			wp_enqueue_script('efb-pro-els'); 
 		
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.6.16');
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.7.0');
 		wp_enqueue_script('efb-forms-js');
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.6.16');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.0');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.6.16');
-		wp_enqueue_script('efb-main-js'); */ 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.6.16');
+				
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.7.0');
 		wp_enqueue_script('efb-main-js'); 
 
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.6.16');
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.0');
 		wp_enqueue_script('efb-bootstrap-select-js'); 
 
 		
@@ -320,7 +328,7 @@ class Create {
 	}
 
 	public function add_form_structure(){
-		//error_log('add_form_structure');
+		
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
@@ -343,15 +351,16 @@ class Create {
 		//$this->value = $_POST['value'];
 
 		$valp =str_replace('\\', '', $_POST['value']);
-		//error_log("====>valp");
-		//error_log($valp);
+		
+		
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		
-		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
-		//error_log("====>valx");
-		//error_log($valx);
-		$this->value=str_replace('"', '\\"', $valx);
+		
+		
+		
+		
+
 
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
@@ -359,9 +368,55 @@ class Create {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-		//error_log("====>this->value");
-		//error_log($this->value);
+		
+		
+		
+		//check if smsnoti axist then call add_sms_contact_efb
+		$sms_msg_new_noti="";
+		$sms_msg_responsed_noti="";
+		$sms_msg_recived_user="";
+		$sms_admins_phoneno="";
+
+		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
+			
+			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
+			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
+			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
+			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
+
+
+			unset($valp[0]['sms_msg_new_noti']);
+			unset($valp[0]['sms_msg_responsed_noti']);
+			unset($valp[0]['sms_msg_recived_user']);
+			if(isset($valp[0]['sms_admins_phone_no'])){unset($valp[0]['sms_admins_phone_no']);}
+
+			
+
+		}
+		
+		$valx =json_encode($valp,JSON_UNESCAPED_UNICODE);
+		$this->value=str_replace('"', '\\"', $valx);
 		$this->insert_db();
+		
+		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
+			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
+			//require smsefb.php and call add_sms_contact_efb
+			
+			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
+			$smsefb = new smssendefb();
+			
+			
+
+			$smsefb->add_sms_contact_efb(
+				$this->id_,
+				$sms_admins_phoneno,
+				$sms_msg_recived_user,
+				$sms_msg_new_noti,
+				$sms_msg_new_noti,
+				$sms_msg_responsed_noti);
+		}
+		
+		
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}

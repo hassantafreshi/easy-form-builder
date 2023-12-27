@@ -1,5 +1,5 @@
 @charset "UTF-8";
- /*! * Bootstrap v5.0.1 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) */:root {
+ :root {
 	--bs-blue: #0d6efd;
  	--bs-indigo: #6610f2;
  	--bs-purple: #6f42c1;
@@ -24,7 +24,7 @@
  	--bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
  	--bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
  	--bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))}
- /* *, */.efb,.efb::after,.efb::before {
+ .efb,.efb::after,.efb::before {
 	box-sizing: border-box}
  @media (prefers-reduced-motion:no-preference) {
 	:root.efb {
@@ -462,39 +462,49 @@ progress.efb {
  	width: auto}
  .efb.col-1 {
 	flex: 0 0 auto;
- 	width: 8.3333333333%}
+ 	width: 8.3333333333%;
+	 border: none;}
  .efb.col-2 {
 	flex: 0 0 auto;
- 	width: 16.6666666667%}
- .efb.col-3 {
+ 	width: 16.6666666667%;
+	 border: none;}
+ .efb.efb-col-3 {
 	flex: 0 0 auto;
  	width: 25%}
  .efb.col-4 {
 	flex: 0 0 auto;
+	border: none;
  	width: 33.3333333333%}
  .efb.col-5 {
 	flex: 0 0 auto;
  	width: 41.6666666667%}
  .efb.col-6 {
 	flex: 0 0 auto;
+	border: none;
  	width: 50%}
  .efb.col-7 {
 	flex: 0 0 auto;
+	border: none;
  	width: 58.3333333333%}
  .efb.col-8 {
 	flex: 0 0 auto;
+	border: none;
  	width: 66.6666666667%}
  .efb.col-9 {
 	flex: 0 0 auto;
+	border: none;
  	width: 75%}
  .efb.col-10 {
 	flex: 0 0 auto;
+	border: none;
  	width: 83.3333333333%}
  .efb.col-11 {
 	flex: 0 0 auto;
+	border: none;
  	width: 91.6666666667%}
  .efb.col-12 {
 	flex: 0 0 auto;
+	border: none;
  	width: 100%}
  .efb.offset-1 {
 	margin-left: 8.3333333333%}
@@ -1468,12 +1478,12 @@ textarea.efb.form-control-lg {
  .efb.form-check {
 	    display: flex;
  	min-height: 1.5rem;
- 	/* padding-left: 1.5em; */
+ 	
  	margin-bottom: .125rem;
 align-items: center;}
  .efb.form-check .efb.form-check-input {
 	float: left;
- 	/* margin-left: -1.5em */
+ 	
 }
  .efb.form-check-input {
 	width: 1em;

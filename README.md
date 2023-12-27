@@ -105,19 +105,31 @@ Features:
 - You can building forms by smartphones, tablets or other devices
 - Offline forms
 - Payment forms
+- International Telephone Input
+- Net Promot Score Input
+- 5 Point Scale Input
+- Yes/No Question Input
+- Switch Button Input
+- Countries drop-down Field
+- state/province drop-down Field
+- Label(Header) Field
+- Signature Input
+- Link Field
+- Image Picker(Image Card) Field
+- Multiple select drop-down list
+- File Upload Input
 - +30 field types for building forms
 
 
 
-## Documentation
+## Documentation 📄
 
 The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
 
 
-## Requirements
+## Requirements 🔨
 * [WordPress](https://wordpress.org/) >= `4.7`
 * [PHP](https://secure.php.net/manual/en/install.php) >= `6`
-
 
 
 
@@ -167,12 +179,33 @@ Thanks goes to these wonderful people
 </tbody>
 </table>
 
+This project follows the [Easy Form builder](https://whitestudio.team) specification.
+Contributions of any kind are welcome!
+
+## Roadmap for 2024 🎯
+ ### SMS (Text message) Notifications :
+  #### Notification System for Form Submissions.
+ * Seamless Integration with Wp-SMS.
+ * White Studio SMS Service.
+
+### Telegram Notifications:
+* Real-time Telegram Updates for Admins.
+
+### PayPal Add-ons for Payment Forms:
+* PayPal Integration for Secure Payments.
+
+### Interactive Quiz Forms .
+### Smart Forms
+* Conditional logic.
+### SMS OTP form login
+### Booking and calendars Forms
+
+
 <!--   markdownlint-restore -->
 <!--   prettier-ignore-end -->
 
 <!--   ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [Easy Form builder](https://whitestudio.team) specification.
-Contributions of any kind are welcome!
+
 
 

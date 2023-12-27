@@ -1,5 +1,5 @@
 <?php
-/** Prevent this file from being accessed directly */
+
 namespace Emsfb;
 
 use WP_REST_Response;
@@ -17,7 +17,7 @@ class webhook {
      */
     public function __construct() {
 
-        //error_log("test webhook");
+        
         $this->web_hooks();
     }
 
@@ -40,7 +40,7 @@ class webhook {
 
     public function test_fun($slug){
 
-        //error_log("test_fun");
+        
 
         $response = array(
             'success' => true,

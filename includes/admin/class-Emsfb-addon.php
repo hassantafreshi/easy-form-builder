@@ -34,10 +34,7 @@ class Addon {
 		}
 
 		add_action( 'admin_menu', array( $this, 'add_addon_menu' ), 11 );
-		/* add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
-		add_action( 'admin_init', array( $this, 'register_create' ) );
-		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator')); */
-		//add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
+
 		
 	}
 
@@ -47,18 +44,6 @@ class Addon {
 			'render_settings'
 		) );
 		
-		// پیدا کردن لیست تمام صفحه ها  و پست ها برای نمایش در تنظیمات افزونه با هدف اینکه کاربر صفحه ای که ترکینگ کد را وارد کرده است انتخاب کند
-		//$val = get_posts(1);
-		//$val = get_pages(1);
-		//error_log(json_encode($val));
-		//page => post_title = title , ID = id
-		//post => post_title = title , ID = id
-		//$id =2407;
-		//$val = get_permalink( $id );
-		//error_log(json_encode($val));
-		// لیست پست  و صفحه که شامل آی دی و عنوان می شود را به سمت کاربر بصورت جی سون پاس داده شود
-		// کاربر از لیست پاس داده شده یک صفحه که ترکینگ درونش وجود دارد را انتخاب می کند و آی دی  ذخیره می شود
-		// در هنگام ذخیره سازی چک می شود اگر ترکینگ کد فایندر ( شورت کدش ) در محتوا وجود داشته ذخیره سازی انجام شود در غیر اینصور پیام خطا برگرانده شود به کاربر در صفحه انتخاب شده ترکینگ کد فایندر پیدا نشد
 	}
 
 
@@ -85,7 +70,7 @@ class Addon {
 	public function render_settings() {
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 
-		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
 	?>
 	<!-- new code ddd -->
@@ -118,42 +103,18 @@ class Addon {
 			if (md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
-			if(	$pro==true){
-					/* wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
-					wp_enqueue_script('whitestudio-admin-pro-js'); */
-
-					/* wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-					wp_enqueue_script('stripe-js'); */
-					
-			}
-
-
-
-			/* if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-				$k= $ac->apiKeyMap;
-				$maps=true;
-				$lng = strval(get_locale());
 				
-					if ( strlen($lng) > 0 ) {
-					$lng = explode( '_', $lng )[0];
-					}
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-				wp_enqueue_script('googleMaps-js');
-			} */
 		}
 
 
 
-			/* new code v4 */
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.6.16', true);	
+			
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.0', true);	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.6.16' , true);	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.0' , true);	
 			wp_enqueue_script('jquery-dd'); 
-			/*end new code v4 */
-
-		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js'); */
+			
 
 		$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 		"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
@@ -165,33 +126,7 @@ class Addon {
 		$smtp =-1;
 		$captcha =false;
 		$smtp_m = "";
-			/*
-            AdnSPF == stripe payment
-            AdnOF == offline form
-            AdnPPF == persia payment
-			AdnPDP == persia data picker
-			AdnADP == arabic data picker
-            AdnATC == advance tracking code
-            AdnSS == sms service
-            AdnCPF == crypto payment
-            AdnESZ == zone picker
-            AdnSE == email service
-
-            AdnWHS == webhook
-            AdnPAP == paypal
-            AdnWSP == whitestudio pay
-            AdnSMF == smart form
-            AdnPLF == passwordless form
-            AdnMSF == membership form
-            AdnBEF == booking and event form
-
-			AdnWPB == WP Bakery
-			AdnELM == Elemntor 
-			AdnGTB == Gutnberg
-
-			AdnPFA == Private Form Advanced
 			
-        */
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,
 		'AdnPPF' => 0,
@@ -209,7 +144,6 @@ class Addon {
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 			if(isset($ac->AdnSPF)==true){
-				//$ac
 				
 				$addons["AdnSPF"]=$ac->AdnSPF;
 				$addons["AdnOF"]=$ac->AdnOF;
@@ -226,8 +160,8 @@ class Addon {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 
-		//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.6.16');
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.6.16');
+		
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
@@ -248,27 +182,16 @@ class Addon {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.6.16');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.0');
 		wp_enqueue_script('efb-val-js'); 
 		
-		/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.6.16');
-		wp_enqueue_script('efb-pro-els');  */
-		
-		/* wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.6.16');
-		wp_enqueue_script('efb-forms-js'); */
-
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.6.16');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.0');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.6.16');
-		wp_enqueue_script('efb-main-js') */; 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.6.16');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.7.0');
 		wp_enqueue_script('efb-main-js'); 
-
-		/* wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.6.16');
-		wp_enqueue_script('efb-bootstrap-select-js');  */
 
 		
 

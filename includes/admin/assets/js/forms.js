@@ -21,7 +21,7 @@ function textThankUEFB(tp){
 
 
 
-//Private Contact us Template
+
 function private_contact_us_template_efb(){
 
     return[{"type":"form","steps":1,"formName":`${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-secondary","icon":"bi-arrow-bar-up","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":1,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
@@ -31,7 +31,7 @@ function private_contact_us_template_efb(){
     {"id_":"6zwyowreb","dataId":"6zwyowreb-id","type":"textarea","placeholder":"","value":"","size":100,"message":"","id":"","classes":"","name":efb_var.text.message,"required":true,"amount":6,"step":"1","label_text_size":"fs-6","label_position":"beside","el_text_size":"fs-6","label_text_color":"text-labelEfb","el_border_color":"border-d","el_text_color":"text-labelEfb","message_text_color":"text-muted","el_height":"h-d-efb","label_align":label_align,"message_align":"justify-content-start","el_align":"justify-content-start","pro":false,"icon_input":""}]
 }
 
-//Support Ticket Form
+
 function support_ticket_form_efb(){
     return[{"type":"form","steps":1,"formName":efb_var.text.supportTicketF,"email":"","trackingCode":true,"EfbVersion":2,"button_single_text":efb_var.text.submit,"button_color":"btn-muted","icon":"bi-ui-checks-grid","button_Next_text":efb_var.text.next,"button_Previous_text":efb_var.text.previous,"button_Next_icon":"bi-chevron-right","button_Previous_icon":"bi-chevron-left","button_state":"single","label_text_color":"text-light","el_text_color":"text-light","message_text_color":"text-muted","icon_color":"text-light","el_height":"h-d-efb","email_to":false,"show_icon":true,"show_pro_bar":true,"captcha":false,"private":false,"sendEmail":false,"font":true,"stateForm":0,"thank_you":"msg","thank_you_message":textThankUEFB(),"email_temp":"","dShowBg":true},
     {"id_":"1","type":"step","dataId":"1","classes":"","id":"1","name":efb_var.text.supportForm,"icon":"bi-headset","step":"1","amount":1,"EfbVersion":2,"message":"","label_text_size":"fs-5","el_text_size":"fs-5","label_text_color":"text-darkb","el_text_color":"text-labelEfb","message_text_color":"text-muted","icon_color":"text-danger","visible":1},

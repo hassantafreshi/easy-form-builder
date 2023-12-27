@@ -7,6 +7,7 @@ let valueJson_ws_setting = []
 let state_seting_emsFormBuilder = false;
 let poster_emsFormBuilder = '';
 let response_state_efb;
+let sms_config_efb ='null'
 
 const colors_efb = ['#0013CB', '#E90056', '#7CEF00', '#FFBA00', '#FF3888', '#526AFF', '#FFC738', '#A6FF38', '#303563', '#7D324E', '#5D8234', '#8F783A', '#FB5D9D', '#FFA938', '#45B2FF', '#A6FF38', '#0011B4', '#8300AD', '#E9FB00', '#FFBA00']
 
@@ -42,7 +43,7 @@ jQuery(function () {
 let count_row_emsFormBuilder = 0;
 
 
-// تابع نمایش فرم اصلی
+
 function fun_emsFormBuilder_render_view(x) {
   // v2
   
@@ -97,7 +98,7 @@ function fun_emsFormBuilder_render_view(x) {
 
     document.getElementById('content-efb').innerHTML = `
    <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
-                <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.forms}
+                <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
             </h4>
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
@@ -142,7 +143,7 @@ function emsFormBuilder_get_edit_form(id) {
 }
 
 
-// نمایش پنجره پیغام حذف یک ردیف  فرم
+
 
 
 function emsFormBuilder_show_content_message(id) {
@@ -217,7 +218,7 @@ function emsFormBuilder_show_content_message(id) {
 
 
 
-// نمایش و عدم نمایش دکمه های صفحه اصلی
+
 function fun_backButton(state) {
   if (document.getElementById("more_emsFormBuilder").style.display == "block" && state == 1) {
     document.getElementById("more_emsFormBuilder").style.display = "none";
@@ -234,14 +235,14 @@ function fun_backButton(state) {
   }
 }
 
-// تابع بستن پنجره اورپیج
+
 function close_overpage_emsFormBuilder(i) {
   document.getElementById('overpage').remove();
   // if (i==1) previewemsFormBuilder=false;
 }
 
 
-// حذف یک ردیف از جدول نمایشی
+
 function fun_confirm_remove_emsFormBuilder(id) {
   // ای دی از جی سون پیدا شود حذف شود و به سمت سرور پیام حذف ارسال شود
   // صفحه رفرش شود
@@ -271,13 +272,14 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 
 
 
-// دکمه بازگشت و نمایش لیست اصلی
+
 function fun_emsFormBuilder_back() {
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
 }
 
 
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   
   
@@ -311,6 +313,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
       s = true;
       list.push(c.url);
+      
       $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
       
       if (c.type == "Image" || c.type == "image") {
@@ -385,18 +388,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       
       m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
-    }
-    else if (c.type=="r_matrix" && checboxs.includes(c.id_)==false){
+    }else if (c.type=="r_matrix"){
       s = true;
       //console.log(390 ,checboxs.includes(c.id_));
-      let vc ='null';
-      checboxs.push(c.id_);
-      for(let op of content){
-        
-        if(op.type=="r_matrix" && op.id_ == c.id_){
-          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.name}</b> <br>${op.value} </p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
-        }
-      }
+      vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
       
       m += `${vc}`;
     }
@@ -415,9 +410,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         }else if(c.type.includes('imgRadio')){
           
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
-          //console.log(q);
+          
         } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${q}</p>`
+        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,1)}</p>`
        //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
@@ -473,7 +468,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 
 
 
-// دکمه نمایش بیشتر لیست اصلی
+
 function fun_emsFormBuilder_more() {
   count_row_emsFormBuilder += 5;
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -481,10 +476,11 @@ function fun_emsFormBuilder_more() {
 
 }
 
-// تابع نمایش ویرایش فرم
+
 function fun_ws_show_edit_form(id) {
   //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
+  
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()
@@ -586,7 +582,7 @@ function fun_ws_show_list_messages(value) {
 
   document.getElementById('content-efb').innerHTML = `<div class="efb head-efb">${head}</div>
     <h4 class="efb title-holder efb fs-4"> <img src="${efb_var.images.title}" class="efb title efb">
-    <i class="efb  bi-archive title-icon  mx-1"></i>${efb_var.text.messages}
+    <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.messages}
     </h4>
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
@@ -897,7 +893,7 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
- 
+  
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -1020,6 +1016,7 @@ function fun_show_setting__emsFormBuilder() {
   let payToken="null";
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
+  let phoneNumbers=sms_method = 'null';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -1042,12 +1039,14 @@ function fun_show_setting__emsFormBuilder() {
     smtp = f('smtp') == 'null' ? false : f('smtp');
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
-
+    sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
+    
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     //console.log(f('scaptcha'),scaptcha)
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
+    phoneNumbers = f('phnNo');
 
     
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
@@ -1067,8 +1066,8 @@ function fun_show_setting__emsFormBuilder() {
       <p class="efb mx-5">توکن: <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('AdnPPF')">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
       <div class="efb mx-3 my-2">
         <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
-          <label class="efb form-label mx-2">توکن</label>
-          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""}>
+          <label class="efb form-label mx-2 fs-6">توکن</label>
+          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""} data-tab="${efb_var.text.payment}">
         </div>
       </div>
       </div>
@@ -1078,7 +1077,7 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key == "easyFormBuilder" ? "d-none" : "d-block";
-    if (key != "forbiddenChr") textList += `<input type="text"  id="${key}"  class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value ? value : ''}">`
+    if (key != "forbiddenChr") textList += `<input type="text"  id="${key}"  class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value ? value : ''}" data-tab="${efb_var.text.localization}">`
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
@@ -1100,10 +1099,11 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb  nav-link" id="nav-contact-tab " data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button> 
                             <button class="efb  nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
                             <button class="efb  nav-link" id="nav-stripe-tab" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payment}</button>
+                            <button class="efb  nav-link" id="nav-smsconfig-tab" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
                         </div>
                         </nav>
                         <div class="efb tab-content" id="nav-tabContent">
-                        <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
+                          <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-home-tab">
                             <!--General-->
                             <div class="efb m-3">
                                 <h5 class="efb  card-title mt-3 mobile-title">
@@ -1111,7 +1111,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </h5>
                                 ${efb_var.pro == true ||  efb_var.pro == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb" onClick="Link_emsFormBuilder('price')">${efb_var.text.clickHereGetActivateCode}</a>`}
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""}>
+                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
                                
@@ -1208,11 +1208,11 @@ function fun_show_setting__emsFormBuilder() {
                             </h5>
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://www.google.com/recaptcha/about/">${efb_var.text.reCAPTCHA}</a>  <a target="_blank" href="https://youtu.be/a1jbMqunzkQ">${efb_var.text.clickHereWatchVideoTutorial}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
-                                <label class="efb form-label mx-2">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""}>
+                                <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.enterSITEKEY}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""}>
+                                <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                             <h5 class="efb  card-title mt-3 mobile-title">
@@ -1221,8 +1221,8 @@ function fun_show_setting__emsFormBuilder() {
                             <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
                             <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
-                                <label class="efb form-label mx-2 ">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent}>
+                                <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
+                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
                               <!--End Google-->
@@ -1236,8 +1236,8 @@ function fun_show_setting__emsFormBuilder() {
                                 </h5>
                                 <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                    <label class="efb form-label mx-2">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""}>
+                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 </div>
                                 
@@ -1287,15 +1287,15 @@ function fun_show_setting__emsFormBuilder() {
                             <div class="efb mx-3 my-2">
                             <!-- Text Section -->
                                <h5 class="efb  card-title mt-3 mobile-title">
-                                 <i class="efb  bi-credit-card m-3"></i>${efb_var.text.stripe}
+                                 <i class="efb  bi-stripe m-3"></i>${efb_var.text.stripe}
                                </h5>
                                <p class="efb ${mxCSize}">${efb_var.text.stripeMP} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('stripe')" >${efb_var.text.help}</a></p>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
-                                  <label class="efb form-label mx-2">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent}>
+                                  <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                  <label class="efb  form-label mx-2 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent}>
+                                  <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
+                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${proChckEvent} data-tab="${efb_var.text.payment}">
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                                                
                               </div>
@@ -1332,7 +1332,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <a class="efb nav-link efb btn dropdown-toggle" data-toggle="dropdown" href="#">${efb_var.text.templates}
                                     <span class="efb caret"></span></a>
                                     <ul class="efb dropdown-menu">
-                                      <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn">${efb_var.text.emailTemplate} 1</a></li>
+                                      <li class="efb nav-item"><a onClick="fun_add_email_template_efb(1)" class="efb nav-link efb btn" >${efb_var.text.emailTemplate} 1</a></li>
                                      <li class="efb nav-item"><a onClick="fun_add_email_template_efb(2)"  class="efb nav-link efb btn">${efb_var.text.emailTemplate} 2</a></li>
                                     </ul>
                                   </li>
@@ -1342,37 +1342,73 @@ function fun_show_setting__emsFormBuilder() {
                         </div>
                         <div class="efb  mx-3 row col-12 mb-2">
                             <!--EmailTemplate-->
-                            <div class="efb  col-md-8 bg-back">
-                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
-                              <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" >${emailTemp !== "null" ? emailTemp : ''}</textarea>                        
-                              <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
-                            </div>
+                              <div class="efb  col-md-8 bg-back">
+                                <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.editor}</h3>
+                                <textarea class="efb  form-control" id="emailTemp_emsFirmBuilder" rows="50" data-tab="${efb_var.text.emailTemplate}">${emailTemp !== "null" ? emailTemp : ''}</textarea>                        
+                                <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
+                              </div>
                             <div class="efb col-md-4 mt1 efb guide p-2"> 
-                            <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
-                            <p class="efb  m-2 fs-6">
-                            ${efb_var.text.infoEmailTemplates}
-                            </br></br>
-                            <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
-                            </br></br>
-                            <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
-                            </br></br> 
-                            <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
-                             </br></br>
-                            <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
-                            </p>
-                            </br></br>
-                            <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+                              <h3 class="efb  card-title mt-3 mobile-title">${efb_var.text.info}</h3>
+                              <p class="efb  m-2 fs-6">
+                              ${efb_var.text.infoEmailTemplates}
+                              </br></br>
+                              <span class="efb  fs-7"> ${efb_var.text.noticeEmailContent}</span> 
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_title <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeTitleInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_message <span class="efb  text-danger">*</span> :</span> ${efb_var.text.shortcodeMessageInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_website_name :</span> ${efb_var.text.shortcodeWebsiteNameInfo}
+                              </br></br> 
+                              <span class="efb  fs-7">shortcode_website_url :</span> ${efb_var.text.shortcodeWebsiteUrlInfo}
+                              </br></br>
+                              <span class="efb  fs-7">shortcode_admin_email  :</span> ${efb_var.text.shortcodeAdminEmailInfo}
+                              </p>
+                              </br></br>
+                              <a class="efb btn mt-1 efb btn-outline-pink btn-lg" onclick="Link_emsFormBuilder('wiki')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
                             </div>
                          
                             <!--End EmailTemplate-->
                         </div>
                     </div>
-                      
-                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder()">
+                        <!-- smsconfig Section -->
+                        <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
+                          <div class="efb mx-3 my-2">
+                          
+                            <h5 class="efb  card-title mt-3 ">
+                              <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
+                            </h5>
+                            <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('smsconfig')" >${efb_var.text.help}</a></p>
+                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
+                                <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>      
+                                <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
+                                  <div class="efb     efb1 " data-css="sms_config_select" id="sms_config_select_options">
+                                      <!-- <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="efb_sms_service" id="efb_sms_service-v" >
+                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled " data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="efb_sms_service" id="efb_sms_service" data-id="efb_sms_service-id" data-op="efb_sms_service" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="efb_sms_service_lab" for="efb_sms_service">${efb_var.text.sms_efbs}</label>
+                                      </div> -->
+                                      <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
+                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}" ${sms_method=="wpsms" ? 'checked' :''}>
+                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
+                                        <i class="mx-1 efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('wpsmss')"> </i>
+                                      </div>
+                                  </div>
+                                </div>                                                                                         
+                              </div>
+                          </div>   
+                          <h5 class="efb  card-title mt-3 ">
+                              <i class="efb bi-phone m-3"></i>${efb_var.text.sms_noti}
+                            </h5>                                        
+                          <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
+                          <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                          <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
+                            <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^\+\d{11,14}$" placeholder="+11234567890" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}">
+                            <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                            <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
+                          </div>
+                        </div>
+                        <!-- smsconfig Section end-->
+                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${efb_var.rtl == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onClick="fun_set_setting_emsFormBuilder(0)">
                             <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
                         </button>                  
                 </div>
@@ -1410,15 +1446,29 @@ function fun_switch_saveSetting(i, id) {
   }
 }
 
-function fun_set_setting_emsFormBuilder() {
+function fun_set_setting_emsFormBuilder(state_auto = 0) {
   // fun_state_loading_message_emsFormBuilder(1);
+  if(state_auto==0){
   let btn = document.getElementById('save-stng-efb');
   btn.classList.add('disabled');
 
   const nnrhtml = btn.innerHTML;
   btn.innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  }
   
   //fun_State_btn_set_setting_emsFormBuilder();
+
+  const returnError=(val)=>{
+    if(state_auto==1){return}
+    m =efb_var.text.msgchckvt.replace('XXX', val );
+    
+    noti_message_efb(m, 'danger' , `content-efb` );
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    });
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 20000);
+  }
   const f = (id) => {
      const u = (url)=>{
       url = url.replace(/(http:\/\/)+/g, 'http:@efb@');
@@ -1451,13 +1501,15 @@ function fun_set_setting_emsFormBuilder() {
     return "NotFoundEl"
   }
   const v = (id) => {
+    
     const el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
       
       el.value = sanitize_text_efb(el.value);}
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
-      if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder") {
+
+      if (el.value.length > 0 && el.value.length < 10 && id !== "activeCode_emsFormBuilder" && id !== "email_emsFormBuilder" && id !== "bootstrap_emsFormBuilder" && id !== "emailTemp_emsFirmBuilder" && id !== "pno_emsFormBuilder") {
         document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
         el.classList.add('invalid');
         window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
@@ -1488,13 +1540,46 @@ function fun_set_setting_emsFormBuilder() {
         }
       } else if (id == "activeCode_emsFormBuilder") {
         //برای برسی صحیح بودن کد امنیتی وارد شده
-        if (el.value.length < 5 && el.value.length != 0) {
+        if (el.value.length < 10 && el.value.length != 0) {
           el.classList.add('invalid');
-
-          window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+          returnError(`<b>${el.dataset.tab}</b>`);
+          //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
           return false;
         }
+      } else if(id=="pno_emsFormBuilder" && Number(efb_var.pro)==1){
+        
+        
+        if (  el.value.length < 5 && el.value.length == 0) {
+          
+          if(el.value.length==0){ el.value=""; return true;}
+          //console.log('test!')
+          el.classList.add('invalid');
+          document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue;
+          returnError(`<b>${el.dataset.tab}</b>`);
+         // window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+          return false;
+        }else{
+          //validate el.value for multi international phone number
+          let phoneNo=el.value;
+          let phoneNoArr=phoneNo.split(',');
+          let phoneNoArrLen=phoneNoArr.length;
+        //write a foreach for check phoneNoArr
+          for(let i=0;i<phoneNoArrLen;i++){
+            //use regix for validation phone number
+            if( !phoneNoArr[i].match(/^\+\d{8,14}$/)){
+              returnError(`<b>${el.dataset.tab}</b>`);
+              el.classList.add('invalid');
+              //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+              document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`;
+              return false;
+            }
+          }
+          document.getElementById(`${el.id}-message`).innerHTML = '';
+
+        }
+
       } else {
+        
         if (el.classList.contains("invalid") == true) {
           el.classList.remove('invalid');
           document.getElementById(`${el.id}-message`).innerHTML = '';
@@ -1509,15 +1594,18 @@ function fun_set_setting_emsFormBuilder() {
     }
     return true;
   }
-  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder'];
+  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
+    
 
     if (v(id) === false) {
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
-      fun_State_btn_set_setting_emsFormBuilder();
+      fun_State_btn_set_setting_emsFormBuilder(true);
+      const m = document.getElementById(`${id}-message`).innerHTML;
+      
       break;
     }
   }
@@ -1533,7 +1621,7 @@ function fun_set_setting_emsFormBuilder() {
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
-    //console.log(scaptcha);
+    
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
     smtp = f('hostSupportSmtp_emsFormBuilder');
@@ -1542,6 +1630,9 @@ function fun_set_setting_emsFormBuilder() {
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
     const payToken = f('payToken_emsFormBuilder');
+    let temp = f('pno_emsFormBuilder');
+    //console.log(temp)
+    const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
     AdnWHS=AdnPAP=AdnWSP=AdnSMF=AdnPLF=AdnMSF=AdnBEF=AdnPDP=AdnADP=0
     if(valueJson_ws_setting.hasOwnProperty('AdnSPF')){
@@ -1567,23 +1658,31 @@ function fun_set_setting_emsFormBuilder() {
       { activeCode: activeCode, siteKey: sitekey, secretKey: secretkey, emailSupporter: email,
          apiKeyMap: `${apiKeyMap}`, smtp: smtp, text: text, bootstrap, emailTemp: emailTemp, 
          stripePKey: stripePKey, stripeSKey: stripeSKey, payToken: payToken, act_local_efb:act_local_efb,
-          scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,
+          scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP
-        });
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers
+        } , state_auto);
   }
 
   /* document.getElementById('save-stng-efb').innerHTML = nnrhtml
   document.getElementById('save-stng-efb').classList.remove('disabled'); */
 }
 
-function fun_State_btn_set_setting_emsFormBuilder() {
-  /*  if (document.getElementById('btn_set_setting_emsFormBuilder').classList.contains('disabled') == true) {
+function fun_State_btn_set_setting_emsFormBuilder($state) {
+ /*   if (document.getElementById('btn_set_setting_emsFormBuilder').classList.contains('disabled') == true) {
      document.getElementById('btn_set_setting_emsFormBuilder').classList.remove('disabled');
    } else {
      document.getElementById('btn_set_setting_emsFormBuilder').classList.add('disabled');
    } */
+   let el =  document.getElementById('save-stng-efb');
+    if($state==true){
+      el.classList.remove('disabled');
+      el.innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
+    }else{
+     el.classList.add('disabled');
+      el.innerHTML = `<i class="efb  bi-hourglass-split"></i>`;
+    }
 }
 
 
@@ -1601,7 +1700,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 }
 
 
-function fun_send_setting_emsFormBuilder(data) {
+function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
   
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -1639,7 +1738,7 @@ function fun_send_setting_emsFormBuilder(data) {
         time = 7;
       }
       //console.log(res)
-      
+      if(state_auto==1){return}
       if(res.data.success == true){
         history.replaceState("panel",null,'?page=Emsfb&state=reload-setting&save=ok');            
         window.location=location.search;          
@@ -1897,7 +1996,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   //  localStorage.setItem('head_ws_p', JSON.stringify(head));
 }
 
-//end
+
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   
@@ -2016,7 +2115,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb()
   state_modal_show_efb(1)
-  /* Add div of charts */
+  
   setTimeout(() => {
 
 
@@ -2029,12 +2128,12 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       } else { chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}"></div>` }
     }
 
-    /*End Add div of charts */
+    
     
     
     document.getElementById('overpage-chart').innerHTML = chartview
 
-    /* convert to dataset */
+    
     let drawPieChartArr = [];
     let rowsOfCharts = [];
     let opetionsOfCharts = [];
@@ -2059,7 +2158,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       google.charts.load('current', { packages: ['corechart'] });
       publicidofchart = chartId[t];
 
-      /* drawPieChart */
+      
       drawPieChartArr[t] = () => {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Element');
@@ -2072,7 +2171,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
         var chart = new google.visualization.PieChart(document.getElementById(chartId[t]));
         chart.draw(data, opetionsOfCharts[t]);
       }
-      /* drawPieChart */
+      
 
       try {
 
@@ -2082,7 +2181,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       }
 
     }// end for 1
-    /*end convert to dataset */
+    
 
   }, 1000);
 
@@ -2114,8 +2213,9 @@ function clickToCheckEmailServer() {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
         const el= document.getElementById("hostSupportSmtp_emsFormBuilder");
         if (res.data.success == true) {
-          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 5);
          if(el.classList.contains('active')==false) el.classList.add('active') ;
+         //fun_set_setting_emsFormBuilder(1);
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
@@ -2279,6 +2379,40 @@ function act_local_efb_event(t){
   }, 80);
 }
 
+
+function check_server_sms_method_efb(el){
+  
+  if(Number(efb_var.pro)!=1){
+    pro_show_efb(efb_var.text.proUnlockMsg) 
+    el.checked = false;
+    return;
+  } else if(valueJson_ws_setting.AdnSS!=1){
+    let m = efb_var.text.msg_adons.replace('NN',`<b>${efb_var.text.sms_noti}</b>`);
+    noti_message_efb(m, 'danger' , `content-efb` );
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 20000);
+    el.checked = false;
+    return;
+  }else if( efb_var.plugins.wpsms ==0 && el.id=="wp_sms_plugin"){
+   //scroll down and montion
+   noti_message_efb(efb_var.text.wpsms_nm, 'danger' , `content-efb` );
+   window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: 'smooth'
+  });
+    setTimeout(() => {document.getElementById('noti_content_efb').remove();}, 15000);
+    
+   
+    el.checked = false;
+    return;
+  }
+
+  if(el.id=="efb_sms_service"){
+    sms_config_efb='efb'
+  }else if(el.id=="wp_sms_plugin"){
+    sms_config_efb='wpsms'
+  }
+  
+}
 
 
 

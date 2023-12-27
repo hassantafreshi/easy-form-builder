@@ -85,7 +85,15 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (i.stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(i.stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }          
+          optn += `<option value="${value}" id="${i.id_}" data-iso="${i.id_op}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb"  ${valj_efb[indx_parent].value==i.id_ ||( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
         }//end for 
       } else {
         if (typeof counstries_list_efb  != 'object') {
@@ -99,6 +107,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
           let optn = '<!-- list of counries -->'
           let count =0;
           for (let i of counstries_list_efb) {
+            
             count+=1;
             let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
@@ -109,34 +118,78 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
       }
       return optn;
 }
-statePrevion_el_pro_efb = (rndm,rndm_1,op_3,op_4,editState)=>{
+statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
+  
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+        
+    const iso_con = valj_efb[indx_parent].country;
+    
     if (editState != false) {
         for (const i of optns_obj) {
-          optn += `<option value="${i.value}" id="${i.id_}" data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (i.stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(i.stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }
+          optn += `<option id="${i.id_}" value="${value}" data-iso="${i.s2}" data-isoc='${iso_con}'  data-id="${i.id_}" data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
         }//end for 
       } else {
-        if (typeof state_local != 'object') {
-          optn = `
-            <option value="${efb_var.text.newOption} 1" id="${rndm_1}" data-vid='${rndm}' data-id="${op_3}" data-op="${op_3}" class="efb text-dark efb" >${efb_var.text.newOption} 1</option>
-            <option value="${efb_var.text.newOption} 2" id="${rndm_1}" data-vid='${rndm}' data-id="${op_4}" data-op="${op_4}" class="efb text-dark efb" >${efb_var.text.newOption} 2</option>
-           `
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 1`, rndm_1, op_3 ,'select');
-          optionElpush_efb(rndm, `${efb_var.text.newOption} 2`, rndm_1, op_4 ,'select');
-        } else {
+          state_local=optns_obj;
           state_local.sort();
+          
           let optn = '<!-- list of states -->'
           let count =0;
           for (let i = 0; i < state_local.length; i++) {
             count+=1;
             let id = rndm_1 +count
-            optn += `<option value="${state_local[i]} 1" id="${id}" data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
-            optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
+            optn += `<option id="${id}" value="${state_local[i]} 1" data-iso="${i.s2}"  data-isoc='${iso_con}'  data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
+          }
+        
+      }
+      return optn;
+}
+cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
+  
+    let optn ='<!--states-->'
+    const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
+        const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
+        
+        const stylish = valj_efb[indx_parent].hasOwnProperty('stylish') ? valj_efb[indx_parent].stylish : '1';
+    if (editState != false) {
+        for (const i of optns_obj) {
+          
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }
+          optn += `<option value="${value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
+          //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
+        }//end for 
+      } else {
+          state_local=optns_obj;
+          state_local.sort();
+          
+          let optn = '<!-- list of states -->'
+          let count =0;
+          
+          for (let i = 0; i < state_local.length; i++) {
+            count+=1;
+            let id = rndm_1 +count
+            optn += `<option value="${state_local[i]} 1" data-iso="${i.id_}" id="${id}" data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-vid='${rndm}' data-id="${state_local[i]}" data-op="${state_local[i]}" class="efb text-dark efb" ${valj_efb[indx_parent].value==i.id_ || valj_efb[indx_parent].value==i.id_old ? "selected" :''}>${state_local[i]}</option>`
+            if(temp!=true) optionElpush_efb(rndm, state_local[i], id, state_local[i] ,'select');
           }
         }
-      }
+      
       return optn;
 }
 headning_el_pro_efb = (rndm,pos,iVJ)=>{
@@ -183,14 +236,20 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
  function ui_dadfile_efb(indx, previewSate) {
     let n = valj_efb[indx].file;
     n = efb_var.text[n];
+    if(valj_efb[indx].file=='customize'){
+      n = valj_efb[indx].file_ctype;
+    }
     let types = ""
     let disabled =  valj_efb[indx].hasOwnProperty('disabled') &&  valj_efb[indx].disabled==true? 'disabled' : ''
     filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif, image/heic',
     'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
     'document':'.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
     'zip':'.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip',
-    'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime'
+    'allformat':'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf,  text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+    'customize':`${valj_efb[indx].file_ctype}`
+   
       }
+      
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1 fs-6">${efb_var.text.dragAndDropA} ${n} </h6> <span class="efb fs-7">${efb_var.text.or}</span>
     <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b" ${disabled}>
@@ -199,31 +258,33 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
   }
 function viewfileEfb(id, indx) {
-    let fileType = fileEfb.type;
-    const filename = fileEfb.name;
+  //find last dost and slice from that in a string varible
+    
+
+    
+    if(fileEfb==undefined) {
+      document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
+      return;}
+    const filename =  fileEfb.name ;
+    let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : fileEfb.type;
     let icon = ``;
-    switch (valj_efb[indx].file) {
-      case 'document':
-      case 'allformat':
-        icon = `bi-file-earmark-richtext`;
-        break;
-      case 'media':
-        icon = `bi-file-earmark-play`;
-        break;
-      case 'zip':
-        icon = `bi-file-earmark-zip`;
-        break;
-    }
+   
+    const svg_file = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
+    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+    <text x="50%" y="67%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">${filename.slice(filename.lastIndexOf('.') + 1)}</text>
+  </svg>`
     let box_v = `<div class="efb ">
     <button type="button" class="efb btn btn-delete btn-sm bi-x-lg efb" id="rmvFileEfb" onClick="removeFileEfb('${id}',${indx})"
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
-         <div class="efb card efb">
-          <i class="efb  ico-file ${icon} ${valj_efb[indx].icon_color} text-center fs-2"></i>
+         <div class="efb card efb px-2 py-5">
+          <i class="efb  ico-file ${valj_efb[indx].icon_color} text-center fs-2">${svg_file}</i>
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
-    fun_addProgessiveEl_efb(id ,0);
-    if (validExtensions_efb_fun(valj_efb[indx].file, fileType)) {
+    
+    if (validExtensions_efb_fun(valj_efb[indx].file, fileType ,indx)) {
+      fun_addProgessiveEl_efb(id ,0);
+      
       let fileReader = new FileReader();
       fileReader.onload = () => {
         let fileURL = fileReader.result;
@@ -242,7 +303,11 @@ function viewfileEfb(id, indx) {
       document.getElementById(`${id}_-message`).innerHTML = "";
       document.getElementById(`${id}_-message`).classList.remove('show')
     } else {
-      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text[valj_efb[indx].file]}`;
+      let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
+      t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
+      
+      const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
+
       document.getElementById(`${id}_-message`).innerHTML = m;
       if(document.getElementById(`${id}_-message`).classList.contains('show'))document.getElementById(`${id}_-message`).classList.add('show');
       alert_message_efb('', m, 4, 'danger')
@@ -253,18 +318,23 @@ function viewfileEfb(id, indx) {
 function viewfileReplyEfb(id, indx) {
     let fileType = fileEfb.type;
     const filename = fileEfb.name;
-    if (validExtensions_efb_fun('allformat',fileType)) {
+    if (validExtensions_efb_fun('allformat',fileType,indx)) {
       fun_addProgessiveEl_efb('resp_file_efb' ,1);
       let fileReader = new FileReader();
+      let fileURL = ''
       fileReader.onload = () => {
-        let fileURL = fileReader.result;
+         fileURL = fileReader.result;
       }
       fileReader.readAsDataURL(fileEfb);  
+      
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
-      const m = `${efb_var.text.pleaseUploadA} ${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']} `;      
+      
+      const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
+      
+      
       alert_message_efb('', m, 4, 'danger')
       fileEfb = [];
     }
@@ -275,7 +345,7 @@ function removeFileEfb(id, indx) {
     setTimeout(() => {
       create_dadfile_efb(id, indx);
       document.getElementById(`${id}_`).addEventListener('change', () => {
-        valid_file_emsFormBuilder(id);
+        valid_file_emsFormBuilder(id ,'msg');
       })
     }, 500)
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -336,10 +406,10 @@ set_dadfile_fun_efb = (id, indx) => {
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
       dropAreaEfb.classList.add("active");
       viewfileEfb(id, indx);
-      valid_file_emsFormBuilder(id)     
+      valid_file_emsFormBuilder(id ,'msg')     
     });
   }
-    /* attachment reply */
+    
     reply_attach_efb = (id, indx) => {
         const v= reply_upload_efb(id);
         const lenV=(v.length/20)+10;
@@ -356,7 +426,7 @@ set_dadfile_fun_efb = (id, indx) => {
         }
         }, lenV);
       }
-    /*end  attachment reply */
+    
   function renderCanvas_efb() {
     if (draw_mouse_efb) {
       c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
@@ -367,7 +437,7 @@ set_dadfile_fun_efb = (id, indx) => {
       document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
     }
   }
-/* clear esignature function */
+
 function fun_clear_esign_efb(id) {
     const canvas = document.getElementById(`${id}_`);
     document.getElementById(`${id}-sig-data`).value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
@@ -428,7 +498,7 @@ function fun_clear_esign_efb(id) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  /* map_efb section */
+  
 let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
@@ -683,7 +753,9 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
     if (document.getElementById(rndm+"_").value.trim()) {
       if (iti.isValidNumber()) {
         document.getElementById(rndm+"_").classList.add("border-success");
-          let value = `+${iti.s.dialCode}${document.getElementById(rndm+"_").value}`;
+        const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
+          let value = `+${iti.s.dialCode}${mobile_no}`;
+          
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");
@@ -730,4 +802,328 @@ add_new_imgRadio_efb=(idin, value, id_ob, tag, parentsID)=>{
   <input class="efb  form-check-input " type="radio" name="${parentsID}"  value="${value}" id="${idin}" data-id="${idin}-id" data-op="${idin}" disabled>
   ${temp}
   </div>`;
+}
+
+function terms_el_pro_efb(previewSate, rndm,iVJ){
+  let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : '';
+  return `<div class="efb  form-check">
+  <textarea class="efb  form-control ${valj_efb[iVJ].el_border_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" ${previewSate != true ? 'readonly' : ''} ${disabled}>${valj_efb[iVJ].value_text}</textarea>
+  <input class="efb  form-check-input ${valj_efb[iVJ].el_border_color} ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-vid='${rndm}' id="${rndm}_" type="checkbox" ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <label class="efb  form-check-label" for="${rndm}_">${valj_efb[iVJ].value}</label>
+  </div>`;
+}
+
+
+fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
+  //const country = country_el.value;
+ // const iso2 = country_el.id_op;
+ // const country_el_partent_id = valj_efb[indx].parent;
+ 
+ let indx_state =-1;
+  for (let i = indx+1; i < valj_efb.length; i++) {
+   
+    if(valj_efb[i].type=='option'){
+      
+    }else if((valj_efb[i].type=='city' || valj_efb[i].type=='cityList') && valj_efb[i].amount>valj_efb[indx].amount){
+      
+      indx_state =i;
+      break;
+    }else{
+      return;
+    }
+  }
+  
+  
+ 
+  if(indx_state==-1)return;
+  /* let v = country_el.options[country_el.selectedIndex];
+  const iso2_country = v.dataset.iso; */
+  //let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+  //+ condition logic: check if the statement for this element is hide then write the code to return from this function
+ // state_el.disabled = true;
+  Object.assign(valj_efb[indx_state], {country:iso2_country,statePov:iso2_statePove});
+  
+  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
+
+  
+ // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
+  
+  for(let i =indx_state; i < valj_efb.length; i++){    
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }   
+    //console.log('get_states_efb')
+
+
+   
+  
+    
+    callFetchCitiesEfb(valj_efb[indx_state].id_+'_options', iso2_country,iso2_statePove, indx_state,'pubSelect');
+
+  
+
+
+
+ 
+}
+
+
+async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType ) {
+  //console.error(idField,iso2_country, indx_state,fieldType)
+  let state_el= document.getElementById(idField)
+  if(state_el!=null){
+  state_el.innerHTML = "";
+  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  state_el.classList.add('is-loading');
+  state_el.disabled=true;
+  }
+
+  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`)
+ 
+  if(result.s==false){
+    alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+    return;
+  }
+  
+ // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
+  let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+  
+  for(let i =0; i < valj_efb.length; i++){    
+    
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }
+
+  for (const key in result.r) {
+    
+  /*   const value = r.data[key];
+    const nValue = value.n.trim();
+    const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+    const sValue = value.s */
+    
+   /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+    optionElpush_efb = (parent, value, rndm, op, tag) 
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
+    const n = efb_remove_forbidden_chrs(result.r[key].n);
+    const l = efb_remove_forbidden_chrs(result.r[key].l);
+    let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
+   
+    let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+    id_op = efb_remove_forbidden_chrs(id_op).replaceAll(' ','_');
+    //genreate random code 5 lenght
+    const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
+    const id = efb_remove_forbidden_chrs(result.r[key].n.toLowerCase()).replaceAll(' ','_') ;
+    if(valj_efb[indx_state].hasOwnProperty('stylish') && Number(valj_efb[indx_state].stylish)>1){
+
+      value =  Number(valj_efb[indx_state].stylish)==2 && l.length>1 ? l : n;
+     }
+    
+    if(fieldType=="pubSelect"){
+      valj_efb.push(     
+        {
+          "id_": id +'-efb'+rnd,
+          "dataId": id+'-efb'+rnd+"-id",
+          "parent":valj_efb[indx_state].id_,
+          "type": "option",
+          "value": value,
+          's2': id,
+          "id_op": id_op,
+          "step": valj_efb[indx_state].step,
+          "amount": valj_efb[indx_state].amount,
+          "n":n,
+          "l": l,
+      });
+    }else if(fieldType=="getCitiesEfb"){
+      opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
+      //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
+      
+    }
+  }
+
+
+
+
+  if(fieldType=="pubSelect"){
+
+    
+
+    Object.assign(valj_efb[indx_state],{'linked':true});
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+  }
+ 
+  
+  if(state_el!=null){
+    
+    state_el.innerHTML='';
+    state_el.innerHTML=opt;
+    state_el.classList.remove('is-loading');
+  state_el.disabled = false;
+  }else{
+    
+    setTimeout(() => {
+      state_el = document.getElementById(idField);
+      state_el.innerHTML=opt;
+      state_el.classList.remove('is-loading');
+    }, 2000);
+  }
+
+
+  
+  
+  
+  return state_el!=null ? result : opt;
+  
+}
+fun_check_link_state_efb=(iso2_country , indx)=>{
+  //const country = country_el.value;
+ // const iso2 = country_el.id_op;
+ // const country_el_partent_id = valj_efb[indx].parent;
+ 
+ let indx_state =-1;
+  for (let i = indx+1; i < valj_efb.length; i++) {
+   
+    if(valj_efb[i].type=='option'){
+      
+    }else if((valj_efb[i].type=='statePro' || valj_efb[i].type=='stateProvince') && valj_efb[i].amount>valj_efb[indx].amount){
+      //console.log(`valj_efb[i].amount[${valj_efb[i].amount}]>valj_efb[indx][${valj_efb[indx].amount}]`)
+      indx_state =i;
+      break;
+    }else{
+      return;
+    }
+  }
+  
+  
+ 
+  
+  /* let v = country_el.options[country_el.selectedIndex];
+  const iso2_country = v.dataset.iso; */
+  let state_el = document.getElementById(valj_efb[indx_state].id_+'_options');
+   //+ condition logic: check if the statement for this element is hide then write the code to return from this function
+ // state_el.disabled = true;
+  valj_efb[indx_state].country=iso2_country;
+  //replace options of state_el with `<option value="">${efb_var.text.loading}</option>`
+
+  
+ // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
+  
+  for(let i =0; i < valj_efb.length; i++){    
+    if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
+      valj_efb.splice(i,1);
+      i--;
+    }
+  }
+   
+
+    //console.log('get_states_efb')
+
+
+   
+  
+    
+    callFetchStatesPovEfb(valj_efb[indx_state].id_+'_options', iso2_country, indx_state,'pubSelect');
+
+  
+
+
+
+ 
+}
+
+
+async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {
+  //console.error(idField,iso2_country, indx_state,fieldType)
+  let state_el= document.getElementById(idField)
+  if(state_el!=null){
+  state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
+  state_el.classList.add('is-loading');
+  state_el.disabled=true;
+  }
+
+  let result = await  fetch_json_from_url_efb(`https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/json/states/${iso2_country.toLowerCase()}.json`)
+ 
+  if(result.s==false){
+    alert_message_efb('',efb_var.text.offlineSend,5,'danger')
+    return;
+  }
+  
+ // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
+  let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
+  
+  for (const key in result.r) {
+    
+  /*   const value = r.data[key];
+    const nValue = value.n.trim();
+    const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
+    const sValue = value.s */
+    
+   /*  optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
+    optionElpush_efb = (parent, value, rndm, op, tag) 
+    valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `option`, value: value, id_op: op, step: step_el_efb, price: 0, amount: amount_el_efb }); */
+    const n = efb_remove_forbidden_chrs(result.r[key].n);
+    const l = efb_remove_forbidden_chrs(result.r[key].l);
+    let value = result.r[key].n==result.r[key].l || result.r[key].l.length<1 ? n : `${l} (${n})`;
+   
+    let id_op= result.r[key].n.replaceAll(' ','_').toLowerCase();
+    id_op = efb_remove_forbidden_chrs(id_op).replaceAll(' ','_');
+    const rnd = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
+    const id = efb_remove_forbidden_chrs(result.r[key].s.toLowerCase()).replaceAll(' ','_');
+    if(valj_efb[indx_state].hasOwnProperty('stylish') && Number(valj_efb[indx_state].stylish)>1){
+
+     value =  Number(valj_efb[indx_state].stylish)==2 && l.length>1 ? l : n;
+    }
+    
+    if(fieldType=="pubSelect"){
+      
+      valj_efb.push(     
+        {
+          "id_": id+'-efb'+rnd,
+          "dataId":  id+'-efb'+rnd+"-id",
+          "parent":valj_efb[indx_state].id_,
+          "type": "option",
+          "value": value,
+          's2': id,
+          "id_op": id_op,
+          "step": valj_efb[indx_state].step,
+          "amount": valj_efb[indx_state].amount,
+          "n":n,
+          "l": l,
+      });
+    }else if(fieldType=="getStatesPovEfb"){
+      opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
+      //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
+      
+    }
+  }
+
+  if(fieldType=="pubSelect"){
+     Object.assign(valj_efb[indx_state],{'linked':true});
+     opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
+  }
+ 
+  if(state_el!=null){
+    
+    state_el.innerHTML=opt;
+    state_el.classList.remove('is-loading');
+  state_el.disabled = false;
+  }else{
+    
+    setTimeout(() => {
+      state_el = document.getElementById(idField);
+      state_el.innerHTML=opt;
+      state_el.classList.remove('is-loading');
+    }, 2000);
+  }
+  
+  
+  
+  return state_el!=null ? result : opt;
+  
 }

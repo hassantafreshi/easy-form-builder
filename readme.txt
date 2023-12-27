@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.6.16
+Stable tag: 			3.7.0
 Requires at least: 	      4.7
 Tested up to: 			6.3.1
 Requires PHP:			7.4 or higher
@@ -30,6 +30,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - Build Multi step forms
 
 - Email notification
+
+- SMS notification
 
 - Confirmation code
 
@@ -60,6 +62,9 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
 - Easy form builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
+
+
+
 
 
 
@@ -134,6 +139,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 **New Forms Field of Easy Form Builder**
 
+- *SMS Notification*: Easy Form Builder offers a robust SMS notification (Text message) feature, enabling real-time communication with your users upon form submission. Ideal for businesses seeking to enhance customer engagement, SMS notification addon of Easy Form Builder allows you to send customized SMS alerts to your clients. You can personalize the message content, ensuring it aligns with your brand voice, and even include a link to the submitted form for easy access. Leverage Easy Form Builder's SMS notification or Text message feature to keep your customers informed and engaged.
+
 - *File Uploads*: With our **free** File Uploads feature, effortlessly collect and manage files and media through your contact forms or other forms, saving you time and boosting the overall effectiveness of your online forms.
 
 - *Drag and Drop file upload*: Our user-friendly drag and drop file upload feature makes it easy to add images, videos, audio files, compressed files, and documents (including popular formats like Doc, MS Word, MS Powerpoint, MS Excel, and more) to your online forms. Streamline your support form and enhance your form-building experience with our intuitive file upload function.
@@ -167,6 +174,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - *Cell Phone Input Field* :you can easily add a cell phone input field to your forms, allowing users to input their phone number with ease. Additionally, this feature includes the option to limit the input to specific countries, ensuring that users provide phone numbers in the correct format for your needs. With this powerful tool included in our form builder, you can create a wide range of forms, from contact forms to registration forms and beyond, all with the ability to collect cell phone numbers in a hassle-free manner.
 
 - *Image Picker Field* : Add image picker field in forms and let your users select an image as option this feature is based on image radio button for building forms.
+
+
 
 
 **Free advanced features of Easy Form Builder**
@@ -211,6 +220,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - *Supported currencies*: Easy Form Builder payments are powered by Stripe, which supports over 135 currencies, making it convenient for users worldwide to make online payments.
 
 - *Recurring Payment Forms*: Create payment forms for recurring payments with the ability to choose the payment interval such as daily, weekly, monthly, or yearly. The plugin also offers one-time payment forms for those who prefer a single payment option.
+
 
 
 **Advanced survey/poll forms of Easy Form Builder**
@@ -364,6 +374,16 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.7.0 =
+
+* Added new features of SMS (Text message) notification  for forms
+
+* Bootstrap Icons v1.11.2 added to Easy Form Builder
+
+* Fixed UI bugs of State/Province Drop Down list in Easy Form Builder
+
+* Remove limition of size file for upload file in forms of Easy Form Builder 
 
 =3.6.16=
 

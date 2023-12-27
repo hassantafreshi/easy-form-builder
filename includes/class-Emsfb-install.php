@@ -109,7 +109,7 @@ class Install {
 					require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 					dbDelta( $sql );
 			
-					/* $it = list_files(get_template_directory());       */
+					
 					/* foreach($it as $path) {
 						if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
 						{

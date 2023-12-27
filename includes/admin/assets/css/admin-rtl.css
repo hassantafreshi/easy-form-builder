@@ -1,5 +1,5 @@
 .efb {direction: rtl !important;}
-.wp-menu-name {/* direction: rtl;float:     right; */text-align: initial;}
+.wp-menu-name {text-align: initial;}
 .search-form-control.efb {    padding-right: 40px!important;padding-left:0px!important;}
 input[type=file].efb {    padding: 3px 14px;}
 input[type="email"]:-moz-placeholder.efb {    text-align: right;}
@@ -77,7 +77,7 @@ div#gRecaptcha {
 
 
 .iti__country-list{
-	/* text-align: inherit!important; */
+	
 	position: relative!important;
 } 
 

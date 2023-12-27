@@ -1,4 +1,4 @@
-//Header
+
 document.getElementById('header');
 $(document).ready(function () {
     $(window).scroll(function () {
@@ -16,7 +16,7 @@ $(document).ready(function () {
 })
 
 
-//Step
+
 var currentTab = 0; // Current tab is set to be the first tab (0)
 showTab(currentTab); // Display the current tab
 
@@ -92,19 +92,19 @@ function fixStepIndicator(n) {
 
 
 
-//Alert
+
 function myFunction() {
-    /* Get the text field */
+    
     var copyText = document.getElementById("myInput");
 
-    /* Select the text field */
+    
     copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+    copyText.setSelectionRange(0, 99999); 
 
-    /* Copy the text inside the text field */
+    
     document.execCommand("copy");
 
-    /* Alert the copied text */
+    
     document.getElementById('alert').innerHTML = '<div class="efb alert alert-info alert-dismissible mt-5" role="alert">\n' +
         '<strong>Copied to Clipboard</strong>' +
         '<button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close"></button>' +
