@@ -1036,6 +1036,8 @@ class efbFunction {
 			$message ="<h1>".  $footer ."</h1>";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
+				error_log('price!!!!!!!!!!');
+				error_log($p);
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
