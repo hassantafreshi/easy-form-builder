@@ -1034,7 +1034,7 @@ class efbFunction {
 		if($state=="testMailServer"){
 			error_log('=========>testMailServer');
 			$title= $lang["serverEmailAble"];
-			$message ="<h1>".  $footer ."</h1>";
+			$message ="<div style='text-align:center'><h1>".  $footer ."</h1></div>";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
 				error_log('price!!!!!!!!!!');
