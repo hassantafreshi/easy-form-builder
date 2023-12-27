@@ -171,6 +171,7 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-check-square",
 			"bi-square",
+			"bi-chevron-down"
 			
 			
 		]];
