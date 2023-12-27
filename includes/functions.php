@@ -1555,68 +1555,42 @@ class efbFunction {
 	}
 
 	
-	public function efb_code_validate_create( $fid, $type, $status, $tc) {
-		//$fid => form Id
-		//$type => form 0 , response 1, sms 2, email 3
-		// $status => visit , send , upd , del  =>  max len 5
-		//$tc => tracking code if exists 	
+	public function efb_code_validate_create($fid, $type, $status, $tc) {
 		$table_name = $this->db->prefix . 'emsfb_stts_';
-		$query =$this->db->prepare( 'SHOW TABLES LIKE %s',$this->db->esc_like( $table_name ) );
-		$check_test_table =$query!=null ?$this->db->get_var( $query ) :0;
-		if($check_test_table==0){
-			$charset_collate =$this->db->get_charset_collate();
-			$sql = "CREATE TABLE {$table_name} (
-				`id` int(20) NOT NULL AUTO_INCREMENT,
-				`sid` varchar(21) COLLATE utf8mb4_unicode_ci NOT NULL,
-				`fid` int(11)   NOT NULL, 
-				`type_` int(8)  NOT NULL,
-				`date` datetime  DEFAULT CURRENT_TIMESTAMP NOT NULL,		
-				`status` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL,
-				`ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-				`os` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-				`browser` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,						
-				`read_date` datetime  DEFAULT CURRENT_TIMESTAMP,		
-				`uid` int(10)  NOT NULL, 
-				`tc` varchar(12) COLLATE utf8mb4_unicode_ci NOT NULL,	
-				`active` int(1)   NOT NULL,						
-				PRIMARY KEY  (id)
-			) {$charset_collate};";
-
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-			dbDelta( $sql );
-		}
 		$ip = $this->get_ip_address();
-		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
 		$date_now = date('Y-m-d H:i:s');
-		
-        $query =$this->db->prepare("SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s", $ip, $date_now,1,$fid);
-		$result =$this->db->get_var($query);
-		
-		
-		
-		if($result!=null) return $result;
-		
-        $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
-		$uid = get_current_user_id();
+		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
+	
+		$sid = date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
+		$uid = get_current_user_id() ?? 0;
 		$os = $this->getVisitorOS();
-		$b =$this->getVisitorBrowser();
-        $data = array(
-            'sid' => $sid,
-            'fid' => $fid,
-            'type_' => $type,
-            'status' => $status,
-            'ip' => $ip,
-            'os' => $os,
-            'browser' => $b,
-            'uid' => $uid,
-            'tc' => $tc,
-			'active'=>1,
-			'date'=>date('Y-m-d H:i:s'),
-			'read_date'=>$date_limit
-        );
-       $this->db->insert($table_name, $data);
-	   return $sid;
-    }
+		$browser = $this->getVisitorBrowser();
+	
+		$data = array(
+			'sid' => $sid,
+			'fid' => $fid,
+			'type_' => $type,
+			'status' => $status,
+			'ip' => $ip,
+			'os' => $os,
+			'browser' => $browser,
+			'uid' => $uid,
+			'tc' => $tc,
+			'active' => 1,
+			'date' => $date_now,
+			'read_date' => $date_limit
+		);
+	
+		$sql = $this->db->prepare(
+			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`) 
+			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s) 
+			ON DUPLICATE KEY UPDATE `type_` = VALUES(`type_`), `ip` = VALUES(`ip`), `status` = VALUES(`status`), `uid` = VALUES(`uid`), `active` = VALUES(`active`)",
+			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
+		);
+	
+		$this->db->query($sql);
+		return $sid;
+	}
 
     public function efb_code_validate_update($sid ,$status ,$tc ) {
 		// $status => visit , send , upd , del => max len 5
@@ -1652,53 +1626,50 @@ class efbFunction {
 	
 	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
 	public function getVisitorOS() {
-		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 		$os = "Unknown";
 
-		if (isset($_SERVER['HTTP_USER_AGENT'])==false) {
-			$os = "Unknown";
-		} 
-	
-		if (strpos($ua, 'Windows') !== false) {
-			$os = "Windows";
-		} elseif (strpos($ua, 'Linux') !== false) {
-			$os = "Linux";
-		} elseif (strpos($ua, 'Macintosh') !== false || strpos($ua, 'Mac OS X') !== false) {
-			$os = "Mac";
-		} elseif (strpos($ua, 'Android') !== false) {
-			$os = "Android";
-		} elseif (strpos($ua, 'iOS') !== false) {
-			$os = "iOS";
+		if ($ua) {
+			if (strpos($ua, 'Windows') !== false) {
+				$os = "Windows";
+			} elseif (strpos($ua, 'Linux') !== false) {
+				$os = "Linux";
+			} elseif (strpos($ua, 'Macintosh') !== false || strpos($ua, 'Mac OS X') !== false) {
+				$os = "Mac";
+			} elseif (strpos($ua, 'Android') !== false) {
+				$os = "Android";
+			} elseif (strpos($ua, 'iOS') !== false) {
+				$os = "iOS";
+			}
 		}
 	
 		return $os;
 	}
 
 	public function getVisitorBrowser() {
-		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 		$b = "Unknown";
-		if (isset($_SERVER['HTTP_USER_AGENT'])==false) {
-			$b = "Unknown";
-		} 
-	
-		if (strpos($ua, 'Firefox') !== false) {
-			$b = "Mozilla Firefox";
-		} elseif (strpos($ua, 'Chrome') !== false) {
-			if (strpos($ua, 'Edg') !== false) {
-				$b = "Microsoft Edge";
-			} elseif (strpos($ua, 'Brave') !== false) {
-				$b = "Brave";
-			} else {
-				$b = "Google Chrome";
+
+		if ($ua) {
+			if (strpos($ua, 'Firefox') !== false) {
+				$b = "Mozilla Firefox";
+			} elseif (strpos($ua, 'Chrome') !== false) {
+				if (strpos($ua, 'Edg') !== false) {
+					$b = "Microsoft Edge";
+				} elseif (strpos($ua, 'Brave') !== false) {
+					$b = "Brave";
+				} else {
+					$b = "Google Chrome";
+				}
+			} elseif (strpos($ua, 'Safari') !== false) {
+				$b = "Apple Safari";
+			} elseif (strpos($ua, 'Opera') !== false) {
+				$b = "Opera";
+			} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
+				$b = "Internet Explorer";
 			}
-		} elseif (strpos($ua, 'Safari') !== false) {
-			$b = "Apple Safari";
-		} elseif (strpos($ua, 'Opera') !== false) {
-			$b = "Opera";
-		} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
-			$b = "Internet Explorer";
 		}
-	
+
 		return $b;
 	}
 
