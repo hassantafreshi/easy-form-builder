@@ -2492,7 +2492,7 @@ class _Public {
 			//$this->lanText= $this->efbFunction->text_efb($this->text_);
 			//error_log(json_encode($this->lanText));
 			$cont[$i] = $track;
-			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .'['.$cont[$i].']';
+			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
@@ -2507,7 +2507,7 @@ class _Public {
 				";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="respRecivedMessage"){
-				$subject[$i] =$this->lanText["WeRecivedUrM"] .' [#'.$cont[$i].']' ;
+				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
 				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
 						<div style='text-align:center'><button><a href='".$link_w[$i]."' style='color: black;'>". $this->lanText["clcdetls"]."</a></button></div>
