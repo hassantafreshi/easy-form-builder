@@ -2001,7 +2001,7 @@ class _Public {
 		//error_log($_POST['pl']);
 
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
-		//error_log($s_sid);
+		
 		if ($s_sid !=1 || $sid==null){
 			//error_log('=======>not secure@');
 			//error_log('s_sid is not valid!! ==>file_upload_api');

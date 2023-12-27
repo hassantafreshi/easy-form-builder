@@ -89,6 +89,7 @@ class Install {
 					require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 					dbDelta( $sql );
 
+
 						$sql = "CREATE TABLE IF NOT EXISTS {$table_name_status} (
 							`id` int(20) NOT NULL AUTO_INCREMENT,
 							`sid` varchar(21) COLLATE utf8mb4_unicode_ci NOT NULL,
