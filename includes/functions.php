@@ -1035,7 +1035,7 @@ class efbFunction {
 			$title= $lang["serverEmailAble"];
 			$message ="<h1>".  $footer ."</h1>";
 			 if(strlen($st->activeCode)<5){
-				$p = str_replace('NN' ,$lang["yFreeVEnPro"] ,'19');
+				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
 				$message ="<h2 style='text-align:center'>"
 				.  $lang["yFreeVEnPro"] ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
