@@ -138,9 +138,9 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  console.log(country);
+  //console.log(country);
   for (let i of counstries_list_efb) {
-    console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
+    //console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
   }
   return ` 
@@ -153,7 +153,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   `
 }
 const state_list_el_select=(el_type ,idset,indx)=>{
-  console.log('=============>state_list_el_select');
+  //console.log('=============>state_list_el_select');
   let opt =`<!--efb---!>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : 'GB';
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
@@ -163,17 +163,17 @@ const state_list_el_select=(el_type ,idset,indx)=>{
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  console.log(`======================>country:[${country}] statePov:[${statePov}]`)
-  console.log(statePov);
+  //console.log(`======================>country:[${country}] statePov:[${statePov}]`)
+  //console.log(statePov);
     if(country=='gb'){
       state_list_efb=fun_state_of_UK(idset,indx) ;
     for (let i of state_list_efb) {
-      console.log(i);
+      //console.log(i);
       opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
     }
   }else{
     opt=  callFetchStatesPovEfb('statePovListEl',country,indx,'getStatesPovEfb');
-    console.log(`opt[${opt}]`);
+    //console.log(`opt[${opt}]`);
   }
   return ` 
   <div class="efb mx-1 mt-1">
@@ -335,7 +335,7 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  console.log(idset)
+  //console.log(idset)
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
@@ -748,7 +748,7 @@ function show_setting_window_efb(idset) {
 
     const selectColorEls = (forEl ,f) => {
       //f ===> text , border,  bg 
-      console.log(forEl,indx,f)
+      //console.log(forEl,indx,f)
       let t = ''
       let color = '';
       let hex=''
@@ -760,7 +760,7 @@ function show_setting_window_efb(idset) {
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'icon') //slice text=5 bg=2 border=6 btn=3
       } else if (forEl == 'description') {
         color = valj_efb[indx].message_text_color;
-        console.log(color,color.slice(5));
+        //console.log(color,color.slice(5));
         t = efb_var.text.description
         if(color!="") hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'description')
       } else if (forEl == 'label') {
@@ -928,7 +928,7 @@ function show_setting_window_efb(idset) {
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
         const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
-          console.log(objOptions);
+          //console.log(objOptions);
         if (objOptions.length > 0) {
 
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
