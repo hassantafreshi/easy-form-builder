@@ -1897,7 +1897,7 @@ class _Public {
 	  public function fun_footer(){
 		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.0', true);
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.5.9')</script>";
+		return "<script>console.log('Easy Form Builder v3.7.0')</script>";
 	  }//end function
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
@@ -1999,7 +1999,7 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid ,  $fid);
 		//error_log($s_sid);
 		if ($s_sid !=1 || $sid==null){
-			error_log('=======>not secure@');
+			//error_log('=======>not secure@');
 			//error_log('s_sid is not valid!! ==>file_upload_api');
 		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 402"); 
 		wp_send_json_success($response,200);
