@@ -480,7 +480,7 @@ function fun_emsFormBuilder_more() {
 function fun_ws_show_edit_form(id) {
   //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
-  console.log(valj_efb);
+  //console.log(valj_efb);
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()
@@ -893,7 +893,7 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
-  console.log('fun_show_content_page_emsFormBuilder' , state);
+  //console.log('fun_show_content_page_emsFormBuilder' , state);
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -1461,7 +1461,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   const returnError=(val)=>{
     if(state_auto==1){return}
     m =efb_var.text.msgchckvt.replace('XXX', val );
-    console.log(val,m);
+    //console.log(val,m);
     noti_message_efb(m, 'danger' , `content-efb` );
     window.scrollTo({
       top: document.body.scrollHeight,
@@ -1501,7 +1501,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     return "NotFoundEl"
   }
   const v = (id) => {
-    console.log(`id:${id}`);
+    //console.log(`id:${id}`);
     const el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
       
@@ -1550,9 +1550,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         
         
         if (  el.value.length < 5 && el.value.length == 0) {
-          console.log(el.value.length);
-          if(el.value.length==0){console.log(el.value.length); el.value=""; return true;}
-          console.log('test!')
+          //console.log(el.value.length);
+          if(el.value.length==0){ el.value=""; return true;}
+          //console.log('test!')
           el.classList.add('invalid');
           document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue;
           returnError(`<b>${el.dataset.tab}</b>`);
@@ -1579,7 +1579,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         }
 
       } else {
-        console.log('else run');
+        //console.log('else run');
         if (el.classList.contains("invalid") == true) {
           el.classList.remove('invalid');
           document.getElementById(`${el.id}-message`).innerHTML = '';
@@ -1598,7 +1598,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   let state = true
 
   for (let id of ids) {
-    console.log(id);
+    //console.log(id);
 
     if (v(id) === false) {
       state = false;
@@ -1701,7 +1701,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
-  console.log(`fun_send_setting_emsFormBuilder state_auto:${state_auto}`,data);
+  //console.log(`fun_send_setting_emsFormBuilder state_auto:${state_auto}`,data);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2381,7 +2381,7 @@ function act_local_efb_event(t){
 
 
 function check_server_sms_method_efb(el){
-  console.log('test' ,el);
+  //console.log('test' ,el);
   if(Number(efb_var.pro)!=1){
     pro_show_efb(efb_var.text.proUnlockMsg) 
     el.checked = false;

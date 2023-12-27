@@ -458,7 +458,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
       //console.log(minlen , valj_efb[iVJ].milen)  ;
-      console.log(valj_efb[iVJ].value);
+      //console.log(valj_efb[iVJ].value);
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
@@ -876,9 +876,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       );
       temp=true;
     }
-      console.log(rndm, rndm_1);
+      //console.log(rndm, rndm_1);
       optn = typeof cityList_el_pro_efb =="function"? cityList_el_pro_efb(rndm, rndm_1, temp, op_4, editState) :"null";
-      console.log(valj_efb);
+      //console.log(valj_efb);
       ui = `
         ${label}
         <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
@@ -889,7 +889,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </select>
         ${desc}
         `
-        console.log(valj_efb);
+        //console.log(valj_efb);
       dataTag = elementId;
       if (optn=="null") ui = public_pro_message();
 
@@ -1170,7 +1170,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'terms':
       dataTag = elementId;
       ui =typeof terms_el_pro_efb =="function" ? terms_el_pro_efb(previewSate, rndm,iVJ) :public_pro_message();
-      console.log(ui);
+      //console.log(ui);
       break;
 
 
@@ -1263,7 +1263,7 @@ const funSetPosElEfb = (dataId, position) => {
 
 }
 const funSetAlignElEfb = (dataId, align, element) => {
-  console.log(dataId, align, `element: [${element}]`);
+  //console.log(dataId, align, `element: [${element}]`);
   const indx = dataId!='button_group_' && dataId!='Next_' ? valj_efb.findIndex(x => x.dataId == dataId) :0;
 
   if (indx == -1) { return }
@@ -1282,16 +1282,16 @@ const funSetAlignElEfb = (dataId, align, element) => {
       }
       break;
     case 'buttons':
-      console.log('========>buttons')
+      //console.log('========>buttons')
       const id = valj_efb[0].steps<2 ? 'f_btn_send_efb' : 'f_button_form_np';
       const elm_ = document.getElementById(id)
       elm_.className = alignChangerElEfb(elm_.className, align)
       valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align = align : Object.assign(valj_efb[0], { btns_align: align });
-      console.log(id, elm_ , align ,valj_efb[0]);
+      //console.log(id, elm_ , align ,valj_efb[0]);
       break;
       default:
-        console.log('========>default')
-        console.log(`element: [${element}]`);
+        //console.log('========>default')
+        //console.log(`element: [${element}]`);
         break;
   }
 }//justify-content-center
@@ -1358,7 +1358,7 @@ let add_buttons_zone_efb = (state, id) => {
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
-  console.log(btns_align);
+  //console.log(btns_align);
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
     <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
@@ -1874,7 +1874,7 @@ function previewFormEfb(state) {
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
       }
-       console.log(index,value);
+       //console.log(index,value);
       if (value.type == 'step' && value.type != 'html') {
         
         steps_index_efb.push(index)
@@ -1901,7 +1901,7 @@ function previewFormEfb(state) {
           
           count+=1;
           let ch = valj_efb.find(x=>x.id_==value.value || x.id_old==value.value);
-          console.log(`=========================>ch`,ch)
+          //console.log(`=========================>ch`,ch)
           
           o=[{
             id_: value.id_,
@@ -2373,7 +2373,7 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
-  console.log("addStyleColorBodyEfb",t, c, type, id);
+  //console.log("addStyleColorBodyEfb",t, c, type, id);
   let ttype = "text";
   if(id==-1){
     ttype =type;
@@ -2424,7 +2424,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 
 
 efb_add_costum_color=(t, c ,v , type)=>{
-  console.log('===>efb_add_costum_color',t, c ,v , type)
+  //console.log('===>efb_add_costum_color',t, c ,v , type)
   //t colorDEfb-000e24
   //c #000e24
   //v = ""
@@ -2753,22 +2753,22 @@ function replaceContentMessageEfb(value){
 
 
 function fun_upload_file_api_emsFormBuilder(id, type,tp) {
-  console.log('fun_upload_file_api_emsFormBuilder',id, type,tp)
+  //console.log('fun_upload_file_api_emsFormBuilder',id, type,tp)
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
   //v3.6.2  updated
-  console.log(`tp===>[${tp}]`);
+  //console.log(`tp===>[${tp}]`);
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
-  console.log(`tp===>[${tp}]`);
+  //console.log(`tp===>[${tp}]`);
   
   
   const nonce_msg = efb_var.nonce_msg ;
-  console.log(`tp===>[${tp}]`);
+  //console.log(`tp===>[${tp}]`);
   
   //console.log(tp)
   //jQuery(function ($) {
@@ -2777,16 +2777,16 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
     const idn =  id + '_';
     const file = document.getElementById(idn);
     //const caption = document.querySelector(idn);
-    console.log(`tp===>[${tp}]`);
+    //console.log(`tp===>[${tp}]`);
 
 	const individual_file = file.files[0];
-  console.log('before ===> uploadFile_api',`tp===>[${tp}]` ,id, type, nonce_msg ,indx,idn)
+  //console.log('before ===> uploadFile_api',`tp===>[${tp}]` ,id, type, nonce_msg ,indx,idn)
   uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
   return true;
 }
 
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
-  console.log('uploadFile_api',file, id, pl, nonce_msg ,indx,idn)
+  //console.log('uploadFile_api',file, id, pl, nonce_msg ,indx,idn)
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
   setTimeout(() => {
@@ -2834,7 +2834,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
 }
 
 function fetch_uploadFile(file, id, pl, nonce_msg) {
-  console.log('fetch_uploadFile',file, id, pl, nonce_msg)
+  //console.log('fetch_uploadFile',file, id, pl, nonce_msg)
   var idB =id+'-prB';
   
   return new Promise((resolve, reject) => {
@@ -2848,7 +2848,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('fid', fid);
     
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
-    console.log(formData);
+    //console.log(formData);
     const xhr = new XMLHttpRequest();
 
     xhr.upload.addEventListener('progress', (event) => {
@@ -3083,7 +3083,7 @@ const preKsesLessThanCallback_efb=(matches)=>{
 
 function escHtml(unsafe)
 {
-    console.log(`escHtml[${unsafe}]`)
+    //console.log(`escHtml[${unsafe}]`)
     return unsafe
          .replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
@@ -3101,12 +3101,12 @@ const stripAllTags_efb=(string, removeBreaks = false)=>{
   if (removeBreaks) {
     string = string.replace(/[\r\n\t ]+/g, " ");
   }
-  console.log(string);
+  //console.log(string);
   return string.trim();
 }
 
 const sanitize_text_efb=(str, keep_newlines = false)=>{
-  console.log(`sanitize_text_efb[${str}]`);
+  //console.log(`sanitize_text_efb[${str}]`);
   if (typeof str === 'object' || Array.isArray(str)) {
     return '';
   }else if(str==null || str==undefined){
@@ -3192,7 +3192,7 @@ async  function  fetch_json_from_url_efb(url){
     r.s=true ;
     r.r =data
     temp_efb=r;
-    console.log(data);
+    //console.log(data);
     return r;
   })
   .catch(error => {
@@ -3215,7 +3215,7 @@ fun_captcha_load_efb = ()=>{
 
 
  function fun_send_mail_emsFormBuilder(id,nonce,type_) {
-  console.log('fun_send_mail_emsFormBuilder');
+  //console.log('fun_send_mail_emsFormBuilder');
 
  const data = {
     action: "mail_send_submited_Emsfb",
@@ -3257,9 +3257,9 @@ fetch(url, requestOptions)
 
 function efb_text_nr(text , type){
   const val = type ==1 ?'<br>': '\n';
-  console.log(`efb_text_nr[${text}]`)
+  //console.log(`efb_text_nr[${text}]`)
   text = text.replace(/@n#/g, val);
-  console.log(`efb_text_nr after[${text}]`);
+  //console.log(`efb_text_nr after[${text}]`);
   return text;
 }
 
