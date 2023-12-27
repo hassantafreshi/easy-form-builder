@@ -1372,10 +1372,10 @@ class efbFunction {
 		
 		$url = "https://api.iplocation.net/?ip=".$ip."";
 		$cURL = curl_init();
-		$userAgent ;
+		$ua ;
 		if(empty($_SERVER['HTTP_USER_AGENT'])){
 			
-			$userAgent = array(
+			$ua = array(
 				'name' => 'unrecognized',
 				'version' => 'unknown',
 				'platform' => 'unrecognized',
@@ -1383,7 +1383,7 @@ class efbFunction {
 			);
 		}else{
 			
-			$userAgent =$_SERVER['HTTP_USER_AGENT'];
+			$ua =$_SERVER['HTTP_USER_AGENT'];
 		}
 		curl_setopt($cURL, CURLOPT_URL, $url);
 		curl_setopt($cURL, CURLOPT_HTTPGET, true);
@@ -1391,7 +1391,7 @@ class efbFunction {
 		curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
 			'Content-Type: application/json',
 			'Accept: application/json',
-			'User-Agent: '.$userAgent
+			'User-Agent: '.$ua
 		));
 		$location = json_decode(curl_exec($cURL), true); 
 		//error_log(json_encode($location));
@@ -1622,7 +1622,7 @@ class efbFunction {
         $sid = date("ymdHis").substr(str_shuffle("0123456789_-abcdefghijklmnopqrstuvwxyz"), 0, 9) ;
 		$uid = get_current_user_id();
 		$os = $this->getVisitorOS();
-		$browser =$this->getVisitorBrowser();
+		$b =$this->getVisitorBrowser();
         $data = array(
             'sid' => $sid,
             'fid' => $fid,
@@ -1630,7 +1630,7 @@ class efbFunction {
             'status' => $status,
             'ip' => $ip,
             'os' => $os,
-            'browser' => $browser,
+            'browser' => $b,
             'uid' => $uid,
             'tc' => $tc,
 			'active'=>1,
@@ -1690,18 +1690,22 @@ class efbFunction {
 	/* section of generate validate code and status of visit and message [end] */
 	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
 	public function getVisitorOS() {
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$ua = $_SERVER['HTTP_USER_AGENT'];
 		$os = "Unknown";
+
+		if (isset($_SERVER['HTTP_USER_AGENT'])==false) {
+			$os = "Unknown";
+		} 
 	
-		if (strpos($userAgent, 'Windows') !== false) {
+		if (strpos($ua, 'Windows') !== false) {
 			$os = "Windows";
-		} elseif (strpos($userAgent, 'Linux') !== false) {
+		} elseif (strpos($ua, 'Linux') !== false) {
 			$os = "Linux";
-		} elseif (strpos($userAgent, 'Macintosh') !== false || strpos($userAgent, 'Mac OS X') !== false) {
+		} elseif (strpos($ua, 'Macintosh') !== false || strpos($ua, 'Mac OS X') !== false) {
 			$os = "Mac";
-		} elseif (strpos($userAgent, 'Android') !== false) {
+		} elseif (strpos($ua, 'Android') !== false) {
 			$os = "Android";
-		} elseif (strpos($userAgent, 'iOS') !== false) {
+		} elseif (strpos($ua, 'iOS') !== false) {
 			$os = "iOS";
 		}
 	
@@ -1709,28 +1713,31 @@ class efbFunction {
 	}
 
 	public function getVisitorBrowser() {
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
-		$browser = "Unknown";
+		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$b = "Unknown";
+		if (isset($_SERVER['HTTP_USER_AGENT'])==false) {
+			$b = "Unknown";
+		} 
 	
-		if (strpos($userAgent, 'Firefox') !== false) {
-			$browser = "Mozilla Firefox";
-		} elseif (strpos($userAgent, 'Chrome') !== false) {
-			if (strpos($userAgent, 'Edg') !== false) {
-				$browser = "Microsoft Edge";
-			} elseif (strpos($userAgent, 'Brave') !== false) {
-				$browser = "Brave";
+		if (strpos($ua, 'Firefox') !== false) {
+			$b = "Mozilla Firefox";
+		} elseif (strpos($ua, 'Chrome') !== false) {
+			if (strpos($ua, 'Edg') !== false) {
+				$b = "Microsoft Edge";
+			} elseif (strpos($ua, 'Brave') !== false) {
+				$b = "Brave";
 			} else {
-				$browser = "Google Chrome";
+				$b = "Google Chrome";
 			}
-		} elseif (strpos($userAgent, 'Safari') !== false) {
-			$browser = "Apple Safari";
-		} elseif (strpos($userAgent, 'Opera') !== false) {
-			$browser = "Opera";
-		} elseif (strpos($userAgent, 'MSIE') !== false || strpos($userAgent, 'Trident') !== false) {
-			$browser = "Internet Explorer";
+		} elseif (strpos($ua, 'Safari') !== false) {
+			$b = "Apple Safari";
+		} elseif (strpos($ua, 'Opera') !== false) {
+			$b = "Opera";
+		} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
+			$b = "Internet Explorer";
 		}
 	
-		return $browser;
+		return $b;
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
