@@ -1446,18 +1446,20 @@ function fun_switch_saveSetting(i, id) {
   }
 }
 
-function fun_set_setting_emsFormBuilder() {
+function fun_set_setting_emsFormBuilder(state_auto = 0) {
   // fun_state_loading_message_emsFormBuilder(1);
+  if(state_auto==0){
   let btn = document.getElementById('save-stng-efb');
   btn.classList.add('disabled');
 
   const nnrhtml = btn.innerHTML;
   btn.innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  }
   
   //fun_State_btn_set_setting_emsFormBuilder();
 
   const returnError=(val)=>{
-  
+    if(state_auto==1){return}
     m =efb_var.text.msgchckvt.replace('XXX', val );
     console.log(val,m);
     noti_message_efb(m, 'danger' , `content-efb` );
@@ -1660,7 +1662,7 @@ function fun_set_setting_emsFormBuilder() {
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
          AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers
-        });
+        } , state_auto);
   }
 
   /* document.getElementById('save-stng-efb').innerHTML = nnrhtml
@@ -1698,8 +1700,8 @@ function fun_state_loading_message_emsFormBuilder(state) {
 }
 
 
-function fun_send_setting_emsFormBuilder(data) {
-  console.log(data);
+function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
+  console.log(`fun_send_setting_emsFormBuilder state_auto:${state_auto}`,data);
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -1736,7 +1738,7 @@ function fun_send_setting_emsFormBuilder(data) {
         time = 7;
       }
       //console.log(res)
-      
+      if(state_auto==1){return}
       if(res.data.success == true){
         history.replaceState("panel",null,'?page=Emsfb&state=reload-setting&save=ok');            
         window.location=location.search;          
@@ -2211,8 +2213,9 @@ function clickToCheckEmailServer() {
       $.post(ajax_object_efm.ajax_url, data, function (res) {
         const el= document.getElementById("hostSupportSmtp_emsFormBuilder");
         if (res.data.success == true) {
-          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 3.7);
+          alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 5);
          if(el.classList.contains('active')==false) el.classList.add('active') ;
+         fun_set_setting_emsFormBuilder(1);
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
