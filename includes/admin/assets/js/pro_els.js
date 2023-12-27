@@ -160,10 +160,19 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
         //console.log('optns===>',optns_obj,indx_parent);
+        const stylish = valj_efb[indx_parent].hasOwnProperty('stylish') ? valj_efb[indx_parent].stylish : '1';
     if (editState != false) {
         for (const i of optns_obj) {
-
-          optn += `<option value="${i.value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${i.value}</option>`
+          //console.log(i);
+          let value = i.value;
+          if (i.hasOwnProperty('stylish')) {
+            if (stylish == '2') {
+              value = `<span class="efb">${i.l}</span>`
+            }else if(stylish == '3'){
+              value = `<span class="efb">${i.n}</span>`
+            }
+          }
+          optn += `<option value="${value}" data-iso="${i.id_}" id="${i.id_}" data-id="${i.id_}"  data-iso='${valj_efb[indx_parent].country}' data-statepov='${valj_efb[indx_parent].statePov}' data-op="${i.id_}" class="efb ${valj_efb[indx_parent].el_text_color} emsFormBuilder_v efb" ${valj_efb[indx_parent].value==i.id_ || ( i.hasOwnProperty('id_old') && valj_efb[indx_parent].value==i.id_old) ? "selected" :''}>${value}</option>`
           //if(temp!=true) optionElpush_efb(rndm, i.value, i.id_, i.id_ ,'select')
         }//end for 
       } else {
@@ -942,7 +951,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
 
   if(fieldType=="pubSelect"){
 
-    
+    //console.log('pubSelect',valj_efb[indx_state]);
 
     Object.assign(valj_efb[indx_state],{'linked':true});
      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
