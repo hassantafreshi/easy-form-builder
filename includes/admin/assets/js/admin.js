@@ -1300,7 +1300,7 @@ let change_el_edit_Efb = (el) => {
           c= el.classList.contains('active')==true ? 1 :0
           clss= document.getElementById(postId).classList;
           valj_efb[indx].hasOwnProperty('noti')==false?  Object.assign(valj_efb[indx],{'noti':c}) : valj_efb[indx].noti = c;
-          console.error(valj_efb[indx]);
+          //console.error(valj_efb[indx]);
           //valj_efb[0].sendEmail=true;
           if(valj_efb[0].email.length<2){
             for(let v of valj_efb){
@@ -1787,7 +1787,7 @@ let change_el_edit_Efb = (el) => {
         }
         
         //check last chracters is comma remove it
-        console.error(c);
+        //console.error(c);
         valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
 
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${c}`
@@ -2357,7 +2357,7 @@ let change_el_edit_Efb = (el) => {
             }
            
             obj_delete_options(valj_efb[indx].id_);
-            console.error(valj_efb[indx]);
+            //console.error(valj_efb[indx]);
             for (const key in temp_efb.r) {
               const value = temp_efb.r[key];
               const nValue = value.n.trim();
@@ -2415,7 +2415,7 @@ let change_el_edit_Efb = (el) => {
               return;
             }
             obj_delete_options(valj_efb[indx].id_)
-            console.error(indx, valj_efb[indx] ,valj_efb[indx].hasOwnProperty('stylish'))
+            //console.error(indx, valj_efb[indx] ,valj_efb[indx].hasOwnProperty('stylish'))
             for (const key in temp_efb.r) {
               //console.log(key);
               const value = temp_efb.r[key];

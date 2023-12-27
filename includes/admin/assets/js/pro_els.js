@@ -863,7 +863,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
 
 
 async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_state,fieldType ) {
-  console.error(idField,iso2_country, indx_state,fieldType)
+  //console.error(idField,iso2_country, indx_state,fieldType)
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = "";
@@ -1030,7 +1030,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
 
 
 async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType ) {
-  console.error(idField,iso2_country, indx_state,fieldType)
+  //console.error(idField,iso2_country, indx_state,fieldType)
   let state_el= document.getElementById(idField)
   if(state_el!=null){
   state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
