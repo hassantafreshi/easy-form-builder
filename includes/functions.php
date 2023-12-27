@@ -1037,7 +1037,7 @@ class efbFunction {
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
 				$message ="<h2 style='text-align:center'>"
-				.  $lang["yFreeVEnPro"] ."</h2>
+				. $p ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
 				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button></div>";
 			 }
