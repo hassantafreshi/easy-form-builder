@@ -962,7 +962,7 @@ class efbFunction {
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
-							error_log('is empty:'.intval(empty($to[$i])) .'json:'.json_encode($to[$i]));
+							//error_log('is empty:'.intval(empty($to[$i])) .'json:'.json_encode($to[$i]));
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							if( $state!="reportProblem"){
 		
@@ -979,7 +979,7 @@ class efbFunction {
 									'From:'.$from.'',
 									'Bcc:'.$to_.''
 								);		
-								error_log($message);	
+								//error_log($message);	
 								$mailResult =  wp_mail('', $sub[$i], $message, $headers);
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
@@ -1168,7 +1168,7 @@ class efbFunction {
 		//send smsnoti
 		//error_log("===>befor if smsnoti");
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
-			error_log("===>smsnoti");	
+			//error_log("===>smsnoti");	
 			$phone_numbers=[[],[]];		
 			$setting = $this->get_setting_Emsfb('setting');	
 			//error_log(gettype($setting));
@@ -1776,10 +1776,10 @@ class efbFunction {
 			if(!empty($sms_content->admin_numbers )){
 				$admin_numbers = explode(',',$sms_content->admin_numbers);
 				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				error_log(json_encode($numbers));
+				//error_log(json_encode($numbers));
 				$numbers[0]= array_unique($numbers[0]);
 				$numbers[1]= array_unique($numbers[1]);
-				error_log(json_encode($numbers));
+				//error_log(json_encode($numbers));
 			}
 			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
 					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
@@ -1846,7 +1846,7 @@ class efbFunction {
 	}
 
 	public function check_for_active_plugins_cache() {
-		error_log('---------------->check_for_active_plugins_cache');
+		//error_log('---------------->check_for_active_plugins_cache');
 		$classes = [
 			'WP Rocket' => 'wp-rocket/wp-rocket.php',
 			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
@@ -1868,7 +1868,7 @@ class efbFunction {
 		
 		foreach ( $classes as $plugin => $class ) {
 			if ( is_plugin_active( $class ) ) {
-				error_log($plugin);
+				//error_log($plugin);
 				return $plugin;
 				
 			}
