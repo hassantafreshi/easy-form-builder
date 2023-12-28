@@ -770,10 +770,10 @@ class _Public {
 									$in_loop=false;
 									break;
 								case 'mobile':
-									//error_log('===========> mobile');
-									//error_log(json_encode($f["c_n"]));
-									//error_log($item['value']);
-									//error_log(json_encode($f));
+									error_log('===========> mobile');
+									error_log(json_encode($f["c_n"]));
+									error_log($item['value']);
+									error_log(json_encode($f));
 									$stated=0;
 									
 									if(isset($item['value'])){
@@ -789,14 +789,15 @@ class _Public {
 										}
 										//error_log("====>stated");
 										//error_log($stated);
-										$l = isset($f["c_n"]) ? $f["c_n"] : ['all'];
+										$l = isset($f["c_n"]) && count($f['c_n'])>=1 ? $f["c_n"] : ['all'];
+										error_log(json_encode($l));
 										 array_filter($l, function($no) use($item , &$stated){
 											//error_log("value===c");
 											//$stated=0;
 											//error_log(strpos($item['value'] , '+'.$no));
-											//error_log($item['value']);
-											//error_log($no);
-											//error_log($stated);
+											error_log($item['value']);
+											error_log($no);
+											error_log($stated);
 											$v = strpos($item['value'] , '+'.$no);
 											//error_log($v);
 											//error_log($v === 0);
@@ -1412,7 +1413,7 @@ class _Public {
 								$state_of_email = ['newMessage',$state_email_user];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									//error_log($msg_content);
 								}
@@ -3553,8 +3554,9 @@ class _Public {
 			// Check if the current item's value is a string
 			if (is_string($c['value'])) {
 			  $value = '<b>' . str_replace('@efb!', ',', $c['value']) . '</b>';
+			  $value = str_replace('@n#', '<br>', $c['value']);
 			}
-		
+				error_log( $value);
 			  if(isset($c['qty']) != false){
 			  $value .= ': <b>' . $c['qty'] . '</b>';
 			}
