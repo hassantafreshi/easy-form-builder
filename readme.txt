@@ -386,13 +386,24 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 3.7.0 =
 
+
 * Added new features of SMS (Text message) notification  for forms
 
 * Bootstrap Icons v1.11.2 added to Easy Form Builder
 
+* Added new features, including smart city dropdowns, to the Easy Form Builder.
+
 * Fixed UI bugs of State/Province Drop Down list in Easy Form Builder
 
-* Remove limition of size file for upload file in forms of Easy Form Builder 
+* "Removed size file limitations for file uploads in Easy Form Builder.
+
+* Resolved the issue of sanitizing links in responses submitted through forms in non-Latin languages
+
+* Optimized the loading speed of forms.
+
+* Resolved issues related to sending email notifications for forms.
+
+
 
 =3.6.16=
 
