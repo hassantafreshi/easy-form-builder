@@ -2144,6 +2144,7 @@ class _Public {
 				}
 				$smsnoti = (isset($valn[0]['smsnoti']) && intval($valn[0]['smsnoti'])==1) ? 1 :0; 
 				if($smsnoti){
+					error_log('==>smsnoti');
 					$phone_numbers=[[],[]];
 					
 					if(isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5){
@@ -2174,6 +2175,7 @@ class _Public {
 					
 				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
 					//$efbFunction
+				error_log('==>smsnoti:'.$setting->sms_config);
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
 				
 
