@@ -1677,7 +1677,7 @@ class efbFunction {
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
 	
-		error_log('==>sms_ready_for_send_efb');
+		//error_log('==>sms_ready_for_send_efb');
 
 		//send_sms_efb($number,$message,$form_id,$severType)
 		//included smsefb

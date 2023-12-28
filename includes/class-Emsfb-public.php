@@ -2173,7 +2173,7 @@ class _Public {
 						}
 					}
 					
-				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
+				$tt = $rsp_by=='admin' ? 'respadmin' : 'respp';
 					//$efbFunction
 				
 				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) $efbFunction->sms_ready_for_send_efb($form_id, $phone_numbers,$link_w,$tt ,$setting->sms_config ,$track);
