@@ -136,7 +136,7 @@ class _Public {
 				return $this->EMS_Form_Builder_track();
 			}
 		}else{
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".$lanText["formNExist"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".__('Form does not exist !!','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
 		}
 	
 		$this->public_scripts_and_css_head();
