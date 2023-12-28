@@ -1540,7 +1540,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-										$msg_content =$this->email_get_content($valobj ,$track);
+										$msg_content =$this->email_get_content($valobj ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										//error_log($msg_content);
 									}
@@ -1761,7 +1761,7 @@ class _Public {
 								$state_of_email = ['newMessage','subscribe'];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									//error_log($msg_content);
 								}
@@ -1802,7 +1802,7 @@ class _Public {
 								$state_of_email = ['newMessage',"survey"];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									//error_log($msg_content);
 								}
