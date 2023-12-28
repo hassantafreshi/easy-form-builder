@@ -1676,13 +1676,7 @@ class efbFunction {
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-		
-		
-		
-		
-		
-		
-		
+	
 
 
 		//send_sms_efb($number,$message,$form_id,$severType)
@@ -1704,17 +1698,17 @@ class efbFunction {
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(isset($sms_content->id)==false) return false;		
-		
+		//error_log(json_encode($sms_content));
 		$recived_your_message = $sms_content->recived_message_noti_user;
 		$new_message = $sms_content->new_message_noti_user;
 		$news_response = $sms_content->new_response_noti;
 			if(!empty($sms_content->admin_numbers )){
 				$admin_numbers = explode(',',$sms_content->admin_numbers);
 				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				
+				//error_log(json_encode($numbers));
 				$numbers[0]= array_unique($numbers[0]);
 				$numbers[1]= array_unique($numbers[1]);
-				
+				//error_log(json_encode($numbers));
 			}
 			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
 					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
@@ -1754,21 +1748,21 @@ class efbFunction {
 			}
 			if(count($numbers[0])>0 && $news_response!=""){
 				//$page_url."?track=".$tracking_code
-				$news_response = str_replace($page_url."?track=".$tracking_code, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
+				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);		
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
 			return true;
-		}else if ($state=="resppa" || $state=="respadmin"){
+		}else if ($state=="respp" || $state=="respadmin"){
 			//send sms to user for new response
-			
-			
+			error_log("==>resppa || respadmin");
+			//error_log(count($numbers[1]));
 		
-			
+			//error_log($news_response);
 			if(count($numbers[1])>0 && $news_response!=""){
 				foreach($numbers[1] as $val){
-					
+					//error_log($val);
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
