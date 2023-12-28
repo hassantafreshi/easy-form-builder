@@ -1540,7 +1540,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-										$msg_content =$this->email_get_content($valobj ,$trackId);
+										$msg_content =$this->email_get_content($fs ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										//error_log($msg_content);
 									}
@@ -3506,32 +3506,33 @@ class _Public {
 
 
 	function email_get_content($content ,$track){
-		$m ='<!-- efb-v3 -->';
-		$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
-		$list=[];
-	
-		  $s = false;
-		  $checboxs = [];
-		  $total_amount =0;
-
-		  $lst = end($content);
-		  $link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
-		  if(strlen($link_w)>5){
-			//error_log($link_w);
-			$link_w =strpos($link_w,'?')!=false ? $link.'&track='.$track : $link_w.'?track='.$track;
-		}else{
-			$link_w = home_url();
-		}
-	
-		  //error_log($content[0]['paymentcurrency']);
-		  $currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] : 'usd';
-		if (empty($this->efbFunction))  $this->efbFunction =new efbFunction();
+			$m ='<!-- efb-v3 -->';
+			$text_ =['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+			$list=[];
 		
-		usort($content, function($a, $b) {
-			return $a['amount'] <=> $b['amount'];
-		});
-		$lanText= $this->efbFunction->text_efb($text_);
-		foreach ($content as $c){
+			$s = false;
+			$checboxs = [];
+			$total_amount =0;
+
+			error_log(json_encode($content));
+			$lst = end($content);
+			$link_w = $lst['type']=="w_link" ? $lst['value'] : 'null';
+			if(strlen($link_w)>5){
+				//error_log($link_w);
+				$link_w =strpos($link_w,'?')!=false ? $link.'&track='.$track : $link_w.'?track='.$track;
+			}else{
+				$link_w = home_url();
+			}
+		
+			//error_log($content[0]['paymentcurrency']);
+			$currency = array_key_exists('paymentcurrency', $content[0]) ? $content[0]['paymentcurrency'] : 'usd';
+			if (empty($this->efbFunction))  $this->efbFunction =new efbFunction();
+			
+			usort($content, function($a, $b) {
+				return $a['amount'] <=> $b['amount'];
+			});
+			$lanText= $this->efbFunction->text_efb($text_);
+			foreach ($content as $c){
 			
 			if(isset($c['type']) && $c['type'] == "w_link"){
 			 continue;
@@ -3650,7 +3651,7 @@ class _Public {
 				if ($op['type'] == "checkbox" && $op['id_'] == $c['id_']) {
 			  //	$vc == 'null' ? $vc = '<p ><b>' . $op.value . '</b></p>' : $vc .= '<p ><b>' . $op.value . '</b></p>';
 			}
-		} */
+			} */
 				$vc == 'null' ? $vc = '<p ><b>' . $c['price'] . '</b></p>' : $vc .= '<p  style="margin: 0px 10px;"><b>' . $c['price'] . '</b></p>';
 			
 			  //$m .= '<p >' . $c.name . ':</p>' . $vc;
