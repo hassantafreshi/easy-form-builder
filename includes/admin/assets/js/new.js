@@ -1472,9 +1472,6 @@ function copyCodeEfb(id) {
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
   
-  //seprate string file to array by comma
-
-
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
@@ -3276,6 +3273,18 @@ function efb_text_nr(text , type){
 function efb_remove_forbidden_chrs(text){
 return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
 }
+
+checkFileName_xss_efb =(fileName)=>{
+  // Regular expression to match file names with multiple extensions
+  console.log(fileName);
+  const regex = /^.*\..*\..*$/i;
+
+  // Test the file name against the regular expression
+  return regex.test(fileName);
+}
+
+
+
 
 
 
