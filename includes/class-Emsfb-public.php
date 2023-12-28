@@ -5813,7 +5813,7 @@ class _Public {
 		';
 	}
 
-	public function send_json_success_efb($response, $arg=null,){
+	public function send_json_success_efb($response, $arg=null){
 		
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'));
 		print(json_encode(array('success' => true, 'data' => $response)));
