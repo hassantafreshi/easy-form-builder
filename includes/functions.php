@@ -1579,8 +1579,8 @@ class efbFunction {
 			return $value;
 	}
 
-	/* section of generate validate code and status of visit and message [start] */
-	public function efb_code_validate_create_old($fid, $type, $status, $tc) {
+	
+	/* public function efb_code_validate_create_old($fid, $type, $status, $tc) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
@@ -1622,7 +1622,7 @@ class efbFunction {
 
 		$wpdb->insert($table_name, $data);
 		return $sid;
-	}
+	} */
 
 
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
