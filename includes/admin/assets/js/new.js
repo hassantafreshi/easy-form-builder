@@ -3113,8 +3113,19 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
     return str;
   }
 
+  
+
   str = str.toString();
   let filtered=str;
+
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  let match;
+  while ((match = urlRegex.exec(filtered)) !== null) {
+    let url = match[0];
+    const unicodeUrl = decodeURI(url);
+    console.log(url,unicodeUrl);
+    filtered = filtered.replace(url,unicodeUrl);
+  }
   //let filtered = checkInvalidUTF8_efb(str);
   //console.log(`filtered[${filtered}]`)
   if (filtered.indexOf('<') !== -1) {
@@ -3134,6 +3145,11 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
  // console.log(`filtered[${filtered}]`)
   filtered = filtered.trim();
   //console.log(`filtered[${filtered}]`)
+
+
+
+
+
   let found = false;
   while (/%[a-f0-9]{2}/i.test(filtered)) {
     filtered = filtered.replace(/%[a-f0-9]{2}/i, '');

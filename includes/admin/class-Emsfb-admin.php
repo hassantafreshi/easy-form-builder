@@ -380,10 +380,17 @@ class Admin {
                 wp_send_json_success($response, $_POST);
                
             }
+
             
             $body = wp_remote_retrieve_body( $request );
             $data = json_decode( $body );
 
+            if($data==null || $data=='null'){
+                $m = __('You can not use the  Easy  Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
+                $response = ['success' => false, "m" => $m];
+                wp_send_json_success($response, $_POST);
+            }
+           
             if($data->status==false){
                 $response = ['success' => false, "m" => $data->error];
                 wp_send_json_success($response, $_POST);
