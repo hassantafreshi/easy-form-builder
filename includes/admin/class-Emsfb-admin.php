@@ -277,7 +277,7 @@ class Admin {
 
     public function update_form_id_Emsfb() {
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
-        $text = ["error403","invalidRequire","nAllowedUseHtml","updated","upDMsg"];
+        $text = ["error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             
@@ -316,9 +316,9 @@ class Admin {
 		$sms_admins_phoneno="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 			
-			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
-			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
-			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
+            $sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang["newResponse"]."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang["WeRecivedUrM"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
            //error_log('sms_msg_new_noti');
             //error_log($sms_msg_new_noti);

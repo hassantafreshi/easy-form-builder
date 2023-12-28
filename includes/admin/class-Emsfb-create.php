@@ -343,7 +343,7 @@ class Create {
 	public function add_form_structure(){
 		//error_log('add_form_structure');
 		$efbFunction = new efbFunction(); 
-		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
+		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
 	//	
@@ -392,9 +392,9 @@ class Create {
 
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 			//error_log(json_encode($valp[0]));
-			$sms_msg_new_noti = $valp[0]['sms_msg_new_noti'];
-			$sms_msg_responsed_noti = $valp[0]['sms_msg_responsed_noti'];
-			$sms_msg_recived_user = $valp[0]['sms_msg_recived_usr'];
+			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang["newResponse"]."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang["WeRecivedUrM"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
 
 

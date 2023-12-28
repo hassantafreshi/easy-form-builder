@@ -1840,15 +1840,15 @@ class efbFunction {
 			}
 			if(count($numbers[0])>0 && $news_response!=""){
 				//$page_url."?track=".$tracking_code
-				$news_response = str_replace($page_url."?track=".$tracking_code, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
+				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);		
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
 			return true;
-		}else if ($state=="resppa" || $state=="respadmin"){
+		}else if ($state=="respp" || $state=="respadmin"){
 			//send sms to user for new response
-			//error_log("==>resppa || respadmin");
+			error_log("==>respp || respadmin");
 			//error_log(count($numbers[1]));
 		
 			//error_log($news_response);
