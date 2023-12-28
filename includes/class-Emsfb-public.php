@@ -780,7 +780,7 @@ class _Public {
 										}
 										
 										
-										$l = isset($f["c_n"]) ? $f["c_n"] : ['all'];
+										$l = isset($f["c_n"]) && count($f['c_n'])>=1 ? $f["c_n"] : ['all'];
 										 array_filter($l, function($no) use($item , &$stated){
 											
 											//$stated=0;
@@ -1326,7 +1326,7 @@ class _Public {
 								$state_of_email = ['newMessage',$state_email_user];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -1453,7 +1453,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-										$msg_content =$this->email_get_content($valobj ,$track);
+										$msg_content =$this->email_get_content($valobj ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										
 									}
@@ -1659,7 +1659,7 @@ class _Public {
 								$state_of_email = ['newMessage','subscribe'];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -1681,7 +1681,7 @@ class _Public {
 								$state_of_email = ['newMessage',"survey"];
 								$msg_content='null';
 								if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-									$msg_content =$this->email_get_content($valobj ,$track);
+									$msg_content =$this->email_get_content($valobj ,$check);
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
@@ -3271,6 +3271,7 @@ class _Public {
 			// Check if the current item's value is a string
 			if (is_string($c['value'])) {
 			  $value = '<b>' . str_replace('@efb!', ',', $c['value']) . '</b>';
+			  $value = str_replace('@n#', '<br>', $c['value']);
 			}
 		
 			  if(isset($c['qty']) != false){
