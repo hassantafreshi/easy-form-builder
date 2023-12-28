@@ -1453,7 +1453,7 @@ class _Public {
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
 									if(isset($formObj[0]["email_noti_type"]) && $formObj[0]["email_noti_type"]=='msg'){
-										$msg_content =$this->email_get_content($valobj ,$trackId);
+										$msg_content =$this->email_get_content($fs ,$trackId);
 										$msg_content = str_replace("\"","'",$msg_content);
 										
 									}
