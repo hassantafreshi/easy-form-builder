@@ -271,7 +271,7 @@ function viewfileEfb(id, indx) {
    
     const xss= checkFileName_xss_efb(filename);
     if(xss){
-      alert(efb_var.text.rnfn)
+      alert(efb_var.text.rnfn + ` (${filename})`);
       return;
     }
     

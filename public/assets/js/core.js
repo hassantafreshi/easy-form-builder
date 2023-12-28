@@ -1193,8 +1193,8 @@ function valid_file_emsFormBuilder(id,tp) {
 
     const xss= checkFileName_xss_efb(el.files[0].name);
     if(xss){
-      el.files=[];
-      alert(efb_var.text.rnfn)
+      
+      alert(efb_var.text.rnfn + `(${el.files[0].name})`);
       return;
     }
     //console.log(`file[${file}]`, filetype ,indx);

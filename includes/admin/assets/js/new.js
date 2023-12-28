@@ -3275,11 +3275,7 @@ return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
 }
 
 checkFileName_xss_efb =(fileName)=>{
-  // Regular expression to match file names with multiple extensions
-  console.log(fileName);
   const regex = /^.*\..*\..*$/i;
-
-  // Test the file name against the regular expression
   return regex.test(fileName);
 }
 

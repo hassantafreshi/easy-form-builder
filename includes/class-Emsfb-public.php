@@ -2021,27 +2021,33 @@ class _Public {
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
 			//error_log($vl);
 			
-            if($vl!=null){    
-				$tmep = strpos($vl , '\"value\":\"customize\"');
-				//error_log('=======>vl is validate file:'.$tmep);
-				if(strpos($vl , '\"value\":\"customize\"')){
-					//error_log('=======>have_validate');
-					$have_validate=1;
-				}
-				   
-				$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
-				//error_log('=======>vl is file upload:'.$tmep);
-                if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
+				if($vl!=null){    
+					$tmep = strpos($vl , '\"value\":\"customize\"');
+					//error_log('=======>vl is validate file:'.$tmep);
+					if(strpos($vl , '\"value\":\"customize\"')){
+						//error_log('=======>have_validate');
+						$have_validate=1;
+					}
+					
+					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+					//error_log('=======>vl is file upload:'.$tmep);
+					if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
 
-                    $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
-					wp_send_json_success($response,200);
-                }
+						$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
+						wp_send_json_success($response,200);
+					}
 				
-            }
-        }
-		$valid=false;
-		//if($have_validate==false){
-				
+				}
+			}
+			$valid=false;
+
+			$regex = '/^.*\..*\..*$/i';
+			if( preg_match($regex, $_FILES['async-upload']['name'])){
+				$response = array( 'success' => false  , 'm'=>__('Rename the file name','easy-form-builder').': <br>'. $_FILES['async-upload']['name'] ); 
+				wp_send_json_success($response,200);
+			}
+		
+
 			$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
 			$this->lanText= $this->efbFunction->text_efb($this->text_);
 			if($have_validate!=1){
