@@ -153,6 +153,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - *States / Provinces*: With Easy Form Builder, you can easily add a States / Provinces list select field (drop-down field of states / provinces list) to your form. Our state/province list includes the local names of each region, so you can easily display the state names in any language. Plus, you can easily switch between countries to display the states/provinces of any desired location.
 
+- *Cities dropdown*: With the dropdown city list in the easy form builder, you can include the list of cities for a province in three language modes: English, local language, and English along with the local language in your form. This feature is perfect for creating forms that require users to select their city of residence.
+
 - *Multiple Select*:Add the ability for users to make multiple selections with the Multi-Select (or Multi-Select Dropdown) field. This field is fully customizable and even includes a searchable dropdown list. Easily add this feature to your WordPress form for **free** and improve your user experience.
 
 - *Heading*: With Easy Form Builder, you can add heading fields to your forms, just like H tags, without any coding skills. Customize the size and color of your headings to match your form's style and design.
@@ -304,15 +306,22 @@ Easy Form Builder's redirect page feature allows you to customize the page that 
 **Notification link of filled form**
 The Easy Form Builder plugin lets you send a notification email to your inbox whenever a form is submitted, and includes a link to view the filled form or response on your website. This feature helps you communicate with users, collect new responses, and increase the dwell time of your page, which can improve your website's search engine rankings. Best of all, it's a **free feature** included with Easy Form Builder.
 
+**Smart dropdown  country, state/province, and city  in Easy Form Builde**
+By placing three consecutive dropdown options of country, state/province, and city without any fields in between, you can effortlessly create a smart selection using the Easy Form Builder. This eliminates the need for additional settings, allowing users to easily make intelligent choices in the form you're creating.
+
+**Convenient Integration of Dropdown Lists for States/Provinces and Cities into WordPress Forms**
+You might want only the dropdown lists for states/provinces and cities in forms. In this case, simply place the state/province dropdown list and city dropdown list right after the country dropdown in your form. This enables you to select whether to display the list of states or provinces based on the selected country.
+
 
 **Notice**: Avoid adding more than one form per page..
 
-Report bugs and improve Easy Form Builder by submitting them to our support forum or [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues).
+Report bugs and improve Easy Form Builder by [create a ticket on GitHub](https://github.com/hassantafreshi/easy-form-builder/issues) or contact us on [whitestudio.team](https://whitestudio.team/contact-us/)
 
+The country, state/province, and city information in the Easy Form Builder is sourced from cdn.jsdelivr.net. If there are any inaccuracies or mistakes in the city or country names, please [report here on GitHub](https://github.com/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world).
 
 Easy Form Builder offers a variety of templates and examples to help you create customized forms for your website, whether it's for contact, survey, payment, or private purposes. Its easy-to-use drag-and-drop interface allows you to create forms in minutes and seamlessly embed them into any WordPress page or post. With no coding skills required, you can create professional-looking forms that meet your specific needs.
 
-Easy Form Builder offers an easy solution to improve your website's user experience and collect valuable data to inform your content and SEO strategies. With its user-friendly interface, creating custom forms such as contact-us forms, survey forms, payment forms, or private forms is a breeze, and embedding them into any WordPress page or post is just as simple. Don't wait any longer, start building your custom forms today and take your website to the next level!
+
 
 == Installation ==
 
