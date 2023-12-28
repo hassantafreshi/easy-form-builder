@@ -3117,6 +3117,16 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   let filtered=str;
   //let filtered = checkInvalidUTF8_efb(str);
   //console.log(`filtered[${filtered}]`)
+
+
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  let match;
+  while ((match = urlRegex.exec(filtered)) !== null) {
+    let url = match[0];
+    const unicodeUrl = decodeURI(url);
+    console.log(url,unicodeUrl);
+    filtered = filtered.replace(url,unicodeUrl);
+  }
   if (filtered.indexOf('<') !== -1) {
     //console.log('sanit <');
    // filtered = preKsesLessThan_efb(filtered);
