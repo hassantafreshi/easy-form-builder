@@ -77,7 +77,7 @@ div#gRecaptcha {
 
 
 .iti__country-list{
-	
+	/* text-align: inherit!important; */
 	position: relative!important;
 } 
 

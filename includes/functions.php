@@ -1626,7 +1626,6 @@ class efbFunction {
     }
 
 	
-	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
 	public function getVisitorOS() {
 		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 		$os = "Unknown";

@@ -341,6 +341,26 @@ class Admin {
         $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
+        	/*
+            AdnSPF == stripe payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+
+             AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
+            'AdnPDP'=>0,
+			'AdnADP'=>0
+        */
         
         $value      =sanitize_text_field($_POST['value']);
         $allw = ["AdnSPF","AdnOF","AdnPPF","AdnATC","AdnSS","AdnCPF","AdnESZ","AdnSE",
@@ -420,7 +440,24 @@ class Admin {
 
             }
         }
+        /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
 
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
+        */
         if(isset($ac->AdnSPF)==false){
 
             //$ac['AdnSPF=0;
@@ -492,6 +529,25 @@ class Admin {
         $value      = $_POST['value'];
         $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
         
+       
+        /*
+            AdnSPF == strip payment
+            AdnOF == offline form
+            AdnPPF == persia payment
+            AdnATC == advance tracking code
+            AdnSS == sms service
+            AdnCPF == crypto payment
+            AdnESZ == zone picker
+            AdnSE == email service
+
+            AdnWHS == webhook
+            AdnPAP == paypal
+            AdnWSP == whitestudio pay
+            AdnSMF == smart form
+            AdnPLF == passwordless form
+            AdnMSF == membership form
+            AdnBEF == booking and event form
+        */
         if(isset($ac->AdnSPF)==false){
 
             //$ac['AdnSPF=0;
@@ -1168,7 +1224,8 @@ class Admin {
 		);
 
       
-		
+		$_FILES['file']['name'] = sanitize_file_name($_FILES['file']['name']);
+        error_log($_FILES['file']['name']);
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 						

@@ -4,7 +4,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // Exit if accessed directly
+} 
 
 
 class Panel_edit  {
@@ -150,8 +150,11 @@ class Panel_edit  {
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.0');
 			wp_enqueue_script('efb-val-js'); 
 
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.0');
-			wp_enqueue_script('efb-pro-els'); 
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.0');
+			wp_enqueue_script('efb-pro-els');
+
+			/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.0');
+			wp_enqueue_script('efb-pro-els');  */
 
 
 			
@@ -195,18 +198,23 @@ class Panel_edit  {
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.7.0');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
-					
-			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.7.0');
+			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.0');
 			wp_enqueue_script('efb-main-js'); 
+			/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.7.0');
+			wp_enqueue_script('efb-main-js'); */ 
 			
-				
+				/* new code v4 */
 			
 				wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),  true,'3.7.0');	
 				wp_enqueue_script('jquery-ui');
 				wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),  true,'3.7.0');	
 				wp_enqueue_script('jquery-dd'); 
-				
+				/*end new code v4 */
 
+			/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js'); */
+			/* wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
+			wp_enqueue_script('addsOnLocal-js'); */
 
 			wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 			wp_enqueue_script('countries-js');
@@ -464,6 +472,9 @@ class Panel_edit  {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 		
+
+		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
+		//error_log($_FILES['async-upload']['name']);
 		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 						

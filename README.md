@@ -186,7 +186,7 @@ Contributions of any kind are welcome!
 ## Roadmap for 2024 🎯
  ### SMS (Text message) Notifications :
   #### Notification System for Form Submissions.
- ✔️ Seamless Integration with Seamless Integration with [Wp-SMS](https://wordpress.org/plugins/wp-sms/) .
+ ✔️ Seamless Integration with [Wp-SMS](https://wordpress.org/plugins/wp-sms/).
  *  White Studio SMS Service.
 
 ### Telegram Notifications:
@@ -200,6 +200,7 @@ Contributions of any kind are welcome!
 * Conditional logic.
 ### SMS OTP form login
 ### Booking and calendars Forms
+### Email Template Editor
 
 
 <!--   markdownlint-restore -->

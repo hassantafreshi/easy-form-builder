@@ -1189,7 +1189,8 @@ function valid_file_emsFormBuilder(id,tp) {
   const el = document.getElementById(i);
   if (el.files[0] && el.files[0].size < file_size) {
     const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
-    
+
+    //console.log(`file[${file}]`, filetype ,indx);
     const r = validExtensions_efb_fun(file, filetype,indx)
     
     if (r == true) {
@@ -1211,7 +1212,7 @@ function valid_file_emsFormBuilder(id,tp) {
     //console.error(file)
     const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
     const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
-    const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', val_in.max_fsize);
+    const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
    
     if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
       

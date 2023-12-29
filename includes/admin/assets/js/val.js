@@ -8,7 +8,7 @@ const fields_efb = [
   { name: efb_var.text.password, icon: 'bi-lock', id: 'password', pro: false, tag:'basic all' },
   { name: efb_var.text.email, icon: 'bi-envelope', id: 'email', pro: false,  tag:'basic all' },
   { name: efb_var.text.number, icon: 'bi-pause', id: 'number', pro: false,  tag:'basic all' },
-  
+  /* { name: efb_var.text.address, icon: 'bi-geo-alt', id: 'address', pro: false, tag:'advance all' },  */
   { name: efb_var.text.textarea, icon: 'bi-card-text', id: 'textarea', pro: false, tag:'basic all' },
   { name: efb_var.text.step, icon: 'bi-file', id: 'steps', pro: false, tag:'advance all' }, 
   { name: efb_var.text.checkbox, icon: 'bi-check-square', id: 'checkbox', pro: false, tag:'basic all'},
@@ -45,7 +45,7 @@ const fields_efb = [
   { name: efb_var.text.yesNo, icon: 'bi-hand-index', id: 'yesNo', pro: true, tag:'advance all' },
   { name: efb_var.text.link, icon: 'bi-link-45deg', id: 'link', pro: true, tag:'advance all' },
   { name: efb_var.text.htmlCode, icon: 'bi-code-square', id: 'html', pro: true, tag:'advance all' },
- 
+ /*  { name: efb_var.text.smartcr, icon: 'bi-globe', id: 'smartcr', pro: true, tag:'advance all' }, */
   { name: efb_var.text.pr5, icon: 'bi-heart', id: 'pointr5', pro: true, tag: 'advance all' },
   { name: efb_var.text.nps_, icon: 'bi-square', id: 'pointr10', pro: true, tag: 'advance all' },
   { name: efb_var.text.imgRadio, icon: 'bi-images', id: 'imgRadio', pro: true, tag:'advance all' },
@@ -53,7 +53,7 @@ const fields_efb = [
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
   
   //{ name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
-  
+  /* { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
   //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
 
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
@@ -495,7 +495,7 @@ function show_setting_window_efb(idset) {
     </div>`;
 
     const languageSelectPresentEls = `
-                     <label for="languageSelectPresentEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.stsd}</label>
+                     <label for="languageSelectPresentEl" class="efb mt-3 px-1 bi-translate mx-2 efb"> ${efb_var.text.stsd}</label>
                       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">                                            
                       <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>                      
                       <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>

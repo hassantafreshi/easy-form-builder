@@ -196,9 +196,9 @@ const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
 
 
 
-
-
-
+//drag and drop form creator  (pure javascript)
+//Create by: Hassan Tafreshi
+// Email: hasan.tafreshi@gmail.com
 
 
 
@@ -889,7 +889,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         </select>
         ${desc}
         `
-        
+        //console.log(valj_efb);
       dataTag = elementId;
       if (optn=="null") ui = public_pro_message();
 
@@ -3282,6 +3282,11 @@ function efb_text_nr(text , type){
 function efb_remove_forbidden_chrs(text){
 return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
 }
+
+
+
+
+
 
 
 
