@@ -17,7 +17,7 @@ class webhook {
      */
     public function __construct() {
 
-        //error_log("test webhook");
+        
         $this->web_hooks();
     }
 
@@ -40,7 +40,7 @@ class webhook {
 
     public function test_fun($slug){
 
-        //error_log("test_fun");
+        
 
         $response = array(
             'success' => true,
@@ -51,7 +51,7 @@ class webhook {
           );
         
         return new WP_REST_Response($response, 200);
-       // return $fs;
+       
     
       
     } 

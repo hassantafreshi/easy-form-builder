@@ -4,7 +4,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+} 
 
 class Create {
 
@@ -36,7 +36,7 @@ class Create {
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
+		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
 		
 	}
 
@@ -121,9 +121,9 @@ class Create {
 		'AdnSE' => 0,
 		'AdnPDP'=>0,
 		'AdnADP'=>0];
-		//v2 translate
+		
 
-		//write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
+		
 
 		
 		$lang = $efbFunction->text_efb(1);
@@ -341,13 +341,13 @@ class Create {
 	}
 
 	public function add_form_structure(){
-		//error_log('add_form_structure');
+		
 		$efbFunction = new efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
-		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
+	
+		
 		$email = '';
   
 		if( empty($_POST['name']) || empty($_POST['value']) ){
@@ -361,17 +361,17 @@ class Create {
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		//$this->value = $_POST['value'];
+		
 
 		$valp =str_replace('\\', '', $_POST['value']);
-		//error_log("====>valp");
-		//error_log($valp);
+		
+		
 		$valp = json_decode($valp,true);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		
 		
-		//error_log("====>valx");
-		//error_log($valx);
+		
+		
 		
 
 
@@ -381,17 +381,17 @@ class Create {
 			wp_send_json_success($response,$_POST);
 			die();
 		}
-		//error_log("====>this->value");
-		//error_log($this->value);
-		//error_log(json_encode($valp[0]));
-		//check if smsnoti axist then call add_sms_contact_efb
+		
+		
+		
+		
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
 
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			//error_log(json_encode($valp[0]));
+			
 			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
 			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang["newResponse"]."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
 			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang["WeRecivedUrM"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
@@ -412,13 +412,13 @@ class Create {
 		$this->insert_db();
 		
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
-			//require smsefb.php and call add_sms_contact_efb
-			//error_log("before add_sms_contact_efb");
+			
+			
+			
 			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 			$smsefb = new smssendefb();
-			//error_log('sms_msg_new_noti');
-			//error_log($sms_msg_new_noti);
+			
+			
 
 			$smsefb->add_sms_contact_efb(
 				$this->id_,
@@ -467,7 +467,7 @@ class Create {
             }
         }
         return  $s;
-    }//end fun
+    }
 
 
 

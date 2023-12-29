@@ -1711,7 +1711,7 @@ class efbFunction {
     }
 
 	/* section of generate validate code and status of visit and message [end] */
-	//$uniqid= date("ymd").substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 8) ;
+	
 	public function getVisitorOS() {
 		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 		$os = "Unknown";
@@ -1762,24 +1762,24 @@ class efbFunction {
 
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-		//error_log('======>sms_ready_for_send_efb');
-		//error_log($page_url);
-		//error_log($state);
-		//error_log($severType);
-		//error_log($tracking_code);
-		//error_log(json_encode($numbers));
-		//error_log($form_id);
+		
+		
+		
+		
+		
+		
+		
 
 
-		//send_sms_efb($number,$message,$form_id,$severType)
-		//included smsefb
-		//get admin numbers from smsefb
-		//get messages from smsefb
-		//if [confirmation_code] exist in sms content replace it with $tracking_code
-		//if  [link_page] exist in sms content replace it with $page_url
-		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
-		//add admin numbers for numbers[0]
-		//write a function for 
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")==false) {
 			error_log('Easy Form Builder: SMS Addon is not installed');
@@ -1790,17 +1790,17 @@ class efbFunction {
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(isset($sms_content->id)==false) return false;		
-		//error_log(json_encode($sms_content));
+		
 		$recived_your_message = $sms_content->recived_message_noti_user;
 		$new_message = $sms_content->new_message_noti_user;
 		$news_response = $sms_content->new_response_noti;
 			if(!empty($sms_content->admin_numbers )){
 				$admin_numbers = explode(',',$sms_content->admin_numbers);
 				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				//error_log(json_encode($numbers));
+				
 				$numbers[0]= array_unique($numbers[0]);
 				$numbers[1]= array_unique($numbers[1]);
-				//error_log(json_encode($numbers));
+				
 			}
 			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
 					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
@@ -1812,8 +1812,8 @@ class efbFunction {
 			}
 			
 		if($state=="fform"){
-			//send sms to user for recived your message
-			//send sms to admin for new message
+			
+			
 			if(count($numbers[1])>0 && $new_message!=null){
 				
 				foreach($numbers[1] as$val){
@@ -1831,15 +1831,15 @@ class efbFunction {
 			return true;
 			
 		}else if($state=="resppa"){
-			//send sms to user for recived your message
-			//send sms to admin for new response
+			
+			
 			if(count($numbers[1])>0 && $recived_your_message!=""){
 				foreach($numbers[1] as$val){
 					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
 				}
 			}
 			if(count($numbers[0])>0 && $news_response!=""){
-				//$page_url."?track=".$tracking_code
+				
 				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);		
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
@@ -1847,14 +1847,14 @@ class efbFunction {
 			}
 			return true;
 		}else if ($state=="respp" || $state=="respadmin"){
-			//send sms to user for new response
+			
 			error_log("==>respp || respadmin");
-			//error_log(count($numbers[1]));
+			
 		
-			//error_log($news_response);
+			
 			if(count($numbers[1])>0 && $news_response!=""){
 				foreach($numbers[1] as $val){
-					//error_log($val);
+					
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}
@@ -1867,7 +1867,7 @@ class efbFunction {
 	}
 
 	public function check_for_active_plugins_cache() {
-		//error_log('---------------->check_for_active_plugins_cache');
+		
 		$classes = [
 			'WP Rocket' => 'wp-rocket/wp-rocket.php',
 			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
@@ -1889,7 +1889,7 @@ class efbFunction {
 		
 		foreach ( $classes as $plugin => $class ) {
 			if ( is_plugin_active( $class ) ) {
-				//error_log($plugin);
+				
 				return $plugin;
 				
 			}

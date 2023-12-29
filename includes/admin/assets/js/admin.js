@@ -4195,7 +4195,7 @@ if(document.getElementById('sideBoxEfb').classList.contains('show')){
 state_view_efb=1;
   document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
   sideMenuEfb(1)
-//let body =  content_colors_setting_efb();
+
 
 document.getElementById('sideMenuConEfb').innerHTML=body;
 }
@@ -4226,12 +4226,12 @@ msg_colors_from_template = ()=>{
  
 }
 add_new_logic_efb = (newId , step_id) =>{
-  //add_new_logic_efb('${rndm_no}','${fid}')
+  
   newId = Math.random().toString(36).substr(2, 9);
   const row = valj_efb[0].conditions.findIndex(x=>x.id_ == step_id);
   if (row==-1) return;
   valj_efb[0].conditions[row].condition.push({no:newId, term: 'is',one:"",two:""});
-  //console.log(newId , step_id);
+  
       const ones = selectSmartforOptionsEls(newId ,step_id);
       const twos = optionSmartforOptionsEls(newId,step_id , 0);
       const si = `<p class="efb mx-2 px-0  col-form-label fs-6 text-center">${efb_var.text.ise}</p>`
@@ -4248,7 +4248,7 @@ add_new_logic_efb = (newId , step_id) =>{
 
   
   for (let el of document.querySelectorAll(`.elEdit`)) {
-    //console.log(el.id ,el.dataset);
+    
     el.addEventListener("change", (e) => { change_el_edit_Efb(el);
     
      })
@@ -4257,27 +4257,27 @@ add_new_logic_efb = (newId , step_id) =>{
        const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
        const no =  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
        const id =  valj_efb[0].conditions[row].condition[no].one;
-       //console.log("===============>selectSmartforOptionsEls",  row , no , id,valj_efb[0].conditions[row].condition[no]);
+       
       if(id!=""){
         let v= valj_efb.findIndex(x=>x.id_==id);
-        //console.log(`v[${v}]`);
+        
         if(v!=-1){
-           //console.log(valj_efb[v],sanitize_text_efb(valj_efb[v].name))
+           
            v =sanitize_text_efb(valj_efb[v].name)
-           //console.error(v ,el);
+           
            const op = document.getElementById("opsso-"+id)
            op.seleced="selected"
-           //console.log(op,el);
+           
            el.value = op.value;
           }
       }
       el.value
     }else if (el.id =="optiontSmartforOptionsEls"){
-      //console.log("===============>optiontSmartforOptionsEls");
+      
       const row = valj_efb[0].conditions.findIndex(x=>x.id_==el.dataset.fid);
       const no=  valj_efb[0].conditions[row].condition.findIndex(x=>x.no == el.dataset.no)
       const id =  valj_efb[0].conditions[row].condition[no].two;
-      //console.log("===============>optiontSmartforOptionsEls",  row , no , id);
+      
       if(id!=""){
         let v= valj_efb.findIndex(x=>x.id_==id);
         
@@ -4285,7 +4285,7 @@ add_new_logic_efb = (newId , step_id) =>{
           v= sanitize_text_efb(valj_efb[v].value);     
           const op = document.getElementById("ocsso-"+id)
           op.seleced="selected"
-          //console.log(op,el);
+          
           el.value = op.value;
           
         }

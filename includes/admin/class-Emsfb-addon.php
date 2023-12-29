@@ -4,7 +4,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // No direct access allow ;)
+} 
 
 class Addon {
 
@@ -289,8 +289,8 @@ class Addon {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	//	
-		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
+	
+		
 		$email = '';
 
 		if( empty($_POST['name']) || empty($_POST['value']) ){
@@ -348,7 +348,7 @@ class Addon {
             }
         }
         return  $s;
-    }//end fun
+    }
 
 }
 

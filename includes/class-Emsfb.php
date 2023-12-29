@@ -125,7 +125,7 @@ class Emsfb {
 				);
 			$subject = "Important Warning form ".get_bloginfo('name');			
 			$to = wp_mail($to, $subject, strip_tags($message), $headers);
-            //error_log(json_encode($to));
+            
 
 		}
 

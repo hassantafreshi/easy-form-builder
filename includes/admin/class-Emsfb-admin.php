@@ -1298,7 +1298,7 @@ class Admin {
       
 		
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
-			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+			
 						
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			
@@ -1315,36 +1315,36 @@ class Admin {
 		}
 		
 		 
-	}//end function
+	}
 
     public function custom_ui_plugins(){
-           //// Check if wpbakery available
+           
            if( is_plugin_active('js_composer/js_composer.php')){          
-                //first check wp bakery addons installed or not
-                // if wp bakery is not installed
-                // first install after that call wp bakery function            
-                 //error_log("WPBakeryShortCode exist");
+                
+                
+                
+                 
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){                    
-                     //error_log("directory wpbakery not exist");
+                     
                  }
                  
-                 //require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery/wpb_extend.php");
-                 //require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
+                 
+                 
                  
              }
              require_once(EMSFB_PLUGIN_DIRECTORY."/includes/integrate-wpb.php");
-             // Check if Gutenberg editor is available
+             
              if (function_exists('register_block_type')) {
-                 //error_log("Gutenberg exist");
+                 
                  if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){                    
-                    //error_log("directory gutenberg not exist");
+                    
                 }
              }
     }
     public function send_sms_admin_Emsfb(){
 
        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
-            //error_log($m);
+            
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
