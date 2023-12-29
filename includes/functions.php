@@ -725,7 +725,7 @@ class efbFunction {
 			"stsd" => $state  &&  isset($ac->text->stsd) ? $ac->text->stsd : __('Select display language','easy-form-builder'),
 			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : __('The XX plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the XX plugin\'s settings.','easy-form-builder'),
 			"trya" => $state  &&  isset($ac->text->trya) ? $ac->text->trya : __('Trying again.','easy-form-builder'),
-			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Please update the file name to include only alphanumeric characters; special characters are not allowed.','easy-form-builder'),
+			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Rename the file name','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
