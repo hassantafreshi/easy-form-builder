@@ -18,7 +18,7 @@ let canvas_id_efb = "";
 let fileEfb;
 let formName_Efb;
 let current_s_efb = 1
-//let verifyCaptcha_efb =""
+
 let devlop_efb = false;
 let preview_efb = false;
 let lan_name_emsFormBuilder ='en';
@@ -58,7 +58,7 @@ efb_var_waitng = (time) => {
 }
 
 efb_var_waitng(50)
-//اضافه کردن رویداد کلیک و نمایش و عدم نمایش کنترل المان اضافه شده 
+
 
 
 
@@ -77,7 +77,7 @@ function fub_shwBtns_efb() {
 
 
 
-//setting of  element
+
 
 
 
@@ -221,7 +221,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   }
   let pay = previewSate == true ? 'payefb' : 'pay';
   newElement = ``;
-  // console.log(valj_efb[indexVJ]);
+  
   //for(let q in  valj_efb[indexVJ]){
   if (previewSate == false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) => {
     
@@ -315,7 +315,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
      || elementId=="country" || elementId=="statePro" || elementId=="city" ){ ps = 'col-md-6';}
   }
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
-  //console.log(elementId);
+  
 
   genertate_ops_select_Efb =()=>{
     const op_1 = Math.random().toString(36).substr(2, 9);
@@ -458,7 +458,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case "textarea":
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;  
       //console.log(minlen , valj_efb[iVJ].milen)  ;
-      //console.log(valj_efb[iVJ].value);
+      
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       ui = `
                 ${label}
@@ -501,7 +501,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'chlCheckBox':
     case 'chlRadio':
     case 'imgRadio':
-      //console.log(elementId);
+      
       // const rndm_a = Math.random().toString(36).substr(2, 9);
     /* 
     <label for="img1">
@@ -876,9 +876,9 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       );
       temp=true;
     }
-      //console.log(rndm, rndm_1);
+      
       optn = typeof cityList_el_pro_efb =="function"? cityList_el_pro_efb(rndm, rndm_1, temp, op_4, editState) :"null";
-      //console.log(valj_efb);
+      
       ui = `
         ${label}
         <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}"  id='${rndm}-f'  data-id="${rndm}-el" >
@@ -1170,7 +1170,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'terms':
       dataTag = elementId;
       ui =typeof terms_el_pro_efb =="function" ? terms_el_pro_efb(previewSate, rndm,iVJ) :public_pro_message();
-      //console.log(ui);
+      
       break;
 
 
@@ -1248,9 +1248,9 @@ const hiddenMarkEl=(id) =>{ return`
 <i class="efb  bi-eye-slash pro efb-hidden mx-3" > ${efb_var.text.hField}</i>
 </div>
 `}
-//id,id_,value
 
-/* new d&D */
+
+
 
 const funSetPosElEfb = (dataId, position) => {
   
@@ -1258,12 +1258,12 @@ const funSetPosElEfb = (dataId, position) => {
   if (indx != -1) {
     valj_efb[indx].label_position = position
   }
-//&& valj_efb[indx].type != "heading" && valj_efb[indx].type != "link"
+
   if (valj_efb[indx].type != "stripe"  && valj_efb[indx].type != "html") get_position_col_el(dataId, true)
 
 }
 const funSetAlignElEfb = (dataId, align, element) => {
-  //console.log(dataId, align, `element: [${element}]`);
+  
   const indx = dataId!='button_group_' && dataId!='Next_' ? valj_efb.findIndex(x => x.dataId == dataId) :0;
 
   if (indx == -1) { return }
@@ -1287,11 +1287,11 @@ const funSetAlignElEfb = (dataId, align, element) => {
       const elm_ = document.getElementById(id)
       elm_.className = alignChangerElEfb(elm_.className, align)
       valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align = align : Object.assign(valj_efb[0], { btns_align: align });
-      //console.log(id, elm_ , align ,valj_efb[0]);
+      
       break;
       default:
         //console.log('========>default')
-        //console.log(`element: [${element}]`);
+        
         break;
   }
 }//justify-content-center
@@ -1358,7 +1358,7 @@ let add_buttons_zone_efb = (state, id) => {
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
-  //console.log(btns_align);
+  
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
     <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : ``}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
@@ -1453,17 +1453,17 @@ const loading_messge_efb = () => {
 }
 
 function copyCodeEfb(id) {
-  /* Get the text field */
+  
   var copyText = document.getElementById(id);
 
-  /* Select the text field */
+  
   copyText.select();
-  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+  copyText.setSelectionRange(0, 99999); 
 
-  /* Copy the text inside the text field */
+  
   document.execCommand("copy");
 
-  /* Alert the copied text */
+  
   alert_message_efb(efb_var.text.copiedClipboard, '', 6)
 }
 
@@ -1472,6 +1472,9 @@ function copyCodeEfb(id) {
 function validExtensions_efb_fun(type, fileType,indx) {
   type= type.toLowerCase();
   
+  //seprate string file to array by comma
+
+
   const tt = valj_efb.length>1 && valj_efb[indx].hasOwnProperty('file_ctype') ? valj_efb[indx].file_ctype.replaceAll(',',' , ') : '';
   filetype_efb={'image':'image/png, image/jpeg, image/jpg, image/gif',
   'media':'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg', 
@@ -1748,7 +1751,7 @@ localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt
 function alert_message_efb(title, message, sec, alert) {
   
   sec = sec * 1000
-  /* Alert the copied text */
+  
   alert = alert ? `alert-${alert}` : 'alert-info';
   const id_ = document.getElementById(`step-${current_s_efb}-efb-msg`) ? `step-${current_s_efb}-efb-msg` : `body_efb`
   let id = document.getElementById('body_efb')  ? id_ : 'alert_efb';
@@ -1764,7 +1767,7 @@ function alert_message_efb(title, message, sec, alert) {
     <div>${String(message)}</div>
     <button type="button" class="efb btn-close" data-dismiss="alert" aria-label="Close" onclick="close_msg_efb()"></button>
   </div>`
-  //console.log(id);
+  
   document.getElementById(id).scrollIntoView({behavior: "smooth", block: "center", inline: "center"}, true);
 
   setTimeout(() => {
@@ -1787,7 +1790,7 @@ function close_msg_efb(){
 }
 function noti_message_efb(message, alert ,id) {
   //sec = sec * 1000
-  /* Alert the copied text */
+  
   alert = alert ? `alert-${alert}` : 'alert-info';
   /* if (document.getElementById('alert_efb')==null){
     //<div id='alert_efb' class='efb mx-5'></div>
@@ -1871,7 +1874,7 @@ function previewFormEfb(state) {
         if (valj_efb[0].show_icon == false) { }
         if (valj_efb[0].hasOwnProperty('dShowBg') && valj_efb[0].dShowBg == true && state == "run") { document.getElementById('body_efb').classList.remove('card') }
       }
-       //console.log(index,value);
+       
       if (value.type == 'step' && value.type != 'html') {
         
         steps_index_efb.push(index)
@@ -1887,7 +1890,7 @@ function previewFormEfb(state) {
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
       if( value.hasOwnProperty('value') && (value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
         || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range')){
-         //console.log(`type[${value.type}] value[${value.value}]`);
+         
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>=1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 && value.type !='option' ){
         
@@ -2220,7 +2223,7 @@ function fun_prev_send() {
   document.getElementById('efb-final-step').innerHTML = wtn;
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
-  //console.log(prev_s_efb);
+  
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
   document.querySelector('[data-step="step-' + current_s_efb + '-efb"]').classList.toggle("d-none");
   if (stp == 2) {
@@ -2353,7 +2356,7 @@ function fun_validation_efb() {
           
           noti_message_efb(efb_var.text.enterTheValueThisField, 'danger' , `step-${current_s_efb}-efb-msg` );
       }
-     // console.log(vd ,state, idi);
+     
     }
 
   }
@@ -2370,7 +2373,7 @@ function type_validate_efb(type) {
 
 
 addStyleColorBodyEfb = (t, c, type, id) => {
-  //console.log("addStyleColorBodyEfb",t, c, type, id);
+  
   let ttype = "text";
   if(id==-1){
     ttype =type;
@@ -2440,7 +2443,7 @@ efb_add_costum_color=(t, c ,v , type)=>{
 }
 
 fun_addStyle_costumize_efb = (val, key, indexVJ) => {
-  //console.log("fun_addStyle_costumize_efb",val, key, indexVJ);
+  
   if (val.toString().includes('colorDEfb')) {
     let type = ""
     let color = ""
@@ -2578,7 +2581,7 @@ function send_data_efb() {
     document.getElementById('efb-final-step').innerHTML = cp
     // current_s_efb=1;
   } else {
-    //console.log('send_data_efb');
+    
     endMessage_emsFormBuilder_view()
   }
 }
@@ -2617,7 +2620,7 @@ let get_position_col_el = (dataId, state) => {
   let el_parent = document.getElementById(valj_efb[indx].id_) ?? "null";
   let el_label = document.getElementById(`${valj_efb[indx].id_}_labG`) ?? "null";
   let el_input = document.getElementById(`${valj_efb[indx].id_}-f`) ?? "null";
- // console.log(el_parent.className);
+ 
   let parent_col = ``;
   let label_col = `col-md-12`;
   let input_col = `col-md-12`;
@@ -2756,16 +2759,16 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
     return;
   }
   //v3.6.2  updated
-  //console.log(`tp===>[${tp}]`);
+  
   let indx = files_emsFormBuilder.findIndex(x => x.id_ === id);
   files_emsFormBuilder[indx].state = 1;
   files_emsFormBuilder[indx].type = type;
   let r = ""
-  //console.log(`tp===>[${tp}]`);
+  
   
   
   const nonce_msg = efb_var.nonce_msg ;
-  //console.log(`tp===>[${tp}]`);
+  
   
   //console.log(tp)
   //jQuery(function ($) {
@@ -2774,7 +2777,7 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
     const idn =  id + '_';
     const file = document.getElementById(idn);
     //const caption = document.querySelector(idn);
-    //console.log(`tp===>[${tp}]`);
+    
 
 	const individual_file = file.files[0];
   //console.log('before ===> uploadFile_api',`tp===>[${tp}]` ,id, type, nonce_msg ,indx,idn)
@@ -2845,7 +2848,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('fid', fid);
     
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
-    //console.log(formData);
+    
     const xhr = new XMLHttpRequest();
 
     xhr.upload.addEventListener('progress', (event) => {
@@ -2984,7 +2987,7 @@ state_rply_btn_efb=(t)=>{
       }
    }, t);
    
-   /*  end new code */
+   
 }
 
 window.addEventListener('offline', (e) => { console.log('offline'); });
@@ -3003,12 +3006,12 @@ function check_msg_ext_resp_efb() {
   });
 }
 
-/* test code  */
+
 /* setTimeout(() => {
   console.log('set time out run!')
   noti_message_efb('this a test mesage for insure' , 'danger' , `step-${current_s_efb}-efb-msg` )
 }, 5000); */
-/* test code  */
+
 
 
 
@@ -3026,7 +3029,7 @@ function check_msg_ext_resp_efb() {
 }
 
 
-/* craate text santize based on _sanitize_text_field  WP function*/
+
 
 
 const checkInvalidUTF8_efb=(string, strip = false)=>{
@@ -3098,23 +3101,22 @@ const stripAllTags_efb=(string, removeBreaks = false)=>{
   if (removeBreaks) {
     string = string.replace(/[\r\n\t ]+/g, " ");
   }
-  //console.log(string);
+  
   return string.trim();
 }
 
 const sanitize_text_efb=(str, keep_newlines = false)=>{
-  //console.log(`sanitize_text_efb[${str}]`);
+  
   if (typeof str === 'object' || Array.isArray(str)) {
     return '';
   }else if(str==null || str==undefined){
     return str;
   }
 
+  
+
   str = str.toString();
   let filtered=str;
-  //let filtered = checkInvalidUTF8_efb(str);
-  //console.log(`filtered[${filtered}]`)
-
 
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   let match;
@@ -3124,8 +3126,10 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
     console.log(url,unicodeUrl);
     filtered = filtered.replace(url,unicodeUrl);
   }
+  //let filtered = checkInvalidUTF8_efb(str);
+  //console.log(`filtered[${filtered}]`)
   if (filtered.indexOf('<') !== -1) {
-    //console.log('sanit <');
+    
    // filtered = preKsesLessThan_efb(filtered);
     filtered = stripAllTags_efb(filtered, false);
     filtered = filtered.replace(/<\n/g, '&lt;\n');
@@ -3141,6 +3145,11 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
  // console.log(`filtered[${filtered}]`)
   filtered = filtered.trim();
   //console.log(`filtered[${filtered}]`)
+
+
+
+
+
   let found = false;
   while (/%[a-f0-9]{2}/i.test(filtered)) {
     filtered = filtered.replace(/%[a-f0-9]{2}/i, '');
@@ -3199,7 +3208,7 @@ async  function  fetch_json_from_url_efb(url){
     r.s=true ;
     r.r =data
     temp_efb=r;
-    //console.log(data);
+    
     return r;
   })
   .catch(error => {
@@ -3222,7 +3231,7 @@ fun_captcha_load_efb = ()=>{
 
 
  function fun_send_mail_emsFormBuilder(id,nonce,type_) {
-  //console.log('fun_send_mail_emsFormBuilder');
+  
 
  const data = {
     action: "mail_send_submited_Emsfb",
@@ -3266,7 +3275,7 @@ function efb_text_nr(text , type){
   const val = type ==1 ?'<br>': '\n';
   //console.log(`efb_text_nr[${text}]`)
   text = text.replace(/@n#/g, val);
-  //console.log(`efb_text_nr after[${text}]`);
+  
   return text;
 }
 
@@ -3274,10 +3283,7 @@ function efb_remove_forbidden_chrs(text){
 return text.replaceAll(/[!@#$%^&*()_,+}{?><":<=\][';/.\\|}]/g, '-');
 }
 
-checkFileName_xss_efb =(fileName)=>{
-  const regex = /^.*\..*\..*$/i;
-  return regex.test(fileName);
-}
+
 
 
 

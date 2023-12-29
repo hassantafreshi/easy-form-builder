@@ -138,7 +138,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  //console.log(country);
+  
   for (let i of counstries_list_efb) {
     //console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
@@ -153,7 +153,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   `
 }
 const state_list_el_select=(el_type ,idset,indx)=>{
-  //console.log('=============>state_list_el_select');
+  
   let opt =`<!--efb---!>`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : 'GB';
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
@@ -164,16 +164,16 @@ const state_list_el_select=(el_type ,idset,indx)=>{
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
   //console.log(`======================>country:[${country}] statePov:[${statePov}]`)
-  //console.log(statePov);
+  
     if(country=='gb'){
       state_list_efb=fun_state_of_UK(idset,indx) ;
     for (let i of state_list_efb) {
-      //console.log(i);
+      
       opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
     }
   }else{
     opt=  callFetchStatesPovEfb('statePovListEl',country,indx,'getStatesPovEfb');
-    //console.log(`opt[${opt}]`);
+    
   }
   return ` 
   <div class="efb mx-1 mt-1">
@@ -282,7 +282,7 @@ const ElcountriesListSelections = (idset,indx) => {
   }
  }
   for (const i of counstries_list_efb) {
-   // console.log(i);
+   
    //bi-check-square text-info efb
     const s2 = i.s2.trim().toLowerCase();
     //console.log(c_c.indexOf(i.s2.trim().toLowerCase())!=-1 ,c_c ,i.s2);
@@ -473,12 +473,12 @@ function show_setting_window_efb(idset) {
     const thankYouMessagepleaseFillInRequiredFieldsEls = `<label for="thankYouMessagepleaseFillInRequiredFieldsEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.required} ${efb_var.text.message}</label>
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.pleaseFillInRequiredFields}" id="thankYouMessagepleaseFillInRequiredFieldsEl" required value="${valj_efb[0].thank_you_message.pleaseFillInRequiredFields ? valj_efb[0].thank_you_message.pleaseFillInRequiredFields : efb_var.text.pleaseFillInRequiredFields}">`;
    */
-    /* 778899 new atr */
+    
     /* const MessageReuired = `<div class="efb tnxmsg mt-1"><label for="MessageReuired" class="efb form-label mt-2 mb-1 efb">${efb_var.text.trackingCode} ${efb_var.text.message}</label>
     <input ${disable} type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.trackingCode}" id="MessageReuired" required value="${valj_efb[indx].hasOwnProperty('req_m') ? valj_efb[indx].req_m : efb_var.text.enterTheValueThisField}"></div>`; */
    
     
-    /* 778899 end new atr */
+    
     const showformLoggedEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="showformLoggedEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('stateForm') && Number(valj_efb[indx].stateForm) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
@@ -495,7 +495,7 @@ function show_setting_window_efb(idset) {
     </div>`;
 
     const languageSelectPresentEls = `
-                     <label for="languageSelectPresentEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.stsd}</label>
+                     <label for="languageSelectPresentEl" class="efb mt-3 px-1 bi-translate mx-2 efb"> ${efb_var.text.stsd}</label>
                       <select  data-id="${idset}" class="efb elEdit form-select efb border-d efb-rounded"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">                                            
                       <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>                      
                       <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>
@@ -676,7 +676,7 @@ function show_setting_window_efb(idset) {
         else {} */
           value = efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]`};
       }
-      //console.log(value);
+      
       const disable = valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'disabled d-none';
       const content =`
       <div class="efb smsmsg ${disable}">
@@ -792,7 +792,7 @@ function show_setting_window_efb(idset) {
       }
       else if (forEl == "clrdoneTitleEfb") {
         color = valj_efb[0].hasOwnProperty("clrdoneTitleEfb")? valj_efb[0].clrdoneTitleEfb :"#000000";
-         //console.log(color);
+         
         t = efb_var.text.title
         hex = color;
         if(color!="" && color.includes('#')==false) hex=ColorNameToHexEfbOfElEfb(color.slice(5),indx,'el')
@@ -928,7 +928,7 @@ function show_setting_window_efb(idset) {
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
         const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
-          //console.log(objOptions);
+          
         if (objOptions.length > 0) {
 
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
@@ -1358,8 +1358,7 @@ function show_setting_window_efb(idset) {
             return obj.parent === el.id
           })
           //let s = el.dataset.tag;
-          /* let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio"  ? true :false
-          s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false */
+       
           const newRndmm = Math.random().toString(36).substr(2, 9);
           let r_matrixs = `<!-- options --!>`;
           //const col ='col-md-12'
@@ -1466,7 +1465,7 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    //console.log(body);
+    
     document.getElementById('sideMenuConEfb').innerHTML=body;
     //console.log(document.getElementById('sideMenuConEfb').innerHTML)
     for (const el of document.querySelectorAll(`.elEdit`)) {      
@@ -1477,7 +1476,7 @@ function show_setting_window_efb(idset) {
   }
 
   
-//jQuery(document).ready(function(){jQuery("body").addClass("folded")})
+
 function remove_other_noti_Efb(){
   window.onload=(()=>{
     // remove all notifications from other plugins or wordpress
@@ -1726,18 +1725,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
 const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
   //console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
   //price,parentsID,t,idin,tag,id_ob,value,col.s,l_b,ftyp,id_value
-  /* ` <div id="${id_ob}-v"  class="efb  col-md-12">
-  <input type="text"  value='${value}' data-value="${value}" id="EditOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}"  class="efb  ${col} text-muted mb-1 fs-6 border-d efb-rounded elEdit">
-  ${ftyp == "payment" ? `<input type="number" placeholder="$"  value='' data-value="${value}" id="paymentOption" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-6 border-d efb-rounded elEdit">` : ''}
-  <div class="efb  ${ftyp == "payment" || ftyp == "smart" ? 'pay' : 'newop'} btn-edit-holder" id="deleteOption" data-parent_id="${parentsID}">
-    <button type="button" id="deleteOption" onClick="delete_option_efb('${idin}')"  data-parent="${parentsID}" data-tag="${tag}"  data-id="${idin}-id"  class="efb  btn btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}" > 
-        <i class="efb  bi-x-lg text-danger"></i>
-    </button>
-   <button type="button" id="addOption" ${fun_add}  data-parent="${parentsID}" data-tag="${tag}" data-id="${idin}-id"   class="efb  btn btn-edit btn-sm elEdit " data-bs-toggle="tooltip"   title="${efb_var.text.add}" > 
-        <i class="efb  bi-plus-circle  text-success"></i>
-    </button>
-  </div>
-  </div>` */
+
   
   const fun_imgRadio =()=>{
     let r ='<!-efb-->'
@@ -1745,10 +1733,10 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
       url = url.replace(/(http:@efb@)+/g, 'http://');
       url = url.replace(/(https:@efb@)+/g, 'https://');
       url = url.replace(/(@efb@)+/g, '/');
-      //console.log(url);
+      
       return url;
      }
-    //console.log(tag,tag=="imgRadio");
+    
     if(tag=="imgRadio"){
       let row = valj_efb.find(x=>x.id_==id_value);
       //console.log(row)
@@ -1764,8 +1752,8 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   }
   const fun_bookingAttr =()=>{
     let r ='<!-efb-->'
-    //console.log('fun_bookingAttr');
-    //console.log(tag);
+    
+    
     if(valj_efb[0].hasOwnProperty('booking')==true && valj_efb[0].booking==true && (tag=='radio' || tag=='checkbox' || tag=='select' || tag=='imgRadio')){
       let row = valj_efb.find(x=>x.id_==id_value);
       //console.log(row)
@@ -1851,32 +1839,32 @@ const optionSmartforOptionsEls = (idset ,fid , s_op)=>{
   //fid step_ number s_op id of option (one)
   //(0,fid , 0
   let two ="";
-  //console.log(idset ,fid , s_op);
+  
   if(s_op==0 && valj_efb[0].hasOwnProperty('conditions')){
    const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
-   //console.log(step_no);
+   
    if (step_no!=-1){
     two= valj_efb[0].conditions[step_no].condition[0].two;
     s_op =  valj_efb[0].conditions[step_no].condition[0].one!=""  ? valj_efb[0].conditions[step_no].condition[0].one : 0;
-    //console.log(two , `s_op[${s_op}] one[${valj_efb[0].conditions[step_no].condition[0].two}]`);
+    
    }else{
     s_op=0;
    }
   }else if (valj_efb[0].hasOwnProperty('conditions')==true){
     const step_no= valj_efb[0].conditions.findIndex(x=>x.id_==fid);
-    //console.log(`step_no[${step_no}]`);
+    
     if(step_no!=-1){
       const row = valj_efb[0].conditions[step_no].condition.findIndex(x=>x.no ==idset);
       if (row !=-1) two = valj_efb[0].conditions[step_no].condition[row].two;
-      //console.log(`row[${row}]`,two);
+      
     }
   }
   
  let row= get_list_name_otions_field_efb(s_op);
  let op =`<option selected disabled>${efb_var.text.nothingSelected}</option>`;
-// let idset =''
+
  for (let i =0 ; i< row.length ; i++){
-  //console.log(`row[i].id_[${row[i].id_}],two[${two}], i[${i}]`);
+  
   op +=`<option value="${row[i].id_}"  id="ocsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}"  data-op="${s_op}" ${ row[i].id_==two ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="oso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d efb-rounded ps-1 pe-4"  id="optiontSmartforOptionsEls" data-tag="list_otiones">
@@ -1894,13 +1882,13 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
   //if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
   //end test row
   if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
-  //console.log("!!!!!!!!",n,valj_efb[0].conditions[n].condition, c , typeof c);
+  
   }
   if (typeof c =="undefined") c= valj_efb[0].conditions[n].condition[0];
  // if (c==-1) return `<!-- efb: conditions not exists -->`
  let row= get_list_name_selecting_field_efb();
  let op =`<option disabled>${efb_var.text.nothingSelected}</option>`;
-// let idset =''
+
  
  for (let i =0 ; i< row.length ; i++){
   //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
@@ -1919,7 +1907,7 @@ fun_translate_check_efb=()=>{
 }
 
 const test=fun_translate_check_efb();
-//console.log("test=>",test ,efb_var.wp_lan);
+
 
 
 const fun_state_of_UK =(rndm,iVJ)=>{

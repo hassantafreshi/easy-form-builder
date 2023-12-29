@@ -1,5 +1,5 @@
 <?php
-/** Prevent this file from being accessed directly */
+
 namespace Emsfb;
 
 use WP_REST_Response;

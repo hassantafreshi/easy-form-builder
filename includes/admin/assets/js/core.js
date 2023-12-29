@@ -26,8 +26,8 @@ jQuery(function () {
   }
 });
 function fun_render_view_core_emsFormBuilder(check) {
-  
-  
+  //v2
+  // valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
   exportView_emsFormBuilder = [];
   valueJson_ws = JSON.parse(localStorage.getItem("valueJson_ws_p"));
   form_type_emsFormBuilder = valueJson_ws && valueJson_ws[0].type ? valueJson_ws[0].type : 'form';
@@ -602,7 +602,7 @@ function alarm_emsFormBuilder(val) {
 
 
 function endMessage_emsFormBuilder_view() {
-  
+  //console.log('fun endMessage_emsFormBuilder_view')
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
   for (let i = 1; i <= stepMax; i++) {
@@ -624,7 +624,7 @@ function endMessage_emsFormBuilder_view() {
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
     <div class="efb display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="efb fa fa-angle-double-left"></i></button></div>`;
 
-    
+    // faild form
   } else {
     document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder "></h1> <h3 class="efb fs-3"> ${efb_var.text.pleaseWaiting}<h3>`
     actionSendData_emsFormBuilder()
@@ -657,7 +657,7 @@ function valid_email_emsFormBuilder(el) {
       if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
     }
   }
-  
+  // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
 }
 
@@ -677,16 +677,16 @@ function valid_phone_emsFormBuilder(el) {
 
     }
   }
-  
+  // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
 }
 
 
 function valid_file_emsFormBuilder(id) {
-  
-  
-  
-  
+  //789
+  // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
+  // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
+  // روی تست ولیدت را تست کن ببین مشکل از کجاست
 
   if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();
   let file = ''
@@ -702,7 +702,7 @@ function valid_file_emsFormBuilder(id) {
 
   if (el.files[0] && el.files[0].size < 15000000) {
     for (let ac of accept) {
-      
+      //validition of type file
       const r = el.files[0].type.indexOf(ac.slice(1, ac.length))
       if (r != -1) check = +1;
 
@@ -720,7 +720,7 @@ function valid_file_emsFormBuilder(id) {
   } else {
 
 
-    
+    //in string find NN and replase with value
     file = file.replaceAll(',',` ${efb_var.text.or} `);
     let message  = efb_var.text.pleaseUploadA.replace('NN', file);
     

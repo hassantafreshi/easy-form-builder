@@ -1,5 +1,5 @@
 <?php
-/** Prevent this file from being accessed directly */
+
 if (!defined('ABSPATH')) {
     die("Direct access of plugin files is not allowed.");
 }
@@ -62,7 +62,7 @@ class Emsfb {
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-create.php';
             require_once $this->plugin_path . 'includes/admin/class-Emsfb-addon.php';
             if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
-                //error_log("class sms exists");
+                
                 require_once EMSFB_PLUGIN_DIRECTORY. '/vendor/smssended/class-Emsfb-sms.php';
             }
             
@@ -71,7 +71,7 @@ class Emsfb {
 
         require_once $this->plugin_path . 'includes/class-Emsfb-public.php';
        // require_once $this->plugin_path . 'includes/class-Emsfb-webhook.php';
-        //error_log("after class webhook");
+        
     }
 
 

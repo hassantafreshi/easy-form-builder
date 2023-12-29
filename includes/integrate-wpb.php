@@ -56,7 +56,7 @@ function get_available_forms() {
   return $options;
 }
 
-// Render the Easy Form Builder element
+
 function render_ems_Form_Builder($atts) {
   $atts = shortcode_atts(
     array(

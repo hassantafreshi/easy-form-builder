@@ -24,7 +24,7 @@
  	--bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
  	--bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
  	--bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))}
- /* *, */.efb,.efb::after,.efb::before {
+ .efb,.efb::after,.efb::before {
 	box-sizing: border-box}
  @media (prefers-reduced-motion:no-preference) {
 	:root.efb {
@@ -1478,12 +1478,12 @@ textarea.efb.form-control-lg {
  .efb.form-check {
 	    display: flex;
  	min-height: 1.5rem;
- 	/* padding-left: 1.5em; */
+ 	
  	margin-bottom: .125rem;
 align-items: center;}
  .efb.form-check .efb.form-check-input {
 	float: left;
- 	/* margin-left: -1.5em */
+ 	
 }
  .efb.form-check-input {
 	width: 1em;

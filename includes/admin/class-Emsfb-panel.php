@@ -16,24 +16,12 @@ class Panel_edit  {
 		$this->db = $wpdb;
 		
 		if ( is_admin() ) {
-			$rtl = is_rtl();
-			
-		/* 	add_action('rest_api_init',  @function(){
-    
-      
-				register_rest_route('Emsfb/v1','forms/file/upload', [
-					'methods' => 'POST',
-					'callback'=>  [$this,'file_upload_api'],
-					'permission_callback' => '__return_true'
-				]); 
-	
-  
-			}); */
+			$rtl = is_rtl();		
 			$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
-			//error_log(gettype($plugins_get));
+			
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
-				//error_log('finded');
+				
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;
@@ -133,8 +121,8 @@ class Panel_edit  {
 			//efb_code_validate_create( $fid, $type, $status, $tc)
 			$sid = $efbFunction->efb_code_validate_create(0, 1, 'admin' , 0);
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
-			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.0');
-			//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
+			
+			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.0');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -173,14 +161,7 @@ class Panel_edit  {
 
 			if($pro==true){
 
-/* 				wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
-				wp_enqueue_script('whitestudio-admin-pro-js'); */
 
-				//اگر پلاگین مربوط نصب بود این بخش فعال شود
-				//stipe
-				//اگر نسه پرو بود
-			/* 	wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-				wp_enqueue_script('stripe-js'); */
 
 			}
 			
@@ -250,8 +231,7 @@ class Panel_edit  {
 				wp_enqueue_script('logic-efb');
 			}
 			
-			/* $table_name = $this->db->prefix . "emsfb_form";
-			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" ); */
+
 		
 			$value = $efbFunction->efb_list_forms();
 			$table_name = $this->db->prefix . "emsfb_setting";
@@ -351,10 +331,10 @@ class Panel_edit  {
 		
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-				
+				//check ip from share internet
 				$ip = $_SERVER['HTTP_CLIENT_IP'];
 			} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				
+				//to check ip is pass from proxy
 				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 			} else {
 				$ip = $_SERVER['REMOTE_ADDR'];
@@ -381,8 +361,8 @@ class Panel_edit  {
 				));
 
 				
-					
-					
+					//smart zone test
+					//$this->test_smart_zone();
 		}else{
 			echo "Easy Form Builder: You dont access this section";
 		}
@@ -399,7 +379,7 @@ class Panel_edit  {
 	public function get_not_read_response(){
 		$table_name_msg = $this->db->prefix . "emsfb_msg_";
 		$table_name_rsp = $this->db->prefix . "emsfb_rsp_"; 
-		
+		//$table_name = $this->db->prefix . "emsfb_rsp_"; 
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
 		FROM `$table_name_msg` AS t 
 		 INNER JOIN `$table_name_rsp` AS tr 
@@ -424,13 +404,13 @@ class Panel_edit  {
         }
 		
         return  $s;
-    }
+    }//end fun
 
 
 	public function test_smart_zone (){
 		
-			     
-            
+			     //=>>>>>>>>>>>>>>>>>Temp Remove <<<<<<<<<<<<<<<<<< 
+            //test code for create database adsone 
             $fl_ex = EMSFB_PLUGIN_DIRECTORY."/vendor/smartzone/smartzone.php";
             if(file_exists($fl_ex)){
                 
@@ -440,7 +420,7 @@ class Panel_edit  {
                 $t = new $name();
                 
             }else{}
-            
+            //end test 
 			
 	}
 
@@ -459,7 +439,7 @@ class Panel_edit  {
 		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . " 403"); 
 		wp_send_json_success($response,200);
 		} 
-        
+        //check validate here
         $vl=null;
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
@@ -470,7 +450,7 @@ class Panel_edit  {
             if($vl!=null){              
                 if(strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"')){                   
                     $vl ='efb'.$id;
-                    
+                    //'efb'.$this->id
                 }
            
             }
@@ -492,8 +472,11 @@ class Panel_edit  {
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
 		
+
+		$_FILES['async-upload']['name'] = sanitize_file_name($_FILES['async-upload']['name']);
+		//error_log($_FILES['async-upload']['name']);
 		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
-			
+			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 						
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
 			
@@ -509,7 +492,7 @@ class Panel_edit  {
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}
 		 
-	}
+	}//end function
 
 
 

@@ -107,7 +107,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
           let optn = '<!-- list of counries -->'
           let count =0;
           for (let i of counstries_list_efb) {
-            //console.log(i);
+            
             count+=1;
             let id = rndm_1 +count
             const op_id = i.s2.toLowerCase();
@@ -119,11 +119,11 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
       return optn;
 }
 statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
-  //console.log(rndm,rndm_1,temp,op_4,editState);
+  
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
-        //console.log('optns===>',optns_obj,valj_efb[indx_parent]);
+        
     const iso_con = valj_efb[indx_parent].country;
     
     if (editState != false) {
@@ -141,7 +141,7 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
       } else {
           state_local=optns_obj;
           state_local.sort();
-          //console.log(state_local);
+          
           let optn = '<!-- list of states -->'
           let count =0;
           for (let i = 0; i < state_local.length; i++) {
@@ -155,15 +155,15 @@ statePrevion_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
       return optn;
 }
 cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
-  //console.log(rndm,rndm_1,temp,op_4,editState);
+  
     let optn ='<!--states-->'
     const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm })
         const indx_parent = valj_efb.findIndex(x => x.id_ == rndm);
-        //console.log('optns===>',optns_obj,indx_parent);
+        
         const stylish = valj_efb[indx_parent].hasOwnProperty('stylish') ? valj_efb[indx_parent].stylish : '1';
     if (editState != false) {
         for (const i of optns_obj) {
-          //console.log(i);
+          
           let value = i.value;
           if (i.hasOwnProperty('stylish')) {
             if (stylish == '2') {
@@ -178,7 +178,7 @@ cityList_el_pro_efb = (rndm,rndm_1,temp,op_4,editState)=>{
       } else {
           state_local=optns_obj;
           state_local.sort();
-          //console.log(state_local);
+          
           let optn = '<!-- list of states -->'
           let count =0;
           
@@ -249,7 +249,7 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     'customize':`${valj_efb[indx].file_ctype}`
    
       }
-      //console.log(filetype_efb[valj_efb[indx].value]);
+      
     return `<div class="efb icon efb"><i class="efb  fs-3 ${valj_efb[indx].icon} ${valj_efb[indx].icon_color}" id="${valj_efb[indx].id_}_icon"></i></div>
     <h6 id="${valj_efb[indx].id_}_txt" class="efb text-center m-1 fs-6">${efb_var.text.dragAndDropA} ${n} </h6> <span class="efb fs-7">${efb_var.text.or}</span>
     <button type="button" class="efb  btn ${valj_efb[indx].button_color} efb-btn-lg fs-6" id="${valj_efb[indx].id_}_b" ${disabled}>
@@ -261,19 +261,14 @@ function viewfileEfb(id, indx) {
   //find last dost and slice from that in a string varible
     
 
-    //console.log(fileEfb);
+    
     if(fileEfb==undefined) {
       document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
       return;}
     const filename =  fileEfb.name ;
     let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : fileEfb.type;
     let icon = ``;
-   
-    const xss= checkFileName_xss_efb(filename);
-    if(xss){
-      alert(efb_var.text.rnfn + ` (${filename})`);
-      return;
-    }
+     
     
     const svg_file = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
     <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
@@ -287,10 +282,10 @@ function viewfileEfb(id, indx) {
           <span class="efb  text-muted">${fileEfb.name}</span>
           </div>
     </div>`;
-    //console.log(valj_efb[indx].file, fileType ,indx);
+    
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType ,indx)) {
       fun_addProgessiveEl_efb(id ,0);
-      //console.log('validate extintion files!');
+      
       let fileReader = new FileReader();
       fileReader.onload = () => {
         let fileURL = fileReader.result;
@@ -311,7 +306,7 @@ function viewfileEfb(id, indx) {
     } else {
       let t_m = valj_efb[indx].file!='customize'? valj_efb[indx].file : valj_efb[indx].file_ctype;
       t_m = t_m.replaceAll(',',` ${efb_var.text.or} `);
-      //console.log(`pleaseUploadA`);
+      
       const m  = efb_var.text.pleaseUploadA.replace('NN', t_m);
 
       document.getElementById(`${id}_-message`).innerHTML = m;
@@ -337,7 +332,7 @@ function viewfileReplyEfb(id, indx) {
       fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
-      //console.log(`pleaseUploadA`);
+      
       const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
       
       
@@ -415,7 +410,7 @@ set_dadfile_fun_efb = (id, indx) => {
       valid_file_emsFormBuilder(id ,'msg')     
     });
   }
-    /* attachment reply */
+    
     reply_attach_efb = (id, indx) => {
         const v= reply_upload_efb(id);
         const lenV=(v.length/20)+10;
@@ -432,7 +427,7 @@ set_dadfile_fun_efb = (id, indx) => {
         }
         }, lenV);
       }
-    /*end  attachment reply */
+    
   function renderCanvas_efb() {
     if (draw_mouse_efb) {
       c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
@@ -443,7 +438,7 @@ set_dadfile_fun_efb = (id, indx) => {
       document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
     }
   }
-/* clear esignature function */
+
 function fun_clear_esign_efb(id) {
     const canvas = document.getElementById(`${id}_`);
     document.getElementById(`${id}-sig-data`).value = "Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
@@ -504,7 +499,7 @@ function fun_clear_esign_efb(id) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-  /* map_efb section */
+  
 let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
@@ -761,7 +756,7 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         document.getElementById(rndm+"_").classList.add("border-success");
         const mobile_no = document.getElementById(rndm+"_").value.replace(/^0+/, '')
           let value = `+${iti.s.dialCode}${mobile_no}`;
-          //console.log(value);
+          
           fun_sendBack_emsFormBuilder({ id_: valj_efb[iVJ].id_, name: valj_efb[iVJ].name, id_ob: valj_efb[iVJ].id_, amount: valj_efb[iVJ].amount, type: valj_efb[iVJ].type, value: value, session: sessionPub_emsFormBuilder });
       } else {
         document.getElementById(rndm+"_").classList.add("border-danger");
@@ -824,7 +819,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
   //const country = country_el.value;
  // const iso2 = country_el.id_op;
  // const country_el_partent_id = valj_efb[indx].parent;
- //console.log(`fun_check_link_cities_efb ${iso2_country} [${indx}]`);
+ 
  let indx_state =-1;
   for (let i = indx+1; i < valj_efb.length; i++) {
    
@@ -839,7 +834,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
     }
   }
   
-  //console.log(valj_efb[indx_state] ,indx_state ,indx);
+  
  
   if(indx_state==-1)return;
   /* let v = country_el.options[country_el.selectedIndex];
@@ -854,7 +849,7 @@ fun_check_link_city_efb=(iso2_country ,iso2_statePove , indx)=>{
   
  // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
   //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
-  //console.log(`indx_state ${indx_state}`);
+  
   for(let i =indx_state; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
       valj_efb.splice(i,1);
@@ -893,21 +888,21 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
     return;
   }
-  //console.log(result);
+  
  // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
   let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   
   for(let i =0; i < valj_efb.length; i++){    
-    //console.log(i ,valj_efb[i].parent ,valj_efb[indx_state].id_ ,valj_efb[i]);
+    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
-      //console.log(valj_efb[i].n);
+      
       valj_efb.splice(i,1);
       i--;
     }
   }
 
   for (const key in result.r) {
-    //console.log(result.r[key]);
+    
   /*   const value = r.data[key];
     const nValue = value.n.trim();
     const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
@@ -948,7 +943,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     }else if(fieldType=="getCitiesEfb"){
       opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
       //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
-      //console.log(value);
+      
     }
   }
 
@@ -957,7 +952,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
 
   if(fieldType=="pubSelect"){
 
-    //console.log('pubSelect',valj_efb[indx_state]);
+    
 
     Object.assign(valj_efb[indx_state],{'linked':true});
      opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true);
@@ -965,13 +960,13 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
  
   
   if(state_el!=null){
-    //console.log(opt);
+    
     state_el.innerHTML='';
     state_el.innerHTML=opt;
     state_el.classList.remove('is-loading');
   state_el.disabled = false;
   }else{
-    //console.log('state_el is null',idField);
+    
     setTimeout(() => {
       state_el = document.getElementById(idField);
       state_el.innerHTML=opt;
@@ -990,7 +985,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   //const country = country_el.value;
  // const iso2 = country_el.id_op;
  // const country_el_partent_id = valj_efb[indx].parent;
- //console.log(`fun_check_link_state_efb ${iso2_country} [${indx}]`);
+ 
  let indx_state =-1;
   for (let i = indx+1; i < valj_efb.length; i++) {
    
@@ -1005,7 +1000,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
     }
   }
   
-  //console.log(valj_efb[indx_state] ,indx_state ,indx);
+  
  
   
   /* let v = country_el.options[country_el.selectedIndex];
@@ -1019,7 +1014,7 @@ fun_check_link_state_efb=(iso2_country , indx)=>{
   
  // state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
   //delete all rows from valj_efb if parent == valj_efb[indx_state].id_
-  //console.log(`indx_state ${indx_state}`);
+  
   for(let i =0; i < valj_efb.length; i++){    
     if(valj_efb[i].hasOwnProperty('parent') && valj_efb[i].parent==valj_efb[indx_state].id_){
       valj_efb.splice(i,1);
@@ -1059,12 +1054,12 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
     alert_message_efb('',efb_var.text.offlineSend,5,'danger')
     return;
   }
-  //console.log(result);
+  
  // let opt =fieldType=='pubSelect' ? ` <option selected disabled>${efb_var.text.nothingSelected}</option>` :'<!--efb---!>';
   let opt = `<option selected disabled>${efb_var.text.nothingSelected}</option>`;
   
   for (const key in result.r) {
-    //console.log(result.r[key]);
+    
   /*   const value = r.data[key];
     const nValue = value.n.trim();
     const lValue =  value.l.length>1 && value.l.trim()!=nValue  ?`${value.l.trim()} (${nValue})`  : nValue;
@@ -1105,7 +1100,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
     }else if(fieldType=="getStatesPovEfb"){
       opt +=`<option value="${id.toLowerCase()}" ${ id.toLowerCase()==valj_efb[indx_state].statePov.toLowerCase() ? `selected` : ''}>${value}</option>`
       //opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==statePov.toLowerCase() ? `selected` : ''}>${i.value} (${i.s2})</option>`
-      //console.log(value);
+      
     }
   }
 
@@ -1115,12 +1110,12 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
   }
  
   if(state_el!=null){
-    //console.log(opt);
+    
     state_el.innerHTML=opt;
     state_el.classList.remove('is-loading');
   state_el.disabled = false;
   }else{
-    //console.log('state_el is null',idField);
+    
     setTimeout(() => {
       state_el = document.getElementById(idField);
       state_el.innerHTML=opt;

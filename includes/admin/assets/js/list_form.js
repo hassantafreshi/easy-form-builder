@@ -23,15 +23,15 @@ jQuery(function () {
       if (localStorage.getItem('bootstrap_w') === null) localStorage.setItem('bootstrap_w', 0)
       if (localStorage.getItem('bootstrap_w') >= 0 && localStorage.getItem('bootstrap_w') < 3) {
         localStorage.setItem('bootstrap_w', (parseInt(localStorage.getItem('bootstrap_w')) + 1))
-        
+        //setTimeout(() => {  alert_message_efb(efb_var.text.warningBootStrap, ``, 30, 'danger') }, 500);
       }
     }
   }
   let g =new URLSearchParams(location.search)
-  
+  //console.log("get'state'")
   const state = g.get('state') !=null ? sanitize_text_efb(g.get('state')) : null;
  if(state==null){
-   fun_emsFormBuilder_render_view(25); 
+   fun_emsFormBuilder_render_view(25); //778899
    history.replaceState("panel",null,'?page=Emsfb'); 
  }else{
 
@@ -45,7 +45,7 @@ let count_row_emsFormBuilder = 0;
 
 
 function fun_emsFormBuilder_render_view(x) {
-  
+  // v2
   
   
   
@@ -85,7 +85,7 @@ function fun_emsFormBuilder_render_view(x) {
         if (d != -1) { newM = true; }
         const b = ajax_object_efm.response_state.findIndex(x => x.form_id == i.form_id)
         if (b != -1) { newM = true; }
-        
+        //response
         newM != true ? o_rows += creatRow(i, newM) : rows += creatRow(i, newM);
         count += 1;
       }
@@ -135,7 +135,7 @@ function emsFormBuilder_waiting_response() {
 
 
 function emsFormBuilder_get_edit_form(id) {
-  
+  //fun_backButton()
   history.pushState("edit-form",null,`?page=Emsfb&state=edit-form&id=${id}`);
   fun_backButton();
   emsFormBuilder_waiting_response();
@@ -147,20 +147,20 @@ function emsFormBuilder_get_edit_form(id) {
 
 
 function emsFormBuilder_show_content_message(id) {
-  
+  // v2
   const formType = form_type_emsFormBuilder;
-  
+  // پنجره نمایش فرم ثبت شده کاربر  
   const indx = valueJson_ws_messages.findIndex(x => x.msg_id === id.toString());
   const objOptions = valueJson_ws_messages.filter(obj => { return obj.msg_id === id.toString() })
   const msg_id = valueJson_ws_messages[indx].msg_id;
   const userIp = valueJson_ws_messages[indx].ip;
   const track = valueJson_ws_messages[indx].track;
   const date = valueJson_ws_messages[indx].date;
-  
+  //valueJson_ws_messages[indx].content = ;
   let content = JSON.parse(replaceContentMessageEfb(valueJson_ws_messages[indx].content));
   
   
-  
+  //const content = JSON.parse(valueJson_ws_messages[indx].content.replace(/[\\]/g, ''));
   let m = "<--messages-->"
   
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
@@ -168,7 +168,7 @@ function emsFormBuilder_show_content_message(id) {
   
   
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
-  
+  //reply  message ui
   form_type_emsFormBuilder = formType;
   const replayM = function () {
     let r
@@ -196,16 +196,16 @@ function emsFormBuilder_show_content_message(id) {
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
   setTimeout(() => { reply_attach_efb(msg_id)}, 10);
-  
-  
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  //myModal.show_efb();
   state_modal_show_efb(1)
-  
+  // fun_add_event_CloseMenu();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   jQuery('#track_code_emsFormBuilder').on('keypress', 
   function (event) {
-    
+    //console.log('track_code_emsFormBuilder',event.which)
       if (event.which == '13') {
           event.preventDefault();
           
@@ -238,21 +238,21 @@ function fun_backButton(state) {
 
 function close_overpage_emsFormBuilder(i) {
   document.getElementById('overpage').remove();
-  
+  // if (i==1) previewemsFormBuilder=false;
 }
 
 
 
 function fun_confirm_remove_emsFormBuilder(id) {
-  
-  
+  // ای دی از جی سون پیدا شود حذف شود و به سمت سرور پیام حذف ارسال شود
+  // صفحه رفرش شود
   fun_delete_form_with_id_by_server(parseInt(id));
 
-  
+  //کد زیر حذف نشود
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
-  
+  //close_overpage_emsFormBuilder();
 
 }
 
@@ -261,11 +261,11 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
  
   fun_delete_message_with_id_by_server(parseInt(id));
 
-  
+  //کد زیر حذف نشود
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
-  
+  //close_overpage_emsFormBuilder();
 
 }
 
@@ -301,7 +301,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let s = false;
   let checboxs=[];
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
-  
+  //console.error(content[0].paymentcurrency,content);
 
   for (const c of content) {
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
@@ -350,7 +350,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;
       s = true;
-      
+      //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
       value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
 
@@ -374,10 +374,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       }
       value += "</div>";
       m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
-      
+      //console.log(checboxs.includes(c.id_))
     } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
       s = true;
-      
+      //console.log(361 ,checboxs.includes(c.id_));
       let vc ='null';
       checboxs.push(c.id_);
       for(let op of content){
@@ -390,7 +390,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
     }else if (c.type=="r_matrix"){
       s = true;
-      
+      //console.log(390 ,checboxs.includes(c.id_));
       vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
       
       m += `${vc}`;
@@ -403,17 +403,17 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
         if(c.type.includes('pay')) {
-          
+          //console.log(currency ,c)
           q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
         }else if(c.type.includes('checkbox')){
-          
+          //checboxs.push
         }else if(c.type.includes('imgRadio')){
           
           q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
           
         } 
         m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,1)}</p>`
-       
+       //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
         
        
       
@@ -468,7 +468,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
 
 
 
-// دکمه نمایش بیشتر لیست اصلی
+
 function fun_emsFormBuilder_more() {
   count_row_emsFormBuilder += 5;
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -476,11 +476,11 @@ function fun_emsFormBuilder_more() {
 
 }
 
-// تابع نمایش ویرایش فرم
+
 function fun_ws_show_edit_form(id) {
   //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
-  //console.log(valj_efb);
+  
   creator_form_builder_Efb();
   setTimeout(() => {
     editFormEfb()
@@ -893,7 +893,7 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
-  //console.log('fun_show_content_page_emsFormBuilder' , state);
+  
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -1040,7 +1040,7 @@ function fun_show_setting__emsFormBuilder() {
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
     sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
-    //console.log(sms_method);
+    
     scaptcha = f('scaptcha')=='null' ? false :f('scaptcha') ;
     //console.log(f('scaptcha'),scaptcha)
     activeDlBtn = f('activeDlBtn')=='null' ? true :f('activeDlBtn');
@@ -1461,7 +1461,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   const returnError=(val)=>{
     if(state_auto==1){return}
     m =efb_var.text.msgchckvt.replace('XXX', val );
-    //console.log(val,m);
+    
     noti_message_efb(m, 'danger' , `content-efb` );
     window.scrollTo({
       top: document.body.scrollHeight,
@@ -1501,7 +1501,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     return "NotFoundEl"
   }
   const v = (id) => {
-    //console.log(`id:${id}`);
+    
     const el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
       
@@ -1550,7 +1550,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         
         
         if (  el.value.length < 5 && el.value.length == 0) {
-          //console.log(el.value.length);
+          
           if(el.value.length==0){ el.value=""; return true;}
           //console.log('test!')
           el.classList.add('invalid');
@@ -1579,7 +1579,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         }
 
       } else {
-        //console.log('else run');
+        
         if (el.classList.contains("invalid") == true) {
           el.classList.remove('invalid');
           document.getElementById(`${el.id}-message`).innerHTML = '';
@@ -1598,7 +1598,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   let state = true
 
   for (let id of ids) {
-    //console.log(id);
+    
 
     if (v(id) === false) {
       state = false;
@@ -1621,7 +1621,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
-    //console.log(scaptcha);
+    
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
     smtp = f('hostSupportSmtp_emsFormBuilder');
@@ -1701,7 +1701,7 @@ function fun_state_loading_message_emsFormBuilder(state) {
 
 
 function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
-  //console.log(`fun_send_setting_emsFormBuilder state_auto:${state_auto}`,data);
+  
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -1996,7 +1996,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   //  localStorage.setItem('head_ws_p', JSON.stringify(head));
 }
 
-//end
+
 
 function exportCSVFile_emsFormBuilder(items, fileTitle) {
   
@@ -2115,7 +2115,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb()
   state_modal_show_efb(1)
-  /* Add div of charts */
+  
   setTimeout(() => {
 
 
@@ -2128,12 +2128,12 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       } else { chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}"></div>` }
     }
 
-    /*End Add div of charts */
+    
     
     
     document.getElementById('overpage-chart').innerHTML = chartview
 
-    /* convert to dataset */
+    
     let drawPieChartArr = [];
     let rowsOfCharts = [];
     let opetionsOfCharts = [];
@@ -2158,7 +2158,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       google.charts.load('current', { packages: ['corechart'] });
       publicidofchart = chartId[t];
 
-      /* drawPieChart */
+      
       drawPieChartArr[t] = () => {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Element');
@@ -2171,7 +2171,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
         var chart = new google.visualization.PieChart(document.getElementById(chartId[t]));
         chart.draw(data, opetionsOfCharts[t]);
       }
-      /* drawPieChart */
+      
 
       try {
 
@@ -2181,12 +2181,12 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       }
 
     }// end for 1
-    /*end convert to dataset */
+    
 
   }, 1000);
 
 
-}
+}//end function
 
 function googleCloudOffer() { return `<p>${efb_var.text.offerGoogleCloud} <a href="https://gcpsignup.page.link/8cwn" target="blank">${efb_var.text.getOfferTextlink}</a> </p> ` }
 
@@ -2200,7 +2200,7 @@ function clickToCheckEmailServer() {
   const nnrhtml = document.getElementById('clickToCheckEmailServer').innerHTML;
   document.getElementById('clickToCheckEmailServer').innerHTML = `<i class="efb bi bi-hourglass-split"></i>`;
   const email = document.getElementById('email_emsFormBuilder').value;
-  
+  // call and waitning response  
   if (email.length > 5) {
     jQuery(function ($) {
       data = {
@@ -2215,7 +2215,7 @@ function clickToCheckEmailServer() {
         if (res.data.success == true) {
           alert_message_efb(efb_var.text.done, efb_var.text.serverEmailAble, 5);
          if(el.classList.contains('active')==false) el.classList.add('active') ;
-         
+         //fun_set_setting_emsFormBuilder(1);
         } else {
 
           alert_message_efb(efb_var.text.alert, efb_var.text.PleaseMTPNotWork, 60, 'warning');
@@ -2235,14 +2235,14 @@ function clickToCheckEmailServer() {
 }
 
 window.onload = (() => {
-  
-  
+  // remove all notifications from other plugins or wordpress
+  //jQuery(document).ready(function () { jQuery("body").addClass("folded") })
   setTimeout(() => {
     for (const el of document.querySelectorAll(".notice")) {
       el.remove()
 
     }
-    
+    //folded
   }, 50)
 })
 
@@ -2250,15 +2250,15 @@ window.onload = (() => {
 function email_template_efb(s) {
   
   if (s == 'p') {
-    
+    //preview
     let c = document.getElementById('emailTemp_emsFirmBuilder').value;
     let ti = efb_var.text.error;
-    
+    //c = c.replace(/(http:@efb@|https:@efb@)+/g, '//');
     c = c.replace(/(@efb@)+/g, '/');
     if (c.match(/(<script+)/gi)) {
-      
+      //show error message you can't use script code
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.pleaseDoNotAddJsCode}</p></div>`;
-      
+      //return 0;
     } else if (c.length > 2 && c.length < 2000) {
       ti = efb_var.text.preview;
       if (!c.includes('shortcode_message') && !c.includes('shortcode_title')) {
@@ -2272,22 +2272,22 @@ function email_template_efb(s) {
       }
     } else if (c.length >= 10000) {
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-exclamation-triangle fs-3 text-danger efb"></div><p class="efb fs-5 efb">${efb_var.text.ChrlimitEmail}</p></div>`;
-      
+      //ti =efb_var.text.error
     } else if (c.length < 2) {
       c = `<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.notFound}</p></div>`
-      
+      //show_modal_efb(``, ti, '', 'saveBox');
     } else {
       ti = efb_var.text.preview;
     }
     show_modal_efb(c, ti, '', 'saveBox');
-    
-    
+    //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+    //myModal.show_efb();
     state_modal_show_efb(1)
   } else if (s == "h") {
-    
-    
+    //show help
+    //open link to document how create a email template
   } else if (s == 'r') {
-    
+    //reset
     document.getElementById('emailTemp_emsFirmBuilder').value = '';
   }
 }
@@ -2393,7 +2393,7 @@ function check_server_sms_method_efb(el){
     el.checked = false;
     return;
   }else if( efb_var.plugins.wpsms ==0 && el.id=="wp_sms_plugin"){
-   
+   //scroll down and montion
    noti_message_efb(efb_var.text.wpsms_nm, 'danger' , `content-efb` );
    window.scrollTo({
     top: document.body.scrollHeight,

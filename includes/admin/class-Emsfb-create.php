@@ -4,7 +4,7 @@ namespace Emsfb;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} 
+} // No direct access allow ;)
 
 class Create {
 
@@ -36,7 +36,7 @@ class Create {
 		add_action( 'admin_create_scripts', array( $this, 'admin_create_scripts' ) );
 		add_action( 'admin_init', array( $this, 'register_create' ) );
 		add_action('fun_Emsfb_creator', array( $this, 'fun_Emsfb_creator'));
-		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));
+		add_action('wp_ajax_add_form_Emsfb', array( $this,'add_form_structure'));//ساخت فرم
 		
 	}
 
@@ -121,9 +121,9 @@ class Create {
 		'AdnSE' => 0,
 		'AdnPDP'=>0,
 		'AdnADP'=>0];
-		
+		//v2 translate
 
-		
+		//write a code for get all colors used in array in template set as active template in wordpress . complate code and use regix to find all colores is used in tamplate
 
 		
 		$lang = $efbFunction->text_efb(1);
@@ -132,14 +132,7 @@ class Create {
 			if (md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
-			if(	$pro==true){
-					/* wp_register_script('whitestudio-admin-pro-js', 'https://whitestudio.team/js/cool.js'.$ac->activeCode, null, null, true);	
-					wp_enqueue_script('whitestudio-admin-pro-js'); */
-
-					/* wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
-					wp_enqueue_script('stripe-js'); */
-					
-			}
+		
 
 			if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 				$k= $ac->apiKeyMap;
@@ -203,19 +196,15 @@ class Create {
 					
 
 
-			/* new code v4 */
+			
 			
 			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.0',true);	
 			wp_enqueue_script('jquery-ui');
 			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.0',true);	
 			wp_enqueue_script('jquery-dd'); 
-			/*end new code v4 */
+			
 
-		/* wp_register_script('addsOnLocal-js', 'https://whitestudio.team/wp-json/wl/v1/zone.js'.get_locale().'', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js'); */
-		/* error_log(get_locale());
-		wp_register_script('addsOnLocal-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/'.get_locale().'.js', null, null, true);	
-		wp_enqueue_script('addsOnLocal-js'); */
+	
 		wp_register_script('countries-js', 'https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/js/wp/countries.js', null, null, true);	
 		wp_enqueue_script('countries-js');
 
@@ -264,14 +253,14 @@ class Create {
 
 		//$colors = $efbFunction->get_list_colores_template();
 		$colors =[];
-		//error_log(json_encode($colors));
+		
 
 		//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 		$plugins =['wpsms' => 0,'wpbaker' => 0,'elemntor'=> 0 , 'cache'=>0];
 			$plugins_get = get_plugins();
-			//error_log(gettype($plugins_get));
+			
 			if (is_plugin_active('wp-sms/wp-sms.php')) {
-				//error_log('finded');
+				
 				$plugins['wpsms']=1;
 			}
 
@@ -346,8 +335,8 @@ class Create {
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
-	
-		
+	//	
+		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
   
 		if( empty($_POST['name']) || empty($_POST['value']) ){
@@ -361,7 +350,7 @@ class Create {
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
-		
+		//$this->value = $_POST['value'];
 
 		$valp =str_replace('\\', '', $_POST['value']);
 		
@@ -384,7 +373,7 @@ class Create {
 		
 		
 		
-		
+		//check if smsnoti axist then call add_sms_contact_efb
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
@@ -412,8 +401,8 @@ class Create {
 		$this->insert_db();
 		
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
-			
-			
+			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
+			//require smsefb.php and call add_sms_contact_efb
 			
 			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 			$smsefb = new smssendefb();
@@ -467,7 +456,7 @@ class Create {
             }
         }
         return  $s;
-    }
+    }//end fun
 
 
 

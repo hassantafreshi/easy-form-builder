@@ -20,13 +20,12 @@ class efbFunction {
 		
 		global $wpdb;
 		$this->db = $wpdb; 
-		//add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
-		
-		//error_log('called function.php');
+	
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 
     }
+
 
 	public function text_efb($inp){
 		//isset($test) ? $test:
@@ -674,7 +673,7 @@ class efbFunction {
 			"or" => $state  &&  isset($ac->text->or) ? $ac->text->or : __('or','easy-form-builder'),
 			"and" => $state  &&  isset($ac->text->and) ? $ac->text->and : __('and','easy-form-builder'),
 			"addngrp" => $state  &&  isset($ac->text->addngrp) ? $ac->text->addngrp : __('Add New Group','easy-form-builder'),
-			/* new phrase v3 */
+			
 			"adduf" => $state  &&  isset($ac->text->adduf) ? $ac->text->adduf : __('Add your forms','easy-form-builder'),				
 			
 			"pgbar" => $state  &&  isset($ac->text->pgbar) ? $ac->text->pgbar : __('Progress bar','easy-form-builder'),
@@ -734,7 +733,7 @@ class efbFunction {
 
 
 		
-		//error_log(gettype($inp));
+		
 		$rtrn =[];
 		$st="null";
 		
@@ -754,9 +753,9 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-				//error_log('===>send_email_state');
-				//error_log(json_encode($cont));
-				//error_log(json_encode($to));
+				
+				
+				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -768,40 +767,38 @@ class efbFunction {
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
-				  //error_log($state);
+				  
 				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
-				//error_log("=========>json_encode(message)");
-				//error_log(json_encode($message));
+				
+				
 				if( $state!="reportProblem"){
 					 $to_ ="";
 					 $sent = [];
 					 if(gettype($to)!='string'){					
-						/* error_log('to array');
-						error_log(json_encode($to)); */
-						//error_log(json_encode($to));
+						
 						foreach ($to as $key => $value) {
-							 //error_log('val email========>');
-								//error_log($value);
-								//error_log($key);
+							 
+								
+								
 
 							if(empty($value)==true) continue;
 							 if( strpos($value, ',') !== false){
 								 $emails = explode(',', $value);
-								 //error_log('========>emails');
-								 //error_log(json_encode($emails));
+								 
+								 
 								 if(gettype($emails)=='array') $emails = array_unique($emails);
-								 //error_log(json_encode($emails));
+								 
 								 foreach ($emails as $key => $val) {
 									 if (strlen($val)>2 && !in_array($val, $sent)) {
-										// error_log($val);
+										
 										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) )
 										 { 
 											$to_ = $val;
 										 }else{
 											 //$reply_to_emails .=$value .' <'.$value .'>';
 											 array_push($sent,$val);
-											 //error_log('email is send ========>');
-											 //error_log(json_encode($sent));
+											 
+											 
 											 $mailResult =  wp_mail( $val,$sub, $message, $headers ) ;
 										 }
 		 
@@ -811,39 +808,35 @@ class efbFunction {
 								 if (strlen($value)>2   ) {
 									 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
 									 }else{
-										 //error_log("ele tooo");
-										 //error_log(json_encode(!in_array($value, $sent)));
+										 
+										 
 										
 										 //$reply_to_emails .=$value .' <'.$value .'>';
 										 if(!in_array($value, $sent)){
-											 //error_log('value===> to');
+											 
 											 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
 											 array_push($sent,$value);
-											 //error_log(json_encode($sent));
+											 
 										 }
 									 }
 	 
 								 }	
-								 //error_log('======>email sented list');
-								 //error_log(json_encode($sent));							
+								 
+								 							
 							 }
 
 						}
 
-						//if($reply_to_emails!=""){$reply_to_emails =substr($reply_to_emails, 0, -1); array_push($headers, 'Reply-To:' .$reply_to_emails);}
-						/* error_log(json_encode($headers));
-						error_log(json_encode($to)); */
+						
 					 }else{
-						//error_log('===>to string');
+						
 						$to_=$to;
 					 }
-					 //error_log($state);
-					 /* error_log(json_encode($to_));
-					 error_log("=============>headers");
-					 error_log(json_encode($headers)); */
+					 
+					
 					 if(!in_array($to_, $sent)) {
-						//error_log('first to_');
-						//error_log($to_);
+						
+						
 						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
 					}
 					 
@@ -873,18 +866,18 @@ class efbFunction {
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    //error_log('done!');
+				    
 			   return $mailResult;
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-				//error_log('===>send_email_state_new');
-				//error_log(json_encode($cont));
-				//error_log(json_encode($to));
-				//error_log(json_encode($st));
-				//error_log(json_encode($sub));
-				//error_log(json_encode($cont));
-				//error_log('==========>link');
-				//error_log(json_encode($link));
+				
+				
+				
+				
+				
+				
+				
+				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -906,8 +899,8 @@ class efbFunction {
 						$to_ = gettype($to)=='string' ? $to : implode(',', array_unique($to));	
 						//replace
 						$to = str_replace(',,', ',', $to_);
-						//error_log('======>to_');
-						//error_log($to_);
+						
+						
 						$headers = array(
 							'MIME-Version: 1.0\r\n',
 							'From:'.$from.'',
@@ -947,7 +940,7 @@ class efbFunction {
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
-							//error_log('is empty:'.intval(empty($to[$i])) .'json:'.json_encode($to[$i]));
+							
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							if( $state!="reportProblem"){
 		
@@ -964,7 +957,7 @@ class efbFunction {
 									'From:'.$from.'',
 									'Bcc:'.$to_.''
 								);		
-								//error_log($message);	
+									
 								$mailResult =  wp_mail('', $sub[$i], $message, $headers);
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
@@ -978,7 +971,7 @@ class efbFunction {
 					
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    //error_log('done!');
+				    
 			   return $mailResult;
 	}
 
@@ -1005,7 +998,7 @@ class efbFunction {
 		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". __('Created by','easy-form-builder') . " " . __('Easy Form Builder','easy-form-builder')."</a></small>";	}		
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
-		//error_log($footer);
+		
 		$title=$lang["newMessage"];
 		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
@@ -1017,7 +1010,7 @@ class efbFunction {
 		
 		
 		if($state=="testMailServer"){
-			//error_log('=========>testMailServer');
+			
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'><h1>".  $footer ."</h1></div>";
 			 if(strlen($st->activeCode)<5){
@@ -1043,7 +1036,7 @@ class efbFunction {
 			}
 		}else{
 			if(gettype($m)=='string'){
-				//error_log('$lang["WeRecivedUrM"]:'.$lang["WeRecivedUrM"]);
+				
 			$title =$lang["hiUser"];
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
@@ -1084,14 +1077,14 @@ class efbFunction {
 				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
 				$temp= preg_replace('/(@efb@)+/','/',$temp);
 				$p = strripos($temp, '</body>');
-				//error_log($footer);
+				
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
 				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
-		       //error_log($temp);
+		       
 				$val =  $temp;
 			}
-			//error_log($footer);
+			
 			return $val;
 	}
 
@@ -1106,7 +1099,7 @@ class efbFunction {
 		//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 		$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
 		$rtrn='null';
-		/* error_log(json_encode($value)); */
+		
 		$v =str_replace('\\', '', $value);
 		$rtrn =json_decode($v);
 		$rtrn = $rtrn!=null ? $rtrn :'null';	
@@ -1117,7 +1110,7 @@ class efbFunction {
 		
 		$text = ["youRecivedNewMessage"];
         $lang= $this->text_efb($text);		
-		//error_log($msg_id);
+		
 		$msg_id = preg_replace('/[,]+/','',$msg_id);
 		$email="null";
 		$table_name = $this->db->prefix . "emsfb_msg_"; 
@@ -1136,7 +1129,7 @@ class efbFunction {
 		
 		$table_name = $this->db->prefix . "emsfb_form"; 
 		$data = $this->db->get_results("SELECT form_structer FROM `$table_name` WHERE form_id = '$form_id' ORDER BY form_id DESC LIMIT 1");
-		//error_log(json_encode($data));
+		
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
@@ -1153,18 +1146,18 @@ class efbFunction {
 		}
 
 		//send smsnoti
-		//error_log("===>befor if smsnoti");
+		
 		if(isset($data[0]['smsnoti']) && intval($data[0]['smsnoti'])==1){		
-			//error_log("===>smsnoti");	
+				
 			$phone_numbers=[[],[]];		
 			$setting = $this->get_setting_Emsfb('setting');	
-			//error_log(gettype($setting));
+			
 			//$numbers = isset($setting['phnNo']) ? explode(',',$setting['phnNo']) :[];
 			$numbers = isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5  ? explode(',',$setting->phnNo) :[];
 			$phone_numbers[0]= $numbers;
 			
-			//error_log('----------->user');
-			//error_log(json_encode($user_res));
+			
+			
 			$have_noti_id =[];
 			foreach($data as $key=>$val){
 				if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
@@ -1173,13 +1166,13 @@ class efbFunction {
 			}
 			if(!empty($have_noti_id)){
 				foreach ($user_res as $value) {
-					//error_log(json_encode($value));
-					//error_log(gettype($value));
-					//error_log(json_encode($have_noti_id));
+					
+					
+					
 					if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
-						//error_log('----------->');
+						
 						array_push($phone_numbers[1],$value['value']);
-						//error_log(json_encode($phone_numbers));
+						
 					}
 				}
 			}
@@ -1190,38 +1183,38 @@ class efbFunction {
 	}//end function
 	
 	public function sanitize_obj_msg_efb ($valp){
-		//error_log("=============================================");
+		
 		foreach ($valp as $key => $val) {
 			$type = $val["type"];
 			foreach ($val as $k => $v) {
 				switch ($k) {
 					case 'value':
 						$type =strtolower($type);
-						//error_log(preg_match("/checkbox/i", $type));
 						
-						//error_log(preg_match("/multi/i", $type));
-						//error_log(preg_match("/radio/i", $type));
-						//error_log(gettype($v));
+						
+						
+						
+						
 						if( (gettype($v)!="array" || gettype($v)!="object" ) && preg_match("/multi/i", $type)==false
 						&& (preg_match("/select/i", $type)==true ||  preg_match("/radio/i", $type)==true) ){
-							    //error_log("-----------------------");
-								//error_log($valp[$key][$k]);
+							    
+								
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;	
 						}else if ( preg_match("/checkbox/i", $type)==true || preg_match("/multi/i", $type)==true ||gettype($v)=="array" || gettype($v)=="object"){
-								//error_log("=========================>");
-								//error_log(gettype($v));
+								
+								
 								if(gettype($v)=="string") break;
 							foreach ($v as $ki => $va) {
 								# code...
 								$v[$ki]=sanitize_text_field($va);
-								//error_log($ki);
-								//error_log($va);
+								
+								
 							}
 							$valp[$key][$k] =$v;
 						}else{
 							//$valp[$key][$k]=sanitize_text_field($v);
-							//error_log("-----------------------");
-								//error_log($valp[$key][$k]);
+							
+								
 							$valp[$key][$k] =$type!="html" ? sanitize_text_field($v) : $v;
 						}
 								
@@ -1232,17 +1225,17 @@ class efbFunction {
 					break;
 					case 'file':
 					case 'href':
-						//error_log($v);
+						
 						$valp[$key][$k]=$v;
 					break;
 					case 'rePage':
 					case 'src':
-						//error_log($k);
+						
 						$valp[$key][$k]=sanitize_url($v);
-						//error_log($valp[$key][$k]);
+						
 					break;
 					case 'thank_you_message':
-						//error_log(json_encode($valp[$key]));
+						
 						$valp[$key][$k]['icon']=sanitize_text_field( $v['icon']);
 						$valp[$key][$k]['thankYou']=sanitize_text_field( $v['thankYou']);
 						$valp[$key][$k]['done']=sanitize_text_field( $v['done']);
@@ -1250,7 +1243,7 @@ class efbFunction {
 						$valp[$key][$k]['pleaseFillInRequiredFields']=sanitize_text_field( $v['pleaseFillInRequiredFields']);
 					break;
 					case 'c_c':			
-						//error_log($valp[$key][$k]);
+						
 						foreach ($valp[$key][$k] as $kei => $value) {
 							# code...							
 							$valp[$key][$k][$kei] = sanitize_text_field($value);
@@ -1258,13 +1251,13 @@ class efbFunction {
 						//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
 						break;
 						case 'c_n':
-							//error_log("c_n sanitize_obj_msg_efb=>mobile");
-							//error_log(json_encode($valp[$key][$k]));
+							
+							
 							foreach ($valp[$key][$k] as $kei => $value) {
 								# code...
-								//error_log("c_n foreach =====>");
-								//error_log($key);
-								//error_log($value);
+								
+								
+								
 								$valp[$key][$k][$kei] = sanitize_text_field($value);
 							}
 							//$valp[$key][$k]= $key!=0 && $k!="c_c" ||  $valp[$key][$k]= $key!=0 && $k!="c_n" ?
@@ -1274,47 +1267,47 @@ class efbFunction {
 						if(strlen($valp[$key][$k])<1) break;
 						
 						
-						//error_log($valp[$key][$k]);
-						//error_log($valp[$key]["id_"]);
+						
+						
 						if($valp[$key]["type"]=="option"){
-							//error_log("iddddddddddddddddddddd===================");
+							
 							foreach ($valp as $ki => $vl) {
 								$tp = $vl["type"];
 								if(array_key_exists('id_',$vl)==false) continue;
-								//error_log(json_encode($vl));
+								
 								if($vl['id_']!=$valp[$key]["parent"]){
 									continue;
 								}
-								//error_log("_____________________________________________________________");
-								//error_log($vl['id_']);
-								//error_log(json_encode($vl));
-								//error_log($valp[$key]["parent"]);
+								
+								
+								
+								
 								foreach ($vl as $kii => $vll) {
 									//value
-									//error_log("::::::::::::::");
+									
 									if($kii!="value") continue;
-									//error_log($kii);
+									
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
 										if($vll==$valp[$key]["id_"])$vll=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
-											//error_log('>>>>>>>>>>>>>>>>>>');
-											//error_log($vn);
+											
+											
 											# code...
 											//$vll[$ke]=sanitize_text_field($va);
 											if($vn==$valp[$key]["id_"]) {
-												//error_log('<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>');
-												//error_log($vn);
+												
+												
 												$valp[$ki][$kii][$ke] =$valp[$key][$k];
-												//error_log($valp[$ki][$kii][$ke] );
-												//error_log($valp[$vll][$k]);
+												
+												
 											}
 
-											//error_log($ki);
-											//error_log($vn);
+											
+											
 										}
 									}
-									//error_log($vll);
+									
 								}
 							}
 							$valp[$key]["id_old"]=$valp[$key]["id_"];
@@ -1381,7 +1374,7 @@ class efbFunction {
 			'User-Agent: '.$ua
 		));
 		$location = json_decode(curl_exec($cURL), true); 
-		//error_log(json_encode($location));
+		
 		if(isset($location)){
 			return $state==1 ? $location["country_code2"] :$location  ;
 		}else{
@@ -1392,8 +1385,8 @@ class efbFunction {
 
 
 	   public function addon_adds_cron_efb(){
-		//error_log('addon_adds_cron_efb');
-		//error_log(wp_next_scheduled( 'download_all_addons_efb' ));
+		
+		
 		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
 			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
 		  }
@@ -1413,7 +1406,7 @@ class efbFunction {
             if( is_wp_error( $request ) ) {
 				//sample_admin_notice__success
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );
-                //error_log("function.php====> Cannot connect to wp-json of ws.team");
+                
                 return false;
             }
             
@@ -1445,14 +1438,13 @@ class efbFunction {
 		$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
 		require_once( $path . 'wp-load.php' );
 		require_once (ABSPATH .'wp-admin/includes/admin.php');
-		//error_log($url);
+		
 		$name =substr($url,strrpos($url ,"/")+1,-4);
-		/* 
-		 */
+		
 		$r =download_url($url);
 		if(is_wp_error($r)){
 			//show error message
-			//error_log(json_encode($r));
+			
 		}else{
 			$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
 			if (!file_exists($directory)) {
@@ -1474,8 +1466,8 @@ class efbFunction {
 				$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
 				if(is_wp_error($r)){
 				
-					//error_log('error unzip');
-					//error_log(json_encode($r));
+					
+					
 					error_log('EFB=>unzip addons error 2:');
 					error_log(json_encode($r));
 					return false;
@@ -1498,7 +1490,7 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		//error_log("run download_all_addons_efb");
+		
 		if($this->val_state=='download_all_addons_efb'){return;}
 		$this->val_state='download_all_addons_efb';
 		
@@ -1514,8 +1506,8 @@ class efbFunction {
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 		foreach ($addons as $key => $value) {
-			//error_log($key);
-			//error_log($value);
+			
+			
 			if($value ==1){
 				
 				$this->addon_add_efb($key);
@@ -1565,51 +1557,6 @@ class efbFunction {
 	}
 
 	
-	/* public function efb_code_validate_create_old($fid, $type, $status, $tc) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'emsfb_stts_';
-		$ip = $this->get_ip_address();
-		$date_now = date('Y-m-d H:i:s');
-		$date_limit = date('Y-m-d H:i:s', strtotime('+24 hours'));
-
-		$query = $wpdb->prepare(
-			"SELECT sid FROM {$table_name} WHERE ip = %s AND read_date > %s AND active = %d AND fid = %s",
-			$ip,
-			$date_now,
-			1,
-			$fid
-		);
-		$result = $wpdb->get_var($query);
-
-		if (!empty($result)) {
-			return $result;
-		}
-
-		$sid = date("ymdHis") . substr(bin2hex(openssl_random_pseudo_bytes(5)), 0, 9);
-		$uid = get_current_user_id() ?? 0;
-		$os = $this->getVisitorOS();
-		$browser = $this->getVisitorBrowser();
-
-		$data = array(
-			'sid' => $sid,
-			'fid' => $fid,
-			'type_' => $type,
-			'status' => $status,
-			'ip' => $ip,
-			'os' => $os,
-			'browser' => $browser,
-			'uid' => $uid,
-			'tc' => $tc,
-			'active' => 1,
-			'date' => $date_now,
-			'read_date' => $date_limit
-		);
-
-		$wpdb->insert($table_name, $data);
-		return $sid;
-	} */
-
-
 	public function efb_code_validate_create($fid, $type, $status, $tc) {
 		$table_name = $this->db->prefix . 'emsfb_stts_';
 		$ip = $this->get_ip_address();
@@ -1653,23 +1600,8 @@ class efbFunction {
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
 		$active =0;
 		$read_date =date('Y-m-d H:i:s');
-		if($status=="rsp" || $status=="ppay")  $active =1;
-		/* $data_= $data = array(
-			'status' => $status,
-			'active' =>0,
-			'read_date'=> date('Y-m-d H:i:s')
-        );
-		if($tc!="null"){
-			error_log("============>tc");
-			$data_['tc'] = $tc;
-		}
-        $where = array(
-            'sid' => $sid,
-			'active'=>1
-            			
-        ); */
-		//error_log(json_encode($data));
-      /* $r= $this->db->update($table_name, $data_,$where); */
+		if($status=="rsp" || $status=="ppay")  $active =1;		
+      
 
 	   $sql = "UPDATE $table_name SET status='{$status}', active={$active}, read_date='{$read_date}', tc='{$tc}' WHERE sid='{$sid}' AND active=1";
 
@@ -1680,20 +1612,19 @@ class efbFunction {
     }
 
     public function efb_code_validate_select($sid ,$fid) {
-		//error_log("efb_code_validate_select");
-		//error_log($sid);
-		//error_log($fid); 
+		
+		
+		 
 		$table_name = $this->db->prefix . 'emsfb_stts_';
         $date_limit = date('Y-m-d H:i:s', strtotime('-24 hours'));
         $date_now = date('Y-m-d H:i:s');
         $query =$this->db->prepare("SELECT COUNT(*) FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s", $sid, $date_now,$fid);
-		/* error_log(json_encode(  $query)); */
+		
         $result =$this->db->get_var($query);
-		//error_log(json_encode($result));
+		
         return $result === '1';
     }
 
-	/* section of generate validate code and status of visit and message [end] */
 	
 	public function getVisitorOS() {
 		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
@@ -1743,26 +1674,19 @@ class efbFunction {
 		return $b;
 	}
 
-
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-		
-		
-		
-		
-		
-		
-		
+	
+		//error_log('==>sms_ready_for_send_efb');
 
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		//send_sms_efb($number,$message,$form_id,$severType)
+		//included smsefb
+		//get admin numbers from smsefb
+		//get messages from smsefb
+		//if [confirmation_code] exist in sms content replace it with $tracking_code
+		//if  [link_page] exist in sms content replace it with $page_url
+		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
+		//add admin numbers for numbers[0]
+		//write a function for 
 
 		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")==false) {
 			error_log('Easy Form Builder: SMS Addon is not installed');
@@ -1773,17 +1697,17 @@ class efbFunction {
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
 
 		if(isset($sms_content->id)==false) return false;		
-		
+		//error_log(json_encode($sms_content));
 		$recived_your_message = $sms_content->recived_message_noti_user;
 		$new_message = $sms_content->new_message_noti_user;
 		$news_response = $sms_content->new_response_noti;
 			if(!empty($sms_content->admin_numbers )){
 				$admin_numbers = explode(',',$sms_content->admin_numbers);
 				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				
+				//error_log(json_encode($numbers));
 				$numbers[0]= array_unique($numbers[0]);
 				$numbers[1]= array_unique($numbers[1]);
-				
+				//error_log(json_encode($numbers));
 			}
 			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
 					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
@@ -1795,8 +1719,8 @@ class efbFunction {
 			}
 			
 		if($state=="fform"){
-			
-			
+			//send sms to user for recived your message
+			//send sms to admin for new message
 			if(count($numbers[1])>0 && $new_message!=null){
 				
 				foreach($numbers[1] as$val){
@@ -1814,15 +1738,15 @@ class efbFunction {
 			return true;
 			
 		}else if($state=="resppa"){
-			
-			
+			//send sms to user for recived your message
+			//send sms to admin for new response
 			if(count($numbers[1])>0 && $recived_your_message!=""){
 				foreach($numbers[1] as$val){
 					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
 				}
 			}
 			if(count($numbers[0])>0 && $news_response!=""){
-				
+				//$page_url."?track=".$tracking_code
 				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);		
 				foreach($numbers[0] as$val){
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
@@ -1830,14 +1754,14 @@ class efbFunction {
 			}
 			return true;
 		}else if ($state=="respp" || $state=="respadmin"){
-			
-			error_log("==>respp || respadmin");
-			
+			//send sms to user for new response
+			error_log("==>resppa || respadmin");
+			//error_log(count($numbers[1]));
 		
-			
+			//error_log($news_response);
 			if(count($numbers[1])>0 && $news_response!=""){
 				foreach($numbers[1] as $val){
-					
+					//error_log($val);
 					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
 				}
 			}

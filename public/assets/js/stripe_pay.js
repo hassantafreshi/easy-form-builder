@@ -333,6 +333,6 @@ fun_pay_valid_price = () => {
 
   return s;
 }
-//pub function
+
 
 

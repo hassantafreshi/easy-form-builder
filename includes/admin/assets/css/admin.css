@@ -168,25 +168,25 @@ div.section {	margin-top: 4% !important;
 }
 .fadeIn {	animation:         fadein 2s;
 	-moz-animation:    fadein 2s;
- /* Firefox */	-webkit-animation: fadein 2s;
- /* Safari and Chrome */	-o-animation:      fadein 2s;
- /* Opera */}
+ 	-webkit-animation: fadein 2s;
+ 	-o-animation:      fadein 2s;
+ }
 @keyframes fadein {	from {		opacity: 0;
 	}
 	to {		opacity: 1;
 	}
 }
-@-moz-keyframes fadein { /* Firefox */	from {		opacity: 0;
+@-moz-keyframes fadein { 	from {		opacity: 0;
 	}
 	to {		opacity: 1;
 	}
 }
-@-webkit-keyframes fadein { /* Safari and Chrome */	from {		opacity: 0;
+@-webkit-keyframes fadein { 	from {		opacity: 0;
 	}
 	to {		opacity: 1;
 	}
 }
-@-o-keyframes fadein { /* Opera */	from {		opacity: 0;
+@-o-keyframes fadein { 	from {		opacity: 0;
 	}
 	to {		opacity: 1;
 	}
@@ -216,31 +216,31 @@ select option.emsFormBuilder {	border: 1px solid #a39ea9}
 .choices {	width: -webkit-fill-available;
 }
 .overpage {	position:         absolute !important;
- /* Sit on top of the page content */	width:            100%;
- /* Full width (cover the whole page) */	height:           100%;
- /* Full height (cover the whole page) */	top:              0;
+ 	width:            100%;
+ 	height:           100%;
+ 	top:              0;
 	left:             0;
 	right:            0;
 	bottom:           0;
 	background-color: rgba(0, 0, 0, 0.5) !important;
- /* Black background with opacity */	z-index:          10000 !important;
- /* Specify a stack order in case you're using a different order for other elements */	cursor:           pointer;
- /* Add a pointer on hover */}
+ 	z-index:          10000 !important;
+ 	cursor:           pointer;
+ }
 .overpage-chart {	position:         absolute !important;
- /* Sit on top of the page content */	width:            100%;
- /* Full width (cover the whole page) */	height:           100%;
- /* Full height (cover the whole page) */	top:              0;
+ 	width:            100%;
+ 	height:           100%;
+ 	top:              0;
 	left:             0;
 	right:            0;
 	bottom:           0;
 	z-index:          10000 !important;
- /* Specify a stack order in case you're using a different order for other elements */	}
+ 	}
 .overpage-mbox {	margin:     10%;
 	background: #fff;
 }
 .dropdown-menu {	padding: 5px 10px !important;
 }
-/* drog and drop section start*/.inputDnD .form-control-file {	position:         relative;
+.inputDnD .form-control-file {	position:         relative;
 	width:            100%;
 	height:           100%;
 	min-height:       7em;
@@ -277,10 +277,10 @@ hr.solid {	margin-top: 0rem;
   }
   .text-small{	  font-size: small;
   }
-     /* drog and drop section end*//* preview start */.preview-overpage {	position: absolute !important;
+     .preview-overpage {	position: absolute !important;
 }
-/* preview end */.emsFormBuilder-tr {	cursor: pointer}
-/*  Create Form Dashboard */a.emsFormBuilder {    background-color: #633a82;
+.emsFormBuilder-tr {	cursor: pointer}
+a.emsFormBuilder {    background-color: #633a82;
     color: #f1fcfc;
     border: none;
     font-size: 17px;
@@ -312,7 +312,7 @@ hr.solid {	margin-top: 0rem;
  }
   
 
-/*  Create Form Dashboard  end*//* conversation box *//* .chat{	margin-top: auto;
+/* .chat{	margin-top: auto;
 	margin-bottom: auto;
 }
 .card-chat{	height: 500px;
@@ -490,7 +490,7 @@ a#close-menu {    padding: 0px 16px;
     float: right;
 	cursor: pointer;
 }
- *//* conversation box */
+ */
 
 
  
