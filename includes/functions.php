@@ -21,30 +21,13 @@ class efbFunction {
 		global $wpdb;
 		$this->db = $wpdb; 
 		//add_action( 'upgrader_process_complete', [$this ,'wp_up_upgrade_completed_efb'], 10, 2 );
-		//$this->test_Efb();
+		
 		//error_log('called function.php');
 		register_activation_hook( __FILE__, [$this ,'download_all_addons_efb'] );
 		add_action( 'load-index.php', [$this ,'addon_adds_cron_efb'] );
 
     }
 
-	public function test_Efb(){
-		 //error_log('===>test_Efb==function.php');
-	
-
-		/* if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
-			error_log('not found stripe');
-		}
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {	
-			error_log('not found persiadatepicker');
-		}
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {	
-			error_log('not found arabicdatepicker');
-		}
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay")) {	
-			error_log('not found persiapay');
-		} */
-	}
 	public function text_efb($inp){
 		//isset($test) ? $test:
 		$ac= $this->get_setting_Emsfb();		 
