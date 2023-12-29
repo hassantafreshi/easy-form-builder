@@ -26,3 +26,7 @@ vendor/.git
 vendor/.git/*
 vendor/.vscode
 vendor/.vscode/*
+composer.json
+.gitignore
+composer.lock
+composer.json
