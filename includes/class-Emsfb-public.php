@@ -4005,18 +4005,7 @@ class _Public {
 	   .efb.btn-delete:hover {	background-color: #ff1233 !important;
 	   color: white !important;
 	   }
-	   .efb.btn-action-edit {	height: 30px;
-	   width: 30px;
-	   background-color: #a78ed9 !important;
-	   border-radius: 50% !important;
-	   border-color: #7b56c5;
-	   font-size: 20px !important;
-	   padding: 0 !important;
-	   color: white !important;
-	   }
-	   .efb.btn-action-edit:hover {	background-color: #7949d9 !important;
-	   color: white !important;
-	   }
+
 	   #deleteElEFb , #moveElEFb{
 	   z-index: 50;
 	   }
