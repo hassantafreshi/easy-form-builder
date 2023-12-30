@@ -66,13 +66,10 @@ function fun_emsFormBuilder_render_view(x) {
    <td  class="efb" > 
    <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
-   <button type="button" class="efb zindex-100  btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
+   <button type="button" class="efb zindex-100  btn btn-delete btn-sm bg-info" onClick ="emsFormBuilder_duplicate(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.duplicate}"><i class="efb  bi-clipboard-plus"></i> </button>
+   <button type="button" class="efb zindex-100 btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
+   <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check"  onClick ="copyCodeEfb('${i.form_id}-fc')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.copy}"> </button>
    <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
-   <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check" 
-     onClick ="copyCodeEfb('${i.form_id}-fc')" 
-     data-bs-toggle="tooltip" data-bs-placement="bottom"
-     title="${efb_var.text.copy}">
-   </button></th>
    </td>                               
   </tr>
   `
@@ -478,7 +475,7 @@ function fun_emsFormBuilder_more() {
 
 
 function fun_ws_show_edit_form(id) {
-  //valj_efb = JSON.parse(sessionStorage.getItem('valj_efb'));  
+  //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
   
   creator_form_builder_Efb();
@@ -712,7 +709,7 @@ function fun_get_form_by_id(id) {
             formName_Efb = valj_efb[0].formName;
             form_type_emsFormBuilder=valj_efb[0].type
             form_ID_emsFormBuilder = id;
-            sessionStorage.setItem('valj_efb', JSON.stringify(value));
+            localStorage.setItem('valj_efb', JSON.stringify(value));
             const edit = { id: res.data.id, edit: true };
             localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
             fun_ws_show_edit_form(id);
@@ -2146,7 +2143,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       };
       const countCol = colname[t].length;
       const rows = Array.from(Array(countCol), () => Array(2).fill(0));
-      const valj_efb_ = JSON.parse(sessionStorage.getItem('valj_efb'));
+      const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
       for (let r in colname[t]) {
 
         rows[r][0] = colname[t][r];
