@@ -300,9 +300,9 @@ function actionSendData_emsFormBuilder() {
   
   data = {};
   var name = formName_Efb
-  //console.log(localStorage.getItem("valj_efb"));
+  //console.log(sessionStorage.getItem('valj_efb'));
   // replace \" to "
-  const ls_val=  localStorage.getItem("valj_efb").replace(/\\\"/g, '"');
+  const ls_val=  sessionStorage.getItem('valj_efb').replace(/\\\"/g, '"');
   jQuery(function ($) {
 
     
@@ -733,32 +733,32 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "xzdeosw2q", "dataId": "xzdeosw2q-id", "type": "text", "placeholder": efb_var.text.lastName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.lastName, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "2jpzt59do", "dataId": "2jpzt59do-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 6, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1},
     { "id_": "dvgl7nfn0", "dataId": "dvgl7nfn0-id", "type": "textarea", "placeholder": efb_var.text.enterYourMessage, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 7, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     //console.log(JSON.stringify(json));
     valj_efb = json;
   } else if (id === "contactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "multipleStepContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = multiple_step_ontact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "privateContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = private_contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "curvedContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = curved_contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
@@ -769,7 +769,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1 }]
     valj_efb = json;
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "login") {
     // login v2
     form_type_emsFormBuilder = "login";
@@ -779,7 +779,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "passwordlogin", "dataId": "passwordlogin-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     valj_efb = json;
 
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "support") {
     // support v2
     form_type_emsFormBuilder = "form";
@@ -792,25 +792,25 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "59c0hfpyo", "dataId": "59c0hfpyo-id", "type": "text", "placeholder": efb_var.text.subject, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.subject, "required": 0, "amount": 6, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "qas87uoct", "dataId": "qas87uoct-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 10, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false, "noti":1 },
     { "id_": "cqwh8eobv", "dataId": "cqwh8eobv-id", "type": "textarea", "placeholder": efb_var.text.message, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 8, "step": 2,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "supportTicketForm") {
     // support v2
     form_type_emsFormBuilder = "form";
     const json = support_ticket_form_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "orderForm") {
     // support v2
     form_type_emsFormBuilder = "payment";
     const json = order_payment_form_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "customerFeedback") {
     // support v2
     form_type_emsFormBuilder = "form";
     const json = customer_feedback_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "subscription") {
     // if subscription has clicked add Json of contact and go to step 3
@@ -820,7 +820,7 @@ function create_form_by_type_emsfb(id, s) {
       { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "", "icon": "bi-check2-square", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
       { "id_": "janf5eutd", "dataId": "janf5eutd-id", "type": "text", "placeholder": efb_var.text.name, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.name, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
       { "id_": "82i3wedt1", "dataId": "82i3wedt1-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , 'noti':1 }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id == "survey") {
     
@@ -838,7 +838,7 @@ function create_form_by_type_emsfb(id, s) {
     valueJson_ws_p = json;
     valj_efb = json;
     
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id == "reservation") {
 
   } else if (id == "payment") {
@@ -2746,7 +2746,7 @@ const saveFormEfb = () => {
         let sav = JSON.stringify(valj_efb);
         
         
-        localStorage.setItem('valj_efb', sav);
+        sessionStorage.setItem('valj_efb', sav);
         localStorage.setItem("valueJson_ws_p", sav)
         formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb
         returnState = actionSendData_emsFormBuilder()
@@ -2830,7 +2830,7 @@ let editFormEfb = () => {
   valueJson_ws_p = 0; // set ajax to edit mode
   let dropZoneEFB = document.getElementById('dropZoneEFB');
   dropZoneEFB.innerHTML = loading_messge_efb();
-  if (localStorage.getItem("valj_efb")) { valj_efb = JSON.parse(localStorage.getItem("valj_efb")); } // test code => replace from value
+  if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); } // test code => replace from value
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 

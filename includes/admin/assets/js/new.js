@@ -1842,7 +1842,7 @@ function previewFormEfb(state) {
   timeout < 1700 ? timeout = 1700 : 0;
   timeout = state == 'run' ? 0 : timeout;
   if (state != "show" && state != "run") {
-    if (valj_efb.length > 2) { localStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
+    if (valj_efb.length > 2) { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)) } else {
       show_modal_efb(`<div class="efb text-center text-darkb efb"><div class="efb bi-emoji-frown fs-4 efb"></div><p class="efb fs-5 efb">${efb_var.text.formNotFound}</p></div>`, efb_var.text.previewForm, '', 'saveBox');
       //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
       //myModal.show_efb();
