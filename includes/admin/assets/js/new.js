@@ -128,7 +128,7 @@ const show_modal_efb = (body, title, icon, type) => {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     document.getElementById("settingModalEfb").classList.contains('modal-new-efb') ? '' : document.getElementById("settingModalEfb").classList.add('modal-new-efb')
   }
-  else if (type == "deleteBox") {
+  else if (type == "deleteBox" || type=="duplicateBox") {
     document.getElementById("settingModalEfb_").classList.remove('save-efb')
     if (!document.getElementById('modalConfirmBtnEfb')) document.getElementById('settingModalEfb-sections').innerHTML += `
     <div class="efb  modal-footer" id="modal-footer-efb">

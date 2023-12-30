@@ -3752,6 +3752,53 @@ function emsFormBuilder_delete(id, type,value) {
   //myModal.show_efb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+function emsFormBuilder_duplicate(id, type,value) {
+  
+  //v2
+  let val =id;
+  
+  
+  switch (type) {
+    case "addon":
+      val = efb_var.text[id];
+      break;
+    case "form":
+      val=value;
+      break;
+    case "message":
+      val=value;
+      break;
+    case 'condlogic':
+      val =id;
+      break;
+  }
+  const msg = efb_var.text.ausdup.replaceAll('XXX',val);
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${msg}</div></div>`
+  show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+
+  //myModal.show_efb();
+  state_modal_show_efb(1)
+  confirmBtn.addEventListener("click", (e) => {
+  /*   if(type=='form'){
+    fun_confirm_remove_emsFormBuilder(Number(id))
+    }else if(type=='message'){
+      fun_confirm_remove_message_emsFormBuilder(Number(id))
+    }else if (type =='addon'){
+      addons_btn_state_efb(id);
+      fun_confirm_remove_addon_emsFormBuilder(id);
+    }else if (type ="condlogic"){
+      
+      fun_remove_condition_efb(id , value);
+    } */
+    activeEl_efb = 0;
+    state_modal_show_efb(0)
+  })
+    
+  //myModal.show_efb();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 fun_remove_condition_efb = (no , step_id)=>{
   
