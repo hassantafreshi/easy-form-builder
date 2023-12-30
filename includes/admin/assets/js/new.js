@@ -1489,7 +1489,7 @@ function validExtensions_efb_fun(type, fileType,indx) {
 
 
 
-var steps_len_efb 
+let steps_len_efb 
 
 function handle_navbtn_efb(steps, device) {
 
