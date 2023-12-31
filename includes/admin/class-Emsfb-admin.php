@@ -79,6 +79,7 @@ class Admin {
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public')); 
             
             add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);
+            add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);
            
 
        
@@ -1284,6 +1285,52 @@ class Admin {
 
         
 
+    }
+
+    public function fun_duplicate_Emsfb(){
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
+        $lang= $efbFunction->text_efb($text);
+
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>$lang["error403"]];
+            wp_send_json_success($response, 200);
+        }
+        if (empty($_POST['id'])) {            
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            wp_send_json_success($response,200);
+        }
+        $id =  ( int ) sanitize_text_field($_POST['id']) ;
+        $type = sanitize_text_field($_POST['type']) ;
+        if($type =='form'){
+            $table_name = $this->db->prefix . "emsfb_form";
+            $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id'");
+            if(count($value)<1){
+                $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+                wp_send_json_success($response,200);
+            }
+            $val = $value[0];
+            $form_name = $val->form_name . " - " . $lang["copy"];
+            $date = wp_date('Y-m-d H:i:s');
+            $r =$this->db->insert($table_name, array(
+                'form_name' =>  $form_name, 
+                'form_structer' => $val->form_structer, 
+                'form_email' => $val->form_email, 
+                'form_created_by' => get_current_user_id(), 
+                'form_type'=>$val->form_type, 			
+                'form_create_date' =>  $date, 
+                            
+            ));    
+            $this->id_  = $this->db->insert_id; 
+            //get inserted value    
+            $response = ['success' => true, "m" =>$lang["copy"] , 'form_id'=>$this->id_ , 'form_name'=>$form_name , 
+            'date'=>$date , 'form_type'=>$val->form_type];
+            wp_send_json_success($response, 200);
+            
+        }
+   
     }
 
 

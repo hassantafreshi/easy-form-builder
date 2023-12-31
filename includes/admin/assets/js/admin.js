@@ -3425,8 +3425,12 @@ const obj_delete_the_option = (id) => {
   if (foundIndex != -1) valj_efb.splice(foundIndex, 1);
 }
 
-function show_duplicate_fun(idset) {
+function show_duplicate_fun(id) {
+  //console.log(id);
+ 
+  emsFormBuilder_duplicate(id,'input' ,'')
   //از آبجکت خروجی بگیرد و بعد اینجا تولید کند
+
 }
 
 
@@ -3759,8 +3763,8 @@ function emsFormBuilder_duplicate(id, type,value) {
   
   
   switch (type) {
-    case "addon":
-      val = efb_var.text[id];
+    case "input":
+      val = '';
       break;
     case "form":
       val=value;
@@ -3781,17 +3785,7 @@ function emsFormBuilder_duplicate(id, type,value) {
   //myModal.show_efb();
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
-  /*   if(type=='form'){
-    fun_confirm_remove_emsFormBuilder(Number(id))
-    }else if(type=='message'){
-      fun_confirm_remove_message_emsFormBuilder(Number(id))
-    }else if (type =='addon'){
-      addons_btn_state_efb(id);
-      fun_confirm_remove_addon_emsFormBuilder(id);
-    }else if (type ="condlogic"){
-      
-      fun_remove_condition_efb(id , value);
-    } */
+    fun_confirm_dup_emsFormBuilder(id,type)
     activeEl_efb = 0;
     state_modal_show_efb(0)
   })
@@ -4342,6 +4336,39 @@ add_new_logic_efb = (newId , step_id) =>{
 }
 
 
+function  fun_confirm_dup_emsFormBuilder(id,type) {
+
+  if(type=="form"){
+    fun_dup_request_server_efb(parseInt(id),type);
+    
+  }else if(type=="input"){
+    
+    console.log( document.getElementById('dupElEFb-'+id))
+    document.getElementById('dupElEFb-'+id).innerHTML=svg_loading_efb('text-light')
+    const new_id = Math.random().toString(36).substr(2, 9);
+    let index = valj_efb.findIndex(x => x.id_ == id);
+    let new_el = {...valj_efb[index]};
+    new_el.name = new_el.name + ' - ' + efb_var.text.copy;
+    new_el.amount =Number(new_el.amount) + 1;
+    new_el.id_ = new_id;
+    new_el.dataId= new_id+'-id';
+    //add after index  don't remove index
+   
+    valj_efb.splice(index+1, 0, new_el);
+    sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+
+   
+    //get duplicated for options like select/radio/checkbox/city/state/country/net /rate/star/NPS
+    const len =valj_efb.length;
+    let p = calPLenEfb(len)
+    const td = len < 50 ? 200 : (len + Math.log(len)) * p
+    setTimeout(() => {
+      editFormEfb()
+    }, td)
+  }
+
+
+}
 
 
 

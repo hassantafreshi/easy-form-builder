@@ -66,7 +66,7 @@ function fun_emsFormBuilder_render_view(x) {
    <td  class="efb" > 
    <button type="button" class="efb zindex-100  btn btn-comment btn-sm" onClick="emsFormBuilder_messages(${i.form_id})" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${newM == true ? efb_var.text.newResponse : efb_var.text.read}">${newM == true ? `<div class="efb nmsgefb"><i class="efb  bi-chat-dots-fill"></i></div>` : `<i class="efb  bi-chat text-muted"></i>`}</button>
    <button type="button" class="efb zindex-100  btn btn-delete btn-sm" onClick ="emsFormBuilder_delete(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.delete}"><i class="efb  bi-trash"></i></button>
-   <button type="button" class="efb zindex-100  btn btn-delete btn-sm bg-info" onClick ="emsFormBuilder_duplicate(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.duplicate}"><i class="efb  bi-clipboard-plus"></i> </button>
+   <button type="button" class="efb zindex-100  btn btn-delete btn-sm bg-info" onClick ="emsFormBuilder_duplicate(${i.form_id},'form' ,'${i.form_name}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.duplicate}" id="${i.form_id}-dup-efb"><i class="efb  bi-clipboard-plus"></i> </button>
    <button type="button" class="efb zindex-100 btn-action-edit btn-sm" onClick="emsFormBuilder_get_edit_form(${i.form_id})" data-id="${i.form_id}"  data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.edit}"><i class="efb  bi-pencil"></i></button>
    <button type="button" class="efb btn-r d-none efb btn btn-darkb text-white btn-sm bi-clipboard-check"  onClick ="copyCodeEfb('${i.form_id}-fc')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${efb_var.text.copy}"> </button>
    <input type="text"  class="efb  d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${i.form_id}-fc">
@@ -88,7 +88,7 @@ function fun_emsFormBuilder_render_view(x) {
       }
     }
     rows += o_rows;
-    if (valueJson_ws_form.length < x) {
+    if (valueJson_ws_form.length <= x) {
       document.getElementById("more_emsFormBuilder").style.display = "none";
     }
 
@@ -265,6 +265,7 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
   //close_overpage_emsFormBuilder();
 
 }
+
 
 
 
@@ -2409,6 +2410,52 @@ function check_server_sms_method_efb(el){
     sms_config_efb='wpsms'
   }
   
+}
+
+async function fun_dup_request_server_efb(id ,type){
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  if(type=='form'){
+    document.getElementById(id+'-dup-efb').innerHTML=svg_loading_efb('text-light');
+    document.getElementById(id+'-dup-efb').disabled=true;
+    $result = await fun_dup_form_server_efb(id,type);
+  }
+  //  emsFormBuilder_popUp_loading()
+  //when complated <i class="efb  bi-clipboard-plus"></i>
+}
+
+function fun_dup_form_server_efb(id,type){
+  return new Promise(resolve => {
+    jQuery(function ($) {
+      data = {
+        action: "dup_efb",
+        nonce: ajax_object_efm_core.nonce,
+        id: id,
+        type: type
+
+      };
+
+      $.post(ajax_object_efm.ajax_url, data, function (res) {
+        if (res.data.success == true) {
+          emsFormBuilder_waiting_response();
+          valueJson_ws_form.push({form_id:res.data.form_id, form_name:res.data.form_name, form_create_date:res.data.date,form_type:res.data.form_type});
+          console.log(valueJson_ws_form);
+          alert_message_efb(efb_var.text.done, res.data.m, 4, 'success');
+          console.log(valueJson_ws_form.length);
+          fun_emsFormBuilder_render_view(valueJson_ws_form.length)
+
+          resolve(true);
+        } else {
+          alert_message_efb(efb_var.text.error, res.data.m, 4, 'danger');
+          document.getElementById(id+'-dup-efb').innerHTML='<i class="efb  bi-clipboard-plus"></i>';
+          document.getElementById(id+'-dup-efb').disabled=false;
+          resolve(false);
+        }
+      })
+    });
+  });
 }
 
 
