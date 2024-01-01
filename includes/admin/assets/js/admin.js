@@ -1021,6 +1021,7 @@ function sideMenuEfb(s) {
 
 const funSetCornerElEfb = (dataId, co) => {
   //efb-square
+  
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el = document.querySelector(`[data-id='${dataId}-set']`)
   if (el.dataset.side == "undefined" || el.dataset.side == "") {
@@ -1041,7 +1042,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
     valj_efb[0].corner = co;
     postId = document.getElementById('btn_send_efb');
-    postId.classList.toggle('efb-square')
+    //postId.classList.toggle('efb-square')
     postId.className = cornerChangerEfb(postId.className, co)
     document.getElementById('next_efb').className = cornerChangerEfb(document.getElementById('next_efb').className, co)
     document.getElementById('prev_efb').className = cornerChangerEfb(document.getElementById('prev_efb').className, co)
@@ -1604,7 +1605,7 @@ let change_el_edit_Efb = (el) => {
           postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
           let cornEl = document.getElementById(postId);
           // /
-          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
+          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'cityList' || el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
           //efb-square
 
           cornEl.classList.toggle('efb-square')
@@ -1615,7 +1616,7 @@ let change_el_edit_Efb = (el) => {
           valj_efb[0].corner = co;
           postId = document.getElementById('btn_send_efb');
 
-          postId.classList.toggle('efb-square')
+          //postId.classList.toggle('efb-square')
           document.getElementById('next_efb').classList.toggle('efb-square')
           document.getElementById('prev_efb').classList.toggle('efb-square')
         }
@@ -1883,6 +1884,7 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
+            || (el.dataset.tag == "cityList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
                 &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' && el.dataset.tag != 'chlCheckBox'))
         ) {
@@ -1924,7 +1926,7 @@ let change_el_edit_Efb = (el) => {
             optin.className = colorTextChangerEfb(optin.className, "text-" + c);
             price.className = colorTextChangerEfb(optin.className, "text-" + c);
           }
-        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' || el.dataset.tag == 'cityList') {
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
           })
@@ -2015,7 +2017,7 @@ let change_el_edit_Efb = (el) => {
         else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
         else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
 
-        if (c == "select" || c == 'stateProvince' || c == 'conturyList') {
+        if (c == "select" || c == 'stateProvince' || c == 'conturyList' || c == 'cityList' ) {
           postId = `${valj_efb[indx].id_}_options`
         } else if (c == "radio" || c == "checkbox") {
           valj_efb[indx].label_text_size = fsize;
@@ -2154,7 +2156,7 @@ let change_el_edit_Efb = (el) => {
         if (iindx != -1) {
           
           valj_efb[iindx].value = el.value;
-          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ||  el.dataset.tag == 'cityList' ) {
 
             //Select
             
@@ -2939,7 +2941,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
   
   if (elementId == "dadfile" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps"
-    || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect"
+    || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" || elementId == "cityList"
     || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay") { pro = true }
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
@@ -4355,7 +4357,7 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     new_el.dataId= new_id+'-id';
     //add after index  don't remove index
    
-    valj_efb.splice(index+1, 0, new_el);
+    
    // sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
     const el_options =[ 'select' ,'paySelect', 'radio' , 'checkbox' , 'multiselect' , 'payMultiselect',
      'table_matrix','cityList','city','stateProvince','statePro' , 'country' ,
@@ -4383,14 +4385,17 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
       }
 
       console.log(new_el_ops);
+      //valj_efb.splice(index+1, 0, new_el);
       /* new_el_op.id_ = new_id_op;
       new_el_op.dataId= new_id_op+'-id';
       new_el_op.parent = new_id;
-      valj_efb.splice(index_op+1, 0, new_el_op); */
-      sort_obj_efb()
+      //valj_efb.splice(index_op+1, 0, new_el_op); */
+      //sort_obj_efb()
+    }else{
+      valj_efb.splice(index+1, 0, new_el);
     }
     //sort valj_efb by amount
-   
+    sort_obj_efb()
     sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
     //get duplicated for options like select/radio/checkbox/city/state/country/net /rate/star/NPS
     const len =valj_efb.length;
