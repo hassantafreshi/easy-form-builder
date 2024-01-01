@@ -2466,6 +2466,34 @@ div#Listefb-150 {
 	padding-right: calc(1.5em + .75rem);
  	background-position: top calc(.375em + .1875rem) right calc(.375em + .1875rem)}
 
+    .efb.rounded {
+      border-radius: var(--bs-border-radius) !important;
+    }
+    
+    .efb.rounded-0 {
+      border-radius: 0 !important;
+    }
+    
+    .efb.rounded-1 {
+      border-radius: var(--bs-border-radius-sm) !important;
+    }
+    
+    .efb.rounded-2 {
+      border-radius: var(--bs-border-radius) !important;
+    }
+    
+    .efb.rounded-3 {
+      border-radius: var(--bs-border-radius-lg) !important;
+    }
+    
+    .efb.rounded-4 {
+      border-radius: var(--bs-border-radius-xl) !important;
+    }
+    
+    .efb.rounded-5,.efb-rounded {
+      border-radius: var(--bs-border-radius-xxl) !important;
+    }
+
 
 
  
