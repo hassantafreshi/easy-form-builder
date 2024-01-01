@@ -4362,7 +4362,7 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
       'conturyList' ,'imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox' ];
     
     //check type of new_el.type == el_options
-    if(el_options.includes(new_el.type) && false){
+    if(el_options.includes(new_el.type)){
       
       let index_ops = valj_efb.filter(x => x.parent == id);    
       console.log(index_ops);
