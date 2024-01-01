@@ -209,6 +209,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
   if (previewSate == true && elementId != "html" && elementId != "register" && elementId != "login" && elementId != "subscribe" && elementId != "survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)
+  console.log(`indexVJ[${indexVJ}]`, valj_efb[indexVJ]);
   amount_el_efb = editState == false ?  Number(amount_el_efb) + 1 : valj_efb[indexVJ].amount;
   element_name = editState == false ? elementId : valj_efb[indexVJ].name;
   let optn = '<!-- options -->';
@@ -1186,7 +1187,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <div class="icon-container efb"><i class="efb bi-gear-wide-connected  text-success BtnSideEfb"></i></div>
     </button>
     
-    <button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb-${rndm}" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}')">
+    <button type="button" class="efb  btn btn-edit btn-sm" id="dupElEFb-${rndm}" data-id="${rndm}-id"  data-bs-toggle="tooltip"  title="${efb_var.text.duplicate}" onclick="show_duplicate_fun('${rndm}','${valj_efb[iVJ].name}')">
     <i class="efb  bi-clipboard-plus text-muted"></i>
     </button>
     ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-x-lg text-danger"></i></button>`}

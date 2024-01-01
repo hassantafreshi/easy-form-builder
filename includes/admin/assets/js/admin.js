@@ -3425,10 +3425,10 @@ const obj_delete_the_option = (id) => {
   if (foundIndex != -1) valj_efb.splice(foundIndex, 1);
 }
 
-function show_duplicate_fun(id) {
+function show_duplicate_fun(id,fild_name) {
   //console.log(id);
- 
-  emsFormBuilder_duplicate(id,'input' ,'')
+ console.log(fild_name);
+  emsFormBuilder_duplicate(id,'input' ,fild_name)
   //از آبجکت خروجی بگیرد و بعد اینجا تولید کند
 
 }
@@ -3504,7 +3504,7 @@ let handleDrop = (item) => {
 
 
 const sort_obj_efb = () => {
-
+  console.log('=>>>sort_obj_efb');
   const len = valj_efb.length;
   
   let p = calPLenEfb(len)
@@ -3764,16 +3764,16 @@ function emsFormBuilder_duplicate(id, type,value) {
   
   switch (type) {
     case "input":
-      val = '';
+      val = value;
       break;
     case "form":
-      val=value;
+      val= value;
       break;
     case "message":
-      val=value;
+      val= value;
       break;
     case 'condlogic':
-      val =id;
+      val = id;
       break;
   }
   const msg = efb_var.text.ausdup.replaceAll('XXX',val);
@@ -4345,19 +4345,53 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     
     console.log( document.getElementById('dupElEFb-'+id))
     document.getElementById('dupElEFb-'+id).innerHTML=svg_loading_efb('text-light')
-    const new_id = Math.random().toString(36).substr(2, 9);
+    let new_id = Math.random().toString(36).substr(2, 9);
     let index = valj_efb.findIndex(x => x.id_ == id);
     let new_el = {...valj_efb[index]};
+    const amount = Number(new_el.amount);
     new_el.name = new_el.name + ' - ' + efb_var.text.copy;
-    new_el.amount =Number(new_el.amount) + 1;
+    new_el.amount =amount + 1;
     new_el.id_ = new_id;
     new_el.dataId= new_id+'-id';
     //add after index  don't remove index
    
     valj_efb.splice(index+1, 0, new_el);
-    sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+   // sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+    const el_options =[ 'select' ,'paySelect', 'radio' , 'checkbox' , 'multiselect' , 'payMultiselect',
+     'table_matrix','cityList','city','stateProvince','statePro' , 'country' ,
+      'conturyList' ,'imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox' ];
+    
+    //check type of new_el.type == el_options
+    if(el_options.includes(new_el.type) && false){
+      
+      let index_ops = valj_efb.filter(x => x.parent == id);    
+      console.log(index_ops);
+      let new_el_ops = index_ops.map(x => ({...x}));
+      let len_ops = new_el_ops.length;
+      console.log(new_el_ops ,len_ops);
+      new_el.amount = amount + len_ops;
+      console.log(new_el);
+      for(let i in new_el_ops){
+        const new_id_op = Math.random().toString(36).substr(2, 9);
+        new_el_ops[i].parent = new_id;
+        new_el_ops[i].id_ = new_id_op;
+        new_el_ops[i].id_op = new_id_op;
+        new_el_ops[i].amount = (Number(new_el_ops[i].amount) + len_ops);
+        
+        new_el_ops[i].dataId= new_id_op+'-id';
+        //valj_efb.splice(index+1, 0, new_el_ops[i]);
+      }
 
+      console.log(new_el_ops);
+      /* new_el_op.id_ = new_id_op;
+      new_el_op.dataId= new_id_op+'-id';
+      new_el_op.parent = new_id;
+      valj_efb.splice(index_op+1, 0, new_el_op); */
+      sort_obj_efb()
+    }
+    //sort valj_efb by amount
    
+    sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
     //get duplicated for options like select/radio/checkbox/city/state/country/net /rate/star/NPS
     const len =valj_efb.length;
     let p = calPLenEfb(len)
