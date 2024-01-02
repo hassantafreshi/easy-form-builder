@@ -157,8 +157,7 @@ class Install {
 									$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
 									if(is_wp_error($v)){
 										$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
-										if(is_wp_error($s)){
-										
+										if(is_wp_error($s)){										
 											error_log('EFB=>unzip addons error 1:');
 											error_log(json_encode($r));
 											return false;
@@ -168,10 +167,7 @@ class Install {
 										require_once(ABSPATH . 'wp-admin/includes/file.php');
 										WP_Filesystem();
 										$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
-										if(is_wp_error($r)){
-										
-											
-											
+										if(is_wp_error($r)){																															
 											error_log('EFB=>unzip addons error 2:');
 											error_log(json_encode($r));
 											return false;
@@ -201,7 +197,7 @@ class Install {
 										$request = wp_remote_get($u);
 									
 										if( is_wp_error( $request ) ) {
-											//sample_admin_notice__success
+											
 											add_action( 'admin_notices', 'admin_notice_msg_efb' );
 											
 											return false;
@@ -244,16 +240,14 @@ class Install {
 
 
 	public function addon_add_efb($value){
-		if($value!="AdnOF"){
-
-		// اگر لینک دانلود داشت
+		
 		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 		$vwp = get_bloginfo('version');
 		$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 		$request = wp_remote_get($u);
 	
 		if( is_wp_error( $request ) ) {
-			//sample_admin_notice__success
+			
 			add_action( 'admin_notices', 'admin_notice_msg_efb' );
 			
 			return false;
@@ -274,12 +268,10 @@ class Install {
 
 		if($data->download==true){
 			$url =$data->link;
-			//$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+			
 			$this->fun_addon_new($url);
 			return true;
-		}
-		
-	}
+		}	
 }//end function
 	
 

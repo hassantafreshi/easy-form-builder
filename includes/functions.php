@@ -1405,7 +1405,7 @@ class efbFunction {
             $request = wp_remote_get($u);
            
             if( is_wp_error( $request ) ) {
-				//sample_admin_notice__success
+				
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );
                 
                 return false;
@@ -1426,7 +1426,7 @@ class efbFunction {
 
             if($data->download==true){
                 $url =$data->link;
-                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                
                 $this->fun_addon_new($url);
 				return true;
             }
