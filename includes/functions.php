@@ -1807,6 +1807,7 @@ class efbFunction {
 	}
 
 	public function setting_version_efb_update($st){
+        $start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
@@ -1826,10 +1827,12 @@ class efbFunction {
             ]
         );
         $this->download_all_addons_efb();
-
-        // Refresh the page
-        header("Refresh:0");
-        exit;
+        $end_time = microtime(true);
+        $execution_time = $end_time - $start_time;
+        if ($execution_time > 30) {
+            header("Refresh:0");
+            exit;
+        }
 		
 		
 	}
