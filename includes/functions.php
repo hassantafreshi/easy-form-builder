@@ -1825,7 +1825,12 @@ class efbFunction {
                 'email'   => $email
             ]
         );
-		$this->download_all_addons_efb();
+        $this->download_all_addons_efb();
+
+        // Refresh the page
+        header("Refresh:0");
+        exit;
+		
 		
 	}
 }
