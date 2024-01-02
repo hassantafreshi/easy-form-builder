@@ -4345,7 +4345,7 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     
   }else if(type=="input"){
     
-    console.log( document.getElementById('dupElEFb-'+id))
+    //console.log( document.getElementById('dupElEFb-'+id))
     document.getElementById('dupElEFb-'+id).innerHTML=svg_loading_efb('text-light')
     let new_id = Math.random().toString(36).substr(2, 9);
     let index = valj_efb.findIndex(x => x.id_ == id);
@@ -4367,28 +4367,34 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     if(el_options.includes(new_el.type)){
       
       let index_ops = valj_efb.filter(x => x.parent == id);    
-      console.log(index_ops);
+      //console.log(index_ops);
       let new_el_ops = index_ops.map(x => ({...x}));
       let len_ops = new_el_ops.length;
-      console.log(new_el_ops ,len_ops);
-      new_el.amount = amount + len_ops;
-      console.log(new_el);
+      //console.log(new_el_ops ,len_ops);
+      new_el.amount = amount + 1;
+      //console.log(new_el);
       
       for(let i in new_el_ops){
         const new_id_op = Math.random().toString(36).substr(2, 9);
         new_el_ops[i].parent = new_id;
         new_el_ops[i].id_ = new_id_op;
         new_el_ops[i].id_op = new_id_op;
-        new_el_ops[i].amount = (Number(new_el_ops[i].amount) + len_ops);
+        new_el_ops[i].amount = amount + 1;
         
         new_el_ops[i].dataId= new_id_op+'-id';
         //valj_efb.splice(index+1, 0, new_el_ops[i]);
       }
+      //console.log('new code!');
+      //console.log(new_el_ops);
+      if(valj_efb.length<index+1){
+        valj_efb.push(new_el);
+        valj_efb.push(...new_el_ops);
 
-      console.log(new_el_ops);
-      valj_efb.push(new_el);
-      valj_efb.push(...new_el_ops);
-      //valj_efb.splice(index+1, 0, new_el);
+      }else{
+        valj_efb.splice(index+1, 0, new_el);
+        valj_efb.push(...new_el_ops);
+      }
+      
       /* new_el_op.id_ = new_id_op;
       new_el_op.dataId= new_id_op+'-id';
       new_el_op.parent = new_id;

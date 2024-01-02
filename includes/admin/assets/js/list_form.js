@@ -2441,9 +2441,9 @@ function fun_dup_form_server_efb(id,type){
         if (res.data.success == true) {
           emsFormBuilder_waiting_response();
           valueJson_ws_form.push({form_id:res.data.form_id, form_name:res.data.form_name, form_create_date:res.data.date,form_type:res.data.form_type});
-          console.log(valueJson_ws_form);
+          //console.log(valueJson_ws_form);
           alert_message_efb(efb_var.text.done, res.data.m, 4, 'success');
-          console.log(valueJson_ws_form.length);
+          //console.log(valueJson_ws_form.length);
           fun_emsFormBuilder_render_view(valueJson_ws_form.length)
 
           resolve(true);

@@ -810,7 +810,7 @@ function show_setting_window_efb(idset) {
       } else if (forEl == "progessbar"){
         color = valj_efb[0].hasOwnProperty("prg_bar_color")==true? valj_efb[0].prg_bar_color :"#4636f1";
         
-         console.log(color);
+         //console.log(color);
          t = efb_var.text.pgbar
          hex = color;
        if(color!="" && color.includes('#')==false){

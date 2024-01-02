@@ -208,8 +208,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let pos = [``, ``, ``, ``]
   const shwBtn = previewSate != true ? 'showBtns' : '';
   let indexVJ = editState != false ? valj_efb.findIndex(x => x.id_ == rndm) : 0;
-  if (previewSate == true && elementId != "html" && elementId != "register" && elementId != "login" && elementId != "subscribe" && elementId != "survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)
-  console.log(`indexVJ[${indexVJ}]`, valj_efb[indexVJ]);
+  if (previewSate == true && elementId != "html" && elementId != "register" && elementId != "login" && elementId != "subscribe" && elementId != "survey") pos = get_position_col_el(valj_efb[indexVJ].dataId, false)  
   amount_el_efb = editState == false ?  Number(amount_el_efb) + 1 : valj_efb[indexVJ].amount;
   element_name = editState == false ? elementId : valj_efb[indexVJ].name;
   let optn = '<!-- options -->';
@@ -3124,7 +3123,7 @@ const sanitize_text_efb=(str, keep_newlines = false)=>{
   while ((match = urlRegex.exec(filtered)) !== null) {
     let url = match[0];
     const unicodeUrl = decodeURI(url);
-    console.log(url,unicodeUrl);
+    //console.log(url,unicodeUrl);
     filtered = filtered.replace(url,unicodeUrl);
   }
   //let filtered = checkInvalidUTF8_efb(str);
