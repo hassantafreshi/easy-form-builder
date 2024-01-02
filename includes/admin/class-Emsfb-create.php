@@ -106,7 +106,7 @@ class Create {
 			<script>
 				setTimeout(() => {
 					console.log('Easy Form Builder refresh page');
-					if(efb_var.hasOwnProperty('nonce')) location.reload(true);
+					if(!efb_var.hasOwnProperty('nonce')) location.reload(true);
 				}, 12000);
 			</script>
 			
