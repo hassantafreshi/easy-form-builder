@@ -186,8 +186,8 @@ class Install {
 							//if(isset($setting->AdnSPF)==true){
 								$s_time =false;
 								foreach($adns as $adn){
-									error_log('check install'.$adn.'-'. isset($setting->$adn));
 									if(isset($setting->$adn)!=false && $setting->$adn==true){
+										error_log('check install-'.$adn.'-'. $setting->$adn);
 										if($s_time==false){
 											$s_time =true;
 											set_time_limit(240);

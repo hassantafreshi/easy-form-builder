@@ -3365,7 +3365,7 @@ class _Public {
 			  $s = true;
 			  
 			  $title =isset($c['name'])? $c['name'] : '';
-			  $value = '<div class="efb fs-4 star-checked star-efb mx-1 ' . ($efb_var['rtl'] == 1 ? 'text-end' : 'text-start') . '">';
+			  $value = '<div class="efb fs-4 star-checked star-efb mx-1>';
 			  for ($i = 0; $i < intval($c['value']); $i++) {
 				$value .= '⭐';
 			  }
