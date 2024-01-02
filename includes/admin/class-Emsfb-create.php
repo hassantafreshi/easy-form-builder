@@ -103,6 +103,12 @@ class Create {
 			<datalist id="color_list_efb">
 			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
 			</datalist>
+			<script>
+				setTimeout(() => {
+					console.log('Easy Form Builder refresh page');
+					if(efb_var.hasOwnProperty('nonce')) location.reload(true);
+				}, 12000);
+			</script>
 			
 		<?php
 
