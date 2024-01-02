@@ -2281,7 +2281,7 @@ function timeOutCaptcha() {
   alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha, 7, 'warning');
 }
 
-fun_el_select_in_efb = (el) => { return  el == 'select' || el == 'multiselect' || 'conturyList' || el == 'stateProvince' || el == 'cityList'||  el == 'paySelect' || el == 'payMultiselect' ? true : false }
+fun_el_select_in_efb = (el) => { return  el == 'select' || el == 'multiselect' || el == 'conturyList' || el == 'stateProvince' || el == 'cityList'||  el == 'paySelect' || el == 'payMultiselect' ? true : false }
 fun_el_check_radio_in_efb = (el) => { return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false }
 
 function fun_validation_efb() {
@@ -2324,6 +2324,7 @@ function fun_validation_efb() {
         
         el.innerHTML = "";
         el.classList.remove('show');
+        console.log(id,document.getElementById(id));
         if (type_validate_efb(valj_efb[row].type) == true) document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-success");
         
         const v = sendBack_emsFormBuilder_pub.length>0 && valj_efb[row].type == "multiselect" && sendBack_emsFormBuilder_pub[s].hasOwnProperty('value') ? sendBack_emsFormBuilder_pub[s].value.split("@efb!") :"";
