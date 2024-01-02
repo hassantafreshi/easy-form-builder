@@ -1379,16 +1379,16 @@ let add_buttons_zone_efb = (state, id) => {
     return c;
   }
 }
-const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, ` ${color} `); }
-const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, ` ${value} `); }
-const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|txt-right|txt-center)/, ` ${value} `); }
+const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, ` ${color} `) ?? `${classes} ${color}`; }
+const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, ` ${value} `) ?? `${classes} ${value} `; }
+const alignChangerEfb = (classes, value) => { return classes.replace(/(txt-left|txt-right|txt-center)/, ` ${value} `) ?? `${classes} ${value} `; }
 const RemoveTextOColorEfb = (classes) => { return classes.replace('text-', ``); }
-const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, ` ${color} `); }
-const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded|rounded-+[0-5] )/, ` ${value} `); }
-const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, ` ${value} `); }
-const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, ` ${value} `); }
-const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `); }
-const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, ` ${value} `); }
+const colorBorderChangerEfb = (classes, color) => { return classes.replace(/\bborder+-+[\w\-]+/gi, ` ${color} `) ?? `${classes} ${color} `; }
+const cornerChangerEfb = (classes, value) => { return classes.replace(/(efb-square|efb-rounded|rounded-+[0-5] )/, ` ${value} `) ?? `${classes} ${value} `; }
+const colMdChangerEfb = (classes, value) => { return classes.replace(/\bcol-md+-\d+/, ` ${value} `) ?? `${classes} ${value} ` ; }
+const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
+const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
+const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, ` ${value} `) ?? `${classes} ${value} `; }
 
 
 const open_whiteStudio_efb = (state) => {

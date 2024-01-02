@@ -1026,12 +1026,19 @@ const funSetCornerElEfb = (dataId, co) => {
   let el = document.querySelector(`[data-id='${dataId}-set']`)
   if (el.dataset.side == "undefined" || el.dataset.side == "") {
     valj_efb[indx].corner = co;
-    postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-    let cornEl = document.getElementById(postId);
-    if (fun_el_select_in_efb(el.dataset.tag)) cornEl = document.getElementById(`${postId}options`)
-    if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)
-    else if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
-    
+    postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `null`
+    let cornEl = 'null';
+   
+    if(postId!='null'){ 
+      cornEl =document.getElementById(postId)    
+      if (cornEl==null &&fun_el_select_in_efb(el.dataset.tag)) cornEl = document.getElementById(`${postId}options`)
+      if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)     
+    }else{
+
+
+     if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
+    }
+    console.log(postId,cornEl,co ,el);
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
   } else if (el.dataset.side == "yesNo") {
