@@ -1756,7 +1756,7 @@ class efbFunction {
 			return true;
 		}else if ($state=="respp" || $state=="respadmin"){
 			//send sms to user for new response
-			error_log("==>resppa || respadmin");
+			//error_log("==>resppa || respadmin");
 			//error_log(count($numbers[1]));
 		
 			//error_log($news_response);
@@ -1811,7 +1811,6 @@ class efbFunction {
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
-		error_log("==>setting_version_efb_update");
 		$st->efb_version=EMSFB_PLUGIN_VERSION;
 		$table_name = $this->db->prefix . "emsfb_setting"; 
 		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);

@@ -3429,7 +3429,7 @@ const obj_delete_the_option = (id) => {
 
 function show_duplicate_fun(id,fild_name) {
   //console.log(id);
- console.log(fild_name);
+ //console.log(fild_name);
   emsFormBuilder_duplicate(id,'input' ,fild_name)
   //از آبجکت خروجی بگیرد و بعد اینجا تولید کند
 
@@ -3506,7 +3506,7 @@ let handleDrop = (item) => {
 
 
 const sort_obj_efb = () => {
-  console.log('=>>>sort_obj_efb');
+  //console.log('=>>>sort_obj_efb');
   const len = valj_efb.length;
   
   let p = calPLenEfb(len)
@@ -4373,6 +4373,7 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
       console.log(new_el_ops ,len_ops);
       new_el.amount = amount + len_ops;
       console.log(new_el);
+      
       for(let i in new_el_ops){
         const new_id_op = Math.random().toString(36).substr(2, 9);
         new_el_ops[i].parent = new_id;
@@ -4385,6 +4386,8 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
       }
 
       console.log(new_el_ops);
+      valj_efb.push(new_el);
+      valj_efb.push(...new_el_ops);
       //valj_efb.splice(index+1, 0, new_el);
       /* new_el_op.id_ = new_id_op;
       new_el_op.dataId= new_id_op+'-id';

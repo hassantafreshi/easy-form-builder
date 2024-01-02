@@ -106,7 +106,7 @@ class Create {
 			<script>
 		
 					setTimeout(() => {
-						console.log('Easy Form Builder refresh page');
+						console.log('Easy Form Builder will refresh the page');
 						if(typeof efb_var == 'undefined') location.reload(true);
 					}, 12000);
 				
