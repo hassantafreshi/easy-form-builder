@@ -23,7 +23,6 @@ class Emsfb {
         $this->init_hooks();
        if(is_admin()==false) $this->webhooks();
        //if(is_admin()==true) $this->checkDbchange();
-       add_action('upgrader_process_complete', 'my_upgrade_complete_efb', 10, 2);
     }
 
     /**
@@ -131,10 +130,6 @@ class Emsfb {
 		}
 
 	}
-
-    public function my_upgrade_complete_efb(){
-        error_log('my_upgrade_complete_efb');
-    }
 
     
 

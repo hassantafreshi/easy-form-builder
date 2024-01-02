@@ -2755,7 +2755,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die();
 			}
-			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
+			
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;
@@ -2907,7 +2907,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die();
 			}
-			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
+			
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;

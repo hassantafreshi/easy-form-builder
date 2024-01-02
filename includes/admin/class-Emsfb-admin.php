@@ -431,7 +431,7 @@ class Admin {
 
             if($data->download==true ){
                 $url =$data->link;
-                
+                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
                $s= $this->fun_addon_new($url);
                if($s==false ){
                 $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
