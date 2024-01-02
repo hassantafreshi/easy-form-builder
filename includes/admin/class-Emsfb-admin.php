@@ -480,6 +480,8 @@ class Admin {
             $ac->AdnBEF=0;
         }
         $ac->{$value}=1;
+        //add efb_version to ac
+        $ac->efb_version=EMSFB_PLUGIN_VERSION;
         
         $table_name = $this->db->prefix . "emsfb_setting";
         $newAc= json_encode( $ac ,JSON_UNESCAPED_UNICODE );
@@ -866,20 +868,20 @@ class Admin {
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die("secure!");
         }
 
         if (empty($_POST['message'])) {
             $m = $lang["PEnterMessage"];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         if ($this->isHTML(json_encode($_POST['message']))) {            
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" =>$m];
-            wp_send_json_success($response, $_POST);
+            wp_send_json_success($response, 200);
             die();
         }
         
@@ -938,6 +940,12 @@ class Admin {
             } 
 
  
+        }
+
+        if(isset($m['efb_version'])==false){
+            $m['efb_version']=EMSFB_PLUGIN_VERSION;
+            $st_ = json_encode($m,JSON_UNESCAPED_UNICODE);
+            $setting = str_replace('"', '\"', $st_);
         }
  
         $this->db->insert(

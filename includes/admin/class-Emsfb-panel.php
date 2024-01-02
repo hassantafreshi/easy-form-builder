@@ -84,6 +84,10 @@ class Panel_edit  {
 					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 				}
 
+				if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
+					$efbFunction->setting_version_efb_update($ac);
+				}
+
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
 					$addons["AdnSS"] =1;
 				}

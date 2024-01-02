@@ -1805,4 +1805,27 @@ class efbFunction {
 	
 		return 0;
 	}
+
+	public function setting_version_efb_update($st){
+		if($st=='null'){
+			$st=$this->get_setting_Emsfb();
+		}
+		error_log("==>setting_version_efb_update");
+		$st->efb_version=EMSFB_PLUGIN_VERSION;
+		$table_name = $this->db->prefix . "emsfb_setting"; 
+		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
+        $setting = str_replace('"', '\"', $st_);
+		$email = $st->emailSupporter;
+		$this->db->insert(
+            $table_name,
+            [
+                'setting' => $setting,
+                'edit_by' => get_current_user_id(),
+                'date'    => wp_date('Y-m-d H:i:s'),
+                'email'   => $email
+            ]
+        );
+		$this->download_all_addons_efb();
+		
+	}
 }

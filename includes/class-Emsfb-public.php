@@ -193,7 +193,15 @@ class _Public {
 			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.0' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
-		$stng= $this->get_setting_Emsfb('pub');
+		$rp= $this->get_setting_Emsfb('pub');
+		$stng= $rp[0];
+		
+		$statt= version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"]);
+		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0){
+			$efbFunction = new efbFunction();
+			$efbFunction->setting_version_efb_update('null');
+		}
+	
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$lanText["settingsNfound"];
 			$state="form";
@@ -2367,6 +2375,7 @@ class _Public {
 				$scaptcha = isset($r->scaptcha) ? $r->scaptcha : false;
 				$dsupfile = isset($r->dsupfile) ? $r->dsupfile : false;
 				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
+				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2410,9 +2419,10 @@ class _Public {
 				}
 				
 				//$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
-				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,
+				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
+				return [$rtrn ,$this->pub_stting];
 			}else{
 				$rtrn=$value;
 				$this->setting =$rtrn;

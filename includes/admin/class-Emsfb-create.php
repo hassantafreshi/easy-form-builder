@@ -158,7 +158,11 @@ class Create {
 				$addons["AdnSE"]=$ac->AdnSE;
 				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
 				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
-			}	
+			}
+			
+			if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
+				$efbFunction->setting_version_efb_update($ac);
+			}
 		}
 
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
