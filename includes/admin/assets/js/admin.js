@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.0> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.2> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -300,9 +300,9 @@ function actionSendData_emsFormBuilder() {
   
   data = {};
   var name = formName_Efb
-  //console.log(localStorage.getItem("valj_efb"));
+  //console.log(sessionStorage.getItem('valj_efb'));
   // replace \" to "
-  const ls_val=  localStorage.getItem("valj_efb").replace(/\\\"/g, '"');
+  const ls_val=  sessionStorage.getItem('valj_efb').replace(/\\\"/g, '"');
   jQuery(function ($) {
 
     
@@ -733,32 +733,32 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "xzdeosw2q", "dataId": "xzdeosw2q-id", "type": "text", "placeholder": efb_var.text.lastName, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.lastName, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "2jpzt59do", "dataId": "2jpzt59do-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 6, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1},
     { "id_": "dvgl7nfn0", "dataId": "dvgl7nfn0-id", "type": "textarea", "placeholder": efb_var.text.enterYourMessage, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 7, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-d-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     //console.log(JSON.stringify(json));
     valj_efb = json;
   } else if (id === "contactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "multipleStepContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = multiple_step_ontact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "privateContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = private_contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "curvedContactTemplate") {
     //contactUs v2
     form_type_emsFormBuilder = "form";
     const json = curved_contact_us_template_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "register") {
     form_type_emsFormBuilder = "register";
@@ -769,7 +769,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "passwordRegisterEFB", "dataId": "passwordRegisterEFB-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "emailRegisterEFB", "dataId": "emailRegisterEFB-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 9, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , "noti":1 }]
     valj_efb = json;
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "login") {
     // login v2
     form_type_emsFormBuilder = "login";
@@ -779,7 +779,7 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "passwordlogin", "dataId": "passwordlogin-id", "type": "password", "placeholder": efb_var.text.password, "value": "", "size": 100, "message": "", "id": "", "classes": "", "name": efb_var.text.password, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false }]
     valj_efb = json;
 
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id === "support") {
     // support v2
     form_type_emsFormBuilder = "form";
@@ -792,25 +792,25 @@ function create_form_by_type_emsfb(id, s) {
     { "id_": "59c0hfpyo", "dataId": "59c0hfpyo-id", "type": "text", "placeholder": efb_var.text.subject, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.subject, "required": 0, "amount": 6, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
     { "id_": "qas87uoct", "dataId": "qas87uoct-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 10, "step": "1",  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false, "noti":1 },
     { "id_": "cqwh8eobv", "dataId": "cqwh8eobv-id", "type": "textarea", "placeholder": efb_var.text.message, "value": "", "size": "100", "message": "", "id": "", "classes": "", "name": efb_var.text.message, "required": true, "amount": 8, "step": 2,  "label_text_size": "fs-6", "label_position": "up",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": label_align, "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": pro_efb }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "supportTicketForm") {
     // support v2
     form_type_emsFormBuilder = "form";
     const json = support_ticket_form_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "orderForm") {
     // support v2
     form_type_emsFormBuilder = "payment";
     const json = order_payment_form_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "customerFeedback") {
     // support v2
     form_type_emsFormBuilder = "form";
     const json = customer_feedback_efb()
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id === "subscription") {
     // if subscription has clicked add Json of contact and go to step 3
@@ -820,7 +820,7 @@ function create_form_by_type_emsfb(id, s) {
       { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "", "icon": "bi-check2-square", "step": 1, "amount": 2, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
       { "id_": "janf5eutd", "dataId": "janf5eutd-id", "type": "text", "placeholder": efb_var.text.name, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.name, "required": true, "amount": 3, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false },
       { "id_": "82i3wedt1", "dataId": "82i3wedt1-id", "type": "email", "placeholder": efb_var.text.email, "value": "", "size": "50", "message": "", "id": "", "classes": "", "name": efb_var.text.email, "required": true, "amount": 5, "step": 1,  "label_text_size": "fs-6", "label_position": "beside",  "el_text_size": "fs-6", "label_text_color": "text-labelEfb", "el_border_color": "border-d", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "el_height": "h-l-efb", "label_align": "txt-center", "message_align": "justify-content-start", "el_align": "justify-content-start", "pro": false , 'noti':1 }]
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id == "survey") {
     
@@ -838,7 +838,7 @@ function create_form_by_type_emsfb(id, s) {
     valueJson_ws_p = json;
     valj_efb = json;
     
-    localStorage.setItem('valj_efb', JSON.stringify(json))
+    sessionStorage.setItem('valj_efb', JSON.stringify(json))
   } else if (id == "reservation") {
 
   } else if (id == "payment") {
@@ -1021,16 +1021,24 @@ function sideMenuEfb(s) {
 
 const funSetCornerElEfb = (dataId, co) => {
   //efb-square
+  
   const indx = valj_efb.findIndex(x => x.dataId == dataId);
   let el = document.querySelector(`[data-id='${dataId}-set']`)
   if (el.dataset.side == "undefined" || el.dataset.side == "") {
     valj_efb[indx].corner = co;
-    postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
-    let cornEl = document.getElementById(postId);
-    if (fun_el_select_in_efb(el.dataset.tag)) cornEl = document.getElementById(`${postId}options`)
-    if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)
-    else if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
-    
+    postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `null`
+    let cornEl = 'null';
+   
+    if(postId!='null'){ 
+      cornEl =document.getElementById(postId)    
+      if (cornEl==null &&fun_el_select_in_efb(el.dataset.tag)) cornEl = document.getElementById(`${postId}options`)
+      if (el.dataset.tag == 'esign') cornEl = document.getElementById(`${valj_efb[indx].id_}_b`)     
+    }else{
+
+
+     if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
+    }
+    console.log(postId,cornEl,co ,el);
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
   } else if (el.dataset.side == "yesNo") {
@@ -1041,7 +1049,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
     valj_efb[0].corner = co;
     postId = document.getElementById('btn_send_efb');
-    postId.classList.toggle('efb-square')
+    //postId.classList.toggle('efb-square')
     postId.className = cornerChangerEfb(postId.className, co)
     document.getElementById('next_efb').className = cornerChangerEfb(document.getElementById('next_efb').className, co)
     document.getElementById('prev_efb').className = cornerChangerEfb(document.getElementById('prev_efb').className, co)
@@ -1604,7 +1612,7 @@ let change_el_edit_Efb = (el) => {
           postId = el.dataset.tag != 'dadfile' ? `${valj_efb[indx].id_}_` : `${valj_efb[indx].id_}_box`
           let cornEl = document.getElementById(postId);
           // /
-          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
+          if (fun_el_select_in_efb(el.dataset.tag)) cornEl = el.dataset.tag == 'conturyList' || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'cityList' || el.dataset.tag == 'select' ? document.getElementById(`${postId}options`) : document.getElementById(`${id}ms`)
           //efb-square
 
           cornEl.classList.toggle('efb-square')
@@ -1615,7 +1623,7 @@ let change_el_edit_Efb = (el) => {
           valj_efb[0].corner = co;
           postId = document.getElementById('btn_send_efb');
 
-          postId.classList.toggle('efb-square')
+          //postId.classList.toggle('efb-square')
           document.getElementById('next_efb').classList.toggle('efb-square')
           document.getElementById('prev_efb').classList.toggle('efb-square')
         }
@@ -1883,6 +1891,7 @@ let change_el_edit_Efb = (el) => {
             || (el.dataset.tag == "yesNo" && el.dataset.el != "el")
             || (el.dataset.tag == "stateProvince" && el.dataset.el != "el")
             || (el.dataset.tag == "conturyList" && el.dataset.el != "el")
+            || (el.dataset.tag == "cityList" && el.dataset.el != "el")
             || (el.dataset.tag != "yesNo" && el.dataset.tag != "checkbox" && el.dataset.tag != "payCheckbox" && el.dataset.tag != "payRadio"
                 &&  el.dataset.tag != "radio" && el.dataset.tag != "select" && el.dataset.tag != 'stateProvince' && el.dataset.tag != 'conturyList' && el.dataset.tag != 'chlCheckBox'))
         ) {
@@ -1924,7 +1933,7 @@ let change_el_edit_Efb = (el) => {
             optin.className = colorTextChangerEfb(optin.className, "text-" + c);
             price.className = colorTextChangerEfb(optin.className, "text-" + c);
           }
-        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+        } else if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' || el.dataset.tag == 'cityList') {
           const objOptions = valj_efb.filter(obj => {
             return obj.parent === valj_efb[indx].id_
           })
@@ -2015,7 +2024,7 @@ let change_el_edit_Efb = (el) => {
         else if (valj_efb[indx].el_height == 'h-xxxl-efb') { fsize = 'fs-2'; }
         else if (valj_efb[indx].el_height == 'h-d-efb') { fsize = 'fs-6'; }
 
-        if (c == "select" || c == 'stateProvince' || c == 'conturyList') {
+        if (c == "select" || c == 'stateProvince' || c == 'conturyList' || c == 'cityList' ) {
           postId = `${valj_efb[indx].id_}_options`
         } else if (c == "radio" || c == "checkbox") {
           valj_efb[indx].label_text_size = fsize;
@@ -2154,7 +2163,7 @@ let change_el_edit_Efb = (el) => {
         if (iindx != -1) {
           
           valj_efb[iindx].value = el.value;
-          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList') {
+          if (el.dataset.tag == "select" || el.dataset.tag == 'stateProvince' || el.dataset.tag == 'conturyList' ||  el.dataset.tag == 'cityList' ) {
 
             //Select
             
@@ -2746,7 +2755,7 @@ const saveFormEfb = () => {
         let sav = JSON.stringify(valj_efb);
         
         
-        localStorage.setItem('valj_efb', sav);
+        sessionStorage.setItem('valj_efb', sav);
         localStorage.setItem("valueJson_ws_p", sav)
         formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb
         returnState = actionSendData_emsFormBuilder()
@@ -2830,7 +2839,7 @@ let editFormEfb = () => {
   valueJson_ws_p = 0; // set ajax to edit mode
   let dropZoneEFB = document.getElementById('dropZoneEFB');
   dropZoneEFB.innerHTML = loading_messge_efb();
-  if (localStorage.getItem("valj_efb")) { valj_efb = JSON.parse(localStorage.getItem("valj_efb")); } // test code => replace from value
+  if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); } // test code => replace from value
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 
@@ -2939,7 +2948,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
   
   if (elementId == "dadfile" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps"
-    || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect"
+    || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" || elementId == "cityList"
     || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay") { pro = true }
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
@@ -3425,8 +3434,12 @@ const obj_delete_the_option = (id) => {
   if (foundIndex != -1) valj_efb.splice(foundIndex, 1);
 }
 
-function show_duplicate_fun(idset) {
+function show_duplicate_fun(id,fild_name) {
+  //console.log(id);
+ //console.log(fild_name);
+  emsFormBuilder_duplicate(id,'input' ,fild_name)
   //از آبجکت خروجی بگیرد و بعد اینجا تولید کند
+
 }
 
 
@@ -3500,7 +3513,7 @@ let handleDrop = (item) => {
 
 
 const sort_obj_efb = () => {
-
+  //console.log('=>>>sort_obj_efb');
   const len = valj_efb.length;
   
   let p = calPLenEfb(len)
@@ -3749,6 +3762,43 @@ function emsFormBuilder_delete(id, type,value) {
     activeEl_efb = 0;
     state_modal_show_efb(0)
   })
+  //myModal.show_efb();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function emsFormBuilder_duplicate(id, type,value) {
+  
+  //v2
+  let val =id;
+  
+  
+  switch (type) {
+    case "input":
+      val = value;
+      break;
+    case "form":
+      val= value;
+      break;
+    case "message":
+      val= value;
+      break;
+    case 'condlogic':
+      val = id;
+      break;
+  }
+  const msg = efb_var.text.ausdup.replaceAll('XXX',val);
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${msg}</div></div>`
+  show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
+  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
+  const confirmBtn = document.getElementById('modalConfirmBtnEfb');
+
+  //myModal.show_efb();
+  state_modal_show_efb(1)
+  confirmBtn.addEventListener("click", (e) => {
+    fun_confirm_dup_emsFormBuilder(id,type)
+    activeEl_efb = 0;
+    state_modal_show_efb(0)
+  })
+    
   //myModal.show_efb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4295,6 +4345,85 @@ add_new_logic_efb = (newId , step_id) =>{
 }
 
 
+function  fun_confirm_dup_emsFormBuilder(id,type) {
+
+  if(type=="form"){
+    fun_dup_request_server_efb(parseInt(id),type);
+    
+  }else if(type=="input"){
+    
+    //console.log( document.getElementById('dupElEFb-'+id))
+    document.getElementById('dupElEFb-'+id).innerHTML=svg_loading_efb('text-light')
+    let new_id = Math.random().toString(36).substr(2, 9);
+    let index = valj_efb.findIndex(x => x.id_ == id);
+    let new_el = {...valj_efb[index]};
+    const amount = Number(new_el.amount);
+    new_el.name = new_el.name + ' - ' + efb_var.text.copy;
+    new_el.amount =amount + 1;
+    new_el.id_ = new_id;
+    new_el.dataId= new_id+'-id';
+    //add after index  don't remove index
+   
+    
+   // sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+    const el_options =[ 'select' ,'paySelect', 'radio' , 'checkbox' , 'multiselect' , 'payMultiselect',
+     'table_matrix','cityList','city','stateProvince','statePro' , 'country' ,
+      'conturyList' ,'imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox' ];
+    
+    //check type of new_el.type == el_options
+    if(el_options.includes(new_el.type)){
+      
+      let index_ops = valj_efb.filter(x => x.parent == id);    
+      //console.log(index_ops);
+      let new_el_ops = index_ops.map(x => ({...x}));
+      let len_ops = new_el_ops.length;
+      //console.log(new_el_ops ,len_ops);
+      new_el.amount = amount + 1;
+      //console.log(new_el);
+      
+      for(let i in new_el_ops){
+        const new_id_op = Math.random().toString(36).substr(2, 9);
+        new_el_ops[i].parent = new_id;
+        new_el_ops[i].id_ = new_id_op;
+        new_el_ops[i].id_op = new_id_op;
+        new_el_ops[i].amount = amount + 1;
+        
+        new_el_ops[i].dataId= new_id_op+'-id';
+        //valj_efb.splice(index+1, 0, new_el_ops[i]);
+      }
+      //console.log('new code!');
+      //console.log(new_el_ops);
+      if(valj_efb.length<index+1){
+        valj_efb.push(new_el);
+        valj_efb.push(...new_el_ops);
+
+      }else{
+        valj_efb.splice(index+1, 0, new_el);
+        valj_efb.push(...new_el_ops);
+      }
+      
+      /* new_el_op.id_ = new_id_op;
+      new_el_op.dataId= new_id_op+'-id';
+      new_el_op.parent = new_id;
+      //valj_efb.splice(index_op+1, 0, new_el_op); */
+      //sort_obj_efb()
+    }else{
+      valj_efb.splice(index+1, 0, new_el);
+    }
+    //sort valj_efb by amount
+    sort_obj_efb()
+    sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+    //get duplicated for options like select/radio/checkbox/city/state/country/net /rate/star/NPS
+    const len =valj_efb.length;
+    let p = calPLenEfb(len)
+    const td = len < 50 ? 200 : (len + Math.log(len)) * p
+    setTimeout(() => {
+      editFormEfb()
+    }, td)
+  }
+
+
+}
 
 
 

@@ -133,6 +133,101 @@ class Install {
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
 							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 							dbDelta( $s );			
+						}else if($v!=NULL ){
+							$v_ =str_replace('\\', '', $v);
+							
+
+							 function fun_addon_new($url){
+								//download the addon dependency 
+								$path = preg_replace( '/wp-content(?!.*wp-content).*/', '', __DIR__ );
+								require_once( $path . 'wp-load.php' );
+								require_once (ABSPATH .'wp-admin/includes/admin.php');
+								
+								$name =substr($url,strrpos($url ,"/")+1,-4);
+								
+								$r =download_url($url);
+								if(is_wp_error($r)){
+									//show error message
+									
+								}else{
+									$directory = EMSFB_PLUGIN_DIRECTORY . '//temp';
+									if (!file_exists($directory)) {
+										mkdir($directory, 0755, true);
+									}
+									$v = rename($r, EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip');
+									if(is_wp_error($v)){
+										$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
+										if(is_wp_error($s)){										
+											error_log('EFB=>unzip addons error 1:');
+											error_log(json_encode($r));
+											return false;
+										}
+									}else{
+										
+										require_once(ABSPATH . 'wp-admin/includes/file.php');
+										WP_Filesystem();
+										$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
+										if(is_wp_error($r)){																															
+											error_log('EFB=>unzip addons error 2:');
+											error_log(json_encode($r));
+											return false;
+										}
+									} 
+									return true;           
+								}
+							}
+							//echo 'Installing Addons of Easy Form Builder';
+							$setting = json_decode($v_);
+							$adns =['AdnPDP','AdnADP','AdnSS','AdnCPF','AdnESZ','AdnSE','AdnWHS','AdnPAP','AdnWSP','AdnSMF','AdnPLF','AdnMSF','AdnBEF','AdnWPB','AdnELM','AdnGTB','AdnPFA'];
+							//if(isset($setting->AdnSPF)==true){
+								$s_time =false;
+								foreach($adns as $adn){
+									if(isset($setting->$adn)!=false && $setting->$adn==true){
+										error_log('check install-'.$adn.'-'. $setting->$adn);
+										if($s_time==false){
+											$s_time =true;
+											set_time_limit(240);
+											ignore_user_abort(true);
+										}
+										$value = $adn;
+										// اگر لینک دانلود داشت
+										$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+										$vwp = get_bloginfo('version');
+										$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+										$request = wp_remote_get($u);
+									
+										if( is_wp_error( $request ) ) {
+											
+											add_action( 'admin_notices', 'admin_notice_msg_efb' );
+											
+											return false;
+										}
+										
+										$body = wp_remote_retrieve_body( $request );
+										$data = json_decode( $body );
+
+										if($data->status==false){
+										  continue;
+										
+										}
+
+										// Check version of EFB to Addons
+										if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+											continue;                
+										} 
+
+										if($data->download==true){
+											$url =$data->link;
+											
+											fun_addon_new($url);
+											continue;
+										}
+									}
+								}
+							
+								
+
+
 						}
 					
 
@@ -142,6 +237,42 @@ class Install {
 		add_option( 'Emsfb_db_version', 1.0 );
 		return $state;
 	}
+
+
+	public function addon_add_efb($value){
+		
+		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		$vwp = get_bloginfo('version');
+		$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+		$request = wp_remote_get($u);
+	
+		if( is_wp_error( $request ) ) {
+			
+			add_action( 'admin_notices', 'admin_notice_msg_efb' );
+			
+			return false;
+		}
+		
+		$body = wp_remote_retrieve_body( $request );
+		$data = json_decode( $body );
+
+		if($data->status==false){
+		return false;
+		
+		}
+
+		// Check version of EFB to Addons
+		if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+			return false;                
+		} 
+
+		if($data->download==true){
+			$url =$data->link;
+			
+			$this->fun_addon_new($url);
+			return true;
+		}	
+}//end function
 	
 
 

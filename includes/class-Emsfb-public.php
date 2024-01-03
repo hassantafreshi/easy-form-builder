@@ -188,12 +188,20 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.0');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.2');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.0' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.2' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
-		$stng= $this->get_setting_Emsfb('pub');
+		$rp= $this->get_setting_Emsfb('pub');
+		$stng= $rp[0];
+		
+		$statt= version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"]);
+		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0){
+			$efbFunction = new efbFunction();
+			$efbFunction->setting_version_efb_update('null');
+		}
+	
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$lanText["settingsNfound"];
 			$state="form";
@@ -218,9 +226,9 @@ class _Public {
 					$el_pro_load = strpos($value , '"pro":"1"');
 				}
 				if($el_pro_load==true){
-					/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.0');
+					/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.2');
 					wp_enqueue_script('efb-pro-els'); */ 
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.0');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.2');
 					wp_enqueue_script('efb-pro-els'); 
 				}
 		
@@ -238,17 +246,17 @@ class _Public {
 							$paymentType="zarinPal";
 						}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 							if($paymentType!="null" && $pro==true){
-								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.0', true);
+								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.2', true);
 								wp_enqueue_script('pay_js');
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.0', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.2', true);
 									wp_enqueue_script('parsipay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.7.0', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.7.2', true);
 									wp_enqueue_script('parsipay_js');
 								}
 						}
@@ -260,11 +268,11 @@ class _Public {
 						'paymentKey' => $paymentKey
 					));
 				}else if((strpos($value , '\"type\":\"pay') || strpos($value , '"type":"pay'))){
-					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.0', true);
+					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.2', true);
 					wp_enqueue_script('pay_js');
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.0');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.2');
 					wp_enqueue_script('efb-bootstrap-bundle-min-js');  
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -289,7 +297,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.0');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.2');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -419,13 +427,14 @@ class _Public {
 				$text=["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","mmplen","offlineSend","message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","rnfn"];				
 				$text= $efbFunction->text_efb($text) ;
 		$state="tracker";
-		$stng= $this->get_setting_Emsfb('pub');
+		$pl= $this->get_setting_Emsfb('pub');
+		$stng= $pl[0];
 		
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$text["settingsNfound"];
 			$state="tracker";
 		}else{
-			$valstng= json_decode($stng);
+			   $valstng= json_decode($stng);
 			
 			
 				if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
@@ -447,7 +456,7 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.0');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.2');
 			wp_enqueue_script('efb-pro-els'); 
 		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
@@ -501,29 +510,29 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.0');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.0', true);
+		/*  wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.2', true); */
 		
-		/* wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.0', true); */
+		wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.2', true);
 		wp_enqueue_script('core_js');
-		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.0');
+		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.0', true);
-			
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.0', true); */
+		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.2', true); */
+		/* 	 */
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.2', true);
 		wp_enqueue_script('efb-main-js'); 		
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.0');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.2');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.7.0');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-bootstrap-css');
-		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css', true,'3.7.0');
+		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-bootstrap-css'); */
 	  }
 	  public function mail_send_form_api($data_POST_){
@@ -1227,11 +1236,9 @@ class _Public {
 		}
 		if(true){
 
-			if (defined('LSCWP_V')){			
-				
-				
-				do_action( 'litespeed_purge_post', $page_id );
-				//do_action( 'litespeed_purge_post', $data_POST['url'] );
+			if (defined('LSCWP_V')){											
+				//do_action( 'litespeed_purge_post', $page_id );
+				do_action( 'litespeed_purge_url', $data_POST['url'] );
 			}
 			$captcha_success="null";
 			$r= $this->setting ;
@@ -1779,9 +1786,9 @@ class _Public {
 			//send_email to admin of page
 	  }//end function get_track_public_api
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.0', true);
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.2', true);
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.7.0')</script>";
+		return "<script>console.log('Easy Form Builder v3.7.2')</script>";
 	  }//end function
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
@@ -2369,6 +2376,7 @@ class _Public {
 				$scaptcha = isset($r->scaptcha) ? $r->scaptcha : false;
 				$dsupfile = isset($r->dsupfile) ? $r->dsupfile : false;
 				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
+				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2412,9 +2420,10 @@ class _Public {
 				}
 				
 				//$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
-				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,
+				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
+				return [$rtrn ,$this->pub_stting];
 			}else{
 				$rtrn=$value;
 				$this->setting =$rtrn;
@@ -2757,7 +2766,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die();
 			}
-			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
+			
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;
@@ -2909,7 +2918,7 @@ class _Public {
 				wp_send_json_success($response, 200);
 				die();
 			}
-			//EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php"
+			
 			require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 			$persiapay = new zarinPalEFB() ;
 			$check;
@@ -3367,7 +3376,7 @@ class _Public {
 			  $s = true;
 			  
 			  $title =isset($c['name'])? $c['name'] : '';
-			  $value = '<div class="efb fs-4 star-checked star-efb mx-1 ' . ($efb_var['rtl'] == 1 ? 'text-end' : 'text-start') . '">';
+			  $value = '<div class="efb fs-4 star-checked star-efb mx-1>';
 			  for ($i = 0; $i < intval($c['value']); $i++) {
 				$value .= '⭐';
 			  }
@@ -4005,18 +4014,7 @@ class _Public {
 	   .efb.btn-delete:hover {	background-color: #ff1233 !important;
 	   color: white !important;
 	   }
-	   .efb.btn-action-edit {	height: 30px;
-	   width: 30px;
-	   background-color: #a78ed9 !important;
-	   border-radius: 50% !important;
-	   border-color: #7b56c5;
-	   font-size: 20px !important;
-	   padding: 0 !important;
-	   color: white !important;
-	   }
-	   .efb.btn-action-edit:hover {	background-color: #7949d9 !important;
-	   color: white !important;
-	   }
+
 	   #deleteElEFb , #moveElEFb{
 	   z-index: 50;
 	   }

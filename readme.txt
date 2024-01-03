@@ -383,6 +383,14 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.7.2 =
+
+* Improved install addons  of Easy Form Builder
+
+* Fixed issues
+
+
 = 3.7.1 =
 
 * Resolved issues related to sending email notifications for forms.

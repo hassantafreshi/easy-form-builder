@@ -726,6 +726,7 @@ class efbFunction {
 			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : __('The XX plugin might interfere with forms of Easy Form Builder\'s functionality. If you encounter any issues with the Forms, disable caching for the Easy Form Builder plugin in the XX plugin\'s settings.','easy-form-builder'),
 			"trya" => $state  &&  isset($ac->text->trya) ? $ac->text->trya : __('Trying again.','easy-form-builder'),
 			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Rename the file name','easy-form-builder'),
+			"ausdup" => $state  &&  isset($ac->text->ausdup) ? $ac->text->ausdup : __('Are you sure you want to duplicate the XXX ?','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 							
 			
@@ -1404,7 +1405,7 @@ class efbFunction {
             $request = wp_remote_get($u);
            
             if( is_wp_error( $request ) ) {
-				//sample_admin_notice__success
+				
 				add_action( 'admin_notices', 'admin_notice_msg_efb' );
                 
                 return false;
@@ -1425,7 +1426,7 @@ class efbFunction {
 
             if($data->download==true){
                 $url =$data->link;
-                //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
+                
                 $this->fun_addon_new($url);
 				return true;
             }
@@ -1675,103 +1676,60 @@ class efbFunction {
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
-	
-		//error_log('==>sms_ready_for_send_efb');
-
-		//send_sms_efb($number,$message,$form_id,$severType)
-		//included smsefb
-		//get admin numbers from smsefb
-		//get messages from smsefb
-		//if [confirmation_code] exist in sms content replace it with $tracking_code
-		//if  [link_page] exist in sms content replace it with $page_url
-		//if  [link_domain] exist in sms content replace it with function of wordPress for get current website url
-		//add admin numbers for numbers[0]
-		//write a function for 
-
-		if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")==false) {
+		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
 			error_log('Easy Form Builder: SMS Addon is not installed');
 			return false;
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended/smsefb.php");
-		$smssendefb = new smssendefb() ; 
+		$smssendefb = new smssendefb();
 		$sms_content = $smssendefb->get_sms_contact_efb($form_id);
-
-		if(isset($sms_content->id)==false) return false;		
-		//error_log(json_encode($sms_content));
+	
+		if(empty($sms_content->id)) return false;
 		$recived_your_message = $sms_content->recived_message_noti_user;
 		$new_message = $sms_content->new_message_noti_user;
 		$news_response = $sms_content->new_response_noti;
-			if(!empty($sms_content->admin_numbers )){
-				$admin_numbers = explode(',',$sms_content->admin_numbers);
-				$numbers[0] = array_merge($numbers[0],$admin_numbers);
-				//error_log(json_encode($numbers));
-				$numbers[0]= array_unique($numbers[0]);
-				$numbers[1]= array_unique($numbers[1]);
-				//error_log(json_encode($numbers));
-			}
-			$rp = [['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
-					[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]]; 
-			foreach($rp[0] as $key=>$val){
-				
-				$recived_your_message = str_replace($rp[0][$key],$rp[1][$key],$recived_your_message);
-				$new_message = str_replace($rp[0][$key],$rp[1][$key],$new_message);
-				$news_response = str_replace($rp[0][$key],$rp[1][$key],$news_response);		
-			}
-			
+	
+		if(!empty($sms_content->admin_numbers)){
+			$admin_numbers = explode(',',$sms_content->admin_numbers);
+			$numbers[0] = array_unique(array_merge($numbers[0],$admin_numbers));
+			$numbers[1] = array_unique($numbers[1]);
+		}
+	
+		$rp = [
+			['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
+			[$tracking_code, $page_url, get_site_url(), $page_url."?track=".$tracking_code , get_bloginfo('name')]
+		];
+	
+		$recived_your_message = str_replace($rp[0],$rp[1],$recived_your_message);
+		$new_message = str_replace($rp[0],$rp[1],$new_message);
+		$news_response = str_replace($rp[0],$rp[1],$news_response);
+	
 		if($state=="fform"){
-			//send sms to user for recived your message
-			//send sms to admin for new message
-			if(count($numbers[1])>0 && $new_message!=null){
-				
-				foreach($numbers[1] as$val){
-					
-					
-					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
-				}
+			if(!empty($numbers[1]) && $new_message){
+				$smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
 			}
-			if(count($numbers[0])>0 && $new_message!=null){
+			if(!empty($numbers[0]) && $new_message){
 				$new_message = str_replace($page_url."?track=".$tracking_code,$page_url."?track=".$tracking_code.'&user=admin',$new_message);
-				foreach($numbers[0] as$val){
-					$smssendefb->send_sms_efb($val,$new_message,$form_id,$severType);
-				}
+				$smssendefb->send_sms_efb($numbers[0],$new_message,$form_id,$severType);
 			}
 			return true;
-			
 		}else if($state=="resppa"){
-			//send sms to user for recived your message
-			//send sms to admin for new response
-			if(count($numbers[1])>0 && $recived_your_message!=""){
-				foreach($numbers[1] as$val){
-					$smssendefb->send_sms_efb($val,$recived_your_message,$form_id,$severType);
-				}
+			if(!empty($numbers[1]) && $recived_your_message){
+				$smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
 			}
-			if(count($numbers[0])>0 && $news_response!=""){
-				//$page_url."?track=".$tracking_code
-				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);		
-				foreach($numbers[0] as$val){
-					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
-				}
+			if(!empty($numbers[0]) && $news_response){
+				$news_response = str_replace($page_url, $page_url."?track=".$tracking_code.'&user=admin',$news_response);
+				$smssendefb->send_sms_efb($numbers[0],$news_response,$form_id,$severType);
 			}
 			return true;
 		}else if ($state=="respp" || $state=="respadmin"){
-			//send sms to user for new response
-			error_log("==>resppa || respadmin");
-			//error_log(count($numbers[1]));
-		
-			//error_log($news_response);
-			if(count($numbers[1])>0 && $news_response!=""){
-				foreach($numbers[1] as $val){
-					//error_log($val);
-					$smssendefb->send_sms_efb($val,$news_response,$form_id,$severType);
-				}
+			if(!empty($numbers[1]) && $news_response){
+				$smssendefb->send_sms_efb($numbers[1],$news_response,$form_id,$severType);
 			}
 			return true;
-			
 		}
-			
-		
-		
 	}
+
 
 	public function check_for_active_plugins_cache() {
 		
@@ -1803,5 +1761,35 @@ class efbFunction {
 		}
 	
 		return 0;
+	}
+
+	public function setting_version_efb_update($st){
+        $start_time = microtime(true);
+		if($st=='null'){
+			$st=$this->get_setting_Emsfb();
+		}
+		$st->efb_version=EMSFB_PLUGIN_VERSION;
+		$table_name = $this->db->prefix . "emsfb_setting"; 
+		$st_ = json_encode($st,JSON_UNESCAPED_UNICODE);
+        $setting = str_replace('"', '\"', $st_);
+		$email = $st->emailSupporter;
+		$this->db->insert(
+            $table_name,
+            [
+                'setting' => $setting,
+                'edit_by' => get_current_user_id(),
+                'date'    => wp_date('Y-m-d H:i:s'),
+                'email'   => $email
+            ]
+        );
+        $this->download_all_addons_efb();
+        $end_time = microtime(true);
+        $execution_time = $end_time - $start_time;
+        if ($execution_time > 30) {
+            header("Refresh:0");
+            exit;
+        }
+		
+		
 	}
 }
