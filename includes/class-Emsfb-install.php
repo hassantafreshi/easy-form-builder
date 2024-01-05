@@ -117,7 +117,8 @@ class Install {
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
 					} */
-						$usr =get_user_by('id',1);
+						$user_id = get_current_user_id();
+						$usr =get_user_by('id',$user_id);
 						$eml=$usr->user_email;
 						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
@@ -183,7 +184,7 @@ class Install {
 								$s_time =false;
 								foreach($adns as $adn){
 									if(isset($setting->$adn)!=false && $setting->$adn==true){
-										error_log('check install-'.$adn.'-'. $setting->$adn);
+										//error_log('check install-'.$adn.'-'. $setting->$adn);
 										if($s_time==false){
 											$s_time =true;
 											set_time_limit(240);

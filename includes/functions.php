@@ -1004,7 +1004,7 @@ class efbFunction {
 		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
-		 
+		
 		$adminEmail = $user!=false ? $user->user_email :'';
 		$blogURL= home_url();
 
