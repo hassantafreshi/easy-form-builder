@@ -120,11 +120,14 @@ class _Public {
 			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
 			wp_enqueue_script('jquery');
 		}
+
+		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
 		if($admin_form==true && is_user_logged_in()==false){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
+		
 		$table_name = $this->db->prefix . "emsfb_form";
 		$this->id = end($id);
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
@@ -136,10 +139,38 @@ class _Public {
 				return $this->EMS_Form_Builder_track();
 			}
 		}else{
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center text-darkb fs-4'>".__('Form does not exist !!','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."<p></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div>
+			<h3 style='color:#202a8d;text-align: center;'>".__('Form does not exist !!','easy-form-builder')."</h3>
+			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn"];
+
+		
+	
+		
+		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) ) && false){
+				//isset($_GET['vcv-ajax']) visual composer
+				//isset($_GET['vc_editable']) wpbakery
+				//is_admin for plugin like elementor
+			$content="	
+			
+			
+			<div id='body_efb' class='efb  row pb-3 efb px-2'>
+			<img src=".EMSFB_PLUGIN_URL . "includes/admin/assets/image/logo-easy-form-builder.svg' alt='Easy Form Builder' style='height: 80px;'>
+			</div><h4 style='color:#202a8d;text-align: center;'>".__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
+			<h3 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h3>
+			</div>
+			";
+
+			return $content;
+		}
+		
+		
+			
 		$this->public_scripts_and_css_head();
+		
+
+		//$this->public_scripts_and_css_head();
 		$state="";
 		$pro=  $this->pro_efb;
 		$lanText= $this->efbFunction->text_efb($this->text_);
@@ -356,7 +387,7 @@ class _Public {
 					'rest_url'=>get_rest_url(null),
 					'page_id'=>get_the_ID(),
 				) );
-				wp_localize_script( 'core_js', 'ajax_object_efm',$ar_core);  
+				wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
 		// $pro=false;		
 		 //$stng = $this->get_setting_Emsfb('pub');
@@ -394,7 +425,7 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
-
+			error_log('check_elemntor');
 			 $content="	
 			
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -463,7 +494,7 @@ class _Public {
 		$location = '';
 		//efb_code_validate_create( $fid, $type, $status, $tc)
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
-		wp_localize_script( 'core_js', 'ajax_object_efm',
+		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
 			   'v_efb'=>EMSFB_PLUGIN_VERSION,
@@ -513,10 +544,10 @@ class _Public {
 		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		/*  wp_register_script('core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.2', true); */
+		/*  wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.2', true); */
 		
-		wp_register_script('core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.2', true);
-		wp_enqueue_script('core_js');
+		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.2', true);
+		wp_enqueue_script('Emsfb-core_js');
 		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.2');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
 		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.2', true); */
