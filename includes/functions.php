@@ -896,20 +896,27 @@ class efbFunction {
 
 					if( $state!="reportProblem"){
 
-						//loop start
-						$to_ = gettype($to)=='string' ? $to : implode(',', array_unique($to));	
-						//replace
-						$to = str_replace(',,', ',', $to_);
-						
-						
+						$to_;$to;$mailResult;
 						$headers = array(
 							'MIME-Version: 1.0\r\n',
-							'From:'.$from.'',
-							'Bcc:'.$to.''
+							'From:'.$from.'',							
 						);				
-						$mailResult =  wp_mail( '',$sub, $message, $headers ) ;
-						remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-						//end loop
+						if (gettype($to) == 'string') {
+							
+							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
+						} else {
+							$toMail = array_pop($to);
+							$to_ = implode(',', array_unique($to));
+							$to_ = str_replace(',,', ',', $to_);
+							if(count($to)>1){
+								$headers = array(
+									'MIME-Version: 1.0\r\n',
+									'From:'.$from.'',
+									'Bcc:'.$to.''
+								);
+							}
+							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+						}
 
 						return $mailResult;
 					}
@@ -978,8 +985,8 @@ class efbFunction {
 
 	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
 	
-		$l ="https://whitestudio.team/";
-			 if(get_locale()=="fa_IR"){ $l="https://easyformbuilder.ir/"  ;}
+		$l ='https://whitestudio.team/';
+			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
         $lang= $this->text_efb($text);				
