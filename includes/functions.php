@@ -957,9 +957,9 @@ class efbFunction {
 							if( $state!="reportProblem"){
 		
 								//loop start
-								$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
+								//$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
 								//replace
-								$to_ = str_replace(',,', ',', $to_);
+								/* $to_ = str_replace(',,', ',', $to_);
 								if (substr($to_, -1) === ',') {
 									$to_ = substr($to_, 0, -1);
 								}
@@ -970,7 +970,33 @@ class efbFunction {
 									'Bcc:'.$to_.''
 								);		
 									
-								$mailResult =  wp_mail('', $sub[$i], $message, $headers);
+								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
+
+								error_log('send_email_state_new state not reportProblem');
+								error_log(gettype($to));
+								$to_;$mailResult;
+								$headers = array(
+									'MIME-Version: 1.0\r\n',
+									'From:'.$from.'',							
+								);				
+								if (gettype($to[$i]) == 'string') {
+									
+									$mailResult =  wp_mail( $to[$i],$sub, $message, $headers ) ;
+								} else {
+									error_log('run email to====>');
+									$toMail = array_pop($to[$i]);
+									error_log($toMail);
+									$to_ = implode(',', array_unique($to[$i]));
+									$to_ = str_replace(',,', ',', $to_);
+									if(count($to)>1){
+										$headers = array(
+											'MIME-Version: 1.0\r\n',
+											'From:'.$from.'',
+											'Bcc:'.$to.''
+										);
+									}
+									$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
 							
