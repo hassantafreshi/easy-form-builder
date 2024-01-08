@@ -898,11 +898,8 @@ class efbFunction {
 					if( $state!="reportProblem"){
 						error_log('send_email_state_new state not reportProblem');
 						error_log(gettype($to));
-						$to_;$to;$mailResult;
-						$headers = array(
-							'MIME-Version: 1.0\r\n',
-							'From:'.$from.'',							
-						);				
+						$to_;$mailResult;
+							
 						if (gettype($to) == 'string') {
 							
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
@@ -975,13 +972,10 @@ class efbFunction {
 								error_log('send_email_state_new state not reportProblem');
 								error_log(gettype($to));
 								$to_;$mailResult;
-								$headers = array(
-									'MIME-Version: 1.0\r\n',
-									'From:'.$from.'',							
-								);				
+												
 								if (gettype($to[$i]) == 'string') {
 									
-									$mailResult =  wp_mail( $to[$i],$sub, $message, $headers ) ;
+									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
 									error_log('run email to====>');
 									$toMail = array_pop($to[$i]);
@@ -995,7 +989,7 @@ class efbFunction {
 											'Bcc:'.$to.''
 										);
 									}
-									$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
