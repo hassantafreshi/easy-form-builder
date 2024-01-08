@@ -986,7 +986,7 @@ class efbFunction {
 										$headers = array(
 											'MIME-Version: 1.0\r\n',
 											'From:'.$from.'',
-											'Bcc:'.$to.''
+											'Bcc:'.$to_.''
 										);
 									}
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
