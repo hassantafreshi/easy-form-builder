@@ -890,11 +890,12 @@ class efbFunction {
 				
 				if(gettype($sub)=='string'){
 			
-					
+						error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
 
 					if( $state!="reportProblem"){
-
+						error_log('send_email_state_new state not reportProblem');
+						error_log(gettype($to));
 						$to_;$to;$mailResult;
 						$headers = array(
 							'MIME-Version: 1.0\r\n',
