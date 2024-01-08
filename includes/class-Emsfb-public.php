@@ -1268,10 +1268,8 @@ class _Public {
 		if(true){
 
 			if (defined('LSCWP_V')){											
-				//do_action( 'litespeed_purge_post', $page_id );
 				do_action( 'litespeed_purge_url', $data_POST['url'] );
-			}else if (function_exists('rocket_clean_files')){
-				error_log('rocket_clean_files!');
+			}else if (function_exists('rocket_clean_files')){				
 				rocket_clean_files($data_POST['url']);
 			}
 
