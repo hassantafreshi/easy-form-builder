@@ -905,7 +905,9 @@ class efbFunction {
 							
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
+							error_log('run email to====>');
 							$toMail = array_pop($to);
+							error_log($toMail);
 							$to_ = implode(',', array_unique($to));
 							$to_ = str_replace(',,', ',', $to_);
 							if(count($to)>1){
