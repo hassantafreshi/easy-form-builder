@@ -1747,7 +1747,7 @@ class efbFunction {
 			'WP Super Cache' => 'wp-super-cache/wp-cache.php',
 			'WP Fastest Cache' => 'wp-fastest-cache/wpFastestCache.php',
 			'Autoptimize' => 'autoptimize/autoptimize.php',	
-			'Cache Enabler – cache-enabler/cache-enabler.php',
+			'Cache Enabler' => 'cache-enabler/cache-enabler.php',
 			'WP-Optimize' => 'wp-optimize/wp-optimize.php',
 			'Super Page Cache for Cloudflare' => 'wp-cloudflare-page-cache/wp-cloudflare-super-page-cache.php',					
 			'WP Fastest Cache Lite' => 'wp_fastest_cache_lite\WP_Fastest_Cache_Lite',
