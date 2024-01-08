@@ -876,6 +876,7 @@ class efbFunction {
 				error_log(json_encode($to));
 				error_log(json_encode($sub));
 				error_log(json_encode($cont));
+				error_log(json_encode($st));
 				
 				
 				
