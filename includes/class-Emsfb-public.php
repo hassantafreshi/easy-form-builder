@@ -148,7 +148,7 @@ class _Public {
 		
 	
 		
-		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) )){
+		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) ) && false){
 				//+isset($_GET['vcv-ajax']) visual composer
 				//+isset($_GET['vc_editable']) wpbakery
 				//+is_admin for plugin like elementor
