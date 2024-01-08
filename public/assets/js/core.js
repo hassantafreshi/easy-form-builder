@@ -29,6 +29,39 @@ if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_va
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
 
+
+function fun_render_view_efb(val, check) {
+  var url = new URL(window.location);
+ 
+ // url.searchParams.set('stepNo', 1);
+  
+  history.replaceState("EFBstep-1",null,url); 
+  exportView_emsFormBuilder = [];
+  valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
+  valueJson_ws[0].email ="";
+  valj_efb = valueJson_ws;
+  fun_gets_url_efb();
+  
+  
+  formNameEfb = valj_efb[0].formName;
+  state_efb = "run";
+  previewFormEfb('run');
+  
+  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
+    stack_steps_efb.push(1);
+    logic_ui_forms_efb();
+  }
+
+  if(form_type_emsFormBuilder=="payment"){
+    setTimeout(() => {    
+      fun_total_pay_efb()
+    }, valj_efb.length *2);
+  }
+
+  
+}
+
+
 setTimeout(() => {
   (function () {
 
@@ -110,36 +143,7 @@ setTimeout(() => {
 
 
 
-function fun_render_view_efb(val, check) {
-  var url = new URL(window.location);
- 
- // url.searchParams.set('stepNo', 1);
-  
-  history.replaceState("EFBstep-1",null,url); 
-  exportView_emsFormBuilder = [];
-  valueJson_ws = JSON.parse(val.replace(/[\\]/g, ''));
-  valueJson_ws[0].email ="";
-  valj_efb = valueJson_ws;
-  fun_gets_url_efb();
-  
-  
-  formNameEfb = valj_efb[0].formName;
-  state_efb = "run";
-  previewFormEfb('run');
-  
-  if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic==1){
-    stack_steps_efb.push(1);
-    logic_ui_forms_efb();
-  }
 
-  if(form_type_emsFormBuilder=="payment"){
-    setTimeout(() => {    
-      fun_total_pay_efb()
-    }, valj_efb.length *2);
-  }
-
-  
-}
 
 /* function ShowTab_emsFormBuilder_view(n) {
   var x = document.getElementsByClassName("emsFormBuilder-tab-view");
