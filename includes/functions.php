@@ -872,8 +872,7 @@ class efbFunction {
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
 				
-				
-				
+				error_log('send_email_state_new');				
 				
 				
 				
