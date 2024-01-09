@@ -619,11 +619,22 @@ class _Public {
 		$sid = sanitize_text_field($data_POST['sid']);
 		$this->id = sanitize_text_field($data_POST['id']);
 		$page_id = sanitize_text_field($data_POST['page_id']);
+		$data_POST['url']= $url = sanitize_url($data_POST['url']);	
 		
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 		
+		if (defined('LSCWP_V')){											
+			do_action( 'litespeed_purge_url', $data_POST['url'] );
+		}else if (function_exists('rocket_clean_files')){				
+			rocket_clean_files($data_POST['url']);
+		}elseif (function_exists('wp_cache_post_change')){
+			//+cache
+			error_log('JetPack Exists!');
+			$GLOBALS["super_cache_enabled"]=1;
+			wp_cache_post_change($page_id);
+		} 
 		
 		
 		if ($s_sid !=1){
@@ -700,7 +711,7 @@ class _Public {
 				$valobj =[] ;
 				$stated = 0;	
 				$rt;	
-				$data_POST['url']= $url = sanitize_url($data_POST['url']);					
+									
 				if(isset($data_POST['url']) && strlen($data_POST['url'])>5 ){
 					$ar = ['http://wwww.'.$_SERVER['HTTP_HOST'] , 'https://wwww.'.$_SERVER['HTTP_HOST'] ,'http://'.$_SERVER['HTTP_HOST'], 'https://'.$_SERVER['HTTP_HOST']];
 					foreach ($ar as  $r) {
@@ -1268,16 +1279,7 @@ class _Public {
 		}
 		if(true){
 
-			if (defined('LSCWP_V')){											
-				do_action( 'litespeed_purge_url', $data_POST['url'] );
-			}else if (function_exists('rocket_clean_files')){				
-				rocket_clean_files($data_POST['url']);
-			}elseif (function_exists('wp_cache_post_change')){
-				//+cache
-				error_log('JetPack Exists!');
-				$GLOBALS["super_cache_enabled"]=1;
-				wp_cache_post_change($page_id);
-			} 
+			
 
 			
 			$captcha_success="null";
