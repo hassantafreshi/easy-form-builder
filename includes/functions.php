@@ -1681,30 +1681,30 @@ class efbFunction {
 	}
 
 	public function getVisitorBrowser() {
-		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
-		$b = "Unknown";
-
-		if ($ua) {
-			if (strpos($ua, 'Firefox') !== false) {
-				$b = "Mozilla Firefox";
-			} elseif (strpos($ua, 'Chrome') !== false) {
-				if (strpos($ua, 'Edg') !== false) {
-					$b = "Microsoft Edge";
-				} elseif (strpos($ua, 'Brave') !== false) {
-					$b = "Brave";
-				} else {
-					$b = "Google Chrome";
+			$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+			$b = "Unknown";
+	
+			if ($ua) {
+				if (strpos($ua, 'Firefox') !== false) {
+					$b = "Mozilla Firefox";
+				} elseif (strpos($ua, 'Chrome') !== false) {
+					if (strpos($ua, 'Edg') !== false) {
+						$b = "Microsoft Edge";
+					} elseif (strpos($ua, 'Brave') !== false) {
+						$b = "Brave";
+					} else {
+						$b = "Google Chrome";
+					}
+				} elseif (strpos($ua, 'Safari') !== false) {
+					$b = "Apple Safari";
+				} elseif (strpos($ua, 'Opera') !== false) {
+					$b = "Opera";
+				} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
+					$b = "Internet Explorer";
 				}
-			} elseif (strpos($ua, 'Safari') !== false) {
-				$b = "Apple Safari";
-			} elseif (strpos($ua, 'Opera') !== false) {
-				$b = "Opera";
-			} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
-				$b = "Internet Explorer";
 			}
-		}
-
-		return $b;
+	
+			return $b;
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
