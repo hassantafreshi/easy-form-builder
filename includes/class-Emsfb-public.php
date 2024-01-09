@@ -100,6 +100,16 @@ class _Public {
 	}
 
 
+	public function enqueue_jquery(){
+		
+		$jquery_version = '3.6.2';
+		
+		if (!wp_script_is('jquery', 'enqueued')) {
+			//When jQuery is not defined, run this if statement
+			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, $jquery_version);
+		}
+	}
+	
 	public function hide_toolmenu(){
 		// this function hide admin bar in bublic side for subscribers user
 		if(is_user_logged_in()){
@@ -115,12 +125,7 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		
-		if (!wp_script_is('jquery', 'enqueued')) {
-			//When jQuery is not defined, run this if statement
-			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
-			wp_enqueue_script('jquery');
-		}
-
+		enqueue_jquery();
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
@@ -441,11 +446,9 @@ class _Public {
 		return $content;
 	}
 	public function EMS_Form_Builder_track(){
-		if (!wp_script_is('jquery', 'enqueued')) {
-			//When jQuery is not defined, run this if statement
-			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
-			wp_enqueue_script('jquery');
-		}
+		
+		enqueue_jquery();
+		
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
