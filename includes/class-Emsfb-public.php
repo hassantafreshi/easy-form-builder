@@ -1272,7 +1272,12 @@ class _Public {
 				do_action( 'litespeed_purge_url', $data_POST['url'] );
 			}else if (function_exists('rocket_clean_files')){				
 				rocket_clean_files($data_POST['url']);
-			}
+			}elseif (function_exists('wp_cache_post_change')){
+				//+cache
+				error_log('JetPack Exists!');
+				$GLOBALS["super_cache_enabled"]=1;
+				wp_cache_post_change($page_id);
+			} 
 
 			
 			$captcha_success="null";
