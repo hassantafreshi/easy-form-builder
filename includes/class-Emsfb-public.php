@@ -682,6 +682,7 @@ class _Public {
 				
 				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
 				$send_email_to_user_state =$formObj[0]["sendEmail"];	
+				error_log('send_email_to_user_state: '.$formObj[0]["sendEmail"]);
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				;
 				//$type = $formObj[0]["type"];
@@ -1360,7 +1361,8 @@ class _Public {
 							
 							
 							
-							
+							error_log(json_encode($email_user));
+							error_log('send_email_to_user_state:'.$send_email_to_user_state);
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 								$email_user[0]=$email_fa;
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -1371,6 +1373,7 @@ class _Public {
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
+								error_log(json_encode($email_user));
 								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
 							//$this->send_json_success_efb($response);
@@ -2045,9 +2048,8 @@ class _Public {
 			wp_send_json_success($response,200);
 		}
 
-		if (defined('LSCWP_V')){			
-			
-			
+		if (defined('LSCWP_V')){	
+			//+cache								
 			do_action( 'litespeed_purge_post', $page_id );
 		}
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');

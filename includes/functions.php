@@ -893,9 +893,9 @@ class efbFunction {
 				
 				if(gettype($sub)=='string'){
 			
-						error_log('send_email_state_new sub string');
+					error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-
+					error_log($message);
 					if( $state!="reportProblem"){
 						error_log('send_email_state_new state not reportProblem');
 						error_log(gettype($to));
@@ -970,8 +970,8 @@ class efbFunction {
 									
 								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
 
-								error_log('send_email_state_new state not reportProblem');
-								error_log(gettype($to));
+								error_log('send_email_state_new state not reportProblem!');
+								
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
@@ -980,10 +980,10 @@ class efbFunction {
 								} else {
 									error_log('run email to====>');
 									$toMail = array_pop($to[$i]);
-									error_log($toMail);
+									error_log(json_encode($toMail));
 									$to_ = implode(',', array_unique($to[$i]));
 									$to_ = str_replace(',,', ',', $to_);
-									if(count($to)>1){
+									if(count($to[$i])>1){
 										$headers = array(
 											'MIME-Version: 1.0\r\n',
 											'From:'.$from.'',

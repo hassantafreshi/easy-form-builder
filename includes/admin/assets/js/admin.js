@@ -1201,19 +1201,20 @@ let change_el_edit_Efb = (el) => {
               })
               valj_efb[0].email = el.value.trim();
               valj_efb[0].sendEmail=true;
+              break;
             }else{
             
               if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
               {
                 valj_efb[0].email = el.value;
                 valj_efb[0].sendEmail=true;
-                return true;
+                break;
               }
               else {
                 if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
                 document.getElementById("adminFormEmailEl").value = "";
                 valj_efb[0].email="";
-
+              
               }
             }
         } else if (efb_var.smtp == '-1') {
