@@ -1664,18 +1664,20 @@ class efbFunction {
 		$os = "Unknown";
 
 		if ($ua) {
-			if (strpos($ua, 'Windows') !== false) {
-				$os = "Windows";
-			} elseif (strpos($ua, 'Linux') !== false) {
-				$os = "Linux";
-			} elseif (strpos($ua, 'Macintosh') !== false || strpos($ua, 'Mac OS X') !== false) {
-				$os = "Mac";
-			} elseif (strpos($ua, 'Android') !== false) {
-				$os = "Android";
-			} elseif (strpos($ua, 'iOS') !== false) {
-				$os = "iOS";
-			}
-		}
+		        $ua = strtolower($ua);  // user agent can differ in case, so let's make it lowercase
+		
+		        if (strpos($ua, 'windows') !== false) {
+		            $os = "Windows";
+		        } elseif (strpos($ua, 'linux') !== false) {
+		            $os = "Linux";
+		        } elseif (strpos($ua, 'macintosh') !== false || strpos($ua, 'mac os x') !== false) {
+		            $os = "Mac";
+		        } elseif (strpos($ua, 'android') !== false) {
+		            $os = "Android";
+		        } elseif (strpos($ua, 'ios') !== false) {
+		            $os = "iOS";
+		        }
+		    }
 	
 		return $os;
 	}
