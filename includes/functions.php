@@ -1660,12 +1660,10 @@ class efbFunction {
 
 	
 	public function getVisitorOS() {
-		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+		$ua =  strtolower($_SERVER['HTTP_USER_AGENT'] ?? null);
 		$os = "Unknown";
 
-		if ($ua) {
-		        $ua = strtolower($ua);  // user agent can differ in case, so let's make it lowercase
-		
+		if ($ua) {		    		
 		        if (strpos($ua, 'windows') !== false) {
 		            $os = "Windows";
 		        } elseif (strpos($ua, 'linux') !== false) {
