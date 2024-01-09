@@ -682,9 +682,9 @@ class _Public {
 				
 				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
 				$send_email_to_user_state =$formObj[0]["sendEmail"];	
-				error_log('send_email_to_user_state: '.$formObj[0]["sendEmail"]);
+				//error_log('send_email_to_user_state: '.$formObj[0]["sendEmail"]);
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
-				;
+				
 				//$type = $formObj[0]["type"];
 				
 				
