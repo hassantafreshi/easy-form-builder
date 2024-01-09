@@ -2060,9 +2060,9 @@ class _Public {
 			do_action( 'litespeed_purge_post', $page_id );
 		}elseif (function_exists('wp_cache_post_change')){
 			//+cache
-			error_log('JetPack Exists!');
+			/* error_log('JetPack Exists!');
 			$GLOBALS["super_cache_enabled"]=1;
-			wp_cache_post_change($page_id);
+			wp_cache_post_change($page_id); */
 		} 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 
