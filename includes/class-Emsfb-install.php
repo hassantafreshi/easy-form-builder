@@ -117,18 +117,28 @@ class Install {
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
 					} */
-						$user_id = get_current_user_id();
-						$usr =get_user_by('id',$user_id);
-						$eml=$usr->user_email;
+						function admin_email(){
+							$user_id = get_current_user_id();
+							$usr =get_user_by('id',$user_id);
+							$eml=$usr->user_email;
+							if($eml==NULL || $eml=='') {
+								$usr =get_user_by('id',1);
+								$eml = $usr ? $usr->user_email :'';								
+							}
+							return $eml;
+						}
+						
 						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
 						if($v==NULL && $s==true){
+							$eml =admin_email();
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
 							require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 							dbDelta( $s );			
 						}else if($v==NULL && $s==false){
+							$eml =admin_email();
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));

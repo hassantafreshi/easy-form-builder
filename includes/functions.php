@@ -872,11 +872,11 @@ class efbFunction {
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
 				
-				error_log('send_email_state_new');				
+			/* 	error_log('send_email_state_new');				
 				error_log(json_encode($to));
 				error_log(json_encode($sub));
 				error_log(json_encode($cont));
-				error_log(json_encode($st));
+				error_log(json_encode($st)); */
 				
 				
 				
@@ -893,21 +893,21 @@ class efbFunction {
 				
 				if(gettype($sub)=='string'){
 			
-					error_log('send_email_state_new sub string');
+					//error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-					error_log($message);
+					//error_log($message);
 					if( $state!="reportProblem"){
-						error_log('send_email_state_new state not reportProblem');
-						error_log(gettype($to));
+						//error_log('send_email_state_new state not reportProblem');
+						//error_log(gettype($to));
 						$to_;$mailResult;
 							
 						if (gettype($to) == 'string') {
 							
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
-							error_log('run email to====>');
+							//error_log('run email to====>');
 							$toMail = array_pop($to);
-							error_log($toMail);
+							//error_log($toMail);
 							$to_ = implode(',', array_unique($to));
 							$to_ = str_replace(',,', ',', $to_);
 							if(count($to)>1){
@@ -970,7 +970,7 @@ class efbFunction {
 									
 								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
 
-								error_log('send_email_state_new state not reportProblem!');
+								//error_log('send_email_state_new state not reportProblem!');
 								
 								$to_;$mailResult;
 												
@@ -978,9 +978,9 @@ class efbFunction {
 									
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
-									error_log('run email to====>');
+									//error_log('run email to====>');
 									$toMail = array_pop($to[$i]);
-									error_log(json_encode($toMail));
+									//error_log(json_encode($toMail));
 									$to_ = implode(',', array_unique($to[$i]));
 									$to_ = str_replace(',,', ',', $to_);
 									if(count($to[$i])>1){
