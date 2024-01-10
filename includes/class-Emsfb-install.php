@@ -26,7 +26,7 @@ class Install {
 		$table_name_status = $wpdb->prefix . "emsfb_stts_";
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$upgrade_path = ABSPATH . 'wp-admin/includes/upgrade.php';
+	
 
 		
 			
