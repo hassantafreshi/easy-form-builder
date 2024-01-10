@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.2> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.3> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1201,19 +1201,20 @@ let change_el_edit_Efb = (el) => {
               })
               valj_efb[0].email = el.value.trim();
               valj_efb[0].sendEmail=true;
+              break;
             }else{
             
               if (el.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) // email validation
               {
                 valj_efb[0].email = el.value;
                 valj_efb[0].sendEmail=true;
-                return true;
+                break;
               }
               else {
                 if (el.value!="") alert_message_efb(efb_var.text.error, efb_var.text.invalidEmail, 10, "danger");
                 document.getElementById("adminFormEmailEl").value = "";
                 valj_efb[0].email="";
-
+              
               }
             }
         } else if (efb_var.smtp == '-1') {

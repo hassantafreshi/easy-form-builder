@@ -1034,7 +1034,7 @@ function fun_show_setting__emsFormBuilder() {
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
     stripePKey = f(`stripePKey`);
-    smtp = f('smtp') == 'null' ? false : f('smtp');
+    smtp = f('smtp') == 'null' ? false : Boolean(f('smtp'));
     bootstrap = f('bootstrap');
     emailTemp = f('emailTemp');
     sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');

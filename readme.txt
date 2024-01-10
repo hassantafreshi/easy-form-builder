@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.7.2
+Stable tag: 			3.7.3
 Requires at least: 	      4.7
-Tested up to: 			6.3.1
+Tested up to: 			6.4.2
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -383,6 +383,11 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.7.3 =
+
+* Resolved issues related to sending email notifications for forms.
+
 
 = 3.7.2 =
 

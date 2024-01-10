@@ -872,9 +872,11 @@ class efbFunction {
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
 				
-				
-				
-				
+			/* 	error_log('send_email_state_new');				
+				error_log(json_encode($to));
+				error_log(json_encode($sub));
+				error_log(json_encode($cont));
+				error_log(json_encode($st)); */
 				
 				
 				
@@ -891,25 +893,32 @@ class efbFunction {
 				
 				if(gettype($sub)=='string'){
 			
-					
+					//error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-
+					//error_log($message);
 					if( $state!="reportProblem"){
-
-						//loop start
-						$to_ = gettype($to)=='string' ? $to : implode(',', array_unique($to));	
-						//replace
-						$to = str_replace(',,', ',', $to_);
-						
-						
-						$headers = array(
-							'MIME-Version: 1.0\r\n',
-							'From:'.$from.'',
-							'Bcc:'.$to.''
-						);				
-						$mailResult =  wp_mail( '',$sub, $message, $headers ) ;
-						remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );
-						//end loop
+						//error_log('send_email_state_new state not reportProblem');
+						//error_log(gettype($to));
+						$to_;$mailResult;
+							
+						if (gettype($to) == 'string') {
+							
+							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
+						} else {
+							//error_log('run email to====>');
+							$toMail = array_pop($to);
+							//error_log($toMail);
+							$to_ = implode(',', array_unique($to));
+							$to_ = str_replace(',,', ',', $to_);
+							if(count($to)>1){
+								$headers = array(
+									'MIME-Version: 1.0\r\n',
+									'From:'.$from.'',
+									'Bcc:'.$to.''
+								);
+							}
+							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+						}
 
 						return $mailResult;
 					}
@@ -946,9 +955,9 @@ class efbFunction {
 							if( $state!="reportProblem"){
 		
 								//loop start
-								$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
+								//$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
 								//replace
-								$to_ = str_replace(',,', ',', $to_);
+								/* $to_ = str_replace(',,', ',', $to_);
 								if (substr($to_, -1) === ',') {
 									$to_ = substr($to_, 0, -1);
 								}
@@ -959,7 +968,30 @@ class efbFunction {
 									'Bcc:'.$to_.''
 								);		
 									
-								$mailResult =  wp_mail('', $sub[$i], $message, $headers);
+								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
+
+								//error_log('send_email_state_new state not reportProblem!');
+								
+								$to_;$mailResult;
+												
+								if (gettype($to[$i]) == 'string') {
+									
+									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
+								} else {
+									//error_log('run email to====>');
+									$toMail = array_pop($to[$i]);
+									//error_log(json_encode($toMail));
+									$to_ = implode(',', array_unique($to[$i]));
+									$to_ = str_replace(',,', ',', $to_);
+									if(count($to[$i])>1){
+										$headers = array(
+											'MIME-Version: 1.0\r\n',
+											'From:'.$from.'',
+											'Bcc:'.$to_.''
+										);
+									}
+									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
+								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
 							
@@ -978,8 +1010,8 @@ class efbFunction {
 
 	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
 	
-		$l ="https://whitestudio.team/";
-			 if(get_locale()=="fa_IR"){ $l="https://easyformbuilder.ir/"  ;}
+		$l ='https://whitestudio.team/';
+			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
         $lang= $this->text_efb($text);				
@@ -1004,7 +1036,7 @@ class efbFunction {
 		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
-		 
+		
 		$adminEmail = $user!=false ? $user->user_email :'';
 		$blogURL= home_url();
 
@@ -1511,10 +1543,28 @@ class efbFunction {
 			
 			if($value ==1){
 				
-				$this->addon_add_efb($key);
+				$r =$this->addon_add_efb($key);
+				if($r==false){
+					 $to = $ac->emailSupporter;
+					 if($to==null || $to=="null" || $to=="") return false;
+					 $sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
+					 $m =  '<div><p>'. __('Hi Dear User', 'easy-form-builder').
+					 		'</p><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+							'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
+							'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
+							 <p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
+							
+					$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+					$headers = array(
+						'MIME-Version: 1.0\r\n',
+						'From:'.$from.'',
+					);
+					
+					wp_mail( $to,$sub, $m, $headers );				
+					return false;
+				}
 			}
 		}
-	   //
 	}
 
 
@@ -1628,51 +1678,51 @@ class efbFunction {
 
 	
 	public function getVisitorOS() {
-		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+		$ua =  strtolower($_SERVER['HTTP_USER_AGENT'] ?? null);
 		$os = "Unknown";
 
-		if ($ua) {
-			if (strpos($ua, 'Windows') !== false) {
-				$os = "Windows";
-			} elseif (strpos($ua, 'Linux') !== false) {
-				$os = "Linux";
-			} elseif (strpos($ua, 'Macintosh') !== false || strpos($ua, 'Mac OS X') !== false) {
-				$os = "Mac";
-			} elseif (strpos($ua, 'Android') !== false) {
-				$os = "Android";
-			} elseif (strpos($ua, 'iOS') !== false) {
-				$os = "iOS";
-			}
-		}
+		if ($ua) {		    		
+		        if (strpos($ua, 'windows') !== false) {
+		            $os = "Windows";
+		        } elseif (strpos($ua, 'linux') !== false) {
+		            $os = "Linux";
+		        } elseif (strpos($ua, 'macintosh') !== false || strpos($ua, 'mac os x') !== false) {
+		            $os = "Mac";
+		        } elseif (strpos($ua, 'android') !== false) {
+		            $os = "Android";
+		        } elseif (strpos($ua, 'ios') !== false) {
+		            $os = "iOS";
+		        }
+		    }
 	
 		return $os;
 	}
 
 	public function getVisitorBrowser() {
-		$ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
-		$b = "Unknown";
-
-		if ($ua) {
-			if (strpos($ua, 'Firefox') !== false) {
-				$b = "Mozilla Firefox";
-			} elseif (strpos($ua, 'Chrome') !== false) {
-				if (strpos($ua, 'Edg') !== false) {
-					$b = "Microsoft Edge";
-				} elseif (strpos($ua, 'Brave') !== false) {
-					$b = "Brave";
-				} else {
-					$b = "Google Chrome";
-				}
-			} elseif (strpos($ua, 'Safari') !== false) {
-				$b = "Apple Safari";
-			} elseif (strpos($ua, 'Opera') !== false) {
-				$b = "Opera";
-			} elseif (strpos($ua, 'MSIE') !== false || strpos($ua, 'Trident') !== false) {
-				$b = "Internet Explorer";
-			}
-		}
-
-		return $b;
+	    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? null);
+	    $b = "Unknown";
+	
+	    if ($ua) {
+	        if (strpos($ua, 'firefox') !== false) {
+	            $b = "Mozilla Firefox";
+	        } elseif (strpos($ua, 'chrome') !== false) {
+	            if (strpos($ua, 'edg') !== false) {
+	                $b = "Microsoft Edge";
+	            } elseif (strpos($ua, 'brave') !== false) {
+	                $b = "Brave";
+	            } else {
+	                $b = "Google Chrome";
+	            }
+	        } elseif (strpos($ua, 'safari') !== false) {
+	            $b = "Apple Safari";
+	        } elseif (strpos($ua, 'opera') !== false) {
+	            $b = "Opera";
+	        } elseif (strpos($ua, 'msie') !== false || strpos($ua, 'trident') !== false) {
+	            $b = "Internet Explorer";
+	        }
+	    }
+	
+	    return $b;
 	}
 
 	public function sms_ready_for_send_efb($form_id , $numbers ,$page_url ,$state ,$severType,$tracking_code = null){
@@ -1740,10 +1790,10 @@ class efbFunction {
 			'WP Super Cache' => 'wp-super-cache/wp-cache.php',
 			'WP Fastest Cache' => 'wp-fastest-cache/wpFastestCache.php',
 			'Autoptimize' => 'autoptimize/autoptimize.php',	
-			'Cache Enabler – cache-enabler/cache-enabler.php',
+			'Cache Enabler' => 'cache-enabler/cache-enabler.php',
 			'WP-Optimize' => 'wp-optimize/wp-optimize.php',
 			'Super Page Cache for Cloudflare' => 'wp-cloudflare-page-cache/wp-cloudflare-super-page-cache.php',					
-			'WP Fastest Cache Lite' => 'wp_fastest_cache_lite\WP_Fastest_Cache_Lite',
+			'WP Fastest Cache Lite' => 'wp_fastest_cache_lite/WP_Fastest_Cache_Lite',
 			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',
 			'Hyper Cache'=>'hyper-cache/plugin.php',
 			'NitroPack '=>'nitropack/main.php',
