@@ -1565,7 +1565,6 @@ class efbFunction {
 				}
 			}
 		}
-	   //
 	}
 
 
