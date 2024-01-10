@@ -430,7 +430,7 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
-			 
+
 			 $content="	
 			
 			 ".$this->bootstrap_icon_efb($icons_)."
