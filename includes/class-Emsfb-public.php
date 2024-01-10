@@ -125,7 +125,7 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		
-		enqueue_jquery();
+		$this->enqueue_jquery();
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
@@ -447,7 +447,7 @@ class _Public {
 	}
 	public function EMS_Form_Builder_track(){
 		
-		enqueue_jquery();
+		$this->enqueue_jquery();
 		
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
