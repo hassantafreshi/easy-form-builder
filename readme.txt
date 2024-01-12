@@ -306,7 +306,7 @@ Easy Form Builder's redirect page feature allows you to customize the page that 
 **Notification link of filled form**
 The Easy Form Builder plugin lets you send a notification email to your inbox whenever a form is submitted, and includes a link to view the filled form or response on your website. This feature helps you communicate with users, collect new responses, and increase the dwell time of your page, which can improve your website's search engine rankings. Best of all, it's a **free feature** included with Easy Form Builder.
 
-**Smart dropdown  country, state/province, and city  in Easy Form Builde**
+**Smart dropdown country, state/province, and city in Easy Form Builder**
 By placing three consecutive dropdown options of country, state/province, and city without any fields in between, you can effortlessly create a smart selection using the Easy Form Builder. This eliminates the need for additional settings, allowing users to easily make intelligent choices in the form you're creating.
 
 **Convenient Integration of Dropdown Lists for States/Provinces and Cities into WordPress Forms**
