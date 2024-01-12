@@ -410,7 +410,7 @@ class Admin {
             $data = json_decode( $body );
 
             if($data==null || $data=='null'){
-                $m = __('You can not use the  Easy  Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
+                $m = __('You can not use the Easy Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
             }
