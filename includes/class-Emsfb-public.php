@@ -101,7 +101,7 @@ class _Public {
 
 
 	public function enqueue_jquery(){
-		
+		$wp_version = get_bloginfo('version');
 		$jquery_version = '3.7.1';
 		if (!wp_script_is('jquery', 'enqueued') || wp_scripts()->registered['jquery']->ver !== $jquery_version) {
 			

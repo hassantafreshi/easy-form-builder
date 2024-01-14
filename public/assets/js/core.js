@@ -539,6 +539,7 @@ function actionSendData_emsFormBuilder() {
     response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } });
     return;
   }
+  form_type_emsFormBuilder = typeof valj_efb.length>2 ? valj_efb[0].type : form_type_emsFormBuilder
   let  data = {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendBack_emsFormBuilder_pub),
