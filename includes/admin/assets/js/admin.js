@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.3> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.4> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {

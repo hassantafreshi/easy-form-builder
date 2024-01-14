@@ -2,7 +2,7 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.7.3
+Stable tag: 			3.7.4
 Requires at least: 	      4.7
 Tested up to: 			6.4.2
 Requires PHP:			7.4 or higher
@@ -383,6 +383,13 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 
 == Changelog ==
+
+= 3.7.4 =
+
+* Fixed issues
+
+* Remove dependency on jQuery
+
 
 = 3.7.3 =
 
