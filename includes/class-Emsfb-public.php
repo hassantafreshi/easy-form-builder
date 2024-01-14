@@ -102,11 +102,18 @@ class _Public {
 
 	public function enqueue_jquery(){
 		
-		$jquery_version = '3.6.2';
-		
-		if (!wp_script_is('jquery', 'enqueued')) {
+		$jquery_version = '3.7.1';
+		if (!wp_script_is('jquery', 'enqueued') || wp_scripts()->registered['jquery']->ver !== $jquery_version) {
+			
 			//When jQuery is not defined, run this if statement
-			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, $jquery_version);
+			//wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, $jquery_version);
+			if (version_compare($wp_version, '5.0', '>=')) {
+			wp_register_script('jquery', false, array(), $jquery_version, true);
+			wp_scripts()->add_data('jquery', 'src', includes_url('/js/jquery/jquery.js'));
+			}else if (version_compare($wp_version, '4.9.9', '<=')) {
+				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, '3.6.2');
+			}
+			
 		}
 	}
 	
@@ -552,9 +559,9 @@ class _Public {
 		wp_enqueue_script('Emsfb-core_js');
 		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.3');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.3', true); */
-		/* 	 */
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.3', true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.3', true);
+
+		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.3', true); */
 		wp_enqueue_script('efb-main-js'); 		
 		
 		if(is_rtl()){

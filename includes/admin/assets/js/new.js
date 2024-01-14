@@ -1266,8 +1266,10 @@ function handle_navbtn_efb(steps, device) {
             document.getElementById("prev_efb").classList.remove("d-none");
           }
           if (current_s_efb == steps_len_efb - 1) {
+            console.log('next');
             if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
               document.getElementById("next_efb").classList.toggle("disabled");
+              document.getElementById("gRecaptcha").classList.remove("d-none");
             }
             var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${efb_var.text.send}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
             document.getElementById("next_efb").innerHTML = val;
@@ -1290,13 +1292,14 @@ function handle_navbtn_efb(steps, device) {
     });
   } else {
     document.getElementById("btn_send_efb").addEventListener("click", function () {
+      
       var state = true;
       if (preview_efb == false && fun_validation_efb() == false) {
         state = false;
         return false;
       }
       setTimeout(function () {
-        if (state = true) {
+        if (state == true) {
          if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + (current_s_efb + 1) + '-efb"]').classList.add("active");
           document.querySelector('[data-step="step-' + (current_s_efb + 1) + '-efb"]').classList.toggle("d-none");
           document.getElementById("btn_send_efb").classList.toggle("d-none");
