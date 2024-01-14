@@ -30,3 +30,6 @@ composer.json
 .gitignore
 composer.lock
 vendor/composer/*
+.prettierrc.json
+.vscode
+.vscode/*
