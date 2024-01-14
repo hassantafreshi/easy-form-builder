@@ -2006,6 +2006,7 @@ class _Public {
 			foreach($vl as $key=>$val){
 				
 				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+					error_log(json_encode($val));
 					$val->file_ctype = strtolower($val->file_ctype);
 					
 					$valid_types= explode(',', $val->file_ctype);
