@@ -378,12 +378,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       break;
     case 'pdate':
-
-      
-     /*  maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
-      maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
-      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
-      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``; */
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
@@ -395,12 +389,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
       break;
     case 'ardate':
-
-      
-     /*  maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
-      maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
-      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
-      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``; */
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
@@ -501,18 +489,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'chlCheckBox':
     case 'chlRadio':
     case 'imgRadio':
-      
-      // const rndm_a = Math.random().toString(36).substr(2, 9);
-    /* 
-    <label for="img1">
-            <img src="https://dummyimage.com/600x400/000/fff" alt="Image 1">
-            <div class="tick_container">
-              <div class="tick"><i class=" bi-check"></i></div>
-            </div>
-            </label>
-    
-    */
-
      
       dataTag = elementId;
        col = valj_efb[iVJ].hasOwnProperty('op_style') && Number(valj_efb[iVJ].op_style )!=1 ? 'col-md-'+(12/Number(valj_efb[iVJ].op_style )) :''
@@ -527,9 +503,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         const currency = valj_efb[0].hasOwnProperty('currency') ? valj_efb[0].currency:'USD';
         
         for (const i of optns_obj) {
-          let checked ="";
-          //console.error(parent.value,i.id_,i,parent.value , i.id_old            )
-          
+          let checked ="";          
           if((tp.includes("radio")==true ||( tp.includes("select")==true &&  tp.includes("multi")==false))  && ( parent.value == i.id_ || (i.hasOwnProperty("id_old") && parent.value == i.id_old) )  ){ checked="checked";
           }else if((tp.includes("multi")==true || tp.includes("checkbox")==true) &&  typeof parent.value!="string" &&  parent.value.findIndex(x=>x==i.id_ || x==i.id_old)!=-1 ){checked="checked"}
 
@@ -1606,22 +1580,7 @@ function handle_navbtn_efb(steps, device) {
           next_s_efb = current_s.nextElementSibling;
           current_s.classList.add('d-none');
           if(next_s_efb)next_s_efb.classList.remove('d-none');
-          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');
-          //next_s_efb.style.display = "block";
-          /* current_s.animate(
-            { opacity_efb: 0 },
-            {
-              step: function (now) {
-                // for making fielset appear animation
-                opacity_efb = 1 - now;
-
-                current_s.style.display = "none";
-                current_s.style.position = "relative";
-                next_s_efb.style.opacity_efb = opacity_efb;
-              },
-              duration: 500
-            }
-          ); */
+          if(document.getElementById('gRecaptcha'))document.getElementById('gRecaptcha').classList.add('d-none');     
           current_s_efb += 1;
           setProgressBar_efb(current_s_efb, steps_len_efb);
 
@@ -1741,9 +1700,7 @@ function ReadyElForViewEfb(content) {
 
 
 localStorage.getItem('count_view') ? localStorage.setItem(`count_view`, parseInt(localStorage.getItem('count_view')) + 1) : localStorage.setItem(`count_view`, 0)
-/* if (localStorage.getItem('count_view') >= 0 && localStorage.getItem('count_view') < 3 && typeof efb_var == "object" && efb_var.maps != "1") {
- // setTimeout(() => { alert_message_efb(efb_var.text.localizationM, "", 15, "info") }, 17000);
-} */
+
 
 
 
@@ -1792,10 +1749,6 @@ function noti_message_efb(message, alert ,id) {
   //sec = sec * 1000
   
   alert = alert ? `alert-${alert}` : 'alert-info';
-  /* if (document.getElementById('alert_efb')==null){
-    //<div id='alert_efb' class='efb mx-5'></div>
-    document.getElementById('body_efb').innerHTML += `<div id='alert_efb' class='efb mx-5'></div>`;
-  } */
   let d = document.getElementById(id);
   if(document.getElementById('noti_content_efb')){
     document.getElementById('noti_content_efb').remove()
@@ -2246,19 +2199,6 @@ function fun_prev_send() {
 
   current_s.classList.add('d-none');
   prev_s_efb.classList.remove('d-none');
-  /* current_s.animate(
-    { opacity_efb: 0 },
-    {
-      step: function (now) {
-        opacity_efb = 1 - now;
-
-        current_s.style.display = 'none';
-        current_s.style.position = 'relative';
-        prev_s_efb.style.opacity_efb = opacity_efb;
-      },
-      duration: 500
-    }
-  ); */
   current_s_efb -= 1;
   localStorage.setItem('step', current_s_efb);
   setProgressBar_efb(current_s_efb, stp);
@@ -2337,9 +2277,6 @@ function fun_validation_efb() {
         }
       }
     }else if (row > 1 && valj_efb[row].type == "chlCheckBox" && current_s_efb == valj_efb[row].step){
-     /*  const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
-      document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger"); */
-    // sendBack_emsFormBuilder_pub[s].hasOwnProperty('qty') && sendBack_emsFormBuilder_pub[s].qty.length==""
       for(let em of sendBack_emsFormBuilder_pub){
         if(em.type=="chlCheckBox" && em.id_==valj_efb[row].id_ && em.qty.length=="")
         {
@@ -2415,21 +2352,10 @@ addStyleColorBodyEfb = (t, c, type, id) => {
 
   c=c[0]!="#" ? "#"+c : c
   efb_add_costum_color(t, c ,v , type)
-  /* if (type == "text") { v = `.${type}-${t}{color:${c}!important;}` }
-  else if (type == "icon") { v = `.text-${t}{color:${c}!important;}` }
-  else if (type == "border") { v = `${tag}.${type}-${t}{border-color:${c}!important;}` }
-  else if (type == "bg") { v = `.${type}-${t}{background-color:${c}!important;}` }
-  else if (type == "btn") { v = `.${type}-${t}{background-color:${c}!important;}` }
-  document.body.appendChild(Object.assign(document.createElement("style"), { textContent: `${v}` })) */
 }
 
 
 efb_add_costum_color=(t, c ,v , type)=>{
-  //console.log('===>efb_add_costum_color',t, c ,v , type)
-  //t colorDEfb-000e24
-  //c #000e24
-  //v = ""
-  //type = text, border , bg , btn
   
   let n =''
   c=c[0]!="#" ? "#"+c : c
@@ -2718,10 +2644,6 @@ let get_position_col_el = (dataId, state) => {
   return [parent_row, parent_col, label_col, input_col]
 }
 
-/* var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl)
-}) */
 
 function calPLenEfb(len) {
   let p = 2
@@ -3008,14 +2930,6 @@ function check_msg_ext_resp_efb() {
 }
 
 
-/* setTimeout(() => {
-  console.log('set time out run!')
-  noti_message_efb('this a test mesage for insure' , 'danger' , `step-${current_s_efb}-efb-msg` )
-}, 5000); */
-
-
-
-
  function fun_show_val_range_efb(id ){
   document.getElementById(id+'_rv').innerText=document.getElementById(id+'_').value;
   //console.log(document.getElementById(id+'_').value);
@@ -3291,7 +3205,7 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
   <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
 </path>
 </svg><span>`
-}
+} 
 
 
 
