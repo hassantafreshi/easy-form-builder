@@ -1951,6 +1951,7 @@ class _Public {
         //check validate here
         $vl=null;
 		$have_validate =0;
+		$temp=0;
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1963,14 +1964,28 @@ class _Public {
             if($vl!=null){    
 				$tmep = strpos($vl , '\"value\":\"customize\"');
 				
-				if(strpos($vl , '\"value\":\"customize\"')){
+			
+				if(strpos($vl , '\"value\":\"customize\"')!=false){
+					$val_ = str_replace('\\', '', $vl);
+					$vl = json_decode($val_);
+					foreach($vl as $key=>$val){
+						if(isset($val->id_) && $val->id_==$id && isset($val->value) && isset($val->type)){
+							$have_validate=  $val->value == "customize" ? 1 : 0;
+							$temp = $val->type == "dadfile" || $val->type == "file"   ? 1 : 0;
+							break;
+						}
+					}
 					
-					$have_validate=1;
+				}else{
+					$have_validate=0;
 				}
-				   
-				$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+
+				if(gettype($vl)=="string"){
+					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+				}
 				
-                if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
+				
+                if($temp==false){  
 
                     $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
 					wp_send_json_success($response,200);
@@ -1993,7 +2008,9 @@ class _Public {
 				'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
 				'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
 				'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip', 'rar', 'zip', 'tar', 'gzip', 'gz', '7z', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mp3', 'wav', 'gif', 'png', 'jpg', 'jpeg', 'rar', 				
+			     'gz', 'tgz', 'tar.gz', 'tar.gzip', 'tar.z', 'tar.Z', 'tar.bz2', 'tar.bz', 'tar.bzip2', 'tar.bzip', 'tbz2', 'tbz', 'bz2', 'bz', 'bzip2', 'bzip', 'tz2', 'tz', 'z', 'war', 'jar', 'ear', 'sar'
+				 
 				);
 				$valid = in_array($_FILES['async-upload']['type'], $arr_ext);		
 			}
@@ -2001,18 +2018,31 @@ class _Public {
 
 
 		if($have_validate==1){
-			$val_ = str_replace('\\', '', $vl);
-			$vl = json_decode($val_);
+			if(gettype($vl)=="string"){
+				$val_ = str_replace('\\', '', $vl);
+				$vl = json_decode($val_);}
+			
 			foreach($vl as $key=>$val){
 				
 				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
-					error_log(json_encode($val));
+					
 					$val->file_ctype = strtolower($val->file_ctype);
 					
-					$valid_types= explode(',', $val->file_ctype);
+					$valid_types = explode(',', str_replace(' ', '', $val->file_ctype));
+					//error_log(json_encode($valid_types));
 					$file_name = $_FILES['async-upload']['name'];
+					//error_log($file_name);
 					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
-					$valid = in_array($ext, $valid_types);
+					//error_log($ext);
+					//$valid = in_array($ext, $valid_types);
+					foreach($valid_types as $val){
+						error_log($val);
+						if($val==$ext){
+							$valid=true;
+							break;
+						}
+					}
+					//error_log($valid);
 					break;
 				}
 			}
