@@ -2036,7 +2036,7 @@ class _Public {
 					//error_log($ext);
 					//$valid = in_array($ext, $valid_types);
 					foreach($valid_types as $val){
-						error_log($val);
+						//error_log($val);
 						if($val==$ext){
 							$valid=true;
 							break;

@@ -390,6 +390,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 * Remove dependency on jQuery
 
+* Fixed File Uploads issues and improve security of file upload forms of Easy Form Builder
+
 
 = 3.7.3 =
 
