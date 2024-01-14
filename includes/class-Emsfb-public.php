@@ -1377,8 +1377,8 @@ class _Public {
 							
 							
 							
-							error_log(json_encode($email_user));
-							error_log('send_email_to_user_state:'.$send_email_to_user_state);
+							//error_log(json_encode($email_user));
+							//error_log('send_email_to_user_state:'.$send_email_to_user_state);
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 								$email_user[0]=$email_fa;
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
@@ -1389,7 +1389,7 @@ class _Public {
 									$msg_content = str_replace("\"","'",$msg_content);
 									
 								}
-								error_log(json_encode($email_user));
+								//error_log(json_encode($email_user));
 								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content );
 							}
 							//$this->send_json_success_efb($response);
