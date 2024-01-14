@@ -1234,7 +1234,7 @@ class Admin {
 
       
 		$_FILES['file']['name'] = sanitize_file_name($_FILES['file']['name']);
-        error_log($_FILES['file']['name']);
+        //error_log($_FILES['file']['name']);
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
 						
