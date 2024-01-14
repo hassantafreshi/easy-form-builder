@@ -158,8 +158,6 @@ class Panel_edit  {
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.3');
 			wp_enqueue_script('efb-pro-els');
 
-			/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.3');
-			wp_enqueue_script('efb-pro-els');  */
 
 
 			
