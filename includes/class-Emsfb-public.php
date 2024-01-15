@@ -141,7 +141,7 @@ class _Public {
 		}
 		
 		$table_name = $this->db->prefix . "emsfb_form";		
-		$this->id = $id;
+		$this->id = end($id);
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;
