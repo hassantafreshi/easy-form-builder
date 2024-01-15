@@ -1266,7 +1266,6 @@ function handle_navbtn_efb(steps, device) {
             document.getElementById("prev_efb").classList.remove("d-none");
           }
           if (current_s_efb == steps_len_efb - 1) {
-            console.log('next');
             if (sitekye_emsFormBuilder && sitekye_emsFormBuilder.length > 1 && valj_efb[0].captcha == true) {
               document.getElementById("next_efb").classList.toggle("disabled");
               document.getElementById("gRecaptcha").classList.remove("d-none");
