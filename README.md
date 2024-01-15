@@ -145,7 +145,10 @@ Thanks goes to these wonderful people
 <table align="center">
 <tbody>
 <tr>
-<td><a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
+<td>
+<a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a>
+<a href="#maintenance" title="Maintenance">🚧</a>
+</td>
 <td><a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji></td>
 <td><a href="https://github.com/aminkhadivar/" target="_blank"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin</strong></sub></a><br /><a href="#design" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
 <td>
@@ -155,6 +158,7 @@ Thanks goes to these wonderful people
 <td>
   <a href="https://github.com/Presskopp" target="_blank"><img src="https://avatars.githubusercontent.com/u/18373563?v=4" alt="" width="100px;" /><br /><sub><strong>Presskopp</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a> 
+    <a title="Code" href="https://github.com/Presskopp/easy-form-builder">💻</a>
 </td>
 <td>
   <a href="https://github.com/psmits1567" target="_blank"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
