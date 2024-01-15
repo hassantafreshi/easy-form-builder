@@ -472,8 +472,8 @@ function fun_clear_esign_efb(id) {
 let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
-function initMap(disabled) {
-  console.log('initMap');
+function initMap_efb(disabled) {
+  console.log('initMap_efb');
   setTimeout(function () {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;

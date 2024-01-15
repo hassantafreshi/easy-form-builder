@@ -127,7 +127,6 @@ class Panel_edit  {
 			$plugins['cache'] = $efbFunction->check_for_active_plugins_cache();
 			
 			wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.4');
-			//wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-min.js',false,'3.7.4');
 			wp_localize_script('Emsfb-admin-js','efb_var',array(
 				'nonce'=> wp_create_nonce("admin-nonce"),
 				'pro' => $pro,
@@ -202,9 +201,7 @@ class Panel_edit  {
 			wp_enqueue_script('efb-bootstrap-select-js'); 
 
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.4');
-			wp_enqueue_script('efb-main-js'); 
-			/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',false,'3.7.4');
-			wp_enqueue_script('efb-main-js'); */ 
+			wp_enqueue_script('efb-main-js');  
 			
 				/* new code v4 */
 			

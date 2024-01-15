@@ -1630,7 +1630,8 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-          initMap(disabled);
+          console.log(disabled,v);
+          initMap_efb(disabled);
           break;
         case "esign":
           c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
