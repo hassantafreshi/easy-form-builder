@@ -140,9 +140,8 @@ class _Public {
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		
-		$table_name = $this->db->prefix . "emsfb_form";
-			error_log(end($id));
-		$this->id = sanitize_text_field(end($id));
+		$table_name = $this->db->prefix . "emsfb_form";		
+		$this->id = $id;
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;
