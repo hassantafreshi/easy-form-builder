@@ -1500,7 +1500,6 @@ function remove_other_noti_Efb(){
 
 
 function creator_form_builder_Efb() {
-  
   remove_other_noti_Efb()
   if (valj_efb.length < 2) {
     step_el_efb = 1;
