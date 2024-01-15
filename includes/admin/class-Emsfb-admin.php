@@ -398,10 +398,7 @@ class Admin {
             if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             }
-            //check lanaguage of site  if is persian then add lang=fa to url
-            if(get_locale()=='fa_IR'){
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-            }
+            
             $request = wp_remote_get($u);
             
             if( is_wp_error( $request )) {
