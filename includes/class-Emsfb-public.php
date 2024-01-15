@@ -100,6 +100,23 @@ class _Public {
 	}
 
 
+	public function enqueue_jquery(){
+		$wp_version = get_bloginfo('version');	
+		$jquery_version = '3.7.1';
+		if (!wp_script_is('jquery', 'enqueued') || version_compare(wp_scripts()->registered['jquery']->ver , $jquery_version , '<')) {
+			
+			//When jQuery is not defined, run this if statement
+			//wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, $jquery_version);
+			if (version_compare($wp_version, '5.0', '>=')) {		
+			wp_register_script('jquery', false, array(), $jquery_version, true);
+			wp_scripts()->add_data('jquery', 'src', includes_url('/js/jquery/jquery.js'));
+			}else if (version_compare($wp_version, '4.9.9', '<=')) {
+				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, '3.6.2');
+			}
+			
+		}
+	}
+	
 	public function hide_toolmenu(){
 		// this function hide admin bar in bublic side for subscribers user
 		if(is_user_logged_in()){
@@ -115,12 +132,7 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		
-		if (!wp_script_is('jquery', 'enqueued')) {
-			//When jQuery is not defined, run this if statement
-			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
-			wp_enqueue_script('jquery');
-		}
-
+		$this->enqueue_jquery();
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
@@ -219,9 +231,9 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.3');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.4');
 			wp_enqueue_script('efb-bootstrap-select-js'); 
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.3' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.4' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -257,9 +269,8 @@ class _Public {
 					$el_pro_load = strpos($value , '"pro":"1"');
 				}
 				if($el_pro_load==true){
-					/* wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.3');
-					wp_enqueue_script('efb-pro-els'); */ 
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.3');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.4');
+					wp_enqueue_script('efb-pro-els'); 		
 					wp_enqueue_script('efb-pro-els'); 
 				}
 		
@@ -277,17 +288,17 @@ class _Public {
 							$paymentType="zarinPal";
 						}else if(strpos($value , '\"type\":\"zarinPal\"') || strpos($value , '"type":"zarinPal"')){$paymentType="zarinPal";}
 							if($paymentType!="null" && $pro==true){
-								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.3', true);
+								wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.4', true);
 								wp_enqueue_script('pay_js');
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.3', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.4', true);
 									wp_enqueue_script('parsipay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.7.3', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.7.4', true);
 									wp_enqueue_script('parsipay_js');
 								}
 						}
@@ -299,11 +310,11 @@ class _Public {
 						'paymentKey' => $paymentKey
 					));
 				}else if((strpos($value , '\"type\":\"pay') || strpos($value , '"type":"pay'))){
-					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.3', true);
+					wp_register_script('pay_js', plugins_url('../public/assets/js/pay.js',__FILE__), array('jquery'), '3.7.4', true);
 					wp_enqueue_script('pay_js');
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.3');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.4');
 					wp_enqueue_script('efb-bootstrap-bundle-min-js');  
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -328,7 +339,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.3');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.4');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -425,7 +436,7 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
-			 
+
 			 $content="	
 			
 			 ".$this->bootstrap_icon_efb($icons_)."
@@ -441,11 +452,9 @@ class _Public {
 		return $content;
 	}
 	public function EMS_Form_Builder_track(){
-		if (!wp_script_is('jquery', 'enqueued')) {
-			//When jQuery is not defined, run this if statement
-			wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js',false,'3.6.2' );
-			wp_enqueue_script('jquery');
-		}
+		
+		$this->enqueue_jquery();
+		
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
@@ -487,7 +496,7 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-min.js',false,'3.7.3');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.4');
 			wp_enqueue_script('efb-pro-els'); 
 		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
@@ -541,29 +550,29 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.3');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.4');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 /* wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.3', true); */
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.4', true);
 		
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.3', true);
+		/* wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-min.js',__FILE__), array('jquery'), '3.7.4', true); */
 		wp_enqueue_script('Emsfb-core_js');
-		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.3');
+		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.4');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
-		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.3', true); */
-		/* 	 */
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.3', true);
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.4', true);
+
+		/* wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-min.js',array('jquery'), '3.7.4', true); */
 		wp_enqueue_script('efb-main-js'); 		
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.3');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.4');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.7.3');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.7.4');
 		wp_enqueue_style('Emsfb-bootstrap-css');
-		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css', true,'3.7.3');
+		/* wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-min.css', true,'3.7.4');
 		wp_enqueue_style('Emsfb-bootstrap-css'); */
 	  }
 	  public function mail_send_form_api($data_POST_){
@@ -1830,9 +1839,9 @@ class _Public {
 			//send_email to admin of page
 	  }//end function get_track_public_api
 	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.3', true);
+		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.4', true);
 		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.7.3')</script>";
+		return "<script>console.log('Easy Form Builder v3.7.4')</script>";
 	  }//end function
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
@@ -1942,6 +1951,7 @@ class _Public {
         //check validate here
         $vl=null;
 		$have_validate =0;
+		$temp=0;
         if($_POST['pl']!="msg"){
             $vl ='efb'. $_POST['id'];
         }else{
@@ -1954,14 +1964,28 @@ class _Public {
             if($vl!=null){    
 				$tmep = strpos($vl , '\"value\":\"customize\"');
 				
-				if(strpos($vl , '\"value\":\"customize\"')){
+			
+				if(strpos($vl , '\"value\":\"customize\"')!=false){
+					$val_ = str_replace('\\', '', $vl);
+					$vl = json_decode($val_);
+					foreach($vl as $key=>$val){
+						if(isset($val->id_) && $val->id_==$id && isset($val->value) && isset($val->type)){
+							$have_validate=  $val->value == "customize" ? 1 : 0;
+							$temp = $val->type == "dadfile" || $val->type == "file"   ? 1 : 0;
+							break;
+						}
+					}
 					
-					$have_validate=1;
+				}else{
+					$have_validate=0;
 				}
-				   
-				$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+
+				if(gettype($vl)=="string"){
+					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
+				}
 				
-                if((strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"'))==false){  
+				
+                if($temp==false){  
 
                     $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
 					wp_send_json_success($response,200);
@@ -1984,7 +2008,9 @@ class _Public {
 				'application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation',
 				'application/vnd.ms-powerpoint.presentation.macroEnabled.12','application/vnd.openxmlformats-officedocument.wordprocessingml.template',
 				'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
-				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
+				'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip', 'rar', 'zip', 'tar', 'gzip', 'gz', '7z', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mp3', 'wav', 'gif', 'png', 'jpg', 'jpeg', 'rar', 				
+			     'gz', 'tgz', 'tar.gz', 'tar.gzip', 'tar.z', 'tar.Z', 'tar.bz2', 'tar.bz', 'tar.bzip2', 'tar.bzip', 'tbz2', 'tbz', 'bz2', 'bz', 'bzip2', 'bzip', 'tz2', 'tz', 'z', 'war', 'jar', 'ear', 'sar'
+				 
 				);
 				$valid = in_array($_FILES['async-upload']['type'], $arr_ext);		
 			}
@@ -1992,17 +2018,31 @@ class _Public {
 
 
 		if($have_validate==1){
-			$val_ = str_replace('\\', '', $vl);
-			$vl = json_decode($val_);
+			if(gettype($vl)=="string"){
+				$val_ = str_replace('\\', '', $vl);
+				$vl = json_decode($val_);}
+			
 			foreach($vl as $key=>$val){
 				
 				if($key>1 && ($val->type=="dadfile" || $val->type=="file") && $val->id_==$_POST['id']){
+					
 					$val->file_ctype = strtolower($val->file_ctype);
 					
-					$valid_types= explode(',', $val->file_ctype);
+					$valid_types = explode(',', str_replace(' ', '', $val->file_ctype));
+					//error_log(json_encode($valid_types));
 					$file_name = $_FILES['async-upload']['name'];
+					//error_log($file_name);
 					$ext = strtolower(substr($file_name, strrpos($file_name, '.') + 1));
-					$valid = in_array($ext, $valid_types);
+					//error_log($ext);
+					//$valid = in_array($ext, $valid_types);
+					foreach($valid_types as $val){
+						//error_log($val);
+						if($val==$ext){
+							$valid=true;
+							break;
+						}
+					}
+					//error_log($valid);
 					break;
 				}
 			}

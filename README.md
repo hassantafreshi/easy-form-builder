@@ -27,7 +27,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
               <tr>
             <td>English , <a href="https://wordpress.org/plugins/easy-form-builder/">Easy Form Builder</a></td>
             <td>Nederlands , <a href="https://nl.wordpress.org/plugins/easy-form-builder/">Formulier bouwer</a></td>
-            <td>German , <a href="https://de.wordpress.org/plugins/easy-form-builder/">Formularersteller</a></td>
+            <td>German , <a href="https://de.wordpress.org/plugins/easy-form-builder/">Easy Form Builder</a></td>
             <td>Russian , <a href="https://ru.wordpress.org/plugins/easy-form-builder/">Простой конструктор форм</a></td>
             <td>हिन्दी , <a href="https://hi.wordpress.org/plugins/easy-form-builder/">आसान फॉर्म बिल्डर</a></td>
             <td>Danish , <a href="https://da.wordpress.org/plugins/easy-form-builder/">Nem formularbygger</a></td>
@@ -145,15 +145,31 @@ Thanks goes to these wonderful people
 <table align="center">
 <tbody>
 <tr>
-<td><a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a></td>
+<td>
+<a href="https://github.com/hassantafreshi/" target="_blank"><img src="https://avatars.githubusercontent.com/u/5526682?v=4=100" alt="" width="100px;" /><br /><sub><strong>Hassan</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Answering Questions" href="#question-kentcdodds">💬</a> <a title="Reviewed Pull Requests" href="https://github.com/hassantafreshi/easy-form-builder">👀</a> <a title="Translation" href="#translation">🌍</a> <a title="Talks" href="#talk-kentcdodds">📢</a>
+<a href="#maintenance" title="Maintenance">🚧</a>
+</td>
 <td><a href="https://github.com/01mrlast" target="_blank"><img src="https://avatars.githubusercontent.com/u/51836304?v=4=100" alt="" width="100px;" /><br /><sub><strong>Samson</strong></sub></a><br /><g-emoji class=" g-emoji" alias="bulb" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png">💡</g-emoji><a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a> <a title="Translation" href="#translation">🌍</a> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji></td>
 <td><a href="https://github.com/aminkhadivar/" target="_blank"><img src="https://avatars.githubusercontent.com/u/62219173?v=4=100" alt="" width="100px;" /><br /><sub><strong>Amin</strong></sub></a><br /><a href="#design" title="Design"><g-emoji class=" g-emoji" alias="art" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f3a8.png">🎨</g-emoji></a> <a title="Code" href="https://github.com/hassantafreshi/easy-form-builder">💻</a></td>
 <td>
   <a href="https://www.linkedin.com/in/seyed-mohammad-hosse-tafreshi-hosseini-3b741039/" target="_blank"><img src="https://media.licdn.com/dms/image/D5603AQETdVNwGLTyzA/profile-displayphoto-shrink_200_200/0/1690139626753?e=1695859200&v=beta&t=0Y4jichJLFxjQ_9xjbc7m1_65E5zMWgztQ9LokT98K8" alt="" width="100px;" /><br /><sub><strong>Seyed</strong></sub></a><br />
     <a title="Finance" href="#finance">📊</a> 
 </td>
+<td>
+  <a href="https://github.com/Presskopp" target="_blank"><img src="https://avatars.githubusercontent.com/u/18373563?v=4" alt="" width="100px;" /><br /><sub><strong>Presskopp</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a> 
+    <a title="Code" href="https://github.com/Presskopp/easy-form-builder">💻</a>
+</td>
+<td>
+  <a href="https://github.com/psmits1567" target="_blank"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a> 
+</td>
   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation">🌍</a></td>
+  <td>
+  <a href="https://profiles.wordpress.org/irinashl/" target="_blank"><img src="https://secure.gravatar.com/avatar/8eb9aa5197a2b8f4b8831a0b604c685e?s=100&d=mm&r=g" alt="" width="100px;" /><br /><sub><strong>Irina</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a> 
+</td>
 <td><a href="https://github.com/rahulslj" target="_blank"><img src="https://avatars.githubusercontent.com/u/6607130?v=4=100" alt="" width="100px;" /><br /><sub><strong>Rahulslj</strong></sub></a><br />
   <a title="Translation" href="#translation">🌍</a></td>
 <td>
@@ -163,18 +179,8 @@ Thanks goes to these wonderful people
   <a href="https://github.com/soroushsamadi86" target="_blank"><img src="https://avatars.githubusercontent.com/u/58665580?v=4" alt="" width="100px;" /><br /><sub><strong>Soroush</strong></sub></a><br />
     <a title="Reviewed contents" href="https://github.com/hassantafreshi/easy-form-builder">📝</a> 
 </td>
-<td>
-  <a href="https://github.com/psmits1567" target="_blank"><img src="https://avatars.githubusercontent.com/u/28138634?v=4" alt="" width="100px;" /><br /><sub><strong>Peter</strong></sub></a><br />
-    <a title="Translation" href="#translation">🌍</a> 
-</td>
-<td>
-  <a href="https://profiles.wordpress.org/irinashl/" target="_blank"><img src="https://secure.gravatar.com/avatar/8eb9aa5197a2b8f4b8831a0b604c685e?s=100&d=mm&r=g" alt="" width="100px;" /><br /><sub><strong>Irina</strong></sub></a><br />
-    <a title="Translation" href="#translation">🌍</a> 
-</td>
-<td>
-  <a href="https://github.com/Presskopp" target="_blank"><img src="https://avatars.githubusercontent.com/u/18373563?v=4" alt="" width="100px;" /><br /><sub><strong>Presskopp</strong></sub></a><br />
-    <a title="Translation" href="#translation">🌍</a> 
-</td>
+
+
 
 
 </tbody>
