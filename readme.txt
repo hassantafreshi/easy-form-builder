@@ -384,6 +384,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+= 3.7.5 =
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues
+
 = 3.7.4 =
 
 * Fixed issues
