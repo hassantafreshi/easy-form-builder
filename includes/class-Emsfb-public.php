@@ -3576,7 +3576,7 @@ class _Public {
 			foreach ($w as  $value) {
 				$reg = "/".$value.'::\s*(.*?)\;}/';
 				preg_match_all($reg, $st, $r);				
-				if(isset($r)){
+				if(isset($r) && isset($r[0][0])){
 					$icons .= " .".$r[0][0];
 				}					
 			}
