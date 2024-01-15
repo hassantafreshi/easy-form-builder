@@ -129,6 +129,9 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		
+		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
+			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
+		}
 		$this->enqueue_jquery();
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
@@ -138,7 +141,8 @@ class _Public {
 		}
 		
 		$table_name = $this->db->prefix . "emsfb_form";
-		$this->id = end($id);
+			error_log(end($id));
+		$this->id = sanitize_text_field(end($id));
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		if($value_form!=null){
 			$typeOfForm =$value_form[0]->form_type;

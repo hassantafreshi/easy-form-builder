@@ -106,6 +106,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         } else {
           let optn = '<!-- list of counries -->'
           let count =0;
+          counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
           for (let i of counstries_list_efb) {
             count+=1;
             let id = rndm_1 +count
