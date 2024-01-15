@@ -359,7 +359,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
         marker_maps_efb = c.value;
-        initMap(false);
+        initMap_efb(false);
         m += value;
       }
     } else if (c.type == "rating") {
@@ -476,7 +476,6 @@ function fun_emsFormBuilder_more() {
 
 
 function fun_ws_show_edit_form(id) {
-  //valj_efb = JSON.parse(localStorage.getItem("valj_efb"));  
   const len = valj_efb.length;
   
   creator_form_builder_Efb();
@@ -691,6 +690,8 @@ function fun_get_form_by_id(id) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
+  sessionStorage.removeItem('valj_efb');
+  sessionStorage.removeItem('Edit_ws_form');
   jQuery(function ($) {
     data = {
       action: "get_form_id_Emsfb",
@@ -710,9 +711,9 @@ function fun_get_form_by_id(id) {
             formName_Efb = valj_efb[0].formName;
             form_type_emsFormBuilder=valj_efb[0].type
             form_ID_emsFormBuilder = id;
-            localStorage.setItem('valj_efb', JSON.stringify(value));
+            sessionStorage.setItem('valj_efb', JSON.stringify(value));
             const edit = { id: res.data.id, edit: true };
-            localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+            sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
             fun_ws_show_edit_form(id);
           }, len * p)
         } catch (error) {
@@ -748,9 +749,9 @@ function fun_update_message_state_by_id(id) {
 
         if (res.data.ajax_value != undefined) {
           const value = JSON.parse(res.data.ajax_value.replace(/[\\]/g, ''));
-          localStorage.setItem('valueJson_ws_p', JSON.stringify(value));
+          sessionStorage.setItem('valueJson_ws_p', JSON.stringify(value));
           const edit = { id: res.data.id, edit: true };
-          localStorage.setItem('Edit_ws_form', JSON.stringify(edit))
+          sessionStorage.setItem('Edit_ws_form', JSON.stringify(edit))
           fun_ws_show_edit_form(id)
         }
       }
@@ -2144,7 +2145,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       };
       const countCol = colname[t].length;
       const rows = Array.from(Array(countCol), () => Array(2).fill(0));
-      const valj_efb_ = JSON.parse(localStorage.getItem("valj_efb"));
+      const valj_efb_ = JSON.parse(sessionStorage.getItem("valj_efb"));
       for (let r in colname[t]) {
 
         rows[r][0] = colname[t][r];

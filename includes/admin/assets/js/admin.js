@@ -14,7 +14,7 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
 
 
-if (localStorage.getItem("valueJson_ws_p")) localStorage.removeItem('valueJson_ws_p');
+if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 
 
 
@@ -68,8 +68,8 @@ document.getElementById('wpfooter').remove();
 
 function saveLocalStorage_emsFormBuilder() {
 
-  localStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
-  localStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
+  sessionStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
+  sessionStorage.setItem('valueJson_ws_p', JSON.stringify(valueJson_ws_p));
 }
 
 
@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.4> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.5> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -713,7 +713,7 @@ function create_form_by_type_emsfb(id, s) {
   //v2
   
  
-  localStorage.removeItem('valj_efb');
+  sessionStorage.removeItem('valj_efb');
   if (s != "pre") {
     document.getElementById('header-efb').innerHTML = ``;
     document.getElementById('content-efb').innerHTML = ``;
@@ -2757,7 +2757,7 @@ const saveFormEfb = () => {
         
         
         sessionStorage.setItem('valj_efb', sav);
-        localStorage.setItem("valueJson_ws_p", sav)
+        sessionStorage.setItem("valueJson_ws_p", sav)
         formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb
         returnState = actionSendData_emsFormBuilder()
       } else if (proState == false) {

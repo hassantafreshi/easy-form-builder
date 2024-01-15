@@ -106,6 +106,7 @@ countryList_el_pro_efb = ( rndm,rndm_1,op_3,op_4,editState)=>{
         } else {
           let optn = '<!-- list of counries -->'
           let count =0;
+          counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
           for (let i of counstries_list_efb) {
             count+=1;
             let id = rndm_1 +count
@@ -472,8 +473,8 @@ function fun_clear_esign_efb(id) {
 let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
-function initMap(disabled) {
-  console.log('initMap');
+function initMap_efb(disabled) {
+  console.log('initMap_efb');
   setTimeout(function () {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;

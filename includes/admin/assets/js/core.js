@@ -29,7 +29,7 @@ function fun_render_view_core_emsFormBuilder(check) {
   //v2
   // valueJson_ws ? document.getElementById('button-preview-emsFormBuilder').disabled = false : document.getElementById('button-preview-emsFormBuilder').disabled = true;
   exportView_emsFormBuilder = [];
-  valueJson_ws = JSON.parse(localStorage.getItem("valueJson_ws_p"));
+  valueJson_ws = JSON.parse(sessionStorage.getItem("valueJson_ws_p"));
   form_type_emsFormBuilder = valueJson_ws && valueJson_ws[0].type ? valueJson_ws[0].type : 'form';
   if (valueJson_ws == undefined) valueJson_ws = "N";
   for (let v of valueJson_ws) {

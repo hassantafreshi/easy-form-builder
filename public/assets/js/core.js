@@ -886,7 +886,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
         value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
         valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
         marker_maps_efb = c.value;
-        initMap(false);
+        initMap_efb(false);
         m += value;
       }
     } else if (c.type == "rating") {

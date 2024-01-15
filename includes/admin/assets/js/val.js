@@ -138,7 +138,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
   if (country==null){
     country  = lan_con_efb.hasOwnProperty(efb_var.language) ? lan_con_efb[efb_var.language] :'US';
   }
-  
+  counstries_list_efb.sort((a, b) => a.n.localeCompare(b.n));
   for (let i of counstries_list_efb) {
     //console.log(i.s2 ,country ,i.s2.toLowerCase()==country.toLowerCase());
     opt +=`<option value="${i.s2.toLowerCase()}" ${ i.s2.toLowerCase()==country.toLowerCase() ? `selected` : ''}>${i.l} (${i.s2})</option>`
@@ -1500,7 +1500,6 @@ function remove_other_noti_Efb(){
 
 
 function creator_form_builder_Efb() {
-  
   remove_other_noti_Efb()
   if (valj_efb.length < 2) {
     step_el_efb = 1;
