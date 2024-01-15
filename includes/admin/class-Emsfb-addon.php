@@ -208,12 +208,7 @@ class Addon {
 		));
 
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.4');
-		wp_enqueue_script('efb-val-js'); 
-		
 
-		
-		/* wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.7.4');
-		wp_enqueue_script('efb-forms-js'); */
 
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.4');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
@@ -221,7 +216,8 @@ class Addon {
 			'check' => 1		));
 
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.4');
-		wp_enqueue_script('efb-main-js'); 
+	
+	
 
 
 		

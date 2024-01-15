@@ -141,13 +141,13 @@ class Admin {
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
                 wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.7.4');
-                wp_enqueue_script('efb-bootstrap-min-js'); 
+                
 
                  wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.7.4');
-                wp_enqueue_script('efb-bootstrap-bundle-min-js');  
+                
                 
                 wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.7.4');
-                wp_enqueue_script('efb-bootstrap-icon-js'); 
+               
         }
     }
 

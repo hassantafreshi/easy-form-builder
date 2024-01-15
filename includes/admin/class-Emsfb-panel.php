@@ -152,10 +152,10 @@ class Panel_edit  {
 			));
 
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.4');
-			wp_enqueue_script('efb-val-js'); 
+			 
 
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.4');
-			wp_enqueue_script('efb-pro-els');
+			
 
 
 
@@ -198,10 +198,10 @@ class Panel_edit  {
 					'check' => 0
 					));
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false ,'3.7.4');
-			wp_enqueue_script('efb-bootstrap-select-js'); 
+			
 
 			wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.4');
-			wp_enqueue_script('efb-main-js');  
+			
 			
 				/* new code v4 */
 			

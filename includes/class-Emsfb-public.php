@@ -232,7 +232,7 @@ class _Public {
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
 			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.4');
-			wp_enqueue_script('efb-bootstrap-select-js'); 
+			
 			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.4' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
@@ -270,8 +270,7 @@ class _Public {
 				}
 				if($el_pro_load==true){
 					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.4');
-					wp_enqueue_script('efb-pro-els'); 		
-					wp_enqueue_script('efb-pro-els'); 
+					 
 				}
 		
 				if($typeOfForm=="payment"){
@@ -293,8 +292,8 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.4', true);
-									wp_enqueue_script('parsipay_js');
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.4', true);
+									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
@@ -315,7 +314,7 @@ class _Public {
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
 					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.4');
-					wp_enqueue_script('efb-bootstrap-bundle-min-js');  
+				 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
@@ -497,7 +496,7 @@ class _Public {
 		if($this->pro_efb==1){
  
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.4');
-			wp_enqueue_script('efb-pro-els'); 
+		 
 		}
 		//$location = $this->pro_efb==true  ? $efbFunction->get_geolocation() :'';
 		$location = '';
@@ -557,8 +556,7 @@ class _Public {
 		 wp_enqueue_script('Emsfb-core_js');
 		/* wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css', true,'3.7.4');
 		wp_enqueue_style('Emsfb-bootstrap-icons-css'); */
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.4', true);
-		wp_enqueue_script('efb-main-js'); 		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.4', true);		
 		
 		if(is_rtl()){
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.4');
