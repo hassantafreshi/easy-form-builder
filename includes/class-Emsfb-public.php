@@ -628,16 +628,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 		
-		if (defined('LSCWP_V')){											
-			do_action( 'litespeed_purge_url', $data_POST['url'] );
-		}else if (function_exists('rocket_clean_files')){				
-			rocket_clean_files($data_POST['url']);
-		}elseif (function_exists('wp_cache_post_change')){
-			//+cache
-			error_log('JetPack Exists!');
-			$GLOBALS["super_cache_enabled"]=1;
-			wp_cache_post_change($page_id);
-		} 
+		$this->cache_cleaner_Efb();
 		
 		
 		if ($s_sid !=1){
@@ -2089,15 +2080,7 @@ class _Public {
 			wp_send_json_success($response,200);
 		}
 
-		if (defined('LSCWP_V')){	
-			//+cache								
-			do_action( 'litespeed_purge_post', $page_id );
-		}elseif (function_exists('wp_cache_post_change')){
-			//+cache
-			/* error_log('JetPack Exists!');
-			$GLOBALS["super_cache_enabled"]=1;
-			wp_cache_post_change($page_id); */
-		} 
+		$this->cache_cleaner_Efb();
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 
 		if(gettype($r)=="string"){
@@ -5929,6 +5912,24 @@ class _Public {
 		
 		
 		die;
+	}
+
+	public function cache_cleaner_Efb(){
+		if (defined('LSCWP_V')){
+			//litespeed done											
+			do_action( 'litespeed_purge_url', $data_POST['url'] );
+		}else if (function_exists('rocket_clean_post')){
+			//wp-rocket done						
+			rocket_clean_post($page_id);
+		}elseif (function_exists('wp_cache_post_change')){
+			//jetpack done
+			$GLOBALS["super_cache_enabled"]=1;
+			wp_cache_post_change($page_id);
+		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
+			//auto-Optimize not check
+			autoptimize_filter_js_noptimize();
+		}
+		//WP-Optimize
 	}
 
 	

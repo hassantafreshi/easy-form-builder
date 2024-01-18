@@ -503,6 +503,12 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
     </div>`;
+    const enableConEls = `<div class="efb mx-1 my-3 efb">
+    <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
+    <div class="efb handle"></div>
+    </button>
+    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
+    </div>`;
 
     const languageSelectPresentEls = `
                      <label for="languageSelectPresentEl" class="efb mt-3 px-1 bi-translate mx-2 efb"> ${efb_var.text.stsd}</label>
@@ -1308,6 +1314,20 @@ function show_setting_window_efb(idset) {
                 </div>        
             </div>
         <!-- sms section  end --!>
+          <!-- condi section --!>
+            <div class="efb  d-grid gap-2">
+              <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
+              <i class="efb   bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.conlog}
+              </button>
+            </div>
+            <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
+                <div class="efb  mb-3 px-3 row">  
+                ${enableConEls}
+          
+                </div>
+                </div>        
+            </div>
+        <!-- condi section  end --!>
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}

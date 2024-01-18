@@ -1787,15 +1787,11 @@ class efbFunction {
 	public function check_for_active_plugins_cache() {
 		
 		$classes = [
-			'WP Rocket' => 'wp-rocket/wp-rocket.php',
 			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
 			'W3 Total Cache' => 'w3-total-cache/w3-total-cache.php',
 			'WP Super Cache' => 'wp-super-cache/wp-cache.php',
 			'WP Fastest Cache' => 'wp-fastest-cache/wpFastestCache.php',
-			'Autoptimize' => 'autoptimize/autoptimize.php',	
-			'Cache Enabler' => 'cache-enabler/cache-enabler.php',
-			'WP-Optimize' => 'wp-optimize/wp-optimize.php',
-			'Super Page Cache for Cloudflare' => 'wp-cloudflare-page-cache/wp-cloudflare-super-page-cache.php',					
+			'Cache Enabler' => 'cache-enabler/cache-enabler.php',			
 			'WP Fastest Cache Lite' => 'wp_fastest_cache_lite/WP_Fastest_Cache_Lite',
 			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',
 			'Hyper Cache'=>'hyper-cache/plugin.php',

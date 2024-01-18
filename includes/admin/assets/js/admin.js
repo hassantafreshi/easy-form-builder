@@ -892,7 +892,7 @@ function head_introduce_efb(state) {
     <a class="efb btn btn-r btn-primary ${btnSize}" href="${link}"><i class="efb  bi-plus-circle mx-1"></i>${efb_var.text.createForms}</a>
     <a class="efb btn mt-1 efb btn-outline-pink ${btnSize}" onClick="Link_emsFormBuilder('tutorial')"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.tutorial}</a>`;
   }
-  return `<section id="header-efb" class="efb   ${state == "create" ? '' : 'card col-12 bg-color'}">
+  return `<section id="header-efb" class="efb mx-0 px-0  ${state == "create" ? '' : 'card col-12 bg-color'}">
   <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'}">
               <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
                   <img src="${efb_var.images.logo}" class="efb description-logo  ${mobile_view_efb ? 'm-1' : ''} efb">
