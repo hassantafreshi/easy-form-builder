@@ -5932,7 +5932,8 @@ class _Public {
 		}elseif(class_exists('WPO_Page_Cache')){
 			//w3-total-cache not check
 			error_log('delete_single_post_cache');
-			WPO_Page_Cache::delete_single_post_cache($post_id);
+
+			\WPO_Page_Cache::delete_single_post_cache($post_id);
 		}else{
 			error_log('no cache plugin!');
 		}
