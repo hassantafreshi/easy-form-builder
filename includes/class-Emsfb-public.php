@@ -5926,14 +5926,14 @@ class _Public {
 			$GLOBALS["super_cache_enabled"]=1;
 			wp_cache_post_change($page_id);
 		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
-			//auto-Optimize check
+			//auto-Optimize done
 			autoptimize_filter_js_exclude(['jquery.min.js','core.js']);
 			autoptimize_filter_js_noptimize();
 		}elseif(class_exists('WPO_Page_Cache')){
-			//WP-Optimize check
+			//WP-Optimize done
 			\WPO_Page_Cache::delete_single_post_cache($page_id);
 		}
-		//WP-Optimize
+
 	}
 
 	
