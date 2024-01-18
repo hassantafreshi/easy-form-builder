@@ -727,8 +727,8 @@ class efbFunction {
 			"trya" => $state  &&  isset($ac->text->trya) ? $ac->text->trya : __('Trying again.','easy-form-builder'),
 			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Rename the file name','easy-form-builder'),
 			"ausdup" => $state  &&  isset($ac->text->ausdup) ? $ac->text->ausdup : __('Are you sure you want to duplicate the XXX ?','easy-form-builder'),
+			"conlog" => $state  &&  isset($ac->text->conlog) ? $ac->text->conlog : __('Conditional logic','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-							
 			
 		];
 
