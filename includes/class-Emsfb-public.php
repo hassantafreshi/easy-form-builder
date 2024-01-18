@@ -96,7 +96,7 @@ class _Public {
 		add_shortcode( 'ems_form_builder',  array( $this, 'EFB_Form_Builder' ) );
 		 
 		add_action('init',  array($this, 'hide_toolmenu'));
-			
+		
 	}
 
 
@@ -5922,7 +5922,8 @@ class _Public {
 			//wp-rocket done					
 			$r = rocket_clean_post($page_id);			
 		}elseif (function_exists('wp_cache_post_change')){
-			//jetpack done
+			//WP Super Cache done
+			//Jetpack done
 			$GLOBALS["super_cache_enabled"]=1;
 			wp_cache_post_change($page_id);
 		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
