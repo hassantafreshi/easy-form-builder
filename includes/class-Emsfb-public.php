@@ -5933,6 +5933,10 @@ class _Public {
 		}elseif(class_exists('WPO_Page_Cache')){
 			//WP-Optimize done
 			\WPO_Page_Cache::delete_single_post_cache($page_id);
+		}elseif(function_exists('w3tc_flush_post')){
+			//W3 Total Cache done
+			error_log('w3tc_flush_post');
+			w3tc_flush_post($page_id);
 		}
 
 	}
