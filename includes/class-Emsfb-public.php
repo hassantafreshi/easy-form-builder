@@ -628,7 +628,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 		
-		$this->cache_cleaner_Efb();
+		$this->cache_cleaner_Efb($page_id);
 		
 		
 		if ($s_sid !=1){
@@ -2080,7 +2080,7 @@ class _Public {
 			wp_send_json_success($response,200);
 		}
 
-		$this->cache_cleaner_Efb();
+		$this->cache_cleaner_Efb($page_id);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 
 		if(gettype($r)=="string"){
@@ -5914,7 +5914,7 @@ class _Public {
 		die;
 	}
 
-	public function cache_cleaner_Efb(){
+	public function cache_cleaner_Efb($page_id){
 		if (defined('LSCWP_V')){
 			//litespeed done											
 			do_action( 'litespeed_purge_url', $data_POST['url'] );
