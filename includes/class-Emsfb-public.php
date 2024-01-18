@@ -5926,16 +5926,12 @@ class _Public {
 			$GLOBALS["super_cache_enabled"]=1;
 			wp_cache_post_change($page_id);
 		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
-			//auto-Optimize not check
+			//auto-Optimize check
 			autoptimize_filter_js_exclude(['jquery.min.js','core.js']);
 			autoptimize_filter_js_noptimize();
 		}elseif(class_exists('WPO_Page_Cache')){
-			//w3-total-cache not check
-			error_log('delete_single_post_cache');
-
+			//WP-Optimize check
 			\WPO_Page_Cache::delete_single_post_cache($page_id);
-		}else{
-			error_log('no cache plugin!');
 		}
 		//WP-Optimize
 	}
