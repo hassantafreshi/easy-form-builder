@@ -5919,8 +5919,10 @@ class _Public {
 			//litespeed done											
 			do_action( 'litespeed_purge_url', $data_POST['url'] );
 		}else if (function_exists('rocket_clean_post')){
-			//wp-rocket done						
-			rocket_clean_post($page_id);
+			//wp-rocket done		
+			error_log('rocket_clean_post');				
+			$r = rocket_clean_post($page_id);
+			error_log($r);
 		}elseif (function_exists('wp_cache_post_change')){
 			//jetpack done
 			$GLOBALS["super_cache_enabled"]=1;
