@@ -5936,6 +5936,9 @@ class _Public {
 		}elseif(function_exists('w3tc_flush_post')){
 			//W3 Total Cache done			
 			w3tc_flush_post($page_id);
+		}elseif(function_exists('wpfc_clear_post_cache_by_id')){
+			//WP Fastest Cache done
+			wpfc_clear_post_cache_by_id($page_id);
 		}
 
 	}
