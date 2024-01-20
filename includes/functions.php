@@ -852,11 +852,11 @@ class efbFunction {
 					
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
-				$mail="";
+				$mail ="";
 				$role ="";
 				if($id){
-					$usr = get_user_by('id',$id);
-					$mail= $usr->user_email;
+					$usr  = get_user_by('id',$id);
+					$mail = $usr->user_email;
 					$name = $usr->display_name;
 					$role = $usr->roles[0];
 				}	
