@@ -892,7 +892,6 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
-  
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -1628,6 +1627,13 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
+    for(let i in text){
+      
+      text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
+      text[i] = text[i].replace(/(['])+/g, `ᐠ`);
+      text[i]= sanitize_text_efb(text[i]);    
+    }
+    
     const payToken = f('payToken_emsFormBuilder');
     let temp = f('pno_emsFormBuilder');
     //console.log(temp)
