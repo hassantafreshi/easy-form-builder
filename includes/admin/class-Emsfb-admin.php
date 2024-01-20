@@ -81,7 +81,7 @@ class Admin {
             add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);
             add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);
            
-
+            add_action('efb_loading_card', [$this, 'loading_card_efb']);
        
         } 
     }
@@ -1343,6 +1343,17 @@ class Admin {
             
         }
    
+    }
+
+    public function loading_card_efb(){       
+        echo "<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
+                    <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center'> 
+                        <img class='efb w-50' src='". EMSFB_PLUGIN_URL . "includes/admin/assets/image/efb-256.gif'>
+                        <h3 class='efb fs-3 text-darkb'>".  __('Easy Form Builder','easy-form-builder') ."</h3>
+                        <h3 class='efb fs-2 text-dark'>".  __('Please Wait','easy-form-builder') ."</h3>
+                    </div>
+                </div> ";
+
     }
 
 

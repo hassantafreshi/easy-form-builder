@@ -671,7 +671,7 @@ function emsFormBuilder_messages(id) {
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
   //console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
-  show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
+  show_modal_efb(efbLoadingCard(), '', '', 'saveBox');
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
   state_modal_show_efb(1)
@@ -2111,7 +2111,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   let body = `
   <div class="efb  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
-        ${loading_messge_efb()}
+        ${efbLoadingCard()}
     </div>
   </div>`;
   // window.scrollTo({ top: 0, behavior: 'smooth' });

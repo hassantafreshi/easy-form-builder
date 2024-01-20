@@ -1007,7 +1007,7 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   if (s == 0) {
     el.classList.remove('show');
-    document.getElementById('sideMenuConEfb').innerHTML = `<div class="efb my-5" id=""><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
+    document.getElementById('sideMenuConEfb').innerHTML = efbLoadingCard('')
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
     // jQuery("#sideBoxEfb").fadeIn('slow');
@@ -2581,7 +2581,7 @@ let change_el_edit_Efb = (el) => {
 
 function wating_sort_complate_efb(t) {
   if (t > 500) t = 500
-  const body = loading_messge_efb()
+  const body = efbLoadingCard()
   show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
   //const myModal = new bootstrap.Modal(el, {});
@@ -2657,7 +2657,7 @@ function create_form_efb() {
                 <!-- fieldset formNew 1 --> </fieldset> 
     
                 <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-                ${loading_messge_efb()}
+                ${efbLoadingCard()}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
@@ -2839,7 +2839,7 @@ const saveFormEfb = () => {
 let editFormEfb = () => {
   valueJson_ws_p = 0; // set ajax to edit mode
   let dropZoneEFB = document.getElementById('dropZoneEFB');
-  dropZoneEFB.innerHTML = loading_messge_efb();
+  dropZoneEFB.innerHTML = efbLoadingCard();
   if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); } // test code => replace from value
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
@@ -3880,7 +3880,7 @@ state_modal_show_efb=(i)=>{
       jQuery('#modal-footer-efb').remove()
     }
 
-    var val = loading_messge_efb();
+    var val = efbLoadingCard();
     if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
 
    setTimeout(() => {
@@ -4244,7 +4244,7 @@ if(document.getElementById('sideBoxEfb').classList.contains('show')){
   return};
 
 state_view_efb=1;
-  document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
+  document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard();
   sideMenuEfb(1)
 
 

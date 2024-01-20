@@ -352,7 +352,7 @@ function show_setting_window_efb(idset) {
     return};
     //console.log('show_setting_window_efb',idset,valj_efb)
     state_view_efb=1;
-    document.getElementById('sideMenuConEfb').innerHTML=loading_messge_efb();
+    document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard();
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
      
@@ -1611,7 +1611,7 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="efb row">
       <!-- over page -->
-      <div id="overlay_efb" class="efb d-none"><div class="efb card-body text-center efb mt-5 pt-2"><div class="efb lds-hourglass efb text-white"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
+      <div id="overlay_efb" class="efb d-none">${efbLoadingCard('bg-white')}</div>
       <!--end  over page -->
           <div class="efb  col-md-4" id="listElEfb">
           
@@ -1644,7 +1644,9 @@ function creator_form_builder_Efb() {
       <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
           <div class="efb modal-content efb " id="settingModalEfb-sections">
                   <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
-                  <div class="efb modal-body" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb  lds-hourglass"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div></div>
+                  <div class="efb modal-body" id="settingModalEfb-body">
+                     ${efbLoadingCard('')}
+                  </div>
   </div></div></div>
   </div></div>
   
@@ -1985,6 +1987,17 @@ const fun_state_of_UK =(rndm,iVJ)=>{
       "amount": valj_efb[iVJ].amount
     }
   ];
+}
+
+efbLoadingCard = (bgColor)=>{
+
+  return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
+  <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
+      <img class='efb w-50' src='${efb_var.images.logoGif}'>
+      <h3 class='efb fs-3 text-darkb'>${efb_var.text.easyFormBuilder}</h3>
+      <h3 class='efb fs-2 text-dark'>${efb_var.text.pleaseWaiting}</h3>
+  </div>
+</div> `
 }
 
   

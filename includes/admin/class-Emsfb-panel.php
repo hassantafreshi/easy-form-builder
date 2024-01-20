@@ -33,7 +33,8 @@ class Panel_edit  {
 			"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
 			"emailTemplate1"=>''.EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png',
 			"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
-			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
+			'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js',
+			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif'
 			];
 			$pro =false;
 			$efbFunction = new efbFunction(); 
@@ -309,15 +310,17 @@ class Panel_edit  {
 									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
 										<div class="efb card-body text-center">
-											<div class="efb lds-hourglass"></div>
-											<h3 class="efb"></h3></div></div><!-- settingModalEfb-body-->
+										  <?=   do_action('efb_loading_card') ?>
+									</div></div><!-- settingModalEfb-body-->
 					</div></div></div>
 
 					<div class="efb row mb-2">					
 					<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
 					</div>
 					<div class="efb row m-0 p-0" id ="content-efb">
-				 	<div class="efb card-body text-center my-5"><div class="efb lds-hourglass"></div> <h3 class="efb fs-3"><?=  $lang["loading"] ?></h3></div>
+				 	<div class="efb card-body text-center my-5">
+						 <?=   do_action('efb_loading_card'); ?>
+					</div>
 					 		
 					
 					</div>

@@ -1467,7 +1467,7 @@ function previewFormEfb(state) {
       return;
     }
     if (state == "pc") {
-      show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
+      show_modal_efb(efbLoadingCard(), efb_var.text.previewForm, '', 'saveBox')
       state_modal_show_efb(1)
     }
   }
