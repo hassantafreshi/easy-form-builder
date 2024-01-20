@@ -1778,8 +1778,7 @@ class efbFunction {
 	public function check_for_active_plugins_cache() {
 		
 		$classes = [
-		'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',
-			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
+		'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
 			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
 			'Hyper Cache'=>'hyper-cache/plugin.php',
 			'NitroPack '=>'nitropack/main.php',

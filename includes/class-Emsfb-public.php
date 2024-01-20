@@ -5933,8 +5933,7 @@ class _Public {
 			//WP Fastest Cache done
 			wpfc_clear_post_cache_by_id($page_id);
 		}elseif(has_action('wphb_clear_page_cache')){
-			//Hummingbird
-			error_log('Hummingbird');
+			//Hummingbird done			
 			do_action( 'wphb_clear_page_cache', $page_id );
 		}
 
