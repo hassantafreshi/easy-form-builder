@@ -870,16 +870,7 @@ class efbFunction {
 				    
 			   return $mailResult;
 	}
-	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-				
-			/* 	error_log('send_email_state_new');				
-				error_log(json_encode($to));
-				error_log(json_encode($sub));
-				error_log(json_encode($cont));
-				error_log(json_encode($st)); */
-				
-				
-				
+	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";

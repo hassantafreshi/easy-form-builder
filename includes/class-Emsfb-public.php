@@ -1356,14 +1356,7 @@ class _Public {
 																
 								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check );
 
-							}
-
-							
-							
-							
-							
-							//error_log(json_encode($email_user));
-							//error_log('send_email_to_user_state:'.$send_email_to_user_state);
+							}												
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
 								$email_user[0]=$email_fa;
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
