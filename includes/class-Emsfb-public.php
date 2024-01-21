@@ -1950,7 +1950,7 @@ class _Public {
 			error_log($vl);
             if($vl!=null){   
 				if(gettype($vl)=="string"){
-					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
+					$temp = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
 				}
 				
 				
@@ -1961,7 +1961,7 @@ class _Public {
                 }
 				
 
-				$tmep = strpos($vl , '\"value\":\"customize\"');
+				$temp = strpos($vl , '\"value\":\"customize\"');
 				
 			
 				if(strpos($vl , '\"value\":\"customize\"')!=false){
