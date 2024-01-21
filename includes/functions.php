@@ -728,6 +728,8 @@ class efbFunction {
 			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Rename the file name','easy-form-builder'),
 			"ausdup" => $state  &&  isset($ac->text->ausdup) ? $ac->text->ausdup : __('Are you sure you want to duplicate the XXX ?','easy-form-builder'),
 			"conlog" => $state  &&  isset($ac->text->conlog) ? $ac->text->conlog : __('Conditional logic','easy-form-builder'),
+			"fil" => $state  &&  isset($ac->text->fil) ? $ac->text->fil : __('Form is loading','easy-form-builder'),
+			"stf" => $state  &&  isset($ac->text->stf) ? $ac->text->stf : __('Submitting the form','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
