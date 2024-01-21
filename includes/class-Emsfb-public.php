@@ -442,8 +442,7 @@ class _Public {
 			
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
-			 <div class='efb text-center my-5'>
-			 
+			 <div class='efb text-center my-5'>			 
 			 ".$this->loading_icon_public_efb('',$lanText["pleaseWaiting"] , $lanText["fil"])."			
 			 ".$efb_m."
 			 </div>
@@ -5963,8 +5962,9 @@ class _Public {
 					</div>
 				 ';
 		return '
-		<h3  class="efb fs-5 text-center">'. $fil.'</h3>
-		<h3 class="efb  fs-7 text-center">'.$pw.'</h3>';
+		
+		<h3  class="efb fs-5 text-center">'. $fil.' <div class="efb  text-center fs-7">'.$pw.'</span> </h3>
+		';
 	}
 	public function cache_cleaner_Efb($page_id){
 		if (defined('LSCWP_V')){
