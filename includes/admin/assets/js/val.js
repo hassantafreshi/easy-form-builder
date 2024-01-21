@@ -1314,7 +1314,7 @@ function show_setting_window_efb(idset) {
                 </div>        
             </div>
         <!-- sms section  end --!>
-          <!-- condi section --!>
+          <!-- condi section 
             <div class="efb  d-grid gap-2">
               <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
               <i class="efb   bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.conlog}
@@ -1327,6 +1327,7 @@ function show_setting_window_efb(idset) {
                 </div>
                 </div>        
             </div>
+            --!>
         <!-- condi section  end --!>
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
