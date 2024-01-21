@@ -2203,7 +2203,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
   setTimeout(() => {
-      fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
+      fetch_uploadFile(file, id, pl, nonce_msg,page_id).then((data) => {
         if (data.success === true && data.data.success===true) {
           files_emsFormBuilder[indx].url = data.data.file.url;
             files_emsFormBuilder[indx].state = 2;
