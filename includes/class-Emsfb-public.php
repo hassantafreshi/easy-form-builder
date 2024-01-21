@@ -1947,7 +1947,7 @@ class _Public {
             $table_name = $this->db->prefix . "emsfb_form";
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
 			
-			
+			error_log($vl);
             if($vl!=null){    
 				$tmep = strpos($vl , '\"value\":\"customize\"');
 				
