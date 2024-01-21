@@ -158,13 +158,15 @@ function handle_change_event_efb(el){
     if (i != -1) { slice_sback(i) }
   }
   el_empty_value=(id)=>{
-    const s = valj_efb.find(x => x.id_ == id);
-    const el_msg = document.getElementById(id+'_-message');
-    if(Number(v.required)==0){
-      document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, s.el_border_color);
+    const id_ = id +'_';    
+    const s = valj_efb.find(x => x.id_ == id);    
+    const el_msg = document.getElementById(id_+'-message');
+    if(Number(s.required)==0){
+      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
       el_msg.classList.remove('show');
+      sendback_state_handler_efb(id,true,current_s_efb);
     }else{
-      document.getElementById(id).className = colorBorderChangerEfb(document.getElementById(id).className, "border-danger");
+      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
       if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
       el_msg.innerHTML = ajax_object_efm.text.enterTheValueThisField;
     }
@@ -276,14 +278,15 @@ function handle_change_event_efb(el){
       case "textarea":
         const outp = el.type =="textarea" ?true : false
         value = sanitize_text_efb(el.value,outp);
+        if(value.length==0){el_empty_value(id_); return;}
         if(el.classList.contains("intlPhone")==true){
           el.value = el.value.replace(/\s/g, '');
           value = el.value;
          return;
         }
-        if(value.length==0){el_empty_value(id_);return;}
+        
         if(validate_len()==0){
-          console.log('validate_len()==0!!!');
+          //console.log('validate_len()==0!!!');
           sendback_state_handler_efb(id_,false,current_s_efb)
          return;
         } else {
@@ -300,10 +303,8 @@ function handle_change_event_efb(el){
         vd = document.getElementById(`${el.id}-message`)
         const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
         if(el.value.length==0){
-          sendback_state_handler_efb(id_,true,current_s_efb)
-          vd.classList.remove('show');
-          vd.innerHTML="";
-          delete_by_id(id_);
+          
+          el_empty_value(id_);
         } else if (che == null) {
           valid = false;
           
@@ -385,11 +386,12 @@ function handle_change_event_efb(el){
           vd.innerHTML="";
         break;
       case "email":
+        if(el.value.length==0){ el_empty_value(id_); return;}
         state = valid_email_emsFormBuilder(el);
         value = state == true ? sanitize_text_efb(el.value) : '';
-        if(value.length==0){ delete_by_id(id_);}
         break;
       case "tel":
+        if(el.value.length==0){ el_empty_value(id_);}
         state = valid_phone_emsFormBuilder(el);
         value = state == true ? sanitize_text_efb(el.value) : '';
         break;
@@ -684,23 +686,24 @@ function valid_phone_emsFormBuilder(el) {
   let offsetw = document.getElementById('body_efb').offsetWidth;
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
   let check = 0;
-  const format = /^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/gm;
+  const format = /^[\d\s-)(]{4,15}$/;
   const id = el.id;
+  let msg_el = document.getElementById(`${id}-message`);
   check += el.value.match(format) ? 0 : 1;
-  if (check > 0) {
+  if (check >0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+      msg_el.classList.add('unpx');                
     }
-    document.getElementById(`${id}-message`).innerHTML = msg;
-    if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
+    msg_el.innerHTML = msg;
+    if(msg_el.classList.contains('show')==false) msg_el.classList.add('show');
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
-    document.getElementById(`${id}-message`).innerHTML = ""
-    document.getElementById(`${id}-message`).classList.remove('show');
+    msg_el.innerHTML = ""
+    msg_el.classList.remove('show');
   }
   return check > 0 ? false : true
 }
