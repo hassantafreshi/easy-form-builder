@@ -1591,11 +1591,18 @@ function previewFormEfb(state) {
       }
     })
     step_no += 1;
+    const wv = `
+  <div class="efb text-center ">
+  ${loading_messge_efb()}
+  <p class="efb fs-5">${efb_var.text.stf}</p>
+  </div>
+  `;
+  //console.log(wv);
     content += `
            ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb--!>'}
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() : loading_messge_efb()}                
+            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}                
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
