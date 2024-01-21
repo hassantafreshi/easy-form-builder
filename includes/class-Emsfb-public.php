@@ -1948,7 +1948,19 @@ class _Public {
             $vl  = $this->db->get_var("SELECT form_structer FROM `$table_name` WHERE form_id = '$fid'");
 			
 			error_log($vl);
-            if($vl!=null){    
+            if($vl!=null){   
+				if(gettype($vl)=="string"){
+					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"') ? true : false;
+				}
+				
+				
+                if($temp==false){  
+
+                    $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
+					wp_send_json_success($response,200);
+                }
+				
+
 				$tmep = strpos($vl , '\"value\":\"customize\"');
 				
 			
@@ -1967,16 +1979,7 @@ class _Public {
 					$have_validate=0;
 				}
 
-				if(gettype($vl)=="string"){
-					$tmep = strpos($vl , '\"type\":\"dadfile\"') || strpos($vl , '\"type\":\"file\"');
-				}
-				
-				
-                if($temp==false){  
-
-                    $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
-					wp_send_json_success($response,200);
-                }
+	
 				
             }
         }
