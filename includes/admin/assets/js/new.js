@@ -2189,16 +2189,17 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   files_emsFormBuilder[indx].type = type;
   let r = ""
   const nonce_msg = efb_var.nonce_msg ;
+  const page_id = efb_var.page_id ;
   //jQuery(function ($) {
     const fd = new FormData();
     const idn =  id + '_';
     const file = document.getElementById(idn);
     //const caption = document.querySelector(idn);
 	const individual_file = file.files[0];
-  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
+  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn,page_id)
   return true;
 }
-function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
   setTimeout(() => {
@@ -2216,6 +2217,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
               value: '@file@',
               url: files_emsFormBuilder[indx].url,
               session: sessionPub_emsFormBuilder,
+              page_id: page_id,
             }];
             fun_sendBack_emsFormBuilder(o[0]);
             const el = document.getElementById(idB)

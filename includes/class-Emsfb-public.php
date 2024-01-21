@@ -1860,6 +1860,8 @@ class _Public {
         $_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
+		$page_id = sanitize_text_field($_POST['page_id']);
+		error_log($page_id);
         $vl=null;
 		//validate sid here
         if($_POST['pl']!="msg"){
