@@ -2256,7 +2256,6 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
     console.log(efb_var.page_id ,page_id);
-    console.log(formData);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {

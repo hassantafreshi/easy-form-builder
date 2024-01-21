@@ -1935,6 +1935,7 @@ class _Public {
 
 		$this->cache_cleaner_Efb($page_id);
         //check validate here
+		error_log("fid:".$fid);
         $vl=null;
 		$have_validate =0;
 		$temp=0;
