@@ -849,7 +849,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
       if (c.type == "Image" || c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" ||  c.type == "allformat" ) {
-        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" >${ajax_object_efm.text.download}</a>`
+        value = `</br><a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${ajax_object_efm.text.download}</a>`
       } else if (c.type == "Media" || c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";

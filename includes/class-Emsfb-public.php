@@ -1961,7 +1961,7 @@ class _Public {
                 }
 				
 
-				$temp = strpos($vl , '\"value\":\"customize\"');
+				//$temp = strpos($vl , '\"value\":\"customize\"');
 				
 			
 				if(strpos($vl , '\"value\":\"customize\"')!=false){
