@@ -2219,6 +2219,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
               session: sessionPub_emsFormBuilder,
               page_id: page_id,
             }];
+            console.log(o);
             fun_sendBack_emsFormBuilder(o[0]);
             const el = document.getElementById(idB)
             if(el){
@@ -2254,6 +2255,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('sid', efb_var.sid);
     formData.append('fid', fid);
     formData.append('page_id', efb_var.page_id);
+    console.log(formData);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {
