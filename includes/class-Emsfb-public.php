@@ -1917,6 +1917,7 @@ class _Public {
         $_POST['pl']=sanitize_text_field($_POST['pl']);
         $fid=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
+		$page_id = sanitize_text_field($_POST['page_id']);
 		
 		
 		
@@ -1932,7 +1933,7 @@ class _Public {
 		wp_send_json_success($response,200);
 		} 
 
-		$this->cache_cleaner_Efb();
+		$this->cache_cleaner_Efb($page_id);
         //check validate here
         $vl=null;
 		$have_validate =0;
