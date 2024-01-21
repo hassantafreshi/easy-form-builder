@@ -254,7 +254,7 @@ class _Public {
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
 		$img =[];
-		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		$efb_m = "<a href='https://whitestudio.team' class='efb text-decoration-none' target='_blank'><p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p></a> ";
 		if($this->pro_efb==1){
 			$efb_m= "" ;
 
@@ -441,7 +441,7 @@ class _Public {
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
 			 <div class='efb text-center my-5'>
-			 <div class='efb lds-hourglass efb text-center my-2' style='display:inline-block'></div><h3 class='efb  text-center text-darkb fs-5'>".$lanText["pleaseWaiting"]."</h2>
+			 ".$this->loading_icon_public_efb('',$lanText["pleaseWaiting"])."			
 			 ".$efb_m."
 			 </div>
 			 </div><div id='alert_efb' class='efb mx-5'></div>
@@ -541,11 +541,12 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
-		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3>';
+		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
-		<div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'><div class='efb lds-hourglass efb'></div><h3 class='efb fs-3 '>".$text["pleaseWaiting"]."</h3> ".$val."</div>";	
+		<div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'>
+		".$this->loading_icon_public_efb('',$text["pleaseWaiting"])."".$val."</div>";	
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
@@ -3169,7 +3170,7 @@ class _Public {
 		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
 		 $this->value .= '</fieldset>
 		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-		  <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb">'.__('Waiting','easy-form-builder').'</h3></div>                
+		  <div class="efb card-body text-center efb"><h3 class="efb">'.__('Waiting','easy-form-builder').'</h3></div>                
 		   <!-- final fieldset --></fieldset>';
 	}
 	public function load_textdomain(): void {
@@ -5907,6 +5908,47 @@ class _Public {
 		die;
 	}
 
+	public function loading_icon_public_efb($classes,$pw){
+				 $svg = '
+				 <style>
+				 .efb.circlecontainer {
+					display: flex;
+					justify-content: space-around;
+					height: 15px;
+					width: 120px;
+					align-items: flex-end;
+				}
+				
+				.efb.circle {
+					background-color: #abb8c3;
+					border-radius: 50%;
+					width: 15px;
+					height: 15px;
+					animation: pulseefb 1s linear infinite;
+				}
+				
+				.efb.delay1 {
+					animation-delay: 0.3s;
+				}
+				
+				.sefb.delay2 {
+					animation-delay: 0.6s;
+				}
+				
+				@keyframes pulseefb {
+					0% { transform: scale(1); }
+					50% { transform: scale(0.6); }
+					100% { transform: scale(1); }
+				}
+				 </style>
+					<div class="efb circlecontainer m-0 p-0 align-bottom">
+						<div class="efb circle"></div>
+						<div class="efb circle delay1"></div>
+						<div class="efb circle delay2"></div>
+					</div>
+				 ';
+		return '<h3 class="efb fs-3 text-center">'.$pw.'</h3>';
+	}
 	public function cache_cleaner_Efb($page_id){
 		if (defined('LSCWP_V')){
 			//litespeed done											
@@ -5938,6 +5980,7 @@ class _Public {
 		}
 
 	}
+	
 
 	
 }

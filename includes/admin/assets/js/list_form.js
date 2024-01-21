@@ -127,7 +127,7 @@ function fun_emsFormBuilder_render_view(x) {
 }
 
 function emsFormBuilder_waiting_response() {
-  document.getElementById('emsFormBuilder-list').innerHTML = loading_messge_efb()
+  document.getElementById('emsFormBuilder-list').innerHTML = efbLoadingCard()
 }
 
 

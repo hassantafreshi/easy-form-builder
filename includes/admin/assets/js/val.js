@@ -1992,7 +1992,7 @@ const fun_state_of_UK =(rndm,iVJ)=>{
 efbLoadingCard = (bgColor)=>{
 
   return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
-  <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
+  <div class='efb col-12 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
       <img class='efb w-50' src='${efb_var.images.logoGif}'>
       <h3 class='efb fs-3 text-darkb'>${efb_var.text.easyFormBuilder}</h3>
       <h3 class='efb fs-2 text-dark'>${efb_var.text.pleaseWaiting}</h3>

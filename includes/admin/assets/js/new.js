@@ -105,7 +105,7 @@ const show_modal_efb = (body, title, icon, type) => {
   } else if (type == "saveLoadingBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
-    document.getElementById('settingModalEfb-body').innerHTML = loading_messge_efb();
+    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard();
   } else if (type == "chart") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
@@ -1054,7 +1054,7 @@ const loadingShow_efb = (title) => {
          <h5 class="efb modal-title fs-5" ><i class="efb bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
      </div>
      <div class="efb modal-body efb" id="settingModalEfb-body">
-         ${loading_messge_efb()}
+         ${efbLoadingCard()}
      </div>
  </div>
 </div>`
@@ -1184,7 +1184,28 @@ const open_whiteStudio_efb = (state) => {
   window.open(link, "_blank")
 }
 const loading_messge_efb = () => {
-  return ` <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
+  const svg = `<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <circle cx="15" cy="15" r="15" fill="#abb8c3">
+      <animate attributeName="r" from="15" to="9"
+               begin="0s" dur="1s"
+               values="15;9;15" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+  <circle cx="60" cy="15" r="9" fill="#abb8c3">
+      <animate attributeName="r" from="9" to="15"
+               begin="0.3s" dur="1s"
+               values="9;15;9" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+  <circle cx="105" cy="15" r="15" fill="#abb8c3">
+      <animate attributeName="r" from="15" to="9"
+               begin="0.6s" dur="1s"
+               values="15;9;15" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+</svg>`
+  return ` 
+<h3 class="efb fs-3">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
 function copyCodeEfb(id) {
   var copyText = document.getElementById(id);
@@ -1610,7 +1631,7 @@ function previewFormEfb(state) {
         <div class="efb smartphone-efb">
         <div class="efb content efb" >
             <div id="parentMobileView-efb">
-            <div class="efb lds-hourglass efb"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3>
+            ${efbLoadingCard()}
             </div>
         </div>
       </div> `
@@ -1745,8 +1766,8 @@ function previewFormEfb(state) {
 }
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
-  var wtn = loading_messge_efb();
-  document.getElementById('efb-final-step').innerHTML = wtn;
+  document.getElementById('efb-final-step').innerHTML = loading_messge_efb();
+ 
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
@@ -2541,3 +2562,8 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
 </path>
 </svg><span>`
 } 
+
+
+
+
+
