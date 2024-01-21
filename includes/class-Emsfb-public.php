@@ -168,9 +168,11 @@ class _Public {
 			
 			
 			<div id='body_efb' class='efb  row pb-3 efb px-2'>
-			<img src=".EMSFB_PLUGIN_URL . "includes/admin/assets/image/logo-easy-form-builder.svg' alt='Easy Form Builder' style='height: 80px;'>
-			</div><h4 style='color:#202a8d;text-align: center;'>".__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
-			<h3 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h3>
+			<div style='width:100%;text-align: center;'>
+				<img src=".EMSFB_PLUGIN_URL . "includes/admin/assets/image/logo-easy-form-builder.svg' alt='Easy Form Builder' style='height: 80px;'>
+				</div><h4 style='color:#202a8d;text-align: center;'>".__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
+				<h3 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h3>
+			</div>
 			</div>
 			";
 
@@ -1927,6 +1929,8 @@ class _Public {
 		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 402"); 
 		wp_send_json_success($response,200);
 		} 
+
+		$this->cache_cleaner_Efb();
         //check validate here
         $vl=null;
 		$have_validate =0;
