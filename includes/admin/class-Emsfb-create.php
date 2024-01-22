@@ -95,10 +95,14 @@ class Create {
 						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="efb modal-body row" id="settingModalEfb-body"><div class="efb card-body text-center"><div class="efb lds-hourglass"></div><h3 class="efb fs-3"></h3></div></div>
+									<div class="efb modal-body row" id="settingModalEfb-body">
+										<?=   do_action('efb_loading_card'); ?>
+									</div>
 					</div></div></div>
             <div id="tab_container_efb">
-			<div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb fs-3"></h3></div>	
+				<div class="efb card-body text-center efb mt-5 pt-3">
+					<?=   do_action('efb_loading_card'); ?>
+				</div>	
         	</div>
 			<datalist id="color_list_efb">
 			<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
@@ -106,14 +110,17 @@ class Create {
 			<script>
 		
 					setTimeout(() => {
-						console.log('Easy Form Builder will refresh the page');
-						if(typeof efb_var == 'undefined') location.reload(true);
-					}, 12000);
+						
+						if(typeof efb_var == 'undefined' || efb_var == null) {
+							console.log('efb_var not found!')
+							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?= __('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed or ','easy-form-builder') . __('Please ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?=  __('Easy Form Builder','easy-form-builder') ?></p></div>';							
+						}
+					}, 90000);
 				
 			</script>
 			
 		<?php
-
+		
 
 		$pro =false;
 		$maps =false;
@@ -137,7 +144,8 @@ class Create {
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if (md5($server_name)==$ac->activeCode){
+		
+			if (isset($ac->activeCode)==true && strlen($ac->activeCode)>5 && md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
 		
@@ -210,9 +218,9 @@ class Create {
 
 			
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.5',true);	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.6',true);	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.5',true);	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.6',true);	
 			wp_enqueue_script('jquery-dd'); 
 			
 
@@ -225,7 +233,7 @@ class Create {
 		wp_enqueue_script('intlTelInput-js');
 
 		
-		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.5');
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.6');
         wp_enqueue_style('intlTelInput-css');
 		
 		if( false){
@@ -238,7 +246,9 @@ class Create {
 		"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
 		"recaptcha"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/reCaptcha.png',
 		"movebtn"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/move-button.gif',
-		'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
+		'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js',
+		'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif',
+		
 		];
 		
 		$smtp =-1;
@@ -251,15 +261,15 @@ class Create {
 			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
-		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.7.5',true);
+		wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.7.6',true);
 		wp_enqueue_script('pay_js');
 
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.7.5',true);
+			wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.7.6',true);
 			wp_enqueue_script('persia_pay');
 		}
 
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'),'3.7.5',true);
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay.js', array('jquery'),'3.7.6',true);
 		wp_enqueue_script('stripe_js');
 
 
@@ -280,7 +290,7 @@ class Create {
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.5');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.6');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -304,24 +314,24 @@ class Create {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.5');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.6');
 		
 		
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.5');
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.6');
 		
 
 		
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.7.5');
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms.js',false,'3.7.6');
 		
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.5');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.6');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.5');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.6');
 		
 
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.5');
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.6');
 		
 
 		
@@ -350,7 +360,6 @@ class Create {
 			$m =$lang["errorCheckInputs"];
 			$response = array( 'success' => false , "m"=>$m); 
 			wp_send_json_success($response,$_POST);
-			die();
 		} 
 		
 		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
@@ -375,7 +384,6 @@ class Create {
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
 			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 
 			wp_send_json_success($response,$_POST);
-			die();
 		}
 		
 		
@@ -429,8 +437,7 @@ class Create {
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
 		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
-		wp_send_json_success($response,$_POST);
-		die();		
+		wp_send_json_success($response,$_POST);	
 	}
 	
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }

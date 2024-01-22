@@ -62,26 +62,26 @@ class Admin {
 
            
             //$this->get_not_read_message();
-            add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //یک فرم بر اساس ي دی حذف می کند
-            add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);                 //یک پیام بر اساس ي دی حذف می کند
-            add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   // اطلاعات یک فرم را بر اساسا آی دی بر می گرداند
-            add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);           // اطلاعات یک مسیج را بر می گرداند بر اساس ای دی
-            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   // اطلاعات همه مسیج را بر می گرداند بر اساس ای دی
-            add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);                //فرم را بروز رسانی می کند
-            add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']); // وضععیت پیام را بروز رسانی می کند وضعیت خوانده شدن
-            add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);   // پاسخ ادمین را در دیتابیس ذخیره می کند
-            add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                   // پاسخ ادمین را در دیتابیس ذخیره می کند
-            add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //ردیف ترکینگ را بر می گرداند
-            add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //فایل های غیر ضروری را پاک می کند
-            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);        //ارسال ایمیل    
+            add_action('wp_ajax_remove_id_Emsfb', [$this, 'delete_form_id_public']);                 //Remove a form by id
+            add_action('wp_ajax_remove_message_id_Emsfb', [$this, 'delete_message_id_public']);      //Remove a message by id
+            add_action('wp_ajax_get_form_id_Emsfb', [$this, 'get_form_id_Emsfb']);                   //Get a form by id
+            add_action('wp_ajax_get_messages_id_Emsfb', [$this, 'get_messages_id_Emsfb']);           //Get a message by id
+            add_action('wp_ajax_get_all_response_id_Emsfb', [$this, 'get_all_response_id_Emsfb']);   //Get all response by id
+            add_action('wp_ajax_update_form_Emsfb', [$this, 'update_form_id_Emsfb']);                //Update a form by id
+            add_action('wp_ajax_update_message_state_Emsfb', [$this, 'update_message_state_Emsfb']); //Update a message status by id
+            add_action('wp_ajax_set_replyMessage_id_Emsfb', [$this, 'set_replyMessage_id_Emsfb']);   //Set reply message by id from admin
+            add_action('wp_ajax_set_setting_Emsfb', [$this, 'set_setting_Emsfb']);                   //Set setting
+            add_action('wp_ajax_get_track_id_Emsfb', [$this, 'get_ajax_track_admin']);               //Get track id
+            add_action('wp_ajax_clear_garbeg_Emsfb', [$this, 'clear_garbeg_admin']);                 //Clear files is not used
+            add_action('wp_ajax_check_email_server_efb', [$this, 'check_email_server_admin']);       //Check email server    
             add_action('wp_ajax_add_addons_Emsfb', [$this, 'add_addons_Emsfb']);                     //Add new addons
-            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);                //Remove a addon
+            add_action('wp_ajax_remove_addons_Emsfb', [$this, 'remove_addons_Emsfb']);               //Remove a addon
             add_action('wp_ajax_update_file_Emsfb', array( $this,'file_upload_public')); 
             
-            add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);
-            add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);
+            add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                 //Send sms from admin panel                
+            add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                           //Duplicate a form
            
-
+            add_action('efb_loading_card', [$this, 'loading_card_efb']);                             //Loading card
        
         } 
     }
@@ -112,15 +112,15 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.7.5' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.7.6' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.7.5');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.7.6');
             wp_enqueue_style('Emsfb-style-css');
             
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.7.5');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.7.6');
             wp_enqueue_style('Emsfb-bootstrap');
 
          
@@ -129,10 +129,10 @@ class Admin {
 
             
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.7.5');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.7.6');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.7.5');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.7.6');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -140,13 +140,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.7.5');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.7.6');
                 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.7.5');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.7.6');
                 
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.7.5');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.7.6');
                
         }
     }
@@ -395,6 +395,11 @@ class Admin {
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+            if(get_locale()=='fa_IR'){
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+                error_log('EFB=>addon_add_efb fa_IR');
+            }
+            
             $request = wp_remote_get($u);
             
             if( is_wp_error( $request )) {
@@ -893,6 +898,13 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
         $em_st=false;
+
+        if($m==null || gettype($m)!='array'){
+            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" =>$m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
         
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
@@ -1339,6 +1351,17 @@ class Admin {
             
         }
    
+    }
+
+    public function loading_card_efb(){       
+        echo "<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
+                    <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center'> 
+                        <img class='efb w-50' src='". EMSFB_PLUGIN_URL . "includes/admin/assets/image/efb-256.gif'>
+                        <h3 class='efb fs-3 text-darkb'>".  __('Easy Form Builder','easy-form-builder') ."</h3>
+                        <h3 class='efb fs-2 text-dark'>".  __('Please Wait','easy-form-builder') ."</h3>
+                    </div>
+                </div> ";
+
     }
 
 

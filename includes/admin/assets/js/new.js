@@ -105,7 +105,7 @@ const show_modal_efb = (body, title, icon, type) => {
   } else if (type == "saveLoadingBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
-    document.getElementById('settingModalEfb-body').innerHTML = loading_messge_efb();
+    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard();
   } else if (type == "chart") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
@@ -1054,7 +1054,7 @@ const loadingShow_efb = (title) => {
          <h5 class="efb modal-title fs-5" ><i class="efb bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
      </div>
      <div class="efb modal-body efb" id="settingModalEfb-body">
-         ${loading_messge_efb()}
+         ${efbLoadingCard()}
      </div>
  </div>
 </div>`
@@ -1103,12 +1103,12 @@ let add_buttons_zone_efb = (state, id) => {
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-2':'justify-content-center';
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb" id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" type="button" class="efb btn efb p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+    <a id="btn_send_efb" type="button" class="efb text-decoration-none btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
-  <a id="prev_efb" type="button" class="efb btn efb p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
-  <a id="next_efb" type="button" class="efb btn efb ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
+  <a id="prev_efb" type="button" class="efb text-decoration-none btn  p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
+  <a id="next_efb" type="button" class="efb text-decoration-none btn  ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
   let c = `<div class="efb footer-test efb">`
@@ -1184,7 +1184,28 @@ const open_whiteStudio_efb = (state) => {
   window.open(link, "_blank")
 }
 const loading_messge_efb = () => {
-  return ` <div class="efb card-body text-center efb"><div class="efb lds-hourglass efb"></div><h3 class="efb fs-3">${efb_var.text.pleaseWaiting}</h3></div>`
+  const svg = `<svg viewBox="0 0 120 30" height="15px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <circle cx="15" cy="15" r="15" fill="#abb8c3">
+      <animate attributeName="r" from="15" to="9"
+               begin="0s" dur="1s"
+               values="15;9;15" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+  <circle cx="60" cy="15" r="9" fill="#abb8c3">
+      <animate attributeName="r" from="9" to="15"
+               begin="0.3s" dur="1s"
+               values="9;15;9" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+  <circle cx="105" cy="15" r="15" fill="#abb8c3">
+      <animate attributeName="r" from="15" to="9"
+               begin="0.6s" dur="1s"
+               values="15;9;15" calcMode="linear"
+               repeatCount="indefinite" />
+  </circle>
+</svg>`
+  return ` 
+<h3 class="efb fs-3">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
 function copyCodeEfb(id) {
   var copyText = document.getElementById(id);
@@ -1467,7 +1488,7 @@ function previewFormEfb(state) {
       return;
     }
     if (state == "pc") {
-      show_modal_efb(loading_messge_efb(), efb_var.text.previewForm, '', 'saveBox')
+      show_modal_efb(efbLoadingCard(), efb_var.text.previewForm, '', 'saveBox')
       state_modal_show_efb(1)
     }
   }
@@ -1570,11 +1591,18 @@ function previewFormEfb(state) {
       }
     })
     step_no += 1;
+    const wv = `
+  <div class="efb text-center ">
+  ${loading_messge_efb()}
+  <p class="efb fs-5">${efb_var.text.stf}</p>
+  </div>
+  `;
+  //console.log(wv);
     content += `
            ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb--!>'}
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() : loading_messge_efb()}                
+            ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}                
             <!-- fieldset2 -->
             <div id="step-2-efb-msg"></div>
             </fieldset>`
@@ -1610,7 +1638,7 @@ function previewFormEfb(state) {
         <div class="efb smartphone-efb">
         <div class="efb content efb" >
             <div id="parentMobileView-efb">
-            <div class="efb lds-hourglass efb"></div><h3 class="efb ">${efb_var.text.pleaseWaiting}</h3>
+            ${efbLoadingCard()}
             </div>
         </div>
       </div> `
@@ -1745,8 +1773,8 @@ function previewFormEfb(state) {
 }
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
-  var wtn = loading_messge_efb();
-  document.getElementById('efb-final-step').innerHTML = wtn;
+  document.getElementById('efb-final-step').innerHTML = loading_messge_efb();
+ 
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
@@ -2168,20 +2196,21 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   files_emsFormBuilder[indx].type = type;
   let r = ""
   const nonce_msg = efb_var.nonce_msg ;
+  const page_id = efb_var.page_id ;
   //jQuery(function ($) {
     const fd = new FormData();
     const idn =  id + '_';
     const file = document.getElementById(idn);
     //const caption = document.querySelector(idn);
 	const individual_file = file.files[0];
-  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn)
+  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn,page_id)
   return true;
 }
-function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
+function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
   setTimeout(() => {
-      fetch_uploadFile(file, id, pl, nonce_msg).then((data) => {
+      fetch_uploadFile(file, id, pl, nonce_msg,page_id).then((data) => {
         if (data.success === true && data.data.success===true) {
           files_emsFormBuilder[indx].url = data.data.file.url;
             files_emsFormBuilder[indx].state = 2;
@@ -2195,7 +2224,8 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
               value: '@file@',
               url: files_emsFormBuilder[indx].url,
               session: sessionPub_emsFormBuilder,
-            }];
+              page_id: page_id,
+            }];            
             fun_sendBack_emsFormBuilder(o[0]);
             const el = document.getElementById(idB)
             if(el){
@@ -2219,7 +2249,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn) {
       }); 
   }, 800);
 }
-function fetch_uploadFile(file, id, pl, nonce_msg) {
+function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
   var idB =id+'-prB';
   return new Promise((resolve, reject) => {
     const formData = new FormData();
@@ -2230,6 +2260,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg) {
     formData.append('nonce_msg', nonce_msg);
     formData.append('sid', efb_var.sid);
     formData.append('fid', fid);
+    formData.append('page_id', efb_var.page_id);
     const url = efb_var.rest_url + 'Emsfb/v1/forms/file/upload';
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener('progress', (event) => {
@@ -2541,3 +2572,8 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
 </path>
 </svg><span>`
 } 
+
+
+
+
+

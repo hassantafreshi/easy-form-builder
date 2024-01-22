@@ -75,6 +75,8 @@ function fun_emsFormBuilder_render_view(x) {
   `
   }
   if (valueJson_ws_form.length > 0) {
+    //valueJson_ws_form sort desc by id 
+    
     for (let i of valueJson_ws_form) {
       if (x > count) {
         let newM = false;
@@ -127,7 +129,7 @@ function fun_emsFormBuilder_render_view(x) {
 }
 
 function emsFormBuilder_waiting_response() {
-  document.getElementById('emsFormBuilder-list').innerHTML = loading_messge_efb()
+  document.getElementById('emsFormBuilder-list').innerHTML = efbLoadingCard()
 }
 
 
@@ -317,7 +319,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       if (c.type == "Image" || c.type == "image") {
         value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
       } else if (c.type == "Document" || c.type == "document" || c.type == "allformat") {
-        value = `</br><a class="efb btn btn-primary m-1" href="${c.url}" target="_blank" >${efb_var.text.download}</a>`
+        value = `</br><a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${efb_var.text.download}</a>`
       } else if (c.type == "Media" || c.type == "media") {
         const audios = ['mp3', 'wav', 'ogg'];
         let media = "video";
@@ -671,7 +673,7 @@ function emsFormBuilder_messages(id) {
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
   //console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
-  show_modal_efb(loading_messge_efb(), '', '', 'saveBox');
+  show_modal_efb(efbLoadingCard(), '', '', 'saveBox');
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
   state_modal_show_efb(1)
@@ -892,7 +894,6 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
-  
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -937,7 +938,8 @@ function fun_hande_active_page_emsFormBuilder(no) {
 
 function fun_show_help__emsFormBuilder() {
   document.getElementById("more_emsFormBuilder").style.display = "none";
-  const ws = "https://whitestudio.team/document/";
+  let $lan =lan_subdomain_wsteam_efb();
+  const ws = `https://${$lan}whitestudio.team/document/`;
   listOfHow_emsfb = {
     1: { title: efb_var.text.howProV, url: `${ws}/how-to-activate-pro-version-easy-form-builder-plugin/` },
     2: { title: efb_var.text.howConfigureEFB, url: `${ws}/how-to-set-up-form-notification-emails-in-easy-form-builder/#settingUp-Notification` },
@@ -1628,6 +1630,13 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
+    for(let i in text){
+      
+      text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
+      text[i] = text[i].replace(/(['])+/g, `ᐠ`);
+      text[i]= sanitize_text_efb(text[i]);    
+    }
+    
     const payToken = f('payToken_emsFormBuilder');
     let temp = f('pno_emsFormBuilder');
     //console.log(temp)
@@ -2105,7 +2114,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   let body = `
   <div class="efb  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
-        ${loading_messge_efb()}
+        ${efbLoadingCard()}
     </div>
   </div>`;
   // window.scrollTo({ top: 0, behavior: 'smooth' });

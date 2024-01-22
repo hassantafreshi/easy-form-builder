@@ -727,8 +727,10 @@ class efbFunction {
 			"trya" => $state  &&  isset($ac->text->trya) ? $ac->text->trya : __('Trying again.','easy-form-builder'),
 			"rnfn" => $state  &&  isset($ac->text->rnfn) ? $ac->text->rnfn : __('Rename the file name','easy-form-builder'),
 			"ausdup" => $state  &&  isset($ac->text->ausdup) ? $ac->text->ausdup : __('Are you sure you want to duplicate the XXX ?','easy-form-builder'),
+			"conlog" => $state  &&  isset($ac->text->conlog) ? $ac->text->conlog : __('Conditional logic','easy-form-builder'),
+			"fil" => $state  &&  isset($ac->text->fil) ? $ac->text->fil : __('Form is loading','easy-form-builder'),
+			"stf" => $state  &&  isset($ac->text->stf) ? $ac->text->stf : __('Submitting the form','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
-							
 			
 		];
 
@@ -852,11 +854,11 @@ class efbFunction {
 					
 				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
 				$name ="";
-				$mail="";
+				$mail ="";
 				$role ="";
 				if($id){
-					$usr = get_user_by('id',$id);
-					$mail= $usr->user_email;
+					$usr  = get_user_by('id',$id);
+					$mail = $usr->user_email;
 					$name = $usr->display_name;
 					$role = $usr->roles[0];
 				}	
@@ -870,16 +872,7 @@ class efbFunction {
 				    
 			   return $mailResult;
 	}
-	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){
-				
-			/* 	error_log('send_email_state_new');				
-				error_log(json_encode($to));
-				error_log(json_encode($sub));
-				error_log(json_encode($cont));
-				error_log(json_encode($st)); */
-				
-				
-				
+	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
@@ -920,12 +913,12 @@ class efbFunction {
 							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
 						}
 
-						return $mailResult;
+						
 					}
 						
 									
 					
-					if($state=="reportProblem" || $state =="testMailServer" ){
+					if($state=="reportProblem" || $state =="testMailServer" || $state=='addonsDlProblem' ){
 						$support="";
 					
 						$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
@@ -942,11 +935,13 @@ class efbFunction {
 							$role = $usr->roles[0];
 						}	
 					
-						$cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
-						" role:".$role." name:".$name."";                      
+						$cont .=" website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
+						"] role:[".$role."] name:[".$name."] state:[".$state."]";                      
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
+
+					return $mailResult;
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
@@ -1434,6 +1429,10 @@ class efbFunction {
             $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
             $vwp = get_bloginfo('version');
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+			if(get_locale()=='fa_IR'){
+                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+				error_log('EFB=>addon_add_efb fa_IR');
+            }
             $request = wp_remote_get($u);
            
             if( is_wp_error( $request ) ) {
@@ -1526,14 +1525,13 @@ class efbFunction {
 		
 		if($this->val_state=='download_all_addons_efb'){return;}
 		$this->val_state='download_all_addons_efb';
-		
+		$state=false;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
-		$addons["AdnOF"]=isset($ac->AdnOF)?$ac->AdnOF:0;
+		$addons["AdnOF"]=0;
 		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
 		$addons["AdnPPF"]=isset($ac->AdnPPF)?$ac->AdnPPF:0;
-		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;
-		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
+		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;	
 		$addons["AdnESZ"]=isset($ac->AdnESZ)?$ac->AdnESZ:0;
 		$addons["AdnSE"]=isset($ac->AdnSE)?$ac->AdnSE:0;
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
@@ -1545,26 +1543,32 @@ class efbFunction {
 				
 				$r =$this->addon_add_efb($key);
 				if($r==false){
-					 $to = $ac->emailSupporter;
-					 if($to==null || $to=="null" || $to=="") return false;
-					 $sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
-					 $m =  '<div><p>'. __('Hi Dear User', 'easy-form-builder').
-					 		'</p><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
-							'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
-							'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
-							 <p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
-							
-					$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-					$headers = array(
-						'MIME-Version: 1.0\r\n',
-						'From:'.$from.'',
-					);
-					
-					wp_mail( $to,$sub, $m, $headers );				
-					return false;
+					 $state = false;	
+					 break;															
+				}else{
+					$state = true;
 				}
 			}
 		}
+
+		if($state==false){
+			$to = isset($ac->emailSupporter) ? $ac->emailSupporter : null;
+			if($to==null){$to = get_option('admin_email');}
+
+			if($to==null || $to=="null" || $to=="") return false;
+			$sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
+			$m =  '<div><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
+				'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
+					<p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
+			$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			return false;
+		}
+		//refresh carrent page by php
+	
+			
+            exit;
+        
 	}
 
 
@@ -1784,20 +1788,10 @@ class efbFunction {
 	public function check_for_active_plugins_cache() {
 		
 		$classes = [
-			'WP Rocket' => 'wp-rocket/wp-rocket.php',
-			'Hummingbird Pro' => 'hummingbird-performance/wp-hummingbird.php',
-			'W3 Total Cache' => 'w3-total-cache/w3-total-cache.php',
-			'WP Super Cache' => 'wp-super-cache/wp-cache.php',
-			'WP Fastest Cache' => 'wp-fastest-cache/wpFastestCache.php',
-			'Autoptimize' => 'autoptimize/autoptimize.php',	
-			'Cache Enabler' => 'cache-enabler/cache-enabler.php',
-			'WP-Optimize' => 'wp-optimize/wp-optimize.php',
-			'Super Page Cache for Cloudflare' => 'wp-cloudflare-page-cache/wp-cloudflare-super-page-cache.php',					
-			'WP Fastest Cache Lite' => 'wp_fastest_cache_lite/WP_Fastest_Cache_Lite',
-			'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',
+		'Aruba HiSpeed Cache'=>'aruba-hispeed-cache/aruba-hispeed-cache.php',			
+			'Cache Enabler' => 'cache-enabler/cache-enabler.php',						
 			'Hyper Cache'=>'hyper-cache/plugin.php',
 			'NitroPack '=>'nitropack/main.php',
-			'Powered Cache'=>'powered-cache/powered-cache.php',
 		];
 	
 
@@ -1836,7 +1830,7 @@ class efbFunction {
         $end_time = microtime(true);
         $execution_time = $end_time - $start_time;
         if ($execution_time > 30) {
-            header("Refresh:0");
+			wp_redirect($_SERVER['REQUEST_URI']);
             exit;
         }
 		
