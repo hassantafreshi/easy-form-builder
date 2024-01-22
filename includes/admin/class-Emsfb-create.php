@@ -110,8 +110,9 @@ class Create {
 			<script>
 		
 					setTimeout(() => {
-						console.log('efb_var not found!')
+						
 						if(typeof efb_var == 'undefined' || efb_var == null) {
+							console.log('efb_var not found!')
 							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?= __('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed or ','easy-form-builder') . __('Please ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-dark mt-3"><?=  __('Easy Form Builder','easy-form-builder') ?></p></div>';							
 						}
 					}, 12000);
