@@ -1566,7 +1566,7 @@ class efbFunction {
 		}
 		//refresh carrent page by php
 	
-            header("Refresh:0");
+			
             exit;
         
 	}
