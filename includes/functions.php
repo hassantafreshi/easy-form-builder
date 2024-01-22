@@ -1528,11 +1528,10 @@ class efbFunction {
 		$state=false;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
-		$addons["AdnOF"]=isset($ac->AdnOF)?$ac->AdnOF:0;
+		$addons["AdnOF"]=0;
 		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
 		$addons["AdnPPF"]=isset($ac->AdnPPF)?$ac->AdnPPF:0;
-		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;
-		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
+		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;	
 		$addons["AdnESZ"]=isset($ac->AdnESZ)?$ac->AdnESZ:0;
 		$addons["AdnSE"]=isset($ac->AdnSE)?$ac->AdnSE:0;
 		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
@@ -1553,7 +1552,6 @@ class efbFunction {
 		}
 
 		if($state==false){
-			error_log('EFB=>download_all_addons_efb state false=>start send email');
 			$to = isset($ac->emailSupporter) ? $ac->emailSupporter : null;
 			if($to==null){$to = get_option('admin_email');}
 
@@ -1564,8 +1562,13 @@ class efbFunction {
 				'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
 			$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
-			
+			return false;
 		}
+		//refresh carrent page by php
+	
+            header("Refresh:0");
+            exit;
+        
 	}
 
 
