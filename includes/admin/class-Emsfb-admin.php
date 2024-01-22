@@ -397,6 +397,7 @@ class Admin {
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
             if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+                error_log('EFB=>addon_add_efb fa_IR');
             }
             
             $request = wp_remote_get($u);
@@ -897,6 +898,13 @@ class Admin {
         $table_name = $this->db->prefix . "emsfb_setting";
         $email="";
         $em_st=false;
+
+        if($m==null || gettype($m)!='array'){
+            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $response = ['success' => false, "m" =>$m];
+            wp_send_json_success($response, $_POST);
+            die();
+        }
         
         foreach ($m as $key => $value) {
             if ($key == "emailSupporter") {
