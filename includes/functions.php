@@ -1528,7 +1528,6 @@ class efbFunction {
 		$state=false;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
-		$addons["AdnOF"]=0;
 		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
 		$addons["AdnPPF"]=isset($ac->AdnPPF)?$ac->AdnPPF:0;
 		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;	
