@@ -143,7 +143,8 @@ class Create {
 		$lang = $efbFunction->text_efb(1);
 		if(gettype($ac)!="string"){
 			$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-			if (md5($server_name)==$ac->activeCode){
+		
+			if (isset($ac->activeCode)==true && strlen($ac->activeCode)>5 && md5($server_name)==$ac->activeCode){
 				$pro=true;
 			}
 		
