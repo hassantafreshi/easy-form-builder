@@ -918,7 +918,7 @@ class efbFunction {
 						
 									
 					
-					if($state=="reportProblem" || $state =="testMailServer" ){
+					if($state=="reportProblem" || $state =="testMailServer" || $state=='addonsDlProblem' ){
 						$support="";
 					
 						$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
@@ -936,7 +936,7 @@ class efbFunction {
 						}	
 					
 						$cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
-						" role:".$role." name:".$name."";                      
+						" role:".$role." name:".$name." state:".$state."";                      
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
@@ -1523,7 +1523,7 @@ class efbFunction {
 		
 		if($this->val_state=='download_all_addons_efb'){return;}
 		$this->val_state='download_all_addons_efb';
-		
+		$state=false;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
 		$addons["AdnOF"]=isset($ac->AdnOF)?$ac->AdnOF:0;
@@ -1542,25 +1542,28 @@ class efbFunction {
 				
 				$r =$this->addon_add_efb($key);
 				if($r==false){
-					 $to = $ac->emailSupporter;
-					 if($to==null || $to=="null" || $to=="") return false;
-					 $sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
-					 $m =  '<div><p>'. __('Hi Dear User', 'easy-form-builder').
-					 		'</p><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
-							'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
-							'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
-							 <p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
-							
-					$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-					$headers = array(
-						'MIME-Version: 1.0\r\n',
-						'From:'.$from.'',
-					);
-					
-					wp_mail( $to,$sub, $m, $headers );				
-					return false;
+					 $state = false;	
+					 break;															
+				}else{
+					$state = true;
 				}
 			}
+		}
+
+		if($state==false){
+			error_log('EFB=>download_all_addons_efb state false=>start send email');
+			$to = isset($ac->emailSupporter) ? $ac->emailSupporter : null;
+			if($to==null){$to = get_option('admin_email');}
+
+			if($to==null || $to=="null" || $to=="") return false;
+			$sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
+			$m =  '<div><p>'. __('Hi Dear User', 'easy-form-builder').
+				'</p><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
+				'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
+					<p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
+			$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
+			
 		}
 	}
 
