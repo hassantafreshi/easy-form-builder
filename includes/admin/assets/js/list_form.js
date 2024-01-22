@@ -938,7 +938,8 @@ function fun_hande_active_page_emsFormBuilder(no) {
 
 function fun_show_help__emsFormBuilder() {
   document.getElementById("more_emsFormBuilder").style.display = "none";
-  const ws = "https://whitestudio.team/document/";
+  let $lan =lan_subdomain_wsteam_efb();
+  const ws = `https://${$lan}whitestudio.team/document/`;
   listOfHow_emsfb = {
     1: { title: efb_var.text.howProV, url: `${ws}/how-to-activate-pro-version-easy-form-builder-plugin/` },
     2: { title: efb_var.text.howConfigureEFB, url: `${ws}/how-to-set-up-form-notification-emails-in-easy-form-builder/#settingUp-Notification` },

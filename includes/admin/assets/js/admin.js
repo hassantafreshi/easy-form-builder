@@ -92,9 +92,9 @@ donwload_event_icon_efb =(color)=>{
 `
 }
 function Link_emsFormBuilder(state) {
-  let link = 'https://whitestudio.team/document'
+  let $lan =lan_subdomain_wsteam_efb();
+  let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
-  
   if(efb_var.language != "fa_IR" ){
     switch (state) {
       case 'publishForm':
@@ -106,19 +106,19 @@ function Link_emsFormBuilder(state) {
         break;
       case 'stripe':
         //stripe
-        link = "https://whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder";
+        link = `https://${lan}whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder`;
         break;
       case 'ws':
-        link = 'https://whitestudio.team/';
+        link = `https://${lan}whitestudio.team/`;
         break;
       case 'price':
-        link = 'https://whitestudio.team/#price';
+        link = `https://${lan}whitestudio.team/#price`;
         break;
       case 'efb':
         link = "https://wordpress.org/plugins/easy-form-builder/";
         break;
       case 'wiki':
-        link = `https://whitestudio.team/documents/`;
+        link = `https://${lan}whitestudio.team/documents/`;
         break;
       case 'EmailNoti':
         link += "s/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder";
@@ -147,7 +147,7 @@ function Link_emsFormBuilder(state) {
         break;
       case 'AdnPPF':
         //AdnPPF == persia payment
-        link = 'https://whitestudio.team';
+        link = `https://${lan}whitestudio.team`;
         break;
       case 'AdnATC':
         // AdnATC == advance tracking code
@@ -4443,17 +4443,14 @@ colors_from_template = ()=>{
     div = `<div class="efb text-dark"> ${efb_var.text.wylpfucat} </div><a class="btn btn-darkb text-white efb w-100 mt-1" onclick="open_setting_colors_efb(this)">${efb_var.text.yes}</a>`
     alert_message_efb("",div ,35, 'info');
   }
-
-
-
-  
-
-
-
-
-
-
-
-
  
+}
+
+lan_subdomain_wsteam_efb=()=>{
+  let sub =''; 
+  if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
+  else if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
+  console.log(`subdomain => ${sub}`);
+  sub ='';
+  return sub;
 }
