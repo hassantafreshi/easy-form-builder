@@ -1525,7 +1525,7 @@ class efbFunction {
 		
 		if($this->val_state=='download_all_addons_efb'){return;}
 		$this->val_state='download_all_addons_efb';
-		$state=false;
+		$state=true;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
 		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
