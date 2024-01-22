@@ -439,8 +439,7 @@ function handle_change_event_efb(el){
     if (value != "" || value.length > 1) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
-      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];
-      console.log('sendback_state_handler_efb!!!');
+      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
       sendback_state_handler_efb(id_,true,current_s_efb)
       if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
         let q = valueJson_ws.find(x => x.id_ === el.id);
@@ -644,13 +643,11 @@ function valid_email_emsFormBuilder(el) {
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       document.getElementById(`${el.id}-message`).classList.add('unpx');                
     }
-    console.log(msg);
-    console.log(el.id);
-    console.log(document.getElementById(`${el.id}-message`));
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
@@ -1513,29 +1510,22 @@ post_api_r_message_efb=(data,message)=>{
 
 sendback_state_handler_efb=(id_,state,step)=>{
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_);
-  console.log(id_,state,step,`indx ${indx}`);
-  console.log(sendback_efb_state);
-  console.log(indx>-1 && state==true);
   if(indx==-1 && state==false){
-    console.log(`add for sendback_efb_state by id_ ${id_} indx ${indx}`)
     sendback_efb_state.push({id_:id_,state:state,step:step})
     if(document.getElementById('btn_send_efb') && document.getElementById('btn_send_efb').classList.contains('disabled')==false )document.getElementById('btn_send_efb').classList.add('disabled');
     else if(document.getElementById('next_efb') && document.getElementById('next_efb').classList.contains('disabled')==false )document.getElementById('next_efb').classList.add('disabled');
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     //remove for  sendback_efb_state by id_
-    console.log(`remove for  sendback_efb_state by id_ ${id_} indx ${indx}`);
     sendback_efb_state.splice(indx,1);
   
     //get sendback_efb_state by step if exists return true else return false
     setTimeout(() => {
       const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
-      console.log(indx_);
       if(indx_==-1 || sendback_efb_state.length==0){
         if(document.getElementById('btn_send_efb'))document.getElementById('btn_send_efb').classList.remove('disabled');
         else if(document.getElementById('next_efb'))document.getElementById('next_efb').classList.remove('disabled');
       }      
     }, 200);
   }
-  console.log(sendback_efb_state);
 
 }
