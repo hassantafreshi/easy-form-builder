@@ -913,7 +913,7 @@ class efbFunction {
 							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
 						}
 
-						return $mailResult;
+						
 					}
 						
 									
@@ -935,11 +935,13 @@ class efbFunction {
 							$role = $usr->roles[0];
 						}	
 					
-						$cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
-						" role:".$role." name:".$name." state:".$state."";                      
+						$cont .=" website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
+						"] role:[".$role."] name:[".$name."] state:[".$state."]";                      
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
+
+					return $mailResult;
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
@@ -1557,8 +1559,7 @@ class efbFunction {
 
 			if($to==null || $to=="null" || $to=="") return false;
 			$sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
-			$m =  '<div><p>'. __('Hi Dear User', 'easy-form-builder').
-				'</p><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+			$m =  '<div><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
 				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
 				'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
 					<p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
