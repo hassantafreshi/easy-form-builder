@@ -1830,7 +1830,7 @@ class efbFunction {
         $end_time = microtime(true);
         $execution_time = $end_time - $start_time;
         if ($execution_time > 30) {
-            header("Refresh:0");
+			wp_redirect($_SERVER['REQUEST_URI']);
             exit;
         }
 		
