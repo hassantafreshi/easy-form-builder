@@ -246,9 +246,9 @@ class _Public {
 			if($el_pro_load==false){
 					$el_pro_load = strpos($value , '"pro":"1"');
 				}
-		
+		$el_pro_load = $el_pro_load==false ? false : true;
 		$statt= version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"]);
-		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0){
+		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0 ){
 			$efbFunction = new efbFunction();
 			$efbFunction->setting_version_efb_update('null' ,$el_pro_load);
 		}

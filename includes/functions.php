@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
-	public $val_state;
 	protected $db;
 	
 	public function __construct() {  
@@ -1522,9 +1521,8 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		
-		if($this->val_state=='download_all_addons_efb'){return;}
-		$this->val_state='download_all_addons_efb';
+		error_log('EFB=>download_all_addons_efb');
+
 		$state=true;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
@@ -1567,7 +1565,7 @@ class efbFunction {
 		//refresh carrent page by php
 	
 			
-            exit;
+            return true;
         
 	}
 
@@ -1808,7 +1806,7 @@ class efbFunction {
 	}
 
 	public function setting_version_efb_update($st ,$pro){
-        $start_time = microtime(true);
+		error_log('EFB=>setting_version_efb_update: ' . $pro);     
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
@@ -1826,14 +1824,11 @@ class efbFunction {
                 'email'   => $email
             ]
         );
-		if($pro == true || $pro ==1){
-			$this->download_all_addons_efb();
-			$end_time = microtime(true);
-			$execution_time = $end_time - $start_time;
-			if ($execution_time > 30) {
-				wp_redirect($_SERVER['REQUEST_URI']);
-				exit;
-			}
+		if($pro == true || $pro ==1){			
+			$this->download_all_addons_efb();				
+			wp_safe_redirect($_SERVER['REQUEST_URI']);
+			exit;
+			
 		}
       
 		

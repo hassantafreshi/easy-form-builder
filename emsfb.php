@@ -26,7 +26,7 @@ if (!defined("EMSFB_PLUGIN_DIRECTORY")) {
 }
 
 if (!defined("EMSFB_PLUGIN_VERSION")) {
-    define("EMSFB_PLUGIN_VERSION", "3.7.8");
+    define("EMSFB_PLUGIN_VERSION", "3.7.9");
 }
 
 /** Constant pointing to the root directory URL of the plugin */
