@@ -250,7 +250,7 @@ class _Public {
 		$statt= version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"]);
 		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0 ){
 			$efbFunction = new efbFunction();
-			$efbFunction->setting_version_efb_update('null' ,$el_pro_load);
+			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
 		}
 	
 		if(gettype($stng)=="integer" && $stng==0){

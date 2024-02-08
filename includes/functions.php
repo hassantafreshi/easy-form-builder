@@ -1456,8 +1456,13 @@ class efbFunction {
 
             if($data->download==true){
                 $url =$data->link;
-                
-                $this->fun_addon_new($url);
+				//split the url to get the folder name of the addon , bettwen last / and .zip	
+
+                $directory_name = substr($url,strrpos($url ,"/")+1,-4);
+				$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
+				if (!file_exists($directory)) {					
+                	$this->fun_addon_new($url);					
+				}
 				return true;
             }
 			
@@ -1521,8 +1526,6 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		error_log('EFB=>download_all_addons_efb');
-
 		$state=true;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
@@ -1539,8 +1542,7 @@ class efbFunction {
 			if($value ==1){
 				
 				$r =$this->addon_add_efb($key);
-				if($r==false){
-					 error_log($key);					 
+				if($r==false){					 
 					 $state = false;	
 					 break;															
 				}else{
@@ -1807,6 +1809,7 @@ class efbFunction {
 
 	public function setting_version_efb_update($st ,$pro){
 		error_log('EFB=>setting_version_efb_update: ' . $pro);     
+		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
@@ -1825,9 +1828,24 @@ class efbFunction {
             ]
         );
 		if($pro == true || $pro ==1){			
-			$this->download_all_addons_efb();				
-			wp_safe_redirect($_SERVER['REQUEST_URI']);
-			exit;
+			$this->download_all_addons_efb();	
+			$end_time = microtime(true);
+			$execution_time = ($end_time - $start_time);
+			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
+			$request_uri = $_SERVER['REQUEST_URI'];
+		    if($execution_time>2 && strpos($request_uri, 'wp-admin') == false ){			
+				error_log('if execution_time>2');
+				wp_safe_redirect($_SERVER['REQUEST_URI']);
+				exit;
+			}else{
+				error_log('else execution_time>2');
+				?>
+
+				<script>
+					location.reload();
+				</script>
+				<?php
+			}
 			
 		}
       
