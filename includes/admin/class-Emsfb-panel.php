@@ -86,7 +86,7 @@ class Panel_edit  {
 				}
 
 				if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){
-					$efbFunction->setting_version_efb_update($ac);
+					$efbFunction->setting_version_efb_update($ac ,$pro);
 				}
 
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
@@ -157,16 +157,6 @@ class Panel_edit  {
 
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.7');
 			
-
-
-
-			
-
-			if($pro==true){
-
-
-
-			}
 			
 
 			$lng_ = get_locale();

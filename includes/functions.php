@@ -1807,7 +1807,7 @@ class efbFunction {
 		return 0;
 	}
 
-	public function setting_version_efb_update($st){
+	public function setting_version_efb_update($st ,$pro){
         $start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
@@ -1826,13 +1826,16 @@ class efbFunction {
                 'email'   => $email
             ]
         );
-        $this->download_all_addons_efb();
-        $end_time = microtime(true);
-        $execution_time = $end_time - $start_time;
-        if ($execution_time > 30) {
-			wp_redirect($_SERVER['REQUEST_URI']);
-            exit;
-        }
+		if($pro == true || $pro ==1){
+			$this->download_all_addons_efb();
+			$end_time = microtime(true);
+			$execution_time = $end_time - $start_time;
+			if ($execution_time > 30) {
+				wp_redirect($_SERVER['REQUEST_URI']);
+				exit;
+			}
+		}
+      
 		
 		
 	}

@@ -240,11 +240,17 @@ class _Public {
 		}
 		$rp= $this->get_setting_Emsfb('pub');
 		$stng= $rp[0];
+
+
+		$el_pro_load = strpos($value , '\"pro\":\"1\"');
+			if($el_pro_load==false){
+					$el_pro_load = strpos($value , '"pro":"1"');
+				}
 		
 		$statt= version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"]);
 		if(version_compare(EMSFB_PLUGIN_VERSION,$rp[1]["version"])!=0){
 			$efbFunction = new efbFunction();
-			$efbFunction->setting_version_efb_update('null');
+			$efbFunction->setting_version_efb_update('null' ,$el_pro_load);
 		}
 	
 		if(gettype($stng)=="integer" && $stng==0){
@@ -266,10 +272,7 @@ class _Public {
 				$smssendefb = new smssendefb() ; 
 			}
 
-			$el_pro_load = strpos($value , '\"pro\":\"1\"');
-			if($el_pro_load==false){
-					$el_pro_load = strpos($value , '"pro":"1"');
-				}
+			
 				if($el_pro_load==true){
 					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.7');
 					 
