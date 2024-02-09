@@ -99,6 +99,10 @@ class Addon {
 		$maps =false;
 		$efbFunction = new efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
+		
+		if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0){			
+			$efbFunction->setting_version_efb_update($ac ,$pro);
+		}
 		//v2 translate
 		
 		$lang = $efbFunction->text_efb(2);
