@@ -1312,7 +1312,6 @@ function handle_navbtn_efb(steps, device) {
     });
   } else {
     document.getElementById("btn_send_efb").addEventListener("click", function () {
-      
       var state = true;
       if (preview_efb == false && fun_validation_efb() == false) {
         state = false;
@@ -1774,7 +1773,6 @@ function previewFormEfb(state) {
 function fun_prev_send() {
   var stp = Number(valj_efb[0].steps) + 1;
   document.getElementById('efb-final-step').innerHTML = loading_messge_efb();
- 
   var current_s = document.querySelector('[data-step="step-' + current_s_efb + '-efb"]');
   prev_s_efb = document.querySelector('[data-step="step-' + (current_s_efb-1) + '-efb"]');
   if(Number(valj_efb[0].show_icon)!=1)  document.querySelector('[data-step="icon-s-' + current_s_efb + '-efb"]').classList.remove("active");
@@ -2572,8 +2570,3 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
 </path>
 </svg><span>`
 } 
-
-
-
-
-
