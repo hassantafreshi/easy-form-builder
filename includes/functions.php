@@ -1832,8 +1832,8 @@ class efbFunction {
 			$end_time = microtime(true);
 			$execution_time = ($end_time - $start_time);
 			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
-			$request_uri = $_SERVER['REQUEST_URI'];
-		    if($execution_time>2 && strpos($request_uri, 'wp-admin') == false ){			
+			$request_uri = $_SERVER['REQUEST_URI'];			
+		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){			
 				error_log('if execution_time>2');
 				wp_safe_redirect($_SERVER['REQUEST_URI']);
 				exit;
