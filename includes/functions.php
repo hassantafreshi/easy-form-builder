@@ -1430,7 +1430,7 @@ class efbFunction {
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 			if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-				error_log('EFB=>addon_add_efb fa_IR');
+				//error_log('EFB=>addon_add_efb fa_IR');
             }
             $request = wp_remote_get($u);
            
@@ -1492,7 +1492,7 @@ class efbFunction {
 				if(is_wp_error($s)){
 				
 					error_log('EFB=>unzip addons error 1:');
-					error_log(json_encode($r));
+					//error_log(json_encode($r));
 					return false;
 				}
 			}else{
@@ -1505,7 +1505,7 @@ class efbFunction {
 					
 					
 					error_log('EFB=>unzip addons error 2:');
-					error_log(json_encode($r));
+					//error_log(json_encode($r));
 					return false;
 				}
 			} 
@@ -1808,7 +1808,7 @@ class efbFunction {
 	}
 
 	public function setting_version_efb_update($st ,$pro){
-		error_log('EFB=>setting_version_efb_update: ' . $pro);     
+		//error_log('EFB=>setting_version_efb_update: ' . $pro);     
 		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();

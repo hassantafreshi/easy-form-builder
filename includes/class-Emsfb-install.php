@@ -158,7 +158,7 @@ class Install {
 										$s = unzip_file($r, EMSFB_PLUGIN_DIRECTORY . '\\vendor\\');
 										if(is_wp_error($s)){										
 											error_log('EFB=>unzip addons error 1:');
-											error_log(json_encode($r));
+											//error_log(json_encode($r));
 											return false;
 										}
 									}else{
@@ -168,7 +168,7 @@ class Install {
 										$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
 										if(is_wp_error($r)){																															
 											error_log('EFB=>unzip addons error 2:');
-											error_log(json_encode($r));
+											//error_log(json_encode($r));
 											return false;
 										}
 									} 

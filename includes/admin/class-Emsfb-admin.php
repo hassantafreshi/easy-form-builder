@@ -1179,7 +1179,7 @@ class Admin {
                     $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . '//temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . '//vendor/');
                     if(is_wp_error($r)){
                         error_log('error unzip');
-                        error_log(json_encode($r));
+                        //error_log(json_encode($r));
                         return false;
                     }
                     return true; 

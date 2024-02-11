@@ -505,11 +505,7 @@ class _Public {
 
 		$this->pro_efb = $valstng->pro;
 		$this->comper_version_efb($pl[1]["version"]);
-		/* if(version_compare(EMSFB_PLUGIN_VERSION,$pl[1]["version"])!=0 ){
-			error_log('version_compare');
-			$this->efbFunction = new efbFunction();
-			$this->efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
-		} */
+
 					
 		if($this->pro_efb==1){
  
@@ -975,10 +971,10 @@ class _Public {
 													
 													
 													if(isset($f['dateExp'])==true){
-														error_log($f['dateExp']);
+														//error_log($f['dateExp']);
 														//$f['dateExp']="04-04-2023";
-														error_log(strtotime($f['dateExp']));
-														error_log(strtotime(wp_date('Y-m-d')));
+														//error_log(strtotime($f['dateExp']));
+														//error_log(strtotime(wp_date('Y-m-d')));
 														if(strtotime($f['dateExp'])<strtotime(wp_date('Y-m-d'))){
 															$stated=0;
 															$mr = $this->lanText["bkXpM"];

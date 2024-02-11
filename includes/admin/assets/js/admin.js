@@ -1038,7 +1038,7 @@ const funSetCornerElEfb = (dataId, co) => {
 
      if (el.dataset.tag == 'dadfile') cornEl = document.getElementById(`${valj_efb[indx].id_}_box`)
     }
-    console.log(postId,cornEl,co ,el);
+    //console.log(postId,cornEl,co ,el);
     cornEl.className = cornerChangerEfb(cornEl.className, co)
 
   } else if (el.dataset.side == "yesNo") {
