@@ -2,9 +2,9 @@
 Contributors: 			hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Tags: 				    form builder, form creator, contact form, support form, subscribe form
 Donate link: 			https://whitestudio.team/donate-easy-form-builder/
-Stable tag: 			3.7.8
+Stable tag: 			3.7.9
 Requires at least: 	      4.7
-Tested up to: 			6.4.2
+Tested up to: 			6.4.3
 Requires PHP:			7.4 or higher
 License: 				GPLv3 or later 
 License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -384,6 +384,17 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+= 3.7.9 =
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
+* Enhance the user interface for loading forms.
+
+* Fixed issues
+
+
+= 3.7.8 =
+= 3.7.7 =
 = 3.7.6 =
 
 * Fixed issues with validation forms.

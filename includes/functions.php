@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 class efbFunction {
-	public $val_state;
 	protected $db;
 	
 	public function __construct() {  
@@ -1431,7 +1430,7 @@ class efbFunction {
             $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
 			if(get_locale()=='fa_IR'){
                 $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-				error_log('EFB=>addon_add_efb fa_IR');
+				//error_log('EFB=>addon_add_efb fa_IR');
             }
             $request = wp_remote_get($u);
            
@@ -1457,8 +1456,13 @@ class efbFunction {
 
             if($data->download==true){
                 $url =$data->link;
-                
-                $this->fun_addon_new($url);
+				//split the url to get the folder name of the addon , bettwen last / and .zip	
+
+                $directory_name = substr($url,strrpos($url ,"/")+1,-4);
+				$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
+				if (!file_exists($directory)) {					
+                	$this->fun_addon_new($url);					
+				}
 				return true;
             }
 			
@@ -1488,7 +1492,7 @@ class efbFunction {
 				if(is_wp_error($s)){
 				
 					error_log('EFB=>unzip addons error 1:');
-					error_log(json_encode($r));
+					//error_log(json_encode($r));
 					return false;
 				}
 			}else{
@@ -1501,7 +1505,7 @@ class efbFunction {
 					
 					
 					error_log('EFB=>unzip addons error 2:');
-					error_log(json_encode($r));
+					//error_log(json_encode($r));
 					return false;
 				}
 			} 
@@ -1522,9 +1526,6 @@ class efbFunction {
 
 
 	public function download_all_addons_efb(){
-		
-		if($this->val_state=='download_all_addons_efb'){return;}
-		$this->val_state='download_all_addons_efb';
 		$state=true;
 		$ac=$this->get_setting_Emsfb();
 		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
@@ -1541,7 +1542,7 @@ class efbFunction {
 			if($value ==1){
 				
 				$r =$this->addon_add_efb($key);
-				if($r==false){
+				if($r==false){					 
 					 $state = false;	
 					 break;															
 				}else{
@@ -1566,7 +1567,7 @@ class efbFunction {
 		//refresh carrent page by php
 	
 			
-            exit;
+            return true;
         
 	}
 
@@ -1806,8 +1807,9 @@ class efbFunction {
 		return 0;
 	}
 
-	public function setting_version_efb_update($st){
-        $start_time = microtime(true);
+	public function setting_version_efb_update($st ,$pro){
+		//error_log('EFB=>setting_version_efb_update: ' . $pro);     
+		$start_time = microtime(true);
 		if($st=='null'){
 			$st=$this->get_setting_Emsfb();
 		}
@@ -1825,13 +1827,28 @@ class efbFunction {
                 'email'   => $email
             ]
         );
-        $this->download_all_addons_efb();
-        $end_time = microtime(true);
-        $execution_time = $end_time - $start_time;
-        if ($execution_time > 30) {
-			wp_redirect($_SERVER['REQUEST_URI']);
-            exit;
-        }
+		if($pro == true || $pro ==1){			
+			$this->download_all_addons_efb();	
+			$end_time = microtime(true);
+			$execution_time = ($end_time - $start_time);
+			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
+			$request_uri = $_SERVER['REQUEST_URI'];			
+		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){			
+				error_log('if execution_time>2');
+				wp_safe_redirect($_SERVER['REQUEST_URI']);
+				exit;
+			}else{
+				error_log('else execution_time>2');
+				?>
+
+				<script>
+					location.reload();
+				</script>
+				<?php
+			}
+			
+		}
+      
 		
 		
 	}
