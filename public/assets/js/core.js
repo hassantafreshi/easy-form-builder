@@ -189,8 +189,6 @@ function handle_change_event_efb(el){
               vd.innerHTML =msg;
               vd.classList.add('show');
             }
-            /* const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);            
-            if (i != -1) { slice_sback(i) } */
             delete_by_id(id_);
             return 0;
     }else if(value < len && el.type=="number"){
@@ -206,8 +204,6 @@ function handle_change_event_efb(el){
               vd.innerHTML =msg;
               vd.classList.add('show');
             }
-            /* const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
-            if (i != -1) { slice_sback(i) } */
             delete_by_id(id_);
             return 0;
     }
@@ -226,9 +222,6 @@ function handle_change_event_efb(el){
               vd.innerHTML =msg;
               vd.classList.add('show');
             }
-           
-           /*  const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);            
-            if (i != -1) { slice_sback(i) } */
             delete_by_id(id_);
             return 0;
     }else if(value > len && el.type=="number"){
@@ -244,10 +237,7 @@ function handle_change_event_efb(el){
               vd.innerHTML =msg;
               vd.classList.add('show');
             }
-            /* const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id_);
-            if (i != -1) { slice_sback(i) } */
             delete_by_id(id_);
-          
             return 0;
     }
           return 1;
@@ -266,7 +256,6 @@ function handle_change_event_efb(el){
       const r = fun_booking_avilable(el)
       if(r[0]==false){
         alert_message_efb(r[1],'',150,'danger')
-      
         return
       }
     }
@@ -284,7 +273,6 @@ function handle_change_event_efb(el){
           value = el.value;
          return;
         }
-        
         if(validate_len()==0){
           //console.log('validate_len()==0!!!');
           sendback_state_handler_efb(id_,false,current_s_efb)
@@ -303,11 +291,9 @@ function handle_change_event_efb(el){
         vd = document.getElementById(`${el.id}-message`)
         const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
         if(el.value.length==0){
-          
           el_empty_value(id_);
         } else if (che == null) {
           valid = false;
-          
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd.innerHTML = ajax_object_efm.text.enterValidURL;
           if(vd.classList.contains('show')==false)vd.classList.add('show');
@@ -320,7 +306,6 @@ function handle_change_event_efb(el){
            vd.innerHTML="";
           el.className = colorBorderChangerEfb(el.className, "border-success");
         }
-        
         break;
       case "checkbox":
       case "radio":
@@ -435,7 +420,6 @@ function handle_change_event_efb(el){
         break;
     }
     if(state==false && value.length > 1)  sendback_state_handler_efb(id_,false,current_s_efb)
-   
     if (value != "" || value.length > 1) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
@@ -636,7 +620,6 @@ function valid_email_emsFormBuilder(el) {
   let check = 0;
   //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
   check += el.value.match(format) ? 0 : 1;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -1506,8 +1489,6 @@ post_api_r_message_efb=(data,message)=>{
       response_Valid_tracker_efb({ success: false, data: { success: false, m: error.message } });
     });
 }
-
-
 sendback_state_handler_efb=(id_,state,step)=>{
   const indx = sendback_efb_state.findIndex(x=>x.id_==id_);
   if(indx==-1 && state==false){
@@ -1517,7 +1498,6 @@ sendback_state_handler_efb=(id_,state,step)=>{
   }else if(indx>-1 && state==true && sendback_efb_state.length>0){
     //remove for  sendback_efb_state by id_
     sendback_efb_state.splice(indx,1);
-  
     //get sendback_efb_state by step if exists return true else return false
     setTimeout(() => {
       const indx_ = sendback_efb_state.findIndex(x=>x.step==step);
@@ -1527,5 +1507,4 @@ sendback_state_handler_efb=(id_,state,step)=>{
       }      
     }, 200);
   }
-
 }
