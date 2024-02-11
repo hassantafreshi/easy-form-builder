@@ -114,8 +114,15 @@ class Install {
 							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
 						}
 					} */
-						$usr =get_user_by('id',1);
-						$eml=$usr->user_email;
+						
+							$user_id = get_current_user_id();
+							$usr =get_user_by('id',$user_id);
+							$eml=$usr->user_email;
+							if($eml==NULL || $eml=='') {
+								$usr =get_user_by('id',1);
+								$eml = $usr ? $usr->user_email :'';								
+							}
+						
 						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
 						if($v==NULL && $s==true){
