@@ -4451,6 +4451,5 @@ lan_subdomain_wsteam_efb=()=>{
   if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
   else if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
   console.log(`subdomain => ${sub}`);
-  sub ='';
   return sub;
 }
