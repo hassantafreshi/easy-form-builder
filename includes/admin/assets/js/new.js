@@ -1132,8 +1132,7 @@ const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, `
 const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, ` ${value} `) ?? `${classes} ${value} `; }
 const open_whiteStudio_efb = (state) => {
-  const sub =lan_subdomain_wsteam_efb();
-  console.log(`sub ${sub}`);
+const sub =lan_subdomain_wsteam_efb();
   let link = `https://${sub}whitestudio.team/document/`;
   if(efb_var.language != "fa_IR"){
   switch (state) {
