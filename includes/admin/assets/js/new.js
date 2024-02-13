@@ -227,8 +227,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
   let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
   let ps =  elementId == "html" ? 'col-md-12' : 'col-md-12'
   if(pos[3]==""){
-     if( elementId=="firstName" || elementId=="lastName" 
-     || elementId=="country" || elementId=="statePro" || elementId=="city" ){ ps = 'col-md-6';}
+     if( elementId=="firstName" || elementId=="lastName" ){ ps = 'col-md-6';
+     }
   }
   pos[3] = pos[3]=="" ? 'col-md-12' :  pos[3];
   genertate_ops_select_Efb =()=>{
@@ -271,9 +271,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'firstName':
     case 'lastName':
     case 'datetime-local':
-    case 'zipcode':
+    case 'postalcode':
     case 'address_line':
-      const type = elementId == "firstName" || elementId == "lastName" || elementId == "zipcode" || elementId == "address_line" ? 'text' : elementId;
+      // console.log(elementId);
+      const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
       maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
       minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
@@ -972,7 +973,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <button type="button" class="efb btn efb pro-bg btn-pro-efb btn-sm px-2 mx-3" id="pro" data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.proVersion}" onclick="pro_show_efb(1)"> 
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
-    const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "zipcode" ? 'text' : elementId;
+    const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
     const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
