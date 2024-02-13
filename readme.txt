@@ -384,6 +384,17 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 
+= 3.7.9 =
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
+* Enhance the user interface for loading forms.
+
+* Fixed issues
+
+
+= 3.7.8 =
+= 3.7.7 =
 = 3.7.6 =
 
 * Fixed issues with validation forms.

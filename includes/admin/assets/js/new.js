@@ -1132,14 +1132,16 @@ const PxChangerEfb = (classes, value) => { return classes.replace(/\bpx+-\d+/, `
 const MxChangerEfb = (classes, value) => { return classes.replace(/\bmx+-\d+/, ` ${value} `) ?? `${classes} ${value} `; }
 const btnChangerEfb = (classes, value) => { return classes.replace(/\bbtn-outline-+\w+|\bbtn-+\w+/, ` ${value} `) ?? `${classes} ${value} `; }
 const open_whiteStudio_efb = (state) => {
-  let link = `https://whitestudio.team/document/`;
+  const sub =lan_subdomain_wsteam_efb();
+  console.log(`sub ${sub}`);
+  let link = `https://${sub}whitestudio.team/document/`;
   if(efb_var.language != "fa_IR"){
   switch (state) {
     case 'mapErorr':
       link += `How-to-Install-and-Use-the-Location-Picker-(geolocation)-with-Easy-Form-Builder`
       break;
     case 'pro':
-      link = `https://whitestudio.team/#price`
+      link = `https://${sub}whitestudio.team/#price`
       break;
     case 'publishForm':
       link = `https://www.youtube.com/watch?v=XjBPQExEvPE`
@@ -2570,3 +2572,11 @@ return`<span class="efb ${classes}"><svg version="1.1" id="L9" xmlns="http://www
 </path>
 </svg><span>`
 } 
+
+lan_subdomain_wsteam_efb=()=>{
+  let sub =''; 
+  if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
+  else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
+  console.log(`subdomain => ${sub}`);
+  return sub;
+}
