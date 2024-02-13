@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.9> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.10> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -4446,10 +4446,3 @@ colors_from_template = ()=>{
  
 }
 
-lan_subdomain_wsteam_efb=()=>{
-  let sub =''; 
-  if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
-  else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
-  console.log(`subdomain => ${sub}`);
-  return sub;
-}
