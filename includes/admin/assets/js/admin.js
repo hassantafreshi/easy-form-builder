@@ -2951,7 +2951,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     
-    console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`, efb_var.text[elementId] ,elementId)
+    // console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
@@ -2986,13 +2986,13 @@ let sampleElpush_efb = (rndm, elementId) => {
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       }, valj_efb.length * 5);
     } else if (elementId == "multiselect" || elementId == "payMultiselect") {
-      //console.log(valj_efb.length)
+      // console.log(valj_efb.length)
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         maxSelect: 2,
         minSelect: 0
       })
     }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
-      //console.log(valj_efb.length)
+      // console.log(valj_efb.length)
       Object.assign(valj_efb[(valj_efb.length) - 1], {
         pholder_chl_value: efb_var.text.qty
       })
@@ -3026,7 +3026,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     
   } else {
-    console.log(efb_var.text[elementId]);
+    
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
       message: "", id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
@@ -3574,8 +3574,7 @@ fun_efb_add_el = (t) => {
     for (const ob of olist) {
       
       if (ob.n == t) {
-        console.log(ob.n);
-        let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
+                let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
         dropZoneEFB.innerHTML += el;
       }
     }
