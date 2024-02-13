@@ -101,13 +101,14 @@ class _Public {
 
 
 	public function enqueue_jquery(){
+		
 		if (!isset(wp_scripts()->registered['jquery']) || version_compare(wp_scripts()->registered['jquery']->ver , '3.6.0' , '<')) {
 			$wp_version = get_bloginfo('version');	
-			if (version_compare($wp_version, '6.0', '>=')) {
+			if (version_compare($wp_version, '6.0', '>')) {
 				$jquery_version = '3.7.1';		
 				wp_register_script('jquery', false, array(), $jquery_version, true);
 				wp_scripts()->add_data('jquery', 'src', includes_url('/js/jquery/jquery.js'));
-			}else if (version_compare($wp_version, '6.0', '<=')) {
+			}else {
 				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, '3.6.2');
 			}
 			
