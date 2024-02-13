@@ -2939,10 +2939,7 @@ let sampleElpush_efb = (rndm, elementId) => {
         size = "50";
         type = "cityList";
       break;
-      case "zipcode":
-        size = "50";
-        type = "select";
-      break;
+
     default:
       size = 100;
       break;
@@ -2954,7 +2951,7 @@ let sampleElpush_efb = (rndm, elementId) => {
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     
-    //console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`)
+    console.log(`elementId[${elementId}] ,amount_el_efb[${amount_el_efb}]`, efb_var.text[elementId] ,elementId)
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
       id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,  label_text_size: 'fs-6',
@@ -3029,7 +3026,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     
     
   } else {
-    
+    console.log(efb_var.text[elementId]);
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, placeholder: elementId, value: 'allformat', size: 100,
       message: "", id: '', classes: '', name: efb_var.text[elementId], required: 0, amount: amount_el_efb, step: step_el_efb,
@@ -3570,13 +3567,14 @@ fun_efb_add_el = (t) => {
     
     const olist = [
       { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
-      { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "zipcode" } 
+      { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "postalcode" } 
     
     ]
     //if(t=="address") olist = [{ n: 'address', t: "country" }, { n: 'address', t: "statePro" } , { n: 'address', t: "city" }  ]
     for (const ob of olist) {
       
       if (ob.n == t) {
+        console.log(ob.n);
         let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
         dropZoneEFB.innerHTML += el;
       }

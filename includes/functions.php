@@ -729,6 +729,8 @@ class efbFunction {
 			"conlog" => $state  &&  isset($ac->text->conlog) ? $ac->text->conlog : __('Conditional logic','easy-form-builder'),
 			"fil" => $state  &&  isset($ac->text->fil) ? $ac->text->fil : __('Form is loading','easy-form-builder'),
 			"stf" => $state  &&  isset($ac->text->stf) ? $ac->text->stf : __('Submitting the form','easy-form-builder'),
+			"address_line" => $state  &&  isset($ac->text->address_line ) ? $ac->text->address_line  : __('Address','easy-form-builder'),
+			"postalcode" => $state  &&  isset($ac->text->postalcode ) ? $ac->text->postalcode  : __('Postal Code','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
