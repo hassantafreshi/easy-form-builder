@@ -731,6 +731,7 @@ class efbFunction {
 			"stf" => $state  &&  isset($ac->text->stf) ? $ac->text->stf : __('Submitting the form','easy-form-builder'),
 			"address_line" => $state  &&  isset($ac->text->address_line ) ? $ac->text->address_line  : __('Address','easy-form-builder'),
 			"postalcode" => $state  &&  isset($ac->text->postalcode ) ? $ac->text->postalcode  : __('Postal Code','easy-form-builder'),
+			"vmgs" => $state  &&  isset($ac->text->vmgs ) ? $ac->text->vmgs  : __('View message and reply','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -1009,7 +1010,7 @@ class efbFunction {
 		$l ='https://whitestudio.team/';
 			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ["serverEmailAble","clcdetls","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
+		$text = ["serverEmailAble","vmgs","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		$align ="left";
@@ -1056,12 +1057,12 @@ class efbFunction {
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
-				<div style='text-align:center'><button><a href='".$link."' target='_blank' style='color: black;padding: 5px;'>".$lang['clcdetls']."</a></button></div>";
+				<div style='text-align:center'><button><a href='".$link."' target='_blank' style='color: black;padding: 5px;'>".$lang['vmgs']."</a></button></div>";
 			}else{
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button></div>";
+				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['vmgs']."</a></button></div>";
 			}
 		}else{
 			if(gettype($m)=='string'){
@@ -1073,7 +1074,7 @@ class efbFunction {
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['clcdetls']."</a></button></div>
+				<div style='text-align:center'><button ><a href='".$link."' target='_blank' style='color: black; margin: 10px; padding: 5px;'>".$lang['vmgs']."</a></button></div>
 				";
 			}
 		}		
