@@ -244,13 +244,13 @@ html_el_pro_efb = (previewSate, rndm,iVJ)=>{
     </button>
    <input type="file" hidden="" accept="${filetype_efb[valj_efb[indx].value]}" data-type="dadfile" data-vid='${valj_efb[indx].id_}' data-ID='${valj_efb[indx].id_}' class="efb  emsFormBuilder_v   ${valj_efb[indx].required == 1 || valj_efb[indx].required == true ? 'required' : ''}" id="${valj_efb[indx].id_}_" data-id="${valj_efb[indx].id_}-el" ${previewSate != true ? 'disabled' : ''} ${disabled}>`
   }
-function viewfileEfb(id, indx) {
+function viewfileEfb(id, indx ,filed) {
   //find last dost and slice from that in a string varible
-    if(fileEfb==undefined) {
+    if(filed==undefined) {
       document.getElementById(`${valj_efb[indx].id_}_-message`).classList.remove('show')
       return;}
-    const filename =  fileEfb.name ;
-    let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : fileEfb.type;
+    const filename =  filed.name ;
+    let fileType =valj_efb[indx].file=='customize' ? filename.slice(filename.lastIndexOf('.') + 1) : filed.type;
     let icon = ``;
     const svg_file = `<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-file-earmark" viewBox="0 0 16 16">
     <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
@@ -261,7 +261,7 @@ function viewfileEfb(id, indx) {
          aria-label="Close" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.removeTheFile}"></button> 
          <div class="efb card p-2">
           <i class="efb  ico-file ${valj_efb[indx].icon_color} text-center fs-2">${svg_file}</i>
-          <span class="efb  text-muted">${fileEfb.name}</span>
+          <span class="efb  text-muted">${filed.name}</span>
           </div>
     </div>`;
     if (validExtensions_efb_fun(valj_efb[indx].file, fileType ,indx)) {
@@ -306,7 +306,7 @@ function viewfileReplyEfb(id, indx) {
       }
       fileReader.readAsDataURL(fileEfb);  
       files_emsFormBuilder=[{ id_: 'resp_file_efb', value: "@file@", state: 0, url: "", type: "file", name: 'file', session: sessionPub_emsFormBuilder , amount:0 }];
-      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp');
+      fun_upload_file_api_emsFormBuilder('resp_file_efb', 'allformat' ,'resp',fileEfb);
       document.getElementById('name_attach_efb').innerHTML = fileEfb.name.length > 10 ? `${fileEfb.name.slice(0,7)}..` :fileEfb.name;
     } else {
       const m  = efb_var.text.pleaseUploadA.replace('NN', `${efb_var.text['media']} | ${efb_var.text['document']} | ${efb_var.text['zip']}`);
@@ -320,7 +320,7 @@ function removeFileEfb(id, indx) {
     setTimeout(() => {
       create_dadfile_efb(id, indx);
       document.getElementById(`${id}_`).addEventListener('change', () => {
-        valid_file_emsFormBuilder(id ,'msg');
+        valid_file_emsFormBuilder(id ,'msg' ,'');
       })
     }, 500)
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
@@ -363,7 +363,7 @@ set_dadfile_fun_efb = (id, indx) => {
     dragInptEfb.addEventListener("change", function () {
       fileEfb = this.files[0];
       dropAreaEfb.classList.add("active");
-      viewfileEfb(id, indx);
+      viewfileEfb(id, indx ,fileEfb);
     });
     dropAreaEfb.addEventListener("dragover", (event) => {
       event.preventDefault();
@@ -379,9 +379,9 @@ set_dadfile_fun_efb = (id, indx) => {
       event.preventDefault();
       fileEfb = event.dataTransfer.files[0];
       document.getElementById(`${id}_`).files=event.dataTransfer.files;
-      dropAreaEfb.classList.add("active");
-      viewfileEfb(id, indx);
-      valid_file_emsFormBuilder(id ,'msg')     
+      dropAreaEfb.classList.add("active");      
+      viewfileEfb(id, indx ,fileEfb);
+      valid_file_emsFormBuilder(id ,'msg',fileEfb)     
     });
   }
     reply_attach_efb = (id, indx) => {

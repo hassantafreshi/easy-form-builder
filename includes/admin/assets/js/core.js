@@ -100,7 +100,7 @@ function fun_render_view_core_emsFormBuilder(check) {
           typeFile = acception;
         }
         classData = drog == true ? "form-control-file text-secondary " : "";
-        el = ` <div class="efb row emsFormBuilder ${drog == true ? `inputDnD` : ``}" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog == true ? ` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"` : ``}>`
+        el = ` <div class="efb row emsFormBuilder ${drog == true ? `inputDnD` : ``}" id="${id}-row"> <label for="${id}" class="efb emsFormBuilder" >${v.name} ${v.required == true ? '*' : ''}</label><input type="${v.type}"  id='${id}' name="${id}" class="efb ${v.class ? `${v.class} emsFormBuilder_v ` : `emsFormBuilder emsFormBuilder_v `} ${classData} ${v.required == true ? 'require' : ``}"  ${v.required == true ? 'require' : ''} ${v.tooltip ? `placeholder="${v.tooltip}"` : ''} accept="${acception}" onchange="valid_file_emsFormBuilder('${id}' ,'msg','')" data-id="${v.id_}" ${v.required == true ? 'required' : ''} ${drog == true ? ` data-title="${efb_var.text.DragAndDropA} ${typeFile} ${efb_var.text.orClickHere}"` : ``}>`
         exportView_emsFormBuilder.push({ id_: v.id_, element: el, step: v.step, amount: v.amount, type: v.type, required: req, amount: v.amount })
         break;
       case 'textarea':
@@ -180,7 +180,7 @@ function fun_render_view_core_emsFormBuilder(check) {
             </div>
             <div style="overflow:auto;" id="emsFormBuilder-text-nextprevious-view">
             
-            ${valueJson_ws[0].steps > 1 ? ` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb emsformbuilder" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="efb ${ajax_object_efm.rtl == 1 ? 'fa fa-angle-double-right' : 'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="efb ${ajax_object_efm.rtl == 1 ? 'fa fa-angle-double-left' : 'fa fa-angle-double-right'}"></i></button> </div> ` : `<button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> `}
+            ${valueJson_ws[0].steps > 1 ? ` <div style="float:right;"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb emsformbuilder" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(-1)"><i class="efb ${efb_var.rtl == 1 ? 'fa fa-angle-double-right' : 'fa fa-angle-double-left'}"></i></button>  <button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb mat-shadow emsFormBuilder" onclick="emsFormBuilder_nevButton_view(1)"><i class="efb ${efb_var.rtl == 1 ? 'fa fa-angle-double-left' : 'fa fa-angle-double-right'}"></i></button> </div> ` : `<button type="button" id="emsFormBuilder-text-nextBtn-view" class="efb btn btn-lg btn-block mat-shadow btn-type" onclick="emsFormBuilder_nevButton_view(1)">${button_name} </button> </div> `}
                               
             </div>
           </form>      
@@ -452,6 +452,11 @@ function createStepsOfPublic() {
               value += el.children[i].value + ",";
             }
           }
+     
+          el.addEventListener("change", (e) => {
+            console.log('load handle_change_event_efb');
+            handle_change_event_efb(el);
+          });
 
 
         } else if (el.type == "email") {
@@ -642,22 +647,29 @@ function stepName_emsFormBuilder_view(i) {
 
 function valid_email_emsFormBuilder(el) {
 
-  if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
+  let offsetw = offset_view_efb();
+  
+  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheEmail}','',10,'danger');"></div>` : efb_var.text.enterTheEmail;
   let check = 0;
-  const format = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
+  //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const format =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   check += el.value.match(format) ? 0 : 1;
-  el.value.match(format) ? 0 : el.className += " invalid";
   if (check > 0) {
-    document.getElementById(`${el.id}-row`).innerHTML += `<small class="efb text-danger" id="${el.id}-message">${efb_var.text.enterTheEmail}</small>`
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
+    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+      document.getElementById(`${el.id}-message`).classList.add('unpx');                
+    }
+    document.getElementById(`${el.id}-message`).innerHTML = msg;
+    if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
+    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
+    if(typeof('sendback_state_handler_efb')=='function' )sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
-    if (document.getElementById("alarm_emsFormBuilder")) {
-      el.classList.remove('invalid');
-      if (document.getElementById(`${el.id}-message`)) document.getElementById(`${el.id}-message`).remove();
-    }
+    el.className = colorBorderChangerEfb(el.className, "border-success")
+    document.getElementById(`${el.id}-message`).classList.remove('show');
+    document.getElementById(`${el.id}-message`).innerHTML="";
   }
-  // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
 }
 
@@ -683,55 +695,81 @@ function valid_phone_emsFormBuilder(el) {
 
 
 function valid_file_emsFormBuilder(id) {
-  //789
-  // اینجا ولیدیت کردن فایل های بزرگ مشکل دارد
-  // بعد از بارگزاری و تغییر آن به فایل کوجک جواب نمی ده
-  // روی تست ولیدت را تست کن ببین مشکل از کجاست
-
-  if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();
+  let msgEl = document.getElementById(`${id}_-message`);
+  msgEl.innerHTML = "";
+  msgEl.classList.remove('show');
+  document.getElementById(`${id}_`).classList.remove('border-danger');
+  let rtrn = true;
+  
   let file = ''
   if (true) {
     const f = valueJson_ws.find(x => x.id_ === id);
-    file = f.file;
+    file = f.file && f.file.length > 3 ? f.file : 'Zip';
+    file = file.toLocaleLowerCase();
   }
   let check = 0;
-  let rtrn = false;
+  
   let fileName = ''
-  const el = document.getElementById(id);
-  let accept = el.accept.split(",");
-
-  if (el.files[0] && el.files[0].size < 15000000) {
-    for (let ac of accept) {
-      //validition of type file
-      const r = el.files[0].type.indexOf(ac.slice(1, ac.length))
-      if (r != -1) check = +1;
-
+  const i = `${id}_`;
+  let message = "";
+  let file_size = 8*1024*1024;
+  const indx = valj_efb.findIndex(x => x.id_ === id);
+  let val_in = valj_efb[indx];
+  if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
+    file_size = Number(val_in.max_fsize) * 1024 * 1024;
+  }
+  const el = document.getElementById(i);
+  console.log( el.files[0].size,el);
+  setTimeout(() => {
+  if (el.files[0] && el.files[0].size < file_size) {
+    const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
+    const r = validExtensions_efb_fun(file, filetype,indx)
+    if (r == true) {
+      check = +1;
     }
   }
   if (check > 0) {
-    let reader = new FileReader();
+    msgEl.innerHTML = "";
+    //fun_upload_file_api_emsFormBuilder(id, file,tp);
+   
+      const idB =id+'-prB';
+      console.log(idB);
+      const elf = document.getElementById(idB);
+      document.getElementById(id+'-prA').classList.remove('d-none');
+      if(elf==null) return;
+      console.log('test');
+      let pp =0;
+      elf.style.width = pp+'%';
+      elf.textContent = pp+'% = ' + efb_var.text.preview;
+      //write a codes every 500ms pp+=5 and elf.style.width=pp+'%' and elf.textContent=pp+'% = ' + file.name;
+   
+      const x = setInterval(() => {
+        pp+=5;
+        elf.style.width = pp+'%';
+        elf.textContent = pp+'% = ' + efb_var.text.preview;
+        if(pp>=100){ 
+          clearInterval(x);
+          document.getElementById(id+'-prA').classList.add('d-none');
+        }
+      }, 300);
+   
 
-    el.setAttribute("data-title", el.files[0].name);
-    el.classList.remove('text-warning');
-    el.classList.add('text-secondary');
-    if (document.getElementById(`${id}-message`)) document.getElementById(`${id}-message`).remove();
 
     rtrn = true;
   } else {
-
-
-    //in string find NN and replase with value
-    file = file.replaceAll(',',` ${efb_var.text.or} `);
-    let message  = efb_var.text.pleaseUploadA.replace('NN', file);
+    document.getElementById(id+'-prA').classList.add('d-none');
+    const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
+    const m =efb_var.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
+    const size_m = efb_var.text.fileSizeIsTooLarge.replace('NN', f_s_l);
+    if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
+    const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
+    newClass!=false ? msgEl.className=newClass:0;
+    msgEl.innerHTML = message;
+    if(!msgEl.classList.contains('show'))msgEl.classList.add('show');
     
-    el.classList.add('text-warning');
-    el.classList.remove('text-secondary');
-    if (el.files[0]) message = el.files[0].size < 15000000 ? `Please upload the ${file} file (${accept.join()})` : `The ${file} size is too large, maximum size of a file is 15MB. Try new ${file} file`;
-    el.setAttribute("data-title", message);
-    document.getElementById(`${id}-row`).innerHTML += `<small class="efb text-danger" id="${el.id}-message">${message}</small>`;
-
     rtrn = false;
   }
-
+}, 800);
   return rtrn;
 }
+
