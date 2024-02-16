@@ -1833,7 +1833,7 @@ function fun_validation_efb() {
   let state = true;
   let idi = "null";
   for (let row in valj_efb) {
-    let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
+    let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
@@ -2606,8 +2606,8 @@ function handle_change_event_efb(el){
   slice_sback=(i)=>{
     sendBack_emsFormBuilder_pub.splice(i, 1)
   }
-  delete_by_id=(id)=>{
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id);
+  delete_by_id=(id)=>{    
+    const i = get_row_sendback_by_id_efb(id);
     if (i != -1) { slice_sback(i) }
   }
   el_empty_value=(id)=>{
@@ -2773,7 +2773,8 @@ function handle_change_event_efb(el){
           if(vd.classList.contains('show'))vd.classList.add('show');
         }
         if( el.checked == false && el.type =="checkbox") {
-          const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
+          const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x!=null && x.hasOwnProperty('id_ob')==true && x.id_ob ==el.id);
+          
           if(indx!=-1) {         
             slice_sback(indx)
             if(ob.type=="payCheckbox") fun_total_pay_efb();
@@ -2910,4 +2911,8 @@ offset_view_efb=()=>{
     return document.getElementById('settingModalEfb-body').offsetWidth;
   }
   return 800;
+}
+
+get_row_sendback_by_id_efb=(id_)=>{
+ return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }

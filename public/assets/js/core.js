@@ -151,22 +151,22 @@ function createStepsOfPublic() {
 } 
 
 function fun_sendBack_emsFormBuilder(ob) {
-  if(typeof ob=='string'){return}
+  if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){return}
   remove_ttmsg_efb(ob.id_)
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object') {ob.value=fun_text_forbiden_convert_efb(ob.value);
   }else if(ob.hasOwnProperty('value') && ( typeof(ob.value)=='object') &&  ob.type=="maps" ){
     ob.value=ob.value;
   }
   if (sendBack_emsFormBuilder_pub.length>0) {
-    let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+    let indx = get_row_sendback_by_id_efb(ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" || sendBack_emsFormBuilder_pub[indx].type == "chlCheckBox")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     }
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
-    }else if(ob.type == "r_matrix"){
-      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ob === ob.id_ob);
+    }else if(ob.type == "r_matrix"){s    
+      indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
@@ -195,8 +195,8 @@ function alarm_emsFormBuilder(val) {
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
-  for (let i = 1; i <= stepMax; i++) {
-    if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
+  for (let i = 1; i <= stepMax; i++) {   
+    if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('step')  && x.step == i))) notfilled.push(i);
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ?  valj_efb[0].corner :'efb-square';
   let countRequired = 0;
@@ -204,8 +204,8 @@ function alarm_emsFormBuilder(val) {
   for (let el of exportView_emsFormBuilder) {
     if (el.required == true) {
       const id = el.id_;
-      countRequired += 1;
-      if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired += 1;
+      countRequired += 1;      
+      if (-1 == (get_row_sendback_by_id_efb(id))) valueExistsRequired += 1;
     }
   }
   if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
@@ -229,7 +229,7 @@ function alarm_emsFormBuilder(val) {
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {
         for (const file of files_emsFormBuilder) {
-          if (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
+          if (get_row_sendback_by_id_efb(file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
         }
       }
       if (validation_before_send_emsFormBuilder() == true){ actionSendData_emsFormBuilder()
@@ -329,7 +329,7 @@ function valid_email_emsFormBuilder(el) {
     }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
@@ -347,7 +347,7 @@ function valid_password_emsFormBuilder(el) {
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterThePassword}','',10,'danger');"></div>` : efb_var.text.enterThePassword;
   if (el.value.length < 3) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       document.getElementById(`${id}-message`).classList.add('unpx');                
@@ -372,8 +372,8 @@ function valid_phone_emsFormBuilder(el) {
   let msg_el = document.getElementById(`${id}-message`);
   check += el.value.match(format) ? 0 : 1;
   if (check >0) {
-    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");    
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       msg_el.classList.add('unpx');                
@@ -785,6 +785,7 @@ function fun_show_alert_setting_emsFormBuilder() {
   }
 }
 function validation_before_send_emsFormBuilder() {
+  
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const count = [0, 0]
   let fill = 0;
@@ -797,15 +798,24 @@ function validation_before_send_emsFormBuilder() {
       }
     }
   }
+  let count_ = 0;
   for (const row of sendBack_emsFormBuilder_pub) {
+    count_ += 1;
+    if(row==null || typeof(row)!='object' || row.hasOwnProperty('value')==false ) {
+      //slice by count_ on sendBack_emsFormBuilder_pub
+      count_ -= 1;
+      sendBack_emsFormBuilder_pub.splice(count_,1);
+      continue;
+
+    }
     count[0] += 1;
     if (row.value == "@file@") {
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       if (indx != -1) {
         if(valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true && 
            ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
-          ){
-            const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==valueJson_ws[indx].id_);
+          ){           
+            const i = get_row_sendback_by_id_efb(valueJson_ws[indx].id_);
             sendBack_emsFormBuilder_pub.splice(i,1);
             count[0] -= 1;
             continue 

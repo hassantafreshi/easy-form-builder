@@ -508,10 +508,10 @@ function fun_sendBack_emsFormBuilder(ob) {
   }
   if(typeof sendBack_emsFormBuilder_pub=="undefined")return;
   if (sendBack_emsFormBuilder_pub.length>0) {
-    let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+    let indx = get_row_sendback_by_id_efb(ob.id_);
     
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" )) {
-      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
+      indx = sendBack_emsFormBuilder_pub.findIndex(x =>x!=null && x.hasOwnProperty('id_')==true && x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     }else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
@@ -661,7 +661,7 @@ function valid_email_emsFormBuilder(el) {
     }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    const i =get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(typeof('sendback_state_handler_efb')=='function' )sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }

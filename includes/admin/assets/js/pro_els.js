@@ -324,7 +324,7 @@ function removeFileEfb(id, indx) {
       })
     }, 500)
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
-      let inx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id);
+      let inx = get_row_sendback_by_id_efb(id);
       if (inx != -1) {
         sendBack_emsFormBuilder_pub.splice(inx, 1)
         inx = files_emsFormBuilder.findIndex(x => x.id_ == id)
@@ -335,7 +335,7 @@ function removeFileEfb(id, indx) {
         if (inx != -1) {
           files_emsFormBuilder[inx].url = "";
           setTimeout(() => {
-            inx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id);
+            inx = get_row_sendback_by_id_efb(id);
             if (inx != -1) { sendBack_emsFormBuilder_pub.splice(inx, 1) }
           }, 100);
         }
@@ -422,7 +422,7 @@ function fun_clear_esign_efb(id) {
     c2d.strokeStyle = "#000000";
     c2d.save();
     const o = [{ id_: id }];
-    const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === id);
+    const indx = get_row_sendback_by_id_efb(id);
     if (indx != -1) sendBack_emsFormBuilder_pub.splice(indx, 1)
   }
   window.requestAnimFrame = ((callback) => {
@@ -731,8 +731,8 @@ load_intlTelInput_efb=(rndm,iVJ)=>{
         errorCode= errorMap[errorCode] ? errorMap[errorCode] :errorMap[0];
         document.getElementById(rndm+"_-message").classList.remove("d-none");
         document.getElementById(rndm+"_-message").classList.add("d-block");
-        document.getElementById(rndm+"_-message").innerHTML=errorCode;
-        let inx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[iVJ].id_);
+        document.getElementById(rndm+"_-message").innerHTML=errorCode;        
+        let inx = get_row_sendback_by_id_efb(valj_efb[iVJ].id_);
         if (inx != -1) {
           sendBack_emsFormBuilder_pub.splice(inx, 1)
         }
