@@ -414,12 +414,8 @@ function valid_file_emsFormBuilder(id,tp,filed) {
     if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
       file_size = Number(val_in.max_fsize) * 1024 * 1024;
     }
-    const el = document.getElementById(i);
-    console.log(el ,el.id);
-   
-    
+    const el = document.getElementById(i);    
     if(filed==''){
-      console.log('field empty');
       if (el.files[0] && el.files[0].size < file_size) {
         const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
         const r = validExtensions_efb_fun(file, filetype,indx)
@@ -429,11 +425,8 @@ function valid_file_emsFormBuilder(id,tp,filed) {
         filed = el.files;
       }
     }else{
-      console.log('field not empty', filed);
       if (filed && filed.size < file_size) {
-        console.log(filed.type );
         const filetype = filed.type.length > 1 && file!='customize'  ? filed.type : filed.name.slice(filed.name.lastIndexOf(".") + 1)
-        console.log(filetype);
         const r = validExtensions_efb_fun(file, filetype,indx)
         if (r == true) {
           check = +1;
@@ -443,14 +436,11 @@ function valid_file_emsFormBuilder(id,tp,filed) {
       filed =[];
       filed.push(fi);
     }
-    console.log(filed);
     if (check > 0) {
       msgEl.innerHTML = "";
       fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
       rtrn = true;
-    } else {
-      console.log('file_size',file_size ,filed);
-   
+    } else {   
       const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
       const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
       const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
@@ -458,7 +448,6 @@ function valid_file_emsFormBuilder(id,tp,filed) {
       else if(filed.length==0){ message =size_m;}
       const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
       newClass!=false ? msgEl.className=newClass:0;
-      console.log('message',message);
       msgEl.innerHTML = message;
       if(!msgEl.classList.contains('show'))msgEl.classList.add('show');
       rtrn = false;
