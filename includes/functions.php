@@ -1057,12 +1057,12 @@ class efbFunction {
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' >".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
 			}else{
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' >".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
 			}
 		}else{
 			if(gettype($m)=='string'){
@@ -1074,7 +1074,7 @@ class efbFunction {
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' >".$lang['vmgs']."</a></button></div>
+				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank'  style='color:white;' >".$lang['vmgs']."</a></button></div>
 				";
 			}
 		}		
