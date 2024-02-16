@@ -252,17 +252,18 @@ class _Public {
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
 		} */
 		$this->comper_version_efb($rp[1]["version"]);
-	
+		$efb_m = "<a href='https://whitestudio.team' class='efb text-decoration-none' target='_blank'><p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p></a> ";
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$lanText["settingsNfound"];
 			$state="form";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('Settings for Form Builder not found.','easy-form-builder')."</h3>".$efb_m;
 		}
 		$paymentType="";
 		$paymentKey="null";
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
 		$img =[];
-		$efb_m = "<a href='https://whitestudio.team' class='efb text-decoration-none' target='_blank'><p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p></a> ";
+		
 		if($this->pro_efb==1){
 			$efb_m= "" ;
 
