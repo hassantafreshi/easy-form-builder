@@ -2336,32 +2336,32 @@ class _Public {
 			$subject =$this->lanText["WeRecivedUrM"];
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
 					<p>". $this->lanText["trackNo"].":<br> ".$cont." </p>
-					<div style='text-align:center'><button><a href='".$link_w."' style='color: black;'>". $this->lanText["vmgs"]."</a></button></div>
+					<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w.">". $this->lanText["vmgs"]."</a></button></div>
 					";
 			$cont=$message;
 		}elseif($state=="notiToUserFormFilled"){
 			$subject =$this->lanText["WeRecivedUrM"];	   
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-			<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="register"){  
 			$subject =$this->lanText["thankRegistering"];   	
 			$message ="<h2>".$this->lanText["welcome"]."</h2>
 			".$cont."
-			<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="subscribe"){
 			$subject =$this->lanText["welcome"];   
 			$message ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-			<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="survey"){
 			$subject =$this->lanText["welcome"];   
 			$message ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-			<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}   
@@ -2391,39 +2391,39 @@ class _Public {
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><button><a href='".$link_w[$i]."' style='color: black;'>". $this->lanText["vmgs"]."</a></button></div>
+						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i].">". $this->lanText["vmgs"]."</a></button></div>
 						";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="notiToUserFormFilled"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
-				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="respRecivedMessage"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
 				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><button><a href='".$link_w[$i]."' style='color: black;'>". $this->lanText["vmgs"]."</a></button></div>
+						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i].">". $this->lanText["vmgs"]."</a></button></div>
 						";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="register"){  
 				$subject[$i] =$this->lanText["thankRegistering"];   	
 				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
 				".$cont[$i]."
-				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="subscribe"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="survey"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-				<button><a href='".home_url()."' style='color: black;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url().">".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}
