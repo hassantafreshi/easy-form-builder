@@ -2012,8 +2012,6 @@ function exportCSVFile_emsFormBuilder(items, fileTitle) {
   items.forEach(item => { for (let i in item) { if (item[i] == "notCount@EFB") item[i] = ""; } });
   var jsonObject = JSON.stringify(items);
   var csv = this.convertToCSV_emsFormBuilder(jsonObject);
-  console.log(jsonObject);
-  console.log(csv);
   var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   if (navigator.msSaveBlob) { // IE 10+

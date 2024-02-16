@@ -1751,13 +1751,10 @@ function previewFormEfb(state) {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
   }
-  else if(state == 'pc'){
-    console.log('load handle_change_event_efb pc');
+  else if(state == 'pc'){    
     for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
-      console.log('load for loop');
       valueJson_ws = valj_efb;
       el.addEventListener("change", (e) => {
-        console.log('load handle_change_event_efb admin');
         handle_change_event_efb(el);
       });
     }

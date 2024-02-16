@@ -239,7 +239,7 @@ class _Public {
 		}
 		$rp= $this->get_setting_Emsfb('pub');
 		$efb_m = "<a href='https://whitestudio.team' class='efb text-decoration-none' target='_blank'><p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p></a> ";
-		error_log("rp:".print_r($rp,true));
+		
 		if(gettype($rp)=="integer" && $rp==0){
 			$stng=$lanText["settingsNfound"];
 			$state="form";

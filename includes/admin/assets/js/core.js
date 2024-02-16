@@ -454,7 +454,6 @@ function createStepsOfPublic() {
           }
      
           el.addEventListener("change", (e) => {
-            console.log('load handle_change_event_efb');
             handle_change_event_efb(el);
           });
 
