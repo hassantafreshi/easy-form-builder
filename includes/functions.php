@@ -1129,7 +1129,7 @@ class efbFunction {
 		//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
 		$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
 		$rtrn='null';
-		
+		if(isset($value)==false) return 'null';
 		$v =str_replace('\\', '', $value);
 		$rtrn =json_decode($v);
 		$rtrn = $rtrn!=null ? $rtrn :'null';	
@@ -1837,11 +1837,11 @@ class efbFunction {
 			//error_log('EFB=>setting_version_efb_update: ' . $execution_time);
 			$request_uri = $_SERVER['REQUEST_URI'];			
 		    if(isset($request_uri)==true && strpos($request_uri, 'Emsfb') == false ){			
-				error_log('if execution_time>2');
+				//error_log('if execution_time>2');
 				wp_safe_redirect($_SERVER['REQUEST_URI']);
 				exit;
 			}else{
-				error_log('else execution_time>2');
+				//error_log('else execution_time>2');
 				?>
 
 				<script>
