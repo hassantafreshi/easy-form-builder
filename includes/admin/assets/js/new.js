@@ -2601,100 +2601,99 @@ lan_subdomain_wsteam_efb=()=>{
 }
 
 
-function handle_change_event_efb(el){
-  console.log(el);
-  slice_sback=(i)=>{
-    sendBack_emsFormBuilder_pub.splice(i, 1)
-  }
-  delete_by_id=(id)=>{    
-    const i = get_row_sendback_by_id_efb(id);
-    if (i != -1) { slice_sback(i) }
-  }
-  el_empty_value=(id)=>{
-    const id_ = id +'_';    
-    const s = valj_efb.find(x => x.id_ == id);    
-    const el_msg = document.getElementById(id_+'-message');
-    if(Number(s.required)==0){
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
-      el_msg.classList.remove('show');
-     if(typeof('sendback_state_handler_efb')=='function') sendback_state_handler_efb(id,true,current_s_efb);
-    }else{
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
-      if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
-      el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+function handle_change_event_efb(el){  
+    slice_sback=(i)=>{
+      sendBack_emsFormBuilder_pub.splice(i, 1)
     }
-    delete_by_id(id);
-  }
-  validate_len =()=>{
-    let offsetw = offset_view_efb();
-    const mi=()=> {return  el.type!="number" ? 2 :0}
-    let len = el.hasAttribute('minlength')  ? el.minLength :mi();
-    if (value.length < len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(value < len && el.type=="number"){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
+    delete_by_id=(id)=>{    
+      const i = get_row_sendback_by_id_efb(id);
+      if (i != -1) { slice_sback(i) }
     }
-     len =  el.hasAttribute('maxlength') ? el.maxLength :0;
-     if(len==0) return 1;
-    if (value.length > len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmxplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(value > len && el.type=="number"){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mxcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
+    el_empty_value=(id)=>{
+      const id_ = id +'_';    
+      const s = valj_efb.find(x => x.id_ == id);    
+      const el_msg = document.getElementById(id_+'-message');
+      if(Number(s.required)==0){
+        document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
+        el_msg.classList.remove('show');
+      if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id,true,current_s_efb);
+      }else{
+        document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
+        if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
+        el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+      }
+      delete_by_id(id);
     }
-          return 1;
-   }
+    validate_len =()=>{
+      let offsetw = offset_view_efb();
+      const mi=()=> {return  el.type!="number" ? 2 :0}
+      let len = el.hasAttribute('minlength')  ? el.minLength :mi();
+      if (value.length < len && el.type!="number") {
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mmplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }else if(value < len && el.type=="number"){
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mcplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }
+      len =  el.hasAttribute('maxlength') ? el.maxLength :0;
+      if(len==0) return 1;
+      if (value.length > len && el.type!="number") {
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mmxplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }else if(value > len && el.type=="number"){
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mxcplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }
+            return 1;
+    }//end validate_len
     let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
     let value = ""
     const id_ = el.dataset.vid
@@ -2728,7 +2727,7 @@ function handle_change_event_efb(el){
         }
         if(validate_len()==0){
           //console.log('validate_len()==0!!!');
-          if(typeof('sendback_state_handler_efb')=='function') sendback_state_handler_efb(id_,false,current_s_efb)
+          if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
         } else {
           if (value.search(`"`) != -1) {
@@ -2738,6 +2737,7 @@ function handle_change_event_efb(el){
           el.className = colorBorderChangerEfb(el.className, "border-success");
           vd= document.getElementById(`${el.id}-message`)
           if(vd)vd.classList.remove('show');
+          
         }
         break;
       case 'url':
@@ -2750,7 +2750,7 @@ function handle_change_event_efb(el){
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd.innerHTML = efb_var.text.enterValidURL;
           if(vd.classList.contains('show')==false)vd.classList.add('show');
-          if(typeof('sendback_state_handler_efb')=='function') sendback_state_handler_efb(id_,false,current_s_efb)
+          if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb)
           delete_by_id(id_);
         } else {
           valid = true;
@@ -2836,7 +2836,7 @@ function handle_change_event_efb(el){
         break;
       case "password":
         state = valid_password_emsFormBuilder(el);
-        value = state == true ? sanitize_text_efb(el.value) : '';
+        value = state == true ? sanitize_text_efb(el.value) : '0';
         break;
       case "select-multiple":
         const parents = el.name;
@@ -2873,12 +2873,12 @@ function handle_change_event_efb(el){
           vd.innerHTML="";}
         break;
     }
-    if(state==false && value.length > 1)  sendback_state_handler_efb(id_,false,current_s_efb)
+    if(state==false && value.length > 1)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
     if (value != "" || value.length > 1) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
-      if(typeof('sendback_state_handler_efb')=='function') sendback_state_handler_efb(id_,true,current_s_efb)
+      if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
       if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
         let q = valueJson_ws.find(x => x.id_ === el.id);
         const p = price_efb.length > 0 ? { price: price } : { price: q.price }

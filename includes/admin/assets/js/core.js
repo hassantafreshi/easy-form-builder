@@ -663,7 +663,7 @@ function valid_email_emsFormBuilder(el) {
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     const i =get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
-    if(typeof('sendback_state_handler_efb')=='function' )sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")

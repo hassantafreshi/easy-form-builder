@@ -165,7 +165,7 @@ function fun_sendBack_emsFormBuilder(ob) {
     }
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
-    }else if(ob.type == "r_matrix"){s    
+    }else if(ob.type == "r_matrix"){  
       indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
@@ -331,12 +331,12 @@ function valid_email_emsFormBuilder(el) {
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
-    sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
     document.getElementById(`${el.id}-message`).classList.remove('show');
-    document.getElementById(`${el.id}-message`).innerHTML="";
+    document.getElementById(`${el.id}-message`).innerHTML="";   
   }
   return check > 0 ? false : true
 }
@@ -352,9 +352,11 @@ function valid_password_emsFormBuilder(el) {
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       document.getElementById(`${id}-message`).classList.add('unpx');                
     }
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     return false;
+    
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
@@ -380,6 +382,7 @@ function valid_phone_emsFormBuilder(el) {
     }
     msg_el.innerHTML = msg;
     if(msg_el.classList.contains('show')==false) msg_el.classList.add('show');
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
