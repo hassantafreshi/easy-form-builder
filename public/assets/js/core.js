@@ -1,6 +1,6 @@
 let exportView_emsFormBuilder = [];
 let stepsCount;
-let sendBack_emsFormBuilder_pub = [];
+
 let sessionPub_emsFormBuilder = "reciveFromClient"
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
@@ -125,7 +125,7 @@ function createStepsOfPublic() {
                 return;
             };
             let date = arg.date;
-            handle_change_event_efb(el)
+            handle_change_event_efb(el);
         });
       }
     }else if(el.type=="checkbox" && valj_efb[0].type == "payment" && el.classList.contains('payefb')){
@@ -149,323 +149,24 @@ function createStepsOfPublic() {
     }
   }
 } 
-function handle_change_event_efb(el){
-  slice_sback=(i)=>{
-    sendBack_emsFormBuilder_pub.splice(i, 1)
-  }
-  delete_by_id=(id)=>{
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id);
-    if (i != -1) { slice_sback(i) }
-  }
-  el_empty_value=(id)=>{
-    const id_ = id +'_';    
-    const s = valj_efb.find(x => x.id_ == id);    
-    const el_msg = document.getElementById(id_+'-message');
-    if(Number(s.required)==0){
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
-      el_msg.classList.remove('show');
-      sendback_state_handler_efb(id,true,current_s_efb);
-    }else{
-      document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
-      if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
-      el_msg.innerHTML = ajax_object_efm.text.enterTheValueThisField;
-    }
-    delete_by_id(id);
-  }
-  validate_len =()=>{
-    let offsetw = document.getElementById('body_efb').offsetWidth;
-    const mi=()=> {return  el.type!="number" ? 2 :0}
-    let len = el.hasAttribute('minlength')  ? el.minLength :mi();
-    if (value.length < len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = ajax_object_efm.text.mmplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(value < len && el.type=="number"){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = ajax_object_efm.text.mcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }
-     len =  el.hasAttribute('maxlength') ? el.maxLength :0;
-     if(len==0) return 1;
-    if (value.length > len && el.type!="number") {
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = ajax_object_efm.text.mmxplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }else if(value > len && el.type=="number"){
-      state = false;
-      el.className = colorBorderChangerEfb(el.className, "border-danger");
-      vd = document.getElementById(`${el.id}-message`);
-      let m = ajax_object_efm.text.mxcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
-            if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');                
-              }
-              vd.innerHTML =msg;
-              vd.classList.add('show');
-            }
-            delete_by_id(id_);
-            return 0;
-    }
-          return 1;
-   }
-    let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
-    let value = ""
-    const id_ = el.dataset.vid
-    let state
-    if(!ob){
-      if(el.id.includes('chl')!=false){
-        ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
-      }
-    }
-    let vd ;
-    if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
-      const r = fun_booking_avilable(el)
-      if(r[0]==false){
-        alert_message_efb(r[1],'',150,'danger')
-        return
-      }
-    }
-    switch (el.type) {
-      case "text":
-      case "color":
-      case "number":
-      case "date":
-      case "textarea":
-        const outp = el.type =="textarea" ?true : false
-        value = sanitize_text_efb(el.value,outp);
-        if(value.length==0){el_empty_value(id_); return;}
-        if(el.classList.contains("intlPhone")==true){
-          el.value = el.value.replace(/\s/g, '');
-          value = el.value;
-         return;
-        }
-        if(validate_len()==0){
-          //console.log('validate_len()==0!!!');
-          sendback_state_handler_efb(id_,false,current_s_efb)
-         return;
-        } else {
-          if (value.search(`"`) != -1) {
-            el.value = value.replaceAll(`"`, '');
-            noti_message_efb(`Don't use forbidden Character like: "` , 'danger' , `step-${current_s_efb}-efb-msg` );
-          }
-          el.className = colorBorderChangerEfb(el.className, "border-success");
-          vd= document.getElementById(`${el.id}-message`)
-          if(vd)vd.classList.remove('show');
-        }
-        break;
-      case 'url':
-        vd = document.getElementById(`${el.id}-message`)
-        const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
-        if(el.value.length==0){
-          el_empty_value(id_);
-        } else if (che == null) {
-          valid = false;
-          el.className = colorBorderChangerEfb(el.className, "border-danger");
-          vd.innerHTML = ajax_object_efm.text.enterValidURL;
-          if(vd.classList.contains('show')==false)vd.classList.add('show');
-          sendback_state_handler_efb(id_,false,current_s_efb)
-          delete_by_id(id_);
-        } else {
-          valid = true;
-          value = el.value;         
-          vd.classList.remove('show');
-           vd.innerHTML="";
-          el.className = colorBorderChangerEfb(el.className, "border-success");
-        }
-        break;
-      case "checkbox":
-      case "radio":
-        value = sanitize_text_efb(el.value);
-        if (ob.type == "switch") value = el.checked == true ? ajax_object_efm.text.on : ajax_object_efm.text.off;
-        vd =document.getElementById(`${ob.id_}_-message`)
-        if (el.value.length > 1 || el.checked == true) {
-          vd.classList.remove('show');
-          vd.innerHTML="";
-        } else {
-          vd.innerHTML = ajax_object_efm.text.enterTheValueThisField;
-          if(vd.classList.contains('show'))vd.classList.add('show');
-        }
-        if( el.checked == false && el.type =="checkbox") {
-          const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x.id_ob ==el.id);
-          if(indx!=-1) {         
-            slice_sback(indx)
-            if(ob.type=="payCheckbox") fun_total_pay_efb();
-            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
-            return ;
-          }
-         }
-         const indx =valj_efb.findIndex(x=>x.id_ ==el.name);
-         if(indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == true){
-            if(el.type=="checkbox"){
-              const id = el.id +'_chl';
-              document.getElementById(id).disabled=false;
-            }
-         }else if (indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == false){
-          const id = el.id +'_chl';
-          document.getElementById(id).disabled=true;
-          document.getElementById(id).value ="";
-         }
-         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
-        break;
-      case "select-one":
-      case "select":
-        value = sanitize_text_efb(el.value);
-        vd =document.getElementById(`${ob.id_}_-message`)
-        vd.classList.remove('show');
-        vd.innerHTML="";
-        el.className = colorBorderChangerEfb(el.className, "border-success");
-        if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-          let v = el.options[el.selectedIndex].id;
-          v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
-          if (typeof v.price == "string") price_efb = v.price;
-        }
-        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
-        if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
-          let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
-              fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
-        }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
-             let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);       
-              iso_con = el.options[el.selectedIndex].dataset.isoc
-              iso_state = el.options[el.selectedIndex].dataset.iso
-              fun_check_link_city_efb(iso_con,iso_state , temp)
-        }
-        break;
-      case "range":
-          value = sanitize_text_efb(el.value);
-          vd = document.getElementById(`${ob.id_}_-message`);
-          vd.classList.remove('show');
-          vd.innerHTML="";
-        break;
-      case "email":
-        if(el.value.length==0){ el_empty_value(id_); return;}
-        state = valid_email_emsFormBuilder(el);
-        value = state == true ? sanitize_text_efb(el.value) : '';
-        break;
-      case "tel":
-        if(el.value.length==0){ el_empty_value(id_);}
-        state = valid_phone_emsFormBuilder(el);
-        value = state == true ? sanitize_text_efb(el.value) : '';
-        break;
-      case "password":
-        state = valid_password_emsFormBuilder(el);
-        value = state == true ? sanitize_text_efb(el.value) : '';
-        break;
-      case "select-multiple":
-        const parents = el.name;
-        if (el.classList.contains('multiple-emsFormBuilder') == true) {
-          for (let i = 0; i < el.children.length; i++) {
-            value += el.children[i].value + ",";
-          }
-        }
-        break;
-      case "file":
-        valid_file_emsFormBuilder(id_,'msg');
-        break;
-      case "hidden":
-        value = sanitize_text_efb(el.value);
-        break;
-      case undefined:
-        let check = false;
-        for (let ex of exportView_emsFormBuilder) {
-          if (ex.id_ == el.id) {
-            check = true;
-            break;
-          }
-        }
-        if (check == true) {
-          ob = valueJson_ws.find(x => x.id_ === el.id);
-          for (let o of select_options_emsFormBuilder) {
-            value += o + `,`;
-          }
-        }
-        break;
-        default:
-          vd=document.getElementById(`${ob.id_}_-message`);
-          if(!ob) {vd.classList.remove('show');
-          vd.innerHTML="";}
-        break;
-    }
-    if(state==false && value.length > 1)  sendback_state_handler_efb(id_,false,current_s_efb)
-    if (value != "" || value.length > 1) {
-      const type = ob.type;
-      const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
-      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
-      sendback_state_handler_efb(id_,true,current_s_efb)
-      if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
-        let q = valueJson_ws.find(x => x.id_ === el.id);
-        const p = price_efb.length > 0 ? { price: price } : { price: q.price }
-        Object.assign(o[0], p)
-        fun_sendBack_emsFormBuilder(o[0]);
-        fun_total_pay_efb()
-      }else if(type.includes('chl')){
-        const ch = el.id.includes('_chl')
-        const qty = ch  ? document.getElementById(el.id).value :'';
-        if(ch==false){
-          Object.assign(o[0], {qty:qty});
-        }else{
-          el.classList.remove('bg-danger');
-          ob.qty=fun_text_forbiden_convert_efb(qty);
-          o[0]="";
-        }
-        fun_sendBack_emsFormBuilder(o[0]);
-      }else if (o[0].type=="email"){
-        fun_sendBack_emsFormBuilder(o[0]);
-      }else {
-        fun_sendBack_emsFormBuilder(o[0]);
-      }
-    }
-}
+
 function fun_sendBack_emsFormBuilder(ob) {
-  if(typeof ob=='string'){return}
+  if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){return}
   remove_ttmsg_efb(ob.id_)
   if(ob.hasOwnProperty('value') && typeof(ob.value)!='number' && typeof(ob.value)!='object') {ob.value=fun_text_forbiden_convert_efb(ob.value);
   }else if(ob.hasOwnProperty('value') && ( typeof(ob.value)=='object') &&  ob.type=="maps" ){
     ob.value=ob.value;
   }
   if (sendBack_emsFormBuilder_pub.length>0) {
-    let indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_);
+    let indx = get_row_sendback_by_id_efb(ob.id_);
     if (indx != -1 && ob.type != "switch" && (sendBack_emsFormBuilder_pub[indx].type == "checkbox" || sendBack_emsFormBuilder_pub[indx].type == "payCheckbox" || sendBack_emsFormBuilder_pub[indx].type == "multiselect" || sendBack_emsFormBuilder_pub[indx].type == "payMultiselect" || sendBack_emsFormBuilder_pub[indx].type == "chlCheckBox")) {
       indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ === ob.id_ && x.value == ob.value);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub.splice(indx, 1);
     }
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
-    }else if(ob.type == "r_matrix"){
-      indx = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ob === ob.id_ob);
+    }else if(ob.type == "r_matrix"){  
+      indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
       if (indx == -1) { sendBack_emsFormBuilder_pub.push(ob) } else {
@@ -494,8 +195,8 @@ function alarm_emsFormBuilder(val) {
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const stepMax = currentTab_emsFormBuilder + 1;
   let notfilled = []
-  for (let i = 1; i <= stepMax; i++) {
-    if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.step == i))) notfilled.push(i);
+  for (let i = 1; i <= stepMax; i++) {   
+    if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('step')  && x.step == i))) notfilled.push(i);
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ?  valj_efb[0].corner :'efb-square';
   let countRequired = 0;
@@ -503,8 +204,8 @@ function alarm_emsFormBuilder(val) {
   for (let el of exportView_emsFormBuilder) {
     if (el.required == true) {
       const id = el.id_;
-      countRequired += 1;
-      if (-1 == (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == id))) valueExistsRequired += 1;
+      countRequired += 1;      
+      if (-1 == (get_row_sendback_by_id_efb(id))) valueExistsRequired += 1;
     }
   }
   if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
@@ -528,7 +229,7 @@ function alarm_emsFormBuilder(val) {
     if (checkFile == 0) {
       if (files_emsFormBuilder.length > 0) {
         for (const file of files_emsFormBuilder) {
-          if (sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
+          if (get_row_sendback_by_id_efb(file.id_) == -1) { sendBack_emsFormBuilder_pub.push(file); localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub)); }
         }
       }
       if (validation_before_send_emsFormBuilder() == true){ actionSendData_emsFormBuilder()
@@ -615,7 +316,7 @@ function actionSendData_emsFormBuilder() {
     post_api_forms_efb(data);
 }
 function valid_email_emsFormBuilder(el) {
-  let offsetw = document.getElementById('body_efb').offsetWidth;
+  let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
   let check = 0;
   //const format = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -628,32 +329,34 @@ function valid_email_emsFormBuilder(el) {
     }
     document.getElementById(`${el.id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
-    sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
     document.getElementById(`${el.id}-message`).classList.remove('show');
-    document.getElementById(`${el.id}-message`).innerHTML="";
+    document.getElementById(`${el.id}-message`).innerHTML="";   
   }
   return check > 0 ? false : true
 }
 function valid_password_emsFormBuilder(el) {
   let check = 0;
   const id = el.id;
-  let offsetw = document.getElementById('body_efb').offsetWidth;
+  let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterThePassword}','',10,'danger');"></div>` : efb_var.text.enterThePassword;
   if (el.value.length < 3) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       document.getElementById(`${id}-message`).classList.add('unpx');                
     }
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     return false;
+    
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
@@ -663,7 +366,7 @@ function valid_password_emsFormBuilder(el) {
   }
 }
 function valid_phone_emsFormBuilder(el) {
-  let offsetw = document.getElementById('body_efb').offsetWidth;
+  let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
   let check = 0;
   const format = /^[\d\s-)(]{4,15}$/;
@@ -671,14 +374,15 @@ function valid_phone_emsFormBuilder(el) {
   let msg_el = document.getElementById(`${id}-message`);
   check += el.value.match(format) ? 0 : 1;
   if (check >0) {
-    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
-    const i = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == el.dataset.vid);
+    el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");    
+    const i = get_row_sendback_by_id_efb(el.dataset.vid);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
     if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
       msg_el.classList.add('unpx');                
     }
     msg_el.innerHTML = msg;
     if(msg_el.classList.contains('show')==false) msg_el.classList.add('show');
+    if(typeof(sendback_state_handler_efb)=='function')sendback_state_handler_efb(el.dataset.vid,false,current_s_efb)
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
@@ -687,7 +391,7 @@ function valid_phone_emsFormBuilder(el) {
   }
   return check > 0 ? false : true
 }
-function valid_file_emsFormBuilder(id,tp) {
+function valid_file_emsFormBuilder(id,tp,filed) {
   let msgEl = document.getElementById(`${id}_-message`);
   msgEl.innerHTML = "";
   msgEl.classList.remove('show');
@@ -706,33 +410,51 @@ function valid_file_emsFormBuilder(id,tp) {
   let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
   let val_in = valj_efb[indx];
-  if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
-    file_size = Number(val_in.max_fsize) * 1024 * 1024;
-  }
-  const el = document.getElementById(i);
-  if (el.files[0] && el.files[0].size < file_size) {
-    const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
-    const r = validExtensions_efb_fun(file, filetype,indx)
-    if (r == true) {
-      check = +1;
+  
+    if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
+      file_size = Number(val_in.max_fsize) * 1024 * 1024;
     }
-  }
-  if (check > 0) {
-    msgEl.innerHTML = "";
-    fun_upload_file_api_emsFormBuilder(id, file,tp);
-    rtrn = true;
-  } else {
-    const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
-    const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
-    const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
-    if (el.files[0] && message.length < 2) message = el.files[0].size < file_size ? m : size_m;
-    const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
-    newClass!=false ? msgEl.className=newClass:0;
-    msgEl.innerHTML = message;
-    if(!msgEl.classList.contains('show'))msgEl.classList.add('show');
-    rtrn = false;
-  }
-  return rtrn;
+    const el = document.getElementById(i);    
+    if(filed==''){
+      if (el.files[0] && el.files[0].size < file_size) {
+        const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)
+        const r = validExtensions_efb_fun(file, filetype,indx)
+        if (r == true) {
+          check = +1;
+        }
+        filed = el.files;
+      }
+    }else{
+      if (filed && filed.size < file_size) {
+        const filetype = filed.type.length > 1 && file!='customize'  ? filed.type : filed.name.slice(filed.name.lastIndexOf(".") + 1)
+        const r = validExtensions_efb_fun(file, filetype,indx)
+        if (r == true) {
+          check = +1;
+        }
+      }
+      let fi = filed ;
+      filed =[];
+      filed.push(fi);
+    }
+    if (check > 0) {
+      msgEl.innerHTML = "";
+      fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
+      rtrn = true;
+    } else {   
+      const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 8;
+      const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
+      const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
+      if (filed[0] && message.length < 2){ message = filed[0].size < file_size ? m : size_m;}
+      else if(filed.length==0){ message =size_m;}
+      const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
+      newClass!=false ? msgEl.className=newClass:0;
+      msgEl.innerHTML = message;
+      if(!msgEl.classList.contains('show'))msgEl.classList.add('show');
+      rtrn = false;
+    }
+    return rtrn;
+
+
 }
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
@@ -1055,6 +777,7 @@ function fun_show_alert_setting_emsFormBuilder() {
   }
 }
 function validation_before_send_emsFormBuilder() {
+  
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const count = [0, 0]
   let fill = 0;
@@ -1067,15 +790,24 @@ function validation_before_send_emsFormBuilder() {
       }
     }
   }
+  let count_ = 0;
   for (const row of sendBack_emsFormBuilder_pub) {
+    count_ += 1;
+    if(row==null || typeof(row)!='object' || row.hasOwnProperty('value')==false ) {
+      //slice by count_ on sendBack_emsFormBuilder_pub
+      count_ -= 1;
+      sendBack_emsFormBuilder_pub.splice(count_,1);
+      continue;
+
+    }
     count[0] += 1;
     if (row.value == "@file@") {
       const indx = valueJson_ws.findIndex(x => x.id_ == row.id_);
       if (indx != -1) {
         if(valueJson_ws[indx].hasOwnProperty("disabled") && valueJson_ws[indx].disabled==true && 
            ((valueJson_ws[indx].hasOwnProperty('hidden') && valueJson_ws[indx].hidden==false) || valueJson_ws[indx].hasOwnProperty('hidden')==false)
-          ){
-            const i = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==valueJson_ws[indx].id_);
+          ){           
+            const i = get_row_sendback_by_id_efb(valueJson_ws[indx].id_);
             sendBack_emsFormBuilder_pub.splice(i,1);
             count[0] -= 1;
             continue 

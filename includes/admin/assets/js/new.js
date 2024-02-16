@@ -32,6 +32,7 @@ let pub_label_text_color_efb ='text-labelEfb';
 let pub_el_border_color_efb='border-d';
 let pub_bg_button_color_efb='btn-primary';
 let pub_txt_button_color_efb='text-white';
+let sendBack_emsFormBuilder_pub = [];
 const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 efb_var_waitng = (time) => {
@@ -1649,7 +1650,7 @@ function previewFormEfb(state) {
     document.getElementById(id).innerHTML = content;
     document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
     if (valj_efb[0].type == "payment") {      
-     if (ajax_object_efm.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
+     if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
     }
   }
   let ttype ='text'
@@ -1750,6 +1751,14 @@ function previewFormEfb(state) {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
     createStepsOfPublic()
   }
+  else if(state == 'pc'){    
+    for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {      
+      valueJson_ws = valj_efb;
+      el.addEventListener("change", (e) => {
+        handle_change_event_efb(el);
+      });
+    }
+  }
   step_el_efb = Number(valj_efb[0].steps);
   if ( state == 'run' && 
   ( (addons_emsFormBuilder.AdnOF==1 && typeof valj_efb[0].AfLnFrm =='string' &&  valj_efb[0].AfLnFrm==1) ) || (valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string") ) { fun_offline_Efb() 
@@ -1810,17 +1819,18 @@ function verifyCaptcha(token) {
 function timeOutCaptcha() {
   const id = valj_efb[0].steps > 1 ? 'next_efb' : 'btn_send_efb'
   document.getElementById(id).classList.add('disabled');
-  alert_message_efb(ajax_object_efm.text.error, ajax_object_efm.text.errorVerifyingRecaptcha, 7, 'warning');
+  alert_message_efb(efb_var.text.error, efb_var.text.errorVerifyingRecaptcha, 7, 'warning');
 }
 fun_el_select_in_efb = (el) => { return  el == 'select' || el == 'multiselect' || el == 'conturyList' || el == 'stateProvince' || el == 'cityList'||  el == 'paySelect' || el == 'payMultiselect' ? true : false }
 fun_el_check_radio_in_efb = (el) => { return el == 'radio' || el == 'checkbox' || el == 'payRadio' || el == 'payCheckbox' || el == 'imgRadio' || el == 'chlRadio' || el == 'chlCheckBox' ? true : false }
 function fun_validation_efb() {
-  let offsetw = document.getElementById('body_efb').offsetWidth;
+  let offsetw = offset_view_efb();
+  
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${efb_var.text.enterTheValueThisField}','',10,'danger')"></div>` : efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
   for (let row in valj_efb) {
-    let s = sendBack_emsFormBuilder_pub.findIndex(x => x.id_ == valj_efb[row].id_)
+    let s =  get_row_sendback_by_id_efb(valj_efb[row].id_);
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`;
       let el =document.getElementById(`${valj_efb[row].id_}_-message`);
@@ -2185,7 +2195,7 @@ function replaceContentMessageEfb(value){
    value = value.replaceAll("@efb@nq#",`<br>`);
   return value;
 }
-function fun_upload_file_api_emsFormBuilder(id, type,tp) {
+function fun_upload_file_api_emsFormBuilder(id, type,tp,file) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
@@ -2200,16 +2210,22 @@ function fun_upload_file_api_emsFormBuilder(id, type,tp) {
   //jQuery(function ($) {
     const fd = new FormData();
     const idn =  id + '_';
-    const file = document.getElementById(idn);
-    //const caption = document.querySelector(idn);
-	const individual_file = file.files[0];
-  uploadFile_api(file.files[0], id, tp, nonce_msg ,indx ,idn,page_id)
-  return true;
+   
+    //const file = document.getElementById(idn);
+    setTimeout(() => {
+      //const caption = document.querySelector(idn);
+  
+      // const individual_file = file.files[0];
+      uploadFile_api(file, id, tp, nonce_msg ,indx ,idn,page_id)
+      return true;
+      
+    }, 500);
+
 }
 function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
   const progressBar = document.querySelector('#progress-bar');
   const idB =id+'-prB';
-  setTimeout(() => {
+  //setTimeout(() => {
       fetch_uploadFile(file, id, pl, nonce_msg,page_id).then((data) => {
         if (data.success === true && data.data.success===true) {
           files_emsFormBuilder[indx].url = data.data.file.url;
@@ -2247,7 +2263,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id) {
       .catch((error) => {
         console.error(error);
       }); 
-  }, 800);
+ // }, 800);
 }
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id) {
   var idB =id+'-prB';
@@ -2579,4 +2595,321 @@ lan_subdomain_wsteam_efb=()=>{
   else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
   console.log(`subdomain => ${sub}`);
   return sub;
+}
+
+
+function handle_change_event_efb(el){  
+    slice_sback=(i)=>{
+      sendBack_emsFormBuilder_pub.splice(i, 1)
+    }
+    delete_by_id=(id)=>{    
+      const i = get_row_sendback_by_id_efb(id);
+      if (i != -1) { slice_sback(i) }
+    }
+    el_empty_value=(id)=>{
+      const id_ = id +'_';    
+      const s = valj_efb.find(x => x.id_ == id);    
+      const el_msg = document.getElementById(id_+'-message');
+      if(Number(s.required)==0){
+        document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, s.el_border_color);
+        el_msg.classList.remove('show');
+      if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id,true,current_s_efb);
+      }else{
+        document.getElementById(id_).className = colorBorderChangerEfb(document.getElementById(id_).className, "border-danger");
+        if(el_msg.classList.contains('show')==false)el_msg.classList.add('show');
+        el_msg.innerHTML = efb_var.text.enterTheValueThisField;
+      }
+      delete_by_id(id);
+    }
+    validate_len =()=>{
+      let offsetw = offset_view_efb();
+      const mi=()=> {return  el.type!="number" ? 2 :0}
+      let len = el.hasAttribute('minlength')  ? el.minLength :mi();
+      if (value.length < len && el.type!="number") {
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mmplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }else if(value < len && el.type=="number"){
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mcplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }
+      len =  el.hasAttribute('maxlength') ? el.maxLength :0;
+      if(len==0) return 1;
+      if (value.length > len && el.type!="number") {
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mmxplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }else if(value > len && el.type=="number"){
+        state = false;
+        el.className = colorBorderChangerEfb(el.className, "border-danger");
+        vd = document.getElementById(`${el.id}-message`);
+        let m = efb_var.text.mxcplen.replace('NN',len);
+        let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+              if(vd){
+                if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
+                  vd.classList.add('unpx');                
+                }
+                vd.innerHTML =msg;
+                vd.classList.add('show');
+              }
+              delete_by_id(id_);
+              return 0;
+      }
+            return 1;
+    }//end validate_len
+    let ob = valueJson_ws.find(x => x.id_ === el.dataset.vid);
+    let value = ""
+    const id_ = el.dataset.vid
+    let state
+    if(!ob){
+      if(el.id.includes('chl')!=false){
+        ob= sendBack_emsFormBuilder_pub.find(x => x.id_ob === el.dataset.id);
+      }
+    }
+    let vd ;
+    if(valj_efb[0].hasOwnProperty('booking') && Number(valj_efb[0].booking)==1) {
+      const r = fun_booking_avilable(el)
+      if(r[0]==false){
+        alert_message_efb(r[1],'',150,'danger')
+        return
+      }
+    }
+    switch (el.type) {
+      case "text":
+      case "color":
+      case "number":
+      case "date":
+      case "textarea":
+        const outp = el.type =="textarea" ?true : false
+        value = sanitize_text_efb(el.value,outp);
+        if(value.length==0){el_empty_value(id_); return;}
+        if(el.classList.contains("intlPhone")==true){
+          el.value = el.value.replace(/\s/g, '');
+          value = el.value;
+         return;
+        }
+        if(validate_len()==0){
+          //console.log('validate_len()==0!!!');
+          if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
+         return;
+        } else {
+          if (value.search(`"`) != -1) {
+            el.value = value.replaceAll(`"`, '');
+            noti_message_efb(`Don't use forbidden Character like: "` , 'danger' , `step-${current_s_efb}-efb-msg` );
+          }
+          el.className = colorBorderChangerEfb(el.className, "border-success");
+          vd= document.getElementById(`${el.id}-message`)
+          if(vd)vd.classList.remove('show');
+          
+        }
+        break;
+      case 'url':
+        vd = document.getElementById(`${el.id}-message`)
+        const che = el.value.match(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/g);
+        if(el.value.length==0){
+          el_empty_value(id_);
+        } else if (che == null) {
+          valid = false;
+          el.className = colorBorderChangerEfb(el.className, "border-danger");
+          vd.innerHTML = efb_var.text.enterValidURL;
+          if(vd.classList.contains('show')==false)vd.classList.add('show');
+          if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb)
+          delete_by_id(id_);
+        } else {
+          valid = true;
+          value = el.value;         
+          vd.classList.remove('show');
+           vd.innerHTML="";
+          el.className = colorBorderChangerEfb(el.className, "border-success");
+        }
+        break;
+      case "checkbox":
+      case "radio":
+        value = sanitize_text_efb(el.value);
+        if (ob.type == "switch") value = el.checked == true ? efb_var.text.on : efb_var.text.off;
+        vd =document.getElementById(`${ob.id_}_-message`)
+        if (el.value.length > 1 || el.checked == true) {
+          vd.classList.remove('show');
+          vd.innerHTML="";
+        } else {
+          vd.innerHTML = efb_var.text.enterTheValueThisField;
+          if(vd.classList.contains('show'))vd.classList.add('show');
+        }
+        if( el.checked == false && el.type =="checkbox") {
+          const indx= sendBack_emsFormBuilder_pub.findIndex(x=>x!=null && x.hasOwnProperty('id_ob')==true && x.id_ob ==el.id);
+          
+          if(indx!=-1) {         
+            slice_sback(indx)
+            if(ob.type=="payCheckbox") fun_total_pay_efb();
+            if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+            return ;
+          }
+         }
+         const indx =valj_efb.findIndex(x=>x.id_ ==el.name);
+         if(indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == true){
+            if(el.type=="checkbox"){
+              const id = el.id +'_chl';
+              document.getElementById(id).disabled=false;
+            }
+         }else if (indx!=-1 && valj_efb[indx].type.includes('chl')!=false && el.checked == false){
+          const id = el.id +'_chl';
+          document.getElementById(id).disabled=true;
+          document.getElementById(id).value ="";
+         }
+         if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.id ,el.type);
+        break;
+      case "select-one":
+      case "select":
+        value = sanitize_text_efb(el.value);
+        vd =document.getElementById(`${ob.id_}_-message`)
+        vd.classList.remove('show');
+        vd.innerHTML="";
+        el.className = colorBorderChangerEfb(el.className, "border-success");
+        if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
+          let v = el.options[el.selectedIndex].id;
+          v = valueJson_ws.find(x => x.id_ == v && x.value == el.value);
+          if (typeof v.price == "string") price_efb = v.price;
+        }
+        if(valj_efb[0].hasOwnProperty('logic') && valj_efb[0].logic) fun_statement_logic_efb(el.dataset.vid , el.type);
+        if(el.dataset.hasOwnProperty('type') && el.dataset.type=="conturyList"){
+          let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);
+              fun_check_link_state_efb(el.options[el.selectedIndex].dataset.iso , temp)
+        }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
+             let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);       
+              iso_con = el.options[el.selectedIndex].dataset.isoc
+              iso_state = el.options[el.selectedIndex].dataset.iso
+              fun_check_link_city_efb(iso_con,iso_state , temp)
+        }
+        break;
+      case "range":
+          value = sanitize_text_efb(el.value);
+          vd = document.getElementById(`${ob.id_}_-message`);
+          vd.classList.remove('show');
+          vd.innerHTML="";
+        break;
+      case "email":
+        if(el.value.length==0){ el_empty_value(id_); return;}
+        state = valid_email_emsFormBuilder(el);
+        value = state == true ? sanitize_text_efb(el.value) : '';
+        break;
+      case "tel":
+        if(el.value.length==0){ el_empty_value(id_);}
+        state = valid_phone_emsFormBuilder(el);
+        value = state == true ? sanitize_text_efb(el.value) : '';
+        break;
+      case "password":
+        state = valid_password_emsFormBuilder(el);
+        value = state == true ? sanitize_text_efb(el.value) : '0';
+        break;
+      case "select-multiple":
+        const parents = el.name;
+        if (el.classList.contains('multiple-emsFormBuilder') == true) {
+          for (let i = 0; i < el.children.length; i++) {
+            value += el.children[i].value + ",";
+          }
+        }
+        break;
+      case "file":
+        valid_file_emsFormBuilder(id_,'msg','');
+        break;
+      case "hidden":
+        value = sanitize_text_efb(el.value);
+        break;
+      case undefined:
+        let check = false;
+        for (let ex of exportView_emsFormBuilder) {
+          if (ex.id_ == el.id) {
+            check = true;
+            break;
+          }
+        }
+        if (check == true) {
+          ob = valueJson_ws.find(x => x.id_ === el.id);
+          for (let o of select_options_emsFormBuilder) {
+            value += o + `,`;
+          }
+        }
+        break;
+        default:
+          vd=document.getElementById(`${ob.id_}_-message`);
+          if(!ob) {vd.classList.remove('show');
+          vd.innerHTML="";}
+        break;
+    }
+    if(state==false && value.length > 1)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
+    if (value != "" || value.length > 1) {
+      const type = ob.type;
+      const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
+      let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
+      if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,true,current_s_efb);
+      if (valj_efb[0].type == "payment" && el.classList.contains('payefb')) {
+        let q = valueJson_ws.find(x => x.id_ === el.id);
+        const p = price_efb.length > 0 ? { price: price } : { price: q.price }
+        Object.assign(o[0], p)
+        fun_sendBack_emsFormBuilder(o[0]);
+        fun_total_pay_efb()
+      }else if(type.includes('chl')){
+        const ch = el.id.includes('_chl')
+        const qty = ch  ? document.getElementById(el.id).value :'';
+        if(ch==false){
+          Object.assign(o[0], {qty:qty});
+        }else{
+          el.classList.remove('bg-danger');
+          ob.qty=fun_text_forbiden_convert_efb(qty);
+          o[0]="";
+        }
+        fun_sendBack_emsFormBuilder(o[0]);
+      }else if (o[0].type=="email"){
+        fun_sendBack_emsFormBuilder(o[0]);
+      }else {
+        fun_sendBack_emsFormBuilder(o[0]);
+      }
+    }
+}
+
+offset_view_efb=()=>{
+  if(document.getElementById('body_efb')){
+    return document.getElementById('body_efb').offsetWidth;
+  }else if(document.getElementById('settingModalEfb-body')){
+    return document.getElementById('settingModalEfb-body').offsetWidth;
+  }
+  return 800;
+}
+
+get_row_sendback_by_id_efb=(id_)=>{
+ return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }

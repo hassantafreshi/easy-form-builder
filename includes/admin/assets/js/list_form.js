@@ -1,6 +1,6 @@
 
 
-let sendBack_emsFormBuilder_pub = [];
+
 let valueJson_ws_form = [];
 let valueJson_ws_messages = [];
 let valueJson_ws_setting = []
@@ -2039,14 +2039,15 @@ function convertToCSV_emsFormBuilder(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
   for (const item of array) {
+    console.log(item);
     let line = '';
-    item.pop();
+    
    // for (const key in item) {
     for (var k=0 ; k < item.length ; k++) {
       if (line !== '') line += ',';
       line += item[k];
     }
-
+    //item.pop();
     str += line + '\r\n';
   }  
   return str;

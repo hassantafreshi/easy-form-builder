@@ -388,6 +388,8 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 * The link to documents in German and Arabic has been added to the Easy Form Builder.
 
+* Fixed issues
+
 = 3.7.9 =
 
 * Fixed issues of performance conflicts with popular cache plugins.

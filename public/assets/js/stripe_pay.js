@@ -253,15 +253,15 @@
                 amount: 0,
                 id_: "payment",
                 name: "Payment",
-                paymentAmount: data.amount,
-                paymentCreated: data.created,
-                paymentGateway: "stripe",
+                paymentAmount: data.paymentAmount,
+                paymentCreated: data.paymentCreated,
+                paymentGateway: data.paymentGateway,
                 paymentIntent: data.paymentIntent,
-                paymentcurrency: data.currency,
+                paymentcurrency: data.paymentcurrency,
                 payment_method: 'card',
                 type: "payment",
                 paymentmethod: data.paymentmethod,
-                value: `${data.val}`
+                value: `${data.total}`
               }];
               //efb_var.id = trackid;
               localStorage.setItem('PayId',trackid);
