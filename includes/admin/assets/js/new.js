@@ -1752,7 +1752,7 @@ function previewFormEfb(state) {
     createStepsOfPublic()
   }
   else if(state == 'pc'){    
-    for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {      
+    for (const el of document.querySelectorAll(`.emsFormBuilder_v`)) {
       valueJson_ws = valj_efb;
       el.addEventListener("change", (e) => {
         handle_change_event_efb(el);

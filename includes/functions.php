@@ -1685,7 +1685,7 @@ class efbFunction {
 
 	
 	public function getVisitorOS() {
-		$ua =  strtolower($_SERVER['HTTP_USER_AGENT'] ?? null);
+		$ua = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : null;
 		$os = "Unknown";
 
 		if ($ua) {		    		
@@ -1706,7 +1706,7 @@ class efbFunction {
 	}
 
 	public function getVisitorBrowser() {
-	    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? null);
+	    $ua = isset($_SERVER['HTTP_USER_AGENT'] )? strtolower($_SERVER['HTTP_USER_AGENT']) : null;
 	    $b = "Unknown";
 	
 	    if ($ua) {
