@@ -265,9 +265,6 @@ class Panel_edit  {
 				wp_enqueue_script('googleMaps-js');
 			}
 
-			wp_register_script('pay_js',  EMSFB_PLUGIN_URL .'/public/assets/js/pay.js', array('jquery'),'3.7.11' , true);
-			wp_enqueue_script('pay_js');
-	
 			if("fa_IR"==get_locale()){
 				wp_register_script('persia_pay',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay.js', array('jquery'),'3.7.11' , true);
 				wp_enqueue_script('persia_pay');
