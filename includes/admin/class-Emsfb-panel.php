@@ -448,6 +448,7 @@ class Panel_edit  {
 				));
 
 				
+				$this->delete_old_rows_emsfb_stts_();
 					//smart zone test
 					//$this->test_smart_zone();
 		}else{
@@ -580,6 +581,19 @@ class Panel_edit  {
 		}
 		 
 	}//end function
+
+
+	public function delete_old_rows_emsfb_stts_() {		
+		$table_name = $this->db->prefix . 'emsfb_stts_';
+		$date_limit = date('Y-m-d', strtotime('-40 days'));
+
+		$this->db->query(
+			$this->db->prepare(
+				"DELETE FROM $table_name WHERE date < %s",
+				$date_limit
+			)
+		);
+	}
 
 
 
