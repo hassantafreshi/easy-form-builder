@@ -320,6 +320,7 @@
 }
 
 
+
 fun_pay_valid_price = () => {
   //console.log('fun_pay_valid_price')
   let s = false;

@@ -27,6 +27,8 @@ const fields_efb = [
  
   { name: efb_var.text.payCheckbox, icon: 'bi-basket2', id: 'payCheckbox', pro: true, tag:'payment all' },
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
+  { name: efb_var.text.prcfld, icon: 'bi-bag-plus', id: 'prcfld', pro: true, tag:'payment all' },
+  { name: efb_var.text.ttlprc, icon: 'bi-cash', id: 'ttlprc', pro: true, tag:'payment all' },
   /* { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' }, */
   /* { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' },  */
@@ -857,6 +859,7 @@ function show_setting_window_efb(idset) {
       case 'pdate':
       case 'ardate':
       case 'mobile':
+      case 'prcfld':
         body = `
                 <div class="efb  mb-3">
                 <!--  not   advanced-->
@@ -950,25 +953,9 @@ function show_setting_window_efb(idset) {
 
           const ftyp=el.dataset.tag.includes("pay") ? 'payment':'';
           opetions=  efb_add_opt_setting(objOptions, el ,s ,newRndm ,ftyp)
-          
-          /* for (let ob of objOptions) {         
-            opetions += `<div id="${ob.id_op}-v" class="efb  col-md-12">
-          <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  ${col}  text-muted mb-1 fs-5 border-d efb-rounded elEdit">
-          ${s==true ? `<input type="number" placeholder="$"  value='${typeof ob.price=="string" ? ob.price : 0}' data-value="" min="0" id="paymentOption" data-parent="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}-payment"  class="efb  col-md-3 text-muted mb-1 fs-5 border-d efb-rounded elEdit">` :''}
-          <div class="efb  btn-edit-holder ${ftyp=="payment" ||  ftyp=="smart" ?'pay':'newop' }" id="deleteOption" data-parent_id="${ob.parent}">
-            <button type="button" id="deleteOption"  onClick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}"> 
-                <i class="efb  efb bi-x-lg text-danger"></i>
-            </button>
-            <button type="button" id="addOption" onClick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" > 
-                <i class="efb  bi-plus-circle  text-success"></i>
-            </button> 
-            
-          </div>
-          </div>`
-          } */
+
         }
-        
-        //optionElpush_efb
+      
         body = `
                 <div class="efb  mb-3">
                 <!--notAdvanced-->
@@ -1204,6 +1191,37 @@ function show_setting_window_efb(idset) {
                 <input type="text"  data-id="${idset}" class="efb elEdit border-d efb-rounded text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
                 ${classesEls}
                 ${disabledEls}
+                ${hiddenEls}
+                </div>
+            </div>
+        </div><div class="efb  clearfix"></div>
+        `
+        break;
+      case "ttlprc":
+        body = `
+        <div class="efb  mb-3">
+        <!--  not   advanced-->
+        ${Nadvanced}
+        <!--  not   advanced-->
+        <div class="efb  d-grid gap-2">              
+          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+          </button>
+        </div>
+        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+                <div class="efb  mb-3 px-3 row">                                            
+                ${labelFontSizeEls}
+                ${selectColorEls('label','text')}
+                ${selectColorEls('description','text')}
+                ${selectColorEls('el','text')}
+                ${labelPostionEls}
+                ${ElementAlignEls('label',indx,idset)}
+                ${ElementAlignEls('description',indx,idset)}
+                
+                ${widthEls}
+                ${selectHeightEls(idset,indx)}
+              
+                ${classesEls}
                 ${hiddenEls}
                 </div>
             </div>
@@ -1595,7 +1613,6 @@ function creator_form_builder_Efb() {
     { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` }
 
   ]
-  //if (devlop_efb == true) navs.push({ name: 'edit(Test)', icon: 'bi-pen', fun: `editFormEfb()` });
   let nav = "<!--efb.app-->";
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
@@ -1757,9 +1774,6 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
 
 
 const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_b,ftyp,id_value,checked)=>{
-  //console.log(`price[${price}],parentsID[${parentsID}],t[${t}],idin[${idin}],tag[${tag}],id_ob[${id_ob}],value[${value}],col[${col}],s[${s}],l_b[${l_b}],ftyp[${ftyp}],id_value[${id_value}]`)
-  //price,parentsID,t,idin,tag,id_ob,value,col.s,l_b,ftyp,id_value
-
   
   const fun_imgRadio =()=>{
     let r ='<!-efb-->'

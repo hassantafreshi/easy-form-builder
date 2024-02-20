@@ -274,6 +274,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'datetime-local':
     case 'postalcode':
     case 'address_line':
+   
       // console.log(elementId);
       const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
@@ -289,6 +290,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${desc}`
       dataTag = elementId;
       break;
+    
     case 'pdate':
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
@@ -954,6 +956,37 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       ui =typeof terms_el_pro_efb =="function" ? terms_el_pro_efb(previewSate, rndm,iVJ) :public_pro_message();
       break;
+    case 'prcfld':
+        // console.log(elementId);
+       
+        maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
+        maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
+        minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
+        minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
+        classes = `form-control ${valj_efb[iVJ].el_border_color} `;
+        ui = `
+        ${label}
+        <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
+          ${ttip}
+          <input type="number"   class="efb input-efb px-2 mb-0 payefb emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" placeholder="${valj_efb[iVJ].placeholder}"  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+          ${desc}`
+        dataTag = elementId;
+        break;
+    case 'ttlprc':
+        dataTag = elementId;
+        
+        if(valj_efb[0].hasOwnProperty('currency')==false ) Object.assign(valj_efb[0], {currency: 'USD'});
+       
+        ui = `
+        ${label}
+        <div class="efb  ${pos[3]} col-sm-12  pt-2 pb-1 px-0 mx-0 ttEfb show" id='${rndm}-f'>
+        ${typeof add_ui_totalprice_efb =="function" ? add_ui_totalprice_efb(rndm,iVJ): public_pro_message()}
+        ${desc}      
+        `
+        valj_efb[0].type = "payment";
+        form_type_emsFormBuilder=valj_efb[0].type;
+      
+      break;
   }
   const addDeleteBtnState = (formName_Efb == "login" && (valj_efb[iVJ].id_ == "emaillogin" || valj_efb[iVJ].id_ == "passwordlogin")) || (formName_Efb == "register" && (valj_efb[iVJ].id_ == "usernameRegisterEFB" || valj_efb[iVJ].id_ == "passwordRegisterEFB" || valj_efb[iVJ].id_ == "emailRegisterEFB")) ? true : false;
   if (elementId != "form" && dataTag != "step" && ((previewSate == true && elementId != 'option') || previewSate != true)) 
@@ -1517,7 +1550,7 @@ function previewFormEfb(state) {
       || (value.hasOwnProperty('disabled') && value.disabled==true &&
       value.hasOwnProperty('hidden')==true && value.hidden==false)) return;
       if( value.hasOwnProperty('value') && (value.type =='email'|| value.type =='text'|| value.type =='password'|| value.type =='tel'
-        || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range')){
+        || value.type =='number'|| value.type =='url'|| value.type =='textarea'|| value.type =='range' || value.type =='prcfld')){
        if(typeof fun_sendBack_emsFormBuilder=="function" && value.value.length>=1) fun_sendBack_emsFormBuilder({ id_: value.id_, name: value.name, id_ob: value.id_+"_", amount: value.amount, type: value.type, value: value.value, session: sessionPub_emsFormBuilder });
       }else if(typeof fun_sendBack_emsFormBuilder=="function" && value.hasOwnProperty('value') && value.value.length>0 && value.type !='option' ){
         let o=[]
@@ -1907,6 +1940,7 @@ addStyleColorBodyEfb = (t, c, type, id) => {
     case 'color':
     case 'checkbox':
     case 'radiobutton':
+    case 'prcfld':
       tag = "input"
       break;
     case 'btn':
@@ -1967,6 +2001,7 @@ fun_offline_Efb = () => {
       case 'number':
       case 'firstName':
       case 'lastName':
+      case 'prcfld':
         document.getElementById(value.id_ob).value = value.value;
         break;
       case 'textarea':
@@ -2913,3 +2948,98 @@ offset_view_efb=()=>{
 get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
 }
+
+
+//end payment functions
+function fun_total_pay_efb() {
+   
+    
+  let total = 0;
+  updateTotal = (i) => {
+   // i = i.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    //totalpayEfb
+    for (const l of document.querySelectorAll(".totalpayEfb")) {
+      l.innerHTML = Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })
+    }
+  }
+
+  for (let r of sendBack_emsFormBuilder_pub) {
+    
+    if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
+  }
+  
+  setTimeout(() => { updateTotal(total); }, 800);
+  if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}
+  else if(valj_efb[0].getway=="persiaPay"){
+    //console.error('pyament persia not loaded (fun_total_pay_persiaPay_efn)')
+  }
+}
+
+fun_currency_no_convert_efb = (currency, number) => {
+  return new Intl.NumberFormat('us', { style: 'currency', currency: currency }).format(number)
+}
+
+fun_disabled_all_pay_efb = () => {
+  let type = '';
+  
+  if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
+  for (let o of valj_efb) {
+    //console.log(o.type.includes('pay'),o);
+    if (o.hasOwnProperty('price')==true ) {
+      //|| o.type.includes('pay')==true && o.type.includes('payment')==false
+      //console.log(o.hasOwnProperty('parent'));
+      
+
+     
+      if (o.hasOwnProperty('parent')) {
+        const p = valj_efb.findIndex(x => x.id_ == o.parent);
+        if (p==-1) continue;
+        
+        if(valj_efb[p].hasOwnProperty('type')==false) continue;
+        type = valj_efb[p].type.toLowerCase();
+        //if( type != "radio"  && type != "checkbox" && type != "select") continue;
+        if(type.includes('pay')==false) continue;
+        //console.log(valj_efb[p])
+        let ov = document.querySelector(`[data-vid="${o.parent}"]`);
+        ov.classList.remove('payefb');
+        ov.classList.add('disabled');
+      
+        ov.disabled = true;
+        if (type != "multiselect"  && type != "payMultiselect" && type != "paySelect") {
+          const ob = valj_efb.filter(obj => {
+            return obj.parent === o.parent
+          })
+          
+          for (let o of ob) {
+            ov = document.getElementById(o.id_);
+            
+            ov.classList.add('disabled');
+            ov.classList.remove('payefb');
+            ov.disabled = true;
+          }//end for
+
+        }//end if multiselect 
+      }else{
+        let ov = document.querySelector(`[data-vid="${o.id_}"]`);
+        //console.log(ov)
+        ov.classList.add('disabled');        
+        ov.disabled = true;
+        ov.classList.remove('payefb');
+      }
+
+    }
+  }
+}
+
+
+add_ui_totalprice_efb = (rndm ,iVJ) => {
+  //${valj_efb[indx]. valj_efb[indx].el_text_color}
+  return  `
+  <!-- total Price -->
+    <label class="efb totalpayEfb  ${valj_efb[iVJ].el_height} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].classes.replace(`,`, ` `)}  mt-1"   data-id="${rndm}-el" id="${rndm}_"> 
+     ${Number(0).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: valj_efb[0].currency })}
+    </label>
+  <!-- end total Price -->
+  `
+}
+//end payment functions
