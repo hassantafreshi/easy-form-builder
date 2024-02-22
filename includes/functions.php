@@ -1046,7 +1046,7 @@ public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="nul
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button></div>";
+				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
@@ -1055,12 +1055,12 @@ public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="nul
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}
 		}else{
 			if(gettype($m)=='string'){
@@ -1072,7 +1072,7 @@ public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="nul
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank'  style='color:white;' >".$lang['vmgs']."</a></button></div>
+				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
 				";
 			}
 		}		
