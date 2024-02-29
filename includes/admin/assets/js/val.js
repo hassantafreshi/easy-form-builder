@@ -1202,6 +1202,7 @@ function show_setting_window_efb(idset) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
+        ${currencyTypeEls(idset)}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">              
           <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
@@ -1214,6 +1215,7 @@ function show_setting_window_efb(idset) {
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}
                 ${selectColorEls('el','text')}
+                
                 ${labelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
@@ -1379,7 +1381,7 @@ function show_setting_window_efb(idset) {
         body = `<div class="efb  mb-3">
         <!--  not   advanced-->
           <h2 class="efb  text-muted">${efb_var.text.stripe}</h2>
-              ${valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''}
+          ${valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''}
           ${valj_efb[0].type=="payment" ? paymentMethodEls(idset) :''}
         <div class="efb  clearfix"></div>
         </div>`
@@ -1482,8 +1484,8 @@ function show_setting_window_efb(idset) {
                     <div class="efb  clearfix"></div>
                     `
           break;
-          case "pointr10":
-          case "pointr5":
+        case "pointr10":
+        case "pointr5":
             
               body = `
                         <div class="efb  mb-3">

@@ -761,7 +761,7 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-				
+				error_log('send_email_state');
 				
 				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
@@ -844,7 +844,7 @@ class efbFunction {
 					
 					 if(!in_array($to_, $sent)) {
 						
-						
+						error_log($message);
 						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
 					}
 					 
@@ -915,6 +915,7 @@ class efbFunction {
 									'Bcc:'.$to.''
 								);
 							}
+							error_log($message);
 							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
 						}
 
@@ -975,7 +976,7 @@ class efbFunction {
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
-									
+									error_log($message);
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
 									//error_log('run email to====>');
@@ -990,6 +991,7 @@ class efbFunction {
 											'Bcc:'.$to_.''
 										);
 									}
+									error_log($message);
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
@@ -1082,11 +1084,13 @@ class efbFunction {
 			}
 		}		
 		
-		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
-			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
+		error_log($message);
+		error_log('--------');
+		/* $val ="
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style>
+			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";text-align: center;'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
-				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%'' border='0'>  <tbody> <tr>
+				</tr> <tr> <td> <table bgcolor='#FFFFFF' width='100%' border='0' style='text-align: center;'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
 					</td></tr><tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'><td>
@@ -1094,11 +1098,56 @@ class efbFunction {
 				</td> </tr>
 				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 
 					
-				</td></tr></tbody></center></td>
-			</tr></table>
-			</center>
+				</td></tr></tbody></td>
+			</tr></table>			
 			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
 		</body></html>
+			"; */
+			$val = "
+				<!DOCTYPE html>
+				<html xmlns='http://www.w3.org/1999/xhtml'>
+				<head>
+					<style>
+						body {margin:auto 100px;direction:".$d.";}
+					</style>
+				</head>
+				<body>
+					<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'>
+						<tr>
+							<td>
+								<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;' alt='Email Template'>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table bgcolor='#FFFFFF' width='100%' border='0'>
+									<tbody>
+										<tr>
+											<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
+												<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
+											</td>
+										</tr>
+										<tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'>
+											<td>
+												<span>".$message."</span>
+											</td>
+										</tr>
+										<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'>
+											<td>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</table>
+					<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'>
+						<tr>
+							<td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td>
+						</tr>
+					</table>
+				</body>
+				</html>
 			";
 			if($temp!="0"){
 				$temp=str_replace('shortcode_message' ,$message,$temp);
@@ -1112,7 +1161,7 @@ class efbFunction {
 				$p = strripos($temp, '</body>');
 				
 				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
-				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
+				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
 				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
 		       
 				$val =  $temp;

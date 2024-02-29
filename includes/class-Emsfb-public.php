@@ -260,7 +260,7 @@ class _Public {
 		} */
 		$this->comper_version_efb($rp[1]["version"]);
 	
-		$paymentType="";
+		$paymentType="null";
 		$paymentKey="null";
 		$refid = isset($_GET['Authority'])  ? sanitize_text_field($_GET['Authority']) : 'not';
 		$Status_pay = isset($_GET['Status'])  ? sanitize_text_field($_GET['Status']) : 'NOK';
@@ -469,7 +469,7 @@ class _Public {
 					$this->efbFunction = new efbFunction();
 				}
 				//translate v2
-				$text=["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","mmplen","offlineSend","message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","rnfn","fil",'stf','total'];				
+				$text=["atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","mmplen","offlineSend","message","clsdrspn","createdBy","easyFormBuilder","payAmount","payment","id","methodPayment","ddate","updated","methodPayment","interval","file","videoDownloadLink","downloadViedo","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","somethingWentWrongPleaseRefresh","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","rnfn","fil",'stf','total','ttlprc'];				
 				$text= $this->efbFunction->text_efb($text) ;
 		$state="tracker";
 		$pl= $this->get_setting_Emsfb('pub');
@@ -645,8 +645,8 @@ class _Public {
 		if ($s_sid !=1){
 			error_log('s_sid is not valid!!');
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 403';
-		$response = array( 'success' => false  , 'm'=>$m); 
-		wp_send_json_success($response,$data_POST);
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response,$data_POST);
 		} 
 		$user_id = 1;
 		$to_list_admin=[];
@@ -2333,32 +2333,32 @@ class _Public {
 			$subject =$this->lanText["WeRecivedUrM"];
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
 					<p>". $this->lanText["trackNo"].":<br> ".$cont." </p>
-					<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w." style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
+					<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w."' style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
 					";
 			$cont=$message;
 		}elseif($state=="notiToUserFormFilled"){
 			$subject =$this->lanText["WeRecivedUrM"];	   
 			$message ="<h2>".$this->lanText["thankFillForm"]."</h2>
-			<button style='padding:5px;color:white;background:black;'><a href='".home_url()." style='color:white;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' style='color:white;'>".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="register"){  
 			$subject =$this->lanText["thankRegistering"];   	
 			$message ="<h2>".$this->lanText["welcome"]."</h2>
 			".$cont."
-			<button style='padding:5px;color:white;background:black;'><a href='".home_url()." style='color:white;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' style='color:white;'>".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="subscribe"){
 			$subject =$this->lanText["welcome"];   
 			$message ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-			<button style='padding:5px;color:white;background:black;'><a href='".home_url()." style='color:white;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' style='color:white;'>".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}elseif ($state=="survey"){
 			$subject =$this->lanText["welcome"];   
 			$message ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-			<button style='padding:5px;color:white;background:black;'><a href='".home_url()." style='color:white;'>".get_bloginfo('name')."</a></button>
+			<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' style='color:white;'>".get_bloginfo('name')."</a></button>
 			";
 			$cont=$message;
 		}   
@@ -2388,39 +2388,39 @@ class _Public {
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i]." target='_blank' style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
+						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i]."' target='_blank' style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
 						";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="notiToUserFormFilled"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
-				<button style='padding:5px;color:white;background:black;'><a href='".home_url()." target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="respRecivedMessage"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
 				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i]." target='_blank' style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
+						<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link_w[$i]."' target='_blank' style='color:white;'>". $this->lanText["vmgs"]."</a></button></div>
 						";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="register"){  
 				$subject[$i] =$this->lanText["thankRegistering"];   	
 				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
 				".$cont[$i]."
-				<button style='padding:5px;color:white;background:black;'><a href='".home_url()." target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="subscribe"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-				<button style='padding:5px;color:white;background:black;'><a href='".home_url()." target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="survey"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-				<button style='padding:5px;color:white;background:black;'><a href='".home_url()." target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
+				<button style='padding:5px;color:white;background:black;'><a href='".home_url()."' target='_blank' style='color:white;'>".get_bloginfo('name')."</a></button>
 				";
 				$cont[$i]=$message[$i];
 			}

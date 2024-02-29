@@ -1745,6 +1745,7 @@ let change_el_edit_Efb = (el) => {
       //paymentMethodEl
       case "currencyTypeEl":
         ////console.log('currencyTypeEl')
+        if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
         //document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
         for (const l of document.querySelectorAll(".totalpayEfb")) {
@@ -2961,7 +2962,9 @@ let sampleElpush_efb = (rndm, elementId) => {
     })
 
     if (elementId == "stripe") {
-      Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' });
+      Object.assign(valj_efb[0], { getway: 'stripe'});
+      if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0], { currency: 'usd' })
+      if(valj_efb[0].hasOwnProperty('paymentmethod')==false) Object.assign(valj_efb[0], { paymentmethod: 'charge' })
       valj_efb[0].type = 'payment';
       form_type_emsFormBuilder = "payment";
       valj_efb[testb].el_text_color="text-white"

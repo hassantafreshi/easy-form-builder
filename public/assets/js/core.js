@@ -534,10 +534,10 @@ function emsFormBuilder_show_content_message(value, content) {
   const track = value.track;
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
-  let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
+  let m = fun_emsFormBuilder_show_messages(val, "user" ,'', track, date);
   for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
+    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
   }
   let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder" class:'efb mx-1 fs-7" id="label_replyM_efb">${ajax_object_efm.text.reply}:</label>
@@ -567,7 +567,7 @@ function emsFormBuilder_show_content_message(value, content) {
 </div></div>`;
   return body;
 }
-function fun_emsFormBuilder_show_messages(content, by, track, date) {
+/* function fun_emsFormBuilder_show_messages(content, by, track, date) {
   stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
@@ -709,7 +709,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   }
   m += '</div>';
   return m;
-}
+} */
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb bi-hourglass-split mx-1"></i>`+efb_var.text.sending;

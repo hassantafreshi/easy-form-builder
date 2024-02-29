@@ -278,193 +278,6 @@ function fun_emsFormBuilder_back() {
 }
 
 
-function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-  stock_state_efb=false;
-  if(content[(content.length)- 1].type=="w_link")content.pop();
-  
-  
-  if (by == 1) { by = 'Admin' } else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
-  let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-    <div class="efb  form-check">
-     <div>
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>
-      ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
-   </div>
-   <div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>
-   </div>
-  <hr>
-  `;
-  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
-  let list = []
-  let s = false;
-  let checboxs=[];
-  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
-  //console.error(content[0].paymentcurrency,content);
-
-  for (const c of content) {
-    if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
-    if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
-    s = false;
-    
-    let value = typeof(c.value)=="string" ? `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>` :'';
-    if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
-    if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
-      s = true;
-      list.push(c.url);
-      
-      $name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
-      
-      if (c.type == "Image" || c.type == "image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
-      } else if (c.type == "Document" || c.type == "document" || c.type == "allformat") {
-        value = `</br><a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${efb_var.text.download}</a>`
-      } else if (c.type == "Media" || c.type == "media") {
-        const audios = ['mp3', 'wav', 'ogg'];
-        let media = "video";
-        audios.forEach(function (aud) {
-          if (c.url.indexOf(aud) !== -1) {
-            media = 'audio';
-          }
-        })
-        if (media == "video") {
-          const len = c.url.length;
-          const type = c.url.slice((len - c.url.lastIndexOf(x => x == ".")), len);
-          value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
-        } else {
-          value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
-        }
-      } else {
-        value = c.url.length > 1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" >${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
-      }
-
-    } else if (c.type == "esign") {
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      s = true;
-      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</span>`;
-
-    } else if (c.type == "color") {
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      s = true;
-      //value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
-
-    } else if (c.type == "maps") {
-
-      if (typeof (c.value) == "object") {
-        s = true;
-        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
-        valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
-        marker_maps_efb = c.value;
-        initMap_efb(false);
-        m += value;
-      }
-    } else if (c.type == "rating") {
-      s = true;
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      value = `<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
-      for (let i = 0; i < parseInt(c.value); i++) {
-        value += `<i class="efb bi bi-star-fill"></i>`
-      }
-      value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p><p class="efb my-1 mx-3 fs-7 form-check"> ${value}</p>`;
-      //console.log(checboxs.includes(c.id_))
-    } else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
-      s = true;
-      //console.log(361 ,checboxs.includes(c.id_));
-      let vc ='null';
-      checboxs.push(c.id_);
-      for(let op of content){
-        
-        if(op.type=="checkbox" && op.id_ == c.id_){
-          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
-        }
-      }
-      
-      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
-    }else if (c.type=="r_matrix"){
-      s = true;
-      //console.log(390 ,checboxs.includes(c.id_));
-      vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
-      
-      m += `${vc}`;
-    }
-    if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@")) && c.id_!="payment" && c.type!="checkbox"){
-        let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-        if(title=="file") title ="atcfle"
-        
-        title = efb_var.text[title] || c.name ;
-        let q =value !== '<b>@file@</b>' ? value : '';;
-        if(c.type.includes('pay')) {
-          //console.log(currency ,c)
-          q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-        }else if(c.type.includes('checkbox')){
-          //checboxs.push
-        }else if(c.type.includes('imgRadio')){
-          
-          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
-          
-        } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,1)}</p>`
-       //m += `<p class="efb fs-6 my-0 efb  form-check">${c.name}: <span class="efb mb-1"> ${value !== '<b>@file@</b>' ? value : ''}</span> `
-        
-       
-      
-      }
-
-    if (c.type == "payment") {
-      if(c.paymentGateway == "stripe"){
-        
-        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
-            <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
-            </div>`
-      }else {
-        /* 
-        'id_' =>"payment",
-										'name' => "peyment",
-										'amount' => "0",
-										'total' => $amount,
-										'type' => "peyment",
-										"paymentGateway"=>$payment_getWay,
-										"paymentCreated"=>date('Y-m-d H'),
-										"paymentmethod"=>'کارت',
-										"paymentIntent"=>sanitize_text_field($_POST['auth']),
-										"paymentCard"=>$result->data->card_pan,
-										"refId"=>$result->data->ref_id
-        */
-        m += ``
-        m += `<div class="efb mx-3 mb-1 p-1 fs7 text-capitalize bg-dark text-white">
-            <p class="efb my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
-            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p>
-            </div>`
-      }
-    }else if (c.type =="closed"){
-      stock_state_efb=true;
-    }else if (c.type =="opened"){
-      stock_state_efb=false;
-    }
-  }
-  m += '</div>';
-
- 
-  return m;
-}
 
 
 
@@ -1630,12 +1443,16 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     let emailTemp = f('emailTemp_emsFirmBuilder');
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
-    for(let i in text){
-      
-      text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
-      text[i] = text[i].replace(/(['])+/g, `ᐠ`);
-      text[i]= sanitize_text_efb(text[i]);    
-    }
+    if(typeof text != 'object' && text!=''){
+        noti_message_efb('Localization texts not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
+      return false;
+    }else if(typeof text == 'object'){
+      for(let i in text){
+        text[i] = text[i].replace(/(["])+/g, `̎ᐥ`);
+        text[i] = text[i].replace(/(['])+/g, `ᐠ`);
+        text[i]= sanitize_text_efb(text[i]);    
+      }
+   }
     
     const payToken = f('payToken_emsFormBuilder');
     let temp = f('pno_emsFormBuilder');
@@ -2345,7 +2162,7 @@ function EmailTemp1Efb() {
 
 function EmailTemp2Efb() {
   return `<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;${efb_var.rtl == 1 ? `direction:rtl;` : ''}}</style><center>
-<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
+<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
           <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 <td style='font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:13px;color:#202020;line-height:1.5'>
