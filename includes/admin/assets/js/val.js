@@ -435,9 +435,19 @@ function show_setting_window_efb(idset) {
     </button>
     <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i>                                            
     </div>`;
-    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
+    const adminFormEmailEls = `<label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('EmailNoti')"> </i></label> 
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
-
+    const FormEmailSubjectEls = () =>{
+      //default 
+      let value = efb_var.text.default 
+      //${valj_efb[0].email ? valj_efb[0].email : ''}
+      if(valj_efb[0].hasOwnProperty('email_sub') && valj_efb[0].email_sub!='') value =  valj_efb[0].email_sub;
+      return `
+      ${pro_efb==true ?"":funProEfb()}
+      <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label> 
+      <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d efb-rounded  mb-1 efb" placeholder="${efb_var.text.mlsbjt}" id="FormEmailSubjectEl" required value="${value}">`
+  
+    } 
     const EmailNotiContainsEls =() =>{
       const val = valj_efb[0].hasOwnProperty('email_noti_type') ? valj_efb[indx].email_noti_type : 'cc';
       
@@ -1312,6 +1322,7 @@ function show_setting_window_efb(idset) {
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}
+          ${FormEmailSubjectEls()}
           ${valj_efb[0].type=="form" || valj_efb[0].type=="payment" ?  EmailNotiContainsEls() :'<!--efb-->'}
           ${selectColorEls('progessbar','btn')}
          

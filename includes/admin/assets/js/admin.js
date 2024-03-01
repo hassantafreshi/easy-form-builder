@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.11> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.14> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -2573,6 +2573,16 @@ let change_el_edit_Efb = (el) => {
             
             document.getElementById('optionListefb').innerHTML="";
             document.getElementById('optionListefb').innerHTML=opetions
+      break;
+      case 'FormEmailSubjectEl':
+        console.log('FormEmailSubjectEl');
+        if(pro_efb!=true){
+          pro_show_efb(1);
+          valj_efb[0].email_sub ='';
+          break;
+        }
+        c = sanitize_text_efb(el.value ,false);
+         valj_efb[0].hasOwnProperty('email_sub') ? valj_efb[0].email_sub = c : Object.assign(valj_efb[0], { email_sub: c })
       break;
     }
 

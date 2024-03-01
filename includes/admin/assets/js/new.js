@@ -274,7 +274,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'datetime-local':
     case 'postalcode':
     case 'address_line':
-   
       // console.log(elementId);
       const type = elementId == "firstName" || elementId == "lastName" || elementId == "postalcode" || elementId == "address_line" ? 'text' : elementId;
       maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
@@ -290,7 +289,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         ${desc}`
       dataTag = elementId;
       break;
-    
     case 'pdate':
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
@@ -2588,33 +2586,7 @@ fun_captcha_load_efb = ()=>{
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
             <div id="step-1-efb-msg"></div>`
  }
- function fun_send_mail_emsFormBuilder(id,nonce,type_) {
- const data = {
-    action: "mail_send_submited_Emsfb",
-    id: id,
-    type_: type_,
-    nonce:nonce,
-    sid:efb_var.sid
-  };
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-  });
-  const url = efb_var.rest_url+'Emsfb/v1/forms/email/send';
-  const jsonData = JSON.stringify(data);
-  const requestOptions = {
-    method: 'POST',
-    headers,
-    body: jsonData,
-  };
-fetch(url, requestOptions)
-.then(response => response.json())
-.then(responseData => {
-  console.table(responseData);
-})
-.catch(error => {
-  console.error(`error`,error)
-});
-}
+ 
 function efb_text_nr(text , type){
   const val = type ==1 ?'<br>': '\n';
   text = text.replace(/@n#/g, val);

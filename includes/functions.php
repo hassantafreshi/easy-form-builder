@@ -735,6 +735,7 @@ class efbFunction {
 			"prcfld" => $state  &&  isset($ac->text->prcfld) ? $ac->text->prcfld : __('Price field','easy-form-builder'),
 			"ttlprc" => $state  &&  isset($ac->text->ttlprc) ? $ac->text->ttlprc : __('Total price','easy-form-builder'),
 			"total" => $state  &&  isset($ac->text->total) ? $ac->text->total : __('Total','easy-form-builder'),
+			"mlsbjt" => $state  &&  isset($ac->text->mlsbjt) ? $ac->text->mlsbjt : __('Email Subject','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -1053,7 +1054,7 @@ class efbFunction {
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></button></div>";
+				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
@@ -1062,12 +1063,12 @@ class efbFunction {
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank' style='color:white;'>".$lang['vmgs']."</a></button></div>";
+				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}
 		}else{
 			if(gettype($m)=='string'){
@@ -1079,18 +1080,18 @@ class efbFunction {
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<div style='text-align:center'><button style='padding:5px;color:white;background:black;'><a href='".$link."' target='_blank'  style='color:white;' >".$lang['vmgs']."</a></button></div>
+				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
 				";
 			}
 		}		
 		
 		error_log($message);
 		error_log('--------');
-		/* $val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style>
-			<table class='efb body-wrap' style='text-align:center;width:86%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";text-align: center;'> <tr>
+		$val ="
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
+			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
-				</tr> <tr> <td> <table bgcolor='#FFFFFF' width='100%' border='0' style='text-align: center;'>  <tbody> <tr>
+				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
 					</td></tr><tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'><td>
@@ -1098,57 +1099,13 @@ class efbFunction {
 				</td> </tr>
 				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 
 					
-				</td></tr></tbody></td>
-			</tr></table>			
-			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='left' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
+				</td></tr></tbody></center></td>
+			</tr></table>
+			</center>
+			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
 		</body></html>
-			"; */
-			$val = "
-				<!DOCTYPE html>
-				<html xmlns='http://www.w3.org/1999/xhtml'>
-				<head>
-					<style>
-						body {margin:auto 100px;direction:".$d.";}
-					</style>
-				</head>
-				<body>
-					<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'>
-						<tr>
-							<td>
-								<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;' alt='Email Template'>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table bgcolor='#FFFFFF' width='100%' border='0'>
-									<tbody>
-										<tr>
-											<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
-												<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
-											</td>
-										</tr>
-										<tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'>
-											<td>
-												<span>".$message."</span>
-											</td>
-										</tr>
-										<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'>
-											<td>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-					</table>
-					<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'>
-						<tr>
-							<td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td>
-						</tr>
-					</table>
-				</body>
-				</html>
-			";
+		";
+		
 			if($temp!="0"){
 				$temp=str_replace('shortcode_message' ,$message,$temp);
 				$temp=str_replace('shortcode_title' ,$title,$temp);
