@@ -1156,6 +1156,7 @@ let add_buttons_zone_efb = (state, id) => {
   `
   let c = `<div class="efb footer-test efb">`
   if (id != "dropZoneEFB") {
+     if(id =='body_efb') c = `<div class="efb footer-test efb pt-1 px-3">`;
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
     c = ` <div class="efb col-12 mb-5 pb-5 mt-3 mx-4 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  row  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
@@ -1664,7 +1665,7 @@ function previewFormEfb(state) {
   content = `  
     <div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2" id="view-efb">
     ${Number(valj_efb[0].show_icon)!=1 ? `<h4 id="title_efb" class="efb fs-3 ${valj_efb[1].label_text_color} text-center mt-3 mb-0">${valj_efb[1].name}</h4><p id="desc_efb" class="efb ${valj_efb[1].message_text_color} text-center  fs-6 mb-2">${valj_efb[1].message}</p>` : ``}
-     <form id="efbform"> ${head} <div class="efb mt-1 px-2">${content}</div> </form>
+      ${head} <div class="efb mt-1 px-2">${content}</div> 
     </div>
     `
   const t = valj_efb[0].steps == 1 ? 0 : 1;
@@ -1687,9 +1688,10 @@ function previewFormEfb(state) {
       </div> `
     show_modal_efb(frame, efb_var.text.mobilePreview, 'bi-phone', 'settingBox');
     ReadyElForViewEfb(content)
-  } else {
-    document.getElementById(id).innerHTML = content;
-    document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
+  } else {   
+    document.getElementById(id).innerHTML ='<form id="efbform">'+ content + add_buttons_zone_efb(t, id) + '</form>';
+   // document.getElementById(id).innerHTML += add_buttons_zone_efb(t, id);
+    
     if (valj_efb[0].type == "payment") {      
      if (efb_var.paymentGateway == "stripe" && typeof post_api_stripe_apay_efb =="function") post_api_stripe_apay_efb();
     }
