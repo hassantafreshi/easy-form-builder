@@ -755,8 +755,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     type: form_type_emsFormBuilder,
     sid:efb_var.sid,
     user_type : efb_var.user_type,
-    page_id: ajax_object_efm.page_id,
-    page_url: location.href.split('?')[0],
+    page_id: ajax_object_efm.page_id
   };
   post_api_r_message_efb(data,message);
 }
@@ -1197,7 +1196,6 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   });
 }
 post_api_r_message_efb=(data,message)=>{
-  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
