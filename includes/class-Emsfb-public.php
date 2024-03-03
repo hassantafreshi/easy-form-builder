@@ -968,7 +968,8 @@ class _Public {
 									$stated=1;
 									$item['name'] = $f['value'];
 									$item['label']="";
-
+									error_log('-----------r_matrix')	;
+									error_log(json_encode($item))	;
 									foreach($formObj as $k=>$v){
 										if($v['type']=='table_matrix' && $v['id_']==$item['id_']){										
 											$item['label']=$v['name'];
@@ -1211,6 +1212,9 @@ class _Public {
 							}
 							}
 					});
+
+					error_log('stated: '.$stated);
+					error_log(json_encode($rt,JSON_UNESCAPED_UNICODE));
 					if(isset($rt)){
 						array_push($valobj,$rt);
 					};	
@@ -1222,6 +1226,8 @@ class _Public {
 				}
 				
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
+
+				error_log(json_encode($valobj,JSON_UNESCAPED_UNICODE));
 
 				$this->id = $type=="payment" ? sanitize_text_field($data_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
@@ -5841,6 +5847,7 @@ class _Public {
 		if (defined('LSCWP_V')){
 			//litespeed done											
 			do_action( 'litespeed_purge_url', $data_POST['url'] );
+			error_log('litespeed done');
 		}else if (function_exists('rocket_clean_post')){
 			//wp-rocket done					
 			$r = rocket_clean_post($page_id);			
