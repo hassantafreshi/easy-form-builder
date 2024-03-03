@@ -597,7 +597,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		$setting;
 		
-		$this->cache_cleaner_Efb($page_id);
+		$this->cache_cleaner_Efb($page_id,$url);
 		
 		
 		if ($s_sid !=1){
@@ -1920,6 +1920,7 @@ class _Public {
         $fid=sanitize_text_field($_POST['fid']);
 		$sid = sanitize_text_field($_POST['sid']);
 		$page_id = sanitize_text_field($_POST['page_id']);
+		$page_url = sanitize_text_field($_POST['page_url']);
 		
 		
 		
@@ -1935,7 +1936,7 @@ class _Public {
 		wp_send_json_success($response,200);
 		} 
 
-		$this->cache_cleaner_Efb($page_id);
+		$this->cache_cleaner_Efb($page_id,$page_url);
         //check validate here
         $vl=null;
 		$have_validate =0;
@@ -2055,6 +2056,7 @@ class _Public {
 	}//end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
+		error_log(json_encode($data_POST));
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
 		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -2064,6 +2066,7 @@ class _Public {
 		$rsp_by = sanitize_text_field($data_POST['user_type']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
+		$page_url = sanitize_text_field($data_POST['page_url']);
 		if ($s_sid !=1 || $sid==null){
 			$m = '<b>'. $this->lanText["somethingWentWrongPleaseRefresh"]. '<br> '. __('Error Code','easy-form-builder') .': 403 </br></b>';
 		$response = array( 'success' => false  , 'm'=>$m ); 
@@ -2084,7 +2087,7 @@ class _Public {
 			wp_send_json_success($response,200);
 		}
 
-		$this->cache_cleaner_Efb($page_id);
+		$this->cache_cleaner_Efb($page_id ,$page_url);
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting: $this->get_setting_Emsfb('setting');
 
 		if(gettype($r)=="string"){
@@ -5843,11 +5846,11 @@ class _Public {
 		<h3  class="efb fs-5 text-center">'. $fil.' <div class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
-	public function cache_cleaner_Efb($page_id){
+	public function cache_cleaner_Efb($page_id , $url){
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
 			//litespeed done		
-			error_log($data_POST['url']);
-			do_action( 'litespeed_purge_url', $data_POST['url'] );
+			error_log($url);
+			do_action( 'litespeed_purge_url', $url );
 			error_log('litespeed done');
 		}else if (function_exists('rocket_clean_post')){
 			//wp-rocket done					

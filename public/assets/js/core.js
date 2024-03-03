@@ -166,6 +166,7 @@ function fun_sendBack_emsFormBuilder(ob) {
     else if(indx != -1 && ob.value == "@file@" ){
       sendBack_emsFormBuilder_pub[indx]=ob;
     }else if(ob.type == "r_matrix"){  
+      console.log('r_matrix');
       indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     } else {
@@ -754,7 +755,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     type: form_type_emsFormBuilder,
     sid:efb_var.sid,
     user_type : efb_var.user_type,
-    page_id: ajax_object_efm.page_id
+    page_id: ajax_object_efm.page_id,
+    page_url: location.href.split('?')[0],
   };
   post_api_r_message_efb(data,message);
 }
