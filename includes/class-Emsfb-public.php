@@ -5845,7 +5845,8 @@ class _Public {
 	}
 	public function cache_cleaner_Efb($page_id){
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
-			//litespeed done											
+			//litespeed done		
+			error_log($data_POST['url']);
 			do_action( 'litespeed_purge_url', $data_POST['url'] );
 			error_log('litespeed done');
 		}else if (function_exists('rocket_clean_post')){
