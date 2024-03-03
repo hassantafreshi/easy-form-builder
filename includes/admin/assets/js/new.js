@@ -3150,7 +3150,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }else if (c.type=="r_matrix"){
       s = true;
       //console.log(390 ,checboxs.includes(c.id_));
-      vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
+      vc =`${c.hasOwnProperty('label') ? `<p class=efb fs-6 my-0 efb"">${c.label}</p>`:''}<p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
       
       m += `${vc}`;
     }
