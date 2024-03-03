@@ -1197,6 +1197,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   });
 }
 post_api_r_message_efb=(data,message)=>{
+  console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
