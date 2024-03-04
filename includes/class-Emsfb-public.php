@@ -2355,10 +2355,8 @@ class _Public {
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
 				$slicedStr = substr($cont[$i], $start, $end - $start);
-				$subject[$i] = __('new user registration')
-				$message[$i] ="
-						<p>". sprintf( __( 'New User Registration: %s' ), $slicedStr ) ." </p>						
-						";
+				$subject[$i] = __('new user registration');
+				$message[$i] ="<p>". sprintf( __( 'New User Registration: %s' ), $slicedStr ) ." </p>";
 				$cont[$i]=$message[$i];
 			}
 
