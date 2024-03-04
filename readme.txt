@@ -23,7 +23,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 **General features of Easy Form Builder** 
 
-- +30 field types for building forms
+- +40 field types for building forms
 
 - Simple drag and drop functionality
 
