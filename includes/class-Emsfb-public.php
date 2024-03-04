@@ -1554,7 +1554,13 @@ class _Public {
 										$to = $email;
 										$email_user[1]=$email;
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
-											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
+											//just show first and last chrs of $password
+											$firstChar = $password[0];
+											$lastChar = $password[strlen($password)-1];
+
+											$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
+
+											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$maskedPassword."</p>";
 											
 											$email_user[0]=$email_fa;
 											
