@@ -1531,7 +1531,7 @@ class _Public {
 							$creds['rich_editing '] = 'false';			
 							$creds['user_registered'] = wp_date('Y-m-d H:i:s');			
 							$state =wp_insert_user($creds);
-							$user_id= $state;
+						
 							//get user id of inserted user
 							
 							$response;
@@ -1550,8 +1550,8 @@ class _Public {
 									$check=	$this->insert_message_db(0,false);
 									//$state= get_user_by( 'email', $email);
 									//if(gettype($state)=="object"){
-										wp_new_user_notification($user_id, null, 'both');
-										/* $to = $email;
+										
+										$to = $email;
 										$email_user[1]=$email;
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
@@ -1569,7 +1569,7 @@ class _Public {
 											} 
 
 											if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
-											 */
+											
 									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									//}
