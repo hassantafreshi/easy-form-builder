@@ -12,7 +12,7 @@ License URI: 			https://www.gnu.org/licenses/gpl-3.0.en.html
 Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. use this powerful form builder to create multistep forms.
 
 == Description ==
-**Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create  multistep professional forms or contact-us forms within minutes.
+**Easy Form Builder** is a drag & drop and user-friendly form creator that allows you to create multistep professional forms or contact-us forms within minutes.
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
@@ -21,9 +21,9 @@ If you're looking to create custom multi-step forms without any coding skills, E
 
 Easy Form Builder offers numerous features to make your life easier, including:
 
-**General features of Easy Form Builder** 
+**General features of Easy Form Builder**
 
-- +40 field types for building forms
+- +30 field types for building forms
 
 - Simple drag and drop functionality
 
@@ -136,7 +136,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - With Easy Form Builder, you can use 2 customizable email templates for sending form submission notifications at no cost.
 
-- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email templates for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” →   “Email Template”.
+- *Create Custom Email Template*: with this free feature on Easy Form Builder you can create or add custom email templates for forms. for add custom email template on Easy Form Builder go to “Easy Form Builder” → “Settings” → “Email Template”.
 
 - *Stripe payment* : Easily integrate Stripe payment gateway to create payment forms for accepting online payments for various purposes such as order forms, booking forms, and donation forms.
 
@@ -156,7 +156,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Export form responses or messages to CSV format for data management
 
-- Easily create any kind of payment order or service form with customizable payment fields such as  single-choice, selection choose
+- Easily create any kind of payment order or service form with customizable payment fields such as single-choice, selection choose
 
 - Create advanced forms with specialized fields including location picker (maps), Esign (e-signature), Yes/No question, Star rating, Switch button, and more
 
@@ -183,7 +183,6 @@ Easy Form Builder's redirect page feature allows you to customize the page that 
 **Smart dropdown country, state/province, and city in Easy Form Builder**
 By placing three consecutive dropdown options of country, state/province, and city without any fields in between, you can effortlessly create a smart selection using the Easy Form Builder. This eliminates the need for additional settings, allowing users to easily make intelligent choices in the form you're creating.
 
-**Easy Form Builder has endeavored to make forms easily accessible for CRPD and ADA-compliant in programming**
 
 For more information, check out our comprehensive documentation [Click Here](https://whitestudio.team/documents)
 
@@ -199,10 +198,10 @@ Easy Form Builder offers a variety of templates and examples to help you create 
 
 == Installation ==
 
-**Notice** : If your template base on bootstrap  then go to “Easy Form Builder” → “Settings” → checked  “My template have used BootStrap framework” → Save
+**Notice** : If your template base on bootstrap then go to “Easy Form Builder” → “Settings” → checked “My template have used BootStrap framework” → Save
 
 1. Download [*Easy Form Builder*](https://downloads.wordpress.org/plugin/easy-form-builder.zip)
-2. Navigate to Dashboard → “Plugins” → “Add New”  → “Upload Plugin”  → select  *Easy Form Builder* zip file then “Activate”.
+2. Navigate to Dashboard → “Plugins” → “Add New” → “Upload Plugin” → select  *Easy Form Builder* zip file then “Activate”.
 3. In the menu bar, navigate to “Easy Form Builder” → “Settings'' → “Add Google recaptcha keys”
 4. For local testing environments, you may use the key and secret below. For online websites, [click here to obtain the API keys for reCAPTCHA v2](https://www.google.com/recaptcha).
 
@@ -244,8 +243,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 6. [How to work with panels in *Easy Form Builder*](https://whitestudio.team/document/complete-guide-of-form-entries-and-mange-forms/)
 
-7. [How to add The Confirmation Code Finder to a post, page, or custom post type
-   ](https://whitestudio.team/document/how-to-add-the-confirmation-code-finder/)
+7. [How to add The Confirmation Code Finder to a post, page, or custom post type](https://whitestudio.team/document/how-to-add-the-confirmation-code-finder/)
 
 8. [How to find a response through a Confirmation Code](https://whitestudio.team/document/how-to-find-a-response-through-a-confirmation-code/)
 
@@ -316,7 +314,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 = 3.7.2 =
 
-* Improved install addons  of Easy Form Builder
+* Improved install addons of Easy Form Builder
 
 * Fixed issues
 
@@ -329,7 +327,7 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 = 3.7.0 =
 
 
-* Added new features of SMS (Text message) notification  for forms
+* Added new features of SMS (Text message) notification for forms
 
 * Bootstrap Icons v1.11.2 added to Easy Form Builder
 
@@ -391,7 +389,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 =3.6.7=
 
-* email structer of easy form builder is improved  
+* email structure of easy form builder is improved  
 
 * Improved UX of Easy Form Builder
 
@@ -480,8 +478,8 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 * Improve UX of Easy Form Builder
 * Fixed issues
-* Added Jalali date Input for create Persian date form
-* Added Hijri date  input for create Arabic or Islamic date form
+* Added Jalali date input for creation of Persian date form
+* Added Hijri date input for creation of Arabic or Islamic date form
 
 
 =3.5.13=
@@ -559,7 +557,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 = 3.3.4 = 
 = 3.3.3 = 
-* email structer of easy form builder is improved  
+* email structure of easy form builder is improved
 
 = 3.3.2 = 
 * Change Email Template
