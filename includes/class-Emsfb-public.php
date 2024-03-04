@@ -2516,9 +2516,7 @@ class _Public {
 							case 'payCheckbox':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
-							case  'prcfld':
-								return true;
-							break;
+							
 						}
 					});
 					if($filtered==false){
@@ -2538,6 +2536,10 @@ class _Public {
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
+				}else if($iv["type"]=="prcfld" ){
+				
+						return true;
+					
 				}
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
