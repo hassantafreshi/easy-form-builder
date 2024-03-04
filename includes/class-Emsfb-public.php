@@ -1531,6 +1531,9 @@ class _Public {
 							$creds['rich_editing '] = 'false';			
 							$creds['user_registered'] = wp_date('Y-m-d H:i:s');			
 							$state =wp_insert_user($creds);
+							$user_id= $state;
+							//get user id of inserted user
+							
 							$response;
 														
 							$m =$this->lanText["createAcountDoneM"];
@@ -1547,7 +1550,8 @@ class _Public {
 									$check=	$this->insert_message_db(0,false);
 									//$state= get_user_by( 'email', $email);
 									//if(gettype($state)=="object"){
-										$to = $email;
+										wp_new_user_notification($user_id, null, 'both');
+										/* $to = $email;
 										$email_user[1]=$email;
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$password."</p>";
@@ -1565,7 +1569,7 @@ class _Public {
 											} 
 
 											if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) $this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check);
-											
+											 */
 									   // }
 										//$sent = wp_mail($to, $subject, strip_tags($message), $headers);
 									//}
@@ -2350,15 +2354,16 @@ class _Public {
 				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
 				";
 				$cont[$i]=$message[$i];
-			}elseif($state[$i]=='newUser'){
+			}
+			/* elseif($state[$i]=='newUser'){
 				//get value from first tag <p>
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
 				$slicedStr = substr($cont[$i], $start, $end - $start);
 				$subject[$i] = __('new user registration');
-				$message[$i] ="<p>". sprintf( __( 'New User Registration: %s' ), $slicedStr ) ." </p>";
+				$message[$i] ="<p>". __( 'new user registration' ) .'<br>'.( , $slicedStr ) ." </p>";
 				$cont[$i]=$message[$i];
-			}
+			} */
 
 			if($content!="null"){
 				$cont[$i] = [$track, $content] ;
