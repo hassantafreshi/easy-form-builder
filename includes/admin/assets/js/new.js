@@ -2954,7 +2954,6 @@ function fun_total_pay_efb() {
   }
 
   for (let r of sendBack_emsFormBuilder_pub) {
-      console.log(r);
     if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
   }
   
@@ -2975,7 +2974,7 @@ fun_disabled_all_pay_efb = () => {
   if(valj_efb[0].getway!="persiaPay")document.getElementById('stripeCardSectionEfb').classList.add('d-none');
   for (let o of valj_efb) {
     //console.log(o.type.includes('pay'),o);
-    if (o.hasOwnProperty('price')==true ) {
+    if (o.hasOwnProperty('price')==true || (o.hasOwnProperty('type') && o.type=='prcfld')) {
       //|| o.type.includes('pay')==true && o.type.includes('payment')==false
       //console.log(o.hasOwnProperty('parent'));
       

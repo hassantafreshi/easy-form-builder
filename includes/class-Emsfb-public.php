@@ -2500,6 +2500,7 @@ class _Public {
 		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
+			error_log(json_encode($val_[$i]));
 			if(isset($val_[$i]['price'])){				
 				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
@@ -2536,10 +2537,9 @@ class _Public {
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
-				}else if($iv["type"]=="prcfld" ){
-				
-						return true;
-					
+				}else if($iv["type"]=="prcfld" ){					
+					   $a=-1;
+					   $price_f += $iv["price"];											
 				}
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
@@ -2553,6 +2553,8 @@ class _Public {
 		}
 		$ip =$this->get_ip_address();
 		$this->ip = $ip;
+		error_log($price_c);
+		error_log($price_f);
 		if($price_c != $price_f) {
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
