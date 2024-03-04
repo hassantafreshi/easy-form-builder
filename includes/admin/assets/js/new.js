@@ -158,7 +158,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZoneEFB')
   }
-  let pay = previewSate == true ? 'payefb' : 'pay';
+  let pay = previewSate == true  ? 'payefb' : 'pay';
   newElement = ``;
   if (previewSate == false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) => {
     fun_addStyle_costumize_efb(val.toString(), key, indexVJ); })
@@ -526,6 +526,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       break;
     case 'select':
     case 'paySelect':
+      if(elementId!="paySelect") pay='';
       if(editState!=false){
         const optns_obj = valj_efb.filter(obj => { return obj.parent === rndm });
         for (const i of optns_obj) {
