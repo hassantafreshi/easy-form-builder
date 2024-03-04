@@ -1560,7 +1560,7 @@ class _Public {
 
 											$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
 
-											$ms ="<p>".  __("username")  .":".$username ." </p> <p>". __("password")  .":".$maskedPassword."</p>";
+											$ms ="<p>".  __("username" , 'default')  .":".$username ." </p> <p>". __("password", 'default')  .":".$maskedPassword."</p>";
 											
 											$email_user[0]=$email_fa;
 											
@@ -2365,8 +2365,8 @@ class _Public {
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
 				$slicedStr = substr($cont[$i], $start, $end - $start);
-				$subject[$i] = __('new user registration');
-				$message[$i] ="<p>". __( 'new user registration' ) .'</p><p>'.$slicedStr ." </p>";
+				$subject[$i] = __('new user registration' , 'default');
+				$message[$i] ="<p>". __( 'new user registration', 'default' ) .'</p><p>'.$slicedStr ." </p>";
 				$cont[$i]=$message[$i];
 			}
 
