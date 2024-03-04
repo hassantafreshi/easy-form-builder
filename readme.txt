@@ -21,7 +21,7 @@ If you're looking to create custom multi-step forms without any coding skills, E
 
 Easy Form Builder offers numerous features to make your life easier, including:
 
-**Free features of Easy Form Builder:**
+**General features of Easy Form Builder** 
 
 - +30 field types for building forms
 
@@ -258,8 +258,12 @@ The following clips demonstrate how to use Easy Form Builder correctly:
 
 == Changelog ==
 = 3.7.14 =
+= 3.7.13 =
 
 * Resolved issues related to sending email notifications for forms.
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
 = 3.7.11 =
 
 * Fixed issues

@@ -656,7 +656,6 @@ class _Public {
 				
 				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
 				$send_email_to_user_state =$formObj[0]["sendEmail"];	
-				//error_log('send_email_to_user_state: '.$formObj[0]["sendEmail"]);
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
 				//$type = $formObj[0]["type"];
@@ -702,7 +701,6 @@ class _Public {
 						$in_loop=true;						
 						if($key<2) continue;
 						if($stated==0){break;}
-						
 						$it= array_filter($valo, function($item) use ($f,$key,&$stated ,&$email_user,&$rt,&$formObj,&$in_loop,&$mr,$form_condition,&$smsnoti,&$phone_numbers) { 
 
 							
@@ -740,7 +738,6 @@ class _Public {
 										$item['value'] = sanitize_email($item['value']);
 										$rt= $item;
 										$l=strlen($item['value']);
-										//error_log($f['name']);
 										if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
 											
 											$mr =str_replace('XXX', $f['name'], $mr );
@@ -968,8 +965,6 @@ class _Public {
 									$stated=1;
 									$item['name'] = $f['value'];
 									$item['label']="";
-									error_log('-----------r_matrix')	;
-									error_log(json_encode($item))	;
 									foreach($formObj as $k=>$v){
 										if($v['type']=='table_matrix' && $v['id_']==$item['id_']){										
 											$item['label']=$v['name'];
@@ -1182,12 +1177,12 @@ class _Public {
 									$t	= strtolower($item['type']);
 									$t = strpos(strtolower($f['type']),'checkbox');
 									$b = strpos(strtolower($f['type']),'chlcheckbox');
-									if(gettype($t)=="integer"){
+									if(gettype($t)=="integer" || (isset($f['type']) && $f['type']=='table_matrix')){
+										
 										$stated=1;
-										return;
-									}
-								
-									if(isset($item['value'])){
+										break;
+									}																	
+									if(isset($item['value']) ){
 										$stated=1;
 										$item['value'] = sanitize_text_field($item['value']);
 										$l=strlen($item['value']);	
@@ -1213,8 +1208,6 @@ class _Public {
 							}
 					});
 
-					error_log('stated: '.$stated);
-					error_log(json_encode($rt,JSON_UNESCAPED_UNICODE));
 					if(isset($rt)){
 						array_push($valobj,$rt);
 					};	
@@ -1227,7 +1220,7 @@ class _Public {
 				
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
 
-				error_log(json_encode($valobj,JSON_UNESCAPED_UNICODE));
+				
 
 				$this->id = $type=="payment" ? sanitize_text_field($data_POST['payid']) :$this->id ;
 				$not_captcha= $type!="payment" ? $formObj[0]["captcha"] : "";
@@ -5847,7 +5840,6 @@ class _Public {
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
 			//litespeed done			
 			do_action( 'litespeed_purge_post', $page_id );
-			error_log('litespeed done');
 		}else if (function_exists('rocket_clean_post')){
 			//wp-rocket done					
 			$r = rocket_clean_post($page_id);			
