@@ -2516,6 +2516,9 @@ class _Public {
 							case 'payCheckbox':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
 							break;
+							case  'prcfld':
+								return true;
+							break;
 						}
 					});
 					if($filtered==false){
@@ -2547,6 +2550,7 @@ class _Public {
 			}
 		}
 		$ip =$this->get_ip_address();
+		$this->ip = $ip;
 		if($price_c != $price_f) {
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
