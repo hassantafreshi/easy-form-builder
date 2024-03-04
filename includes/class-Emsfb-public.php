@@ -2361,7 +2361,7 @@ class _Public {
 				";
 				$cont[$i]=$message[$i];
 			}
-			/* elseif($state[$i]=='newUser'){
+			elseif($state[$i]=='newUser'){
 				//get value from first tag <p>
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
@@ -2369,7 +2369,7 @@ class _Public {
 				$subject[$i] = __('new user registration');
 				$message[$i] ="<p>". __( 'new user registration' ) .'<br>'.( , $slicedStr ) ." </p>";
 				$cont[$i]=$message[$i];
-			} */
+			}
 
 			if($content!="null"){
 				$cont[$i] = [$track, $content] ;
