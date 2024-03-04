@@ -1554,7 +1554,7 @@ class _Public {
 											
 											$email_user[0]=$email_fa;
 											
-											$state_of_email = ['newMessage','register'];
+											$state_of_email = ['newUser','register'];
 											if($send_email_to_user_state==true || $send_email_to_user_state=="true")
 											{
 												$msg_sub = 'null';
@@ -2349,6 +2349,16 @@ class _Public {
 				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
 				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
 				";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=='newUser'){
+				//get value from first tag <p>
+				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
+				$end = strpos($cont[$i], '</p>') + 4;
+				$slicedStr = substr($cont[$i], $start, $end - $start);
+				$subject[$i] = __('new user registration')
+				$message[$i] ="
+						<p>". sprintf( __( 'New User Registration: %s' ), $slicedStr ) ." </p>						
+						";
 				$cont[$i]=$message[$i];
 			}
 
