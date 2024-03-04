@@ -2360,14 +2360,13 @@ class _Public {
 				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
 				";
 				$cont[$i]=$message[$i];
-			}
-			elseif($state[$i]=='newUser'){
+			}elseif($state[$i]=='newUser'){
 				//get value from first tag <p>
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
 				$slicedStr = substr($cont[$i], $start, $end - $start);
 				$subject[$i] = __('new user registration');
-				$message[$i] ="<p>". __( 'new user registration' ) .'<br>'.( , $slicedStr ) ." </p>";
+				$message[$i] ="<p>". __( 'new user registration' ) .'</p><p>'.$slicedStr ." </p>";
 				$cont[$i]=$message[$i];
 			}
 
