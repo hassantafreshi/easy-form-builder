@@ -761,10 +761,7 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){
-				error_log('send_email_state');
-				
-				
+	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -844,8 +841,7 @@ class efbFunction {
 					 
 					
 					 if(!in_array($to_, $sent)) {
-						
-						error_log($message);
+
 						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
 					}
 					 
@@ -1085,8 +1081,6 @@ class efbFunction {
 			}
 		}		
 		
-		error_log($message);
-		error_log('--------');
 		$val ="
 		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
 			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
@@ -1104,8 +1098,7 @@ class efbFunction {
 			</center>
 			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
 		</body></html>
-		";
-		
+			";
 			if($temp!="0"){
 				$temp=str_replace('shortcode_message' ,$message,$temp);
 				$temp=str_replace('shortcode_title' ,$title,$temp);
