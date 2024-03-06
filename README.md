@@ -126,6 +126,7 @@ Features:
 ## Documentation 📄
 
 The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
+[Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes) 
 
 
 ## Requirements 🔨
