@@ -1559,7 +1559,7 @@ function creator_form_builder_Efb() {
     step_el_efb = 1;
 
     valj_efb.push({
-      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
+      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: efb_var.setting.emailSupporter, trackingCode: true, EfbVersion: 2,
       button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
       button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: pub_label_text_color_efb,
       el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
