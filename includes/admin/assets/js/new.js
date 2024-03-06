@@ -158,7 +158,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     add_buttons_zone_efb(t, 'dropZoneEFB')
   }
-  let pay = previewSate == true  ? 'payefb' : 'pay';
+  let pay = previewSate == true ? 'payefb' : 'pay';
   newElement = ``;
   if (previewSate == false) Object.entries(valj_efb[indexVJ]).forEach(([key, val]) => {
     fun_addStyle_costumize_efb(val.toString(), key, indexVJ); })
@@ -1017,8 +1017,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     <i class="efb  bi-gem pro"> ${efb_var.text.pro}</i>`;
     endTags = previewSate == false ? `</button> </button></div></div>` : `</div></div>`
     const tagId = elementId == "firstName" || elementId == "lastName" || elementId == "address" || elementId == "address_line" || elementId == "postalcode" ? 'text' : elementId;
-    const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'
-    console.log(ps , previewSate , ` ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`}`);
+    const tagT = elementId =="esign" || elementId=="yesNo" || elementId=="rating" ? '' : 'def'   
     newElement += `
     ${previewSate == false  ? `<setion class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row col-sm-12 ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
