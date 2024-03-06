@@ -287,7 +287,7 @@ class Create {
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.14');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.15');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,

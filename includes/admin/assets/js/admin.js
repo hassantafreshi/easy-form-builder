@@ -3929,7 +3929,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
     //check if the element have updated wpb-notice class
-    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){      
+    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
       document.getElementById('wpbody-content').children[i].remove()
     }
   }
