@@ -3929,8 +3929,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
     //check if the element have updated wpb-notice class
-    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
-      els.children[i].remove()
+    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){      
+      document.getElementById('wpbody-content').children[i].remove()
     }
   }
   //remove all el included updated 
