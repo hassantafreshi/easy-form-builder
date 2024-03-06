@@ -3925,11 +3925,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
   for (let i = 0; i < els.children.length; i++) {
       console.log(els.children[i].tagName , els.children[i].id);
+
+    if(els.children[i].id=='body_emsFormBuilder') break;
     if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
       document.getElementById('wpbody-content').children[i].remove()
     }
     //check if the element have updated wpb-notice class
-    if(els.children[i].hasOwnProperty('classList') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
+    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
       document.getElementById('wpbody-content').children[i].remove()
     }
   }
