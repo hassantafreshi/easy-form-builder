@@ -3924,11 +3924,17 @@ let r_matrix_push_efb = (parent, value, rndm, op) => {
 document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
   for (let i = 0; i < els.children.length; i++) {
-    
-    if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && (els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
+      console.log(els.children[i].tagName , els.children[i].id);
+    if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
       document.getElementById('wpbody-content').children[i].remove()
     }
+    //check if the element have updated wpb-notice class
+    if(els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
+      els.children[i].remove()
+    }
   }
+  //remove all el included updated 
+
   /* setTimeout(() => {
     const v = document.getElementById('adminmenuwrap').innerHTML;
     wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
