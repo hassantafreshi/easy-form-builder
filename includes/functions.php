@@ -736,6 +736,7 @@ class efbFunction {
 			"ttlprc" => $state  &&  isset($ac->text->ttlprc) ? $ac->text->ttlprc : __('Total price','easy-form-builder'),
 			"total" => $state  &&  isset($ac->text->total) ? $ac->text->total : __('Total','easy-form-builder'),
 			"mlsbjt" => $state  &&  isset($ac->text->mlsbjt) ? $ac->text->mlsbjt : __('Email Subject','easy-form-builder'),
+			"frmtype" => $state  &&  isset($ac->text->frmtype) ? $ac->text->frmtype : __('Form type','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];

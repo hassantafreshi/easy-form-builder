@@ -1742,7 +1742,9 @@ let change_el_edit_Efb = (el) => {
         }
         
         break;
-      //paymentMethodEl
+      case "formTypeEl":
+        valj_efb[0].type = el.options[el.selectedIndex].value;
+        break;
       case "currencyTypeEl":
         ////console.log('currencyTypeEl')
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})

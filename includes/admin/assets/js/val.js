@@ -75,6 +75,19 @@ const paymentMethodEls =(idset)=>{
 
   </select>`;
 } 
+const formTypeEls =()=>{
+     
+  return`<label for="formTypeEl" class="efb mt-3 mx-2 efb">${efb_var.text.frmtype}</label>
+  <select data-id="formSet" class="efb elEdit form-select efb border-d rounded-4"  id="formTypeEl"  data-tag="${valj_efb[0].type}">                                            
+  <option value="form" ${valj_efb[0].type=='form' ? 'selected' :''}>${efb_var.text.form}</option>                                                            
+  <option value="payment" ${valj_efb[0].type=='payment' ? 'selected' :''}>${efb_var.text.payment}</option>                                                            
+  <option value="survey" ${valj_efb[0].type=='survey' ? 'selected' :''}>${efb_var.text.survey}</option>                                                            
+  <option value="login" ${valj_efb[0].type=='login' ? 'selected' :''}>${efb_var.text.login}</option>                                                            
+  <option value="register" ${valj_efb[0].type=='register' ? 'selected' :''}>${efb_var.text.register}</option>                                                            
+  <option value="subscribe" ${valj_efb[0].type=='subscribe' ? 'selected' :''}>${efb_var.text.subscribe}</option>                                                            
+
+  </select>`;
+} 
 
 const textEls=(id , name ,el_type,value ,attr ,idset) =>{
       
@@ -1368,6 +1381,7 @@ function show_setting_window_efb(idset) {
           ${valj_efb[0].type!="login" ?selectColorEls('clrdoniconEfb','text'):''}
           ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
           ${thankYouredirectEls}
+          ${formTypeEls()}
          <!-- content_colors_setting_efb() -->
           </div>
           </div>        
