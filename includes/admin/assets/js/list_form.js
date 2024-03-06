@@ -1444,7 +1444,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     emailTemp = emailTemp.replace(/([/\r\n|\r|\n/])+/g, ' ')
     let text = act_local_efb==true ? efb_var.text :'';
     if(typeof text != 'object' && text!=''){
-        noti_message_efb('Localization texts not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
+        noti_message_efb('Localization not found. It seems there may be a conflict with a plugin and Easy Form Builder. Please reach out to the Easy Form Builder support team for assistance', 'danger', 'content-efb');
       return false;
     }else if(typeof text == 'object'){
       for(let i in text){
