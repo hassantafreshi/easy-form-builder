@@ -311,6 +311,263 @@ Yes, in Easy Form Builder, we use Google reCAPTCHA version 2 checkbox technology
 
 == Changelog ==
 
+= 3.7.15 =
+
+* Improved Email notification configuration in Easy Form Builder.
+
+* Added total price and input price fields for building payment forms.
+
+* Updated readme.
+
+= 3.7.14 =
+= 3.7.13 =
+
+* Resolved issues related to sending email notifications for forms.
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
+= 3.7.11 =
+
+* Fixed issues
+
+= 3.7.10 = 
+
+* The link to documents in German and Arabic has been added to the Easy Form Builder.
+
+* Fixed issues
+
+= 3.7.9 =
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
+* Enhance the user interface for loading forms.
+
+* Fixed issues
+
+
+= 3.7.8 =
+= 3.7.7 =
+= 3.7.6 =
+
+* Fixed issues with validation forms.
+
+* Fixed issues of performance conflicts with popular cache plugins.
+
+* Enhance the user interface for loading forms.
+
+
+= 3.7.5 =
+
+* Improved Security of Easy Form Builder
+
+* Fixed issues
+
+= 3.7.4 =
+
+* Fixed issues
+
+* Remove dependency on jQuery
+
+* Fixed File Uploads issues and improve security of file upload forms of Easy Form Builder
+
+
+= 3.7.3 =
+
+* Resolved issues related to sending email notifications for forms.
+
+
+= 3.7.2 =
+
+* Improved install addons  of Easy Form Builder
+
+* Fixed issues
+
+
+= 3.7.1 =
+
+* Resolved issues related to sending email notifications for forms.
+
+* Fixed issues
+= 3.7.0 =
+
+
+* Added new features of SMS (Text message) notification  for forms
+
+* Bootstrap Icons v1.11.2 added to Easy Form Builder
+
+* Added new features, including smart city dropdowns, to the Easy Form Builder.
+
+* Fixed UI bugs of State/Province Drop Down list in Easy Form Builder
+
+* "Removed size file limitations for file uploads in Easy Form Builder.
+
+* Resolved the issue of sanitizing links in responses submitted through forms in non-Latin languages
+
+* Optimized the loading speed of forms.
+
+* Resolved issues related to sending email notifications for forms.
+
+
+
+=3.6.16=
+
+* Fixed issues
+
+=3.6.15=
+
+The Easy Form Builder plugin now includes a new email content selector feature, allowing admin to choose whether to send tracking codes or completed forms to the admin's email.
+
+=3.6.14=
+
+* Fixed issues
+
+=3.6.13=
+
+* Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
+
+=3.6.12=
+
+* Fixed issues
+
+* Improved UX of Easy Form Builder
+
+=3.6.11=
+
+* Fixed issues
+
+=3.6.10=
+
+* Fixed issues
+
+=3.6.9=
+
+* Improved UX of Easy Form Builder
+
+* Fixed issues of UI Easy Form Builder
+
+
+
+=3.6.8=
+
+* Improved UX of Easy Form Builder
+
+=3.6.7=
+
+* email structer of easy form builder is improved  
+
+* Improved UX of Easy Form Builder
+
+=3.6.6=
+
+* Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
+
+=3.6.4=
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues of UI Easy Form Builder
+
+
+=3.6.3=
+
+* Improved Security of form builder of WordPress Plugin
+
+=3.6.2=
+
+* Fixed issues of UI Easy Form Builder
+
+* Improved Security of form builder of WordPress Plugin
+
+=3.6.1=
+
+* Improved UX of Easy Form Builder
+
+* Remove dependency on jQuery
+
+=3.5.33=
+
+* Fixed issues
+
+=3.5.32=
+
+* Fixed issues
+
+* Fixed issues of UI Easy Form Builder
+
+=3.5.31=
+
+* Fixed issues
+
+=3.5.30=
+* Fixed issues of UI Easy Form Builder
+
+* Fixed issues
+
+=3.5.28=
+* Added new feature image picker field to form builder
+
+* Fixed issues of UI Easy Form Builder
+
+=3.5.26=
+* Fixed issues of UI Easy Form Builder
+
+=3.5.24=
+* Fixed issues of UI Easy Form Builder
+
+* Improved UX of Easy Form Builder
+
+* Added international telephone picker to admin WP form builder
+
+
+
+=3.5.23=
+=3.5.22=
+
+* Improved UX of Easy Form Builder
+
+=3.5.21=
+
+* Improved install addons  of Easy Form Builder
+
+=3.5.18=
+
+* Improved UX of Easy Form Builder
+
+* Improved Security of form builder of WordPress Plugin
+
+* Fixed issues
+
+=3.5.17=
+=3.5.16=
+
+* Improve UX of Easy Form Builder
+* Fixed issues
+* Added Jalali date Input for create Persian date form
+* Added Hijri date  input for create Arabic or Islamic date form
+
+
+=3.5.13=
+
+* Improve UX of Easy Form Builder
+
+=3.5.12=
+* Improved UX of Easy Form Builder
+* Improved UI of Easy Form Builder 
+* Fixed issues of UI Easy Form Builder
+* Added backward features for forms and Easy Form Builder Plugin.
+
+=3.5.11=
+* Fixed issues of loading time of Easy Form Builder
+
+=3.5.10=
+* Improved UX of Easy Form Builder
+* Fixed issues of UI Easy For
+
 
 == Upgrade Notice ==
 
+= 3.7.13 =
+Starting from version 3.7.13, if you are using the Pro package of Easy Form Builder, all addons will be downloaded automatically. For free users of Easy Form Builder, all updates will be provided by wordpress.org.
+
+= 1.29 =
+This is the first release of Easy Form Builder. Download it to make building forms a breeze!
