@@ -966,7 +966,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
         minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
         dataTag = valj_efb[0].hasOwnProperty('currency')==false ? 'usd' : valj_efb[0].currency;
-        classes = new Intl.NumberFormat(lan_name_emsFormBuilder, { style: 'currency', currency: dataTag, currencyDisplay: 'narrowSymbol' }).format(0).replace(/0/g, '').replace(/\./g, '')
+        classes = new Intl.NumberFormat(lan_name_emsFormBuilder, { style: 'currency', currency: dataTag, currencyDisplay: 'narrowSymbol' }).formatToParts(0).find(part => part.type === 'currency').value;
         dataTag = `<span class="efb input-group-text crrncy-clss">${ classes}</span>`
         classes = `form-control ${valj_efb[iVJ].el_border_color} `;
         ui = `

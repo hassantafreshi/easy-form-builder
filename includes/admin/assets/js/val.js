@@ -545,7 +545,7 @@ function show_setting_window_efb(idset) {
     ${idHidden}
     ${labelEls}
     ${hideLabelEls}
-    ${requireEls}
+    ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${desEls}`
     const labelFontSizeEls = `
       <label for="labelFontSizeEl" class="efb mt-3 bi-aspect-ratio mx-2 efb">${efb_var.text.labelSize}</label>
