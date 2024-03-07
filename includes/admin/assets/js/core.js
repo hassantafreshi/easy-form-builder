@@ -718,7 +718,6 @@ function valid_file_emsFormBuilder(id) {
     file_size = Number(val_in.max_fsize) * 1024 * 1024;
   }
   const el = document.getElementById(i);
-  console.log( el.files[0].size,el);
   setTimeout(() => {
   if (el.files[0] && el.files[0].size < file_size) {
     const filetype = el.files[0].type.length > 1 && file!='customize'  ? el.files[0].type : el.files[0].name.slice(el.files[0].name.lastIndexOf(".") + 1)

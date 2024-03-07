@@ -1856,7 +1856,7 @@ function convertToCSV_emsFormBuilder(objArray) {
   var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
   var str = '';
   for (const item of array) {
-    console.log(item);
+    // console.log(item);
     let line = '';
     
    // for (const key in item) {

@@ -1703,7 +1703,7 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-          console.log(disabled,v);
+          // console.log(disabled,v);
           initMap_efb(disabled);
           break;
         case "esign":
@@ -3059,9 +3059,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
   //console.error(content[0].paymentcurrency,content);
 
-  console.log(content);
+  // console.log(content);
   for (const c of content) {
-    console.log(c);
+    // console.log(c);
     if (c.hasOwnProperty('price')){ totalpaid +=Number(c.price)}
     if(c.hasOwnProperty('value') && c.type!="maps"){ c.value = replaceContentMessageEfb(c.value)}
     if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}

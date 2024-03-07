@@ -824,7 +824,6 @@ function create_form_by_type_emsfb(id, s) {
     sessionStorage.setItem('valj_efb', JSON.stringify(json))
     valj_efb = json;
   } else if (id == "survey") {
-    console.log(smail);
     form_type_emsFormBuilder = "survey";
     const json = [{ "type": "survey", "steps": 1, "formName": efb_var.text.survey, "email":adminEmail, 'sendEmail': smail, "trackingCode": "", "EfbVersion": 2, "button_single_text": efb_var.text.submit, "button_color": "btn-primary", "icon": "bXXX", "button_Next_text": efb_var.text.next, "button_Previous_text": efb_var.text.previous, "button_Next_icon": "bi-chevron-right", "button_Previous_icon": "bi-chevron-left", "button_state": "single",  "label_text_color": "text-light", "el_text_color": "text-light", "message_text_color": "text-muted", "icon_color": "text-light", "el_height": "h-l-efb", "email_to": false, "show_icon": true, "show_pro_bar": true, "captcha": false, "private": false, "thank_you":"msg", "thank_you_message": textThankUEFB(), "email_temp": "", "stateForm": false },
     { "id_": "1", "type": "step", "dataId": "1", "classes": "", "id": "1", "name": "Survey form", "icon": "bi-clipboard-data", "step": "1", "amount": 1, "EfbVersion": 2, "message": "", "label_text_size": "fs-5",  "el_text_size": "fs-5",  "label_text_color": "text-darkb", "el_text_color": "text-labelEfb", "message_text_color": "text-muted", "icon_color": "text-danger", "visible": 1 },
@@ -1749,7 +1748,6 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case "currencyTypeEl":
-        ////console.log('currencyTypeEl')
         if(valj_efb[0].hasOwnProperty('currency')==false) Object.assign(valj_efb[0],{'currency':'USD '})
         valj_efb[0].currency = el.options[el.selectedIndex].value.slice(0, 3);
         //document.getElementById('currencyPayEfb').innerHTML = valj_efb[0].currency.toUpperCase()
@@ -2580,7 +2578,6 @@ let change_el_edit_Efb = (el) => {
             document.getElementById('optionListefb').innerHTML=opetions
       break;
       case 'FormEmailSubjectEl':
-        console.log('FormEmailSubjectEl');
         if(pro_efb!=true){
           pro_show_efb(1);
           valj_efb[0].email_sub ='';

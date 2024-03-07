@@ -1246,7 +1246,7 @@ document.addEventListener("DOMContentLoaded", function() {
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   if( (document.getElementById('body_efb') && document.getElementById('body_tracker_emsFormBuilder'))){
-    console.log('Error: Two or more elements with the same id name body_efb');
+    // console.log('Error: Two or more elements with the same id name body_efb');
     document.getElementById('body_efb').innerHTML =msg;
     document.getElementById('body_efb-track').innerHTML =msg;        
   }else if (elements.length > 1){

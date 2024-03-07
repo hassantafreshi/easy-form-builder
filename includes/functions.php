@@ -914,8 +914,7 @@ class efbFunction {
 									'From:'.$from.'',
 									'Bcc:'.$to.''
 								);
-							}
-							error_log($message);
+							}							
 							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
 						}
 
@@ -976,7 +975,6 @@ class efbFunction {
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
-									error_log($message);
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
 									//error_log('run email to====>');
@@ -991,7 +989,6 @@ class efbFunction {
 											'Bcc:'.$to_.''
 										);
 									}
-									error_log($message);
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
