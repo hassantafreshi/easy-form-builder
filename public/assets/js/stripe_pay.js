@@ -156,7 +156,7 @@
   });
 
                
-            }//emd fun fetch api
+            }//end fun fetch api
       
       
           //=================>
@@ -318,6 +318,7 @@
     <!-- end stripe -->
     `
 }
+
 
 
 fun_pay_valid_price = () => {

@@ -471,7 +471,7 @@ setTimeout(() => {
                         <label for="trackingCodeEfb" class="efb fs-6 form-label mx-2 col-12">
                         ${ajax_object_efm.text.trackingCode}:<span class="efb fs-8 text-danger mx-1">*</span></label>
                         <div class="efb  col-12 text-center mx-2 row">
-                        <input type="text" class="efb input-efb form-control border-d efb-rounded text-labelEfb h-l-efb mb-2" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
+                        <input type="text" class="efb input-efb form-control border-d rounded-4 text-labelEfb h-l-efb mb-2" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track}>
                          <!-- recaptcha  -->
                          ${setting_emsFormBuilder.scaptcha==true ? `<div class="efb  row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="${setting_emsFormBuilder.siteKey}" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
                          <!-- recaptcha end  -->
@@ -534,10 +534,10 @@ function emsFormBuilder_show_content_message(value, content) {
   const track = value.track;
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
-  let m = fun_emsFormBuilder_show_messages(val, "user", track, date);
+  let m = fun_emsFormBuilder_show_messages(val, "user" ,'', track, date);
   for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by, track, c.date)}</div></div>`
+    m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
   }
   let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder" class:'efb mx-1 fs-7" id="label_replyM_efb">${ajax_object_efm.text.reply}:</label>
@@ -567,7 +567,7 @@ function emsFormBuilder_show_content_message(value, content) {
 </div></div>`;
   return body;
 }
-function fun_emsFormBuilder_show_messages(content, by, track, date) {
+/* function fun_emsFormBuilder_show_messages(content, by, track, date) {
   stock_state_efb=false;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
@@ -709,7 +709,7 @@ function fun_emsFormBuilder_show_messages(content, by, track, date) {
   }
   m += '</div>';
   return m;
-}
+} */
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
@@ -929,7 +929,7 @@ function response_fill_form_efb(res) {
            </br>
            <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
            <div class="efb py-5 px-2 container bg-light mb-3" id="recoverySectionemsFormBuilder" style="display: none;">     
-              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v  h-d-efb efb-square col-8" placeholder="Email" >
+              <input type="email" id="username_recovery_pass_efb" class="efb px-2 mb-1 emsFormBuilder_v w-100 bg-white  h-d-efb efb-square-1 col-8 border border-dark" placeholder="Email" >
               <a  id="btn_recovery_pass_efb" class=" efb btn h-d-efb btn-block btn-pinkEfb text-white mb-2 get-emsFormBuilder disabled" data-id="1" >${ajax_object_efm.text.send}</a>
               </div>
               <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner:'efb-square'}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="fun_prev_send()"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div>
@@ -1240,3 +1240,17 @@ sendback_state_handler_efb=(id_,state,step)=>{
     }, 200);
   }
 }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  let elements = document.querySelectorAll('#body_efb');
+  const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
+  if( (document.getElementById('body_efb') && document.getElementById('body_tracker_emsFormBuilder'))){
+    // console.log('Error: Two or more elements with the same id name body_efb');
+    document.getElementById('body_efb').innerHTML =msg;
+    document.getElementById('body_efb-track').innerHTML =msg;        
+  }else if (elements.length > 1){
+    elements[0].innerHTML =msg;
+    elements[1].innerHTML =msg;
+  }
+});

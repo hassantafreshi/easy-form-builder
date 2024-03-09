@@ -127,10 +127,12 @@ Features:
 
 The most recent documentation can be found at [https://whitestudio.team/documents](https://whitestudio.team/documents)
 
+[Version History and Technical Logs](https://github.com/hassantafreshi/easy-form-builder/wiki/Version-History-with-Technical-Changes) 
+
 
 ## Requirements 🔨
 * [WordPress](https://wordpress.org/) >= `4.7`
-* [PHP](https://secure.php.net/manual/en/install.php) >= `6`
+* [PHP](https://secure.php.net/manual/en/install.php) >= `7`
 
 
 
