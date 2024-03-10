@@ -324,13 +324,13 @@ Easy Form Builder enables you to effortlessly create a wide variety of forms, in
 * Recurring form or Job Application Contact form
 * Support contact form
 * Multi-step support form
-* feedback cnontact form
-* Multi step supprt form
-* feedback survey form
+* Feedback contact form
+* Multi step support form
+* Feedback survey form
 * Multi step feedback survey form
 * Request contact form
 * Multi step requst contact form
-* subscribe contact form
+* Subscribe contact form
 * Multi step subscribe contact form
 * Multi step offline contact form
 * Simple upload file form
