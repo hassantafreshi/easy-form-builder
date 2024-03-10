@@ -167,7 +167,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Professional panel for managing user-filled forms and responses
 
-- Countries list field & States / Provinces list field  & Cities list field Easily Create your forms
+- Countries list field & States / Provinces list field & Cities list field Easily Create your forms
 
 
 **New Forms Field of Easy Form Builder**
