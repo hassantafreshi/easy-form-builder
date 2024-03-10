@@ -60,7 +60,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
-- Easy form builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
+- Easy Form Builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
 
 - Unlimited form creation
 
@@ -289,13 +289,13 @@ Easy Form Builder offers a variety of templates and examples to help you create 
 
 18. [How to Create a Payment Form with Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
-19. [How to activate the pro version of Easy form builder](https://whitestudio.team/blog/how-to-activate-pro-version-easy-form-builder-plugin/)
+19. [How to activate the pro version of Easy Form Builder](https://whitestudio.team/blog/how-to-activate-pro-version-easy-form-builder-plugin/)
 
 20. [How To Edit A Redirect Page (Thank you Page) Of Forms On Easy Form Builder](https://whitestudio.team/document/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder/)
 
 21. [How to Create a File Upload Form in WordPress](https://whitestudio.team/document/how-to-create-a-file-upload-form-in-easy-form-builder/)
 
-22. [How to add cell phone number input to Easy Form Builde](https://whitestudio.team/document/how-to-add-cell-phone-number-input-to-easy-form-builder/)
+22. [How to add cell phone number input to Easy Form Builder](https://whitestudio.team/document/how-to-add-cell-phone-number-input-to-easy-form-builder/)
 
 23. [The Ultimate Guide to Advanced File Upload Forms with Easy Form Builder](https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/)
 
@@ -307,7 +307,7 @@ According to users, Easy Form Builder's support is the top choice. Creating vari
 
 = What is the competitive advantage of Easy Form Builder? =
 
-The competitive advantage of an Easy Form Builder  Plugin lies in its straightforward design and user-friendly setup and form builder. By providing a tool that is simple and requires minimal learning, Admins can streamline their processes and boost efficiency. This user-friendly approach not only speeds up the form creation process but also encourages widespread use among individuals with various levels of technical know-how. In the end, the simplicity of a form builder contributes to increased productivity and an overall improved user experience, making it a valuable asset in the competitive landscape.
+The competitive advantage of the Easy Form Builder Plugin lies in its straightforward design and user-friendly setup and form builder. By providing a tool that is simple and requires minimal learning, Admins can streamline their processes and boost efficiency. This user-friendly approach not only speeds up the form creation process but also encourages widespread use among individuals with various levels of technical know-how. In the end, the simplicity of a form builder contributes to increased productivity and an overall improved user experience, making it a valuable asset in the competitive landscape.
 
 = Is Coding knowledge required to build forms using Easy Form Builder? =
 
@@ -316,7 +316,7 @@ No, you don't need any programming knowledge to create a form with Easy Form Bui
 = What types of forms can I create using Easy Form Builder? =
 
 Easy Form Builder enables you to effortlessly create a wide variety of forms, including contact forms, support forms, payment forms, survey forms, poll forms, feedback forms, registration forms, login forms, and many others to suit your needs. Here are some examples of forms that Easy Form Builder can create:
-* contact form
+* Contact form
 * Multi-step contact form
 * Multi-step Recurring form
 * event payment form
@@ -324,18 +324,18 @@ Easy Form Builder enables you to effortlessly create a wide variety of forms, in
 * Recurring form or Job Application Contact form
 * Support contact form
 * Multi-step support form
-* feedback cnontact form
-* Multi step supprt form
-* feedback survey form
+* Feedback contact form
+* Multi step support form
+* Feedback survey form
 * Multi step feedback survey form
 * Request contact form
 * Multi step requst contact form
-* subscribe contact form
+* Subscribe contact form
 * Multi step subscribe contact form
 * Multi step offline contact form
 * Simple upload file form
 * Multi step upload file form
-* Darg and drop upload file form
+* Drag and drop upload file form
 * Poll form or survey form
 * Download form
 * Multi step download form
@@ -414,7 +414,7 @@ Yes, in Easy Form Builder, we use Google reCAPTCHA version 2 checkbox technology
 
 = Does Easy Form builder have the capability to send emails? =
 
-Yes,  Easy Form Builder features the capability of sending email notifications after form submission or receiving new responses. With just a few clicks in its settings, you can configure the forms you create to send email notifications
+Yes, Easy Form Builder features the capability of sending email notifications after form submission or receiving new responses. With just a few clicks in its settings, you can configure the forms you create to send email notifications.
 
 = IS Easy Form Builder GDPR compliant? = 
 
@@ -441,14 +441,14 @@ We've got a dedicated team ready to support you with any form-related questions 
 1. Form Builder
 2. Create a form
 3. Preview a form
-4. Panel of Easy form builder
+4. Panel of Easy Form Builder
 5. List of responses
 6. Setting of Easy Form Builder
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
 9. Create a contact-us form
-10. Localization Easy form builder to your language
-11. Email template Editor of Easy form builder
+10. Localization Easy Form Builder to your language
+11. Email template Editor of Easy Form Builder
 12. Order payment forms
 
 == Changelog ==
@@ -703,7 +703,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 =3.5.10=
 * Improved UX of Easy Form Builder
-* Fixed issues of UI Easy For
+* Fixed issues of UI Easy Form Builder
 
 
 == Upgrade Notice ==
