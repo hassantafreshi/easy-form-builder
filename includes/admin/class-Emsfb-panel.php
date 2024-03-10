@@ -154,7 +154,10 @@ class Panel_edit  {
 						<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
 							<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
 								<div class="efb modal-content efb " id="settingModalEfb-sections">
-										<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
+										<div class="efb modal-header efb"> 
+											<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 start-0" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
+										</div>
 										<div class="efb modal-body row" id="settingModalEfb-body">
 											<div class="efb card-body text-center">
 											<?=   do_action('efb_loading_card') ?>
@@ -321,98 +324,6 @@ class Panel_edit  {
 			
 
 			$lng = get_locale();
-			/* $k ="";
-			if(gettype($ac)!="string" && isset($ac->siteKey))$k= $ac->siteKey;	
-			if ( strlen( $lng ) > 0 ) {
-				$lng = explode( '_', $lng )[0];
-				}
-
-		
-			?>
-			<style>
-				.efb {font-family: 'Roboto', sans-serif!important;}
-			</style>
-			<!--sideMenu--> <div class="efb sideMenuFEfb efbDW-0" id="sideMenuFEfb">
-			<div class="efb side-menu-efb bg-light bg-gradient border text-dark fade efbDW-0 "  id="sideBoxEfb">
-				<div class="efb head sidemenu bg-light bg-gradient py-2 my-1">
-				<span> </span>
-					<a class="efb BtnSideEfb efb close sidemenu  text-danger" onClick="sideMenuEfb(0)" ><i class="efb bi-x-lg" ></i></a>
-				</div>
-				<div class="efb mb-5 mx-2 sideMenu" id="sideMenuConEfb"></div>
-				</div></div>
-			<div id="body_emsFormBuilder" class="efb m-2"> 
-				<div id="msg_emsFormBuilder" class="efb mx-2">
-			</div>
-
-			<div class="efb top_circle-efb-1"></div>
-			<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>" </script>
-				<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
-					<div class="efb container">
-						<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
-							<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
-							<?= __('Easy Form Builder','easy-form-builder') ?></a>
-						<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-							<span class="efb navbar-toggler-icon efb"></span>
-						</button>
-						<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
-							<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-								<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?= $lang["forms"] ?></a></li>
-								<li class="efb nav-item">
-									<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?= $lang["setting"] ?></a>
-								</li>
-								<li class="efb nav-item">
-									<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?= $lang["create"]  ?></a>
-								</li>
-								<li class="efb nav-item">
-									<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?= $lang["help"] ?></a>
-								</li>
-							</ul>
-							<div class="efb d-flex">
-								<form class="efb d-flex">
-									<i class="efb  bi-search search-icon"></i>
-									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?=$lang["trackNo"]  ?>">
-									<a class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?=  $lang["search"] ?></a>
-								</form>
-								<div class="efb nav-icon efb mx-2">
-									<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
-								</div>
-								<div class="efb nav-icon efb">
-									<a class="efb nav-link efb"  onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><i class="efb  bi-gear"></i></a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</nav>
-				<div id="alert_efb" class="efb mx-5"></div>
-				<!-- end  new nav  -->
-					<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
-						<div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
-							<div class="efb modal-content efb " id="settingModalEfb-sections">
-									<div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5></div>
-									<div class="efb modal-body row" id="settingModalEfb-body">
-										<div class="efb card-body text-center">
-										  <?=   do_action('efb_loading_card') ?>
-									</div></div><!-- settingModalEfb-body-->
-					</div></div></div>
-
-					<div class="efb row mb-2">					
-					<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
-					</div>
-					<div class="efb row m-0 p-0" id ="content-efb">
-				 	<div class="efb card-body text-center my-5">
-						 <?=   do_action('efb_loading_card'); ?>
-					</div>
-					 		
-					
-					</div>
-					<div class="efb mt-3 d-flex justify-content-center align-items-center ">
-					<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="efb bi-chevron-double-down"></i></button>
-					</div></div>
-					<datalist id="color_list_efb">
-						 <option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
-					</datalist>
-			<?php */
-		
 			$ip =0;
 			if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
 				//check ip from share internet
