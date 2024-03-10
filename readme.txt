@@ -1,4 +1,4 @@
-=== Easy Form Builder ===
+=== Easy Form Builder ===aminkhadivar
 Contributors: hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
@@ -60,7 +60,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Easily build any kind of form like contact-us form, survey form, payment form, private form
 
-- Easy form builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
+- Easy Form Builder is a mobile-friendly form builder and you can easily build forms with Android or iPhone, smartphones or tablets
 
 - Unlimited form creation
 
@@ -289,7 +289,7 @@ Easy Form Builder offers a variety of templates and examples to help you create 
 
 18. [How to Create a Payment Form with Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
 
-19. [How to activate the pro version of Easy form builder](https://whitestudio.team/blog/how-to-activate-pro-version-easy-form-builder-plugin/)
+19. [How to activate the pro version of Easy Form Builder](https://whitestudio.team/blog/how-to-activate-pro-version-easy-form-builder-plugin/)
 
 20. [How To Edit A Redirect Page (Thank you Page) Of Forms On Easy Form Builder](https://whitestudio.team/document/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder/)
 
@@ -441,14 +441,14 @@ We've got a dedicated team ready to support you with any form-related questions 
 1. Form Builder
 2. Create a form
 3. Preview a form
-4. Panel of Easy form builder
+4. Panel of Easy Form Builder
 5. List of responses
 6. Setting of Easy Form Builder
 7. Present chart of poll
 8. Form submitted and Confirmation Code (tracking pixels)
 9. Create a contact-us form
-10. Localization Easy form builder to your language
-11. Email template Editor of Easy form builder
+10. Localization Easy Form Builder to your language
+11. Email template Editor of Easy Form Builder
 12. Order payment forms
 
 == Changelog ==
