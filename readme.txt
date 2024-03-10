@@ -22,7 +22,7 @@ If you're looking to create custom multi-step forms without any coding skills, E
 
 Easy Form Builder offers numerous features to make your life easier, including:
 
-**General features of Easy Form Builder: **
+**General features of Easy Form Builder:**
 
 - +30 field types for building forms
 

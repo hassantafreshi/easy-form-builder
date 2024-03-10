@@ -6,7 +6,6 @@
 <div align="center">
     <a href="https://whitestudio.team">
         <img src="https://ps.w.org/easy-form-builder/assets/icon-128x128.gif" alt="✨  Easy Form Builder  ✨" width="100px" />
-        
     </a>
 </div>
 
