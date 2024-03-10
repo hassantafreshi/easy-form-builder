@@ -316,7 +316,7 @@ No, you don't need any programming knowledge to create a form with Easy Form Bui
 = What types of forms can I create using Easy Form Builder? =
 
 Easy Form Builder enables you to effortlessly create a wide variety of forms, including contact forms, support forms, payment forms, survey forms, poll forms, feedback forms, registration forms, login forms, and many others to suit your needs. Here are some examples of forms that Easy Form Builder can create:
-* contact form
+* Contact form
 * Multi-step contact form
 * Multi-step Recurring form
 * event payment form
