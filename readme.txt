@@ -1,5 +1,5 @@
 === Easy Form Builder ===
-Contributors: hassantafreshi, mostafas1990, mrlast, thaikolja, aminkhadivar
+Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
