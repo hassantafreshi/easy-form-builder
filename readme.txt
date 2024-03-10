@@ -307,7 +307,7 @@ According to users, Easy Form Builder's support is the top choice. Creating vari
 
 = What is the competitive advantage of Easy Form Builder? =
 
-The competitive advantage of an Easy Form Builder  Plugin lies in its straightforward design and user-friendly setup and form builder. By providing a tool that is simple and requires minimal learning, Admins can streamline their processes and boost efficiency. This user-friendly approach not only speeds up the form creation process but also encourages widespread use among individuals with various levels of technical know-how. In the end, the simplicity of a form builder contributes to increased productivity and an overall improved user experience, making it a valuable asset in the competitive landscape.
+The competitive advantage of the Easy Form Builder Plugin lies in its straightforward design and user-friendly setup and form builder. By providing a tool that is simple and requires minimal learning, Admins can streamline their processes and boost efficiency. This user-friendly approach not only speeds up the form creation process but also encourages widespread use among individuals with various levels of technical know-how. In the end, the simplicity of a form builder contributes to increased productivity and an overall improved user experience, making it a valuable asset in the competitive landscape.
 
 = Is Coding knowledge required to build forms using Easy Form Builder? =
 
@@ -335,7 +335,7 @@ Easy Form Builder enables you to effortlessly create a wide variety of forms, in
 * Multi step offline contact form
 * Simple upload file form
 * Multi step upload file form
-* Darg and drop upload file form
+* Drag and drop upload file form
 * Poll form or survey form
 * Download form
 * Multi step download form
@@ -414,7 +414,7 @@ Yes, in Easy Form Builder, we use Google reCAPTCHA version 2 checkbox technology
 
 = Does Easy Form builder have the capability to send emails? =
 
-Yes,  Easy Form Builder features the capability of sending email notifications after form submission or receiving new responses. With just a few clicks in its settings, you can configure the forms you create to send email notifications
+Yes, Easy Form Builder features the capability of sending email notifications after form submission or receiving new responses. With just a few clicks in its settings, you can configure the forms you create to send email notifications.
 
 = IS Easy Form Builder GDPR compliant? = 
 
