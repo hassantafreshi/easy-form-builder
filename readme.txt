@@ -295,7 +295,7 @@ Easy Form Builder offers a variety of templates and examples to help you create 
 
 21. [How to Create a File Upload Form in WordPress](https://whitestudio.team/document/how-to-create-a-file-upload-form-in-easy-form-builder/)
 
-22. [How to add cell phone number input to Easy Form Builde](https://whitestudio.team/document/how-to-add-cell-phone-number-input-to-easy-form-builder/)
+22. [How to add cell phone number input to Easy Form Builder](https://whitestudio.team/document/how-to-add-cell-phone-number-input-to-easy-form-builder/)
 
 23. [The Ultimate Guide to Advanced File Upload Forms with Easy Form Builder](https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/)
 
