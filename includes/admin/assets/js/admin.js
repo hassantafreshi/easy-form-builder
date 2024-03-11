@@ -1071,7 +1071,7 @@ let change_el_edit_Efb = (el) => {
    //console.log("=================>change_el_edit_Efb",el.id , el.value)
   if (el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
     el.value = el.value.replaceAll(`"`, '');   
-    alert_message_efb(efb_var.text.error, `Don't use forbidden Character likes: ["][<][>]`, 10, "danger");
+    alert_message_efb(efb_var.text.error, `Don't use forbidden characters like: ["][<][>]`, 10, "danger");
     return;
   }else if (el.id =="htmlCodeEl"){
     el.value = el.value.replaceAll(`"`, `'`);
