@@ -73,6 +73,7 @@ class Addon {
 		wp_register_script('whiteStudioAddone', 'https://whitestudio.team/wp-json/wl/v1/addons.js' .$server_name, null, null, true);		
         wp_enqueue_script('whiteStudioAddone');
 	?>
+	
 	<!-- new code ddd -->
 	<div id="alert_efb" class="efb mx-5"></div>
 	<div class="efb modal fade " id="settingModalEfb" aria-hidden="true" aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
@@ -80,7 +81,7 @@ class Addon {
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> 
 										<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
-										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 start-0" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a> 
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?= is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a> 
 									</div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
 										<?=   do_action('efb_loading_card'); ?>
