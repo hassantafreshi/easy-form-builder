@@ -360,7 +360,7 @@ class Panel_edit  {
 					//smart zone test
 					//$this->test_smart_zone();
 		}else{
-			echo "Easy Form Builder: You dont access this section";
+			echo "Easy Form Builder: You don't access this section";
 		}
 	}
 
