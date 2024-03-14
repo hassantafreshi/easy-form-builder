@@ -556,7 +556,7 @@ class _Public {
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
-		<div id='body_tracker_emsFormBuilder'><div><div id='alert_efb' class='efb mx-5'><div class='efb text-center'>
+		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5'></div>
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."".$val."</div>";	
 		return $content; 
 	}
@@ -3179,7 +3179,7 @@ class _Public {
 			return __("The Email Address Is Not Valid" , 'easy-form-builder');
 		}
 		 if(preg_match('/^[a-z0-9._]*$/',$username)!=true ){
-			return __("The Username Must Contain Only Letters, Numbers And Underscores." , 'easy-form-builder');
+			return __("The Username Must Contain Only Letters, Numbers And Lowercase letters" , 'easy-form-builder');
 		}else if(strlen($username)<3){
 			return __("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
 		}

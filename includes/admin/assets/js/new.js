@@ -2830,7 +2830,7 @@ function handle_change_event_efb(el){
         }else if(el.dataset.hasOwnProperty('type') && el.dataset.type=="stateProvince"){
              let temp = valj_efb.findIndex(x => x.id_ === el.dataset.vid);       
               iso_con = el.options[el.selectedIndex].dataset.isoc
-              iso_state = el.options[el.selectedIndex].dataset.iso
+              iso_state = el.options[el.selectedIndex].dataset.iso        
               fun_check_link_city_efb(iso_con,iso_state , temp)
         }
         break;

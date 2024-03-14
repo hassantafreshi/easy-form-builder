@@ -2386,7 +2386,7 @@ let change_el_edit_Efb = (el) => {
                 }
                 
               }
-              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n ,s2:value.s});
               //optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
               
             
@@ -2446,7 +2446,7 @@ let change_el_edit_Efb = (el) => {
                 }
                 
               }
-              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n,s2:value.s});
               //optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
               
             
