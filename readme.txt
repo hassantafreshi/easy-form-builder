@@ -690,7 +690,7 @@ The Easy Form Builder plugin now includes a new email content selector feature, 
 
 =3.5.13=
 
-* Improve UX of Easy Form Builder
+* Improved UX of Easy Form Builder
 
 =3.5.12=
 * Improved UX of Easy Form Builder

@@ -401,7 +401,7 @@ class efbFunction {
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : __('You have a new message.', 'easy-form-builder'),
 			"formNExist" => $state ? $ac->text->formNExist : __('Form does not exist !!','easy-form-builder'),
 			"error403" => $state ? $ac->text->error403 : __('We are sorry, but there seems to be a security error (403) with your request.','easy-form-builder'),
-			"error400" => $state ? $ac->text->error403 : __('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder'),
+			"error400" => $state ? $ac->text->error400 : __('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder'),
 			"formPrivateM" => $state ? $ac->text->formPrivateM : __('Private form, please log in.','easy-form-builder'),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : __('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.','easy-form-builder'),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : __('There seems to be a problem with the Captcha. Please try again.','easy-form-builder'),
