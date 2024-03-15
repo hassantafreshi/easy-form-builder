@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
 Tested up to: 6.4.3
-Stable tag: 3.7.15
+Stable tag: 3.7.16
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -452,6 +452,10 @@ We've got a dedicated team ready to support you with any form-related questions 
 12. Order payment forms
 
 == Changelog ==
+
+= 3.7.16 =
+
+* Fixed issues of UI Easy Form Builder
 
 = 3.7.15 =
 
