@@ -167,11 +167,13 @@ Thanks goes to these wonderful people
     <a title="Translation" href="#translation">🌍</a> 
 </td>
 <td>
-  <a href="https://profiles.wordpress.org/irinashl/" target="_blank"><img src="https://secure.gravatar.com/avatar/8eb9aa5197a2b8f4b8831a0b604c685e?s=100&d=mm&r=g" alt="" width="100px;" /><br /><sub><strong>Irina</strong></sub></a><br />
+  <a href="https://github.com/fierevere" target="_blank"><img src="https://avatars.githubusercontent.com/u/43382763?v=4" alt="" width="100px;" /><br /><sub><strong>Yui ★ღツ ゆい</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a> 
 </td>
+</tr>
+<tr>
 <td>
-  <a href="https://github.com/fierevere" target="_blank"><img src="https://avatars.githubusercontent.com/u/43382763?v=4" alt="" width="100px;" /><br /><sub><strong>Yui ★ღツ ゆい</strong></sub></a><br />
+  <a href="https://profiles.wordpress.org/irinashl/" target="_blank"><img src="https://secure.gravatar.com/avatar/8eb9aa5197a2b8f4b8831a0b604c685e?s=100&d=mm&r=g" alt="" width="100px;" /><br /><sub><strong>Irina</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a> 
 </td>
 <td>
@@ -183,7 +185,7 @@ Thanks goes to these wonderful people
 <td>
   <a href="https://github.com/ehssantafreshi" target="_blank"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a></td>
-<td>
+</td>
   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation">🌍</a></td>
   <td>
