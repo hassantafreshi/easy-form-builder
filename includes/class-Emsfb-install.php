@@ -125,14 +125,14 @@ class Install {
 						
 						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
-						if($v==NULL && $s==true){
+						if($v===NULL && $s){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
 							
 							dbDelta( $s );			
 							
-						}else if($v==NULL && $s==false){
+						}else if ($v === NULL && !$s) {
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
 							, 'date'=>current_time('mysql') , 'email'=>'' ));
@@ -185,13 +185,13 @@ class Install {
 							//echo 'Installing Addons of Easy Form Builder';
 							$setting = json_decode($v_);
 							$adns =['AdnPDP','AdnADP','AdnSS','AdnCPF','AdnESZ','AdnSE','AdnWHS','AdnPAP','AdnWSP','AdnSMF','AdnPLF','AdnMSF','AdnBEF','AdnWPB','AdnELM','AdnGTB','AdnPFA'];
-							//if(isset($setting->AdnSPF)==true){
-								$s_time =false;
+							//if(isset($setting->AdnSPF)){
+								$s_time = false;
 								foreach($adns as $adn){
-									if(isset($setting->$adn)!=false && $setting->$adn==true){
+									if (isset($setting->$adn) && $setting->$adn) {
 										//error_log('check install-'.$adn.'-'. $setting->$adn);
-										if($s_time==false){
-											$s_time =true;
+										if (!$s_time) {
+											$s_time = true;
 											set_time_limit(240);
 											ignore_user_abort(true);
 										}
@@ -216,9 +216,8 @@ class Install {
 										$body = wp_remote_retrieve_body( $request );
 										$data = json_decode( $body );
 
-										if($data->status==false){
+										if (!$data->status) {
 										  continue;
-										
 										}
 
 										// Check version of EFB to Addons
@@ -226,7 +225,7 @@ class Install {
 											continue;                
 										} 
 
-										if($data->download==true){
+										if($data->download){
 											$url =$data->link;
 											
 											fun_addon_new($url);
@@ -234,15 +233,7 @@ class Install {
 										}
 									}
 								}
-							
-								
-
-
 						}
-					
-
-		
-	
 
 		add_option( 'Emsfb_db_version', 1.0 );
 		return $state;
@@ -270,7 +261,7 @@ class Install {
 		$body = wp_remote_retrieve_body( $request );
 		$data = json_decode( $body );
 
-		if($data->status==false){
+		if(!$data->status){
 		return false;
 		
 		}
@@ -280,16 +271,12 @@ class Install {
 			return false;                
 		} 
 
-		if($data->download==true){
+		if($data->download){
 			$url =$data->link;
 			
 			$this->fun_addon_new($url);
 			return true;
 		}	
-}//end function
-	
-
-
-
-	
+	}//end function
+		
 }

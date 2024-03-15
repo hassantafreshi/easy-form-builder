@@ -167,7 +167,7 @@ class efbFunction {
 			"forms" => $state ? $ac->text->forms : __('Forms','easy-form-builder'),
 			"tobeginSentence" => $state ? $ac->text->tobeginSentence : __('To get started, simply create a form using the Easy Form Builder Plugin. Click the button below to create a form.','easy-form-builder'),
 			"efbIsTheUserSentence" => $state ? $ac->text->efbIsTheUserSentence : __('Easy Form Builder is an intuitive and user-friendly tool that lets you create custom, multi-step forms in just minutes, without requiring any coding skills.','easy-form-builder'),
-			"efbYouDontNeedAnySentence" => $state ? $ac->text->efbYouDontNeedAnySentence : __(' You don not have to be a coding expert to use Easy Form Builder. Simply drag and drop the fields to create customized multistep forms easily. Plus, you can connect each submission to a unique request using the Confirmation Code feature.','easy-form-builder'),
+			"efbYouDontNeedAnySentence" => $state ? $ac->text->efbYouDontNeedAnySentence : __(' You do not have to be a coding expert to use Easy Form Builder. Simply drag and drop the fields to create customized multistep forms easily. Plus, you can connect each submission to a unique request using the Confirmation Code feature.','easy-form-builder'),
 			"newResponse" => $state ? $ac->text->newResponse : __('New Response','easy-form-builder'),
 			"read" => $state ? $ac->text->read : __('Read','easy-form-builder'),
 			"copy" => $state ? $ac->text->copy : __('Copy','easy-form-builder'),
@@ -401,7 +401,7 @@ class efbFunction {
 			"youRecivedNewMessage" => $state ? $ac->text->youRecivedNewMessage : __('You have a new message.', 'easy-form-builder'),
 			"formNExist" => $state ? $ac->text->formNExist : __('Form does not exist !!','easy-form-builder'),
 			"error403" => $state ? $ac->text->error403 : __('We are sorry, but there seems to be a security error (403) with your request.','easy-form-builder'),
-			"error400" => $state ? $ac->text->error403 : __('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder'),
+			"error400" => $state ? $ac->text->error400 : __('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder'),
 			"formPrivateM" => $state ? $ac->text->formPrivateM : __('Private form, please log in.','easy-form-builder'),
 			"errorSiteKeyM" => $state ? $ac->text->errorSiteKeyM : __('Please check the site key and secret key on Easy Form Builder panel > Settings > Google Keys to resolve the error.','easy-form-builder'),
 			"errorCaptcha" => $state ? $ac->text->errorCaptcha : __('There seems to be a problem with the Captcha. Please try again.','easy-form-builder'),
@@ -739,6 +739,7 @@ class efbFunction {
 			"frmtype" => $state  &&  isset($ac->text->frmtype) ? $ac->text->frmtype : __('Form type','easy-form-builder'),
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : __('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
+			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];

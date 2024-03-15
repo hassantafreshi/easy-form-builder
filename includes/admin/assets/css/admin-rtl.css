@@ -111,3 +111,7 @@ div#gRecaptcha {
     padding-left: 1% !important;
     padding-right: 52px;
 }
+
+.rtl .efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid {
+    background-position: left calc(.375em + .1875rem) center!important;
+}

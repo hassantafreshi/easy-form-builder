@@ -288,7 +288,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.15> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.16> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1071,7 +1071,7 @@ let change_el_edit_Efb = (el) => {
    //console.log("=================>change_el_edit_Efb",el.id , el.value)
   if (el.value.length > 0 && (el.value.search(/(")+/g) != -1 || el.value.search(/(>)+/g) != -1 || el.value.search(/(<)+/g) != -1) && el.id !="htmlCodeEl") {
     el.value = el.value.replaceAll(`"`, '');   
-    alert_message_efb(efb_var.text.error, `Don't use forbidden Character likes: ["][<][>]`, 10, "danger");
+    alert_message_efb(efb_var.text.error, `Don't use forbidden characters like: ["][<][>]`, 10, "danger");
     return;
   }else if (el.id =="htmlCodeEl"){
     el.value = el.value.replaceAll(`"`, `'`);
@@ -2386,7 +2386,7 @@ let change_el_edit_Efb = (el) => {
                 }
                 
               }
-              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue.replaceAll(' ','_'), step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n ,s2:value.s});
               //optionElpush_efb(valj_efb[indx].id_, lValue, value.s, nValue.replaceAll('','_'));
               
             
@@ -2446,7 +2446,7 @@ let change_el_edit_Efb = (el) => {
                 }
                 
               }
-              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n});
+              valj_efb.push({ id_: sValue.replaceAll(' ','_'), dataId: `${sValue}-id`, parent:  valj_efb[indx].id_ , type: `option`, value: rowValue, id_op: nValue, step: step_el_efb, amount: valj_efb[indx].amount ,l:value.l,n:value.n,s2:value.s});
               //optionElpush_efb(valj_efb[indx].id_, lValue, sValue, nValue.replaceAll('','_'));
               
             
@@ -4463,4 +4463,5 @@ colors_from_template = ()=>{
   }
  
 }
+
 

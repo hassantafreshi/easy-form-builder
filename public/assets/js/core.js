@@ -1,6 +1,5 @@
 let exportView_emsFormBuilder = [];
 let stepsCount;
-
 let sessionPub_emsFormBuilder = "reciveFromClient"
 let stepNames_emsFormBuilder = [`t`, ``, ``];
 let currentTab_emsFormBuilder = 0;
@@ -149,7 +148,6 @@ function createStepsOfPublic() {
     }
   }
 } 
-
 function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){return}
   remove_ttmsg_efb(ob.id_)
@@ -356,7 +354,6 @@ function valid_password_emsFormBuilder(el) {
     document.getElementById(`${id}-message`).innerHTML = msg;
     if(document.getElementById(`${el.id}-message`).classList.contains('show')==false)document.getElementById(`${el.id}-message`).classList.add('show');
     return false;
-    
   }
   else {
     el.className = colorBorderChangerEfb(el.className, "border-success")
@@ -410,7 +407,6 @@ function valid_file_emsFormBuilder(id,tp,filed) {
   let file_size = 8*1024*1024;
   const indx = valj_efb.findIndex(x => x.id_ === id);
   let val_in = valj_efb[indx];
-  
     if(val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0){
       file_size = Number(val_in.max_fsize) * 1024 * 1024;
     }
@@ -453,8 +449,6 @@ function valid_file_emsFormBuilder(id,tp,filed) {
       rtrn = false;
     }
     return rtrn;
-
-
 }
 function fun_tracking_show_emsFormBuilder() {
   const time = pro_efb==true ? 10 :900;
@@ -567,149 +561,7 @@ function emsFormBuilder_show_content_message(value, content) {
 </div></div>`;
   return body;
 }
-/* function fun_emsFormBuilder_show_messages(content, by, track, date) {
-  stock_state_efb=false;
-  if(content[(content.length)- 1].type=="w_link")content.pop();
-  const dl = setting_emsFormBuilder.hasOwnProperty('activeDlBtn')  && setting_emsFormBuilder.activeDlBtn==true? `<div class="efb col fs-4 h-d-efb pointer-efb text-darkb d-flex justify-content-end bi-download" data-toggle="tooltip" data-placement="bottom" title="${efb_var.text.download}" onClick="generatePDF_EFB('resp_efb')"></div>` : '';
-  if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = "visitor")
-  let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
-  <div class="efb  form-check">
-  <div>
-      <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.by}:</span> ${by}</p>
-    ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${ajax_object_efm.text.trackingCode}:</span> ${track} </p>` : ''}
-    <p class="efb small fs-7 mb-0"><span>${ajax_object_efm.text.ddate}:</span> ${date} </p>  
-  </div>
-    ${dl}
-  </div>
- <hr>
- `;
-  content.sort((a, b) => (Number(a.amount) > Number(b.amount)) ? 1 : -1);
-  let list = []
-  let checboxs=[];
-  let currency = content[0].hasOwnProperty('paymentcurrency') ? content[0].paymentcurrency :'usd';
-  for (const c of content) {
-    let value ="<b></b>";
-    if(c.hasOwnProperty('value') && c.type!="maps"){
-      c.value = replaceContentMessageEfb(c.value);
-      if(c.hasOwnProperty('qty')){ c.qty = replaceContentMessageEfb(c.qty)}
-      value = `<b>${c.value.toString().replaceAll('@efb!', ',')}</b>`;
-      if(c.hasOwnProperty('qty')!=false) value+=`: <b> ${c.qty}</b>`
-    } 
-    s = false;
-    if (c.value == "@file@" && list.findIndex(x => x == c.url) == -1) {
-      s = true;
-      list.push(c.url);
-      let name = c.url.slice((c.url.lastIndexOf("/") + 1), (c.url.lastIndexOf(".")));
-      if (c.type == "Image" || c.type == "image") {
-        value = `</br><img src="${c.url}" alt="${c.name}" class="efb img-thumbnail m-1">`
-      } else if (c.type == "Document" || c.type == "document" ||  c.type == "allformat" ) {
-        value = `</br><a class="efb btn btn-primary m-1 text-decoration-none" href="${c.url}" target="_blank" >${ajax_object_efm.text.download}</a>`
-      } else if (c.type == "Media" || c.type == "media") {
-        const audios = ['mp3', 'wav', 'ogg'];
-        let media = "video";
-        audios.forEach(function (aud) {
-          if (c.url.indexOf(aud) !== -1) {
-            media = 'audio';
-          }
-        })
-        if (media == "video") {
-          const len = c.url.length;
-          const type = c.url.slice((len - c.url.lastIndexOf(x => x == ".")), len);
-          value = type !== 'avi' ? `</br><div class="efb px-1"><video poster="${poster_emsFormBuilder}" src="${c.url}" type='video/${type}'controls></video></div><p class="efb text-center" ><a href="${c.url}">${efb_var.text.videoDownloadLink}</a></p>` : `<p class="efb text-center"><a href="${c.url}">${efb_var.text.downloadViedo}</a></p>`;
-        } else {
-          value = `<div ><audio controls><source src="${c.url}"></audio> </div>`;
-        }
-      } else {
-        value = c.url.length > 1 ? `</br><a class="efb btn btn-primary" href="${c.url}" target="_blank" >${c.name}</a>` : `<span class="efb  fs-5">💤</span>`
-      }
-    } else if (c.type == "esign") {
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      s = true;
-      value = `<img src="${c.value}" alt="${c.name}" class="efb img-thumbnail">`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
-    } else if (c.type == "color") {
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      s = true;
-      value = `<div class="efb img-thumbnail"  style="background-color:${c.value}; height: 50px;">${c.value}</div>`;
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check"><br> ${value}</p>`;
-    }else if (c.type == "maps") {
-      if (typeof (c.value) == "object") {
-        s = true;
-        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
-        valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
-        marker_maps_efb = c.value;
-        initMap_efb(false);
-        m += value;
-      }
-    } else if (c.type == "rating") {
-      s = true;
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
-      title = efb_var.text[title] || c.name ;
-      value = `<div class='efb fs-4 star-checked star-efb mx-1 ${efb_var.rtl == 1 ? 'text-end' : 'text-start'}'>`;
-      for (let i = 0; i < parseInt(c.value); i++) {
-        value += `<i class="efb bi bi-star-fill"></i>`
-      }
-      value += "</div>";
-      m += `<p class="efb fs-6 my-0 efb  form-check">${title}:</p> <p class="efb my-1 mx-3 fs-7 form-check">${value}</p>`;
-    }else if (c.type=="checkbox" && checboxs.includes(c.id_)==false){
-      s = true;
-      let vc ='null';
-      checboxs.push(c.id_);
-      for(let op of content){
-        if(op.type=="checkbox" && op.id_ == c.id_){
-          vc=='null' ? vc =`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>` :vc +=`<p class="efb my-1 mx-3 fs-7 form-check"><b> ${op.value}</b></p>`
-        }
-      }
-      m += `<p class="efb fs-6 my-0 efb">${c.name}:</p>${vc}`;
-    }else if (c.type=="r_matrix"){
-      s = true;
-      vc =`<p class=efb fs-6 my-0 efb"">${c.label}</p><p class="efb my-1 mx-3 fs-7 test form-check"> ${c.name} :${c.value} </p>`
-      m += `${vc}`;
-    }
-    if (c.id_ == 'passwordRegisterEFB') { m += value; value = '**********' };
-    if (((s == true && c.value == "@file@") || (s == false && c.value != "@file@"))  && c.id_!="payment" && c.type!="checkbox"){
-      let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'title';
-       if(title=="file") title ="atcfle"
-        title = efb_var.text[title] || c.name ;
-        let q =value !== '<b>@file@</b>' ? value : '';;
-        if(c.type.includes('pay')&& c.id_!="payment") {
-          q+=`<span class="efb col fw-bold  text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end">${Number(c.price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`
-        }else if(c.type.includes('imgRadio')){
-          q =`<div class="efb w-25">`+fun_imgRadio_efb(c.id_, c.src ,c)+`</div>`
-        } 
-        m += `<p class="efb fs-6 my-0 efb">${title}:</p><p class="efb my-1 mx-3 fs-7 test form-check">${efb_text_nr(q,true,1)}</p>`
-      }
-    if (c.type == "payment") {
-      if(c.paymentGateway == "stripe"){
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize  p-2 my-1">
-        <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb  my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${Number(c.total).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-            <p class="efb my-0">${efb_var.text.updated}:<span class="efb mb-1"> ${c.updatetime}</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            ${c.paymentmethod != 'charge' ? `<p class="efb fs-6 my-0">${efb_var.text.interval}:<span class="efb mb-1 text-capitalize"> ${c.interval}</span></p>` : ''}
-            </div>`
-      }else {
-        m += `<div class="efb mx-3 fs7 bg-dark text-white text-capitalize p-2 my-1">
-            <p class="efb fs-6 my-0">${efb_var.text.payment} ${efb_var.text.id}:<span class="efb mb-1"> ${c.paymentIntent}</span></p>
-            <p class="efb my-0">${efb_var.text.payAmount}:<span class="efb mb-1"> ${c.total} ریال</span></p>
-            <p class="efb  my-0">${efb_var.text.methodPayment}:<span class="efb mb-1"> ${c.paymentmethod}</span></p>
-            <p class="efb my-0">${efb_var.text.ddate}:<span class="efb mb-1"> ${c.paymentCreated}</span></p>
-           <!-- <p class="efb my-0">شماره کارت:<span class="efb mb-1"> ${c.paymentCard}</span></p>
-            <p class="efb my-0">کد پیگیری زرین پال<span class="efb mb-1"> ${c.refId}</span></p> -->
-            </div>`
-      }
-    }else if (c.type =="closed"){
-      stock_state_efb=true;
-    }else if (c.type =="opened"){
-      stock_state_efb=false;
-    }
-  }
-  m += '</div>';
-  return m;
-} */
+
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
@@ -777,7 +629,6 @@ function fun_show_alert_setting_emsFormBuilder() {
   }
 }
 function validation_before_send_emsFormBuilder() {
-  
   const btn_prev =valj_efb[0].hasOwnProperty('logic') &&  valj_efb[0].logic==true  ? "logic_fun_prev_send()":"fun_prev_send()"
   const count = [0, 0]
   let fill = 0;
@@ -798,7 +649,6 @@ function validation_before_send_emsFormBuilder() {
       count_ -= 1;
       sendBack_emsFormBuilder_pub.splice(count_,1);
       continue;
-
     }
     count[0] += 1;
     if (row.value == "@file@") {
@@ -1240,13 +1090,10 @@ sendback_state_handler_efb=(id_,state,step)=>{
     }, 200);
   }
 }
-
-
 document.addEventListener("DOMContentLoaded", function() {
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   if( (document.getElementById('body_efb') && document.getElementById('body_tracker_emsFormBuilder'))){
-    // console.log('Error: Two or more elements with the same id name body_efb');
     document.getElementById('body_efb').innerHTML =msg;
     document.getElementById('body_efb-track').innerHTML =msg;        
   }else if (elements.length > 1){
