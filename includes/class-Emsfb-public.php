@@ -5858,7 +5858,7 @@ class _Public {
 				 ';
 		return '
 		
-		<h3  class="efb fs-5 text-center">'. $fil.' <div class="efb  text-center fs-7">'.$pw.'</span> </h3>
+		<h3  class="efb fs-5 text-center">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
