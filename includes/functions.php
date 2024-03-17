@@ -953,28 +953,9 @@ class efbFunction {
 						error_log('send_email_state_new for loop');
 						error_log(json_encode($to[$i]));
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
-							
+							error_log('send started');
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
-							if( $state!="reportProblem"){
-		
-								//loop start
-								//$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
-								//replace
-								/* $to_ = str_replace(',,', ',', $to_);
-								if (substr($to_, -1) === ',') {
-									$to_ = substr($to_, 0, -1);
-								}
-
-								$headers = array(
-									'MIME-Version: 1.0\r\n',
-									'From:'.$from.'',
-									'Bcc:'.$to_.''
-								);		
-									
-								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
-
-								//error_log('send_email_state_new state not reportProblem!');
-								
+							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
