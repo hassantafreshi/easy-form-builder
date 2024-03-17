@@ -81,15 +81,15 @@ class Addon {
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> 
 										<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
-										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?= is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a> 
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" role="button"><i class="efb bi-x-lg"></i></a> 
 									</div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
-										<?=   do_action('efb_loading_card'); ?>
+										<?php echo   do_action('efb_loading_card'); ?>
 									</div>
 	</div></div></div>
 	<div id="tab_container_efb">
 			<div class="efb card-body text-center efb">
-				<?=   do_action('efb_loading_card'); ?>
+				<?php echo   do_action('efb_loading_card'); ?>
 			</div>	
     </div>
 			
@@ -122,9 +122,9 @@ class Addon {
 
 			
 			
-			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.16', true);	
+			wp_register_script('jquery-ui', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui.js', array('jquery'),'3.7.17', true);	
 			wp_enqueue_script('jquery-ui');
-			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.16' , true);	
+			wp_register_script('jquery-dd', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd.js', array('jquery'),'3.7.17' , true);	
 			wp_enqueue_script('jquery-dd'); 
 			
 
@@ -200,7 +200,7 @@ class Addon {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.16');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin.js',false,'3.7.17');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
@@ -221,15 +221,15 @@ class Addon {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.16');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val.js',false,'3.7.17');
 
 
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.16');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core.js',false,'3.7.17');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.16');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',false,'3.7.17');
 	
 	
 

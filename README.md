@@ -186,6 +186,10 @@ Thanks goes to these wonderful people
   <a href="https://github.com/ehssantafreshi" target="_blank"><img src="https://avatars.githubusercontent.com/u/91035643?v=4" alt="" width="100px;" /><br /><sub><strong>Ehssan</strong></sub></a><br />
     <a title="Translation" href="#translation">🌍</a></td>
 </td>
+<td>
+  <a href="https://github.com/ArefHam" target="_blank"><img src="https://avatars.githubusercontent.com/u/56312801?v=4" alt="" width="100px;" /><br /><sub><strong>Aref</strong></sub></a><br />
+    <a title="Translation" href="#translation">🌍</a></td>
+</td>
   <td><a href="https://github.com/thaikolja" target="_blank"><img src="https://avatars.githubusercontent.com/u/37884870?v=4=100" alt="" width="100px;" /><br /><sub><strong>Kolja</strong></sub></a><br> <g-emoji class=" g-emoji" alias="bug" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f41b.png">🐛</g-emoji>
   <a title="Translation" href="#translation">🌍</a></td>
   <td>
