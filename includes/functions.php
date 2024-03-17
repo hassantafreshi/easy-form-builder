@@ -950,10 +950,7 @@ class efbFunction {
 					return $mailResult;
 				}else{
 					for($i=0 ; $i<2 ; $i++){
-						error_log('send_email_state_new for loop');
-						error_log(json_encode($to[$i]));
-						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
-							error_log('send started');
+						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
