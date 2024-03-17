@@ -2375,10 +2375,7 @@ class _Public {
 
 			if($content!="null"){
 				$cont[$i] = [$track, $content] ;
-			}
-			error_log('sub:'.$sub);
-			error_log(gettype($sub));
-			error_log($sub!="null");
+			}			
 			if($sub!="null"){
 				$rp = [
 					['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
