@@ -2310,7 +2310,8 @@ class _Public {
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
 		$link_w=[];
 		$cont=[];
-		$subject=[];
+		$sbjc_txt= "📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
+		$subject=[$sbjc_txt,$sbjc_txt];
 		$message=[];
 		for($i=0;$i<2;$i++){
 			if(strlen($link)>5){
@@ -2322,7 +2323,7 @@ class _Public {
 				$link_w[$i] = home_url();
 			}			
 			$cont[$i] = $track;
-			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
+			$subject[$i] =$sbjc_txt;
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
@@ -2375,7 +2376,9 @@ class _Public {
 			if($content!="null"){
 				$cont[$i] = [$track, $content] ;
 			}
-
+			error_log('sub:'.$sub);
+			error_log(gettype($sub));
+			error_log($sub!="null");
 			if($sub!="null"){
 				$rp = [
 					['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
