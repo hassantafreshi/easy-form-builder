@@ -2310,7 +2310,7 @@ class _Public {
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
 		$link_w=[];
 		$cont=[];
-		$sbjc_txt= "📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
+		$sbjc_txt= "📮 " . $this->lanText["youRecivedNewMessage"];
 		$subject=[$sbjc_txt,$sbjc_txt];
 		$message=[];
 		for($i=0;$i<2;$i++){
