@@ -239,44 +239,5 @@ class Install {
 		return $state;
 	}
 
-
-	public function addon_add_efb($value){
-		
-		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-		$vwp = get_bloginfo('version');
-		$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-		if(get_locale()=='fa_IR'){
-			$u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-			error_log('EFB=>addon_add_efb fa_IR');
-		}
-		$request = wp_remote_get($u);
-	
-		if( is_wp_error( $request ) ) {
-			
-			add_action( 'admin_notices', 'admin_notice_msg_efb' );
-			
-			return false;
-		}
-		
-		$body = wp_remote_retrieve_body( $request );
-		$data = json_decode( $body );
-
-		if(!$data->status){
-		return false;
-		
-		}
-
-		// Check version of EFB to Addons
-		if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
-			return false;                
-		} 
-
-		if($data->download){
-			$url =$data->link;
-			
-			$this->fun_addon_new($url);
-			return true;
-		}	
-	}//end function
 		
 }
