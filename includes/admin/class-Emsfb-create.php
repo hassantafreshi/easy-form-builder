@@ -96,15 +96,15 @@ class Create {
 							<div class="efb modal-content efb " id="settingModalEfb-sections">
 									<div class="efb modal-header efb"> 
 										<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
-										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?= is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
 									</div>
 									<div class="efb modal-body row" id="settingModalEfb-body">
-										<?=   do_action('efb_loading_card'); ?>
+									<?php echo  do_action('efb_loading_card'); ?>
 									</div>
 					</div></div></div>
             <div id="tab_container_efb">
 				<div class="efb card-body text-center efb mt-5 pt-3">
-					<?=   do_action('efb_loading_card'); ?>
+				<?php echo   do_action('efb_loading_card'); ?>
 				</div>	
         	</div>
 			<datalist id="color_list_efb">
@@ -116,7 +116,7 @@ class Create {
 						
 						if(typeof efb_var == 'undefined' || efb_var == null) {
 							console.log('efb_var not found!')
-							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?= __('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . __('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?=  __('Easy Form Builder','easy-form-builder') ?></p></div>';
+							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?php echo __('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . __('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?php echo  __('Easy Form Builder','easy-form-builder') ?></p></div>';
 						}
 					}, 90000);
 				
