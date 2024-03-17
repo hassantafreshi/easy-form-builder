@@ -238,7 +238,7 @@ class _Public {
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
-		$efb_m = "<p class='efb fs-5 text-center my-1 text-pinkEfb'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		$efb_m = "<p class='efb fs-7 text-center my-1'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		
 		if(gettype($rp)=="integer" && $rp==0){
 			$stng=$lanText["settingsNfound"];
@@ -552,7 +552,7 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
-		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><h3 class="efb fs-4 text-darkb mb-4">'.$text['easyFormBuilder'].'</h3></a>';
+		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
