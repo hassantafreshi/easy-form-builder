@@ -428,7 +428,7 @@ class _Public {
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
-		
+		 $efb_m='';
 		 if($formObj[0]["stateForm"]==true ){
 			$content ="
 			".$this->bootstrap_icon_efb($icons_)."		 
@@ -557,7 +557,7 @@ class _Public {
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5'></div>
-		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."".$val."</div>";	
+		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";	
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
