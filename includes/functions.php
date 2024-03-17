@@ -1051,7 +1051,7 @@ class efbFunction {
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<div style='text-align:center'><button style='background-color: #0b0176;'><a href='".$l."' target='_blank' style='color: white;'>".$lang["getProVersion"]."</a></div>";
+				<div style='text-align:center'><a href='".$l."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang["getProVersion"]."</a></div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
