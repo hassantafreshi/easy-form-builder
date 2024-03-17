@@ -2333,7 +2333,7 @@ class _Public {
 			}elseif($state[$i]=="notiToUserFormFilled"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
-				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
 				";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="respRecivedMessage"){
@@ -2347,19 +2347,19 @@ class _Public {
 				$subject[$i] =$this->lanText["thankRegistering"];   	
 				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
 				".$cont[$i]."
-				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="subscribe"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
 				";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="survey"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-				<a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
 				";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=='newUser'){
