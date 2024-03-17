@@ -2323,7 +2323,7 @@ class _Public {
 				$link_w[$i] = home_url();
 			}			
 			$cont[$i] = $track;
-			$subject[$i] =$sbjc_txt;
+			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']' ;
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
