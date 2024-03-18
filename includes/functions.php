@@ -950,29 +950,9 @@ class efbFunction {
 					return $mailResult;
 				}else{
 					for($i=0 ; $i<2 ; $i++){
-						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null]){
-							
+						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
-							if( $state!="reportProblem"){
-		
-								//loop start
-								//$to_ = gettype($to[$i])=='string' ? $to[$i] : implode(',', array_unique($to[$i]));	
-								//replace
-								/* $to_ = str_replace(',,', ',', $to_);
-								if (substr($to_, -1) === ',') {
-									$to_ = substr($to_, 0, -1);
-								}
-
-								$headers = array(
-									'MIME-Version: 1.0\r\n',
-									'From:'.$from.'',
-									'Bcc:'.$to_.''
-								);		
-									
-								$mailResult =  wp_mail('', $sub[$i], $message, $headers); */
-
-								//error_log('send_email_state_new state not reportProblem!');
-								
+							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
@@ -1168,7 +1148,7 @@ class efbFunction {
 		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
 			
 			foreach($user_res as $key=>$val){
-				if($user_res[$key]["id_"]==$data[0]["email_to"]){
+				if(isset($user_res[$key]["id_"]) && $user_res[$key]["id_"]==$data[0]["email_to"]){
 					$email=$val["value"];
 					$subject ="📮 ".$lang["youRecivedNewMessage"];
 					$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
