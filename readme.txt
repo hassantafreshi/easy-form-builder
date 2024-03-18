@@ -22,7 +22,7 @@ If you're looking to create custom multi-step forms without any coding skills, E
 
 Easy Form Builder offers numerous features to make your life easier, including:
 
-**General features of Easy Form Builder:**
+**Free features of Easy Form Builder:**
 
 - +30 field types for building forms
 
@@ -32,13 +32,13 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 - Email notification
 
-- SMS notification
-
 - Confirmation code
 
 - Form validation
 
 - Easily Localization
+
+- Offline Forms
 
 - Build Forms with ReCAPTCHA.
 
@@ -121,6 +121,8 @@ Easy Form Builder offers numerous features to make your life easier, including:
 
 **Advanced Forms Field of Easy Form Builder**
 
+- SMS notification
+
 - Multiple Select (Multi Selection Dropdown list) field used to select multiple options in a support form or any kind of form
 
 - Change or Build Email Template for Email notification of forms
@@ -130,8 +132,6 @@ Easy Form Builder offers numerous features to make your life easier, including:
 - Customizable the thank you message in forms
 
 - Create any kind of form you want
-
-- Offline Forms
 
 - Slide Range Field for building Modern forms **for free**
 
