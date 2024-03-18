@@ -2387,7 +2387,8 @@ class _Public {
 			}			
 			
 		}
-	
+		error_log(json_encode($cont));
+		error_log(json_encode($track));
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
 	}
