@@ -111,7 +111,7 @@ class Panel_edit  {
 				</div>
 
 				<div class="efb top_circle-efb-1"></div>
-				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>"; console.log("test");</script>
+				<script>let sitekye_emsFormBuilder="<?php echo $k;  ?>";</script>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
 							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
