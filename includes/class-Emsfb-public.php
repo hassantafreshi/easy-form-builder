@@ -3273,7 +3273,7 @@ class _Public {
 		}else if(strlen($username)<3){
 			return __("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
 		}
-		if (strlen($password) <=  8) {
+		if (strlen($password) <  8) {
 			return __("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
 		}
 		elseif(!preg_match("#[0-9]+#",$password)) {
