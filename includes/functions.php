@@ -167,7 +167,7 @@ class efbFunction {
 			"forms" => $state ? $ac->text->forms : __('Forms','easy-form-builder'),
 			"tobeginSentence" => $state ? $ac->text->tobeginSentence : __('To get started, simply create a form using the Easy Form Builder Plugin. Click the button below to create a form.','easy-form-builder'),
 			"efbIsTheUserSentence" => $state ? $ac->text->efbIsTheUserSentence : __('Easy Form Builder is an intuitive and user-friendly tool that lets you create custom, multi-step forms in just minutes, without requiring any coding skills.','easy-form-builder'),
-			"efbYouDontNeedAnySentence" => $state ? $ac->text->efbYouDontNeedAnySentence : __(' You do not have to be a coding expert to use Easy Form Builder. Simply drag and drop the fields to create customized multistep forms easily. Plus, you can connect each submission to a unique request using the Confirmation Code feature.','easy-form-builder'),
+			"efbYouDontNeedAnySentence" => $state ? $ac->text->efbYouDontNeedAnySentence : __('You do not have to be a coding expert to use Easy Form Builder. Simply drag and drop the fields to create customized multistep forms easily. Plus, you can connect each submission to a unique request using the Confirmation Code feature.','easy-form-builder'),
 			"newResponse" => $state ? $ac->text->newResponse : __('New Response','easy-form-builder'),
 			"read" => $state ? $ac->text->read : __('Read','easy-form-builder'),
 			"copy" => $state ? $ac->text->copy : __('Copy','easy-form-builder'),
