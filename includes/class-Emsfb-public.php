@@ -2363,6 +2363,13 @@ class _Public {
 				<div style='text-align:center'><a href='".$homeUrl."' target='_blank' style='padding:5px;color:white;background:black;'>".$blogName."</a></div>
 				";
 				
+			}elseif($state[$i]=='newMessage'){
+			
+				$cont[$i] ="<h2>".$this->lanText["youRecivedNewMessage"]."</h2>
+						<p>". $this->lanText["trackNo"].":<br> ".$track." </p>
+						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>
+						";
+				
 			}elseif($state[$i]=='newUser'){
 				//get value from first tag <p>
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
