@@ -2387,6 +2387,7 @@ class _Public {
 			}			
 			
 		}
+		error_log(json_encode($state[$i]));
 		error_log(json_encode($cont));
 		error_log(json_encode($track));
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
