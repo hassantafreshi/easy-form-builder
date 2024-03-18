@@ -2312,6 +2312,8 @@ class _Public {
 		$cont=[];
 		$subject=[];
 		$message=[];
+		$homeUrl = home_url();
+		$blogName = get_bloginfo('name');
 		for($i=0;$i<2;$i++){
 			if(strlen($link)>5){
 				$link_w[$i] =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
@@ -2319,48 +2321,42 @@ class _Public {
 					$link_w[$i] .='&user=admin';
 				}
 			}else{
-				$link_w[$i] = home_url();
+				$link_w[$i] = $homeUrl;
 			}			
 			$cont[$i] = $track;
-			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
+			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$track.']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
-						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>
-						";
+						<p>". $this->lanText["trackNo"].":<br> ".$track." </p>
+						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="notiToUserFormFilled"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
-				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
-				";
+				<div style='text-align:center'><a href='".$homeUrl."' target='_blank' style='padding:5px;color:white;background:black;'>".$blogName."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="respRecivedMessage"){
-				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
+				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$track.']' ;
 				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
-						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
-						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>
-						";
+						<p>". $this->lanText["trackNo"].":<br> ".$track." </p>
+						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="register"){  
 				$subject[$i] =$this->lanText["thankRegistering"];   	
 				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
 				".$cont[$i]."
-				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
-				";
+				<div style='text-align:center'><a href='".$homeUrl."' target='_blank' style='padding:5px;color:white;background:black;'>".$blogName."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="subscribe"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
-				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
-				";
+				<div style='text-align:center'><a href='".$homeUrl."' target='_blank' style='padding:5px;color:white;background:black;'>".$blogName."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="survey"){
 				$subject[$i] =$this->lanText["welcome"];   
 				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
-				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
-				";
+				<div style='text-align:center'><a href='".$homeUrl."' target='_blank' style='padding:5px;color:white;background:black;'>".$blogName."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=='newUser'){
 				//get value from first tag <p>
