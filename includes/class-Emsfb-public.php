@@ -2306,8 +2306,91 @@ class _Public {
 			wp_send_json_success($response,200);	
 		}
 	}//end function
-	
+
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
+		$link_w=[];
+		$cont=[];
+		$subject=[];
+		$message=[];
+		for($i=0;$i<2;$i++){
+			if(strlen($link)>5){
+				$link_w[$i] =strpos($link,'?')!=false ? $link.'&track='.$track : $link.'?track='.$track;
+				if($i==0){
+					$link_w[$i] .='&user=admin';
+				}
+			}else{
+				$link_w[$i] = home_url();
+			}			
+			$cont[$i] = $track;
+			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$cont[$i].']';
+			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"];
+				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
+						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
+						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>
+						";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=="notiToUserFormFilled"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"];	   
+				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
+				";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=="respRecivedMessage"){
+				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$cont[$i].']' ;
+				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
+						<p>". $this->lanText["trackNo"].":<br> ".$cont[$i]." </p>
+						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>
+						";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="register"){  
+				$subject[$i] =$this->lanText["thankRegistering"];   	
+				$message[$i] ="<h2>".$this->lanText["welcome"]."</h2>
+				".$cont[$i]."
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
+				";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="subscribe"){
+				$subject[$i] =$this->lanText["welcome"];   
+				$message[$i] ="<h2>".$this->lanText["thankSubscribing"]."</h2>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
+				";
+				$cont[$i]=$message[$i];
+			}elseif ($state[$i]=="survey"){
+				$subject[$i] =$this->lanText["welcome"];   
+				$message[$i] ="<h2>".$this->lanText["thankDonePoll"]."</h2>
+				<div style='text-align:center'><a href='".home_url()."' target='_blank' style='padding:5px;color:white;background:black;'>".get_bloginfo('name')."</a></div>
+				";
+				$cont[$i]=$message[$i];
+			}elseif($state[$i]=='newUser'){
+				//get value from first tag <p>
+				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
+				$end = strpos($cont[$i], '</p>') + 4;
+				$slicedStr = substr($cont[$i], $start, $end - $start);
+				$subject[$i] = __('New user registration' , 'easy-form-builder');
+				$message[$i] ="<p>". __( 'New user registration', 'easy-form-builder' ) .'</p><p>'.$slicedStr ." </p>";
+				$cont[$i]=$message[$i];
+			}
+
+			if($content!="null"){
+				$cont[$i] = [$track, $content] ;
+			}
+
+			if($sub!="null"){
+				$rp = [
+					['[confirmation_code]','[link_page]','[link_domain]','[link_response]','[website_name]'],
+					[$track, $link_w[$i], get_site_url(), $link_w[$i] , get_bloginfo('name')]
+				];
+			
+				$subject[$i] = str_replace($rp[0],$rp[1],$sub);
+				
+			}
+		}
+		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
+	}
+	
+	/* public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
 		$link_w=[];
 		$cont=[];
 		$subject=[];
@@ -2399,7 +2482,7 @@ class _Public {
 		error_log(json_encode($track));
 		//$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		$check =  $this->efbFunction->send_email_state_new( $to,$subject ,$cont,$pro,$state,$link_w,$this->setting);
-	}
+	} */
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function get_setting_Emsfb($state){
 		// تنظیمات  برای عموم بر می گرداند
