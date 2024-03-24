@@ -879,7 +879,7 @@ class efbFunction {
 			   return $mailResult;
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
-				error_log('send_email_state_new');
+				error_log('send_email_state_new 2');
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
