@@ -958,6 +958,7 @@ class efbFunction {
 								$to_;$mailResult;
 												
 								if (gettype($to[$i]) == 'string') {
+									error_log( $to[$i]);
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
 									//error_log('run email to====>');
