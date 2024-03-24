@@ -879,7 +879,7 @@ class efbFunction {
 			   return $mailResult;
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
-				
+				error_log('send_email_state_new');
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -907,13 +907,12 @@ class efbFunction {
 							//error_log('run email to====>');
 							$toMail = array_pop($to);
 							//error_log($toMail);
-							$to_ = implode(',', array_unique($to));
-							$to_ = str_replace(',,', ',', $to_);
+							/* $to_ = implode(',', array_unique($to));
+							$to_ = str_replace(',,', ',', $to_); */
 							if(count($to)>1){
 								$headers = array(
 									'MIME-Version: 1.0\r\n',
-									'From:'.$from.'',
-									'Bcc:'.$to.''
+									'From:'.$from.''
 								);
 							}							
 							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
@@ -961,13 +960,12 @@ class efbFunction {
 									//error_log('run email to====>');
 									$toMail = array_pop($to[$i]);
 									//error_log(json_encode($toMail));
-									$to_ = implode(',', array_unique($to[$i]));
-									$to_ = str_replace(',,', ',', $to_);
+									/* $to_ = implode(',', array_unique($to[$i]));
+									$to_ = str_replace(',,', ',', $to_); */
 									if(count($to[$i])>1){
 										$headers = array(
 											'MIME-Version: 1.0\r\n',
-											'From:'.$from.'',
-											'Bcc:'.$to_.''
+											'From:'.$from.''
 										);
 									}
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
