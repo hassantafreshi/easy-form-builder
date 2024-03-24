@@ -974,6 +974,7 @@ class efbFunction {
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ; */
 
 									foreach ($to[$i] as $recipient) {
+										error_log(json_encode($recipient));
 										$mailResult = wp_mail($recipient, $sub, $message, $headers);
 									}
 								}
