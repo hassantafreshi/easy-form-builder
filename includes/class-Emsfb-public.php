@@ -2212,13 +2212,14 @@ class _Public {
 				$valb=null;
 				
 				//$id =$valn[0]["email_to"];
-				$users_email =null;
+				$users_email =array();;
 				
 				if(isset($id)){
 					foreach ($msg_obj as $key => $value) {
 						
 						if(isset($value['id_']) && $value['id_']==$valn[0]["email_to"]){
-							$users_email= $value["value"];
+							// $users_email= $value["value"];
+							array_push($users_email,$value["value"]);
 							break;
 						}
 					}
@@ -2268,18 +2269,21 @@ class _Public {
 				}
 				$user_eamil=[[],[]];
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-					//array_push($to ,$setting->emailSupporter);
-					$user_eamil[0]=$setting->emailSupporter.",";
+					// array_push($to ,$setting->emailSupporter);
+					// $user_eamil[0]=$setting->emailSupporter.",";
+					array_push($user_eamil[0],$setting->emailSupporter);
 				}
 				$email_fa = $valn[0]["email"];				
 				if (isset($email_fa) && strlen($email_fa)>5){					
-					$user_eamil[0]==null ? $user_eamil[0]=$email_fa : $user_eamil[0].=$email_fa.",";
+					// $user_eamil[0]==null ? $user_eamil[0]=$email_fa : $user_eamil[0].=$email_fa.",";
+					array_push($user_eamil[0],$email_fa);
 				}
 
 				$links=$link_w;
 				
 				$email_status =["",""];
-				!is_null($users_email) ? $user_eamil[1]= $users_email : 0;
+			    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
+				 
 				if($rsp_by=='admin'){
 					
 					//send email noti to users
