@@ -973,7 +973,7 @@ class efbFunction {
 									}
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ; */
 
-									foreach ($to as $recipient) {
+									foreach ($to[$i] as $recipient) {
 										$mailResult = wp_mail($recipient, $sub, $message, $headers);
 									}
 								}
