@@ -901,7 +901,7 @@ class efbFunction {
 						$to_;$mailResult;
 							
 						if (gettype($to) == 'string') {
-							
+							error_log($to);
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
 							//error_log('run email to====>');
@@ -975,7 +975,7 @@ class efbFunction {
 
 									foreach ($to[$i] as $recipient) {
 										error_log(json_encode($recipient));
-										$mailResult = wp_mail($recipient, $sub, $message, $headers);
+										$mailResult = wp_mail($recipient, $sub[$i], $message, $headers);
 									}
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
