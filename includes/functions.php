@@ -905,17 +905,20 @@ class efbFunction {
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
 							//error_log('run email to====>');
-							$toMail = array_pop($to);
+							// $toMail = array_pop($to);
 							//error_log($toMail);
 							/* $to_ = implode(',', array_unique($to));
 							$to_ = str_replace(',,', ',', $to_); */
-							if(count($to)>1){
+							/* if(count($to)>1){
 								$headers = array(
 									'MIME-Version: 1.0\r\n',
 									'From:'.$from.''
 								);
-							}							
-							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+							}	 */						
+							// $mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+							foreach ($to as $recipient) {
+								$mailResult = wp_mail($recipient, $sub, $message, $headers);
+							}
 						}
 
 						
@@ -958,17 +961,21 @@ class efbFunction {
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
 									//error_log('run email to====>');
-									$toMail = array_pop($to[$i]);
+									// $toMail = array_pop($to[$i]);
 									//error_log(json_encode($toMail));
 									/* $to_ = implode(',', array_unique($to[$i]));
 									$to_ = str_replace(',,', ',', $to_); */
-									if(count($to[$i])>1){
+									/* if(count($to[$i])>1){
 										$headers = array(
 											'MIME-Version: 1.0\r\n',
 											'From:'.$from.''
 										);
 									}
-									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
+									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ; */
+
+									foreach ($to as $recipient) {
+										$mailResult = wp_mail($recipient, $sub, $message, $headers);
+									}
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
