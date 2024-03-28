@@ -640,6 +640,7 @@ class _Public {
 		$email_array_state = false;
 		 function emails_list( &$email_user , $pointer , $email , $state_array){
 			//error_log(json_encode($email_user));
+			$state_array= true;
 			if(empty($email)){	
 			 return false;
 			}
