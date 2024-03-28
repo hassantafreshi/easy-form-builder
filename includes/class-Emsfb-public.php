@@ -630,13 +630,42 @@ class _Public {
 		$table_name = $this->db->prefix . "emsfb_form";
 		$value_form = $this->db->get_results( "SELECT form_structer ,form_type   FROM `$table_name` WHERE form_id = '$this->id'" );
 		$fs = isset($value_form) ? str_replace('\\', '', $value_form[0]->form_structer) :'';
-		$not_captcha=$formObj= $email_fa = $trackingCode_state = $send_email_to_user_state =  $check = "";
-		$email_user=[[],[]];
+		$not_captcha=$formObj= $trackingCode_state = $send_email_to_user_state =  $check = "";
+		$email_user= array();
 		$this->value = $data_POST['value'];
 		$this->value =str_replace('\\', '', $this->value);
 		$valo = json_decode($this->value , true);
 		$smsnoti=0;
 		$phone_numbers=[[],[]];
+		$email_array_state = false;
+		 function emails_list( &$email_user , $pointer , $email , $state_array){
+			//error_log(json_encode($email_user));
+			if(empty($email)){	
+			 return false;
+			}
+			if(!isset($email_user[$pointer])) $email_user[$pointer] = $state_array ? [] : '';
+			if($state_array){
+				if (strpos($email, ',') !== false){
+					$emails = explode(',', $email);
+					foreach ($emails as $email) {
+						if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
+					}
+				}else{
+					if(!in_array($email, $email_user[$pointer])){ array_push($email_user[$pointer] ,$email); return true;}
+				}
+			}else{
+				//find in the string
+				//error_log(json_encode($email_user[$pointer]));
+				
+				
+				$pos = strpos($email_user[$pointer],$email);
+				//error_log($pos);
+				if($pos===false){
+					!empty($email_user[$pointer]) ? $email_user[$pointer] .= ' , '.$email : $email_user[$pointer] =$email;
+					return true;
+				}
+			}
+		}
 		if(isset($setting['sms_config']) && $setting['sms_config']=="wpsms"){
 			$numbers = isset($setting['phnNo']) ? $setting['phnNo'] :[];
 			//seprate string numbers by comma
@@ -653,11 +682,27 @@ class _Public {
 		
 		if($fs!=''){
 				$formObj=  json_decode($fs,true);
+				$fs = null;
+				$email_array_state = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
 				if( !isset($valo['logout']) && !isset($valo['recovery']) ){
 				$email_fa = $formObj[0]["email"];
+				if(!empty($email_fa)){	
+					emails_list($email_user , 0 , $email_fa ,$email_array_state);
+					/* if (strpos($email_fa, ',') !== false){
+						$emails = explode(',', $formObj[0]["email"]);
+						foreach ($emails as $email) {
+							if(!in_array($email, $email_user[0])) array_push($email_user[0] ,$email);
+						}
+					}else{
+						array_push($email_user[0] ,$email_fa);
+					} */
+				}
+
+				//$email_fa = $formObj[0]["email"];
+
 				
 				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
-				$send_email_to_user_state =$formObj[0]["sendEmail"];	
+				$send_email_to_user_state =filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN);	
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
 				//$type = $formObj[0]["type"];
@@ -745,9 +790,10 @@ class _Public {
 											$mr =str_replace('XXX', $f['name'], $mr );
 											$stated=0;
 										}
-
+										$e_ar = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
 										if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
-										if(isset($f['noti'])== true && intval($f['noti'])==1) array_push($email_user[1],$item['value']);
+										//if(isset($f['noti'])== true && intval($f['noti'])==1)  array_push($email_user[1],$item['value']);
+										if(isset($f['noti'])== true && intval($f['noti'])==1)  emails_list($email_user , 1 , $item['value'] , $e_ar);
 										
 									}
 									$in_loop=false;
@@ -1243,11 +1289,11 @@ class _Public {
 						
 					}
 					
-			}else if ($fs==''){
-				$m = "Error 404 ";
-				$response = array( 'success' => false  , 'm'=>$m); 
-				wp_send_json_success($response,$data_POST);
 			}
+		}else if ($fs==''){
+			$m = "Error 404 ";
+			$response = array( 'success' => false  , 'm'=>$m); 
+			wp_send_json_success($response,$data_POST);
 		}
 		if(true){
 
@@ -1256,13 +1302,20 @@ class _Public {
 			
 			$captcha_success="null";
 			$r= $this->setting ;
-			if(gettype($r)=="string" && $fs!=''){
+			$formObj = array_slice($formObj, 0, 1);
+			
+			if(gettype($r)=="string"){
+				// error_log('setting is string');
 				$setting =str_replace('\\', '', $r);
-				
+				$r=null;
 							
 				$setting =json_decode($setting);
 				$this->setting=$setting;
-				 strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
+				$email_fa = $setting->emailSupporter;
+				//if(!empty($email_fa) && !in_array($email_fa, $email_user[0])) array_push($email_user[0] ,$email_fa);
+				if(!empty($email_fa) )  emails_list($email_user , 0 , $email_fa , $email_array_state);
+				//strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
+
 				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if(isset($setting->activeCode) &&!empty($setting->activeCode) && md5($server_name) ==$setting->activeCode){
@@ -1308,10 +1361,11 @@ class _Public {
 				});	
 				
 				
-					
-				if(in_array($emailuser,$email_user[1])==false){
+				
+				/* if(!in_array($emailuser,$email_user[1])){
 					array_push($email_user[1],$emailuser);
-				}
+				} */
+				emails_list($email_user , 1 , $emailuser , $email_array_state);
 			}
 							$ip = $this->ip=$this->get_ip_address();						
 							//$this->location = $efbFunction->iplocation_efb($ip,1);
@@ -1336,7 +1390,9 @@ class _Public {
 
 							}												
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-								$email_user[0]=$email_fa;
+								//$email_user[0]=$email_fa;
+								emails_list($email_user , 0 , $email_fa , $email_array_state);
+								//array_push($email_user[0],$email_fa);
 								$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 								$state_of_email = ['newMessage',$state_email_user];
 								$msg_content='null';
@@ -1387,6 +1443,7 @@ class _Public {
 									if(gettype($r)=="string" && $fs!=''){
 										$setting =str_replace('\\', '', $r);
 										$setting =json_decode($setting);
+										$r=null;
 										$TokenCode = $setting->payToken;
 										$data = array("merchant_id" => $TokenCode, "authority" => sanitize_text_field($data_POST['auth']), "amount" => $amount);
 										$jsonData = json_encode($data);
@@ -1468,7 +1525,7 @@ class _Public {
 								
 								// $admin_email = $formObj[0]["email"];
 								 if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-									$email_user[0]=$email_fa;
+									//$email_user[0]=$email_fa;
 									$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 									$state_of_email = ['newMessage',$state_email_user];
 									$msg_content='null';
@@ -1554,7 +1611,8 @@ class _Public {
 									//if(gettype($state)=="object"){
 										
 										$to = $email;
-										$email_user[1]=$email;
+										//$email_user[1]=$email;
+										emails_list($email_user , 1 , $email , $email_array_state);
 										//if(($send_email_to_user_state==true || $send_email_to_user_state=="true") && $email!="null" ){
 											//just show first and last chrs of $password
 											$firstChar = $password[0];
@@ -1564,7 +1622,7 @@ class _Public {
 
 											$ms ="<p>".  __('Username','easy-form-builder')  .":".$username ." </p> <p>".  __('Password','easy-form-builder') .":".$maskedPassword."</p>";
 											
-											$email_user[0]=$email_fa;
+											//$email_user[0]=$email_fa;
 											
 											$state_of_email = ['newUser','register'];
 											if($send_email_to_user_state==true || $send_email_to_user_state=="true")
@@ -1695,7 +1753,7 @@ class _Public {
 							$check=	$this->insert_message_db(0,false);
 						
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-								$email_user[0]=$email_fa;
+								//$email_user[0]=$email_fa;
 								//$state_email_user = $trackingCode_state=='subscribe';
 								$state_of_email = ['newMessage','subscribe'];
 								$msg_content='null';
@@ -1721,7 +1779,7 @@ class _Public {
 							$check=	$this->insert_message_db(0,false);
 						
 							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
-								$email_user[0]=$email_fa;
+								//$email_user[0]=$email_fa;
 								//$state_email_user = $trackingCode_state=='subscribe';
 								$state_of_email = ['newMessage',"survey"];
 								$msg_content='null';
@@ -1777,6 +1835,7 @@ class _Public {
 		if(gettype($this->setting)=="string"){
 		$r=str_replace('\\', '', $this->setting);
 			 $setting =json_decode($r);
+			 $r=null;
 		}
 		 $strR = json_encode($captcha_success);
 		 if (!empty($captcha_success) &&$captcha_success->success==false &&  $not_captcha==false ) {
@@ -2273,14 +2332,16 @@ class _Public {
 					// $user_eamil[0]=$setting->emailSupporter.",";
 					array_push($user_eamil[0],$setting->emailSupporter);
 				}
-				$email_fa = $valn[0]["email"];				
+				$email_fa = $valn[0]["email"];		
+						
 				if (isset($email_fa) && strlen($email_fa)>5){					
 					// $user_eamil[0]==null ? $user_eamil[0]=$email_fa : $user_eamil[0].=$email_fa.",";
 					array_push($user_eamil[0],$email_fa);
 				}
 
 				$links=$link_w;
-				
+				// error_log('check before send');
+				// error_log(json_encode($user_eamil));
 				$email_status =["",""];
 			    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
 				 

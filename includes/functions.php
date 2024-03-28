@@ -880,6 +880,7 @@ class efbFunction {
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
+				// error_log(json_encode($to));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -901,7 +902,8 @@ class efbFunction {
 						$to_;$mailResult;
 							
 						if (gettype($to) == 'string') {
-							error_log($to);
+							/* error_log($to);
+							error_log($sub); */
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
 							//error_log('run email to====>');
@@ -916,9 +918,14 @@ class efbFunction {
 								);
 							}	 */						
 							// $mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
-							foreach ($to as $recipient) {
-								$mailResult = wp_mail($recipient, $sub, $message, $headers);
+							//$to_ = null;
+							foreach ($to as $r) {
+								/* error_log($recipient);
+								error_log($sub); */
+								//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
+								$mailResult = wp_mail($$r, $sub, $message, $headers);
 							}
+							
 						}
 
 						
@@ -957,8 +964,7 @@ class efbFunction {
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
-								if (gettype($to[$i]) == 'string') {
-									//error_log( $to[$i]);
+								if (gettype($to[$i]) == 'string') {									
 									//$to_ = implode(',', array_unique($to[$i]));								
 
 
@@ -976,11 +982,14 @@ class efbFunction {
 										);
 									}
 									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ; */
-
-									foreach ($to[$i] as $recipient) {
-										error_log(json_encode($recipient));
-										$mailResult = wp_mail($recipient, $sub[$i], $message, $headers);
+									//$to_ = null;
+									foreach ($to[$i] as $r) {
+										/* error_log($recipient);
+										error_log($sub[$i]); */
+										//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
+										$mailResult = wp_mail($r, $sub[$i], $message, $headers);
 									}
+									
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
@@ -994,7 +1003,7 @@ class efbFunction {
 					
 				}
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    
+				    error_log('emails sent!');
 			   return $mailResult;
 	}
 
