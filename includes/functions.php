@@ -770,7 +770,7 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){				
-				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				//add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
 				$boundary = md5(time());
@@ -787,15 +787,15 @@ class efbFunction {
 				$text = strip_tags($html);
 				
 
-				$message = $message = "--" . $boundary . "\r\n" .
-										"Content-Type: text/plain; charset=UTF-8\r\n" .
-										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-										$text . "\r\n" .
-										"--" . $boundary . "\r\n" .
-										"Content-Type: text/html; charset=UTF-8\r\n" .
-										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-										$html . "\r\n" .
-										"--" . $boundary . "--";
+				$message = "--" . $boundary . "\r\n" .
+							"Content-Type: text/plain; charset=UTF-8\r\n" .
+							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+							$text . "\r\n" .
+							"--" . $boundary . "\r\n" .
+							"Content-Type: text/html; charset=UTF-8\r\n" .
+							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+							$html . "\r\n" .
+							"--" . $boundary . "--";
 				
 				if( $state!="reportProblem"){
 					 $to_ ="";
@@ -890,7 +890,7 @@ class efbFunction {
 				 $mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
-				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				   //remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    
 			   return $mailResult;
 	}
