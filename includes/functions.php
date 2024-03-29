@@ -1024,9 +1024,10 @@ class efbFunction {
 	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
 	
 		$l ='https://whitestudio.team/';
-			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
-			 else if(get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-			 else if (get_locale()=="de_DE") {$l ="https://de.whitestudio.team/";}
+		$wp_lan = get_locale();
+			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
+			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
+			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team/";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 		$text = ['msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
@@ -1067,7 +1068,8 @@ class efbFunction {
 
 			</div>";
 			 if(strlen($st->activeCode)<5){
-				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);				
+				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
+				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang["yFreeVEnPro"]);
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>				
 				<div style='text-align:center'>
