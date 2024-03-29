@@ -741,6 +741,8 @@ class efbFunction {
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The Confirmation Code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
+			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
+			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation. %s2','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -1023,15 +1025,17 @@ class efbFunction {
 	
 		$l ='https://whitestudio.team/';
 			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
+			 else if(get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
+			 else if (get_locale()=="de_DE") {$l ="https://de.whitestudio.team/";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ["serverEmailAble","vmgs","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
+		$text = ['msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
-		$align ="left";
-		$d =  "ltr" ;
+		$align ='left';
+		$d =  'ltr';
 		if(is_rtl()){
-			$d =  "rtl" ;
-			$align ="right";
+			$d =  'rtl' ;
+			$align ='right';
 		}
 		//}   
 
@@ -1054,13 +1058,19 @@ class efbFunction {
 		
 		
 		if($state=="testMailServer"){
-			
+			$dt = $lang['msgnml'];
+			//replace %s1 and %s2 with links to documentation
+			$dt = str_replace('%s1',"<a href='$l/documentation/' target='_blank'>",$dt);
+			$dt = str_replace('%s2',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
-			$message ="<div style='text-align:center'><h1>".  $footer ."</h1></div>";
+			$message ="<div style='text-align:center'><h1>".  $footer ."</h1> <p>". $dt ."</p>
+
+			</div>";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);				
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
+				<p>". $dt ."</p> 
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
 				<div style='text-align:center'><a href='".$l."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang["getProVersion"]."</a></div>";
 			 }
