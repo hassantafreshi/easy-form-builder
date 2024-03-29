@@ -773,20 +773,21 @@ class efbFunction {
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
-				
+				$boundary = md5(time());
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from.'',
+				   'Content-Type: multipart/alternative; boundary=' . $boundary,
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				  
 				$html = $this->email_template_efb($pro,$state,$cont,$link); 	
 				$text = strip_tags($html);
-				$boundary = "--PHP-alt-" . md5(time());
+				
 
-				$message = $boundary . "\r\n" .
+				$message = "--" . $boundary . "\r\n" .
 						   "Content-Type: text/plain; charset=UTF-8\r\n" .
 						   "Content-Transfer-Encoding: 7bit\r\n\r\n" .
 						   $text . "\r\n" .
@@ -899,11 +900,11 @@ class efbFunction {
 				//add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
-				
+				$boundary = md5(time());
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
-				   'Content-Type: multipart/alternative; boundary="PHP-alt-' . md5(time()) . '"',
+				   'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
 				   'From:'.$from.'',
 				);
 				
@@ -912,15 +913,15 @@ class efbFunction {
 					//error_log('send_email_state_new sub string');
 					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
 					$text = strip_tags($html);
-					$message = "--PHP-alt-" . md5(time()) . "\r\n" .
+					$message =  "--" .$boundary . "\r\n" .
 								"Content-Type: text/plain; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 								$text . "\r\n" .
-								"--PHP-alt-" . md5(time()) . "\r\n" .
+								$boundary . "\r\n" .
 								"Content-Type: text/html; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 								$html . "\r\n" .
-								"--PHP-alt-" . md5(time()) . "--";
+								$boundary . "--";
 					//error_log($message);
 					if( $state!="reportProblem"){
 						//error_log('send_email_state_new state not reportProblem');
@@ -988,15 +989,15 @@ class efbFunction {
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$html = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							$text = strip_tags($html);
-							$message = "--PHP-alt-" . md5(time()) . "\r\n" .
+							$message =  "--" .$boundary . "\r\n" .
 										"Content-Type: text/plain; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 										$text . "\r\n" .
-										"--PHP-alt-" . md5(time()) . "\r\n" .
+										$boundary . "\r\n" .
 										"Content-Type: text/html; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 										$html . "\r\n" .
-										"--PHP-alt-" . md5(time()) . "--";
+										$boundary . "--";
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
