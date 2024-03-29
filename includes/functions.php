@@ -777,7 +777,7 @@ class efbFunction {
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
+				   'From:'.$from,
 				   'Content-Type: multipart/alternative; boundary=' . $boundary,
 				);
 			
@@ -904,8 +904,8 @@ class efbFunction {
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
-				   'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
-				   'From:'.$from.'',
+				   'From:'.$from,
+				   'Content-Type: multipart/alternative; boundary=' . $boundary 
 				);
 				
 				if(gettype($sub)=='string'){
