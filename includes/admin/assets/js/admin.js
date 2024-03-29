@@ -92,6 +92,7 @@ donwload_event_icon_efb =(color)=>{
 `
 }
 function Link_emsFormBuilder(state) {
+  console.log(state);
   const lan =lan_subdomain_wsteam_efb();
   let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
@@ -175,6 +176,12 @@ function Link_emsFormBuilder(state) {
         //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
         link += "/guide-advanced-file-upload-forms-wordpress/"
         break;
+      case 'support':
+        link = `https://whitestudio.team/support/`;
+        break;
+      case 'EmailSpam':
+        link = `https://whitestudio.team/support/`;
+        break;
       
     }
   }else{
@@ -245,6 +252,12 @@ function Link_emsFormBuilder(state) {
       case 'file_size':
         //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
         link += "/ایجاد-فرم-آپلود-فایل-پیشرفته-وردپرس";
+        break;
+      case 'support':
+        link = `https://easyformbuilder.ir/support/`;
+        break;
+      case 'EmailSpam':
+        link = `https://easyformbuilder.ir/support/`;
         break;
     }
   }

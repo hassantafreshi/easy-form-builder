@@ -895,6 +895,9 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
+
+  let msg_email = efb_var.text.mlntip.replace('%s1', `<a class="efb pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">`).replace('%s2', '</a>').replace('%s3', `<a class="efb pointer-efb" onclick="Link_emsFormBuilder('support')" >`).replace('%s4', '</a>');
+
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
@@ -1044,16 +1047,16 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                         </div>
                         <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            <div class="efb mx-3">
+                            <div class="efb mx-3 ">
                                 <!--Email-->
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-at m-3"></i>${efb_var.text.alertEmail}
                                 </h5>
                                 <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
-                                    <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <span id="email_emsFormBuilder-message" class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
                                 </div>
                                 
                                 <h5 class="efb card-title mt-3col-12 efb ">
