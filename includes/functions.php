@@ -770,7 +770,7 @@ class efbFunction {
 	}
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){				
-				//add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
 				$boundary = md5(time());
@@ -890,14 +890,14 @@ class efbFunction {
 				 $mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
 				}
-				   //remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    
 			   return $mailResult;
 	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
 				// error_log(json_encode($to));
-				//add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
 				$boundary = md5(time());
@@ -1039,7 +1039,7 @@ class efbFunction {
 					
 					
 				}
-				    //remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    error_log('emails sent!');
 			   return $mailResult;
 	}
@@ -1170,7 +1170,7 @@ class efbFunction {
 	}
 
 	public function wpdocs_set_html_mail_content_type() {
-		return 'text/html';
+		return 'multipart/alternative';
 	}
 
 
