@@ -1069,10 +1069,12 @@ class efbFunction {
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);				
 				$message ="<h2 style='text-align:center'>"
-				. $p ."</h2>
-				<h3>". $dt ."</h3> 
-				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<div style='text-align:center'><a href='".$l."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang["getProVersion"]."</a></div>";
+				. $p ."</h2>				
+				<div style='text-align:center'>
+					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:black;'>".$lang["getProVersion"]."</a>
+					<h3>". $dt ."</h3> 
+					<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
+				 </div>";
 			 }
 			
 		}elseif($state=="newMessage"){	
