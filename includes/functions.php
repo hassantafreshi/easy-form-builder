@@ -773,7 +773,7 @@ class efbFunction {
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
 
 				$boundary = md5(time());
-				$this->temp =$boundary 
+				$this->temp =$boundary;
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
