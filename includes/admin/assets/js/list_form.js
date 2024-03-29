@@ -2168,9 +2168,9 @@ function EmailTemp2Efb() {
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 <td style='font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 <h1 style='color:#575252;text-align:center;'>shortcode_title</h1>
-</td></tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;'><td>
+</td></tr><tr style='text-align:center;color:#000000;font-size:14px;'><td>
             <span>shortcode_message</span>
-</td> </tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> <span><b style='color:#575252;'>
+</td> </tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> <span><b style='color:#575252;'>
             <a href='shortcode_website_url'>shortcode_website_name</a>
 </span></td></tr></tbody></center></td> </tr></table></center></body>  </html>`
 }

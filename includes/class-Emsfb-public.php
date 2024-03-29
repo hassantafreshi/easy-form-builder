@@ -585,7 +585,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		
 		
-		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf'];
+		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
 
 		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -2121,7 +2121,7 @@ class _Public {
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
-		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm"];
+		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -2390,11 +2390,16 @@ class _Public {
 				$link_w[$i] = $homeUrl;
 			}			
 			$cont[$i] = $track;
+			// find %s in $this->lanText['msgdml'] and replace with $track
+
+			$dt =  $this->lanText['msgdml'];
+			$dt = str_replace('%s', $track, $dt);
 			$subject[$i] ="📮 " . $this->lanText["youRecivedNewMessage"] .' ['.$track.']';
 			if($state[$i]=="notiToUserFormFilled_TrackingCode"){
 				$subject[$i] =$this->lanText["WeRecivedUrM"];
 				$message[$i] ="<h2>".$this->lanText["thankFillForm"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$track." </p>
+						<p>". $dt." </p>
 						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif($state[$i]=="notiToUserFormFilled"){
@@ -2406,6 +2411,7 @@ class _Public {
 				$subject[$i] =$this->lanText["WeRecivedUrM"] .' ['.$track.']' ;
 				$message[$i] ="<h2>".$this->lanText["WeRecivedUrM"]."</h2>
 						<p>". $this->lanText["trackNo"].":<br> ".$track." </p>
+						<p>". $dt." </p>
 						<div style='text-align:center'><a href='".$link_w[$i]."' target='_blank' style='padding:5px;color:white;background:black;'>". $this->lanText["vmgs"]."</a></div>";
 				$cont[$i]=$message[$i];
 			}elseif ($state[$i]=="register"){  

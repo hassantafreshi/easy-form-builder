@@ -740,6 +740,7 @@ class efbFunction {
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : __('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
+			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The Confirmation Code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -881,20 +882,31 @@ class efbFunction {
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
 				// error_log(json_encode($to));
-				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				//add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
 				
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
+				   'Content-Type: multipart/alternative; boundary="PHP-alt-' . md5(time()) . '"',
 				   'From:'.$from.'',
 				);
 				
 				if(gettype($sub)=='string'){
 			
 					//error_log('send_email_state_new sub string');
-					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
+					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
+					$text = strip_tags($message);
+					$message = "--PHP-alt-" . md5(time()) . "\r\n" .
+								"Content-Type: text/plain; charset=UTF-8\r\n" .
+								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+								$text . "\r\n" .
+								"--PHP-alt-" . md5(time()) . "\r\n" .
+								"Content-Type: text/html; charset=UTF-8\r\n" .
+								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+								$html . "\r\n" .
+								"--PHP-alt-" . md5(time()) . "--";
 					//error_log($message);
 					if( $state!="reportProblem"){
 						//error_log('send_email_state_new state not reportProblem');
@@ -1002,7 +1014,7 @@ class efbFunction {
 					
 					
 				}
-				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    //remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    error_log('emails sent!');
 			   return $mailResult;
 	}
@@ -1088,10 +1100,10 @@ class efbFunction {
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
-					</td></tr><tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'><td>
+					</td></tr><tr style='text-align:".$align.";color:#000000;font-size:14px;'><td>
 							<span>".$message." </span>
 				</td> </tr>
-				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 
+				<tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> 
 					
 				</td></tr></tbody></center></td>
 			</tr></table>
