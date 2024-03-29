@@ -787,15 +787,15 @@ class efbFunction {
 				$text = strip_tags($html);
 				
 
-				$message = "--" . $boundary . "\r\n" .
-						   "Content-Type: text/plain; charset=UTF-8\r\n" .
-						   "Content-Transfer-Encoding: 7bit\r\n\r\n" .
-						   $text . "\r\n" .
-						   $boundary . "\r\n" .
-						   "Content-Type: text/html; charset=UTF-8\r\n" .
-						   "Content-Transfer-Encoding: 7bit\r\n\r\n" .
-						   $html . "\r\n" .
-						   $boundary . "--";
+				$message = $message = "--" . $boundary . "\r\n" .
+										"Content-Type: text/plain; charset=UTF-8\r\n" .
+										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+										$text . "\r\n" .
+										"--" . $boundary . "\r\n" .
+										"Content-Type: text/html; charset=UTF-8\r\n" .
+										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+										$html . "\r\n" .
+										"--" . $boundary . "--";
 				
 				if( $state!="reportProblem"){
 					 $to_ ="";
@@ -913,15 +913,15 @@ class efbFunction {
 					//error_log('send_email_state_new sub string');
 					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
 					$text = strip_tags($html);
-					$message =  "--" .$boundary . "\r\n" .
+					$message = "--" . $boundary . "\r\n" .
 								"Content-Type: text/plain; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 								$text . "\r\n" .
-								$boundary . "\r\n" .
+								"--" . $boundary . "\r\n" .
 								"Content-Type: text/html; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 								$html . "\r\n" .
-								$boundary . "--";
+								"--" . $boundary . "--";
 					//error_log($message);
 					if( $state!="reportProblem"){
 						//error_log('send_email_state_new state not reportProblem');
@@ -989,15 +989,15 @@ class efbFunction {
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$html = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							$text = strip_tags($html);
-							$message =  "--" .$boundary . "\r\n" .
+							$message = "--" . $boundary . "\r\n" .
 										"Content-Type: text/plain; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 										$text . "\r\n" .
-										$boundary . "\r\n" .
+										"--" . $boundary . "\r\n" .
 										"Content-Type: text/html; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 										$html . "\r\n" .
-										$boundary . "--";
+										"--" . $boundary . "--";
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
