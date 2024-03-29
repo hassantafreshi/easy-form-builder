@@ -772,8 +772,8 @@ class efbFunction {
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
 
-				$boundary = md5(time());
-				$this->temp =$boundary;
+				/* $boundary = md5(time());
+				$this->temp =$boundary; */
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -782,15 +782,13 @@ class efbFunction {
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from,
-				   'Content-Type: multipart/alternative; boundary=' . $boundary,
+				   
 				);
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				  
 				$html = $this->email_template_efb($pro,$state,$cont,$link); 	
-				$text = strip_tags($html);
-				
-
+				/* $text = strip_tags($html);
 				$message = "--" . $boundary . "\r\n" .
 							"Content-Type: text/plain; charset=UTF-8\r\n" .
 							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
@@ -799,7 +797,8 @@ class efbFunction {
 							"Content-Type: text/html; charset=UTF-8\r\n" .
 							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 							$html . "\r\n" .
-							"--" . $boundary . "--";
+							"--" . $boundary . "--"; */
+				$message = $html;
 				
 				if( $state!="reportProblem"){
 					 $to_ ="";
@@ -910,14 +909,14 @@ class efbFunction {
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from,
-				   'Content-Type: multipart/alternative; boundary=' . $boundary 
+				   
 				);
 				
 				if(gettype($sub)=='string'){
 			
 					//error_log('send_email_state_new sub string');
 					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-					$text = strip_tags($html);
+					/* $text = strip_tags($html);
 					$message = "--" . $boundary . "\r\n" .
 								"Content-Type: text/plain; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
@@ -926,7 +925,8 @@ class efbFunction {
 								"Content-Type: text/html; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 								$html . "\r\n" .
-								"--" . $boundary . "--";
+								"--" . $boundary . "--"; */
+					$message = $html;
 					//error_log($message);
 					if( $state!="reportProblem"){
 						//error_log('send_email_state_new state not reportProblem');
@@ -993,7 +993,7 @@ class efbFunction {
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$html = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
-							$text = strip_tags($html);
+							/* $text = strip_tags($html);
 							$message = "--" . $boundary . "\r\n" .
 										"Content-Type: text/plain; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
@@ -1002,7 +1002,8 @@ class efbFunction {
 										"Content-Type: text/html; charset=UTF-8\r\n" .
 										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
 										$html . "\r\n" .
-										"--" . $boundary . "--";
+										"--" . $boundary . "--"; */
+							$message = $html;
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
@@ -1175,7 +1176,8 @@ class efbFunction {
 	}
 
 	public function wpdocs_set_html_mail_content_type() {
-		return 'multipart/alternative; boundary=' . $this->temp;
+		//return 'multipart/alternative; boundary=' . $this->temp;
+		return 'text/html';
 	}
 
 
