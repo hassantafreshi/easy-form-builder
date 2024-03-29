@@ -784,15 +784,17 @@ class efbFunction {
 				  
 				$html = $this->email_template_efb($pro,$state,$cont,$link); 	
 				$text = strip_tags($html);
-					$message = "--PHP-alt-" . md5(time()) . "\r\n" .
-								"Content-Type: text/plain; charset=UTF-8\r\n" .
-								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-								$text . "\r\n" .
-								"--PHP-alt-" . md5(time()) . "\r\n" .
-								"Content-Type: text/html; charset=UTF-8\r\n" .
-								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-								$html . "\r\n" .
-								"--PHP-alt-" . md5(time()) . "--";
+				$boundary = "--PHP-alt-" . md5(time());
+
+				$message = $boundary . "\r\n" .
+						   "Content-Type: text/plain; charset=UTF-8\r\n" .
+						   "Content-Transfer-Encoding: 7bit\r\n\r\n" .
+						   $text . "\r\n" .
+						   $boundary . "\r\n" .
+						   "Content-Type: text/html; charset=UTF-8\r\n" .
+						   "Content-Transfer-Encoding: 7bit\r\n\r\n" .
+						   $html . "\r\n" .
+						   $boundary . "--";
 				
 				if( $state!="reportProblem"){
 					 $to_ ="";
