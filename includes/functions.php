@@ -1063,14 +1063,14 @@ class efbFunction {
 			$dt = str_replace('%s1',"<a href='$l/documentation/' target='_blank'>",$dt);
 			$dt = str_replace('%s2',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
-			$message ="<div style='text-align:center'><h1>".  $footer ."</h1> <p>". $dt ."</p>
+			$message ="<div style='text-align:center'><h3>". $dt ."</h3> <h1>".  $footer ."</h1> 
 
 			</div>";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);				
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>
-				<p>". $dt ."</p> 
+				<h3>". $dt ."</h3> 
 				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
 				<div style='text-align:center'><a href='".$l."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang["getProVersion"]."</a></div>";
 			 }
