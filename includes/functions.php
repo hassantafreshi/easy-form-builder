@@ -1128,7 +1128,7 @@ class efbFunction {
 		}		
 		
 		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";color:#000000;}</style><center>
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body style='margin:auto 100px;direction:".$d.";color:#000000;'><center>
 			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
 				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' alt='$title' style='width:36%;'>
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
