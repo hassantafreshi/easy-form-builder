@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class efbFunction {
 	protected $db;
+	public $temp;
 	
 	public function __construct() {  
 		
@@ -769,11 +770,14 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){				
+	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
+
+				$boundary = md5(time());
+				$this->temp =$boundary 
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
-				$boundary = md5(time());
+				
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
@@ -897,10 +901,11 @@ class efbFunction {
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
 				// error_log(json_encode($to));
+				$boundary = md5(time());
+				$this->temp =$boundary;
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
-				$boundary = md5(time());
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
@@ -1170,7 +1175,7 @@ class efbFunction {
 	}
 
 	public function wpdocs_set_html_mail_content_type() {
-		return 'multipart/alternative';
+		return 'multipart/alternative; boundary=' . $this->temp;
 	}
 
 
