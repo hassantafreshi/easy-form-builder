@@ -742,7 +742,8 @@ class efbFunction {
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The Confirmation Code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
 			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
-			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2 .','easy-form-builder'),
+			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4 .','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -781,8 +782,17 @@ class efbFunction {
 			
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				  
-				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
-				
+				$html = $this->email_template_efb($pro,$state,$cont,$link); 	
+				$text = strip_tags($html);
+					$message = "--PHP-alt-" . md5(time()) . "\r\n" .
+								"Content-Type: text/plain; charset=UTF-8\r\n" .
+								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+								$text . "\r\n" .
+								"--PHP-alt-" . md5(time()) . "\r\n" .
+								"Content-Type: text/html; charset=UTF-8\r\n" .
+								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+								$html . "\r\n" .
+								"--PHP-alt-" . md5(time()) . "--";
 				
 				if( $state!="reportProblem"){
 					 $to_ ="";
@@ -899,7 +909,7 @@ class efbFunction {
 			
 					//error_log('send_email_state_new sub string');
 					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-					$text = strip_tags($message);
+					$text = strip_tags($html);
 					$message = "--PHP-alt-" . md5(time()) . "\r\n" .
 								"Content-Type: text/plain; charset=UTF-8\r\n" .
 								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
@@ -974,7 +984,17 @@ class efbFunction {
 				}else{
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
-							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
+							$html = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
+							$text = strip_tags($html);
+							$message = "--PHP-alt-" . md5(time()) . "\r\n" .
+										"Content-Type: text/plain; charset=UTF-8\r\n" .
+										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+										$text . "\r\n" .
+										"--PHP-alt-" . md5(time()) . "\r\n" .
+										"Content-Type: text/html; charset=UTF-8\r\n" .
+										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
+										$html . "\r\n" .
+										"--PHP-alt-" . md5(time()) . "--";
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
@@ -1061,8 +1081,8 @@ class efbFunction {
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
 			//replace %s1 and %s2 with links to documentation
-			$dt = str_replace('%s1',"<a href='$l/documentation/' target='_blank'>",$dt);
-			$dt = str_replace('%s2',"</a>",$dt);
+			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
+			$dt = str_replace('%s2.',"</a>.",$dt);
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'><h3>". $dt ."</h3> <h1>".  $footer ."</h1> 
 
