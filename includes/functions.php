@@ -1086,7 +1086,7 @@ class efbFunction {
 		$blogURL= home_url();
 
 		
-		$dts =  $text['msgdml'];
+		$dts =  $lang['msgdml'];
 		
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
