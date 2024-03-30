@@ -1052,11 +1052,11 @@ class efbFunction {
 
 	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
 	
-		$l ='https://whitestudio.team/';
+		$l ='https://whitestudio.team';
 		$wp_lan = get_locale();
-			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
-			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team/";}
+			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
+			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team";}
+			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
