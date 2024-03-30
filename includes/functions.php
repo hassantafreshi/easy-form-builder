@@ -1058,7 +1058,7 @@ class efbFunction {
 			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team/";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ['msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
+		$text = ['msgdml','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		$align ='left';
@@ -1086,6 +1086,7 @@ class efbFunction {
 		$blogURL= home_url();
 
 		
+		$dts =  $text['msgdml'];
 		
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
@@ -1111,14 +1112,18 @@ class efbFunction {
 		}elseif($state=="newMessage"){	
 			//w_link;
 			if(gettype($m)=='string'){
+				$dts = str_replace('%s', $m, $dt);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
+				$dts = str_replace('%s', $m[0], $dt);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}
 		}else{
@@ -1128,9 +1133,11 @@ class efbFunction {
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
 				$title =$lang["hiUser"];
+				$dts = str_replace('%s', $m[0], $dt);
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
 				";
 			}
