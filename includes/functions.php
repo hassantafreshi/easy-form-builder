@@ -744,7 +744,7 @@ class efbFunction {
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('Your confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
 			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
 			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
-			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4 .','easy-form-builder'),
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -1087,10 +1087,11 @@ class efbFunction {
 
 		
 		$dts =  $lang['msgdml'];
-		$de = $lang['mlntip'];
+		
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
-			
+			$de = $lang['mlntip'];			
+			$de = substr($de, 0, strpos($de, '.')+1);
 			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$de);
 			$de = str_replace('%s2',"</a>",$de);
 			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>",$de);
