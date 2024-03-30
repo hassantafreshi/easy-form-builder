@@ -1087,13 +1087,13 @@ class efbFunction {
 
 		
 		$dts =  $lang['msgdml'];
-		
+		$de = $lang['mlntip'];
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
-			$de = $lang['mlntip'];
-			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$dt);
-			$de = str_replace('%s2',"</a>.",$de);
-			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>.",$de);
+			
+			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$de);
+			$de = str_replace('%s2',"</a>",$de);
+			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>",$de);
 			$de = str_replace('%s4.',"</a>.",$de);
 
 			//replace %s1 and %s2 with links to documentation
@@ -1109,7 +1109,7 @@ class efbFunction {
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>				
 				<div style='text-align:center'>
-					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:black;'>".$lang["getProVersion"]."</a>
+					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang["getProVersion"]."</a>
 					<h3>". $de ."</h3>
 					<h4>". $dt ."</h4> 
 					<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
