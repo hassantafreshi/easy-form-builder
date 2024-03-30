@@ -1093,9 +1093,12 @@ class efbFunction {
 			$de = $lang['mlntip'];			
 			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);			
 			//$de = substr($de, 0, strpos($de, '.')+1);
-			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$de);
+			$link = "$l/document/send-email-using-smtp-plugin/";
+			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
+			//
+			$de = str_replace('%s1',"<a href='$link' target='_blank'>",$de);
 			$de = str_replace('%s2',"</a>",$de);
-			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>",$de);
+			$de = str_replace('%s3',"<a href='$l/support/' target='_blank'>",$de);
 			$de = str_replace('%s4',"</a>",$de);
 
 			//replace %s1 and %s2 with links to documentation

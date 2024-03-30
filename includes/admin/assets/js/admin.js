@@ -180,7 +180,7 @@ function Link_emsFormBuilder(state) {
         link = `https://whitestudio.team/support/`;
         break;
       case 'EmailSpam':
-        link = `https://whitestudio.team/support/`;
+        link += `s/send-email-using-smtp-plugin/`;
         break;
       
     }
@@ -257,7 +257,7 @@ function Link_emsFormBuilder(state) {
         link = `https://easyformbuilder.ir/support/`;
         break;
       case 'EmailSpam':
-        link = `https://easyformbuilder.ir/support/`;
+        link +=`ارسال-ایمیل-بوسیله-افزونه-smtp/`;
         break;
     }
   }
