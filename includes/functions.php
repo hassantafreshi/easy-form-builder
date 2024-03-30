@@ -1058,7 +1058,7 @@ class efbFunction {
 			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team/";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ['msgdml','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
+		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
 		$align ='left';
