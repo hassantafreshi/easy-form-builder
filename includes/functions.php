@@ -1094,15 +1094,15 @@ class efbFunction {
 			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$de);
 			$de = str_replace('%s2',"</a>",$de);
 			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>",$de);
-			$de = str_replace('%s4.',"</a>.",$de);
+			$de = str_replace('%s4',"</a>",$de);
 
 			//replace %s1 and %s2 with links to documentation
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
 			$dt = str_replace('%s2.',"</a>.",$dt);
 			$title= $lang["serverEmailAble"];
-			$message ="<div style='text-align:center'><h3>". $de ."</h3> <h4>". $dt ."</h4> <p>".  $footer ."</p> 
-
-			</div>";
+			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
+			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
+			";
 			 if(strlen($st->activeCode)<5){
 				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
 				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang["yFreeVEnPro"]);
@@ -1110,10 +1110,11 @@ class efbFunction {
 				. $p ."</h2>				
 				<div style='text-align:center'>
 					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang["getProVersion"]."</a>
-					<h3>". $de ."</h3>
-					<h4>". $dt ."</h4> 
-					<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				 </div>";
+				</div>
+					<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3>
+					<h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4> 
+					<div style='text-align:center'><p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p></div>
+				 ";
 			 }
 			
 		}elseif($state=="newMessage"){	
