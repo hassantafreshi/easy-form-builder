@@ -741,7 +741,7 @@ class efbFunction {
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : __('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
-			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The Confirmation Code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
+			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('Your confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
 			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
 			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
 			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4 .','easy-form-builder'),
@@ -1090,11 +1090,17 @@ class efbFunction {
 		
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
+			$de = $lang['mlntip'];
+			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$dt);
+			$de = str_replace('%s2',"</a>.",$de);
+			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>.",$de);
+			$de = str_replace('%s4.',"</a>.",$de);
+
 			//replace %s1 and %s2 with links to documentation
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
 			$dt = str_replace('%s2.',"</a>.",$dt);
 			$title= $lang["serverEmailAble"];
-			$message ="<div style='text-align:center'><h3>". $dt ."</h3> <h1>".  $footer ."</h1> 
+			$message ="<div style='text-align:center'><h3>". $de ."</h3> <h4>". $dt ."</h4> <p>".  $footer ."</p> 
 
 			</div>";
 			 if(strlen($st->activeCode)<5){
@@ -1104,7 +1110,8 @@ class efbFunction {
 				. $p ."</h2>				
 				<div style='text-align:center'>
 					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:black;'>".$lang["getProVersion"]."</a>
-					<h3>". $dt ."</h3> 
+					<h3>". $de ."</h3>
+					<h4>". $dt ."</h4> 
 					<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
 				 </div>";
 			 }
