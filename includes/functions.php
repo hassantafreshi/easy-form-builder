@@ -1112,14 +1112,14 @@ class efbFunction {
 		}elseif($state=="newMessage"){	
 			//w_link;
 			if(gettype($m)=='string'){
-				$dts = str_replace('%s', $m, $dt);
+				$dts = str_replace('%s', $m, $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
 				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
-				$dts = str_replace('%s', $m[0], $dt);
+				$dts = str_replace('%s', $m[0], $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
@@ -1133,7 +1133,7 @@ class efbFunction {
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
 				$title =$lang["hiUser"];
-				$dts = str_replace('%s', $m[0], $dt);
+				$dts = str_replace('%s', $m[0], $dts);
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
