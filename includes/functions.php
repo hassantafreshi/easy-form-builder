@@ -1091,7 +1091,8 @@ class efbFunction {
 		if($state=="testMailServer"){
 			$dt = $lang['msgnml'];
 			$de = $lang['mlntip'];			
-			$de = substr($de, 0, strpos($de, '.')+1);
+			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);			
+			//$de = substr($de, 0, strpos($de, '.')+1);
 			$de = str_replace('%s1',"<a href='$l/document/send-email-using-smtp-plugin' target='_blank'>",$de);
 			$de = str_replace('%s2',"</a>",$de);
 			$de = str_replace('%s3',"<a href='$l/support' target='_blank'>",$de);
