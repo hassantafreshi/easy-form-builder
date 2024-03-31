@@ -1102,8 +1102,9 @@ class Admin {
                 }
             }
         }
-        
-        $check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer" , home_url());
+        $check = $efbFunction->send_email_state_new($to ,$sub ,$cont,$pro,'testMailServer',home_url(),$ac);
+        //$check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer" , home_url());
+        error_log(json_encode($check));
                 if($check==true){           
                     $ac->smtp = "true";
                     $ac->emailSupporter = $to;
