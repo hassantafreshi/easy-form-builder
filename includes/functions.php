@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class efbFunction {
 	protected $db;
-	public $temp;
+
 	
 	public function __construct() {  
 		
@@ -744,7 +744,9 @@ class efbFunction {
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('Your confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
 			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
 			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
-			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
+			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From','easy-form-builder'),
+			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -772,8 +774,7 @@ class efbFunction {
 
 	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
 
-				/* $boundary = md5(time());
-				$this->temp =$boundary; */
+		
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
@@ -788,16 +789,7 @@ class efbFunction {
 				//if($to=="null" || is_null($to)<5 ){$to=$support;}
 				  
 				$html = $this->email_template_efb($pro,$state,$cont,$link); 	
-				/* $text = strip_tags($html);
-				$message = "--" . $boundary . "\r\n" .
-							"Content-Type: text/plain; charset=UTF-8\r\n" .
-							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-							$text . "\r\n" .
-							"--" . $boundary . "\r\n" .
-							"Content-Type: text/html; charset=UTF-8\r\n" .
-							"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-							$html . "\r\n" .
-							"--" . $boundary . "--"; */
+			
 				$message = $html;
 				
 				if( $state!="reportProblem"){
@@ -900,12 +892,15 @@ class efbFunction {
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
 				// error_log(json_encode($to));
-				$boundary = md5(time());
-				$this->temp =$boundary;
+				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+				if(isset($to[2])){ 
+					$from = array_pop($to);					
+				}
+				error_log($from);
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from,
@@ -916,16 +911,7 @@ class efbFunction {
 			
 					//error_log('send_email_state_new sub string');
 					$html = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
-					/* $text = strip_tags($html);
-					$message = "--" . $boundary . "\r\n" .
-								"Content-Type: text/plain; charset=UTF-8\r\n" .
-								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-								$text . "\r\n" .
-								"--" . $boundary . "\r\n" .
-								"Content-Type: text/html; charset=UTF-8\r\n" .
-								"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-								$html . "\r\n" .
-								"--" . $boundary . "--"; */
+				
 					$message = $html;
 					//error_log($message);
 					if( $state!="reportProblem"){
@@ -941,21 +927,15 @@ class efbFunction {
 							//error_log('run email to====>');
 							// $toMail = array_pop($to);
 							//error_log($toMail);
-							/* $to_ = implode(',', array_unique($to));
-							$to_ = str_replace(',,', ',', $to_); */
-							/* if(count($to)>1){
-								$headers = array(
-									'MIME-Version: 1.0\r\n',
-									'From:'.$from.''
-								);
-							}	 */						
+									
 							// $mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
 							//$to_ = null;
 							foreach ($to as $r) {
+								
 								/* error_log($recipient);
 								error_log($sub); */
 								//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
-								$mailResult = wp_mail($$r, $sub, $message, $headers);
+							  if(isset($r)){error_log($r);	$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
 							
 						}
@@ -993,16 +973,7 @@ class efbFunction {
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$html = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
-							/* $text = strip_tags($html);
-							$message = "--" . $boundary . "\r\n" .
-										"Content-Type: text/plain; charset=UTF-8\r\n" .
-										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-										$text . "\r\n" .
-										"--" . $boundary . "\r\n" .
-										"Content-Type: text/html; charset=UTF-8\r\n" .
-										"Content-Transfer-Encoding: 7bit\r\n\r\n" .
-										$html . "\r\n" .
-										"--" . $boundary . "--"; */
+							
 							$message = $html;
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
@@ -1016,15 +987,7 @@ class efbFunction {
 									//error_log('run email to====>');
 									// $toMail = array_pop($to[$i]);
 									//error_log(json_encode($toMail));
-									/* $to_ = implode(',', array_unique($to[$i]));
-									$to_ = str_replace(',,', ',', $to_); */
-									/* if(count($to[$i])>1){
-										$headers = array(
-											'MIME-Version: 1.0\r\n',
-											'From:'.$from.''
-										);
-									}
-									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ; */
+									
 									//$to_ = null;
 									foreach ($to[$i] as $r) {
 										/* error_log($recipient);
@@ -1195,8 +1158,7 @@ class efbFunction {
 			return $val;
 	}
 
-	public function wpdocs_set_html_mail_content_type() {
-		//return 'multipart/alternative; boundary=' . $this->temp;
+	public function wpdocs_set_html_mail_content_type() {	
 		return 'text/html';
 	}
 
