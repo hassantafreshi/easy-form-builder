@@ -831,6 +831,7 @@ function fun_show_setting__emsFormBuilder() {
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
   let phoneNumbers=sms_method = 'null';
+  let femail ='null';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -846,6 +847,8 @@ function fun_show_setting__emsFormBuilder() {
     sitekey = f(`siteKey`);
     secretkey = f(`secretKey`);
     email = f(`emailSupporter`);
+    femail = f('femail');
+    femail = femail=='null' ? 'no-reply@'+ window.location.hostname : femail;
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
@@ -1057,6 +1060,11 @@ function fun_show_setting__emsFormBuilder() {
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
                                     <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="email_emsFormBuilder-message" class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
+                                </div>
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
+                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onClick="pro_show_efb(1)"' :''} placeholder="no-reply@domainName.com" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.from}">
+                                    <span id="email_emsFormBuilder-message" class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
                                 
                                 <h5 class="efb card-title mt-3col-12 efb ">
@@ -1434,6 +1442,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const stripeSKey = f(`stripeSKey_emsFormBuilder`);
     const stripePKey = f(`stripePKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
+    const femail = f(`femail_emsFormBuilder`);
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     //let smtp = f('smtp_emsFormBuilder')
@@ -1442,6 +1451,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
+
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
@@ -1490,7 +1500,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail
         } , state_auto);
   }
 
