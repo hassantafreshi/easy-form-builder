@@ -1420,7 +1420,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder'];
+  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
@@ -1442,7 +1442,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const stripeSKey = f(`stripeSKey_emsFormBuilder`);
     const stripePKey = f(`stripePKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
-    const femail = f(`femail_emsFormBuilder`);
+    let femail = f(`femail_emsFormBuilder`);
+    if(femail.length<6){ femail = 'no-reply@'+window.location.hostname;}
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     //let smtp = f('smtp_emsFormBuilder')

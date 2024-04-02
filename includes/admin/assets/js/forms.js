@@ -1,6 +1,7 @@
 
 const label_align = efb_var.rtl == 1 ? 'txt-right' : 'txt-left'
-const smail_efb =efb_var.setting.emailSupporter!=''  ? true :false
+let smail_efb =false;
+document.addEventListener("DOMContentLoaded", function() { smail_efb = efb_var.setting.emailSupporter!=''  ? true :false ;})
 function textThankUEFB(tp){
     
     let tk ={"thankYou":efb_var.text.thanksFillingOutform,"done":efb_var.text.done,"trackingCode":efb_var.text.trackingCode,"error":efb_var.text.error,"pleaseFillInRequiredFields":efb_var.text.pleaseFillInRequiredFields ,'icon': "bi-hand-thumbs-up" };
