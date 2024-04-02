@@ -772,7 +772,7 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
+	/* public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){	
 
 		
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
@@ -888,7 +888,7 @@ class efbFunction {
 				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
 				    
 			   return $mailResult;
-	}
+	} */
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				error_log('send_email_state_new 3');
 				// error_log(json_encode($to));
@@ -897,8 +897,8 @@ class efbFunction {
 			   	$mailResult = "n";
 			
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-				if(isset($to[2])){ 
-					$from = array_pop($to);					
+				if(isset($to[2]) && is_email($to[2])){ 
+					$from =get_bloginfo('name')." <". array_pop($to).">";			
 				}
 				error_log($from);
 				$headers = array(

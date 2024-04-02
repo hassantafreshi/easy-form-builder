@@ -638,6 +638,7 @@ class _Public {
 		$smsnoti=0;
 		$phone_numbers=[[],[]];
 		$email_array_state = false;
+		$send_email_to_user_state = 0;
 		 function emails_list( &$email_user , $pointer , $email , $state_array){
 			//error_log(json_encode($email_user));
 			$state_array= true;
@@ -702,8 +703,8 @@ class _Public {
 				//$email_fa = $formObj[0]["email"];
 
 				
-				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
-				$send_email_to_user_state =filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN);	
+				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;			
+				if( isset($formObj[0]["sendEmail"])) filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN) ;
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
 				//$type = $formObj[0]["type"];
@@ -1315,6 +1316,7 @@ class _Public {
 				$email_fa = $setting->emailSupporter;
 				//if(!empty($email_fa) && !in_array($email_fa, $email_user[0])) array_push($email_user[0] ,$email_fa);
 				if(!empty($email_fa) )  emails_list($email_user , 0 , $email_fa , $email_array_state);
+				if(isset($setting->femail) && is_email($setting->femail)) $email_user[2] =get_bloginfo('name')." <". $setting->femail .">";
 				//strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
 
 				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
@@ -1712,7 +1714,7 @@ class _Public {
 							$response = array( 'success' => true  );
 							wp_send_json_success($response,$data_POST);
 						break;
-						case "recovery":							
+						case "recovery":
 							$m = str_replace("\\","",$this->value);
 							$userinfo = json_decode($m,true);
 							//email
@@ -1734,6 +1736,7 @@ class _Public {
 									if($pro==false) $efb ='<p> '. __("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
 									$subject ="". __("Password recovery")."[".get_bloginfo('name')."]";
 									$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+									if(isset($email_user[2]) && is_email($email_user[2])) $from =  blog_info('name')." <".$email_user[2].">";
 									$message ='<!DOCTYPE html> <html> <body><h3>'.  __('New Password')  .':'.$newpass.'</h3>
 									<p> '.$efb. '</p>
 									</body> </html>';
@@ -2327,12 +2330,14 @@ class _Public {
 			
 					
 				}
-				$user_eamil=[[],[]];
+				$user_eamil=[[],[],null];
 				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
 					// array_push($to ,$setting->emailSupporter);
 					// $user_eamil[0]=$setting->emailSupporter.",";
 					array_push($user_eamil[0],$setting->emailSupporter);
 				}
+				if(isset($setting->femail)) $user_eamil[2]= get_bloginfo('name') ." <".$setting->femail.">";
+
 				$email_fa = $valn[0]["email"];		
 						
 				if (isset($email_fa) && strlen($email_fa)>5){					
