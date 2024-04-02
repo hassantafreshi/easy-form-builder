@@ -2990,11 +2990,20 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
-  if (by == 1) { by = 'Admin' } else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
+  if (by == 1) {
+     by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
+  else if (by ==''){ 
+    by = efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
+  }
+  else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) {
+    by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`; }
+  else {     
+    by = `<span>${efb_var.text.by}:</span> ${by}`;
+   }
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
     <div class="efb  form-check">
      <div>
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
+      <p class="efb small fs-7 mb-0">${by}</p>
       ${ipSection}
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
       <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  
