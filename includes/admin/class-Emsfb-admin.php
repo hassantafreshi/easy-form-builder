@@ -1101,8 +1101,13 @@ class Admin {
                     $to="null";
                 }
             }
+            $from = 'no-reply@'.$_SERVER['HTTP_HOST'];
+            if(isset($ac->femail) && strlen($ac->femail)>5){
+                $from = $ac->femail;
+            }
+
         }
-        $check = $efbFunction->send_email_state_new($to ,$sub ,$cont,$pro,'testMailServer',home_url(),$ac);
+        $check = $efbFunction->send_email_state_new([$to , null,$from] ,$sub ,$cont,$pro,'testMailServer',home_url(),$ac);
         //$check = $efbFunction->send_email_state( $to,$sub ,$cont,$pro,"testMailServer" , home_url());
         error_log(json_encode($check));
                 if($check==true){           
