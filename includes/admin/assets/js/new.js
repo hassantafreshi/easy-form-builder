@@ -2903,12 +2903,15 @@ function handle_change_event_efb(el){
     }
 }
 offset_view_efb=()=>{
+  let r = 800;
   if(document.getElementById('body_efb')){
-    return document.getElementById('body_efb').offsetWidth;
-  }else if(document.getElementById('settingModalEfb-body')){
-    return document.getElementById('settingModalEfb-body').offsetWidth;
+    r= document.getElementById('body_efb').offsetWidth;
+  }else if(document.getElementById('settingModalEfb-body') && document.getElementById('settingModalEfb-body').offsetWidth>0){
+    r= document.getElementById('settingModalEfb-body').offsetWidth;
+  }else if (document.getElementById('body_emsFormBuilder')){
+    r= document.getElementById('body_emsFormBuilder').offsetWidth;
   }
-  return 800;
+  return Number(r);
 }
 get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)

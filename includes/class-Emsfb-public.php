@@ -428,7 +428,7 @@ class _Public {
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
-		 $efb_m='';
+		
 		 if($formObj[0]["stateForm"]==true ){
 			$content ="
 			".$this->bootstrap_icon_efb($icons_)."		 

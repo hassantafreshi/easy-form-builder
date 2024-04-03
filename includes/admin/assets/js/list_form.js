@@ -832,6 +832,9 @@ function fun_show_setting__emsFormBuilder() {
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
+  let demail ='no-reply@'+ window.location.hostname;
+  //check demail is valid email
+  demail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(demail)  &&  demail.includes('127.')==false ? demail : 'no-reply@yourDomainName.com';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -848,7 +851,8 @@ function fun_show_setting__emsFormBuilder() {
     secretkey = f(`secretKey`);
     email = f(`emailSupporter`);
     femail = f('femail');
-    femail = femail=='null' ? 'no-reply@'+ window.location.hostname : femail;
+
+    femail = femail=='null' ? demail : femail;
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
@@ -1059,12 +1063,14 @@ function fun_show_setting__emsFormBuilder() {
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
                                     <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
-                                    <span id="email_emsFormBuilder-message" class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
+                                    <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                    <span  class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
                                 </div>
                                 <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onClick="pro_show_efb(1)"' :''} placeholder="no-reply@domainName.com" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.from}">
-                                    <span id="email_emsFormBuilder-message" class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onClick="pro_show_efb(1)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
+                                    <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
                                 
                                 <h5 class="efb card-title mt-3col-12 efb ">
@@ -1328,10 +1334,34 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   }
   const v = (id) => {
     
-    const el = document.getElementById(id);
+    let el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
-      
-      el.value = sanitize_text_efb(el.value);}
+      if(el.type!='email'){
+        el.value = sanitize_text_efb(el.value);
+
+      }else{
+        let value = sanitize_text_efb(el.value);
+        const vs = value.split(',');
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        for(let i=0;i<vs.length;i++){
+          console.log(vs ,regex.test(vs[i]));
+          if(!regex.test(vs[i])){
+            console.log(el.value);
+            el.className = colorBorderChangerEfb(el.className, "border-danger")
+            document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
+            returnError(`<b>${el.dataset.tab}</b>`);
+           
+            value=false;
+           break;
+          }
+        }
+        el.value = sanitize_text_efb(el.value);
+        console.log(el.value);
+        if(value==false) return false;
+              
+      }
+    }
+    console.log(el.value);
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 
@@ -1395,8 +1425,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
             if( !phoneNoArr[i].match(/^\+\d{8,14}$/)){
               returnError(`<b>${el.dataset.tab}</b>`);
               el.classList.add('invalid');
+              const msg = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`
               //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
-              document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`;
+              document.getElementById(`${el.id}-message`).innerHTML =msg ;
               return false;
             }
           }
@@ -1411,7 +1442,13 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           document.getElementById(`${el.id}-message`).innerHTML = '';
         }
         if (el.type == "email" && el.value.length > 0) {
-          return valid_email_emsFormBuilder(el);
+          
+          const r = valid_email_emsFormBuilder(el);
+          if (r == false) {
+            returnError(`<b>${el.dataset.tab}</b>`);
+            el.classList.add('invalid');
+            return false;
+          }
         }
       }
     } else {
@@ -1424,17 +1461,20 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   let state = true
 
   for (let id of ids) {
-    
+    console.log(document.getElementById(id).value);
 
     if (v(id) === false) {
+      console.log(document.getElementById(id).value);
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
       fun_State_btn_set_setting_emsFormBuilder(true);
       const m = document.getElementById(`${id}-message`).innerHTML;
-      
+      console.log(document.getElementById(id).value);
       break;
     }
+
   }
+  console.log(state);
   if (state == true) {
     const activeCode = f('activeCode_emsFormBuilder');
     const sitekey = f(`sitekey_emsFormBuilder`);
