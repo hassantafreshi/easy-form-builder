@@ -638,7 +638,7 @@ class _Public {
 		$smsnoti=0;
 		$phone_numbers=[[],[]];
 		$email_array_state = false;
-		$send_email_to_user_state = 0;
+		$send_email_to_user_state = false;
 		 function emails_list( &$email_user , $pointer , $email , $state_array){
 			//error_log(json_encode($email_user));
 			$state_array= true;
@@ -703,9 +703,8 @@ class _Public {
 				//$email_fa = $formObj[0]["email"];
 
 				
-				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;	
-				$send_email_to_user_state =$formObj[0]["sendEmail"];			
-				if( isset($formObj[0]["sendEmail"])) filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN) ;
+				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;			
+				if( isset($formObj[0]["sendEmail"])) $send_email_to_user_state = filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN) ;
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
 				//$type = $formObj[0]["type"];
@@ -1357,18 +1356,12 @@ class _Public {
 			}
 			$this->name = sanitize_text_field($data_POST['name']);
 			$this->id = sanitize_text_field($data_POST['id']);		
-			if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+			if($send_email_to_user_state==true ){
 				  array_filter($valobj, function($item) use($formObj ,&$emailuser){ 
 					if(isset($item['id_']) && $item['id_']==$formObj[0]["email_to"]){
 						$emailuser = $item["value"];
 						return true;}					
-				});	
-				
-				
-				
-				/* if(!in_array($emailuser,$email_user[1])){
-					array_push($email_user[1],$emailuser);
-				} */
+				});				
 				emails_list($email_user , 1 , $emailuser , $email_array_state);
 			}
 							$ip = $this->ip=$this->get_ip_address();						
@@ -1393,7 +1386,7 @@ class _Public {
 								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check );
 
 							}												
-							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+							if($send_email_to_user_state==true){
 								//$email_user[0]=$email_fa;
 								emails_list($email_user , 0 , $email_fa , $email_array_state);
 								//array_push($email_user[0],$email_fa);
@@ -1528,7 +1521,7 @@ class _Public {
 								
 								
 								// $admin_email = $formObj[0]["email"];
-								 if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+								 if($send_email_to_user_state==true){
 									//$email_user[0]=$email_fa;
 									$state_email_user = $trackingCode_state==1 ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled';
 									$state_of_email = ['newMessage',$state_email_user];
@@ -1629,7 +1622,7 @@ class _Public {
 											//$email_user[0]=$email_fa;
 											
 											$state_of_email = ['newUser','register'];
-											if($send_email_to_user_state==true || $send_email_to_user_state=="true")
+											if($send_email_to_user_state==true)
 											{
 												$msg_sub = 'null';
 												if(isset($formObj[0]["email_sub"]) && $formObj[0]["email_sub"]!=''){
@@ -1757,7 +1750,7 @@ class _Public {
 						case "subscribe":
 							$check=	$this->insert_message_db(0,false);
 						
-							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+							if($send_email_to_user_state==true){
 								//$email_user[0]=$email_fa;
 								//$state_email_user = $trackingCode_state=='subscribe';
 								$state_of_email = ['newMessage','subscribe'];
@@ -1783,7 +1776,7 @@ class _Public {
 							//$ip = $this->ip;
 							$check=	$this->insert_message_db(0,false);
 						
-							if($send_email_to_user_state==true || $send_email_to_user_state=="true"){
+							if($send_email_to_user_state==true){
 								//$email_user[0]=$email_fa;
 								//$state_email_user = $trackingCode_state=='subscribe';
 								$state_of_email = ['newMessage',"survey"];
