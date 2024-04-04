@@ -703,7 +703,8 @@ class _Public {
 				//$email_fa = $formObj[0]["email"];
 
 				
-				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;			
+				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;	
+				$send_email_to_user_state =$formObj[0]["sendEmail"];			
 				if( isset($formObj[0]["sendEmail"])) filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN) ;
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
