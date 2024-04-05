@@ -611,7 +611,8 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
   post_api_r_message_efb(data,message);
 }
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
-  const resp = fun_emsFormBuilder_show_messages(message, by, track, date);
+ 
+  const resp = fun_emsFormBuilder_show_messages(message, '',by, track, date);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${resp}</div></div>`
   document.getElementById('resp_efb').innerHTML += body
 }

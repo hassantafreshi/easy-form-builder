@@ -731,11 +731,11 @@ function valid_file_emsFormBuilder(id) {
     //fun_upload_file_api_emsFormBuilder(id, file,tp);
    
       const idB =id+'-prB';
-      console.log(idB);
+      //console.log(idB);
       const elf = document.getElementById(idB);
       document.getElementById(id+'-prA').classList.remove('d-none');
       if(elf==null) return;
-      console.log('test');
+      //console.log('test');
       let pp =0;
       elf.style.width = pp+'%';
       elf.textContent = pp+'% = ' + efb_var.text.preview;

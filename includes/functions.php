@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class efbFunction {
 	protected $db;
+
 	
 	public function __construct() {  
 		
@@ -740,6 +741,12 @@ class efbFunction {
 			"fernvtf" => $state  &&  isset($ac->text->fernvtf) ? $ac->text->fernvtf : __('The entered data does not match the form type. If you are an admin, please review the form type.','easy-form-builder'),
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
+			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
+			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
+			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
+			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
+			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From Address','easy-form-builder'),
+			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
 			
 		];
@@ -765,135 +772,26 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state($to ,$sub ,$cont,$pro,$state,$link){				
-				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-			   	$mailResult = "n";
-			
-				
-				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-				$headers = array(
-				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
-				);
-			
-				//if($to=="null" || is_null($to)<5 ){$to=$support;}
-				  
-				$message = $this->email_template_efb($pro,$state,$cont,$link); 	
-				
-				
-				if( $state!="reportProblem"){
-					 $to_ ="";
-					 $sent = [];
-					 if(gettype($to)!='string'){					
-						
-						foreach ($to as $key => $value) {
-							 
-								
-								
-
-							if(empty($value)==true) continue;
-							 if( strpos($value, ',') !== false){
-								 $emails = explode(',', $value);
-								 
-								 
-								 if(gettype($emails)=='array') $emails = array_unique($emails);
-								 
-								 foreach ($emails as $key => $val) {
-									 if (strlen($val)>2 && !in_array($val, $sent)) {
-										
-										 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) )
-										 { 
-											$to_ = $val;
-										 }else{
-											 //$reply_to_emails .=$value .' <'.$value .'>';
-											 array_push($sent,$val);
-											 
-											 
-											 $mailResult =  wp_mail( $val,$sub, $message, $headers ) ;
-										 }
-		 
-									 }								
-								 }
-							 }else{								
-								 if (strlen($value)>2   ) {
-									 if($to_=="" && ($to!="" || $to!="null"  || $to!=null) ){ $to_ = $value;
-									 }else{
-										 
-										 
-										
-										 //$reply_to_emails .=$value .' <'.$value .'>';
-										 if(!in_array($value, $sent)){
-											 
-											 $mailResult =  wp_mail( $value,$sub, $message, $headers ) ;
-											 array_push($sent,$value);
-											 
-										 }
-									 }
-	 
-								 }	
-								 
-								 							
-							 }
-
-						}
-
-						
-					 }else{
-						
-						$to_=$to;
-					 }
-					 
-					
-					 if(!in_array($to_, $sent)) {
-
-						$mailResult =  wp_mail( $to_,$sub, $message, $headers ) ;
-					}
-					 
-				}
-				//if($to!=$support && $state!="reportProblem") $mailResult = function_exists('wp_mail') ? wp_mail( $to,$sub, $message, $headers ) : false;
-				
-				if($state=="reportProblem" || $state =="testMailServer" ){
-					$support="";
-				
-					$a=[101,97,115,121,102,111,114,109,98,117,105,108,108,100,101,114,64,103,109,97,105,108,46,99,111,109];
-					foreach($a as $i){$support .=chr($i);}	
-					
-				$id = function_exists('get_current_user_id') ? get_current_user_id(): null;
-				$name ="";
-				$mail ="";
-				$role ="";
-				if($id){
-					$usr  = get_user_by('id',$id);
-					$mail = $usr->user_email;
-					$name = $usr->display_name;
-					$role = $usr->roles[0];
-				}	
-				
-				 $cont .=" website:". $_SERVER['SERVER_NAME'] . " Pro state:".$pro . " email:".$mail .
-				 " role:".$role." name:".$name."";                      
-				 $mailResult = wp_mail( $support,$state, $cont, $headers ) ;
-				// $mailResult = function_exists('wp_mail') ? wp_mail( $support,$state, $cont, $headers ) :false;
-				}
-				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    
-			   return $mailResult;
-	}
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
+				// error_log('send_email_state_new 3');
 				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 			
-				
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+				if(isset($to[2]) && is_email($to[2])){ 
+					$from =get_bloginfo('name')." <". array_pop($to).">";			
+				}
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
+				   'From:'.$from,
+				   
 				);
 				
 				if(gettype($sub)=='string'){
 			
 					//error_log('send_email_state_new sub string');
-					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 	
+					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 				
 					//error_log($message);
 					if( $state!="reportProblem"){
 						//error_log('send_email_state_new state not reportProblem');
@@ -901,22 +799,18 @@ class efbFunction {
 						$to_;$mailResult;
 							
 						if (gettype($to) == 'string') {
-							
+							/* error_log($to);
+							error_log($sub); */
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
-							//error_log('run email to====>');
-							$toMail = array_pop($to);
-							//error_log($toMail);
-							$to_ = implode(',', array_unique($to));
-							$to_ = str_replace(',,', ',', $to_);
-							if(count($to)>1){
-								$headers = array(
-									'MIME-Version: 1.0\r\n',
-									'From:'.$from.'',
-									'Bcc:'.$to.''
-								);
-							}							
-							$mailResult =  wp_mail( $toMail,$sub, $message, $headers ) ;
+							foreach ($to as $r) {
+								
+								/* error_log($recipient);
+								error_log($sub); */
+								//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
+							  if(isset($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
+							}
+							
 						}
 
 						
@@ -955,22 +849,20 @@ class efbFunction {
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 												
-								if (gettype($to[$i]) == 'string') {
+								if (gettype($to[$i]) == 'string') {									
+									//$to_ = implode(',', array_unique($to[$i]));								
+
+
 									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
 								} else {
-									//error_log('run email to====>');
-									$toMail = array_pop($to[$i]);
-									//error_log(json_encode($toMail));
-									$to_ = implode(',', array_unique($to[$i]));
-									$to_ = str_replace(',,', ',', $to_);
-									if(count($to[$i])>1){
-										$headers = array(
-											'MIME-Version: 1.0\r\n',
-											'From:'.$from.'',
-											'Bcc:'.$to_.''
-										);
+
+									foreach ($to[$i] as $r) {
+										/* error_log($recipient);
+										error_log($sub[$i]); */
+										//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
+										$mailResult = wp_mail($r, $sub[$i], $message, $headers);
 									}
-									$mailResult =  wp_mail( $toMail,$sub[$i], $message, $headers ) ;
+									
 								}
 								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
 								//end loop
@@ -983,24 +875,27 @@ class efbFunction {
 					
 					
 				}
-				   remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    
+				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    // error_log('emails sent!');
 			   return $mailResult;
 	}
 
 	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
 	
-		$l ='https://whitestudio.team/';
-			 if(get_locale()=="fa_IR"){ $l='https://easyformbuilder.ir/'  ;}
+		$l ='https://whitestudio.team';
+		$wp_lan = get_locale();
+			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
+			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team";}
+			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team";}
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ["serverEmailAble","vmgs","getProVersion","sentBy","hiUser","trackingCode","newMessage","createdBy","newMessageReceived","goodJob","createdBy" , "yFreeVEnPro","WeRecivedUrM"];
+		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
 			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
-		$align ="left";
-		$d =  "ltr" ;
+		$align ='left';
+		$d =  'ltr';
 		if(is_rtl()){
-			$d =  "rtl" ;
-			$align ="right";
+			$d =  'rtl' ;
+			$align ='right';
 		}
 		//}   
 
@@ -1021,30 +916,57 @@ class efbFunction {
 		$blogURL= home_url();
 
 		
+		$dts =  $lang['msgdml'];
 		
 		if($state=="testMailServer"){
-			
+			$dt = $lang['msgnml'];
+			$de = $lang['mlntip'];			
+			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);			
+			//$de = substr($de, 0, strpos($de, '.')+1);
+			$link = "$l/document/send-email-using-smtp-plugin/";
+			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
+			//
+			$de = str_replace('%s1',"<a href='$link' target='_blank'>",$de);
+			$de = str_replace('%s2',"</a>",$de);
+			$de = str_replace('%s3',"<a href='$l/support/' target='_blank'>",$de);
+			$de = str_replace('%s4',"</a>",$de);
+
+			//replace %s1 and %s2 with links to documentation
+			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
+			$dt = str_replace('%s2.',"</a>.",$dt);
 			$title= $lang["serverEmailAble"];
-			$message ="<div style='text-align:center'><h1>".  $footer ."</h1></div>";
+			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
+			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
+			";
 			 if(strlen($st->activeCode)<5){
-				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);				
+				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
+				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang["yFreeVEnPro"]);
 				$message ="<h2 style='text-align:center'>"
-				. $p ."</h2>
-				<p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p>
-				<div style='text-align:center'><a href='".$l."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang["getProVersion"]."</a></div>";
+				. $p ."</h2>				
+				<div style='text-align:center'>
+					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang["getProVersion"]."</a>
+				</div>
+					<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3>
+					<h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4> 
+					<div style='text-align:center'><p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p></div>
+				 ";
 			 }
 			
 		}elseif($state=="newMessage"){	
 			//w_link;
 			if(gettype($m)=='string'){
+				$dts = str_replace('%s', $m, $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
 				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
 				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
+				$dts = str_replace('%s', $m[0], $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
 				$message ="
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}
 		}else{
@@ -1054,30 +976,32 @@ class efbFunction {
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
 				$title =$lang["hiUser"];
+				$dts = str_replace('%s', $m[0], $dts);
 				$message="
 				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
+				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
 				";
 			}
 		}		
 		
 		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;direction:".$d.";}</style><center>
+		<html xmlns='http://www.w3.org/1999/xhtml'> <body style='margin:auto 10px;direction:".$d.";color:#000000;'><center>
 			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
-				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' style='width:36%;'>
+				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' alt='$title' style='width:36%;'>
 				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
 				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
-					</td></tr><tr style='text-align:".$align.";color:#a2a2a2;font-size:14px;'><td>
+					</td></tr><tr style='text-align:".$align.";color:#000000;font-size:14px;'><td>
 							<span>".$message." </span>
 				</td> </tr>
-				<tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> 
+				<tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> 
 					
 				</td></tr></tbody></center></td>
 			</tr></table>
 			</center>
-			<table role='presentation' style='margin:7px 0px' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
+			<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
 		</body></html>
 			";
 			if($temp!="0"){
@@ -1101,7 +1025,7 @@ class efbFunction {
 			return $val;
 	}
 
-	public function wpdocs_set_html_mail_content_type() {
+	public function wpdocs_set_html_mail_content_type() {	
 		return 'text/html';
 	}
 

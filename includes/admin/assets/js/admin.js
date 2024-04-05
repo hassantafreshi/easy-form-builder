@@ -175,6 +175,12 @@ function Link_emsFormBuilder(state) {
         //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
         link += "/guide-advanced-file-upload-forms-wordpress/"
         break;
+      case 'support':
+        link = `https://whitestudio.team/support/`;
+        break;
+      case 'EmailSpam':
+        link += `s/send-email-using-smtp-plugin/`;
+        break;
       
     }
   }else{
@@ -246,6 +252,12 @@ function Link_emsFormBuilder(state) {
         //https://whitestudio.team/document/guide-advanced-file-upload-forms-wordpress/
         link += "/ایجاد-فرم-آپلود-فایل-پیشرفته-وردپرس";
         break;
+      case 'support':
+        link = `https://easyformbuilder.ir/support/`;
+        break;
+      case 'EmailSpam':
+        link +=`ارسال-ایمیل-بوسیله-افزونه-smtp/`;
+        break;
     }
   }
 
@@ -288,7 +300,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.17> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.18> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {

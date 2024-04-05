@@ -2594,7 +2594,7 @@ lan_subdomain_wsteam_efb=()=>{
   let sub =''; 
   if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
   else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
-  console.log(`subdomain => ${sub}`);
+  //console.log(`subdomain => ${sub}`);
   return sub;
 }
 function handle_change_event_efb(el){  
@@ -2903,12 +2903,15 @@ function handle_change_event_efb(el){
     }
 }
 offset_view_efb=()=>{
+  let r = 800;
   if(document.getElementById('body_efb')){
-    return document.getElementById('body_efb').offsetWidth;
-  }else if(document.getElementById('settingModalEfb-body')){
-    return document.getElementById('settingModalEfb-body').offsetWidth;
+    r= document.getElementById('body_efb').offsetWidth;
+  }else if(document.getElementById('settingModalEfb-body') && document.getElementById('settingModalEfb-body').offsetWidth>0){
+    r= document.getElementById('settingModalEfb-body').offsetWidth;
+  }else if (document.getElementById('body_emsFormBuilder')){
+    r= document.getElementById('body_emsFormBuilder').offsetWidth;
   }
-  return 800;
+  return Number(r);
 }
 get_row_sendback_by_id_efb=(id_)=>{
  return sendBack_emsFormBuilder_pub.findIndex(x => x!=null && x.hasOwnProperty('id_') && x.id_ == id_)
@@ -2990,11 +2993,20 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
-  if (by == 1) { by = 'Admin' } else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
+  if (by == 1) {
+     by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
+  else if (by ==''){ 
+    by = efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
+  }
+  else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) {
+    by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`; }
+  else {     
+    by = `<span>${efb_var.text.by}:</span> ${by}`;
+   }
   let m = `<Div class="efb bg-response efb card-body my-2 py-2 ${efb_var.rtl == 1 ? 'rtl-text' : ''}">
     <div class="efb  form-check">
      <div>
-      <p class="efb small fs-7 mb-0"><span>${efb_var.text.by}:</span> ${by}</p>
+      <p class="efb small fs-7 mb-0">${by}</p>
       ${ipSection}
       ${track != 0 ? `<p class="efb small fs-7 mb-0"><span> ${efb_var.text.trackNo}:</span> ${track} </p>` : ''}
       <p class="efb small fs-7 mb-0"><span>${efb_var.text.ddate}:</span> ${date} </p>  

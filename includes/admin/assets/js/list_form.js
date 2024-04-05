@@ -831,6 +831,10 @@ function fun_show_setting__emsFormBuilder() {
   let act_local_efb =scaptcha =false;
   let dsupfile= showIp =activeDlBtn =scaptcha=act_local_efb =false;
   let phoneNumbers=sms_method = 'null';
+  let femail ='null';
+  let demail ='no-reply@'+ window.location.hostname;
+  //check demail is valid email
+  demail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(demail)  &&  demail.includes('127.')==false ? demail : 'no-reply@yourDomainName.com';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
 
     if (valueJson_ws_setting.length == 0) {
@@ -846,6 +850,9 @@ function fun_show_setting__emsFormBuilder() {
     sitekey = f(`siteKey`);
     secretkey = f(`secretKey`);
     email = f(`emailSupporter`);
+    femail = f('femail');
+
+    femail = femail=='null' ? demail : femail;
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`);
     stripeSKey = f(`stripeSKey`);
@@ -895,6 +902,9 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
+
+  let msg_email = efb_var.text.mlntip.replace('%s1', `<a class="efb pointer-efb" onclick="Link_emsFormBuilder('EmailSpam')">`).replace('%s2', '</a>').replace('%s3', `<a class="efb pointer-efb" onclick="Link_emsFormBuilder('support')" >`).replace('%s4', '</a>');
+
   const proChckEvent =efb_var.pro!=true && efb_var.pro!="true" ? `onChange="pro_show_efb('${efb_var.text.proUnlockMsg}')"` :'';
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container">
@@ -1044,16 +1054,23 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                         </div>
                         <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            <div class="efb mx-3">
+                            <div class="efb mx-3 ">
                                 <!--Email-->
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-at m-3"></i>${efb_var.text.alertEmail}
                                 </h5>
                                 <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
                                     <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
                                     <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+                                    <span  class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
+                                </div>
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
+                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
+                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? 'onClick="pro_show_efb(1)"' :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+                                    <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
+                                    <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
                                 </div>
                                 
                                 <h5 class="efb card-title mt-3col-12 efb ">
@@ -1317,10 +1334,34 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   }
   const v = (id) => {
     
-    const el = document.getElementById(id);
+    let el = document.getElementById(id);
     if(el.hasAttribute('value') && el.id!="emailTemp_emsFirmBuilder"){ 
-      
-      el.value = sanitize_text_efb(el.value);}
+      if(el.type!='email'){
+        el.value = sanitize_text_efb(el.value);
+
+      }else{
+        let value = sanitize_text_efb(el.value);
+        const vs = value.split(',');
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        for(let i=0;i<vs.length;i++){
+          //console.log(vs ,regex.test(vs[i]));
+          if(!regex.test(vs[i])){
+            //console.log(el.value);
+            el.className = colorBorderChangerEfb(el.className, "border-danger")
+            document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
+            returnError(`<b>${el.dataset.tab}</b>`);
+           
+            value=false;
+           break;
+          }
+        }
+        el.value = sanitize_text_efb(el.value);
+        //console.log(el.value);
+        if(value==false) return false;
+              
+      }
+    }
+    //console.log(el.value);
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 
@@ -1384,8 +1425,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
             if( !phoneNoArr[i].match(/^\+\d{8,14}$/)){
               returnError(`<b>${el.dataset.tab}</b>`);
               el.classList.add('invalid');
+              const msg = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`
               //window.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
-              document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue +`(${phoneNoArr[i]})`;
+              document.getElementById(`${el.id}-message`).innerHTML =msg ;
               return false;
             }
           }
@@ -1400,7 +1442,13 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           document.getElementById(`${el.id}-message`).innerHTML = '';
         }
         if (el.type == "email" && el.value.length > 0) {
-          return valid_email_emsFormBuilder(el);
+          
+          const r = valid_email_emsFormBuilder(el);
+          if (r == false) {
+            returnError(`<b>${el.dataset.tab}</b>`);
+            el.classList.add('invalid');
+            return false;
+          }
         }
       }
     } else {
@@ -1409,18 +1457,16 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder'];
+  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
-    
 
     if (v(id) === false) {
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
       fun_State_btn_set_setting_emsFormBuilder(true);
       const m = document.getElementById(`${id}-message`).innerHTML;
-      
       break;
     }
   }
@@ -1431,6 +1477,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const stripeSKey = f(`stripeSKey_emsFormBuilder`);
     const stripePKey = f(`stripePKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
+    let femail = f(`femail_emsFormBuilder`);
+    if(femail.length<6){ femail = 'no-reply@'+window.location.hostname;}
     //  const trackingcode = f(`trackingcode_emsFormBuilder`);
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     //let smtp = f('smtp_emsFormBuilder')
@@ -1487,7 +1535,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail
         } , state_auto);
   }
 
@@ -2162,15 +2210,15 @@ function EmailTemp1Efb() {
 }
 
 function EmailTemp2Efb() {
-  return `<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 100px;${efb_var.rtl == 1 ? `direction:rtl;` : ''}}</style><center>
+  return `<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 10px;${efb_var.rtl == 1 ? `direction:rtl;` : ''}}</style><center>
 <table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
           <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 <td style='font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 <h1 style='color:#575252;text-align:center;'>shortcode_title</h1>
-</td></tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;'><td>
+</td></tr><tr style='text-align:center;color:#000000;font-size:14px;'><td>
             <span>shortcode_message</span>
-</td> </tr><tr style='text-align:center;color:#a2a2a2;font-size:14px;height:45px;'><td> <span><b style='color:#575252;'>
+</td> </tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> <span><b style='color:#575252;'>
             <a href='shortcode_website_url'>shortcode_website_name</a>
 </span></td></tr></tbody></center></td> </tr></table></center></body>  </html>`
 }
