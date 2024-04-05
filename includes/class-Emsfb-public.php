@@ -792,10 +792,11 @@ class _Public {
 											$mr =str_replace('XXX', $f['name'], $mr );
 											$stated=0;
 										}
+										//don't chenge these line!
 										$e_ar = isset($formObj[0]["email_send_type"]) ? $formObj[0]["email_send_type"] : false;
 										if((isset($f['milen']) && $f['milen']> $l)||( isset($f['mlen']) && $f['mlen']< $l) ) {$stated=0;}
-										//if(isset($f['noti'])== true && intval($f['noti'])==1)  array_push($email_user[1],$item['value']);
 										if(isset($f['noti'])== true && intval($f['noti'])==1)  emails_list($email_user , 1 , $item['value'] , $e_ar);
+										//end 
 										
 									}
 									$in_loop=false;
