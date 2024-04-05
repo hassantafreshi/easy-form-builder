@@ -1316,7 +1316,7 @@ class _Public {
 				$email_fa = $setting->emailSupporter;
 				//if(!empty($email_fa) && !in_array($email_fa, $email_user[0])) array_push($email_user[0] ,$email_fa);
 				if(!empty($email_fa) )  emails_list($email_user , 0 , $email_fa , $email_array_state);
-				if(isset($setting->femail) && is_email($setting->femail)) $email_user[2] =get_bloginfo('name')." <". $setting->femail .">";
+				if(isset($setting->femail) && is_email($setting->femail)) $email_user[2] = $setting->femail ;
 				//strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
 
 				$secretKey= isset($setting->secretKey) && strlen($setting->secretKey)>5 ? $setting->secretKey : null;
@@ -2330,7 +2330,7 @@ class _Public {
 					// $user_eamil[0]=$setting->emailSupporter.",";
 					array_push($user_eamil[0],$setting->emailSupporter);
 				}
-				if(isset($setting->femail)) $user_eamil[2]= get_bloginfo('name') ." <".$setting->femail.">";
+				if(isset($setting->femail)) $user_eamil[2]=$setting->femail;
 
 				$email_fa = $valn[0]["email"];		
 						
