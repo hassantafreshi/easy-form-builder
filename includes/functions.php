@@ -891,7 +891,6 @@ class efbFunction {
 	} */
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				// error_log('send_email_state_new 3');
-				error_log(json_encode($to));
 				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
@@ -900,7 +899,6 @@ class efbFunction {
 				if(isset($to[2]) && is_email($to[2])){ 
 					$from =get_bloginfo('name')." <". array_pop($to).">";			
 				}
-				error_log($from);
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from,
