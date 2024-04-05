@@ -92,7 +92,6 @@ donwload_event_icon_efb =(color)=>{
 `
 }
 function Link_emsFormBuilder(state) {
-  console.log(state);
   const lan =lan_subdomain_wsteam_efb();
   let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'

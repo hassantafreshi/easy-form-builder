@@ -1461,20 +1461,15 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
   let state = true
 
   for (let id of ids) {
-    console.log(document.getElementById(id).value);
 
     if (v(id) === false) {
-      console.log(document.getElementById(id).value);
       state = false;
       // fun_state_loading_message_emsFormBuilder(1);
       fun_State_btn_set_setting_emsFormBuilder(true);
       const m = document.getElementById(`${id}-message`).innerHTML;
-      console.log(document.getElementById(id).value);
       break;
     }
-
   }
-  console.log(state);
   if (state == true) {
     const activeCode = f('activeCode_emsFormBuilder');
     const sitekey = f(`sitekey_emsFormBuilder`);
@@ -1492,7 +1487,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
-
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
