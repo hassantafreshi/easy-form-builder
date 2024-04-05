@@ -1344,9 +1344,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         const vs = value.split(',');
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         for(let i=0;i<vs.length;i++){
-          console.log(vs ,regex.test(vs[i]));
+          //console.log(vs ,regex.test(vs[i]));
           if(!regex.test(vs[i])){
-            console.log(el.value);
+            //console.log(el.value);
             el.className = colorBorderChangerEfb(el.className, "border-danger")
             document.getElementById(`${el.id}-message`).innerHTML = efb_var.text.pleaseEnterVaildValue
             returnError(`<b>${el.dataset.tab}</b>`);
@@ -1356,12 +1356,12 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           }
         }
         el.value = sanitize_text_efb(el.value);
-        console.log(el.value);
+        //console.log(el.value);
         if(value==false) return false;
               
       }
     }
-    console.log(el.value);
+    //console.log(el.value);
     if (id == 'smtp_emsFormBuilder') { return true }
     if (el.type !== "checkbox") {
 

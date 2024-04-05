@@ -2594,7 +2594,7 @@ lan_subdomain_wsteam_efb=()=>{
   let sub =''; 
   if(efb_var.language == 'de_DE' || efb_var.language == 'de_AT' ){ sub = 'de.'; }
   else if(efb_var.language == 'ar' || efb_var.language == 'ary' ||  efb_var.language == 'arq'){ sub = 'ar.'; }
-  console.log(`subdomain => ${sub}`);
+  //console.log(`subdomain => ${sub}`);
   return sub;
 }
 function handle_change_event_efb(el){  
