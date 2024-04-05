@@ -2381,7 +2381,7 @@ class _Public {
 		$blogName = get_bloginfo('name');
 		for($i=0;$i<2;$i++){
 			if(strlen($link)>5){
-				$link_w[$i] =strpos($link,'?') ? $link.'&track='.$track : $link.'?track='.$track;
+				$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
 				if($i==0){
 					$link_w[$i] .='&user=admin';
 				}
