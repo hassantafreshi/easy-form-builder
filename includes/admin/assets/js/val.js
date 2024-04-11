@@ -757,7 +757,7 @@ function show_setting_window_efb(idset) {
           <option value="image" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
           <option value="media" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
           <option value="zip" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
-          <option value="customize" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'customize' ? `selected` : ''} >${efb_var.text.cstm_rd}</option>
+          ${ valj_efb[indx].type=='dadfile' ? `<option value="customize" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'customize' ? `selected` : ''} >${efb_var.text.cstm_rd}</option>` :''}
           </select>
       `
 
@@ -1086,7 +1086,7 @@ function show_setting_window_efb(idset) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
-        ${el.dataset.tag == 'dadfile' ? fileTypeEls : '<!--efb.app-->'}
+        ${fileTypeEls }
         ${el.dataset.tag == 'dadfile' ? fileCustomizeTypleEls() : '<!--efb.app-->'}
         ${fileSizeMaxEls()}
         <!--  not   advanced-->

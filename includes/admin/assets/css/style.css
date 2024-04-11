@@ -2494,6 +2494,11 @@ div#Listefb-150 {
       border-radius: var(--bs-border-radius-xxl) !important;
     }
 
+    .mobile .efb.form-check b
+    {
+      overflow-wrap: anywhere;
+    }
+
 
 
  
