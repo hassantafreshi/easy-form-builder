@@ -3994,8 +3994,7 @@ class _Public {
 	   .icon-select.efb {	color: #ff4b93 !important;
 	   font-size: 27px !important;
 	   }
-	   .dropZoneEFB .text-labelEfb {	color: #657096 !important;
-	   }
+
 	   .text-labelEfb {}
 	   .btn-labelEfb {	background-color: #657096 !important;
 	   }
@@ -4152,12 +4151,8 @@ class _Public {
 	   }
 	   /* dragable *//* divider */hr.divider.hr-transparent-efb.hr-arrow-down-efb {	width: 85%;
 	   }
-	   /* divider */div#dropZoneEFB {	padding-bottom: 25%;
-	   }
-	   .mobile div#dropZoneEFB {	padding-bottom: 22%;
-	   }
-	   #dropZoneEFB.pb {	padding-bottom: 40%;
-	   }
+	  
+	  
 	   #efb-dd {	margin-top: 18%;
 	   margin-bottom: 18%;
 	   }
@@ -4883,7 +4878,10 @@ class _Public {
 	   .btn-group-toggle.efb {	direction: ltr !important;
 	   }
 	
-	
+	   #f_button_form_np {
+		width: 97%;
+		position: absolute;
+	}
 	   #button_group_efb {	position: absolute;
 	   margin-bottom: 10px !important;
 	   }
