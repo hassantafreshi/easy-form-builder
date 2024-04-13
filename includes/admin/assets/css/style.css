@@ -695,12 +695,10 @@ i.efb {	font-size: 1.2rem;
 }
 /* dragable *//* divider */hr.divider.hr-transparent-efb.hr-arrow-down-efb {	width: 85%;
 }
-/* divider */div#dropZoneEFB {	padding-bottom: 25%;
+/* divider */
+div#dropZoneEFB,.mobile div#dropZoneEFB,#dropZoneEFB.pb  {	padding-bottom: 15%;
 }
-.mobile div#dropZoneEFB {	padding-bottom: 22%;
-}
-#dropZoneEFB.pb {	padding-bottom: 40%;
-}
+
 #efb-dd {	margin-top: 18%;
    margin-bottom: 18%;
 }
@@ -1435,13 +1433,13 @@ fieldset.efb {	background: transparent;
 
 #button_group_efb {	position: absolute;
    margin-bottom: 10px !important;
+   width: 98.5%;
 }
 .efb-btn-lg {	padding: .5rem 1rem;
    font-size: 1.25rem;
    border-radius: .3rem;
 }
 #btn_send_efb.h-l-efb,#btn_send_efb.h-xl-efb,#btn_send_efb.h-xxl-efb,#btn_send_efb.h-xxxl-efb {	width: 100% !important;
-  /*  margin: 0px 20px 10px 29px; */
   margin:0px 5px 10px 5px
 }
 
@@ -2492,6 +2490,11 @@ div#Listefb-150 {
     
     .efb.rounded-5,.efb-rounded {
       border-radius: var(--bs-border-radius-xxl) !important;
+    }
+
+    .mobile .efb.form-check b
+    {
+      overflow-wrap: anywhere;
     }
 
 

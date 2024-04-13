@@ -300,7 +300,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.18> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.19> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1781,13 +1781,14 @@ let change_el_edit_Efb = (el) => {
           
 
         if (document.getElementById(`${valj_efb[indx].id_}_txt`)) document.getElementById(`${valj_efb[indx].id_}_txt`).innerHTML = `${efb_var.text.dragAndDropA} ${nfile}`
+        const elc = document.getElementById(`fileCustomizeTypleEls`) ? document.getElementById(`fileCustomizeTypleEls`) :null;
         if(valj_efb[indx].file=='customize'){
           document.getElementById(`fileCustomizeTypleEls`).classList.remove('d-none');
           document.getElementById(`fileCustomizeTypleEls`).classList.add('d-block');
           c= document.getElementById(`fileCustomizeTypleEl`).value;
           valj_efb[indx].hasOwnProperty('file_ctype')==false ? Object.assign(valj_efb[indx],{'file_ctype':c}) : valj_efb[indx].file_ctype = c;
           nfile = c.toLowerCase();
-        }else{
+        }else if(elc!=null){
           document.getElementById(`fileCustomizeTypleEls`).classList.remove('d-block');
           document.getElementById(`fileCustomizeTypleEls`).classList.add('d-none');
         }

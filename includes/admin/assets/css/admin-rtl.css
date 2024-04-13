@@ -115,3 +115,9 @@ div#gRecaptcha {
 .rtl .efb.form-control.is-valid,.efb.was-validated .efb.form-control:valid {
     background-position: left calc(.375em + .1875rem) center!important;
 }
+
+#dropZoneEFB #button_group_efb {
+    margin-left: 0px!important;
+    margin-right: -16px;
+    width: 98.5%;
+}
