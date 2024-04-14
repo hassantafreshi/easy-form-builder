@@ -4881,7 +4881,7 @@ class _Public {
 	   #f_button_form_np {
 		width: 97%;
 		position: absolute;
-	}
+	   }
 	   #button_group_efb {	position: absolute;
 	   margin-bottom: 10px !important;
 	   }

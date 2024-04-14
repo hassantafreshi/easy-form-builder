@@ -1140,7 +1140,6 @@ let add_buttons_zone_efb = (state, id) => {
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'efb-square';
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-3':'justify-content-center';
   const  row = Number(valj_efb[0].steps)==1 ? '' : 'row';
-  console.log(`row[${row}]`);
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb " id="f_btn_send_efb" data-tag="buttonNav">
     <a id="btn_send_efb" role="button" class="efb text-decoration-none mx-0 btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
