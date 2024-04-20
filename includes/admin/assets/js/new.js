@@ -1719,12 +1719,14 @@ function previewFormEfb(state) {
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
+            document.body.style.overflow = 'hidden';
+            console.log(document.body.style.overflow);
             let touch = e.touches[0];
             let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
-            document.body.style.overflow = 'hidden'
+            document.body.style.overflow = 'hidden';
             canvas_id_efb = v.id_;
             c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
             mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
