@@ -1724,6 +1724,7 @@ function previewFormEfb(state) {
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
+            document.body.style.overflow = 'hidden'
             canvas_id_efb = v.id_;
             c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
             mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
@@ -1735,6 +1736,7 @@ function previewFormEfb(state) {
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
+            document.body.style.overflow = 'auto';
             let ms = new MouseEvent("mouseup", {});
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
             const value = document.getElementById(`${v.id_}-sig-data`).value;
