@@ -567,7 +567,7 @@ class _Public {
 		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.19', true);				
 		 wp_enqueue_script('Emsfb-core_js');
 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.19', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.20', true);		
 		
 		if(is_rtl()){
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.19');
