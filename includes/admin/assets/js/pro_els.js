@@ -438,15 +438,15 @@ function fun_clear_esign_efb(id) {
   function getmousePostion_efb(canvasDom, mouseEvent) {
     let rct = canvasDom.getBoundingClientRect();
     return {
-      y: mouseEvent.clientY - rct.top,
+      y: mouseEvent.clientY - rct.top ,
       x: mouseEvent.clientX - rct.left
     }
   }
   function getTouchPos_efb(canvasDom, touchEvent) {
     let rct = canvasDom.getBoundingClientRect();
     return {
-      y: touchEvent.touches[0].clientY - rct.top,
-      x: touchEvent.touches[0].clientX - rct.left
+      y: touchEvent.touches[0].clientY - rct.top + window.scrollY,
+      x: touchEvent.touches[0].clientX - rct.left + window.scrollX
     }
   }
   function yesNoGetEFB(v, id,idl) {
