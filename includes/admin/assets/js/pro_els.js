@@ -445,8 +445,8 @@ function fun_clear_esign_efb(id) {
   function getTouchPos_efb(canvasDom, touchEvent) {
     let rct = canvasDom.getBoundingClientRect();
     return {
-      y: touchEvent.touches[0].clientY - rct.top + window.scrollY,
-      x: touchEvent.touches[0].clientX - rct.left + window.scrollX
+      y: touchEvent.touches[0].clientY - rct.top,
+      x: touchEvent.touches[0].clientX - rct.left
     }
   }
   function yesNoGetEFB(v, id,idl) {

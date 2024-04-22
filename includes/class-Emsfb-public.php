@@ -97,6 +97,9 @@ class _Public {
 		 
 		add_action('init',  array($this, 'hide_toolmenu'));
 		
+		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);  
+		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);                          
+		
 	}
 
 
@@ -5969,7 +5972,36 @@ class _Public {
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
 		}
 	}
+
+	public function form_preview_efb(){
+		//check request is ajax and nonce
+		if (  check_ajax_referer('admin-nonce', 'nonce') != 1) {
+			die();
+		}
+		$id = sanitize_text_field($_POST['id']);
+		error_log("id ".$id);
+		$new_page_id = wp_insert_post(array(
+            'post_title'     => __('Form Preview', 'easy-form-builder'),
+            'post_type'      => 'page',
+            'post_name'      => 'easy-form-builder-preview',
+            'post_content'   => ' '.$id.' ', 
+            'post_status'    => 'draft',
+            'post_author'    => 1, // or any other author id
+        ));
+		$preview_url = get_preview_post_link($new_page_id);
+		error_log('called delete_preview_page_efb!');
+		wp_schedule_single_event(time() + 15, 'delete_preview_page_efb', array($new_page_id));
+		$response = array( 'success' => true, 'data' => $preview_url , 'page_id' => $new_page_id);
+		wp_send_json_success($response, 200);
+		
+	}
 	
+	
+	function delete_preview_page_efb($page_id) {
+		error_log('delete_preview_page_efb');
+		error_log('delete_preview_page_efb'.$page_id);
+		wp_delete_post($page_id, true);
+	}
 
 	
 }

@@ -14,8 +14,9 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
 
 
-if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 
+if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
+if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
 
 
 
@@ -351,7 +352,9 @@ function actionSendData_emsFormBuilder() {
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
         }
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
-        show_message_result_form_set_EFB(2, res.data.value)
+        show_message_result_form_set_EFB(2, res.data.value);
+        
+        sessionStorage.setItem('formId_efb', res.data.value);
       } else {
         if (res.data.m == null || res.data.m.length > 1) {
 
@@ -4477,4 +4480,52 @@ colors_from_template = ()=>{
  
 }
 
+
+function form_preview_efb(val) {
+  console.log("form_preview_efb");
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  console.log(val);
+  data = {};
+  jQuery(function ($) {
+      data = {
+        action: "form_preview_efb",
+        id: val,
+        nonce: efb_var.nonce
+      };
+
+    $.post(ajaxurl, data, function (res) {
+      //console.log(res)
+      if (res.success == true) {
+         console.log(res);
+        //console.log(res.data)
+         window.open(res.data.data, '_blank');
+         sessionStorage.setItem('page_id_wp' , res.data.page_id);
+      } else {
+        alert_message_efb(efb_var.text.error, efb_var.text.errorMsg, 30, 'danger');
+      }
+    })
+    return true;
+  });
+
+}
+
+
+preview_form_new_efb = ()=>{
+  let form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
+ 
+      if(form_id == null ){
+        //show message about first save form      
+        show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
+        state_modal_show_efb(1)
+        return;
+      }else{
+        console.log(form_id ,form_ID_emsFormBuilder);
+        form_preview_efb(form_id);
+      }
+
+      
+}
 
