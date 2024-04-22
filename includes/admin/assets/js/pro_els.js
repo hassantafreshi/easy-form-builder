@@ -443,18 +443,10 @@ function fun_clear_esign_efb(id) {
     }
   }
   function getTouchPos_efb(canvasDom, touchEvent) {
-   /*  let rct = canvasDom.getBoundingClientRect();
+    let rct = canvasDom.getBoundingClientRect();
     return {
       y: touchEvent.touches[0].clientY - rct.top,
       x: touchEvent.touches[0].clientX - rct.left
-    } */
-    let rect = canvasDom.getBoundingClientRect();
-    let scaleX = canvasDom.width / rect.width;    // relationship bitmap vs. element for X
-    let scaleY = canvasDom.height / rect.height;  // relationship bitmap vs. element for Y
-
-    return {
-        x: (touchEvent.touches[0].clientX - rect.left) * scaleX,  // scale touch coordinates after they have
-        y: (touchEvent.touches[0].clientY - rect.top) * scaleY    // been adjusted to be relative to element
     }
   }
   function yesNoGetEFB(v, id,idl) {
