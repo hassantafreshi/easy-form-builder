@@ -5989,7 +5989,6 @@ class _Public {
             'post_author'    => 1, // or any other author id
         ));
 		$preview_url = get_preview_post_link($new_page_id);
-		error_log('called delete_preview_page_efb!');
 		wp_schedule_single_event(time() + 15, 'delete_preview_page_efb', array($new_page_id));
 		$response = array( 'success' => true, 'data' => $preview_url , 'page_id' => $new_page_id);
 		wp_send_json_success($response, 200);
@@ -5998,8 +5997,6 @@ class _Public {
 	
 	
 	function delete_preview_page_efb($page_id) {
-		error_log('delete_preview_page_efb');
-		error_log('delete_preview_page_efb'.$page_id);
 		wp_delete_post($page_id, true);
 	}
 
