@@ -1155,7 +1155,7 @@ let add_buttons_zone_efb = (state, id) => {
      if(id =='body_efb') c = `<div class="efb footer-test efb p-1 ">`;
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = ` <div class="efb col-12 mb-2 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
+    c = ` <div class="efb col-12 mb-2 mb-5 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   if (id != 'preview' && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
     return c;
