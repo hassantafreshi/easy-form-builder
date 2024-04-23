@@ -33,3 +33,4 @@ vendor/composer/*
 .prettierrc.json
 .vscode
 .vscode/*
+includes/admin/integrate-elementor.php
