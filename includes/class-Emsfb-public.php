@@ -5979,7 +5979,6 @@ class _Public {
 			die();
 		}
 		$id = sanitize_text_field($_POST['id']);
-		error_log("id ".$id);
 		$new_page_id = wp_insert_post(array(
             'post_title'     => __('Form Preview', 'easy-form-builder'),
             'post_type'      => 'page',
