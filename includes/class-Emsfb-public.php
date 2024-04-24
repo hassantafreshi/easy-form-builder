@@ -5978,6 +5978,9 @@ class _Public {
 		if (  check_ajax_referer('admin-nonce', 'nonce') != 1) {
 			die();
 		}
+		//get current user id 
+		$current_user = get_current_user_id();
+
 		$id = sanitize_text_field($_POST['id']);
 		$new_page_id = wp_insert_post(array(
             'post_title'     => __('Form Preview', 'easy-form-builder'),
@@ -5985,7 +5988,7 @@ class _Public {
             'post_name'      => 'easy-form-builder-preview',
             'post_content'   => ' '.$id.' ', 
             'post_status'    => 'draft',
-            'post_author'    => 1, // or any other author id
+            'post_author'    => $current_user, // or any other author id
         ));
 		$preview_url = get_preview_post_link($new_page_id);
 		wp_schedule_single_event(time() + 15, 'delete_preview_page_efb', array($new_page_id));
