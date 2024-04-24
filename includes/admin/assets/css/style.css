@@ -698,6 +698,8 @@ i.efb {	font-size: 1.2rem;
 /* divider */
 div#dropZoneEFB,.mobile div#dropZoneEFB,#dropZoneEFB.pb  {	padding-bottom: 15%;
 }
+div#dropZoneEFB.captcha,.mobile div#dropZoneEFB.captcha,#dropZoneEFB.pb.captcha  {	padding-bottom: 25%!important;
+}
 
 #efb-dd {	margin-top: 18%;
    margin-bottom: 18%;

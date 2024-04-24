@@ -301,7 +301,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.19> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.20> WhiteStudio.team');
 
 
 function actionSendData_emsFormBuilder() {
@@ -1484,18 +1484,26 @@ let change_el_edit_Efb = (el) => {
         break;
       case "captchaEl":
        
-
+          fun_add_Class_captcha=(state)=>{
+           
+           state ?   document.getElementById('dropZoneEFB').classList.add('captcha') : document.getElementById('dropZoneEFB').classList.remove('captcha')
+            
+            
+          }
         if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
           //console.log(`captcha!!!`,el.classList)
           valj_efb[0].captcha = el.classList.contains('active')==true ? true : false
-          if(document.getElementById('recaptcha_efb'))el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
+          fun_add_Class_captcha(valj_efb[0].captcha);
+          if(document.getElementById('recaptcha_efb')) el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
         } else if (valj_efb[0].type == "payment") {
           document.getElementById("captchaEl").checked = false;
+          fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;
+          fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
