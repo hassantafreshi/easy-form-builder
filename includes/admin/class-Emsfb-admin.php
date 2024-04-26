@@ -248,23 +248,22 @@ class Admin {
             
             $m = $lang["error403"];
             $response = ['success' => false, 'm' => $m];
-            wp_send_json_success($response, $_POST);
-            die("secure!");
+            wp_send_json_success($response, 200);
+
         }
+
 
         if (empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name'])) {
             $m = $lang["invalidRequire"];
             $response = ['success' => false, "m" => $m];
+            wp_send_json_success($response, 200);
 
-            wp_send_json_success($response, $_POST);
-            die();
         }
 
         if ($this->isScript(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {        
             $m = $lang["nAllowedUseHtml"];
             $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, $_POST);
-            die();
+            wp_send_json_success($response, 200);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
         
