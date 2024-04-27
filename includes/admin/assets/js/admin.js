@@ -359,8 +359,7 @@ async function  actionSendData_emsFormBuilder() {
         sessionStorage.setItem('formId_efb', res.data.value);
       } else {
         
-        if (res.data.m == null || res.data.m.length > 1) {
-          console.log(res)
+        if (res.data.m == null || res.data.m.length > 1) {          
           show_message_result_form_set_EFB(0, res.data.m, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
         } else {
           show_message_result_form_set_EFB(0, res.data.m, `${res.data.m}, Code:400-400`)
@@ -2833,7 +2832,6 @@ const saveFormEfb = async (stated) => {
         }
 
         if (state == false) {
-          console.log('estate == true', btnFun ,btnText ,message)
           btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
             <i class="efb ${btnIcon} mx-2"></i> ${btnText} </button>`;
           body = `
@@ -2845,17 +2843,12 @@ const saveFormEfb = async (stated) => {
           `;
           check_show_box();
         }
-        console.log(`runn[${returnn}] stated[${stated}]`);
         if(( returnn==false && stated==0) ||  stated==1 ){
-          console.log('this if');
            state_modal_show_efb(1);
         } else if(returnn==true && stated==0){
-          console.log('second else if');
            state_modal_show_efb(0);}
-        console.log(`returnState`, returnn);
         resolve(returnn);
       } catch (error) {
-        console.log('error!');
         btnIcon = 'bi-bug';
         body = `
           <div class="efb pro-version-efb-modal efb"></div>
@@ -4491,12 +4484,10 @@ colors_from_template = ()=>{
 
 
 function form_preview_efb(val) {
-  console.log("form_preview_efb");
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  console.log(val);
   data = {};
   jQuery(function ($) {
       data = {
@@ -4508,7 +4499,6 @@ function form_preview_efb(val) {
     $.post(ajaxurl, data, function (res) {
       //console.log(res)
       if (res.data.success == true) {
-         console.log(res);
         //console.log(res.data)
          window.open(res.data.data, '_blank');
          sessionStorage.setItem('page_id_wp' , res.data.page_id);
@@ -4531,7 +4521,6 @@ preview_form_new_efb = async ()=>{
         state_modal_show_efb(1)
         return;
       }else{
-        console.log(form_id ,form_ID_emsFormBuilder);
         check = await saveFormEfb(0);
         if(check==false){
           return;

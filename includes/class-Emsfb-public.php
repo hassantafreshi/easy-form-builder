@@ -5967,7 +5967,6 @@ class _Public {
 	public function comper_version_efb($v){
 
 		if(version_compare(EMSFB_PLUGIN_VERSION,$v)!=0 ){
-			error_log('version_compare'.$v);
 			$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 			$efbFunction->setting_version_efb_update('null' ,$this->pro_efb);
 		}
