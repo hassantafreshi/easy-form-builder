@@ -242,7 +242,7 @@ class Admin {
 
     public function update_form_id_Emsfb() {
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
-        $text = ["error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
+        $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
             
@@ -317,6 +317,11 @@ class Admin {
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1 ){
 			//$efbFunction->add_sms_contact_efb($this->id_,$sms_msg_new_noti,$sms_msg_recived_admin,$sms_msg_recived_user);
 			//require smsefb.php and call add_sms_contact_efb
+            if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {	
+               $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
+                $response = ['success' => false, 'm' => $m];
+                wp_send_json_success($response, 200);               
+            }
 			
 			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
 			$smsefb = new smssendefb();

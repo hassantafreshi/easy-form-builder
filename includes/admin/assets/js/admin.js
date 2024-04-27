@@ -272,7 +272,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
-     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}`}
+     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb title-icon mx-2"></i>${efb_var.text.error}`}
   </h4>
   
   `;
@@ -300,7 +300,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
 
 
   document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
-  if(state == 0) state_modal_show_efb(1);
+  //if(state == 0) state_modal_show_efb(1);
 }//END show_message_result_form_set_EFB
 
 console.info('Easy Form Builder 3.7.20> WhiteStudio.team');
@@ -358,11 +358,12 @@ async function  actionSendData_emsFormBuilder() {
         
         sessionStorage.setItem('formId_efb', res.data.value);
       } else {
+        
         if (res.data.m == null || res.data.m.length > 1) {
-
-          show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
+          console.log(res)
+          show_message_result_form_set_EFB(0, res.data.m, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
         } else {
-          show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+          show_message_result_form_set_EFB(0, res.data.m, `${res.data.m}, Code:400-400`)
         }
       }
     })
@@ -2847,8 +2848,8 @@ const saveFormEfb = async (stated) => {
         console.log(`runn[${returnn}] stated[${stated}]`);
         if(( returnn==false && stated==0) ||  stated==1 ){
           console.log('this if');
-           state_modal_show_efb(1);}
-        else if(returnn==true && stated==0){
+           state_modal_show_efb(1);
+        } else if(returnn==true && stated==0){
           console.log('second else if');
            state_modal_show_efb(0);}
         console.log(`returnState`, returnn);
