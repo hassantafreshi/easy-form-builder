@@ -438,7 +438,7 @@ function fun_clear_esign_efb(id) {
   function getmousePostion_efb(canvasDom, mouseEvent) {
     let rct = canvasDom.getBoundingClientRect();
     return {
-      y: mouseEvent.clientY - rct.top,
+      y: mouseEvent.clientY - rct.top ,
       x: mouseEvent.clientX - rct.left
     }
   }

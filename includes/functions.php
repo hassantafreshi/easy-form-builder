@@ -747,7 +747,8 @@ class efbFunction {
 			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
-			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder'),
+			"prsm" => $state  &&  isset($ac->text->prsm) ? $ac->text->prsm : __('To preview the form, you need to save the built form and try again.','easy-form-builder'),
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];
 

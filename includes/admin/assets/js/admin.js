@@ -14,8 +14,9 @@ let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
 
 
-if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
 
+if (sessionStorage.getItem("valueJson_ws_p")) sessionStorage.removeItem('valueJson_ws_p');
+if(sessionStorage.getItem("formId_efb")) sessionStorage.removeItem('formId_efb');
 
 
 
@@ -271,7 +272,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   const title = `
   <h4 class="efb title-holder efb">
      <img src="${efb_var.images.title}" class="efb title efb">
-     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.error}`}
+     ${state != 0 ? `<i class="efb  bi-hand-thumbs-up title-icon mx-2"></i>${efb_var.text.done}` : `<i class="efb title-icon mx-2"></i>${efb_var.text.error}`}
   </h4>
   
   `;
@@ -297,13 +298,15 @@ function show_message_result_form_set_EFB(state, m) { //V2
     content = `<h3 class="efb">${m}</h3>`
   }
 
-  document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`
+
+  document.getElementById('settingModalEfb-body').innerHTML = `<div class="efb card-body text-center efb">${title}${content}</div>`;
+  //if(state == 0) state_modal_show_efb(1);
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.19> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.20> WhiteStudio.team');
 
 
-function actionSendData_emsFormBuilder() {
+async function  actionSendData_emsFormBuilder() {
   //console.log('actionSendData_emsFormBuilder')
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -339,7 +342,7 @@ function actionSendData_emsFormBuilder() {
     }
 
     $.post(ajaxurl, data, function (res) {
-      
+
       if (res.data.r == "insert") {
         if (res.data.value && res.data.success == true) {
           state_check_ws_p = 0;
@@ -351,13 +354,15 @@ function actionSendData_emsFormBuilder() {
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
         }
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
-        show_message_result_form_set_EFB(2, res.data.value)
+        show_message_result_form_set_EFB(2, res.data.value);
+        
+        sessionStorage.setItem('formId_efb', res.data.value);
       } else {
-        if (res.data.m == null || res.data.m.length > 1) {
-
-          show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
+        
+        if (res.data.m == null || res.data.m.length > 1) {          
+          show_message_result_form_set_EFB(0, res.data.m, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
         } else {
-          show_message_result_form_set_EFB(0, res.data.value, `${res.data.m}, Code:400-400`)
+          show_message_result_form_set_EFB(0, res.data.m, `${res.data.m}, Code:400-400`)
         }
       }
     })
@@ -1481,18 +1486,26 @@ let change_el_edit_Efb = (el) => {
         break;
       case "captchaEl":
        
-
+          fun_add_Class_captcha=(state)=>{
+           
+           state ?   document.getElementById('dropZoneEFB').classList.add('captcha') : document.getElementById('dropZoneEFB').classList.remove('captcha')
+            
+            
+          }
         if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
           //console.log(`captcha!!!`,el.classList)
           valj_efb[0].captcha = el.classList.contains('active')==true ? true : false
-          if(document.getElementById('recaptcha_efb'))el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
+          fun_add_Class_captcha(valj_efb[0].captcha);
+          if(document.getElementById('recaptcha_efb')) el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
 
         } else if (valj_efb[0].type == "payment") {
           document.getElementById("captchaEl").checked = false;
+          fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger")
         } else {
           // trackingCodeEl.checked=false;
           document.getElementById("captchaEl").checked = false;
+          fun_add_Class_captcha(false);
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.reCAPTCHASetError, 20, "danger")
 
         }
@@ -2710,157 +2723,149 @@ function create_form_efb() {
 }// end function
 
 
-const saveFormEfb = () => {
+const saveFormEfb = async (stated) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      let proState = true;
+      let stepState = true;
+      let body = ``;
+      let btnText = ``;
+      let btnFun = ``;
+      let message = ``;
+      let state = false;
+      let title = efb_var.text.error;
+      let icon = `bi-exclamation-triangle-fill`;
+      let box = `error`;
+      let btnIcon = `bi-question-lg`;
+      let returnState = false;
+      let returnn = false;
+      let gateway = '';
 
-
-  let proState = true;
-  let stepState = true;
-  let body = ``;
-  let btnText = ``;
-  let btnFun = ``
-  let message = ``;
-  let state = false
-  let title = efb_var.text.error;
-  let icon = `bi-exclamation-triangle-fill`
-  let box = `error`
-  let btnIcon = `bi-question-lg`
-  let returnState = false;
-  let  gateway = '';
-  if(valj_efb[0].type == 'payment'){
-    gateway = valj_efb.findIndex(x => x.type == "stripe") 
-    gateway = gateway == -1 ? valj_efb[0].gateway : gateway;
-    if(gateway == 'persiaPay'){
-      gateway =  valj_efb[0].persiaPay ;
-    }
-
-  }
-  setTimeout(() => {
-
-
-    
-    //settingModalEfb-body
-    //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-    show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox")
-    //console.log(valj_efb[0].type=="payment" &&  gateway==-1)
-    let timeout = 1000;
-    check_show_box = () => {
-
-      setTimeout(() => {
-        if (returnState == false) {
-          check_show_box();
-          timeout = 500;
-        } else {
-          show_modal_efb(body, title, icon, box)
+      if (valj_efb[0].type == 'payment') {
+        gateway = valj_efb.findIndex(x => x.type == "stripe");
+        gateway = gateway == -1 ? valj_efb[0].gateway : gateway;
+        if (gateway == 'persiaPay') {
+          gateway = valj_efb[0].persiaPay;
         }
-      }, timeout);
-    }
+      }
 
-    try {
-      if (valj_efb.length < 3) {
-        btnText = efb_var.text.help
-        btnFun = `open_whiteStudio_efb('notInput')`
-        message = efb_var.text.youDoNotAddAnyInput
-        icon = ""
+      show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
 
-      } else {
+      let timeout = 1000;
+      check_show_box = () => {
+        setTimeout(() => {
+          if (returnState == false) {
+            check_show_box();
+            timeout = 500;
+          } else {
+            show_modal_efb(body, title, icon, box);
+          }
+        }, timeout);
+      };
 
-        if (pro_efb == false) { proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true }
-        for (let s = 1; s <= valj_efb[0].steps; s++) {
-          const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");
-          if (stp == -1) {
-            stepState = false;
-            break;
+      try {
+        if (valj_efb.length < 3) {
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('notInput')`;
+          message = efb_var.text.youDoNotAddAnyInput;
+          icon = "";
+        } else {
+          if (pro_efb == false) {
+            proState = valj_efb.findIndex(x => x.pro == true) != -1 ? false : true;
+          }
+          for (let s = 1; s <= valj_efb[0].steps; s++) {
+            const stp = valj_efb.findIndex(x => x.step == s && x.type != "step");
+            if (stp == -1) {
+              stepState = false;
+              break;
+            }
           }
         }
-      }
-      
-      if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) ||(valj_efb[0].type == "persiaPay" && gateway != -1) ) || valj_efb[0].type != "payment")) {
-        title = efb_var.text.save
-        box = `saveBox`
-        icon = `bi-check2-circle`
-        state = true;
-        let sav = JSON.stringify(valj_efb);
-        
-        
-        sessionStorage.setItem('valj_efb', sav);
-        sessionStorage.setItem("valueJson_ws_p", sav)
-        formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb
-        returnState = actionSendData_emsFormBuilder()
-      } else if (proState == false) {
-        btnText = efb_var.text.activateProVersion
-        btnFun = `open_whiteStudio_efb('pro')`
-        message = efb_var.text.youUseProElements
-        title = efb_var.text.proVersion
-        icon = 'bi-gem'
-        btnIcon = icon;
-        returnState = true;
 
-      } else if (stepState == false) {
+        if (valj_efb.length > 2 && proState == true && stepState == true && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
+          title = efb_var.text.save;
+          box = `saveBox`;
+          icon = `bi-check2-circle`;
+          state = true;
+          let sav = JSON.stringify(valj_efb);
+          sessionStorage.setItem('valj_efb', sav);
+          sessionStorage.setItem("valueJson_ws_p", sav);
+          formName_Efb = valj_efb[0].formName.length > 1 ? valj_efb[0].formName : formName_Efb;
+          returnState = true;
+          returnn =true;
+         
+          
 
-        btnText = efb_var.text.help
-        btnFun = `open_whiteStudio_efb('emptyStep')`
-        message = efb_var.text.itAppearedStepsEmpty
+          actionSendData_emsFormBuilder();
+        } else if (proState == false) {
+          btnText = efb_var.text.activateProVersion;
+          btnFun = `open_whiteStudio_efb('pro')`;
+          message = efb_var.text.youUseProElements;
+          title = efb_var.text.proVersion;
+          icon = 'bi-gem';
+          btnIcon = icon;
+          returnState = true;
+         
+        } else if (stepState == false) {
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('emptyStep')`;
+          message = efb_var.text.itAppearedStepsEmpty;
+          returnState = true;
+        } else if (valj_efb[0].type == "payment" && gateway == -1) {
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('paymentform')`;
+          message = efb_var.text.addPaymentGetway;
+          icon = 'bi-exclamation-triangle';
+          returnState = true;
+        } else if (valj_efb[0].type == "persiaPay" && gateway == -1) {
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('persiaPay')`;
+          message = efb_var.text.addPaymentGetway;
+          icon = 'bi-exclamation-triangle';
+          returnState = true;
+        } else if ((valj_efb[0].type == "payment" || valj_efb[0].type == "persiaPay") && valj_efb[0].captcha == true) {
+          btnText = efb_var.text.help;
+          btnFun = `open_whiteStudio_efb('paymentform')`;
+          message = efb_var.text.paymentNcaptcha;
+          icon = 'bi-exclamation-triangle';
+          returnState = true;
+        }
 
-        returnState = true;
-
-      } else if (valj_efb[0].type == "payment" && gateway == -1) {
-        
-        btnText = efb_var.text.help
-        btnFun = `open_whiteStudio_efb('paymentform')`
-        message = efb_var.text.addPaymentGetway;
-        icon = 'bi-exclamation-triangle'
-        returnState = true;
-      
-      } else if (valj_efb[0].type == "persiaPay" && gateway == -1) {
-        
-        btnText = efb_var.text.help
-        btnFun = `open_whiteStudio_efb('persiaPay')`
-        message = efb_var.text.addPaymentGetway;
-        icon = 'bi-exclamation-triangle'
-        returnState = true;
-      } else if ((valj_efb[0].type == "payment" || valj_efb[0].type == "persiaPay") && valj_efb[0].captcha == true) {
-        btnText = efb_var.text.help
-        btnFun = `open_whiteStudio_efb('paymentform')`
-        message = efb_var.text.paymentNcaptcha;
-        icon = 'bi-exclamation-triangle'
-        returnState = true;
-      }
-      if (state == false) {
-
-        btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
-      <i class="efb  ${btnIcon} mx-2"></i> ${btnText} </button>`
+        if (state == false) {
+          btn = `<button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="${btnFun}">
+            <i class="efb ${btnIcon} mx-2"></i> ${btnText} </button>`;
+          body = `
+            <div class="efb pro-version-efb-modal efb"></div>
+            <h5 class="efb txt-center text-darkb fs-6">${message}</h5>
+            <div class="efb text-center ">
+              ${btn}
+            </div>
+          `;
+          check_show_box();
+        }
+        if(( returnn==false && stated==0) ||  stated==1 ){
+           state_modal_show_efb(1);
+        } else if(returnn==true && stated==0){
+           state_modal_show_efb(0);}
+        resolve(returnn);
+      } catch (error) {
+        btnIcon = 'bi-bug';
         body = `
-      <div class="efb pro-version-efb-modal efb"></div>
-        <h5 class="efb  txt-center text-darkb fs-6">${message}</h5>
-        <div class="efb  text-center ">
-        ${btn}
-        </div>
-      `
-        check_show_box();
+          <div class="efb pro-version-efb-modal efb"></div>
+          <h5 class="efb txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
+          <div class="efb text-center">
+            <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
+              <i class="efb bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
+          </div>
+        `;
+        show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
+        
+         state_modal_show_efb(1);
+        reject(error);
       }
-
-
-
-
-      //myModal.show_efb();
-      state_modal_show_efb(1);
-    } catch (error) {
-      
-      btnIcon = 'bi-bug'
-      body = `
-    <div class="efb pro-version-efb-modal efb"></div>
-    <h5 class="efb  txt-center text-darkb fs-6">${efb_var.text.pleaseReporProblem}</h5>
-    <div class="efb  text-center">
-    <button type="button" class="efb btn efb btn-outline-pink efb-btn-lg mt-3 mb-3" onClick ="fun_report_error('fun_saveFormEfb','${error}')">
-      <i class="efb  bi-megaphone mx-2"></i> ${efb_var.text.reportProblem} </button>
-    </div>
-    `
-      show_modal_efb(body, efb_var.text.error, btnIcon, 'error');
-      state_modal_show_efb(1)
-      //myModal.show_efb();
-    }
-  }, 100)
-}//end function
+    }, 100);
+  });
+};//end function
 
 let editFormEfb = () => {
   valueJson_ws_p = 0; // set ajax to edit mode
@@ -4477,4 +4482,52 @@ colors_from_template = ()=>{
  
 }
 
+
+function form_preview_efb(val) {
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  data = {};
+  jQuery(function ($) {
+      data = {
+        action: "form_preview_efb",
+        id: val,
+        nonce: efb_var.nonce
+      };
+
+    $.post(ajaxurl, data, function (res) {
+      //console.log(res)
+      if (res.data.success == true) {
+        //console.log(res.data)
+         window.open(res.data.data, '_blank');
+         sessionStorage.setItem('page_id_wp' , res.data.page_id);
+      } else {
+        alert_message_efb(efb_var.text.error, efb_var.text.errorMsg, 30, 'danger');
+      }
+    })
+    return true;
+  });
+
+}
+
+
+preview_form_new_efb = async ()=>{
+  let form_id = sessionStorage.getItem('form_id') ??  form_ID_emsFormBuilder == 0 ?  null :`[EMS_Form_Builder id=${form_ID_emsFormBuilder}]`;
+ 
+      if(form_id == null ){
+        //show message about first save form      
+        show_modal_efb(`<div class="text-center text-darkb efb"><div class=" fs-4 efb"></div><p class="fs-4 efb">${efb_var.text.prsm}</p></div>`,efb_var.text.warning, '', 'saveBox');
+        state_modal_show_efb(1)
+        return;
+      }else{
+        check = await saveFormEfb(0);
+        if(check==false){
+          return;
+        }
+        form_preview_efb(form_id);
+      }
+
+      
+}
 

@@ -1155,7 +1155,7 @@ let add_buttons_zone_efb = (state, id) => {
      if(id =='body_efb') c = `<div class="efb footer-test efb p-1 ">`;
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
-    c = ` <div class="efb col-12 mb-5 pb-5 mt-3 mx-4 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
+    c = ` <div class="efb col-12 mb-2 mb-5 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   if (id != 'preview' && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
     return c;
@@ -1528,8 +1528,8 @@ function previewFormEfb(state) {
       return;
     }
     if (state == "pc") {
-      show_modal_efb(efbLoadingCard(), efb_var.text.previewForm, '', 'saveBox')
-      state_modal_show_efb(1)
+ 
+      preview_form_new_efb();
     }
   }
   try {
@@ -1665,10 +1665,10 @@ function previewFormEfb(state) {
     `
   const t = valj_efb[0].steps == 1 ? 0 : 1;
   if (state == 'pc') {
-    document.getElementById('dropZoneEFB').innerHTML = '';
-    content = `<!-- find xxxx -->` + content;
+    //document.getElementById('dropZoneEFB').innerHTML = '';
+   /*  content = `<!-- find xxxx -->` + content;
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body')
+    add_buttons_zone_efb(t, 'settingModalEfb-body') */
   } else if (state == 'pre') {
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
     add_buttons_zone_efb(t, 'settingModalEfb-body')
@@ -1719,11 +1719,15 @@ function previewFormEfb(state) {
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("mousemove", (e) => { mousePostion_efb = getmousePostion_efb(document.getElementById(`${v.id_}_`), e); }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchmove", (e) => {
+            e.preventDefault();
+            document.body.style.overflow = 'hidden';
             let touch = e.touches[0];
             let ms = new MouseEvent("mousemove", { clientY: touch.clientY, clientX: touch.clientX });
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            document.body.style.overflow = 'hidden';
             canvas_id_efb = v.id_;
             c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
             mousePostion_efb = getTouchPos_efb(document.getElementById(`${v.id_}_`), e);
@@ -1735,6 +1739,8 @@ function previewFormEfb(state) {
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
           }, false);
           document.getElementById(`${v.id_}_`).addEventListener("touchend", (e) => {
+            e.preventDefault();
+            document.body.style.overflow = 'auto';
             let ms = new MouseEvent("mouseup", {});
             document.getElementById(`${v.id_}_`).dispatchEvent(ms);
             const value = document.getElementById(`${v.id_}-sig-data`).value;
