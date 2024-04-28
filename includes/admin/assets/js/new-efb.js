@@ -1155,6 +1155,7 @@ let add_buttons_zone_efb = (state, id) => {
      if(id =='body_efb') c = `<div class="efb footer-test efb p-1 ">`;
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
+    document.getElementById('dropZoneEFB').classList.add('captcha');
     c = ` <div class="efb col-12 mb-2 mb-5 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   if (id != 'preview' && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -2577,6 +2578,7 @@ async  function  fetch_json_from_url_efb(url){
   });
 }
 fun_captcha_load_efb = ()=>{
+  document.getElementById('dropZoneEFB').classList.add('captcha');
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 --> 
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
