@@ -60,7 +60,13 @@ setTimeout(() => {
           const vs = setting_emsFormBuilder;
           addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
-            if (ajax_value[0].captcha == true) {
+            if (Number(ajax_value[0].captcha )== 1) {              
+              if(vs.siteKey.length<3){
+                const vd =  alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
+                console.log(vd);
+                document.getElementById('body_efb').innerHTML =vd;
+                return;
+              }
               sitekye_emsFormBuilder = vs.siteKey;
             } else { sitekye_emsFormBuilder = ""; }
           } else {

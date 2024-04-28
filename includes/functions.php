@@ -1516,7 +1516,7 @@ class efbFunction {
 		return $r;
 	}
 
-	public function efb_list_forms(){
+	public function efb_list_form(){
 		$table_name = $this->db->prefix . "emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 			return $value;
