@@ -734,6 +734,8 @@ class Admin {
             if ($r > 0) {
                 $usr         = get_user_by('id', $r);
                 $val->rsp_by = $usr->display_name;
+            }else if ($r==-1){
+                $val->rsp_by=__('admin');
             }
             else {
                 $m =   $lang["guest"];

@@ -138,7 +138,9 @@ class _Public {
 		
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
-		if($admin_form==true && is_user_logged_in()==false){
+		$admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
+		error_log("admin_sc: ".$admin_sc);
+		if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		
@@ -463,7 +465,7 @@ class _Public {
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
-	
+		
 		//Confirmation Code show
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
@@ -516,6 +518,7 @@ class _Public {
 		$location = '';
 		//efb_code_validate_create( $fid, $type, $status, $tc)
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
+		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -533,6 +536,7 @@ class _Public {
 			   'sid'=>$sid,
 			   'rest_url'=>get_rest_url(null),
 			   'page_id'=>get_the_ID(),
+			   'sc'=>$sc
 		 ));  
 
 		 $icons_ =[
@@ -1870,6 +1874,8 @@ class _Public {
 					if ($r>0){
 						$usr =get_user_by('id',$r);
 						$val->rsp_by= $usr->display_name;
+					}else if ($r==-1){
+						$val->rsp_by=__('support');
 					}else{
 						$val->rsp_by=$lanText["guest"];
 					}				 
@@ -2117,13 +2123,16 @@ class _Public {
 	}//end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["error400","somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
 		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = sanitize_text_field($data_POST['user_type']);
+		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
+		$track = sanitize_text_field($data_POST['track']);
+		
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		if ($s_sid !=1 || $sid==null){
@@ -2131,6 +2140,11 @@ class _Public {
 		$response = array( 'success' => false  , 'm'=>$m ); 
 		wp_send_json_success($response,200);
 		} 
+		//here!!
+		//if ac and track exist so check email_key if equal then this admin and set user as admin.
+		error_log('sc'.$sc);
+		error_log('track'.$track);
+
 		$this->id =sanitize_text_field($data_POST['id']);
 		$by ="";
 		if(empty($data_POST['message']) ){
@@ -2156,6 +2170,13 @@ class _Public {
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
+			$email_key = isset($setting->email_key) && strlen($setting->email_key)>5 ?$setting->email_key:null ;
+			if($sc!='null' && $email_key==null){
+				$response = array( 'success' => false , "m"=>$this->lanText["error400"]); 
+				wp_send_json_success($response,200);
+			}else{
+
+			}
 			$response=$data_POST['valid'];
 			$id;
 				$id=number_format(sanitize_text_field($data_POST['id']));
@@ -2240,6 +2261,20 @@ class _Public {
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
+				if($sc!='null'){
+					error_log('$sc is not null');
+					$email_key = $this->setting->email_key;
+					$md5 = md5($track.$email_key);
+					if ($md5==$sc){
+						error_log('md5 is qual to $sc');
+						$read_s =1;
+						if($this->efb_uid==0) $this->efb_uid = -1; 						
+						$rsp_by ='admin';
+					}else{
+						$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					    wp_send_json_success($response,200);
+					}
+				}
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
@@ -2373,6 +2408,8 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
+		error_log('send_email_Emsfb_');
+		error_log(json_encode($state));
 		$link_w=[];
 		$cont=[];
 		$subject=[];
@@ -2383,7 +2420,9 @@ class _Public {
 			if(strlen($link)>5){
 				$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
 				if($i==0){
-					$link_w[$i] .='&user=admin';
+					$sc = $this->genrate_sacure_code_admin_email($track);
+					$link_w[$i] .='&user=admin&sc='.$sc;
+					error_log($link_w[$i]);
 				}
 			}else{
 				$link_w[$i] = $homeUrl;
@@ -5997,6 +6036,37 @@ class _Public {
 		wp_delete_post($page_id, true);
 	}
 
+
+	function genrate_sacure_code_admin_email($track){
+		function g($track , $key){
+			return md5($track.$key);
+		}
+		error_log(json_encode($this->setting->activeCode));
+		if(isset($this->setting->email_key)){
+		
+		}else{
+			//create randome string lenght 10
+			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+			//check if not exist email_key add email_key with $rand value and added to table
+			$this->setting->email_key = $rand;
+			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
+			$table_name = $this->db->prefix . 'emsfb_setting';
+			$email =$this->setting->emailSupporter;
+			$this->db->insert(
+				$table_name,
+				[
+					'setting' => $setting,
+					'edit_by' => 0,
+					'date'    => wp_date('Y-m-d H:i:s'),
+					'email'   => $email
+				]
+			);
+			
+		}
+		error_log(json_encode($this->setting->email_key));
+		return g($track , $this->setting->email_key);
+
+	}
 	
 }
 
