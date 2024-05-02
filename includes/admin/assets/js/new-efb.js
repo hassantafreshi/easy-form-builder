@@ -2730,11 +2730,11 @@ function handle_change_event_efb(el){
           value = el.value;
          return;
         }
-        if(validate_len()==0){
+        if(validate_len()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
           //console.log('validate_len()==0!!!');
           if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
-        } else {
+        }else {
           if (value.search(`"`) != -1) {
             el.value = value.replaceAll(`"`, '');
             noti_message_efb(`Don't use forbidden Character like: "` , 'danger' , `step-${current_s_efb}-efb-msg` );
@@ -2876,8 +2876,8 @@ function handle_change_event_efb(el){
           vd.innerHTML="";}
         break;
     }
-    if(state==false && value.length > 1)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
-    if (value != "" || value.length > 1) {
+    if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
+    if (value != "" || value.length > 0) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
