@@ -267,6 +267,18 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
   //close_overpage_emsFormBuilder();
 
 }
+function fun_confirm_remove_all_message_emsFormBuilder(val) {
+  console.log(val)
+  fun_delete_all_message_by_server(val);
+  for (const v of val) {
+    const foundIndex = Object.keys(valueJson_ws_messages).length > 0 ? valueJson_ws_messages.findIndex(x => x.msg_id == v.msg_id) : -1
+    console.log(foundIndex);
+    if (foundIndex != -1) valueJson_ws_messages.splice(foundIndex, 1);
+  }
+  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
+  //close_overpage_emsFormBuilder();
+
+}
 
 
 
@@ -339,26 +351,38 @@ function fun_ws_show_list_messages(value) {
   let iconRead = 'bi-envelope-open';
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
   const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
+  let buttons =`
+  <div class="efb" id="selectedBtnlistEfb">
+  <button  class="efb  btn efb btn-danger text-white mt-2"  onClick="event_selected_row_emsFormBuilder('delete')" title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2"></i></button >
+  <button  class="efb  btn efb btn-secondary text-white mt-2"  onClick="event_selected_row_emsFormBuilder('read')" title="${efb_var.text.read}" >  <i class="efb  bi-envelope-open mx-2"></i></button >
+  </div>
+  `
   if (form_type_emsFormBuilder == 'subscribe') {
-    head = `<div ><button class="efb  btn efb btn-primary text-white mt-2" onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2""></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div class="efb d-flex"><button class="efb  btn efb btn-primary text-white mt-2 mx-1" onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2""></i>${efb_var.text.downloadCSVFile}</button >
+    ${buttons}
+    </div>`;
     iconRead = 'bi-person';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'register') {
    
-    head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div class="efb d-flex"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
+    ${buttons}
+    </div>`;
     iconRead = 'bi-person ';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'survey') {
     
-    head = `<div >
-    <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
-    <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" >  <i class="efb  bi-bar-chart-line mx-2"></i>${efb_var.text.chart}</button >
+    head = `<div class="efb d-flex">
+    <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
+    <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" >  <i class="efb  bi-bar-chart-line mx-2"></i>${efb_var.text.chart}</button >
+    ${buttons}
     </div>`;
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
   } else if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment') {
    
-    head = `<div > <button  class="efb  btn efb btn-primary text-white mt-2"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button ></div>`;
+    head = `<div class="efb d-flex"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
+    ${buttons}</div>`;
   }
   if (value.length > 0) {
     let no =1;
@@ -373,9 +397,10 @@ function fun_ws_show_list_messages(value) {
       $txtColor = state == 2 ? 'text-danger' : '';
       if (response_state_efb.findIndex(x => x.msg_id == v.msg_id) != -1) { state = 0 }
       rows += `<tr class="efb  pointer-efb" id="" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${Number(state) == 0 ? efb_var.text.newResponse : efb_var.text.read}"  >                    
-      <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${no}</td>
+        <th scope="col" class="efb"><input class="efb  emsFormBuilder_v form-check-input   fs-8 onemsg" type="checkbox"  value="checkbox"  data-id="${v.msg_id}"  onclick="fun_select_rows_table(this)"></th>
+         <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${no}</td>
          <th scope="row" class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.track}</th>
-         <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
+           <td class="efb ${$txtColor}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})">${v.date}</td>
             <td class="efb "> 
             <a  class="efb  btn btn-comment btn-sm" id="btn-m-${v.msg_id}" onClick="fun_open_message_emsFormBuilder(${v.msg_id} , ${state})" >
              ${Number(state) != 1 && Number(state) != 4 ? iconNotRead : `<i id="icon-${v.msg_id}" class="efb  ${iconRead} text-muted"></i> `}</a>
@@ -399,6 +424,7 @@ function fun_ws_show_list_messages(value) {
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
     <thead>
+    <th scope="col" class="efb"><input class="efb  emsFormBuilder_v form-check-input fs-8 allmsg" type="checkbox"  value="checkbox"   onclick="fun_select_rows_table(this)"></th>
     <th scope="col" class="efb">${efb_var.text.number}</th>
     <th scope="col" class="efb">${efb_var.text.trackNo}</th>
     <th scope="col" class="efb">${efb_var.text.ddate}</th>
@@ -454,6 +480,35 @@ function fun_delete_message_with_id_by_server(id) {
       action: "remove_message_id_Emsfb",
       type: "POST",
       id: id,
+      nonce: ajax_object_efm_core.nonce,
+    };
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
+      if (res.success == true) {
+        setTimeout(() => {
+          alert_message_efb(efb_var.text.done, '', 3, 'info')
+        }, 3)
+      } else {
+        setTimeout(() => {
+          alert_message_efb(efb_var.text.error, '', 3, 'danger')
+        }, 3)
+      }
+    })
+  });
+
+}
+function fun_delete_all_message_by_server(val) {
+  console.log('fun_delete_all_message_by_server',val);
+
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  jQuery(function ($) {
+    data = {
+      action: "remove_messages_Emsfb",
+      type: "POST",
+      val: JSON.stringify(val),
+      state: 'msg',
       nonce: ajax_object_efm_core.nonce,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
@@ -707,6 +762,7 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
+  console.log(state);
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -2334,6 +2390,55 @@ function fun_dup_form_server_efb(id,type){
       })
     });
   });
+}
+
+function fun_select_rows_table(el){
+  //valueJson_ws_messages
+  //efb  emsFormBuilder_v form-check-input fs-8 allmsg
+  if(el.classList.contains('allmsg')){
+    let els = document.querySelectorAll(".onemsg")
+   let state =true;
+    if(el.checked==true){
+      for (let i = 0; i < els.length; i++) {
+        els[i].checked=true;
+      }
+    }else{
+      state = false;
+      for (let i = 0; i < els.length; i++) {
+        els[i].checked=false;
+      }
+     
+    }
+    for (let i = 0; i < valueJson_ws_messages.length; i++) {
+      valueJson_ws_messages[i].hasOwnProperty('checked') ? valueJson_ws_messages[i].checked = state : valueJson_ws_messages[i] = {...valueJson_ws_messages[i], checked:state}
+    }
+  }else if (el.classList.contains('onemsg')){
+    const msg_id = el.dataset.id;
+    //find in valueJson_ws_messages by msg_id
+    const i = valueJson_ws_messages.findIndex(x => x.msg_id == msg_id);
+    if(el.checked){
+    // add true checked to valueJson_ws_messages
+    valueJson_ws_messages[i].hasOwnProperty('checked') ? valueJson_ws_messages[i].checked = true : valueJson_ws_messages[i] = {...valueJson_ws_messages[i], checked:true}
+    }else{
+     // add false checked to valueJson_ws_messages
+      valueJson_ws_messages[i].hasOwnProperty('checked') ? valueJson_ws_messages[i].checked = false : valueJson_ws_messages[i] = {...valueJson_ws_messages[i], checked:false}
+    }
+    console.log( valueJson_ws_messages[i]);
+  }
+}
+
+function event_selected_row_emsFormBuilder(state){
+  const list_selected = valueJson_ws_messages.filter(x => x.checked == true);
+  console.log(list_selected,state);
+  if(list_selected.length==0){
+    alert_message_efb(efb_var.text.error, efb_var.text.nsrf, 8, 'warning');
+    return;
+  }
+  if(state=='delete'){
+    emsFormBuilder_delete('','message',list_selected);
+  }else{
+
+  }
 }
 
 

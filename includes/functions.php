@@ -748,6 +748,8 @@ class efbFunction {
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
 			"prsm" => $state  &&  isset($ac->text->prsm) ? $ac->text->prsm : __('To preview the form, you need to save the built form and try again.','easy-form-builder'),
+			"nsrf" => $state  &&  isset($ac->text->nsrf) ? $ac->text->nsrf : __('No selected rows found.','easy-form-builder'),
+			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : __('support','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];

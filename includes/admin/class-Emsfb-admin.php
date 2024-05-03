@@ -80,9 +80,10 @@ class Admin {
             
             add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                 //Send sms from admin panel                
             add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                           //Duplicate a form
-           
+            
             add_action('efb_loading_card', [$this, 'loading_card_efb']);                             //Loading card
-       
+            
+            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
         } 
     }
 
@@ -1374,6 +1375,54 @@ class Admin {
 
     }
 
+
+    public function delete_messages_Emsfb(){
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
+        $lang= $efbFunction->text_efb($text);
+
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>$lang["error403"]];
+            wp_send_json_success($response, 200);
+        }
+        if (empty($_POST['val'])) {            
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            wp_send_json_success($response,200);
+        }
+        $state = sanitize_text_field($_POST['state']) ;
+        $val =  sanitize_text_field($_POST['val']) ;
+        $val_  = str_replace('\\', '', $val);
+        $val = json_decode($val_ ,true);
+      
+
+        if($state =='msg'){
+            $table_name = $this->db->prefix . "emsfb_msg_";
+            $msg_ids ='';
+            foreach ($val as $key => $value) {
+                if(isset($value['msg_id'])){
+                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                }
+                
+            }
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+
+            if($msg_ids !=''){
+                $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                $r = $this->db->query($sql);
+                //delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
+                if($r>0){
+                    $table_name = $this->db->prefix . "emsfb_rsp_";
+                    $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                    $r = $this->db->query($sql);                            
+                }
+              
+                $response = ['success' => true, "m" =>$lang["delete"]];
+            }
+            wp_send_json_success($response, 200);
+        }
+    }
 
 
 

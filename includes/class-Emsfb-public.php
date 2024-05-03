@@ -1824,7 +1824,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		//$this->public_scripts_and_css_head();
 		if(empty($this->efbFunction)) $this->efbFunction =new efbFunction();
-		$text_ = ["somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$text_ = ["spprt","somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		
@@ -1875,7 +1875,7 @@ class _Public {
 						$usr =get_user_by('id',$r);
 						$val->rsp_by= $usr->display_name;
 					}else if ($r==-1){
-						$val->rsp_by=__('support');
+						$val->rsp_by=$lanText["spprt"];
 					}else{
 						$val->rsp_by=$lanText["guest"];
 					}				 
