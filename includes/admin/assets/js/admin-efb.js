@@ -3819,6 +3819,7 @@ function emsFormBuilder_delete(id, type,value) {
       //+here    
       
       fun_confirm_remove_all_message_emsFormBuilder(value)
+      return;
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)

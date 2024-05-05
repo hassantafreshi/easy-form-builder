@@ -270,12 +270,13 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 function fun_confirm_remove_all_message_emsFormBuilder(val) {
   console.log(val)
   fun_delete_all_message_by_server(val);
-  for (const v of val) {
+  
+   for (const v of val) {
     const foundIndex = Object.keys(valueJson_ws_messages).length > 0 ? valueJson_ws_messages.findIndex(x => x.msg_id == v.msg_id) : -1
     console.log(foundIndex);
     if (foundIndex != -1) valueJson_ws_messages.splice(foundIndex, 1);
   }
-  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
+  fun_ws_show_list_messages(valueJson_ws_messages);
   //close_overpage_emsFormBuilder();
 
 }
@@ -354,7 +355,7 @@ function fun_ws_show_list_messages(value) {
   let buttons =`
   <div class="efb" id="selectedBtnlistEfb">
   <button  class="efb  btn efb btn-danger text-white mt-2"  onClick="event_selected_row_emsFormBuilder('delete')" title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2"></i></button >
-  <button  class="efb  btn efb btn-secondary text-white mt-2"  onClick="event_selected_row_emsFormBuilder('read')" title="${efb_var.text.read}" >  <i class="efb  bi-envelope-open mx-2"></i></button >
+  <button  class="efb  btn efb btn-secondary text-white mt-2"  onClick="event_selected_row_emsFormBuilder('read')" title="${efb_var.text.mread}" >  <i class="efb  bi-envelope-open mx-2"></i></button >
   </div>
   `
   if (form_type_emsFormBuilder == 'subscribe') {
@@ -512,13 +513,15 @@ function fun_delete_all_message_by_server(val) {
       nonce: ajax_object_efm_core.nonce,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      if (res.success == true) {
+      if (res.data.success == true) {
         setTimeout(() => {
           alert_message_efb(efb_var.text.done, '', 3, 'info')
+          
         }, 3)
+        location.reload();
       } else {
         setTimeout(() => {
-          alert_message_efb(efb_var.text.error, '', 3, 'danger')
+          alert_message_efb(efb_var.text.error,res.data.m, 3, 'danger')
         }, 3)
       }
     })
@@ -2428,8 +2431,19 @@ function fun_select_rows_table(el){
 }
 
 function event_selected_row_emsFormBuilder(state){
-  const list_selected = valueJson_ws_messages.filter(x => x.checked == true);
+  let list_selected = valueJson_ws_messages.filter(x => x.checked == true).map(x => JSON.parse(JSON.stringify(x)));
   console.log(list_selected,state);
+  for(let i in list_selected){
+    if(list_selected[i].hasOwnProperty('content')){
+      //remove content attrebute
+      list_selected[i].content='';
+    }
+  }
+  //check is pro version 
+  if(Number(efb_var.pro)!=1){
+    pro_show_efb(efb_var.text.proUnlockMsg) 
+    return;
+  }
   if(list_selected.length==0){
     alert_message_efb(efb_var.text.error, efb_var.text.nsrf, 8, 'warning');
     return;
@@ -2437,14 +2451,50 @@ function event_selected_row_emsFormBuilder(state){
   if(state=='delete'){
     emsFormBuilder_delete('','message',list_selected);
   }else{
-
+    console.log(state,list_selected,valueJson_ws_messages);
+    emsFormBuilder_read('msg',list_selected);
+    for (const v of list_selected) {
+      const foundIndex = Object.keys(valueJson_ws_messages).length > 0 ? valueJson_ws_messages.findIndex(x => x.msg_id == v.msg_id) : -1
+      console.log(foundIndex);
+      if (foundIndex != -1) valueJson_ws_messages[foundIndex].read_ = "1";
+    }   
+    console.error(valueJson_ws_messages);
+    setTimeout(() => {
+      fun_ws_show_list_messages(valueJson_ws_messages)
+    }, 1000);
   }
+} //End function
+
+
+function emsFormBuilder_read(state,val){
+  if (!navigator.onLine) {
+    alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
+    return;
+  }
+  console.log(state ,val);
+
+  jQuery(function ($) {
+    data = {
+      action: "read_list_Emsfb",
+      type: "POST",
+      val: JSON.stringify(val),
+      state: state,
+      nonce: ajax_object_efm_core.nonce,
+    };
+    $.post(ajax_object_efm.ajax_url, data, function (res) {
+      console.log(res);
+      if (res.data.success == true) {
+        setTimeout(() => {
+          alert_message_efb(efb_var.text.done, '', 3, 'info');
+          
+        }, 3)
+        // location.reload();
+      } else {
+        
+        setTimeout(() => {
+          alert_message_efb(efb_var.text.error, res.data.m, 3, 'danger')
+        }, 3)
+      }
+    })
+  });
 }
-
-
-
-
-
-
-
-
