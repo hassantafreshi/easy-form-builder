@@ -4,7 +4,7 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
 Tested up to: 6.5.2
-Stable tag: 3.7.20
+Stable tag: 3.7.21
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -452,6 +452,16 @@ We've got a dedicated team ready to support you with any form-related questions 
 12. Order payment forms
 
 == Changelog ==
+
+= 3.7.21 = 
+* CAPTCHA Issue Present Resolved on Edit Form on Easy Form Builder Panel page
+* Admins Can Now Add Responses Without Logging In
+* "Select All" Checkbox Added for Messages Section on Easy Form Builder Panel 
+* Delete Button Added to Message Section on Easy Form Builder Panel 
+* "Read" Button Added to Message Section on Easy Form Builder Panel 
+* Resolved issues with changing phone number in settings.
+* Fixed issues of UI Easy Form Builder
+
 
 = 3.7.20 =
 * Fixed issues of UI Easy Form Builder

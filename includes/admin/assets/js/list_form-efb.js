@@ -927,6 +927,7 @@ function fun_show_setting__emsFormBuilder() {
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
+    adminSN  = f('adminSN') =='null' ? false :f('adminSN');
 
     
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));
@@ -1075,6 +1076,12 @@ function fun_show_setting__emsFormBuilder() {
                                   </button>
                                   <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showIp_emsFormBuilder">${efb_var.text.sips}</label>                                
                                 </div> -->
+                               <div class="efb card-body my-0 py-0 ${mxCSize4}">
+                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >       
+                                  <div class="efb handle"></div>
+                                  </button>
+                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>                                
+                                </div>
                            
                               
                             <!--End General-->
@@ -1293,7 +1300,7 @@ function fun_show_setting__emsFormBuilder() {
                           <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
                           <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                           <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^\+\d{11,14}$" placeholder="+11234567890" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}">
+                            <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^\+\d{11,14}$" placeholder="+11234567890" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}">
                             <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
                           </div>
@@ -1546,6 +1553,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
     const showUpfile = f('showUpfile_emsFormBuilder');
+    const adminSN  = f('adminSN_emsFormBuilder');
+    //const showIp = f('showIp_emsFormBuilder');
+    const showIp=false;
     smtp = f('hostSupportSmtp_emsFormBuilder');
     act_local_efb =f('act_local_efb')
     let emailTemp = f('emailTemp_emsFirmBuilder');
@@ -1595,7 +1605,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN
         } , state_auto);
   }
 

@@ -751,6 +751,7 @@ class efbFunction {
 			"nsrf" => $state  &&  isset($ac->text->nsrf) ? $ac->text->nsrf : __('No selected rows found.','easy-form-builder'),
 			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : __('Support','easy-form-builder'),
 			"mread" => $state  &&  isset($ac->text->mread) ? $ac->text->mread : __('Mark as Read','easy-form-builder'),
+			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : __('Form admins can access the response box after logging in.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];
