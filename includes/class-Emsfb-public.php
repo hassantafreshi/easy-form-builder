@@ -2139,11 +2139,6 @@ class _Public {
 		$response = array( 'success' => false  , 'm'=>$m ); 
 		wp_send_json_success($response,200);
 		} 
-		//here!!
-		//if ac and track exist so check email_key if equal then this admin and set user as admin.
-		error_log('sc'.$sc);
-		error_log('track'.$track);
-
 		$this->id =sanitize_text_field($data_POST['id']);
 		$by ="";
 		if(empty($data_POST['message']) ){
