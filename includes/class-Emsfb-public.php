@@ -2255,12 +2255,10 @@ class _Public {
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
-				if($sc!='null'){
-					error_log('$sc is not null');
+				if($sc!='null'){				
 					$email_key = $this->setting->email_key;
 					$md5 = md5($track.$email_key);
 					if ($md5==$sc){
-						error_log('md5 is qual to $sc');
 						$read_s =1;
 						if($this->efb_uid==0) $this->efb_uid = -1; 						
 						$rsp_by ='admin';
@@ -2402,8 +2400,6 @@ class _Public {
 	}//end function
 
 	public function send_email_Emsfb_($to , $track ,$pro , $state,$link ,$content ='null' , $sub ='null'){	
-		error_log('send_email_Emsfb_');
-		error_log(json_encode($state));
 		$link_w=[];
 		$cont=[];
 		$subject=[];
@@ -2421,7 +2417,6 @@ class _Public {
 						$sc = $this->genrate_sacure_code_admin_email($track);
 						$link_w[$i] .='&user=admin&sc='.$sc;
 					}
-					error_log($link_w[$i]);
 				}
 			}else{
 				$link_w[$i] = $homeUrl;
