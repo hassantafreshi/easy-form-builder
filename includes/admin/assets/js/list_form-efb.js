@@ -268,12 +268,12 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 
 }
 function fun_confirm_remove_all_message_emsFormBuilder(val) {
-  console.log(val)
+  // console.log(val)
   fun_delete_all_message_by_server(val);
   
    for (const v of val) {
     const foundIndex = Object.keys(valueJson_ws_messages).length > 0 ? valueJson_ws_messages.findIndex(x => x.msg_id == v.msg_id) : -1
-    console.log(foundIndex);
+    // console.log(foundIndex);
     if (foundIndex != -1) valueJson_ws_messages.splice(foundIndex, 1);
   }
   fun_ws_show_list_messages(valueJson_ws_messages);
@@ -498,7 +498,7 @@ function fun_delete_message_with_id_by_server(id) {
 
 }
 function fun_delete_all_message_by_server(val) {
-  console.log('fun_delete_all_message_by_server',val);
+  // console.log('fun_delete_all_message_by_server',val);
 
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
@@ -765,7 +765,7 @@ function fun_ws_show_response(value) {
 
 
 function fun_show_content_page_emsFormBuilder(state) {
-  console.log(state);
+  // console.log(state);
   if (state == "forms") {
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
@@ -2436,13 +2436,13 @@ function fun_select_rows_table(el){
      // add false checked to valueJson_ws_messages
       valueJson_ws_messages[i].hasOwnProperty('checked') ? valueJson_ws_messages[i].checked = false : valueJson_ws_messages[i] = {...valueJson_ws_messages[i], checked:false}
     }
-    console.log( valueJson_ws_messages[i]);
+    // console.log( valueJson_ws_messages[i]);
   }
 }
 
 function event_selected_row_emsFormBuilder(state){
   let list_selected = valueJson_ws_messages.filter(x => x.checked == true).map(x => JSON.parse(JSON.stringify(x)));
-  console.log(list_selected,state);
+  // console.log(list_selected,state);
   for(let i in list_selected){
     if(list_selected[i].hasOwnProperty('content')){
       //remove content attrebute
@@ -2461,11 +2461,11 @@ function event_selected_row_emsFormBuilder(state){
   if(state=='delete'){
     emsFormBuilder_delete('','message',list_selected);
   }else{
-    console.log(state,list_selected,valueJson_ws_messages);
+    // console.log(state,list_selected,valueJson_ws_messages);
     emsFormBuilder_read('msg',list_selected);
     for (const v of list_selected) {
       const foundIndex = Object.keys(valueJson_ws_messages).length > 0 ? valueJson_ws_messages.findIndex(x => x.msg_id == v.msg_id) : -1
-      console.log(foundIndex);
+      // console.log(foundIndex);
       if (foundIndex != -1) valueJson_ws_messages[foundIndex].read_ = "1";
     }   
     console.error(valueJson_ws_messages);
@@ -2481,7 +2481,7 @@ function emsFormBuilder_read(state,val){
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
-  console.log(state ,val);
+  // console.log(state ,val);
 
   jQuery(function ($) {
     data = {

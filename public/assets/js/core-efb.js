@@ -63,7 +63,7 @@ setTimeout(() => {
             if (Number(ajax_value[0].captcha )== 1) {              
               if(vs.siteKey.length<3){
                 const vd =  alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
-                console.log(vd);
+                // console.log(vd);
                 document.getElementById('body_efb').innerHTML =vd;
                 return;
               }
@@ -538,7 +538,7 @@ function emsFormBuilder_show_content_message(value, content) {
   let m = fun_emsFormBuilder_show_messages(val, "user" ,'', track, date);
   for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
-    console.log(c);
+    // console.log(c);
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
   }
   let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
@@ -619,7 +619,7 @@ function fun_send_replayMessage_reast_emsFormBuilder(message) {
     sc:ajax_object_efm.sc,
     track: track
   };
-  console.log(data);
+  // console.log(data);
   post_api_r_message_efb(data,message);
 }
 function fun_emsFormBuilder__add_a_response_to_messages(message, by, userIp, track, date) {
@@ -1058,7 +1058,7 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
   });
 }
 post_api_r_message_efb=(data,message)=>{
-  console.log(data);
+  // console.log(data);
   const url = efb_var.rest_url+'Emsfb/v1/forms/response/add';
   const headers = new Headers({
     'Content-Type': 'application/json',
