@@ -1155,6 +1155,7 @@ let add_buttons_zone_efb = (state, id) => {
      if(id =='body_efb') c = `<div class="efb footer-test efb p-1 ">`;
     c += state == 0 ? `${s}</div>` : `${d}</div> <!-- end btn -->`
   } else {
+    if(valj_efb[0].captcha == true) document.getElementById('dropZoneEFB').classList.add('captcha');
     c = ` <div class="efb col-12 mb-2 mb-5 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
   if (id != 'preview' && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
@@ -2577,6 +2578,7 @@ async  function  fetch_json_from_url_efb(url){
   });
 }
 fun_captcha_load_efb = ()=>{
+  if(valj_efb[0].captcha == true) document.getElementById('dropZoneEFB').classList.add('captcha');
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 --> 
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
@@ -2728,11 +2730,11 @@ function handle_change_event_efb(el){
           value = el.value;
          return;
         }
-        if(validate_len()==0){
+        if(validate_len()==0 && (el.dataset.hasOwnProperty('type') && el.dataset.type!="chlCheckBox")){
           //console.log('validate_len()==0!!!');
           if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
          return;
-        } else {
+        }else {
           if (value.search(`"`) != -1) {
             el.value = value.replaceAll(`"`, '');
             noti_message_efb(`Don't use forbidden Character like: "` , 'danger' , `step-${current_s_efb}-efb-msg` );
@@ -2874,8 +2876,8 @@ function handle_change_event_efb(el){
           vd.innerHTML="";}
         break;
     }
-    if(state==false && value.length > 1)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
-    if (value != "" || value.length > 1) {
+    if(state==false && value.length > 0)  if(typeof(sendback_state_handler_efb)=='function') sendback_state_handler_efb(id_,false,current_s_efb);
+    if (value != "" || value.length > 0) {
       const type = ob.type;
       const id_ob = ob.type != "paySelect" ? el.id : el.options[el.selectedIndex].id;
       let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder }];      
@@ -2999,11 +3001,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
+  // console.log(by);
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
   if (by == 1) {
      by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
   else if (by ==''){ 
     by = efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
+  }else if(by==-1){
+    by = 'Admin';
+    by=`<span>${efb_var.text.by}:</span> ${by}`;
   }
   else if (by==undefined ||by == 0 || by.length == 0 || by.length == -1) {
     by=`<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`; }

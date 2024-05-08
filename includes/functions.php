@@ -748,6 +748,10 @@ class efbFunction {
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
 			"prsm" => $state  &&  isset($ac->text->prsm) ? $ac->text->prsm : __('To preview the form, you need to save the built form and try again.','easy-form-builder'),
+			"nsrf" => $state  &&  isset($ac->text->nsrf) ? $ac->text->nsrf : __('No selected rows found.','easy-form-builder'),
+			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : __('Support','easy-form-builder'),
+			"mread" => $state  &&  isset($ac->text->mread) ? $ac->text->mread : __('Mark as Read','easy-form-builder'),
+			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : __('Form admins can access the response box after logging in.','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];
@@ -1516,7 +1520,7 @@ class efbFunction {
 		return $r;
 	}
 
-	public function efb_list_forms(){
+	public function efb_list_form(){
 		$table_name = $this->db->prefix . "emsfb_form";
 			$value = $this->db->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
 			return $value;

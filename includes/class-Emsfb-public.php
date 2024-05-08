@@ -88,7 +88,7 @@ class _Public {
 		});
 		
 		add_shortcode( 'Easy_Form_Builder_confirmation_code_finder',  array( $this, 'EMS_Form_Builder_track' ) ); 
-		//add_action('wp_enqueue_scripts', array($this,'fun_footer'));	
+			
 		//add_action( 'email_recived_new_message_hook_efb', array($this, 'corn_email_new_message_recived_Emsfb' ) ); //send email by cron wordpress
 		
 		$this->efbFunction = new efbFunction();  
@@ -110,7 +110,7 @@ class _Public {
 			if (version_compare($wp_version, '6.0', '>')) {				
 				wp_enqueue_script('jquery', includes_url('/js/jquery/jquery.js') , false ,'3.7.1');
 			}else {
-				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min.js', false, '3.6.2');
+				wp_enqueue_script('jquery', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery.min-efb.js', false, '3.6.2');
 			}
 			
 		}
@@ -134,11 +134,12 @@ class _Public {
 		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
 		}
-		$this->enqueue_jquery();
-		
+		$this->enqueue_jquery();	
 		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
 		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
-		if($admin_form==true && is_user_logged_in()==false){
+		$admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
+		
+		if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		
@@ -235,9 +236,9 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min.js',false,'3.7.20');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.21');
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css', true,'3.7.20' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.7.21' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -280,7 +281,7 @@ class _Public {
 
 			
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.20');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.21');
 					 
 				}
 		
@@ -301,12 +302,12 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay.js',__FILE__), array('jquery'), '3.7.20', true);
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.7.21', true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay.js',__FILE__), array('jquery'), '3.7.20', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.7.21', true);
 									wp_enqueue_script('parsipay_js');
 								}
 							}
@@ -319,7 +320,7 @@ class _Public {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ), true,'3.7.20');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.7.21');
 				 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -340,11 +341,11 @@ class _Public {
 				}//end if custom date
 				if(strpos($value , '\"type\":\"mobile\"') || strpos($value , '"type":"mobile"')){
 					$img = [
-						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils.js'
+						'utilsJs'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js'
 						];
-					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min.js', null, null, true);	
+					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min.css',true,'3.7.20');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.21');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -463,7 +464,7 @@ class _Public {
 		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
-	
+		
 		//Confirmation Code show
 		$lang = get_locale();
 		$lang =strpos($lang,'_')!=false ? explode( '_', $lang )[0]:$lang;
@@ -509,13 +510,14 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els.js',false,'3.7.20');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.21');
 		 
 		}
 		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
 		$location = '';
 		//efb_code_validate_create( $fid, $type, $status, $tc)
 		$sid = $this->efbFunction->efb_code_validate_create( 0 , 0, 'visit' , 0);
+		$sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : 'null';
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',
 		array( 'ajax_url' => admin_url( 'admin-ajax.php' ),			
 			   'state' => $state,
@@ -533,6 +535,7 @@ class _Public {
 			   'sid'=>$sid,
 			   'rest_url'=>get_rest_url(null),
 			   'page_id'=>get_the_ID(),
+			   'sc'=>$sc
 		 ));  
 
 		 $icons_ =[
@@ -564,21 +567,21 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css', true,'3.7.20');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.7.21');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core.js',__FILE__), array('jquery'), '3.7.20', true);				
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.7.21', true);				
 		 wp_enqueue_script('Emsfb-core_js');
 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new.js',array('jquery'), '3.7.20', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.21', true);		
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true ,'3.7.20');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.21');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css', true,'3.7.20');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.7.21');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
 		
@@ -1820,7 +1823,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		//$this->public_scripts_and_css_head();
 		if(empty($this->efbFunction)) $this->efbFunction =new efbFunction();
-		$text_ = ["somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$text_ = ["spprt","somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		
@@ -1870,6 +1873,8 @@ class _Public {
 					if ($r>0){
 						$usr =get_user_by('id',$r);
 						$val->rsp_by= $usr->display_name;
+					}else if ($r==-1){
+						$val->rsp_by=$lanText["spprt"];
 					}else{
 						$val->rsp_by=$lanText["guest"];
 					}				 
@@ -1888,11 +1893,7 @@ class _Public {
 			}
 			//send_email to admin of page
 	  }//end function get_track_public_api
-	  public function fun_footer(){
-		wp_register_script('jquery', plugins_url('../public/assets/js/jquery.js',__FILE__), array('jquery'), '3.7.20', true);
-		wp_enqueue_script('jquery');
-		return "<script>console.log('Easy Form Builder v3.7.7')</script>";
-	  }//end function
+
 	public function insert_message_db($read,$uniqid){
 		if(isset($read)==false) $read=0;
 		if($uniqid==false) $uniqid= date("ymd").substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 5) ;
@@ -2121,13 +2122,16 @@ class _Public {
 	}//end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
+		$this->text_ = empty($this->text_)==false ? $this->text_ :["error400","somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
 		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$rsp_by = sanitize_text_field($data_POST['user_type']);
+		$sc = isset($data_POST['sc']) ? sanitize_text_field($data_POST['sc']) : 'null';
+		$track = sanitize_text_field($data_POST['track']);
+		
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		if ($s_sid !=1 || $sid==null){
@@ -2160,6 +2164,13 @@ class _Public {
 			$secretKey=isset($setting->secretKey) && strlen($setting->secretKey)>5 ?$setting->secretKey:null ;
 			$email = isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5 ?$setting->emailSupporter :null  ;
 			$pro = isset($setting->activeCode) &&  strlen($setting->activeCode)>5 ? $setting->activeCode :null ;
+			$email_key = isset($setting->email_key) && strlen($setting->email_key)>5 ?$setting->email_key:null ;
+			if($sc!='null' && $email_key==null){
+				$response = array( 'success' => false , "m"=>$this->lanText["error400"]); 
+				wp_send_json_success($response,200);
+			}else{
+
+			}
 			$response=$data_POST['valid'];
 			$id;
 				$id=number_format(sanitize_text_field($data_POST['id']));
@@ -2244,6 +2255,18 @@ class _Public {
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
+				if($sc!='null'){				
+					$email_key = $this->setting->email_key;
+					$md5 = md5($track.$email_key);
+					if ($md5==$sc){
+						$read_s =1;
+						if($this->efb_uid==0) $this->efb_uid = -1; 						
+						$rsp_by ='admin';
+					}else{
+						$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
+					    wp_send_json_success($response,200);
+					}
+				}
 				$this->db->insert($table_name, array(
 					'ip' => $ip, 
 					'content' => $m, 
@@ -2386,8 +2409,14 @@ class _Public {
 		for($i=0;$i<2;$i++){
 			if(strlen($link)>5){
 				$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
-				if($i==0){
-					$link_w[$i] .='&user=admin';
+				if($i==0){			
+						
+					if(isset($this->setting->adminSN) &&  (int) $this->setting->adminSN==1){
+						$link_w[$i] .='&user=admin';
+					}else{
+						$sc = $this->genrate_sacure_code_admin_email($track);
+						$link_w[$i] .='&user=admin&sc='.$sc;
+					}
 				}
 			}else{
 				$link_w[$i] = $homeUrl;
@@ -5946,7 +5975,7 @@ class _Public {
 			wp_cache_post_change($page_id);
 		}elseif(function_exists('autoptimize_filter_js_noptimize ')){
 			//auto-Optimize done
-			autoptimize_filter_js_exclude(['jquery.min.js','core.js']);
+			autoptimize_filter_js_exclude(['jquery.min-efb.js','core-efb.js']);
 			autoptimize_filter_js_noptimize();
 		}elseif(class_exists('WPO_Page_Cache')){
 			//WP-Optimize done
@@ -6001,6 +6030,37 @@ class _Public {
 		wp_delete_post($page_id, true);
 	}
 
+
+	function genrate_sacure_code_admin_email($track){
+		function g($track , $key){
+			return md5($track.$key);
+		}
+		// error_log(json_encode($this->setting->activeCode));
+		if(isset($this->setting->email_key)){
+		  
+		}else{
+			//create randome string lenght 10
+			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
+			//check if not exist email_key add email_key with $rand value and added to table
+			$this->setting->email_key = $rand;
+			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
+			$table_name = $this->db->prefix . 'emsfb_setting';
+			$email =$this->setting->emailSupporter;
+			$this->db->insert(
+				$table_name,
+				[
+					'setting' => $setting,
+					'edit_by' => 0,
+					'date'    => wp_date('Y-m-d H:i:s'),
+					'email'   => $email
+				]
+			);
+			
+		}
+		// error_log(json_encode($this->setting->email_key));
+		return g($track , $this->setting->email_key);
+
+	}
 	
 }
 

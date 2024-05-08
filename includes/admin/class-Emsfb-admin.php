@@ -80,9 +80,11 @@ class Admin {
             
             add_action('wp_ajax_send_sms_pnl_efb', [$this, 'send_sms_admin_Emsfb']);                 //Send sms from admin panel                
             add_action('wp_ajax_dup_efb', [$this, 'fun_duplicate_Emsfb']);                           //Duplicate a form
-           
+            
             add_action('efb_loading_card', [$this, 'loading_card_efb']);                             //Loading card
-       
+            
+            add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
+            add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
         } 
     }
 
@@ -112,15 +114,15 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl.css', true,'3.7.20' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.7.21' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style.css',true,'3.7.20');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.7.21');
             wp_enqueue_style('Emsfb-style-css');
             
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min.css',true,'3.7.20');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,'3.7.21');
             wp_enqueue_style('Emsfb-bootstrap');
 
          
@@ -129,10 +131,10 @@ class Admin {
 
             
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons.css',true,'3.7.20');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css',true,'3.7.21');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select.css',true,'3.7.20');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.7.21');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
@@ -140,13 +142,13 @@ class Admin {
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min.js',false,'3.7.20');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,'3.7.21');
                 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min.js', array( 'jquery' ),true,'3.7.20');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,'3.7.21');
                 
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon.js',false,'3.7.20');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,'3.7.21');
                
         }
     }
@@ -734,6 +736,8 @@ class Admin {
             if ($r > 0) {
                 $usr         = get_user_by('id', $r);
                 $val->rsp_by = $usr->display_name;
+            }else if ($r==-1){
+                $val->rsp_by=__('admin');
             }
             else {
                 $m =   $lang["guest"];
@@ -1372,6 +1376,108 @@ class Admin {
 
     }
 
+
+    public function delete_messages_Emsfb(){
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
+        $lang= $efbFunction->text_efb($text);
+
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>$lang["error403"]];
+            wp_send_json_success($response, 200);
+        }
+        if (empty($_POST['val'])) {            
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            wp_send_json_success($response,200);
+        }
+        $state = sanitize_text_field($_POST['state']) ;
+        $val =  sanitize_text_field($_POST['val']) ;
+        $val_  = str_replace('\\', '', $val);
+        $val = json_decode($val_ ,true);
+      
+
+        if($state =='msg'){
+            $table_name = $this->db->prefix . "emsfb_msg_";
+            $msg_ids ='';
+            foreach ($val as $key => $value) {
+                if(isset($value['msg_id'])){
+                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                }
+                
+            }
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+
+            if($msg_ids !=''){
+                $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                $r = $this->db->query($sql);
+                //delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
+                if($r>0){
+                    $table_name = $this->db->prefix . "emsfb_rsp_";
+                    $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                    $r = $this->db->query($sql);                            
+                }
+              
+                $response = ['success' => true, "m" =>$lang["delete"]];
+            }
+            wp_send_json_success($response, 200);
+        }
+    }
+    public function read_list_Emsfb(){
+        // error_log('read_list_Emsfb');
+        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $ac= $efbFunction->get_setting_Emsfb();
+        $text = ["error403","somethingWentWrongPleaseRefresh","done"];
+        $lang= $efbFunction->text_efb($text);
+
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>$lang["error403"]];
+            wp_send_json_success($response, 200);
+        }
+        if (empty($_POST['val'])) {            
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            wp_send_json_success($response,200);
+        }
+        $state = sanitize_text_field($_POST['state']) ;
+        $val =  sanitize_text_field($_POST['val']) ;
+        //error_log($val);
+        $val_  = str_replace('\\\\', '', $val);
+        $val_  = str_replace('\\', '', $val);
+        $val = json_decode($val_ ,true);
+
+        if($state =='msg'){
+            $table_name = $this->db->prefix . "emsfb_msg_";
+            $msg_ids ='';
+            foreach ($val as $key => $value) {
+                if(isset($value['msg_id'])){
+                    $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
+                }
+                
+            }
+            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $user_id = get_current_user_id();
+            if($msg_ids !='' ){
+                //$sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+
+                $r = $this->db->query($sql);
+                //error_log($r);
+                //delete  all responses from table emsfb_rsp_ where msg_id in ($msg_ids)
+                if($r>0){
+                    $table_name = $this->db->prefix . "emsfb_rsp_";
+                    //$sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
+                    $sql = "UPDATE $table_name SET read_ = 1 WHERE msg_id IN ($msg_ids)";
+                    $r = $this->db->query($sql);       
+                    //error_log('resp'.$r);
+                }
+              
+                $response = ['success' => true, "m" =>$lang["done"]];
+            }           
+        }
+        wp_send_json_success($response, 200);
+    }
 
 
 

@@ -303,7 +303,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   //if(state == 0) state_modal_show_efb(1);
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.20> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.21> WhiteStudio.team');
 
 
 async function  actionSendData_emsFormBuilder() {
@@ -3752,7 +3752,17 @@ fun_confirm_remove_addon_emsFormBuilder=(val)=>{
  }
 
 function emsFormBuilder_delete(id, type,value) {
-  
+  //console.log(type);
+  get_val=(f,val)=>{
+    let r ='null' ;
+    val.forEach(element => {
+      if(element.hasOwnProperty('checked') && element.checked==true){
+        //console.log(r.length ,r);
+        r!='null' ? r+='>'+element.track+'</br>' : r='>'+element.track+'</br>';
+      }
+    });
+   return r;
+  }
   //v2
   let val =id;
   
@@ -3766,12 +3776,26 @@ function emsFormBuilder_delete(id, type,value) {
       break;
     case "message":
       val=value;
+      if (typeof value == "object") {
+        // console.log('message list');
+        // console.log(val);
+        val = get_val('message',value);
+        type = 'messagelist';
+        // console.log(type);
+        for(let i in value){
+          if(value[i].hasOwnProperty('checked') && value[i].checked==true && value[i].hasOwnProperty('content')){
+            //remove content attrebute
+            value[i].content='';
+          }
+        }
+      }
       break;
     case 'condlogic':
       val =id;
       break;
   }
-  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${efb_var.text[type]} >> ${val} </b></div></div>`
+  const m = efb_var.text[type] ? `${efb_var.text[type]}  >>`: '';
+  const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${m} ${val} </b></div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   const confirmBtn = document.getElementById('modalConfirmBtnEfb');
@@ -3779,6 +3803,7 @@ function emsFormBuilder_delete(id, type,value) {
   //myModal.show_efb();
   state_modal_show_efb(1)
   confirmBtn.addEventListener("click", (e) => {
+    // console.log(type);
     if(type=='form'){
     fun_confirm_remove_emsFormBuilder(Number(id))
     }else if(type=='message'){
@@ -3786,9 +3811,15 @@ function emsFormBuilder_delete(id, type,value) {
     }else if (type =='addon'){
       addons_btn_state_efb(id);
       fun_confirm_remove_addon_emsFormBuilder(id);
-    }else if (type ="condlogic"){
+    }else if (type =="condlogic"){
       
       fun_remove_condition_efb(id , value);
+    }else if(type=="messagelist"){
+      // console.log(type);
+      //+here    
+      
+      fun_confirm_remove_all_message_emsFormBuilder(value)
+      return;
     }
     activeEl_efb = 0;
     state_modal_show_efb(0)
@@ -3816,6 +3847,7 @@ function emsFormBuilder_duplicate(id, type,value) {
       val = id;
       break;
   }
+  // console.log(val);
   const msg = efb_var.text.ausdup.replaceAll('XXX',val);
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${msg}</div></div>`
   show_modal_efb(body, efb_var.text.duplicate, 'efb bi-clipboard-plus mx-2', 'duplicateBox')
