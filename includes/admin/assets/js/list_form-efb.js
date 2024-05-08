@@ -352,23 +352,16 @@ function fun_ws_show_list_messages(value) {
   let iconRead = 'bi-envelope-open';
   let iconNotRead = ' <path  d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.586L16 11.801V4.697l-5.803 3.546z"/>';
   const fun = pro_ws == true ? "generat_csv_emsFormBuilder()" : `pro_show_efb('${efb_var.text.availableInProversion}')`;
-  let buttons =`
-  <div class="efb" id="selectedBtnlistEfb">
-  <button  class="efb  btn efb btn-danger text-white mt-2"  onClick="event_selected_row_emsFormBuilder('delete')" title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2"></i></button >
-  <button  class="efb  btn efb btn-secondary text-white mt-2"  onClick="event_selected_row_emsFormBuilder('read')" title="${efb_var.text.mread}" >  <i class="efb  bi-envelope-open mx-2"></i></button >
-  </div>
-  `
+ 
   if (form_type_emsFormBuilder == 'subscribe') {
     head = `<div class="efb d-flex"><button class="efb  btn efb btn-primary text-white mt-2 mx-1" onClick="generat_csv_emsFormBuilder()" title="${efb_var.text.downloadCSVFileSub}" >  <i class="efb  bi-download mx-2""></i>${efb_var.text.downloadCSVFile}</button >
-    ${buttons}
-    </div>`;
+    `;
     iconRead = 'bi-person';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'register') {
    
     head = `<div class="efb d-flex"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
-    ${buttons}
-    </div>`;
+    `;
     iconRead = 'bi-person ';
     iconNotRead = '<path  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>';
   } else if (form_type_emsFormBuilder == 'survey') {
@@ -376,15 +369,21 @@ function fun_ws_show_list_messages(value) {
     head = `<div class="efb d-flex">
     <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
     <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="convert_to_dataset_emsFormBuilder()" title="${efb_var.text.chart}" >  <i class="efb  bi-bar-chart-line mx-2"></i>${efb_var.text.chart}</button >
-    ${buttons}
-    </div>`;
+    `;
     iconRead = 'bi-chat-square-text';
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
   } else if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment') {
    
     head = `<div class="efb d-flex"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1"  onClick="${fun}" title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i>${efb_var.text.downloadCSVFile}</button >
-    ${buttons}</div>`;
+    `;
   }
+   head +=`
+  <div class="efb" id="selectedBtnlistEfb">
+  <button  class="efb  btn efb btn-danger text-white mt-2"  onClick="event_selected_row_emsFormBuilder('delete')" title="${efb_var.text.delete}" >  <i class="efb  bi-trash mx-2"></i></button >
+  <button  class="efb  btn efb btn-secondary text-white mt-2"  onClick="event_selected_row_emsFormBuilder('read')" title="${efb_var.text.mread}" >  <i class="efb  mx-2 ${iconRead}"></i></button >
+  </div>
+  </div>
+  `
   if (value.length > 0) {
     let no =1;
     for (const v of value) {
