@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Emsfb_Form_Widget extends Widget_Base {
-    error_log('Emsfb_Form_Widget');
+  
     public function get_name() {
         return 'emsfb_form';
     }
