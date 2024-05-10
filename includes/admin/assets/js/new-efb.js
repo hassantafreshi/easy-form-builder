@@ -2998,16 +2998,16 @@ add_ui_totalprice_efb = (rndm ,iVJ) => {
   `
 }
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
-  console.log(content, by, userIp, track, date);
+  //console.log(content, by, userIp, track, date);
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
-   console.log(by);
+   //console.log(by);
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
   if (by == 1) {
      by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
   else if (by =='' ||  efb_var.user_name.length > 1){ 
-    console.log('by admin or null',efb_var.user_name.length,efb_var.user_name.length > 1 ,efb_var.user_name );
+    //console.log('by admin or null',efb_var.user_name.length,efb_var.user_name.length > 1 ,efb_var.user_name );
     by = efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
   }else if(by==-1){
     by = 'Admin';
