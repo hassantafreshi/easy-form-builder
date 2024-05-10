@@ -2998,6 +2998,7 @@ add_ui_totalprice_efb = (rndm ,iVJ) => {
   `
 }
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  console.log(content, by, userIp, track, date);
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
