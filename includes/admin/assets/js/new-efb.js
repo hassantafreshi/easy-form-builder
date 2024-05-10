@@ -2578,7 +2578,7 @@ async  function  fetch_json_from_url_efb(url){
   });
 }
 fun_captcha_load_efb = ()=>{
-  if(valj_efb[0].captcha == true) document.getElementById('dropZoneEFB').classList.add('captcha');
+  if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 --> 
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
