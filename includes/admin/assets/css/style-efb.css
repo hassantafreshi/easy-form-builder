@@ -696,9 +696,17 @@ i.efb {	font-size: 1.2rem;
 /* dragable *//* divider */hr.divider.hr-transparent-efb.hr-arrow-down-efb {	width: 85%;
 }
 /* divider */
-div#dropZoneEFB,.mobile div#dropZoneEFB,#dropZoneEFB.pb  {	padding-bottom: 15%;
+ div#dropZoneEFB,#dropZoneEFB.pb  {	padding-bottom: 15%;
+}
+
+ .mobile div#dropZoneEFB, .mobile #dropZoneEFB.pb{
+   padding-bottom: 35%;
 }
 div#dropZoneEFB.captcha,.mobile div#dropZoneEFB.captcha,#dropZoneEFB.pb.captcha  {	padding-bottom: 25%!important;
+}
+
+.mobile div#dropZoneEFB.captcha, .mobile #dropZoneEFB.pb.captcha{
+   padding-bottom: 68%!important;
 }
 
 #efb-dd {	margin-top: 18%;
