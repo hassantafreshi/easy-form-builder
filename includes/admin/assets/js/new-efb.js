@@ -2578,7 +2578,7 @@ async  function  fetch_json_from_url_efb(url){
   });
 }
 fun_captcha_load_efb = ()=>{
-  if(valj_efb[0].captcha == true) document.getElementById('dropZoneEFB').classList.add('captcha');
+  if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 --> 
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
@@ -2998,14 +2998,16 @@ add_ui_totalprice_efb = (rndm ,iVJ) => {
   `
 }
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
+  //console.log(content, by, userIp, track, date);
   stock_state_efb=false;
   let totalpaid =0;
   if(content[(content.length)- 1].type=="w_link")content.pop();
-  // console.log(by);
+   //console.log(by);
   const ipSection = userIp!='' ? `<p class="efb small fs-7 mb-0"><span>${efb_var.text.ip}:</span> ${userIp}</p>` :''
   if (by == 1) {
      by = 'Admin'; by=`<span>${efb_var.text.by}:</span> ${by}`; } 
-  else if (by ==''){ 
+  else if (by =='' ||  efb_var.user_name.length > 1){ 
+    //console.log('by admin or null',efb_var.user_name.length,efb_var.user_name.length > 1 ,efb_var.user_name );
     by = efb_var.user_name.length > 1 ? `<span>${efb_var.text.by}:</span> ${efb_var.user_name}`  : `<span>${efb_var.text.by}:</span> ${efb_var.text.guest}`;
   }else if(by==-1){
     by = 'Admin';
