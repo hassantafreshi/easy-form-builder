@@ -303,7 +303,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
   //if(state == 0) state_modal_show_efb(1);
 }//END show_message_result_form_set_EFB
 
-console.info('Easy Form Builder 3.7.22> WhiteStudio.team');
+console.info('Easy Form Builder 3.7.23> WhiteStudio.team');
 
 
 async function  actionSendData_emsFormBuilder() {
