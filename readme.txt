@@ -453,11 +453,10 @@ We've got a dedicated team ready to support you with any form-related questions 
 
 == Changelog ==
 
-=3.6.25=
-
+=3.7.25=
 * Fixed issues of UI Easy Form Builder
 
-= 3.7.25 = 
+= 3.7.24 = 
 * Fixed issues of UI Easy Form Builder
 * Resolved Google ReCaptcha loading issues in Easy Form Builder's forms.
 
