@@ -2502,11 +2502,16 @@ div#Listefb-150 {
       border-radius: var(--bs-border-radius-xxl) !important;
     }
 
-    .mobile .efb.form-check b
+    .efb.form-check b
     {
       overflow-wrap: anywhere;
     }
 
-
-
+    @media screen and (max-width: 782px) {
+    #button_group_Previous_icon ,  #button_group_Next_icon
+    {
+      display: none!important;
+    }
+ 
+   }
  
