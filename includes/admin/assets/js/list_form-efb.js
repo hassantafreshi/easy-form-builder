@@ -2449,10 +2449,10 @@ function event_selected_row_emsFormBuilder(state){
     }
   }
   //check is pro version 
-  if(Number(efb_var.pro)!=1){
+  /* if(Number(efb_var.pro)!=1){
     pro_show_efb(efb_var.text.proUnlockMsg) 
     return;
-  }
+  } */
   if(list_selected.length==0){
     alert_message_efb(efb_var.text.error, efb_var.text.nsrf, 8, 'warning');
     return;
