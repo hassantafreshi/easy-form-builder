@@ -134,10 +134,18 @@ class _Public {
 		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
 		}
-		$this->enqueue_jquery();	
-		$state_form = isset($_GET['track'])  ? sanitize_text_field($_GET['track']) : 'not';
-		$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
-		$admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
+		$this->enqueue_jquery();
+		$state_form = 'not';
+		$admin_form = false;
+		$admin_sc = null;
+		if(isset($_GET['track'])){
+			$state_form =  sanitize_text_field($_GET['track']) ;
+			//$admin_form =isset($_GET['user'])  && $_GET['user']=="admin"  ? true : false;
+			//$admin_sc = isset($_GET['sc']) ? sanitize_text_field($_GET['sc']) : null;
+			if(isset($_GET['user'])  && $_GET['user']=="admin" ) $admin_form = true;
+			if(isset($_GET['sc'])) $admin_sc = sanitize_text_field($_GET['sc']);							
+		}
+		
 		
 		if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
