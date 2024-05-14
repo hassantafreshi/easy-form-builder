@@ -2217,7 +2217,8 @@ let change_el_edit_Efb = (el) => {
             //radio || checkbox       
              document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;   
             //document.querySelector(`[data-op="${el.dataset.id}"]`).value = el.value;
-            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+            //document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = el.value;
+            document.getElementById(`${valj_efb[iindx].id_op}_lab`).innerHTML = fun_get_links_from_string_Efb(el.value,true);
           }
           el.setAttribute('value', valj_efb[iindx].value);
           el.setAttribute('defaultValue', valj_efb[iindx].value);
@@ -2978,7 +2979,7 @@ let sampleElpush_efb = (rndm, elementId) => {
   
   if (elementId == "dadfile" || elementId == "switch" || elementId == "rating" || elementId == "esign" || elementId == "maps"
     || elementId == "html" || elementId == "stateProvince" || elementId == "conturyList" || elementId == "payMultiselect" || elementId == "cityList"
-    || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay") { pro = true }
+    || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay" || elementId == "trmCheckbox") { pro = true }
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link") {
     
