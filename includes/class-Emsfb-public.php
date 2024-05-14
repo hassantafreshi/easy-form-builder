@@ -6055,6 +6055,7 @@ class _Public {
 			//check if not exist email_key add email_key with $rand value and added to table
 			$this->setting->email_key = $rand;
 			$setting = json_encode($this->setting,JSON_UNESCAPED_UNICODE);
+			$setting= str_replace('"', '\"', $setting);  
 			$table_name = $this->db->prefix . 'emsfb_setting';
 			$email =$this->setting->emailSupporter;
 			$this->db->insert(
