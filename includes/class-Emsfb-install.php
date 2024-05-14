@@ -125,17 +125,18 @@ class Install {
 						
 						$s = false; 	
 						$v = $wpdb->get_var( "SELECT setting FROM $table_name_stng ORDER BY id DESC LIMIT 1" );
+						$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
 						if($v===NULL && $s){
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":true,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
+							, 'date'=>current_time('mysql') , 'email'=>'' ),'email_key'=>$rand);
 							
 							dbDelta( $s );			
 							
 						}else if ($v === NULL && !$s) {
 							$setting ='{\"activeCode\":\"\",\"siteKey\":\"\",\"secretKey\":\"\",\"emailSupporter\":\"'.$eml.'\",\"apiKeyMap\":\"\",\"smtp\":\"\",\"bootstrap\":false,\"emailTemp\":\"\"}';
 							$s = $wpdb->insert( $table_name_stng, array( 'setting' => $setting, 'edit_by' => get_current_user_id() 
-							, 'date'=>current_time('mysql') , 'email'=>'' ));
+							, 'date'=>current_time('mysql') , 'email'=>'' ),'email_key'=>$rand);
 
 							dbDelta( $s );
 

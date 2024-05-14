@@ -786,9 +786,8 @@ class efbFunction {
 			
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				if(isset($to[2]) && is_email($to[2])){ 
-					//$f = array_pop($to);
-					error_log(gettype( $to));
-					$from =get_bloginfo('name')." <".array_pop($to).">";			
+					$f = array_pop($to);					
+					$from =get_bloginfo('name')." <".array_pop($f).">";			
 				}
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
