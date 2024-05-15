@@ -619,7 +619,7 @@ class _Public {
 		
 		
 		if ($s_sid !=1){
-			error_log('s_sid is not valid!!');
+			//error_log('s_sid is not valid!!');
 			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$data_POST);
@@ -2436,7 +2436,7 @@ class _Public {
 			}else{
 				$link_w[$i] = $homeUrl;
 			}			
-			error_log($link_w[$i]);
+			//error_log($link_w[$i]);
 			$cont[$i] = $track;
 			// find %s in $this->lanText['msgdml'] and replace with $track
 
