@@ -2133,7 +2133,7 @@ class _Public {
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
 		$this->text_ = empty($this->text_)==false ? $this->text_ :["error400","somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
-		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml"];
+		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml","spprt"];
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
@@ -2265,12 +2265,17 @@ class _Public {
 				$table_name = $this->db->prefix . "emsfb_rsp_";	
 					
 				$read_s = $rsp_by=='admin' ? 1 :0;
+				$by=$this->lanText["guest"];
+				if($read_s==1){
+					$by = get_user_by('id',$this->efb_uid);
+				}
 				if($sc!='null'){				
 					$email_key = $this->setting->email_key;
 					$md5 = md5($track.$email_key);
 					if ($md5==$sc){
 						$read_s =1;
-						if($this->efb_uid==0) $this->efb_uid = -1; 						
+						if($this->efb_uid==0) $this->efb_uid = -1; 		
+						$by = $this->lanText["spprt"];		
 						$rsp_by ='admin';
 					}else{
 						$response = array( 'success' => false  , 'm'=>$this->lanText["error405"]); 
@@ -2288,7 +2293,7 @@ class _Public {
 				$track = $value[0]->track;
 				$table_name = $this->db->prefix . "emsfb_msg_";	
 				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
-				$by=$this->lanText["guest"];
+				
 				$email_usr ="";
 				
 				if($this->efb_uid!=0 && $this->efb_uid!==-1){
@@ -2431,7 +2436,7 @@ class _Public {
 			}else{
 				$link_w[$i] = $homeUrl;
 			}			
-			//error_log($link_w[$i]);
+			error_log($link_w[$i]);
 			$cont[$i] = $track;
 			// find %s in $this->lanText['msgdml'] and replace with $track
 
