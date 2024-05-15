@@ -535,7 +535,7 @@ function emsFormBuilder_show_content_message(value, content) {
   const track = value.track;
   const date = value.date ;
   const val = JSON.parse(replaceContentMessageEfb(value.content));
-  let m = fun_emsFormBuilder_show_messages(val, efb_var.text.guest ,'', track, date);
+  let m = fun_emsFormBuilder_show_messages(val, '#first' ,'', track, date);
   for (let c of content) {
     const val = JSON.parse(c.content.replace(/[\\]/g, ''));
     // console.log(c);
