@@ -742,8 +742,7 @@ class efbFunction {
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : __('Error: Please ensure there is only one form per page.','easy-form-builder'),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : __('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.','easy-form-builder'),
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : __('The confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.','easy-form-builder'),
-			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('
-			To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
+			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.','easy-form-builder'),
 			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : __('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.','easy-form-builder'),
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : __('From Address','easy-form-builder'),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : __('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.','easy-form-builder'),
@@ -752,6 +751,9 @@ class efbFunction {
 			"spprt" => $state  &&  isset($ac->text->spprt) ? $ac->text->spprt : __('Support','easy-form-builder'),
 			"mread" => $state  &&  isset($ac->text->mread) ? $ac->text->mread : __('Mark as Read','easy-form-builder'),
 			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : __('Form admins can access the response box after logging in.','easy-form-builder'),
+			"trmcn" => $state  &&  isset($ac->text->trmcn) ? $ac->text->trmcn : __('I have read and agree to %s1the terms and conditions%s2','easy-form-builder'),
+			"trmCheckbox" => $state  &&  isset($ac->text->trmCheckbox) ? $ac->text->trmCheckbox : __('Terms','easy-form-builder'),
+			"prvnt" => $state  &&  isset($ac->text->prvnt) ? $ac->text->prvnt : __('Preview in new tab','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];
@@ -785,7 +787,8 @@ class efbFunction {
 			
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				if(isset($to[2]) && is_email($to[2])){ 
-					$from =get_bloginfo('name')." <". array_pop($to).">";			
+					$f = array_pop($to);					
+					$from =get_bloginfo('name')." <".$f.">";			
 				}
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',

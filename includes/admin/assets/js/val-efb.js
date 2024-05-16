@@ -57,7 +57,7 @@ const fields_efb = [
   
   //{ name: efb_var.text.product, icon: 'bi-bag-check-fill', id: 'product', pro: true, tag:'payment all' },
   /* { name: efb_var.text.pricingTable, icon: 'bi-tags', id: 'pricingTable', pro: true, tag:'payment all' }, */
-  //{ name: efb_var.text.terms, icon: 'bi-shield-check', id: 'terms', pro: true, tag:'advance all' },
+  { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: true, tag:'advance all' },
 
   { name: efb_var.text.nps_tm, icon: ' bi-table', id: 'table_matrix', pro: true, tag: 'advance all' },
 
@@ -524,7 +524,7 @@ function show_setting_window_efb(idset) {
     <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('SMSNoti')"> </i>                                            
+    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onClick="Link_emsFormBuilder('condi')"> </i>                                            
     </div>`;
 
     const languageSelectPresentEls = `
@@ -953,11 +953,12 @@ function show_setting_window_efb(idset) {
       case "chlRadio":
       case "payMultiselect":
       case "imgRadio":
+      case "trmCheckbox":
         const objOptions = valj_efb.filter(obj => {
           return obj.parent === el.id
         })
         let s = el.dataset.tag;
-        let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio"  ? true :false
+        let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio" || s=="trmCheckbox"  ? true :false
         s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false
         const newRndm = Math.random().toString(36).substr(2, 9);
         let opetions = `<!-- options --!>`;
@@ -1628,13 +1629,15 @@ function creator_form_builder_Efb() {
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb(1)` },
     { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
-    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` }
+    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
+    { name: efb_var.text.prvnt, icon: 'bi-box-arrow-up-right', fun: `previewFormEfb('new')` }
 
   ]
   let nav = "<!--efb.app-->";
+  const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 

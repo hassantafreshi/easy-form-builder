@@ -163,7 +163,7 @@ function emsFormBuilder_show_content_message(id) {
   let m = "<--messages-->"
   
   let by = valueJson_ws_messages[indx].read_by !== null ? valueJson_ws_messages[indx].read_by : "Unkown"
-  if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = efb_var.text.guest)
+  if (by == 1) { by = 'Admin' } else if (by == 0 || by.length == 0 || by.length == -1) (by = '#first')
   
   
   m = fun_emsFormBuilder_show_messages(content, by, userIp, track, date)
@@ -2449,10 +2449,10 @@ function event_selected_row_emsFormBuilder(state){
     }
   }
   //check is pro version 
-  if(Number(efb_var.pro)!=1){
+  /* if(Number(efb_var.pro)!=1){
     pro_show_efb(efb_var.text.proUnlockMsg) 
     return;
-  }
+  } */
   if(list_selected.length==0){
     alert_message_efb(efb_var.text.error, efb_var.text.nsrf, 8, 'warning');
     return;
