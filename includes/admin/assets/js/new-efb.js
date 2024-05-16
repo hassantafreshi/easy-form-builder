@@ -3220,7 +3220,7 @@ fun_get_links_from_string_Efb=(str , handler)=>{
 
     str= str.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, anchorText, url) {
           state=true;
-        return `<a href="${url}">${anchorText}</a>`;
+        return `<a href="${url}" target="_blank")>${anchorText}</a>`;
     });
 
     //console.log(str);

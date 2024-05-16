@@ -6053,11 +6053,10 @@ class _Public {
 			$v ='preview@'. str_replace([' ', '[', ']', '='], '', $id);
 			$v = strtolower($v);
 			update_option( $v, $new_page_id);
-			//+
 			//86400 > +12 hours
 			$args = [$new_page_id,$v];
 			// error_log(json_encode($args));
-			wp_schedule_single_event(time() + 30, 'delete_preview_page_efb', array($args));
+			wp_schedule_single_event(time() + 86400, 'delete_preview_page_efb', array($args));
 		}
 		
 	
