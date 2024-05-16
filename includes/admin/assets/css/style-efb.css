@@ -711,6 +711,10 @@ div#dropZoneEFB.captcha{
    padding-bottom: 55%!important;
 }
 
+#settingModalEfb-body div#recaptcha_efb{
+   position: relative!important;
+}
+
 #efb-dd {	margin-top: 18%;
    margin-bottom: 18%;
 }

@@ -1629,7 +1629,8 @@ function creator_form_builder_Efb() {
     { name: efb_var.text.save, icon: 'bi-save', fun: `saveFormEfb(1)` },
     { name: efb_var.text.pcPreview, icon: 'bi-display', fun: `previewFormEfb('pc')` },
     { name: efb_var.text.formSetting, icon: 'bi-sliders', fun: `show_setting_window_efb('formSet')` },
-    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` }
+    { name: efb_var.text.help, icon: 'bi-question-lg', fun: `Link_emsFormBuilder('createSampleForm')` },
+    { name: efb_var.text.prvnt, icon: 'bi-box-arrow-up-right', fun: `previewFormEfb('new')` }
 
   ]
   let nav = "<!--efb.app-->";

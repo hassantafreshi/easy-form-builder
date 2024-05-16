@@ -1545,9 +1545,13 @@ function previewFormEfb(state) {
       state_modal_show_efb(1)
       return;
     }
-    if (state == "pc") {
- 
+    if (state == "new") {
+      console.log(state);
       preview_form_new_efb();
+      return;
+    }else if (state == "pc"){
+      show_modal_efb(efbLoadingCard(), efb_var.text.previewForm, '', 'saveBox')
+      state_modal_show_efb(1)
     }
   }
   try {
@@ -1683,10 +1687,10 @@ function previewFormEfb(state) {
     `
   const t = valj_efb[0].steps == 1 ? 0 : 1;
   if (state == 'pc') {
-    //document.getElementById('dropZoneEFB').innerHTML = '';
-   /*  content = `<!-- find xxxx -->` + content;
+    document.getElementById('dropZoneEFB').innerHTML = '';
+    content = `<!-- find xxxx -->` + content;
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
-    add_buttons_zone_efb(t, 'settingModalEfb-body') */
+    add_buttons_zone_efb(t, 'settingModalEfb-body')
   } else if (state == 'pre') {
     show_modal_efb(content, efb_var.text.pcPreview, 'bi-display', 'saveBox')
     add_buttons_zone_efb(t, 'settingModalEfb-body')

@@ -753,6 +753,7 @@ class efbFunction {
 			"admines" => $state  &&  isset($ac->text->admines) ? $ac->text->admines : __('Form admins can access the response box after logging in.','easy-form-builder'),
 			"trmcn" => $state  &&  isset($ac->text->trmcn) ? $ac->text->trmcn : __('I have read and agree to %s1the terms and conditions%s2','easy-form-builder'),
 			"trmCheckbox" => $state  &&  isset($ac->text->trmCheckbox) ? $ac->text->trmCheckbox : __('Terms','easy-form-builder'),
+			"prvnt" => $state  &&  isset($ac->text->prvnt) ? $ac->text->prvnt : __('Preview in new tab','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : __('Thank','easy-form-builder')
 			
 		];
