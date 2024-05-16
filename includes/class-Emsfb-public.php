@@ -6022,6 +6022,7 @@ class _Public {
 		if (  check_ajax_referer('admin-nonce', 'nonce') != 1) {
 			die();
 		}
+		$new_page_id = 0;
 		//get current user id 
 		$current_user = get_current_user_id();
 		if(!isset($_POST['id'])) return;
@@ -6032,18 +6033,16 @@ class _Public {
 		//error_log($r);
 		$v = get_option($r);
 		error_log( __LINE__.':'.$v);
-		if($v != false && get_post($v)!=null){
+		if($v != false ){
 			//update page by form id
 			$new_page_id = wp_update_post(array(
-				'ID'             => $r,
-				'post_title'     => __('Form Preview', 'easy-form-builder'),
-				'post_type'      => 'page',
-				'post_name'      => 'easy-form-builder-preview',
+				'ID'             => $v,
 				'post_content'   => ' '.$id.' ', 
 				'post_status'    => 'draft',
-				'post_author'    => $current_user, // or any other author id
 			));	
-			
+			error_log( __LINE__.':'.$new_page_id);
+			$new_page_id =$v;
+			error_log( __LINE__.':'.$new_page_id);
 		}else{
 			//insert page by form id
 			$new_page_id = wp_insert_post(array(
@@ -6084,8 +6083,7 @@ class _Public {
 		error_log($id);	
 		$post = get_post($page_id);	
 		if (isset($post) && $post->post_status == 'draft') wp_delete_post($page_id, true);
-		$r =get_option($id);
-		if($r==$page_id) delete_option('preview@'. $id);
+		delete_option($id);
 	}
 
 
