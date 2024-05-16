@@ -1634,9 +1634,10 @@ function creator_form_builder_Efb() {
 
   ]
   let nav = "<!--efb.app-->";
+  const st = document.getElementById('navbarSupportedContent') ? 1 :0;
   for (let ob in navs) {
     if( typeof navs[ob] == 'object') {
-      nav += `<li class="efb nav-item"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'} " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
+      nav += `<li id='NavBtnEFB-${ob}' class="efb nav-item ${ob == 4 && st!=1 ? 'd-none' : ''}"><a class="efb nav-link efb btn text-capitalize ${ob == 2 ? 'BtnSideEfb' : ''} ${ob != 0 ? '' : 'btn-outline-pink'}  " ${navs[ob].fun.length > 2 ? `onClick="${navs[ob].fun}""` : ''} ><i class="efb ${navs[ob].icon} mx-1 "></i>${navs[ob].name}</a></li>`;
     }
   }
 

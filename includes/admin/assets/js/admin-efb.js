@@ -312,6 +312,15 @@ async function  actionSendData_emsFormBuilder() {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')         
     return;
   }
+
+  fun_pr =(s)=>{
+    let cls = document.getElementById('NavBtnEFB-4').classList;
+    if(s==1){
+      cls.remove('d-none')
+    }else if( s==0  && !cls.contains('d-none')){
+      cls.add('d-none')
+    }
+ }
   
   data = {};
   var name = formName_Efb
@@ -348,21 +357,26 @@ async function  actionSendData_emsFormBuilder() {
           state_check_ws_p = 0;
           form_ID_emsFormBuilder = parseInt(res.data.id)
 
-          show_message_result_form_set_EFB(1, res.data.value)
+          show_message_result_form_set_EFB(1, res.data.value);
+          fun_pr(1);
         } else {
           alert(res, "error")
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
+          fun_pr(0);
         }
       } else if (res.data.r == "update" || res.data.r == "updated" && res.data.success == true) {
         show_message_result_form_set_EFB(2, res.data.value);
         
         sessionStorage.setItem('formId_efb', res.data.value);
+        fun_pr(1);
       } else {
         
         if (res.data.m == null || res.data.m.length > 1) {          
           show_message_result_form_set_EFB(0, res.data.m, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-400`)
+          fun_pr(0);
         } else {
           show_message_result_form_set_EFB(0, res.data.m, `${res.data.m}, Code:400-400`)
+          fun_pr(0);
         }
       }
     })
@@ -2725,6 +2739,7 @@ function create_form_efb() {
 
 
 const saveFormEfb = async (stated) => {
+ 
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       let proState = true;
@@ -2843,6 +2858,7 @@ const saveFormEfb = async (stated) => {
             </div>
           `;
           check_show_box();
+         
         }
         if(( returnn==false && stated==0) ||  stated==1 ){
            state_modal_show_efb(1);

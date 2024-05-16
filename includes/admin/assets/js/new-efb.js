@@ -1546,7 +1546,6 @@ function previewFormEfb(state) {
       return;
     }
     if (state == "new") {
-      console.log(state);
       preview_form_new_efb();
       return;
     }else if (state == "pc"){
