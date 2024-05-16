@@ -6027,22 +6027,19 @@ class _Public {
 		$current_user = get_current_user_id();
 		if(!isset($_POST['id'])) return;
 		$id = sanitize_text_field($_POST['id']);
-		error_log( __LINE__.':'.$id);
+		// error_log( __LINE__.':'.$id);
 		$r = 'preview@'. str_replace([' ', '[', ']', '='], '', $id);
 		$r = strtolower($r);
 		//error_log($r);
 		$v = get_option($r);
-		error_log( __LINE__.':'.$v);
+		// error_log( __LINE__.':'.$v);
 		if($v != false ){
-			//update page by form id
-			$new_page_id = wp_update_post(array(
+			 wp_update_post(array(
 				'ID'             => $v,
 				'post_content'   => ' '.$id.' ', 
 				'post_status'    => 'draft',
-			));	
-			error_log( __LINE__.':'.$new_page_id);
+			));				
 			$new_page_id =$v;
-			error_log( __LINE__.':'.$new_page_id);
 		}else{
 			//insert page by form id
 			$new_page_id = wp_insert_post(array(
@@ -6056,19 +6053,15 @@ class _Public {
 			$v ='preview@'. str_replace([' ', '[', ']', '='], '', $id);
 			$v = strtolower($v);
 			update_option( $v, $new_page_id);
+			//+
 			//86400 > +12 hours
 			$args = [$new_page_id,$v];
-			//error_log( __LINE__.':'.$v);
-			error_log(json_encode($args));
+			// error_log(json_encode($args));
 			wp_schedule_single_event(time() + 30, 'delete_preview_page_efb', array($args));
 		}
 		
 	
 		$preview_url = get_preview_post_link($new_page_id);
-		// all chrs of $v convert to lowercase
-	
-		
-		
 		$response = array( 'success' => true, 'data' => $preview_url , 'page_id' => $new_page_id);
 		wp_send_json_success($response, 200);
 		
@@ -6078,9 +6071,6 @@ class _Public {
 	function delete_preview_page_efb($args) {	
 		$page_id = $args[0];
 		$id = $args[1];
-		error_log('delete_preview_page_efb');
-		error_log($page_id);
-		error_log($id);	
 		$post = get_post($page_id);	
 		if (isset($post) && $post->post_status == 'draft') wp_delete_post($page_id, true);
 		delete_option($id);
