@@ -201,7 +201,7 @@ class efbFunction {
 			"esign" => $state ? $ac->text->esign : __('Signature','easy-form-builder'),
 			"yesNo" => $state ? $ac->text->yesNo : __('Yes/No','easy-form-builder'),
 			"htmlCode" => $state ? $ac->text->htmlCode : __('HTML Code','easy-form-builder'),
-			"pcPreview" => $state ? $ac->text->pcPreview : __('PC Preview','easy-form-builder'),
+			"pcPreview" => $state ? $ac->text->pcPreview : __('Desktop Preview','easy-form-builder'),
 			"youDoNotAddAnyInput" => $state ? $ac->text->youDoNotAddAnyInput : __('You have not added any fields.','easy-form-builder'),
 			"copyShortcode" => $state ? $ac->text->copyShortcode : __('Copy ShortCode','easy-form-builder'),
 			"shortcode" => $state ? $ac->text->shortcode : __('ShortCode','easy-form-builder'),
@@ -787,7 +787,10 @@ class efbFunction {
 			
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				if(isset($to[2]) && is_email($to[2])){ 
-					$f = array_pop($to);					
+					$f = array_pop($to);	
+					if(gettype($f)=="Array" || gettype($f)=="array"){
+						$f = array_pop($f);						
+					}				
 					$from =get_bloginfo('name')." <".$f.">";			
 				}
 				$headers = array(
