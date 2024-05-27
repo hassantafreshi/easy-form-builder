@@ -780,9 +780,6 @@ class efbFunction {
 	}
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
-				error_log('send_email_state_new 3');
-				error_log(json_encode($to));
-				error_log(json_encode($sub));
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
 				ksort($to);
@@ -803,29 +800,14 @@ class efbFunction {
 				   'From:'.$from,
 				   
 				);
-				error_log('after remove from');
-				error_log($from);
-				error_log(json_encode($to));
 				if(gettype($sub)=='string'){
-			
-					//error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 				
-					//error_log($message);
 					if( $state!="reportProblem"){
-						//error_log('send_email_state_new state not reportProblem');
-						//error_log(gettype($to));
-						$to_;$mailResult;
-							
+						$to_;$mailResult;							
 						if (gettype($to) == 'string') {
-							 error_log($to);
-							error_log($sub); 
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
 							foreach ($to as $r) {
-								
-								 error_log($r);
-								error_log($sub); 
-								//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
 							  if(isset($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
 							
