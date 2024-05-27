@@ -851,7 +851,6 @@ class efbFunction {
 								$to_ = $to[$i];
 								if (gettype($to_) == 'string') {									
 									//$to_ = implode(',', array_unique($to[$i]));								
-									error_log($to_);
 									$sub_ = $sub[$i];
 									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
 									
