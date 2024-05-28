@@ -1,5 +1,5 @@
 <?php
-use Elementor\Controls_Manager;
+/* use Elementor\Controls_Manager;
 use Elementor\Widget_Base;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -53,3 +53,4 @@ class Emsfb_Form_Widget extends Widget_Base {
 add_action( 'elementor/widgets/widgets_registered', function( $widgets_manager ) {
     $widgets_manager->register_widget_type( new Emsfb_Form_Widget() );
 } );
+ */

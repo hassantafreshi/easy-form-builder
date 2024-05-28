@@ -780,45 +780,34 @@ class efbFunction {
 	}
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
-				// error_log('send_email_state_new 3');
-				
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
-			
+				ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
-				if(isset($to[2]) && is_email($to[2])){ 
+				if(gettype($to) == 'array' && isset($to[2]) && is_email($to[2]) ){ 
 					$f = array_pop($to);	
-					if(gettype($f)=="Array" || gettype($f)=="array"){
+					if(gettype($f)=="array"){
 						$f = array_pop($f);						
 					}				
 					$from =get_bloginfo('name')." <".$f.">";			
+				}else if (gettype($to) == 'object' && isset($to[2]) ){
+					$f = $to[2];
+					unset($to[2]);
+					$from =get_bloginfo('name')." <".$f.">";
 				}
 				$headers = array(
 				   'MIME-Version: 1.0\r\n',
 				   'From:'.$from,
 				   
 				);
-				
 				if(gettype($sub)=='string'){
-			
-					//error_log('send_email_state_new sub string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 				
-					//error_log($message);
 					if( $state!="reportProblem"){
-						//error_log('send_email_state_new state not reportProblem');
-						//error_log(gettype($to));
-						$to_;$mailResult;
-							
+						$to_;$mailResult;							
 						if (gettype($to) == 'string') {
-							/* error_log($to);
-							error_log($sub); */
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
 							foreach ($to as $r) {
-								
-								/* error_log($recipient);
-								error_log($sub); */
-								//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
 							  if(isset($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
 							
@@ -859,23 +848,25 @@ class efbFunction {
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
-												
-								if (gettype($to[$i]) == 'string') {									
+								$to_ = $to[$i];
+								if (gettype($to_) == 'string') {									
 									//$to_ = implode(',', array_unique($to[$i]));								
-
-
-									$mailResult =  wp_mail( $to[$i],$sub[$i], $message, $headers ) ;
+									$sub_ = $sub[$i];
+									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
+									
 								} else {
 
 									foreach ($to[$i] as $r) {
 										/* error_log($recipient);
 										error_log($sub[$i]); */
 										//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
-										$mailResult = wp_mail($r, $sub[$i], $message, $headers);
+										$sub_ = $sub[$i];
+										$to_ = $r;
+										$mailResult = wp_mail($to_, $sub_, $message, $headers);
 									}
 									
 								}
-								remove_filter('wp_mail_content_type', 'wpdocs_set_html_mail_content_type');
+								
 								//end loop
 							
 		
