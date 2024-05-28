@@ -782,7 +782,7 @@ class efbFunction {
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
 			   	$mailResult = "n";
-				ksort($to);
+				if(gettype($to) == 'array')ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 				if(gettype($to) == 'array' && isset($to[2]) && is_email($to[2]) ){ 
 					$f = array_pop($to);	
