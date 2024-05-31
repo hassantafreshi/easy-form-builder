@@ -2426,8 +2426,8 @@ class _Public {
 			if(strlen($link)>5){
 				$link_w[$i] =strpos($link,'?')!=false  ? $link.'&track='.$track : $link.'?track='.$track;
 				if($i==0){			
-						
-					if(isset($this->setting->adminSN) && intval($this->setting->adminSN)==1){
+						$s= isset($this->setting->adminSN);
+					if( $s== false|| ($s==true && intval($this->setting->adminSN)==1)){
 						$link_w[$i] .='&user=admin';
 					}else{
 						$sc = $this->genrate_sacure_code_admin_email($track);
@@ -2437,7 +2437,7 @@ class _Public {
 			}else{
 				$link_w[$i] = $homeUrl;
 			}			
-			//error_log($link_w[$i]);
+			error_log($link_w[$i]);
 			$cont[$i] = $track;
 			// find %s in $this->lanText['msgdml'] and replace with $track
 
