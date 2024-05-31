@@ -2437,7 +2437,7 @@ class _Public {
 			}else{
 				$link_w[$i] = $homeUrl;
 			}			
-			error_log($link_w[$i]);
+			
 			$cont[$i] = $track;
 			// find %s in $this->lanText['msgdml'] and replace with $track
 

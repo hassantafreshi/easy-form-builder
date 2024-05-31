@@ -28,8 +28,6 @@ class efbFunction {
 
 
 	public function text_efb($inp){
-		//isset($test) ? $test:
-		error_log('text_efb');
 		$ac= $this->get_setting_Emsfb();		 
 		$state= $ac!=='null' && isset($ac->text) && gettype($ac->text)!='string' ? true : false ;
 		$s= 'easy-form-builder';		
