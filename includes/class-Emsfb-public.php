@@ -131,8 +131,8 @@ class _Public {
 
 	public function EFB_Form_Builder($id){
 		
-		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
-			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
+		if(!is_numeric(end($id))){ return "<div id='body_efb' class='efb card-public row pb-3 efb' > <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We are sorry, but there seems to be a security error (400) with your request.','easy-form-builder')."</h3>
+			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4><p></div></div>";
 		}
 		$this->enqueue_jquery();
 		$state_form = 'not';
@@ -148,7 +148,7 @@ class _Public {
 		
 		
 		if(( is_user_logged_in()==false && $admin_form==true && $admin_sc==null)){
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('It seems that you are the admin of this form. Please login and try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		
 		$table_name = $this->db->prefix . "emsfb_form";		
@@ -163,8 +163,8 @@ class _Public {
 			}
 		}else{
 			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><div class='efb text-danger bi-exclamation-triangle-fill efb text-center display-1 my-2'></div>
-			<h3 style='color:#202a8d;text-align: center;'>".__('Form does not exist !!','easy-form-builder')."</h3>
-			<h4 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
+			<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
+			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf'];
 
@@ -181,8 +181,8 @@ class _Public {
 			<div id='body_efb' class='efb  row pb-3 efb px-2'>
 			<div style='width:100%;text-align: center;'>
 				<img src=".EMSFB_PLUGIN_URL . "includes/admin/assets/image/logo-easy-form-builder.svg' alt='Easy Form Builder' style='height: 80px;'>
-				</div><h4 style='color:#202a8d;text-align: center;'>".__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
-				<h3 style='color:#ff4b93;text-align: center;'>".__('Easy Form Builder', 'easy-form-builder')."</h3>
+				</div><h4 style='color:#202a8d;text-align: center;'>".esc_html__('The form will be displayed in publication or preview modes.', 'easy-form-builder')."</h4>
+				<h3 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h3>
 			</div>
 			</div>
 			";
@@ -250,12 +250,12 @@ class _Public {
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
-		$efb_m = "<p class='efb fs-7 text-center my-1'>".__('Easy Form Builder', 'easy-form-builder')."</p> ";
+		$efb_m = "<p class='efb fs-7 text-center my-1'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</p> ";
 		
 		if(gettype($rp)=="integer" && $rp==0){
 			$stng=$lanText["settingsNfound"];
 			$state="form";
-			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('Easy Form Builder couldn\'t locate the form settings. Please check your settings or contact support for assistance.','easy-form-builder')."</h3>".$efb_m;
+			return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('Easy Form Builder couldn\'t locate the form settings. Please check your settings or contact support for assistance.','easy-form-builder')."</h3>".$efb_m;
 		}
 		$stng= $rp[0];
 
@@ -334,7 +334,7 @@ class _Public {
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker")) {
 						$this->efbFunction->download_all_addons_efb();
-						return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+						return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 					$persianDatePicker = new persianDatePickerEFB() ; 	
@@ -342,7 +342,7 @@ class _Public {
 				if(strpos($value , '\"type\":\"ardate\"') || strpos($value , '"type":"ardate"')){
 					if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker")) {
 						$this->efbFunction->download_all_addons_efb();
-						return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+						return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 					}
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 					$arabicDatePicker = new arabicDatePickerEfb() ; 
@@ -469,7 +469,7 @@ class _Public {
 		
 		$this->enqueue_jquery();
 		
-		//if($this->id!=-1){return __('Easy Form Builder' , 'easy-form-builder');}
+		//if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
 		
@@ -622,7 +622,7 @@ class _Public {
 		
 		if ($s_sid !=1){
 			//error_log('s_sid is not valid!!');
-			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 403';
+			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$data_POST);
 		} 
@@ -1027,7 +1027,7 @@ class _Public {
 									$stated=0;
 									$item['value'] = sanitize_text_field($item['value']);
 									if($item['value']<1 || $item['value']>5){
-										$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 600';
+										$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 600';
 										$response = array( 'success' => false  , 'm'=>$m); 
 										wp_send_json_success($response,$data_POST);
 									}
@@ -1561,7 +1561,7 @@ class _Public {
 								
 								
 							}else{
-								$response = array( 'success' => false  ,'m'=>__('Error Code','easy-form-builder').'</br>'. __('Payment Form','easy-form-builder')); 
+								$response = array( 'success' => false  ,'m'=>esc_html__('Error Code','easy-form-builder').'</br>'. esc_html__('Payment Form','easy-form-builder')); 
 								wp_send_json_success($response,$data_POST);
 							}
 						
@@ -1635,7 +1635,7 @@ class _Public {
 
 											$maskedPassword = $firstChar . str_repeat('*', strlen($password) - 2) . $lastChar;
 
-											$ms ="<p>".  __('Username','easy-form-builder')  .":".$username ." </p> <p>".  __('Password','easy-form-builder') .":".$maskedPassword."</p>";
+											$ms ="<p>".  esc_html__('Username','easy-form-builder')  .":".$username ." </p> <p>".  esc_html__('Password','easy-form-builder') .":".$maskedPassword."</p>";
 											
 											//$email_user[0]=$email_fa;
 											
@@ -1745,11 +1745,11 @@ class _Public {
 									 wp_set_password($newpass ,$id);
 									$to = $email;
 									$efb ='<p> '. $this->lanText["sentBy"] . home_url(). '</p>';
-									if($pro==false) $efb ='<p> '. __("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. __('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
-									$subject ="". __("Password recovery")."[".get_bloginfo('name')."]";
+									if($pro==false) $efb ='<p> '. esc_html__("from").''. home_url(). ' '. $this->lanText["sentBy"] .'<b>['. esc_html__('Easy Form Builder' , 'easy-form-builder') .']</b></p>' ;
+									$subject ="". esc_html__("Password recovery")."[".get_bloginfo('name')."]";
 									$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
 									if(isset($email_user[2]) && is_email($email_user[2])) $from =  blog_info('name')." <".$email_user[2].">";
-									$message ='<!DOCTYPE html> <html> <body><h3>'.  __('New Password')  .':'.$newpass.'</h3>
+									$message ='<!DOCTYPE html> <html> <body><h3>'.  esc_html__('New Password')  .':'.$newpass.'</h3>
 									<p> '.$efb. '</p>
 									</body> </html>';
 									$headers = array(
@@ -1841,7 +1841,7 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		
 		if ($s_sid !=1 || $sid==null){
-			$m =  $lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 403';
+			$m =  $lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m); 
 		wp_send_json_success($response,$data_POST);
 		} 
@@ -2009,7 +2009,7 @@ class _Public {
 		if ($s_sid !=1 || $sid==null){
 			
 			
-		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 402"); 
+		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 402"); 
 		wp_send_json_success($response,200);
 		} 
 
@@ -2033,7 +2033,7 @@ class _Public {
 				
                 if($temp==false){  
 
-                    $response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . ": 601"); 
+                    $response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . ": 601"); 
 					wp_send_json_success($response,200);
                 }
 				
@@ -2146,7 +2146,7 @@ class _Public {
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
 		$page_id = sanitize_text_field($data_POST['page_id']);
 		if ($s_sid !=1 || $sid==null){
-			$m = '<b>'. $this->lanText["somethingWentWrongPleaseRefresh"]. '<br> '. __('Error Code','easy-form-builder') .': 403 </br></b>';
+			$m = '<b>'. $this->lanText["somethingWentWrongPleaseRefresh"]. '<br> '. esc_html__('Error Code','easy-form-builder') .': 403 </br></b>';
 		$response = array( 'success' => false  , 'm'=>$m ); 
 		wp_send_json_success($response,200);
 		} 
@@ -2484,8 +2484,8 @@ class _Public {
 				$start = strpos($cont[$i], '<p>') + 3; // Add 3 to exclude the <p> tag itself
 				$end = strpos($cont[$i], '</p>') + 4;
 				$slicedStr = substr($cont[$i], $start, $end - $start);
-				$subject[$i] = __('New user registration' , 'easy-form-builder');
-				$message[$i] ="<p>". __( 'New user registration', 'easy-form-builder' ) .'</p><p>'.$slicedStr ." </p>";
+				$subject[$i] = esc_html__('New user registration' , 'easy-form-builder');
+				$message[$i] ="<p>". esc_html__( 'New user registration', 'easy-form-builder' ) .'</p><p>'.$slicedStr ." </p>";
 				$cont[$i]=$message[$i];
 			}
 
@@ -2597,12 +2597,12 @@ class _Public {
 	public function pay_stripe_sub_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
 		$user = wp_get_current_user();
-		$uid= $user->exists() ? $user->user_nicename :  __('Guest','easy-form-builder') ;
+		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id']);
 		$sid = sanitize_text_field($data_POST['sid']);	
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , $this->id);
 		if ($s_sid !=1){
-			$m = __('error', 'easy-form-builder') . ' 403';
+			$m = esc_html__('error', 'easy-form-builder') . ' 403';
 			$response = array( 'success' => false  , 'm'=>$m); 
 			wp_send_json_success($response,$data_POST);
 		} 
@@ -2614,14 +2614,14 @@ class _Public {
 			$Sk = isset($setting->stripeSKey) && strlen($setting->stripeSKey)>5  ? $setting->stripeSKey :'null';
 		}
 		if ($Sk=="null"){
-				$m = __('Stripe', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, 200);
 				die("secure!");
 		}
 		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {	
 			 $efbFunction->download_all_addons_efb();
-			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			 return "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('We have some changes. Please wait a few minutes before you try again.', 'easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 		}
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/autoload.php");
 		$this->id = sanitize_text_field($data_POST['id']);
@@ -2659,7 +2659,7 @@ class _Public {
 						}
 					});
 					if($filtered==false){
-						$m = __('error', 'easy-form-builder') . ' 405';
+						$m = esc_html__('error', 'easy-form-builder') . ' 405';
 						$response = ['success' => false, 'm' => $m];
 						wp_send_json_success($response, 200);
 					}
@@ -2764,7 +2764,7 @@ class _Public {
 				$amount = $price->unit_amount/100;
 				$payA =  $amount  . ' '. $price->currency;
 				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
-				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
 				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
 				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
@@ -2774,7 +2774,7 @@ class _Public {
 			}else{
 				$amount = $paymentIntent->amount/100;
 				$payA =  $amount  . ' '. $paymentIntent->currency;
-				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> __('Payment','easy-form-builder') ,'type'=>'payment',
+				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
 				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
 				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
 				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
@@ -2794,7 +2794,7 @@ class _Public {
 			
 			wp_send_json_success($response, 200);
 		}else{
-			$response = array( 'success' => false  , 'm'=>__('Error Code:V02','easy-form-builder'));		
+			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V02','easy-form-builder'));		
 			wp_send_json_success($response, 200);
 		}
 	}
@@ -2810,7 +2810,7 @@ class _Public {
 		$this->lanText= $this->efbFunction->text_efb($text_);
 		if ($s_sid !=1){
 			
-			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. __('Error Code','easy-form-builder') .': 403';
+			$m =  $this->lanText["somethingWentWrongPleaseRefresh"]. '<br>'. esc_html__('Error Code','easy-form-builder') .': 403';
 		$response = array( 'success' => false  , 'm'=>$m); 
 		wp_send_json_success($response,$data_POST);
 		} 
@@ -2821,7 +2821,7 @@ class _Public {
 			$Sk = isset($setting->payToken) && strlen($setting->payToken)>5  ? $setting->payToken :'null';
 		}
 		if ($Sk=="null"){
-				$m = __('persiaPayment', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$m = esc_html__('persiaPayment', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, 200);
 				die("secure!");
@@ -2862,7 +2862,7 @@ class _Public {
 						}
 					});
 					if($filtered==false){
-						$m = __('error', 'easy-form-builder') . ' 405';
+						$m = esc_html__('error', 'easy-form-builder') . ' 405';
 						$response = ['success' => false, 'm' => $m];
 						wp_send_json_success($response, 200);
 					}
@@ -2954,13 +2954,13 @@ class _Public {
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
 		}else{
-			$response = array( 'success' => false  , 'm'=>__('Error Code:V01','easy-form-builder'));		
+			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
 	}
 	public function persia_pay_Emsfb() {		
         if (check_ajax_referer('public-nonce', 'nonce') != 1) {
-            $m = __('error', 'easy-form-builder') . ' 403';
+            $m = esc_html__('error', 'easy-form-builder') . ' 403';
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
             die("secure!");
@@ -2973,7 +2973,7 @@ class _Public {
 			$Sk = isset($setting->payToken) && strlen($setting->payToken)>5  ? $setting->payToken :'null';
 		}
 		if ($Sk=="null"){
-				$m = __('persiaPayment', 'easy-form-builder').'->'.	__('error', 'easy-form-builder') . ' 402';
+				$m = esc_html__('persiaPayment', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
 				$response = ['success' => false, 'm' => $m];
 				wp_send_json_success($response, 200);
 				die("secure!");
@@ -3014,7 +3014,7 @@ class _Public {
 						}
 					});
 					if($filtered==false){
-						$m = __('error', 'easy-form-builder') . ' 405';
+						$m = esc_html__('error', 'easy-form-builder') . ' 405';
 						$response = ['success' => false, 'm' => $m];
 						wp_send_json_success($response, 200);
 					}
@@ -3106,7 +3106,7 @@ class _Public {
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
 		}else{
-			$response = array( 'success' => false  , 'm'=>__('Error Code:V01','easy-form-builder'));		
+			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
     }
@@ -3275,7 +3275,7 @@ class _Public {
 		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
 		 $this->value .= '</fieldset>
 		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-		  <div class="efb card-body text-center efb"><h3 class="efb">'.__('Waiting','easy-form-builder').'</h3></div>                
+		  <div class="efb card-body text-center efb"><h3 class="efb">'.esc_html__('Waiting','easy-form-builder').'</h3></div>                
 		   <!-- final fieldset --></fieldset>';
 	}
 	public function load_textdomain(): void {
@@ -3295,24 +3295,24 @@ class _Public {
 
 	public function new_user_validate_efb($username,$email,$password){
 		if(!is_email($email)){
-			return __("The Email Address Is Not Valid" , 'easy-form-builder');
+			return esc_html__("The Email Address Is Not Valid" , 'easy-form-builder');
 		}
 		 if(preg_match('/^[a-z0-9._]*$/',$username)!=true ){
-			return __("The Username Must Contain Only Letters, Numbers And Lowercase letters" , 'easy-form-builder');
+			return esc_html__("The Username Must Contain Only Letters, Numbers And Lowercase letters" , 'easy-form-builder');
 		}else if(strlen($username)<3){
-			return __("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
+			return esc_html__("The Username Must Contain At Least 3 Characters." , 'easy-form-builder');
 		}
 		if (strlen($password) <  8) {
-			return __("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
+			return esc_html__("The Password Must Contain At Least 8 Characters!" , 'easy-form-builder');
 		}
 		elseif(!preg_match("#[0-9]+#",$password)) {
-			return __("The Password Must Contain At Least 1 Number!" , 'easy-form-builder');
+			return esc_html__("The Password Must Contain At Least 1 Number!" , 'easy-form-builder');
 		}
 		elseif(!preg_match("#[A-Z]+#",$password)) {
-			return __("The Password Must Contain At Least 1 Capital Letter!" , 'easy-form-builder');
+			return esc_html__("The Password Must Contain At Least 1 Capital Letter!" , 'easy-form-builder');
 		}
 		elseif(!preg_match("#[a-z]+#",$password)) {
-			return  __("The Password Must Contain At Least 1 Lowercase Letter!" , 'easy-form-builder');
+			return  esc_html__("The Password Must Contain At Least 1 Lowercase Letter!" , 'easy-form-builder');
 		}
 		return 0;
 	}
@@ -3726,7 +3726,7 @@ class _Public {
 		}else{
 			//insert page by form id
 			$new_page_id = wp_insert_post(array(
-				'post_title'     => __('Form Preview', 'easy-form-builder'),
+				'post_title'     => esc_html__('Form Preview', 'easy-form-builder'),
 				'post_type'      => 'page',
 				'post_name'      => 'easy-form-builder-preview',
 				'post_content'   => ' '.$id.' ', 

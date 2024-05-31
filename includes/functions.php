@@ -907,7 +907,7 @@ class efbFunction {
 		if($st=='null') $st = $this->get_setting_Emsfb();
 		if($st=="null") return;
 		//serverEmailAble
-		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". __('Created by','easy-form-builder') . " " . __('Easy Form Builder','easy-form-builder')."</a></small>";	}		
+		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". esc_html__('Created by','easy-form-builder') . " " . esc_html__('Easy Form Builder','easy-form-builder')."</a></small>";	}		
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
 		
@@ -1470,11 +1470,11 @@ class efbFunction {
 			if($to==null){$to = get_option('admin_email');}
 
 			if($to==null || $to=="null" || $to=="") return false;
-			$sub = __('Report problem','easy-form-builder') .' ['. __('Easy Form Builder','easy-form-builder').']';
-			$m =  '<div><p>'.__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
-				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
-				'</a></p><p>'. __('Easy Form Builder','easy-form-builder') . '</p>
-					<p><a href="'.home_url().'" target="_blank">'.__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
+			$sub = esc_html__('Report problem','easy-form-builder') .' ['. esc_html__('Easy Form Builder','easy-form-builder').']';
+			$m =  '<div><p>'.esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder').
+				'</p><p><a href="https://whitestudio.team/support/" target="_blank">'.esc_html__('Please kindly report the following issue to the Easy Form Builder team.','easy-form-builder').
+				'</a></p><p>'. esc_html__('Easy Form Builder','easy-form-builder') . '</p>
+					<p><a href="'.home_url().'" target="_blank">'.esc_html__("Sent by:",'easy-form-builder'). ' '.get_bloginfo('name').'</a></p></div>';
 			$this->send_email_state_new($to ,$sub ,$m,0,"addonsDlProblem",'null','null');
 			return false;
 		}
@@ -1489,18 +1489,18 @@ class efbFunction {
 	public function update_message_admin_side_efb(){
 		$text = ["wmaddon"];
         $lang= $this->text_efb($text);
-		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".esc_html__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
 	}
 
 	function admin_notice_msg_efb($s) {
-		$v = __('Easy Form Builder','easy-form-builder');
+		$v = esc_html__('Easy Form Builder','easy-form-builder');
 		$t = "notice-success";
 		if($s=="dlproblem"){
 			$t = "notice-error";
-			$v =__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
+			$v =esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
 		}else if($s=="unzipproblem"){
 			$t = "notice-error";
-			$v =__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
+			$v =esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
 
 		}
 		?>
@@ -1513,7 +1513,7 @@ class efbFunction {
 
 	public function efb_sentence_forms(){
 		$r =[
-			"s_t" => __('One of the free features','easy-form-builder'),
+			"s_t" => esc_html__('One of the free features','easy-form-builder'),
 								
 		];
 		return $r;

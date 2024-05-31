@@ -116,7 +116,7 @@ class Panel_edit  {
 						<div class="efb container">
 							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
 								<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
-								<?php echo __('Easy Form Builder','easy-form-builder') ?></a>
+								<?php echo esc_html__('Easy Form Builder','easy-form-builder') ?></a>
 							<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 								<span class="efb navbar-toggler-icon efb"></span>
 							</button>
@@ -433,7 +433,7 @@ class Panel_edit  {
 			
 			error_log('s_sid is not valid!! Panel');
 			
-		$response = array( 'success' => false  , 'm'=>__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. __('Error Code','easy-form-builder') . " 403"); 
+		$response = array( 'success' => false  , 'm'=>esc_html__('Something went wrong. Please refresh the page and try again.','easy-form-builder') .'<br>'. esc_html__('Error Code','easy-form-builder') . " 403"); 
 		wp_send_json_success($response,200);
 		} 
         //check validate here
