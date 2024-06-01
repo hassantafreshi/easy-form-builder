@@ -39,7 +39,7 @@ class Addon {
 	}
 
 	public function add_addon_menu() {
-		add_submenu_page( 'Emsfb', __('Add-ons', 'easy-form-builder' ),'<span style="color:#ff4b93">'. __('Add-ons', 'easy-form-builder' ) .'</span>', 'Emsfb_addon', 'Emsfb_addon', array(
+		add_submenu_page( 'Emsfb', esc_html__('Add-ons', 'easy-form-builder' ),'<span style="color:#ff4b93">'. esc_html__('Add-ons', 'easy-form-builder' ) .'</span>', 'Emsfb_addon', 'Emsfb_addon', array(
 			$this,
 			'render_settings'
 		) );

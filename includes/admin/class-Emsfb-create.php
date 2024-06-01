@@ -41,7 +41,7 @@ class Create {
 	}
 
 	public function add_Create_menu() {
-		add_submenu_page( 'Emsfb', __('Create', 'easy-form-builder' ), __('Create', 'easy-form-builder' ), 'Emsfb_create', 'Emsfb_create', array(
+		add_submenu_page( 'Emsfb', esc_html__('Create', 'easy-form-builder' ), esc_html__('Create', 'easy-form-builder' ), 'Emsfb_create', 'Emsfb_create', array(
 			$this,
 			'render_settings'
 		) );
@@ -116,7 +116,7 @@ class Create {
 						
 						if(typeof efb_var == 'undefined' || efb_var == null) {
 							console.log('efb_var not found!')
-							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?php echo __('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . __('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?php echo  __('Easy Form Builder','easy-form-builder') ?></p></div>';
+							document.getElementById('tab_container_efb').innerHTML ='<div class="efb bg-danger m-5 fs-6 p-5 text-white" ><p><?php echo esc_html__('If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed.','easy-form-builder') . ' ' . esc_html__('Please also ensure that you have a stable internet connection and try again.','easy-form-builder') ?></p><p class="efb fs-7 text-darkb mt-3"><?php echo  esc_html__('Easy Form Builder','easy-form-builder') ?></p></div>';
 						}
 					}, 90000);
 				

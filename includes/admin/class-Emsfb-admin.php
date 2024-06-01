@@ -160,15 +160,15 @@ class Admin {
         $noti_count = count($this->get_not_read_message());
         $icon       = EMSFB_PLUGIN_URL . '/includes/admin/assets/image/logo-gray.png';
         add_menu_page(
-            __('Panel', 'Emsfb'),
-            $noti_count ? sprintf(__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : __('Easy Form Builder', 'easy-form-builder'),
+            esc_html__('Panel', 'Emsfb'),
+            $noti_count ? sprintf(esc_html__('Easy Form Builder', 'easy-form-builder') . ' <span id="efbCountM" class="efb awaiting-mod">%d</span>', $noti_count) : esc_html__('Easy Form Builder', 'easy-form-builder'),
             
             'Emsfb',
             'Emsfb',
             '',
             '' . $icon . ''
         ); 
-        add_submenu_page('Emsfb', __('Panel', 'easy-form-builder'), __('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
+        add_submenu_page('Emsfb', esc_html__('Panel', 'easy-form-builder'), esc_html__('Panel', 'easy-form-builder'), 'Emsfb', 'Emsfb', [$this, 'panel_callback']);
         
     }
 
@@ -409,7 +409,7 @@ class Admin {
             
             if( is_wp_error( $request )) {
 
-                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
+                $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
                
@@ -420,7 +420,7 @@ class Admin {
             $data = json_decode( $body );
 
             if($data==null || $data=='null'){
-                $m = __('You can not use the Easy Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
+                $m = esc_html__('You can not use the Easy Form Builder features right now. Contact whitestudio.team support for help.','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
             }
@@ -444,7 +444,7 @@ class Admin {
                 //$url ="https://easyformbuilder.ir/source/files/zip/stripe.zip";
                $s= $this->fun_addon_new($url);
                if($s==false ){
-                $m = __('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
+                $m = esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
                }
@@ -613,7 +613,7 @@ class Admin {
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {            
             $m =   $lang["somethingWentWrongPleaseRefresh"];
-            $response = ['success' => false, "m" => __("Something went wrong, Please refresh the page." ,'easy-form-builder')];
+            $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
         }
@@ -1101,14 +1101,14 @@ class Admin {
                 $to = sanitize_email($_POST['email']);
             }
             $m = $lang["emailServer"];
-            $sub ="📫 ". $m ." [".__('Easy Form Builder','easy-form-builder') ."]";
+            $sub ="📫 ". $m ." [".esc_html__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
             if(strlen($to)<5) {
                 if(strlen($ac->emailSupporter)!=0) {$to = $ac->emailSupporter;}else{
                     $to="null";
                 }
             }
-            $from = get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+            $from = "no-reply@".$_SERVER['SERVER_NAME'];
             if(isset($ac->femail) && strlen($ac->femail)>5){
                 $from =$ac->femail ;
             }
@@ -1369,8 +1369,8 @@ class Admin {
         echo "<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
                     <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center'> 
                         <img class='efb w-50' src='". EMSFB_PLUGIN_URL . "includes/admin/assets/image/efb-256.gif'>
-                        <h3 class='efb fs-3 text-darkb'>".  __('Easy Form Builder','easy-form-builder') ."</h3>
-                        <h3 class='efb fs-2 text-dark'>".  __('Please Wait','easy-form-builder') ."</h3>
+                        <h3 class='efb fs-3 text-darkb'>".  esc_html__('Easy Form Builder','easy-form-builder') ."</h3>
+                        <h3 class='efb fs-2 text-dark'>".  esc_html__('Please Wait','easy-form-builder') ."</h3>
                     </div>
                 </div> ";
 

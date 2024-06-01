@@ -926,7 +926,7 @@ function fun_show_setting__emsFormBuilder() {
     showIp = f('showIp') =='null' ? false :f('showIp');
     dsupfile = f('dsupfile') =='null' ? true :f('dsupfile');
     phoneNumbers = f('phnNo');
-    adminSN  = f('adminSN') =='null' ? false :f('adminSN');
+    adminSN  = f('adminSN') =='null' ? true :f('adminSN');
 
     
     //console.log(`dsupfile[${dsupfile}]` ,f('dsupfile'));

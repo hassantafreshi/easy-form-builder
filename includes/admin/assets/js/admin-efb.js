@@ -1189,6 +1189,7 @@ let change_el_edit_Efb = (el) => {
         break;
       case "miLenEl":
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
+         // console.log('test3')
           //console.log(Number(el.value),'inside ==',valj_efb[indx].id_ ,valj_efb[indx].type)
           //pflm6h0n7_req
           clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
@@ -1197,19 +1198,43 @@ let change_el_edit_Efb = (el) => {
           
           valj_efb[indx].milen=0;
         }else if (Number(el.value)>524288 && valj_efb[indx].type!="range" ){
+        // console.log('test1')
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
           valj_efb[indx].milen=0;
         }else{
+          console.log('test2')
+          clss= valj_efb[indx].type!="date" ? 1 :0;
           valj_efb[indx].milen = sanitize_text_efb(el.value);
           if(valj_efb[indx].hasOwnProperty("mlen") && 
-          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
+          Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen) && clss==1){
             alert_message_efb("",efb_var.text.mxlmn,15,"warning")
             delete  valj_efb[indx].milen;
             el.value=0;
             break;
+          }else if (clss==0 ){
+            //check milen date and mlen date if mlen date is less than milen date then alert
+            //+date
+            c = /^(0|1|\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|)$/;
+            
+            clss = /^1$/
+            if (c.test(el.value)) {
+              alert("Valid date format!");
+              valj_efb[indx].milen = sanitize_text_efb(el.value);
+              //get current date with this syntax YYYY-MM-DD
+              c= Date().toISOString().split('T')[0];
+              c.toString().slice(0, 10);
+              console.log(c);
+              c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
+              //check if c is less than milen date
+              
+            } else {
+              alert("Invalid date format. Please use YYYY-MM-DD.");
+              el.value ='';
+            }
+            
           }
-          if(valj_efb[indx].type!="range")valj_efb[indx].required=1;
+          if(valj_efb[indx].type!="range" || alj_efb[indx].type!="date")valj_efb[indx].required=1;
           
         }     
         break;

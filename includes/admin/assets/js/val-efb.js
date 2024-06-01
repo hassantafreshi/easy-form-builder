@@ -391,9 +391,19 @@ function show_setting_window_efb(idset) {
     const mLenEls = `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}</label>
     <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :efb_var.text.max}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="2">`
     
-    const miLenEls = `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${valj_efb[indx].type!="range" && valj_efb[indx].type!="number"  ?  efb_var.text.milen : efb_var.text.min}</label>
-    <input type="number" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${valj_efb[indx].type!="range" && valj_efb[indx].type!="number"  ?  efb_var.text.milen : efb_var.text.min}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}" min="0">`
-    const requireEls = `<div class="efb mx-1 my-3 efb">
+    const miLenEls = ()=>{
+    let label =  efb_var.text.min;
+    let type = "number"
+    // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.milen :
+    if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.min}
+    else if(valj_efb[indx].type=="date") {
+      label = 'data limited';
+      type =  'text'}
+
+    return  `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
+    <input type="${type}" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${label}" id="miLenEl" required value="${valj_efb[indx].hasOwnProperty('milen') ? valj_efb[indx].milen : ''}" min="0">`
+  }
+  const requireEls = `<div class="efb mx-1 my-3 efb">
     <button type="button" id="requiredEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${valj_efb[indx].hasOwnProperty('required') && Number(valj_efb[indx].required) == 1 ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}"  onclick="fun_switch_form_efb(this)" >       
     <div class="efb handle"></div>
     </button>
@@ -896,7 +906,7 @@ function show_setting_window_efb(idset) {
                         ${selectColorEls('description','text')}
                         ${selectColorEls('el','text')}
                         ${selectBorderColorEls('element',indx,idset)}
-                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile"  ? miLenEls :''}                                       
+                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile"  ? miLenEls() :''}                                       
                         ${el.dataset.tag != "textarea" && el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" ? mLenEls :''}                                       
                         
                         ${labelPostionEls}
@@ -1061,7 +1071,7 @@ function show_setting_window_efb(idset) {
                 ${labelPostionEls}
                 ${ElementAlignEls('label',indx,idset)}
                 ${ElementAlignEls('description',indx,idset)}
-                ${el.dataset.tag == "range" ?miLenEls:''}   
+                ${el.dataset.tag == "range" ?miLenEls():''}   
                 ${el.dataset.tag == "range" ? mLenEls :''}                                       
                 ${el.dataset.tag == "range" ?valueEls:''}   
                

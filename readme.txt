@@ -3,8 +3,8 @@ Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
-Tested up to: 6.5.2
-Stable tag: 3.7.29
+Tested up to: 6.5.3
+Stable tag: 3.7.30
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -450,13 +450,19 @@ We've got a dedicated team ready to support you with any form-related questions 
 10. Localization Easy Form Builder to your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
+13. configuration Response box of Easy Form Builder
+14. Email Setting of Easy Form Builder
+15. SMS configuration of Easy From Builder
+
+
 
 == Changelog ==
 
+= 3.7.30 = 
+* Improved Security of Easy Form Builder
+* Change the default response state by the admin to require admin login.
+
 = 3.7.29 = 
-
-* Resolved issues related to sending email notifications for forms.
-
 = 3.7.28 = 
 
 * Resolved issues related to sending email notifications for forms.
