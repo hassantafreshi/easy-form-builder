@@ -810,7 +810,7 @@ class efbFunction {
 						} else {
 							$to= array_unique($to);
 							foreach ($to as $r) {
-								error_log($r);
+							  error_log(is_email($r));
 							  if(isset($r) && is_email($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
 							
