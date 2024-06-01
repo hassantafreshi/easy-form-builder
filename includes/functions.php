@@ -781,6 +781,7 @@ class efbFunction {
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
+				error_log(json_encode($to));
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -788,7 +789,8 @@ class efbFunction {
 					$f = array_pop($to);	
 					if(gettype($f)=="array"){
 						$f = array_pop($f);						
-					}				
+					}		
+					$f = is_email($f) ? $f : $from;		
 					$from =get_bloginfo('name')." <".$f.">";			
 				}else if (gettype($to) == 'object' && isset($to[2]) ){
 					$f = $to[2];
@@ -855,8 +857,10 @@ class efbFunction {
 									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
 									
 								} else {
-
+									//remove duplicates
+									$to= array_unique($to[$i]);
 									foreach ($to[$i] as $r) {
+
 										/* error_log($recipient);
 										error_log($sub[$i]); */
 										//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
