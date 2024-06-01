@@ -781,7 +781,7 @@ class efbFunction {
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-				error_log(json_encode($to));
+				
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -789,12 +789,9 @@ class efbFunction {
 					$f = array_pop($to);	
 					if(gettype($f)=="array"){
 						$f = array_pop($f);						
-					}	
-					error_log($f);
-					error_log(is_email($f));
-					$f = is_email($f) ? $f : $from;		
+					}							
 					$from =get_bloginfo('name')." <".$f.">";			
-				}else if (gettype($to) == 'object' && isset($to[2]) ){
+				}else if (gettype($to) == 'object' && isset($to[2]) && is_email($to[2]) ){
 					$f = $to[2];
 					unset($to[2]);
 					$from =get_bloginfo('name')." <".$f.">";
@@ -804,8 +801,7 @@ class efbFunction {
 				   'From:'.$from,
 				   
 				);
-				if(gettype($sub)=='string'){
-					error_log('sub is string');
+				if(gettype($sub)=='string'){					
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 				
 					if( $state!="reportProblem"){
 						$to_;$mailResult;							
@@ -814,7 +810,8 @@ class efbFunction {
 						} else {
 							$to= array_unique($to);
 							foreach ($to as $r) {
-							  if(isset($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
+								error_log($r);
+							  if(isset($r) && && is_email($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
 							
 						}
@@ -849,7 +846,6 @@ class efbFunction {
 
 					return $mailResult;
 				}else{
-					error_log('sub is array');
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
@@ -864,7 +860,6 @@ class efbFunction {
 								} else {
 									//remove duplicates
 									$to[$i]= array_unique($to[$i]);
-									error_log(json_encode($to[$i]));
 									foreach ($to[$i] as $r) {
 
 										/* error_log($recipient);
@@ -888,7 +883,6 @@ class efbFunction {
 					
 				}
 				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
-				    // error_log('emails sent!');
 			   return $mailResult;
 	}
 
