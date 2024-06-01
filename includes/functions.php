@@ -850,8 +850,7 @@ class efbFunction {
 							if( $state!="reportProblem"){										
 								$to_;$mailResult;
 								$to_ = $to[$i];
-								if (gettype($to_) == 'string') {									
-									//$to_ = implode(',', array_unique($to[$i]));								
+								if (gettype($to_) == 'string' && is_email($to_)) {																
 									$sub_ = $sub[$i];
 									$mailResult =  wp_mail( $to_,$sub_, $message, $headers ) ;
 									
@@ -859,13 +858,9 @@ class efbFunction {
 									//remove duplicates
 									$to[$i]= array_unique($to[$i]);
 									foreach ($to[$i] as $r) {
-
-										/* error_log($recipient);
-										error_log($sub[$i]); */
-										//$to_ === null ? $to_ = $recipient : $to_ .= ', ' . $recipient;
 										$sub_ = $sub[$i];
 										$to_ = $r;
-										$mailResult = wp_mail($to_, $sub_, $message, $headers);
+										if(is_email($to_)) $mailResult = wp_mail($to_, $sub_, $message, $headers);
 									}
 									
 								}

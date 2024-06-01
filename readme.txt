@@ -450,6 +450,11 @@ We've got a dedicated team ready to support you with any form-related questions 
 10. Localization Easy Form Builder to your language
 11. Email template Editor of Easy Form Builder
 12. Order payment forms
+13. configuration Response box of Easy Form Builder
+14. Email Setting of Easy Form Builder
+15. SMS configuration of Easy From Builder
+
+
 
 == Changelog ==
 
