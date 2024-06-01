@@ -789,7 +789,9 @@ class efbFunction {
 					$f = array_pop($to);	
 					if(gettype($f)=="array"){
 						$f = array_pop($f);						
-					}		
+					}	
+					error_log($f);
+					error_log(is_email($f));
 					$f = is_email($f) ? $f : $from;		
 					$from =get_bloginfo('name')." <".$f.">";			
 				}else if (gettype($to) == 'object' && isset($to[2]) ){
@@ -803,6 +805,7 @@ class efbFunction {
 				   
 				);
 				if(gettype($sub)=='string'){
+					error_log('sub is string');
 					$message = $this->email_template_efb($pro,$state,$cont,$link,$st); 				
 					if( $state!="reportProblem"){
 						$to_;$mailResult;							
@@ -846,6 +849,7 @@ class efbFunction {
 
 					return $mailResult;
 				}else{
+					error_log('sub is array');
 					for($i=0 ; $i<2 ; $i++){
 						if(empty($to[$i])==false && $to[$i]!="null" && $to[$i]!=null && $to[$i]!=[null] && $to[$i]!=[]){
 							$message = $this->email_template_efb($pro,$state[$i],$cont[$i],$link[$i],$st); 	
