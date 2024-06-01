@@ -809,6 +809,7 @@ class efbFunction {
 						if (gettype($to) == 'string') {
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
+							$to= array_unique($to);
 							foreach ($to as $r) {
 							  if(isset($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
@@ -858,7 +859,8 @@ class efbFunction {
 									
 								} else {
 									//remove duplicates
-									$to= array_unique($to[$i]);
+									$to[$i]= array_unique($to[$i]);
+									error_log(json_encode($to[$i]));
 									foreach ($to[$i] as $r) {
 
 										/* error_log($recipient);
