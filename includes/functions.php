@@ -781,7 +781,7 @@ class efbFunction {
 
 	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);
-				
+				error_log(json_encode($to));
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
 				$from =get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
@@ -808,8 +808,7 @@ class efbFunction {
 						if (gettype($to) == 'string') {
 							$mailResult =  wp_mail( $to,$sub, $message, $headers ) ;
 						} else {
-							$to= array_unique($to);
-							error_log(json_encode($to));
+							$to= array_unique($to);							
 							foreach ($to as $r) {								
 							  if(isset($r) && is_email($r)){$mailResult = wp_mail($r, $sub, $message, $headers);}
 							}
