@@ -1108,7 +1108,7 @@ class Admin {
                     $to="null";
                 }
             }
-            $from = get_bloginfo('name')." <no-reply@".$_SERVER['SERVER_NAME'].">";
+            $from = "no-reply@".$_SERVER['SERVER_NAME'].">";
             if(isset($ac->femail) && strlen($ac->femail)>5){
                 $from =$ac->femail ;
             }
