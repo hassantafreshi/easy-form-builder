@@ -794,7 +794,7 @@ class _Public {
 							) {   							
 							if(isset($f['name'])){
 						    $mr = $this->lanText["mnvvXXX"];
-							$mr =str_replace('XXX', $f['name'], $mr );}
+							$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );}
 							
 								
 							switch ($f['type']) {
@@ -1259,14 +1259,14 @@ class _Public {
 										if(isset($f['milen'])!=true  &&   isset($f['mlen'])!=true){	$stated=1;	}						
 										else if((isset($f['milen'])==true && $f['milen']>0 && $f['milen']> $l)) {											
 											$mr = $this->lanText["ptrnMmm"];
-											$mr =str_replace('XXX', $f['name'], $mr );
-											$mr =str_replace('NN', $f['mlen'], $mr );											
+											$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
+											$mr =str_replace('NN', "<b>".$f['milen']."</b>", $mr );											
 											$stated=0;
 										}
 										else if( isset($f['mlen'])==true && $f['mlen']>0   && $f['mlen']< $l) {
 											$mr = $this->lanText["ptrnMmm"];							
-											$mr =str_replace('NN', $f['mlen'], $mr );
-											$mr =str_replace('XXX', $f['name'], $mr );
+											$mr =str_replace('NN', "<b>".$f['mlen']."</b>", $mr );
+											$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
 											$stated=0;}
 									}
 									//$item['value'] =  'test';

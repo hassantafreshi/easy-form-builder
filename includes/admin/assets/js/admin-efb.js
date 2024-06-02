@@ -1165,8 +1165,30 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
         }else{
           //console.log(valj_efb[indx])
+          clss= valj_efb[indx].type=="date" ? 1 :0;
           if(valj_efb[indx].hasOwnProperty('mlen')==false) Object.assign(valj_efb[indx],{mlen:'0'})
-          valj_efb[indx].mlen = el.value;
+         
+          if(clss==1){
+            c = /^(0|1|([0-2][1-9]|3[01])-(0[1-9]|1[0-2])-\d{4}|)$/;
+            if (c.test(el.value)) {
+              alert("Valid date format!");
+              valj_efb[indx].mlen = sanitize_text_efb(el.value);
+              //get current date with this syntax YYYY-MM-DD
+              c= Date().toISOString().split('T')[0];
+              c.toString().slice(0, 10);
+              console.log(c);
+              c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
+              //check if c is less than milen date
+              
+            } else {
+              alert("Invalid date format. Please use DD-MM-YYY.");
+              el.value ='';
+            }
+
+          }else{
+            valj_efb[indx].mlen = el.value;
+          }
+
           //console.log(valj_efb[indx])
           if(valj_efb[indx].hasOwnProperty("milen") && 
           Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
@@ -1215,7 +1237,8 @@ let change_el_edit_Efb = (el) => {
           }else if (clss==0 ){
             //check milen date and mlen date if mlen date is less than milen date then alert
             //+date
-            c = /^(0|1|\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|)$/;
+            //c = /^(0|1|\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|)$/;
+            c = /^(0|1|([0-2][1-9]|3[01])-(0[1-9]|1[0-2])-\d{4}|)$/;
             
             clss = /^1$/
             if (c.test(el.value)) {
@@ -1229,7 +1252,7 @@ let change_el_edit_Efb = (el) => {
               //check if c is less than milen date
               
             } else {
-              alert("Invalid date format. Please use YYYY-MM-DD.");
+              alert("Invalid date format. Please use DD-MM-YYY.");
               el.value ='';
             }
             

@@ -279,10 +279,33 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       const autocomplete = elementId == "email" ? 'email' : elementId == "tel" ? 'tel' : elementId == "url" ? 'url' : elementId == "password" ? 'current-password' : elementId == "firstName" ? 'given-name' : elementId == "lastName" ? 'family-name' : elementId == "postalcode" ? 'postal-code' : elementId == "address_line" ? 'street-address' : 'off';
       //email, number, password, search, tel, text, or url
       const placeholder =  elementId != 'color'  && elementId != 'range' &&  elementId != 'password' &&  elementId != 'date' ? `placeholder="${valj_efb[iVJ].placeholder}"` : '';
-      maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
-      maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
-      minlen = valj_efb[iVJ].hasOwnProperty('milen') && valj_efb[iVJ].milen >0 ? valj_efb[iVJ].milen :0;    
-      minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
+     
+      if(elementId != 'date'){
+        maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
+        maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
+        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;    
+        minlen = Number(minlen)!=0  ? `minlength="${minlen}"`:``;
+      }else{
+        maxlen = valj_efb[iVJ].hasOwnProperty('mlen')  ? valj_efb[iVJ].mlen :'';
+        minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :'';  
+          const today = new Date();
+          const dd = String(today.getDate()).padStart(2, '0');
+          const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+          const yyyy = today.getFullYear();
+        if(maxlen==1) {
+          //current time YYYY-MM-DD          
+          maxlen = `${yyyy}-${mm}-${dd}`;
+        }
+        if (minlen==1) {
+          //current time YYYY-MM-DD
+          minlen = `${yyyy}-${mm}-${dd}`;
+        }
+
+        maxlen = Number(maxlen)!=0 && maxlen!='' ? `max="${maxlen}"`:``;        
+        minlen = Number(minlen)!=0 && minlen !='' ? `min="${minlen}"`:``;
+      }
+      
+      console.log(`[${minlen}]`,valj_efb[iVJ].milen);
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
