@@ -1181,7 +1181,14 @@ let change_el_edit_Efb = (el) => {
               //check if c is less than milen date
               
             } else {
-              alert("Invalid date format. Please use DD-MM-YYY.");
+              //mnvvXXX  XXX
+              let m = efb_var.text.mnvvXXX;
+              //mxdt
+             
+              
+              m  = m.replace('XXX', "<b>" +  efb_var.text.mxdt + "</b>");
+              m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1, 0");
+              alert(m);
               el.value ='';
             }
 

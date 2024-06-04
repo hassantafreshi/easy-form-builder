@@ -396,7 +396,8 @@ function show_setting_window_efb(idset) {
     // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.milen :
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.min}
     else if(valj_efb[indx].type=="date") {
-      label = 'minimum date';
+      label = efb_var.text.mindt; ;
+      //'minimum date'
       type =  'text'}
 
     return  `<label for="miLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
@@ -409,7 +410,7 @@ function show_setting_window_efb(idset) {
     // valj_efb[indx].type=="date"  ?  'date limited' : valj_efb[indx].type!="range" && valj_efb[indx].type!="number" ? efb_var.text.mlen :
     if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.max}
     else if(valj_efb[indx].type=="date") {
-      label = 'maximum date';
+      label = efb_var.text.mxdt;
       type =  'text'}
       return `<label for="mLenEl" class="efb form-label mt-2 mb-1 efb">${label}</label>
       <input type="${type}" data-id="${idset}" class="efb elEdit form-control text-muted efb border-d rounded-4 h-d-efb mb-1" placeholder="${label}" id="mLenEl" required value="${valj_efb[indx].hasOwnProperty('mlen') ? valj_efb[indx].mlen : ''}" min="0">`
