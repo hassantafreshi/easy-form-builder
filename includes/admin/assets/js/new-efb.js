@@ -282,6 +282,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
      
       if(elementId != 'date'){
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
+        console.log(maxlen);
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
         minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;    
         minlen = Number(minlen)!=0  ? `minlength="${minlen}"`:``;

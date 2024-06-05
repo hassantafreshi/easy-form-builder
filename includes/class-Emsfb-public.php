@@ -828,6 +828,19 @@ class _Public {
 										//wp_checkdate
 											$stated=1;
 											$rt= $item;
+											$current_date = date('Y-m-d');
+											if(isset($f['milen']) && $f['milen']!=''){
+												$f['milen'] = intval($f['milen'])==1 ? $current_date :$f['milen'];
+												if($f['milen']!='' && (strtotime($f['milen'])>strtotime($item['value']) || strtotime($f['milen'])>strtotime($item['value'])) ){
+													$stated=0;
+												}
+											}
+											if(isset($f['mlen']) && $f['mlen']!=''){
+												$f['mlen'] = intval($f['mlen'])==1 ? $current_date :$f['mlen'];
+												if($f['mlen']!='' && (strtotime($f['mlen'])<strtotime($item['value']) || strtotime($f['mlen'])<strtotime($item['value'])) ){
+													$stated=0;
+												}
+											}
 										} else {
 											$rt= "";
 											$stated=0;
