@@ -200,8 +200,6 @@ class Addon {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 
-		$lng = get_locale();
-		$lng =strpos($lng,'_')!=false ? explode( '_', $lng )[0]:$lng;
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.7.31');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -215,7 +213,7 @@ class Addon {
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
-			"language"=> $lng,
+			"language"=> get_locale(),
 			"addson"=>$addons,
 			'wp_lan'=>get_locale(),
 			'v_efb'=>EMSFB_PLUGIN_VERSION,

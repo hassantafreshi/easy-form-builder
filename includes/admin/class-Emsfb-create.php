@@ -291,8 +291,7 @@ class Create {
 
 			
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
-		$lng = get_locale();
-		$lng =strpos($lng,'_')!=false ? explode( '_', $lng )[0]:$lng;
+		
 		$location ='';
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.7.31');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
@@ -307,7 +306,7 @@ class Create {
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
-			"language"=> $lng,
+			"language"=> get_locale(),
 			"addons"=>$addons,
 			'wp_lan'=>get_locale(),
 			'location'=>$location,
