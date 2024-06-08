@@ -935,7 +935,7 @@ class efbFunction {
 
 			//replace %s1 and %s2 with links to documentation
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
-			$dt = str_replace('%s2.',"</a> .",$dt);
+			$dt = str_replace('%s2',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
 			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
