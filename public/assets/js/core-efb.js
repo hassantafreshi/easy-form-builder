@@ -56,9 +56,7 @@ function check_body_efb_timer (){
   }
 }
 function fun_efb_run(){
-  g_timeout_efb=100;
-  console.log('fun_efb_run');
-  
+  g_timeout_efb=100;  
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
