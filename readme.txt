@@ -4,12 +4,12 @@ Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
 Tested up to: 6.5.3
-Stable tag: 3.7.30
+Stable tag: 3.7.31
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Easily Create forms with using Easy Form Builder user-friendly, drag & drop form builder. use this powerful form builder to create multistep forms.
+Create multi-step and any other forms with Easy Form Builder – the user-friendly drag-and-drop Form Builder. The Form Builder for all your needs.
 
 == Description ==
 
@@ -457,6 +457,11 @@ We've got a dedicated team ready to support you with any form-related questions 
 
 
 == Changelog ==
+
+
+= 3.7.31 = 
+
+* Resolved issues related to sending email notifications for forms.
 
 = 3.7.30 = 
 * Improved Security of Easy Form Builder

@@ -1764,4 +1764,22 @@ class efbFunction {
 		
 		
 	}
+
+
+	public function openstreet_map_required_efb($s){
+	  return 1;
+		wp_register_style('leaflet_css', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_enqueue_style('leaflet_css');
+		wp_register_script('leaflet_js', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js');
+		wp_enqueue_script('leaflet_js');
+		if($s==1 || true){
+			wp_register_style('leaflet_fullscreen_css', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+			wp_enqueue_style('leaflet_fullscreen_css');
+			wp_register_script('leaflet_fullscreen_js', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+			wp_enqueue_script('leaflet_fullscreen_js');
+		}
+		
+		
+
+	}
 }

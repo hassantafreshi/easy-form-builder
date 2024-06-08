@@ -122,9 +122,9 @@ class Addon {
 
 			
 			
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.7.26', true);	
+			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.7.31', true);	
 			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.7.26' , true);	
+			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.7.31' , true);	
 			wp_enqueue_script('jquery-dd-efb'); 
 			
 
@@ -200,7 +200,9 @@ class Addon {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.7.26');
+		$lng = get_locale();
+		$lng =strpos($lng,'_')!=false ? explode( '_', $lng )[0]:$lng;
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.7.31');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 2,
@@ -213,7 +215,7 @@ class Addon {
 			"smtp_message"=>$smtp,
 			'maps'=> $maps,
 			'bootstrap' =>$this->check_temp_is_bootstrap(),
-			"language"=> get_locale(),
+			"language"=> $lng,
 			"addson"=>$addons,
 			'wp_lan'=>get_locale(),
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
@@ -221,15 +223,15 @@ class Addon {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.7.26');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.7.31');
 
 
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.7.26');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.7.31');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.7.26');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.7.31');
 	
 	
 
