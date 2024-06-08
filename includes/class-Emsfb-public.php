@@ -618,7 +618,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		
 		
-		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
+		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","ptrnMmx",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
 
 		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -1284,8 +1284,7 @@ class _Public {
 									if(isset($item['value']) ){
 										$stated=1;
 										$item['value'] = sanitize_text_field($item['value']);
-										$l=strlen($item['value']);	
-										
+										$l=mb_strlen($item['value'], 'UTF-8');
 										if(isset($f['milen'])!=true  &&   isset($f['mlen'])!=true){	$stated=1;	}						
 										else if((isset($f['milen'])==true && $f['milen']>0 && $f['milen']> $l)) {											
 											$mr = $this->lanText["ptrnMmm"];
@@ -1294,7 +1293,7 @@ class _Public {
 											$stated=0;
 										}
 										else if( isset($f['mlen'])==true && $f['mlen']>0   && $f['mlen']< $l) {
-											$mr = $this->lanText["ptrnMmm"];							
+											$mr = $this->lanText["ptrnMmx"];							
 											$mr =str_replace('NN', "<b>".$f['mlen']."</b>", $mr );
 											$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
 											$stated=0;}
