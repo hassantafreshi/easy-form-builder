@@ -282,7 +282,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
      
       if(elementId != 'date'){
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
-        console.log(maxlen);
+        //console.log(maxlen);
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
         minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;    
         minlen = Number(minlen)!=0  ? `minlength="${minlen}"`:``;
@@ -306,7 +306,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         minlen = Number(minlen)!=0 && minlen !='' ? `min="${minlen}"`:``;
       }
       
-      console.log(`[${minlen}]`,valj_efb[iVJ].milen);
+      //console.log(`[${minlen}]`,valj_efb[iVJ].milen);
       classes = elementId != 'range' ? `form-control ${valj_efb[iVJ].el_border_color} ` : 'form-range';
       ui = `
       ${label}
