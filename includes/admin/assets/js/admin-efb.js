@@ -1165,8 +1165,37 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
         }else{
           //console.log(valj_efb[indx])
+          clss= valj_efb[indx].type=="date" ? 1 :0;
           if(valj_efb[indx].hasOwnProperty('mlen')==false) Object.assign(valj_efb[indx],{mlen:'0'})
-          valj_efb[indx].mlen = el.value;
+         
+          if(clss==1){
+            c = /^(0|1|\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|)$/;
+            if (c.test(el.value)) {
+            
+              valj_efb[indx].mlen = sanitize_text_efb(el.value);
+              //get current date with this syntax YYYY-MM-DD
+            /*   c= Date().toISOString().split('T')[0];
+              c.toString().slice(0, 10); */
+              console.log(c);
+              c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
+              //check if c is less than milen date
+              
+            } else {
+              //mnvvXXX  XXX
+              let m = efb_var.text.mnvvXXX;
+              //mxdt
+             
+              
+              m  = m.replace('XXX', "<b>" +  efb_var.text.mxdt + "</b>");
+              m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");    
+              alert_message_efb("", m,15,"warning")        
+              el.value ='';
+            }
+
+          }else{
+            valj_efb[indx].mlen = el.value;
+          }
+
           //console.log(valj_efb[indx])
           if(valj_efb[indx].hasOwnProperty("milen") && 
           Number(valj_efb[indx].mlen)<Number(valj_efb[indx].milen)){
@@ -1217,19 +1246,24 @@ let change_el_edit_Efb = (el) => {
             //+date
             c = /^(0|1|\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|)$/;
             
+            
+            
             clss = /^1$/
             if (c.test(el.value)) {
-              alert("Valid date format!");
+              
               valj_efb[indx].milen = sanitize_text_efb(el.value);
               //get current date with this syntax YYYY-MM-DD
-              c= Date().toISOString().split('T')[0];
-              c.toString().slice(0, 10);
+             /*  c= Date().toISOString().split('T')[0];
+              c.toString().slice(0, 10); */
               console.log(c);
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
               //check if c is less than milen date
               
             } else {
-              alert("Invalid date format. Please use YYYY-MM-DD.");
+              let m = efb_var.text.mnvvXXX;
+              m  = m.replace('XXX', "<b>" +  efb_var.text.mindt + "</b>");
+              m += " "+  efb_var.text.ivf.replace('%s', "YYYY-MM-DD, 1");    
+              alert_message_efb("", m,15,"warning")  
               el.value ='';
             }
             

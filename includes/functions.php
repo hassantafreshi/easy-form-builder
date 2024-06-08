@@ -742,7 +742,7 @@ class efbFunction {
 			"fetf" => $state  &&  isset($ac->text->fetf) ? $ac->text->fetf : esc_html__('Error: Please ensure there is only one form per page.',$s),
 			"actvtcmsg" => $state  &&  isset($ac->text->actvtcmsg) ? $ac->text->actvtcmsg : esc_html__('The activation code has been successfully verified. Enjoy Pro features and utilize the Easy Form Builder.',$s),
 			"msgdml" => $state  &&  isset($ac->text->msgdml) ? $ac->text->msgdml : esc_html__('The confirmation code for this message is %s. By clicking the button below, you will be able to track messages and view received responses. If needed, you can also send a new reply.',$s),
-			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : esc_html__('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2.',$s),
+			"msgnml" => $state  &&  isset($ac->text->msgnml) ? $ac->text->msgnml : esc_html__('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %s1 documentation %s2 .',$s),
 			"mlntip" => $state  &&  isset($ac->text->mlntip) ? $ac->text->mlntip : esc_html__('Make sure to check your spam folder for test emails. If your emails are being marked as spam or not being sent, it\'s likely due to the hosting provider you are using. You will need to adjust your email server settings to prevent emails sent from your server from being flagged as spam. For more information, %s1 click here %s2 or %s3 contact Easy Form Builder support %s4.',$s),
 			"from" => $state  &&  isset($ac->text->from) ? $ac->text->from : esc_html__('From Address',$s),
 			"msgfml" => $state  &&  isset($ac->text->msgfml) ? $ac->text->msgfml : esc_html__('To avoid emails going to spam or not being sent, make sure the email address here matches the one in the SMTP settings.',$s),
@@ -754,7 +754,10 @@ class efbFunction {
 			"trmcn" => $state  &&  isset($ac->text->trmcn) ? $ac->text->trmcn : esc_html__('I have read and agree to %s1the terms and conditions%s2',$s),
 			"trmCheckbox" => $state  &&  isset($ac->text->trmCheckbox) ? $ac->text->trmCheckbox : esc_html__('Terms',$s),
 			"prvnt" => $state  &&  isset($ac->text->prvnt) ? $ac->text->prvnt : esc_html__('Preview in new tab',$s),
-			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
+			"mxdt" => $state  &&  isset($ac->text->mxdt) ? $ac->text->mxdt : esc_html__('Maximum date',$s),
+			"mindt" => $state  &&  isset($ac->text->mindt) ? $ac->text->mindt : esc_html__('Minimum date',$s),
+			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s',$s),
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
 			
 		];
 
@@ -932,7 +935,7 @@ class efbFunction {
 
 			//replace %s1 and %s2 with links to documentation
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
-			$dt = str_replace('%s2.',"</a>.",$dt);
+			$dt = str_replace('%s2',"</a>",$dt);
 			$title= $lang["serverEmailAble"];
 			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
 			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
@@ -1760,5 +1763,23 @@ class efbFunction {
       
 		
 		
+	}
+
+
+	public function openstreet_map_required_efb($s){
+	  return 1;
+		wp_register_style('leaflet_css', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_enqueue_style('leaflet_css');
+		wp_register_script('leaflet_js', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js');
+		wp_enqueue_script('leaflet_js');
+		if($s==1 || true){
+			wp_register_style('leaflet_fullscreen_css', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+			wp_enqueue_style('leaflet_fullscreen_css');
+			wp_register_script('leaflet_fullscreen_js', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+			wp_enqueue_script('leaflet_fullscreen_js');
+		}
+		
+		
+
 	}
 }

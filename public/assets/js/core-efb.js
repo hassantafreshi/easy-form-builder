@@ -43,10 +43,24 @@ function fun_render_view_efb(val, check) {
     }, valj_efb.length *2);
   }
 }
-setTimeout(() => {
+
+function check_body_efb_timer (){
+  g_timeout_efb -=10;
+  if(document.getElementById('body_efb')==null && g_timeout_efb>10){
+    setTimeout(() => {
+      check_body_efb_timer();
+    }, 800);
+  }else{
+   
+    fun_efb_run();
+  }
+}
+function fun_efb_run(){
+  g_timeout_efb=100;  
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
+      if(document.getElementById('body_efb')==null) check_body_efb_timer();
       poster_emsFormBuilder = ajax_object_efm.poster;
       efb_var = ajax_object_efm;     
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
@@ -97,7 +111,8 @@ setTimeout(() => {
     };
     motus_efb.ElementMultiselect = exportObj;
   })();
-}, g_timeout_efb)
+}
+setTimeout( fun_efb_run, g_timeout_efb)
 function createStepsOfPublic() {
   for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
     let price = '';

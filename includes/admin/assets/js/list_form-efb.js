@@ -2491,7 +2491,7 @@ function emsFormBuilder_read(state,val){
       nonce: ajax_object_efm_core.nonce,
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
-      console.log(res);
+      //console.log(res);
       if (res.data.success == true) {
         setTimeout(() => {
           alert_message_efb(efb_var.text.done, '', 3, 'info');

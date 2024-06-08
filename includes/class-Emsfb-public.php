@@ -169,12 +169,19 @@ class _Public {
 		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf'];
 
 		
-	
-		
+		$page_builder="";		
 		if((is_admin() || isset($_GET['vc_editable']) ||isset($_GET['vcv-ajax']) )){
 				//+isset($_GET['vcv-ajax']) visual composer
 				//+isset($_GET['vc_editable']) wpbakery
 				//+is_admin for plugin like elementor
+				if(isset($_GET['vc_editable'])) $page_builder='vc_editable';
+				else if(isset($_GET['vc_editable'])) $page_builder = 'wpbakery';
+				else if (isset($_GET['action']) && $_GET['action']=='elementor'){
+					$page_builder='elementor';
+					
+				
+					
+				}
 			$content="	
 			
 			
@@ -244,9 +251,9 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.26');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.31');
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.7.26' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.7.31' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -289,7 +296,7 @@ class _Public {
 
 			
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.26');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.31');
 					 
 				}
 		
@@ -310,12 +317,12 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.7.26', true);
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.7.31', true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.7.26', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.7.31', true);
 									wp_enqueue_script('parsipay_js');
 								}
 							}
@@ -328,7 +335,7 @@ class _Public {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.7.26');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.7.31');
 				 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -353,7 +360,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.26');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.31');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -411,6 +418,7 @@ class _Public {
 					'images' => $img,
 					'rest_url'=>get_rest_url(null),
 					'page_id'=>get_the_ID(),
+					'page_builder'=>$page_builder
 				) );
 				wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);  
 		 $k="";
@@ -428,7 +436,7 @@ class _Public {
 				 wp_enqueue_script('recaptcha');
 			 }
 
-			 if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && gettype($value)=='string' &&  (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
+			 /* if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && gettype($value)=='string' &&  (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
 				 
 				 $key= $this->pub_stting["mapKey"];
 				 $lng = strval(get_locale());
@@ -437,6 +445,10 @@ class _Public {
 					 }
 				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				 wp_enqueue_script('googleMaps-js');
+			 } */
+			 if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
+				 
+				$efbFunction->openstreet_map_required_efb(1);
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
@@ -501,7 +513,7 @@ class _Public {
 			}
 			
 			
-			if(isset($valstng->mapKey) && $valstng->mapKey!=""){
+			/* if(isset($valstng->mapKey) && $valstng->mapKey!=""){
 				$key= $valstng->mapKey;
 				$lng = strval(get_locale());
 					if ( strlen($lng) > 0 ) {
@@ -509,6 +521,9 @@ class _Public {
 					}
 				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				wp_enqueue_script('googleMaps-js');
+			} */
+			if(isset($valstng->mapKey) && $valstng->mapKey!=""){
+				$efbFunction->openstreet_map_required_efb(1);
 			}
 		}
 
@@ -518,7 +533,7 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.26');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.31');
 		 
 		}
 		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
@@ -579,21 +594,21 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.7.26');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.7.31');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.7.26', true);				
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.7.31', true);				
 		 wp_enqueue_script('Emsfb-core_js');
 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.26', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.31', true);		
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.26');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.31');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.7.26');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.7.31');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
 		
@@ -603,7 +618,7 @@ class _Public {
 		$data_POST = $data_POST_->get_json_params();
 		
 		
-		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
+		$text_ =["somethingWentWrongPleaseRefresh","pleaseMakeSureAllFields","bkXpM","bkFlM","mnvvXXX","ptrnMmm","ptrnMmx",'payment','error403','errorSiteKeyM',"errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","clcdetls","vmgs","youRecivedNewMessage","WeRecivedUrM","thankRegistering","welcome","thankSubscribing","thankDonePoll","thankFillForm","trackNo",'fernvtf',"msgdml"];
 
 		
 		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
@@ -716,13 +731,15 @@ class _Public {
 					}else{
 						array_push($email_user[0] ,$email_fa);
 					} */
+					$send_email_to_user_state = true;
 				}
 
 				//$email_fa = $formObj[0]["email"];
 
 				
-				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;			
-				if( isset($formObj[0]["sendEmail"])) $send_email_to_user_state = filter_var( $formObj[0]["sendEmail"] , FILTER_VALIDATE_BOOLEAN) ;
+				$trackingCode_state = $formObj[0]["trackingCode"]==true || $formObj[0]["trackingCode"]=="true" || $formObj[0]["trackingCode"]==1 ? 1 : 0;
+				
+				
 				//if( $fs_obj[0]["trackingCode"]==true || $fs_obj[0]["trackingCode"]=="true" || $fs_obj[0]["trackingCode"]==1)
 				
 				//$type = $formObj[0]["type"];
@@ -794,7 +811,7 @@ class _Public {
 							) {   							
 							if(isset($f['name'])){
 						    $mr = $this->lanText["mnvvXXX"];
-							$mr =str_replace('XXX', $f['name'], $mr );}
+							$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );}
 							
 								
 							switch ($f['type']) {
@@ -828,6 +845,19 @@ class _Public {
 										//wp_checkdate
 											$stated=1;
 											$rt= $item;
+											$current_date = date('Y-m-d');
+											if(isset($f['milen']) && $f['milen']!=''){
+												$f['milen'] = intval($f['milen'])==1 ? $current_date :$f['milen'];
+												if($f['milen']!='' && (strtotime($f['milen'])>strtotime($item['value']) || strtotime($f['milen'])>strtotime($item['value'])) ){
+													$stated=0;
+												}
+											}
+											if(isset($f['mlen']) && $f['mlen']!=''){
+												$f['mlen'] = intval($f['mlen'])==1 ? $current_date :$f['mlen'];
+												if($f['mlen']!='' && (strtotime($f['mlen'])<strtotime($item['value']) || strtotime($f['mlen'])<strtotime($item['value'])) ){
+													$stated=0;
+												}
+											}
 										} else {
 											$rt= "";
 											$stated=0;
@@ -1254,19 +1284,18 @@ class _Public {
 									if(isset($item['value']) ){
 										$stated=1;
 										$item['value'] = sanitize_text_field($item['value']);
-										$l=strlen($item['value']);	
-										
+										$l=mb_strlen($item['value'], 'UTF-8');
 										if(isset($f['milen'])!=true  &&   isset($f['mlen'])!=true){	$stated=1;	}						
 										else if((isset($f['milen'])==true && $f['milen']>0 && $f['milen']> $l)) {											
 											$mr = $this->lanText["ptrnMmm"];
-											$mr =str_replace('XXX', $f['name'], $mr );
-											$mr =str_replace('NN', $f['mlen'], $mr );											
+											$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
+											$mr =str_replace('NN', "<b>".$f['milen']."</b>", $mr );											
 											$stated=0;
 										}
 										else if( isset($f['mlen'])==true && $f['mlen']>0   && $f['mlen']< $l) {
-											$mr = $this->lanText["ptrnMmm"];							
-											$mr =str_replace('NN', $f['mlen'], $mr );
-											$mr =str_replace('XXX', $f['name'], $mr );
+											$mr = $this->lanText["ptrnMmx"];							
+											$mr =str_replace('NN', "<b>".$f['mlen']."</b>", $mr );
+											$mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
 											$stated=0;}
 									}
 									//$item['value'] =  'test';
@@ -1334,7 +1363,10 @@ class _Public {
 				$this->setting=$setting;
 				$email_fa = $setting->emailSupporter;
 				//if(!empty($email_fa) && !in_array($email_fa, $email_user[0])) array_push($email_user[0] ,$email_fa);
-				if(!empty($email_fa) )  emails_list($email_user , 0 , $email_fa , $email_array_state);
+				if(!empty($email_fa) ){ 
+					 emails_list($email_user , 0 , $email_fa , $email_array_state);
+					 $send_email_to_user_state = true;
+					}
 				if(isset($setting->femail) && is_email($setting->femail)) $email_user[2] = $setting->femail ;
 				//strlen($email_fa)>0 ? $email_fa .=','.$setting->emailSupporter : $email_fa = $setting->emailSupporter;
 
