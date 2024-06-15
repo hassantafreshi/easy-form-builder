@@ -60,7 +60,7 @@ function fun_efb_run(){
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
-      if(document.getElementById('body_efb')==null) check_body_efb_timer();
+      if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
       poster_emsFormBuilder = ajax_object_efm.poster;
       efb_var = ajax_object_efm;     
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
