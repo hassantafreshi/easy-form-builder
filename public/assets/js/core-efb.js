@@ -46,7 +46,7 @@ function fun_render_view_efb(val, check) {
 
 function check_body_efb_timer (){
   g_timeout_efb -=10;
-  if(document.getElementById('body_efb')==null && g_timeout_efb>10){
+  if(((document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null)) && g_timeout_efb>10){
     setTimeout(() => {
       check_body_efb_timer();
     }, 800);
