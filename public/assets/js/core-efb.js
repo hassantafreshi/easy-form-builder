@@ -869,16 +869,14 @@ function loadCaptcha_efb() {
   }
 };
 function calPLenEfb(len) {
-  let p = 2
-  if (len <= 5) { p = 40 }
-  else if (len > 5 && len <= 10) { p = 20 }
-  else if (len > 10 && len <= 50) { p = 15 }
-  else if (len > 50 && len <= 100) { p = 9 }
-  else if (len > 100 && len <= 300) { p = 3 }
-  else if (len > 300 && len <= 600) { p = 1.5 }
-  else if (len > 600 && len <= 1000) { p = 1.2 }
-  else { p = 1.1 }
-  return p;
+  if (len <= 5) { return 40;}
+  else if (len <= 10) { return 20; }
+  else if (len <= 50) { return 15; }
+  else if (len <= 100) { return 9; }
+  else if (len <= 300) { return 3; }
+  else if (len <= 600) { return 1.5; }
+  else if (len <= 1000) { return 1.2; }
+  else { return 1.1; }
 }
 fun_text_forbiden_convert_efb=(value)=>{
  value= value.replaceAll("'", "@efb@sq#");
