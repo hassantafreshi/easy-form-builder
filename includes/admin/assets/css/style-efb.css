@@ -547,7 +547,7 @@ i.efb {	font-size: 1.2rem;
    margin-top: -15px !important;
    margin-left: 24%;
    position: relative;
-   z-index: 10;
+   z-index: 1000;
 }
 .mobile .efb.btn-edit-holder {	margin-left: 0;
    margin-right: 0;
@@ -1698,6 +1698,7 @@ div#sideBoxEfb {	height: 100vh;
    position: fixed;
    -webkit-box-shadow: 9px 8px 8px rgb(84 131 207 / 36%) !important;
    -moz-box-shadow:  9px 8px 8px rgb(84 131 207 / 36%) !important;
+   z-index: 1001;
 }
 .mobile div#sideBoxEfb {	height: 100vh;
    width: 70%}
@@ -2520,4 +2521,39 @@ div#Listefb-150 {
     }
  
    }
- 
+ /* openstreet maps and leaftlet css start */
+ .map-container {
+   width: 100%;
+   height: 350px;
+   margin-top: 10px;
+}
+.map {
+   width: 100%;
+   height: 100%;
+}
+.leaflet-control-layers {
+   background: white;
+   padding: 10px;
+}
+.custom-control {
+   position: relative;
+   bottom: 0;
+   left: 0;
+   width: 100%;
+   background:#96969794;
+   padding: 10px;
+   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+   z-index: 1000;
+}
+.custom-control input,
+.custom-control button {
+   margin: 5px;
+}
+.error-message {
+   color: red;
+   margin: 5px;
+}
+#efb-create-map-btn {
+   margin: 10px;
+}
+/* openstreet maps and leaftlet css end */

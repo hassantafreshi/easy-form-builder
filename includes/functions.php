@@ -757,7 +757,8 @@ class efbFunction {
 			"mxdt" => $state  &&  isset($ac->text->mxdt) ? $ac->text->mxdt : esc_html__('Maximum date',$s),
 			"mindt" => $state  &&  isset($ac->text->mindt) ? $ac->text->mindt : esc_html__('Minimum date',$s),
 			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s',$s),
-			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s),
+			"zoom" => $state  &&  isset($ac->text->zoom) ? $ac->text->zoom : esc_html__('Zoom',$s),
+			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 			
 		];
 
@@ -1767,7 +1768,7 @@ class efbFunction {
 
 
 	public function openstreet_map_required_efb($s){
-	  return 1;
+	
 		wp_register_style('leaflet_css', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
 		wp_enqueue_style('leaflet_css');
 		wp_register_script('leaflet_js', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js');

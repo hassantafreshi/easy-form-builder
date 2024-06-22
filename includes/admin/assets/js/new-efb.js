@@ -7,7 +7,8 @@ let amount_el_efb = 1;
 let step_el_efb = 0;
 let steps_index_efb = []
 let valj_efb = [];
-let maps_efb = [];
+//let maps_efb = [];
+let maps_efb = {};
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
 let draw_mouse_efb = false;
@@ -354,11 +355,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         dataTag = elementId;
         break;
     case 'maps':
+      // ${typeof maps_el_pro_efb =="function" ? maps_el_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
       ui = `
       ${label}
       <!-- ${rndm}-map -->
       ${ttip}
-      ${typeof maps_el_pro_efb =="function" ? maps_el_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
+       ${typeof maps_os_pro_efb =="function" ? maps_os_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
         ${desc}`
       dataTag = elementId;
       break;
@@ -1580,6 +1582,7 @@ function previewFormEfb(state) {
   try {
     let count =0;
     valj_efb.forEach((value, index) => {
+      console.log(index);
       let t = value.type.toLowerCase();
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
@@ -1741,7 +1744,9 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-          initMap_efb(disabled);
+        //  initMap_efb(disabled);
+          console.log("maps" ,v.id_,v)
+          efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
           c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
@@ -3131,11 +3136,16 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
         s = true;
-        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
-        valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
+        //value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        value = maps_os_pro_efb(false, '', c.id_,'') 
+        
         marker_maps_efb = c.value;
-        initMap_efb(false);
+        console.log(c);
+       // initMap_efb(false);
         m += value;
+        setTimeout(() => {
+          efbCreateMap(c.id_ ,c,true)
+        }, 800);
       }
     } else if (c.type == "rating") {
       s = true;

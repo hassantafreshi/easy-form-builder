@@ -2236,30 +2236,61 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'marksEl':
-        valj_efb[indx].mark = parseInt(document.getElementById('marksEl').value);
+        c = parseInt(document.getElementById('marksEl').value);
+        valj_efb[indx].mark = c;
+        console.log(valj_efb[indx].id_);
+        clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
+        clss.classList.add('efb'); 
+        c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
+          //query data-id="${valj_efb[indx].id_}-control"
 
+          clss.innerHTML= `<input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="Enter a location name" class="efb border-d efb-square fs-6">
+              <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
+              <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
+              <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
+        
+        //not clickable clss
+      
+        
         break;
       case 'letEl':
+        console.log(el.value , document.getElementById('lonEl'))
         const lat = parseFloat(el.value);
         const lon = parseFloat(document.getElementById('lonEl').value)
+        c = Number(valj_efb[indx].zoom)
 
-        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+       /*  map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
           center: { lat: lat, lng: lon },
           zoom: 8,
-        })
+        }) */
         valj_efb[indx].lat = lat;
-
+        postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
+        
+        console.log(postId)
+        efbLatLonLocation(postId.dataset.leaflet,lat,lon,c);
         break;
       case 'lonEl':
         const lonLoc = parseFloat(el.value);
         const letLoc = parseFloat(document.getElementById('letEl').value)
-        map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
+        /* map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
           center: { lat: letLoc, lng: lonLoc },
           zoom: 8,
-        })
+        }) */
+          c = Number(valj_efb[indx].zoom)
         valj_efb[indx].lng = lonLoc;
+        postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
+        console.log(postId)
+        efbLatLonLocation(postId.dataset.leaflet,letLoc,lonLoc,c);
+        
 
         break;
+        case 'zoomMapEl':
+          c = Number(el.value)
+          valj_efb[indx].zoom = c;
+          postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
+          console.log(postId)
+          efbLatLonLocation(postId.dataset.leaflet,valj_efb[indx].lat,valj_efb[indx].lng,c);
+          break;
       case 'EditOption':
           //console.log('EditOption',el.dataset)
         const iindx = valj_efb.findIndex(x => x.id_op == el.dataset.id);
@@ -2964,6 +2995,8 @@ let editFormEfb = () => {
        
           dropZoneEFB.innerHTML += el;
           //console.log(valj_efb[v].type,'!!!!!!')   ;
+
+          if(valj_efb[v].type == "maps")  
        
           if (valj_efb[v].hasOwnProperty('type') &&  valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") {
             
@@ -2971,12 +3004,7 @@ let editFormEfb = () => {
 
           if (type == 'maps') {
             setTimeout(() => {
-              const lat = Number(valj_efb[v].lat);
-              const lon = Number(valj_efb[v].lng);
-              if(typeof google!='undefined' && google.hasOwnProperty('maps'))  map = new google.maps.Map(document.getElementById(`${valj_efb[v].id_}-map`), {
-                center: { lat: lat, lng: lon },
-                zoom: 8,
-              })
+              efbCreateMap(valj_efb[v].id_ ,valj_efb[v],false)
             }, (len * 2));
           }
        
@@ -3089,7 +3117,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     } else if (elementId == "yesNo") {
       Object.assign(valj_efb[(valj_efb.length) - 1], { button_1_text: efb_var.text.yes, button_2_text: efb_var.text.no, button_color: pub_bg_button_color_efb })
     } else if (elementId == "maps") {
-      Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 7 });
+      Object.assign(valj_efb[(valj_efb.length) - 1], { lat: 49.24803870604257, lng: -123.10512829684463, mark: 1, zoom: 12 });
       setTimeout(() => {
         document.getElementById('maps').draggable = false;
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
@@ -3708,7 +3736,7 @@ fun_efb_add_el = (t) => {
 
   if (t == 'maps') {
 
-    const id = `${rndm}-map`;
+    /* const id = `${rndm}-map`;
 
     if (typeof google !== "undefined") {
       let map = new google.maps.Map(document.getElementById(`${id}`), {
@@ -3720,7 +3748,12 @@ fun_efb_add_el = (t) => {
         const mp = document.getElementById(`${rndm}-map`)
         mp.innerHTML = googleMapsNOkEfb()
       }, 800);
-    }
+    } */
+     //find a row from valj_efb by id_
+      const indx = valj_efb.findIndex(x => x.id_ == rndm);
+      setTimeout(() => {
+        efbCreateMap(rndm ,valj_efb[indx],false);
+      }, 800);
 
   }
   setTimeout(() => {
@@ -4637,5 +4670,22 @@ preview_form_new_efb = async ()=>{
       }
 
       
+}
+
+
+function efbLatLonLocation(efbMapId, lat, long ,zoom) {
+  console.log(efbMapId, lat, long);
+  var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
+  console.log(`efb-error-message-${efbMapId}`, efbErrorMessageDiv);
+  efbErrorMessageDiv.innerHTML = '';
+
+  if (lat !== null && long !== null) {
+    // اگر مختصات مستقیم دریافت شده باشند
+    var efbLatlng = [lat, long];
+    maps_efb[efbMapId].map.setView(efbLatlng, zoom);
+  } else {
+    efbErrorMessageDiv.classList.remove('d-none');
+    efbErrorMessageDiv.textContent = 'Latitude and Longitude are required';
+  }
 }
 

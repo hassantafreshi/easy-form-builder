@@ -118,7 +118,7 @@ Features:
 - Image Picker(Image Card) Field
 - Multiple select drop-down list
 - File Upload Input
-- +30 field types for building forms
+- +40 field types for building forms
 - SMS notification 
 
 

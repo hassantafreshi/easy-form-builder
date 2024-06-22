@@ -1105,16 +1105,18 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
+                            <!--
                             <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
-                            <!-- <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> --!>
+                             <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> 
                             <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
+                            --!>
                               <!--End Google-->
                             </div>
                         </div>

@@ -3,8 +3,8 @@ Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
-Tested up to: 6.5.3
-Stable tag: 3.7.31
+Tested up to: 6.5.4
+Stable tag: 3.7.33
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -17,14 +17,14 @@ Create multi-step and any other forms with Easy Form Builder – the user-friend
 
 [youtube https://www.youtube.com/watch?v=AnkhmZ5Cz9w]
 
-If you're looking to create custom multi-step forms without any coding skills, Easy Form Builder is the plugin for you. With over 30 field types and a simple drag-and-drop interface, building a custom form has never been easier. Easy Form Builder also includes a unique confirmation code (tracking ID) for each submission, allowing you to connect each submission to an individual request.
+If you're looking to create custom multi-step forms without any coding skills, Easy Form Builder is the plugin for you. With over 40 field types and a simple drag-and-drop interface, building a custom form has never been easier. Easy Form Builder also includes a unique confirmation code (tracking ID) for each submission, allowing you to connect each submission to an individual request.
 
 
 Easy Form Builder offers numerous features to make your life easier, including:
 
 **Free features of Easy Form Builder:**
 
-- +30 field types for building forms
+- +40 field types for building forms
 
 - Simple drag and drop functionality
 
@@ -458,6 +458,9 @@ We've got a dedicated team ready to support you with any form-related questions 
 
 == Changelog ==
 
+= 3.7.33 = 
+
+* Fixed issues
 
 = 3.7.31 = 
 
