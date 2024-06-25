@@ -58,7 +58,6 @@ function check_body_efb_timer (){
 }
 function fun_efb_run(){
   g_timeout_efb=100;  
-  window.jQuery =null
   if (typeof window.jQuery != "function" || typeof jQuery != "function") {
     let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">  <strong>${ajax_object_efm.text.alert} </strong>${ajax_object_efm.text.jqinl}</div>`
      if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML = msg;
