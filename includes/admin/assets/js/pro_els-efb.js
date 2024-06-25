@@ -970,10 +970,10 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
 
 
 function efbCreateMap(id ,r ,viewState) {
-  console.log('efbCreateMap',r);
-  var efbInitialLat = r.lat; 
-  var efbInitialLng = r.lng; 
-  var efbInitialZoom = r.zoom;
+  console.log('efbCreateMap',r,viewState);
+  var efbInitialLat = viewState==true ? r.value[0].lat : r.lat; 
+  var efbInitialLng = viewState==true ? r.value[0].lng :r.lng; 
+  var efbInitialZoom = viewState==true ? 12 :r.zoom;
   var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; // تعیین اینکه آیا اضافه کردن مارکر جدید مجاز باشد یا خیر
   if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ; // زبان فارسی (برای تغییر زبان، این مقدار را به زبان مورد نظر خود تغییر دهید)
@@ -1048,7 +1048,7 @@ function efbCreateMap(id ,r ,viewState) {
       locationList: []
   };
   console.log(`first efbAllowAddingMarkers[${efbAllowAddingMarkers}]`);
-  if(state_efb != 'view'){
+  if(state_efb != 'view' && viewState==false){
       if (efbAllowAddingMarkers) {
 
         efbMap.on('click', function(e) {
@@ -1059,6 +1059,13 @@ function efbCreateMap(id ,r ,viewState) {
         console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`)
         
         efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
+    }
+  }else{
+    console.log(marker_maps_efb);
+    Object.assign(r ,{mark:r.value.length});
+    console
+    for (let i = 0; i < r.value.length; i++) {
+      efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
     }
   }
 
@@ -1111,10 +1118,18 @@ function efbSearchLocation(efbMapId) {
 }
 
 function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
-
-  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r);
-  var efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
-  if(Number(r.mark)<efbMarkerNumber) return
+  //+ here MAP
+  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb);
+  //const len = 
+  var efbMarkerNumber ='';
+  if(state_efb!='view'){
+     efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
+     if(Number(r.mark)<efbMarkerNumber) return
+     console.log(Number(r.mark)<efbMarkerNumber);
+  }else{
+    efbMarkerNumber = efbAllowAddingMarkers;
+    console.log(efbMarkerNumber);
+  }
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
   var efbMarkerIcon = L.divIcon({
@@ -1149,11 +1164,13 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
                   address: efbAddress
               });
              
-
-              const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
-              fun_sendBack_emsFormBuilder(o[0])
-              console.log(o[0]);
-              console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+              if(state_efb!='view'){
+                const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
+              
+                fun_sendBack_emsFormBuilder(o[0])
+                console.log(o[0]);
+                console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+              }
           })
           .catch(error => {
               efbErrorMessageDiv.classList.remove('d-none');

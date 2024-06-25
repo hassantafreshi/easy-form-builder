@@ -3,7 +3,7 @@ Contributors: hassantafreshi, mostafas1990, mrlast, aminkhadivar, presskopp
 Donate link: https://whitestudio.team/donate-easy-form-builder/
 Tags: form builder, form creator, contact form, support form, subscribe form, form,Multi Step Contact Form, Multi Step Form, wp contact form
 Requires at least: 4.7
-Tested up to: 6.5.4
+Tested up to: 6.5.5
 Stable tag: 3.7.33
 Requires PHP: 7.0
 License: GPLv3 or later
@@ -182,7 +182,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 *Signature Forms*: Make your contact forms stand out by adding signature fields for your users to sign. Signature forms can be used for a variety of purposes, such as contracts or agreements. By including this feature in your forms, you can improve user engagement and increase the likelihood of form completion.
 
 
-*Location picker (Geolocation)*: With Easy Form Builder, you can effortlessly incorporate a Geolocation feature into your forms, including Contact Us forms. This powerful feature enables users to conveniently select one or more points using Google Maps API.
+*Location picker (Geolocation)*: With Easy Form Builder, you can effortlessly incorporate a Geolocation feature into your forms, including Contact Us forms. This powerful feature enables users to conveniently select one or more points using LeafletJs and Openstreetmap.
 
 
 *Countries list*: Make it easy for your users to select their country with the Easy Form Builder's country list select field. This drop-down field includes the local names of all countries, making it more user-friendly and accessible. Add it to your Contact Us form or country form today.

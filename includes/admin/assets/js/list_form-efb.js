@@ -891,6 +891,7 @@ function fun_show_setting__emsFormBuilder() {
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
+  let osLocationPicker = false;
   //check demail is valid email
   demail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(demail)  &&  demail.includes('127.')==false ? demail : 'no-reply@yourDomainName.com';
   if ((ajax_object_efm.setting[0] && ajax_object_efm.setting[0].setting.length > 5) || typeof valueJson_ws_setting == "object" && valueJson_ws_setting.length != 0) {
@@ -917,6 +918,7 @@ function fun_show_setting__emsFormBuilder() {
     stripePKey = f(`stripePKey`);
     smtp = f('smtp') == 'null' ? false : Boolean(f('smtp'));
     bootstrap = f('bootstrap');
+    osLocationPicker = f('osLocationPicker') == 'null' ? false : Boolean(f('osLocationPicker'));
     emailTemp = f('emailTemp');
     sms_config_efb= sms_method = f('sms_config')=='null' ? 'null' :f('sms_config');
     
@@ -1019,6 +1021,17 @@ function fun_show_setting__emsFormBuilder() {
                                         <i class="efb  bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
                                     </button>
                                 </div>
+
+                                 <h5 class="efb  card-title mt-3 mobile-title">
+                                    <i class="efb  m-3 bi-pin-map-fill mobile-text"></i>${efb_var.text.locationPicker}
+                                </h5>
+                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.lpds}</p>
+                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+                                <button type="button" id="osLocationPicker_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${osLocationPicker == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >       
+                                <div class="efb handle"></div>
+                                </button>
+                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="osLocationPicker_emsFormBuilder">${efb_var.text.elpo}</label>                                                                           
+                                </div>
                            
                                 <div class="efb clearfix"></div>
                                 
@@ -1105,18 +1118,18 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.EnterSECRETKEY}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.googleKeys}">
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
-                            <!--
-                            <h5 class="efb  card-title mt-3 mobile-title">
+                          
+                            <h5 class="efb  card-title mt-3 mobile-title d-none">
                                 <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps} 
                             </h5>
-                             <a href="#">${efb_var.text.clickHereWatchVideoTutorial}</a> 
+                             <a href="#" class="efb d-none">${efb_var.text.clickHereWatchVideoTutorial}</a> 
                             <p class="efb ${mxCSize}">${efb_var.text.youNeedAPIgMaps}</p>
-                            <div class="efb card-body mx-0 py-1 ${mxCSize4}">                                   
+                            <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">                                   
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${proChckEvent} data-tab="${efb_var.text.googleKeys}">
                                 <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
-                            --!>
+                   
                               <!--End Google-->
                             </div>
                         </div>
@@ -1524,7 +1537,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     }
     return true;
   }
-  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder'];
+  const ids = ['stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'bootstrap_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
@@ -1550,6 +1563,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
     const apiKeyMap = f(`apikey_map_emsFormBuilder`)
     //let smtp = f('smtp_emsFormBuilder')
     const bootstrap = f('bootstrap_emsFormBuilder');
+    const osLocationPicker = f('osLocationPicker_emsFormBuilder');
     const scaptcha = f('scaptcha_emsFormBuilder');
     
     const activeDlBtn = f('activeDlBtn_emsFormBuilder');
@@ -1606,7 +1620,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
           scaptcha:scaptcha ,activeDlBtn:activeDlBtn,dsupfile:showUpfile,sms_config:sms_config_efb,
          AdnSPF:AdnSPF,AdnOF:AdnOF,AdnPPF:AdnPPF,AdnATC:AdnATC,AdnSS:AdnSS,AdnCPF:AdnCPF,AdnESZ:AdnESZ, 
          AdnSE:AdnSE,AdnWHS:AdnWHS, AdnPAP:AdnPAP, AdnWSP:AdnWSP,AdnSMF:AdnSMF,AdnPLF:AdnPLF,AdnMSF:AdnMSF,
-         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN
+         AdnBEF:AdnBEF,AdnPDP:AdnPDP,AdnADP:AdnADP,phnNo:phoneNumbers , femail:femail,email_key:email_key_efb,showIp:showIp,adminSN:adminSN,osLocationPicker:osLocationPicker 
         } , state_auto);
   }
 

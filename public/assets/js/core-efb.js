@@ -17,6 +17,7 @@ let motus_efb = {};
 let g_timeout_efb = 100
 let price_efb ="";
 let sendback_efb_state= [];
+let efb_var;
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
@@ -61,8 +62,8 @@ function fun_efb_run(){
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-      poster_emsFormBuilder = ajax_object_efm.poster;
       efb_var = ajax_object_efm;     
+      poster_emsFormBuilder = ajax_object_efm.poster;
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";

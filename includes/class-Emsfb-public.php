@@ -483,6 +483,8 @@ class _Public {
 		//if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
+
+		
 		
 		//Confirmation Code show
 		$lang = get_locale();
@@ -506,10 +508,17 @@ class _Public {
 			   $valstng= json_decode($stng);
 			
 			
-				if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
-				wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-				wp_enqueue_script('recaptcha');
-			}
+			   
+			   
+			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
+				   wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+				   wp_enqueue_script('recaptcha');
+				}
+				
+				error_log(json_encode($valstng));
+				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
+					$this->efbFunction->openstreet_map_required_efb(1);
+				}
 			
 			
 			/* if(isset($valstng->mapKey) && $valstng->mapKey!=""){
@@ -774,7 +783,7 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 					wp_send_json_success($response,$data_POST);
 				}
-				$mr=$this->lanText["error405"];
+				$mr='';
 				$stated = 1;
 				$form_condition = '';
 				if(isset($formObj[0]['booking']) && $formObj[0]['booking']==1) $form_condition='booking';
@@ -1237,10 +1246,21 @@ class _Public {
 										
 										
 										
-										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ $stated=0;$rt =null;};
+										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ 
+											//mnvvXXX
+											
+											
+											$stated=0;$rt =null;};
 										
 									}
-									if($c!=$f["mark"]){ $stated=0;$rt =null;}
+									if($c!=$f["mark"]){ 
+										error_log('maps');
+										$stated=0;
+										$rt =null;
+										 $mr = $this->lanText["mnvvXXX"];
+										 $mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
+										 error_log($mr);
+										}
 									//mark
 									$in_loop=false;
 								break;
@@ -1312,7 +1332,7 @@ class _Public {
 				$count =  count($valobj);
 				if($count==0){
 					$stated=0;
-					$mr=$this->lanText["pleaseMakeSureAllFields"];
+					if($mr=='')$mr=$this->lanText["pleaseMakeSureAllFields"];
 				}
 				
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
@@ -1326,6 +1346,8 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$data_POST);
 				}
+
+				
 					$this->value = json_encode($valobj,JSON_UNESCAPED_UNICODE);
 					$this->value = str_replace('"', '\\"', $this->value);
 					if($form_condition=='booking'){
@@ -2567,6 +2589,7 @@ class _Public {
 				$dsupfile = isset($r->dsupfile) ? $r->dsupfile : false;
 				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
 				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
+				$osLocationPicker = isset($r->osLocationPicker) ? $r->osLocationPicker : false;
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2610,7 +2633,7 @@ class _Public {
 				}
 				
 				//$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
-				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,
+				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				return [$rtrn ,$this->pub_stting];
