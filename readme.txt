@@ -182,7 +182,7 @@ Easy Form Builder offers numerous features to make your life easier, including:
 *Signature Forms*: Make your contact forms stand out by adding signature fields for your users to sign. Signature forms can be used for a variety of purposes, such as contracts or agreements. By including this feature in your forms, you can improve user engagement and increase the likelihood of form completion.
 
 
-*Location picker (Geolocation)*: With Easy Form Builder, you can effortlessly incorporate a Geolocation feature into your forms, including Contact Us forms. This powerful feature enables users to conveniently select one or more points using LeafletJs and Openstreetmap.
+*Location picker (Geolocation)*: Using the WordPress plugin Easy Form Builder, easily add a Geolocation feature to your form, including the Contact Us form. This effective tool allows users to swiftly select one or more points with a location picker using LeafletJs and Openstreetmap, enabling you to build your forms with a location picker.
 
 
 *Countries list*: Make it easy for your users to select their country with the Easy Form Builder's country list select field. This drop-down field includes the local names of all countries, making it more user-friendly and accessible. Add it to your Contact Us form or country form today.
@@ -407,6 +407,7 @@ Advanced Field Types:
 * NPS Table Matrix
 * Jalali Date
 * Hijra Date
+* Location Picker
 
 = Is Easy Form Builder spam-protected? =
 
@@ -435,6 +436,10 @@ Report bugs and improve Easy Form Builder by [create a ticket on GitHub](https:/
 = What type of support is available for Easy Form Builder? =
 
 We've got a dedicated team ready to support you with any form-related questions or issues you may come across. Our assistance is available every day, and we're committed to addressing all customer form requests within 24 hours.
+
+= Does the WordPress plugin Easy Form Builder support creating forms to capture Geolocation data without needing a map API key? = 
+
+Yes, the WordPress plugin Easy Form Builder allows you to create a single form to capture Geolocation without requiring an API key for map usage. This form integrates a location picker, enabling users to specify points using LeafletJs and Openstreetmap, making it simple and convenient. Each form, such as a Contact Us form, can feature a location picker to precisely gather user coordinates on your WordPress site without the need for additional map keys.
 
 == Screenshots ==
 

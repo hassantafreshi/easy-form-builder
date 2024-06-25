@@ -1119,7 +1119,7 @@ function efbSearchLocation(efbMapId) {
 
 function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
   //+ here MAP
-  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb);
+  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb,state_efb);
   //const len = 
   var efbMarkerNumber ='';
   if(state_efb!='view'){
@@ -1132,6 +1132,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
   }
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
+  console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
   var efbMarkerIcon = L.divIcon({
       className: 'custom-div-icon',
     /*   html: `
@@ -1185,6 +1186,20 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
       });
       console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
   }
+
+    if(state_efb=='view'){
+      efbErrorMessageDiv.classList.remove('d-none');
+      let v ='<!--efb-->'
+      for (let i = 0; i < r.value.length; i++) {
+        v+= `<p>${i+1}- ${r.value[i].address}</p>`
+      }
+      console.log(v ,efbMapId);
+      setTimeout(() => {
+          if(document.getElementById('os-address-efb')==null){
+          document.getElementById(r.id_+`-f`).innerHTML +='<div class="efb fs-6  mx-2" id="os-address-efb">'+ v+'</div>';
+          }
+        }, 1000);
+    }
 }
 
 function efbClearMarkers(efbMapId,indx) {
