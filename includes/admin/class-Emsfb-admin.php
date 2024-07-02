@@ -282,7 +282,7 @@ class Admin {
 		$sms_admins_phoneno="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
 
-            //convert to php "efb_var.text.newMessageReceived + `\n ${efb_var.text.trackNo}: [confirmation_code]\n ${efb_var.text.url}: [link_response]"
+           
 
 			
 			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
