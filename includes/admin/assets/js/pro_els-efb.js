@@ -1,4 +1,5 @@
- maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
+let marker_maps_efb;
+maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `
     <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 "  id='${rndm}-f'>      
       ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb "><input id="delete-markers_maps_efb-efb" class="efb  btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
