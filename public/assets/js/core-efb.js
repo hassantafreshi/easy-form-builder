@@ -518,7 +518,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
-  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb fs-6  bi-hourglass-split"></i>`
   document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
   el = document.getElementById('trackingCodeEfb').value;
   if (el.length < 5) {
@@ -592,7 +592,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
-  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb fs-7 bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
+  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb fs-6 bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
 setTimeout(() => {
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   message=sanitize_text_efb(message);
