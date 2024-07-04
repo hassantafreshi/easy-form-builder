@@ -37,7 +37,7 @@ const getUrlparams_efb = new URLSearchParams(location.search);
 const mobile_view_efb = document.getElementsByTagName('body')[0].classList.contains("mobile") ? 1 : 0;
 efb_var_waitng = (time) => {
   setTimeout(() => {
-    if (typeof (efb_var) == "object") {
+    if (typeof (efb_var) == "object" && efb_var.hasOwnProperty('text')) {
       formName_Efb = efb_var.text.form
       default_val_efb = efb_var.text.selectOption
       pro_efb = efb_var.pro == "1" || efb_var.pro == 1 ? true : false;

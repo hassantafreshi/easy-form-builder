@@ -16,7 +16,6 @@ let valueJson_ws = []
 let motus_efb = {};
 let g_timeout_efb = 100
 let price_efb ="";
-let efb_var;
 let sendback_efb_state= [];
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
@@ -58,6 +57,11 @@ function check_body_efb_timer (){
 }
 function fun_efb_run(){
   g_timeout_efb=100;  
+  if (typeof window.jQuery != "function" || typeof jQuery != "function") {
+    let msg = `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">  <strong>${ajax_object_efm.text.alert} </strong>${ajax_object_efm.text.jqinl}</div>`
+     if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML = msg;
+     if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML = msg;
+  } 
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
