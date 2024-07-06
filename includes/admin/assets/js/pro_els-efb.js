@@ -963,6 +963,17 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
       state_el.classList.remove('is-loading');
     }, 2000);
   }
+
+  
+ const f= document.getElementById(idField)
+ if(f!=null && f.dataset.hasOwnProperty("vid")){
+  const id = f.dataset.vid;
+  //remove from sendBack_emsFormBuilder_pub if id_ == id
+  //check sendBack_emsFormBuilder_pub exist
+  fun_remove_row_sendback_efb(id)
+  
+ }
+ 
   return state_el!=null ? result : opt;
 }
 
@@ -1259,3 +1270,23 @@ map_marker_ui_efb=(efbMarkerNumber)=>{
 }
 
 /* maps function end */
+
+
+
+fun_remove_row_sendback_efb=(id)=>{
+  if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
+    let indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id);
+    if(indx!=-1){
+      const row = sendBack_emsFormBuilder_pub[indx+1];
+      sendBack_emsFormBuilder_pub.splice(indx,1);
+      if(row!=null && row.type=='cityList'){
+        indx = indx+1;
+        const el = document.getElementById(row.id_+'_options');
+        if(el!=null){
+          el.innerHTML = `<option value="">${efb_var.text.nothingSelected}</option>`;
+        }
+        fun_remove_row_sendback_efb(row.id_);
+      }
+    }
+  }
+}
