@@ -17,13 +17,15 @@ let motus_efb = {};
 let g_timeout_efb = 100
 let price_efb ="";
 let sendback_efb_state= [];
-let efb_var;
+
+
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
 function fun_render_view_efb(val, check) {
+  
   var url = new URL(window.location);
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
@@ -519,7 +521,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
-  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb  bi-hourglass-split"></i>`
+  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb fs-5 bi-hourglass-split"></i>`
   document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
   el = document.getElementById('trackingCodeEfb').value;
   if (el.length < 5) {
@@ -593,7 +595,7 @@ function emsFormBuilder_show_content_message(value, content) {
 
 function fun_send_replayMessage_emsFormBuilder(id) {
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
-  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
+  document.getElementById('replayB_emsFormBuilder').innerHTML =`<i class="efb fs-5 bi-hourglass-split mx-1"></i>`+efb_var.text.sending;
 setTimeout(() => {
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   message=sanitize_text_efb(message);
@@ -1128,11 +1130,15 @@ sendback_state_handler_efb=(id_,state,step)=>{
 document.addEventListener("DOMContentLoaded", function() {
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
-  if( (document.getElementById('body_efb') && document.getElementById('body_tracker_emsFormBuilder'))){
-   if(document.getElementById('body_efb')) document.getElementById('body_efb').innerHTML =msg;
-   if(document.getElementById('body_efb-track')) document.getElementById('body_efb-track').innerHTML =msg;        
+  fun =()=>{
+    for (let i = 1; i < elements.length; i++) {
+      elements[i].innerHTML = msg;
+    }
+  }
+  if( (document.getElementById('body_efb') && document.getElementById('body_tracker_emsFormBuilder'))){   
+   if(document.getElementById('body_tracker_emsFormBuilder')) document.getElementById('body_tracker_emsFormBuilder').innerHTML =msg;   
+   if(elements.length > 1) fun();
   }else if (elements.length > 1){
-    elements[0].innerHTML =msg;
-    elements[1].innerHTML =msg;
+    fun();
   }
 });

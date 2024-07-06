@@ -609,6 +609,8 @@ class _Public {
 		 wp_enqueue_script('Emsfb-core_js');
 		
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.33', true);		
+		$ar_core = array() ;
+		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);  
 		
 		if(is_rtl()){
 			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.33');
