@@ -355,7 +355,6 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         dataTag = elementId;
         break;
     case 'maps':
-      // ${typeof maps_el_pro_efb =="function" ? maps_el_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
       ui = `
       ${label}
       <!-- ${rndm}-map -->

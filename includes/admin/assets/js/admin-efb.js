@@ -3736,19 +3736,6 @@ fun_efb_add_el = (t) => {
 
   if (t == 'maps') {
 
-    /* const id = `${rndm}-map`;
-
-    if (typeof google !== "undefined") {
-      let map = new google.maps.Map(document.getElementById(`${id}`), {
-        center: { lat: 49.24803870604257, lng: -123.10512829684463 },
-        zoom: 10,
-      })
-    } else {
-      setTimeout(() => {
-        const mp = document.getElementById(`${rndm}-map`)
-        mp.innerHTML = googleMapsNOkEfb()
-      }, 800);
-    } */
      //find a row from valj_efb by id_
       const indx = valj_efb.findIndex(x => x.id_ == rndm);
       setTimeout(() => {
