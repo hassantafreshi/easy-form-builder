@@ -3713,6 +3713,8 @@ class _Public {
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
+		error_log('cache_cleaner_Efb');
+		error_log($page_id);
 		if (defined('LSCWP_V') || defined('LSCWP_BASENAME' )){
 			//litespeed done			
 			do_action( 'litespeed_purge_post', $page_id );
