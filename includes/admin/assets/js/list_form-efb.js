@@ -2084,7 +2084,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       if (t != 0) {
         chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}">
           <h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-          <h3 class="efb text-white">${efb_var.text.pleaseWaiting}<h3> </div>`
+          <h3 class="efb text-white  text-center">${efb_var.text.pleaseWaiting}<h3> </div>`
       } else { chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}"></div>` }
     }
 

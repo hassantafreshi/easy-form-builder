@@ -1289,7 +1289,7 @@ const loading_messge_efb = () => {
   </circle>
 </svg>`
   return ` 
-<h3 class="efb fs-3">${efb_var.text.pleaseWaiting} ${svg}</h3>`
+<h3 class="efb fs-3 text-center">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
 function copyCodeEfb(id) {
   var copyText = document.getElementById(id);

@@ -982,10 +982,9 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
 
 
 function efbCreateMap(id ,r ,viewState) {
-  console.log('efbCreateMap',r,viewState);
   var efbInitialLat = viewState==true ? r.value[0].lat : r.lat; 
   var efbInitialLng = viewState==true ? r.value[0].lng :r.lng; 
-  var efbInitialZoom = viewState==true ? 12 :r.zoom;
+  var efbInitialZoom = viewState==true ? 18 :r.zoom;
   var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; // تعیین اینکه آیا اضافه کردن مارکر جدید مجاز باشد یا خیر
   if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ; // زبان فارسی (برای تغییر زبان، این مقدار را به زبان مورد نظر خود تغییر دهید)
@@ -1031,6 +1030,7 @@ function efbCreateMap(id ,r ,viewState) {
       efbDiv.dataset.id = id+'-contorller';
       if (efbAllowAddingMarkers) {
           efbDiv.innerHTML = `
+              <a ${ state_efb == 'view' ?'':`onclick="efbLocateMe(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
               <input type="text" id="efb-search-${efbMap._leaflet_id}" placeholder="Enter a location name" class="efb border-d efb-square fs-6" ${ state_efb == 'view' ?'disabled':''}>
               <a ${ state_efb == 'view' ?'':`onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a ${ state_efb == 'view' ?'':`onclick="efbClearMarkers(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
@@ -1267,6 +1267,62 @@ map_marker_ui_efb=(efbMarkerNumber)=>{
     <circle cx="25" cy="20" r="8" fill="#ffffff" />
     <text id="pointer-number" x="25" y="20" font-size="10" font-weight="bold" fill="#000000" text-anchor="middle" dominant-baseline="middle">${efbMarkerNumber}</text>
   </svg>`
+}
+
+
+function efbLocateMe(efbMapId) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var efbLat = position.coords.latitude;
+        var efbLng = position.coords.longitude;
+        
+        const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
+        var efbMarkerNumber = maps_efb[efbMapId].markers.length + 1;
+        var efbMarkerIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html:  `
+            <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="blue" stroke="white" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="white"/>
+            </svg>
+        `,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+        });
+
+        var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
+        
+        // انتقال نقشه به موقعیت جدید
+        var efbLatlng = [efbLat, efbLng];
+        maps_efb[efbMapId].map.setView(efbLatlng, 13);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${efbLat}&lon=${efbLng}&format=json&accept-language=${efbLanguage}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var efbAddress = data.display_name;
+                efbMarker.bindPopup(efbAddress);
+                maps_efb[efbMapId].locationList.push({
+                    lat: efbLat,
+                    lng: efbLng,
+                    address: efbAddress
+                });
+                console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+            })
+            .catch(error => {
+                efbErrorMessageDiv.classList.remove('d-none');
+                document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+            });
+    }, function(error) {
+        alert('Error: ' + error.message);
+    });
+} else {
+    alert('Geolocation is not supported by this browser.');
+}
 }
 
 /* maps function end */
