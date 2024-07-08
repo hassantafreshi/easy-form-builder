@@ -547,7 +547,7 @@ i.efb {	font-size: 1.2rem;
    margin-top: -15px !important;
    margin-left: 24%;
    position: relative;
-   z-index: 10;
+   z-index: 1000;
 }
 .mobile .efb.btn-edit-holder {	margin-left: 0;
    margin-right: 0;
@@ -1009,7 +1009,7 @@ input[type="textarea"].h-d-efb,textarea.h-d-efb {	height: 120px!important;
 
 input[type=file].h-d-efb{	
    height: 39px!important;
-   font-size: 21px !important;
+   font-size: 18px !important;
 }
 
 input[type=file].h-l-efb {	
@@ -1698,6 +1698,7 @@ div#sideBoxEfb {	height: 100vh;
    position: fixed;
    -webkit-box-shadow: 9px 8px 8px rgb(84 131 207 / 36%) !important;
    -moz-box-shadow:  9px 8px 8px rgb(84 131 207 / 36%) !important;
+   z-index: 1001;
 }
 .mobile div#sideBoxEfb {	height: 100vh;
    width: 70%}
@@ -2520,4 +2521,65 @@ div#Listefb-150 {
     }
  
    }
- 
+ /* openstreet maps and leaftlet css start */
+ .map-container {
+   width: 100%;
+   height: 350px;
+   margin-top: 10px;
+}
+.map {
+   width: 100%;
+   height: 100%;
+}
+.leaflet-control-container .leaflet-control-layers {
+   background: white;
+   padding: 10px;
+}
+.leaflet-control-container .custom-control {
+   position: relative;
+   bottom: 0;
+   left: 0;
+   width: 100%;
+   background:#f8f9fad9;
+   padding: 8px;
+   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+   z-index: 1000;
+}
+.leaflet-control-container .custom-control input,
+.leaflet-control-container .custom-control button {
+   margin: 5px;
+}
+.leaflet-control-container .error-message {
+   color: red;
+   margin: 5px;
+}
+#efb-create-map-btn {
+   margin: 10px;
+}
+
+
+.custom-control.leaflet-control {
+   display: flex;
+   align-items: center;
+   gap: 10px; /* فاصله بین عناصر */
+}
+
+.custom-control.leaflet-control .efb {
+   margin: 0 5px;
+}
+
+.custom-control.leaflet-control input[type="text"] {
+   flex: 1;
+   min-width: 200px; /* عرض حداقل برای ورودی */
+}
+
+.custom-control.leaflet-control a,
+.custom-control.leaflet-control input[type="text"] {
+   margin: 0;
+}
+
+.custom-control.leaflet-control .error-message {
+   margin-top: 10px; /* فاصله بالا برای پیام خطا */
+}
+
+/* openstreet maps and leaftlet css end */

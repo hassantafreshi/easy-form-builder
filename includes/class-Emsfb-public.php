@@ -33,7 +33,6 @@ class _Public {
 		
 
 
-
 		add_action('rest_api_init',  @function(){
 			$this->efb_uid  = get_current_user_id();
       		
@@ -166,7 +165,7 @@ class _Public {
 			<h3 style='color:#202a8d;text-align: center;'>".esc_html__('Form does not exist !!','easy-form-builder')."</h3>
 			<h4 style='color:#ff4b93;text-align: center;'>".esc_html__('Easy Form Builder', 'easy-form-builder')."</h4></div></div>";
 		}
-		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf',"jqinl"];
+		$this->text_ = ["somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist","settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot","enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document","error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media","zip","trackingForm","trackingCodeIsNotValid","checkedBoxIANotRobot","messages","pleaseEnterTheTracking","alert","pleaseFillInRequiredFields","enterThePhones","pleaseWatchTutorial","formIsNotShown","errorVerifyingRecaptcha","orClickHere","enterThePassword","PleaseFillForm","selected","selectedAllOption","field","sentSuccessfully","thanksFillingOutform","sync","enterTheValueThisField","thankYou","login","logout","YouSubscribed","send","subscribe","contactUs","support","register","passwordRecovery","info","areYouSureYouWantDeleteItem","noComment","waitingLoadingRecaptcha","itAppearedStepsEmpty","youUseProElements","fieldAvailableInProversion","thisEmailNotificationReceive","activeTrackingCode","default","defaultValue","name","latitude","longitude","previous","next","invalidEmail","aPIkeyGoogleMapsError","howToAddGoogleMap","deletemarkers","updateUrbrowser","stars","nothingSelected","availableProVersion","finish","select","up","red","Red","sending","enterYourMessage","add","code","star","form","black","pleaseReporProblem","reportProblem","ddate","serverEmailAble","sMTPNotWork","aPIkeyGoogleMapsFeild","download","copyTrackingcode","copiedClipboard","browseFile","dragAndDropA","fileIsNotRight","on","off","lastName","firstName","contactusForm","registerForm","entrTrkngNo","response","reply","by","youCantUseHTMLTagOrBlank","easyFormBuilder","rnfn","fil",'stf','total','fetf','search','jqinl'];
 
 		
 		$page_builder="";		
@@ -233,7 +232,8 @@ class _Public {
 			"bi-check-square",
 			"bi-square",
 			"bi-chevron-down",
-			"bi-check-lg"
+			"bi-check-lg",
+			"bi-crosshair"
 			
 			
 		]];
@@ -251,9 +251,9 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.35');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.36');
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.7.35' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.7.36' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -296,7 +296,7 @@ class _Public {
 
 			
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.35');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.36');
 					 
 				}
 		
@@ -317,12 +317,12 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.7.35', true);
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.7.36', true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.7.35', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.7.36', true);
 									wp_enqueue_script('parsipay_js');
 								}
 							}
@@ -335,7 +335,7 @@ class _Public {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.7.35');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.7.36');
 				 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -360,7 +360,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.35');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.36');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -446,10 +446,10 @@ class _Public {
 				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				 wp_enqueue_script('googleMaps-js');
 			 } */
-			/*  if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
+			 if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
 				 
-				$efbFunction->openstreet_map_required_efb(1);
-			 } */
+				$this->efbFunction->openstreet_map_required_efb(1);
+			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
 		
@@ -484,6 +484,8 @@ class _Public {
 		//if($this->id!=-1){return esc_html__('Easy Form Builder' , 'easy-form-builder');}
 		$this->id=0;
 		$this->public_scripts_and_css_head();
+
+		
 		
 		//Confirmation Code show
 		$lang = get_locale();
@@ -507,10 +509,17 @@ class _Public {
 			   $valstng= json_decode($stng);
 			
 			
-				if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
-				wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-				wp_enqueue_script('recaptcha');
-			}
+			   
+			   
+			   if(isset($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true){
+				   wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
+				   wp_enqueue_script('recaptcha');
+				}
+				
+				
+				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
+					$this->efbFunction->openstreet_map_required_efb(1);
+				}
 			
 			
 			/* if(isset($valstng->mapKey) && $valstng->mapKey!=""){
@@ -533,7 +542,7 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.35');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.36');
 		 
 		}
 		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
@@ -585,32 +594,36 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
+
+		
+
+
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
-		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5'></div>
+		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";	
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.7.35');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.7.36');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.7.35', true);				
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.7.36', true);				
 		 wp_enqueue_script('Emsfb-core_js');
 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.35', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.7.36', true);		
 		$ar_core = array() ;
-		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);
+		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);  
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.35');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.7.36');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.7.35');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.7.36');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
 		
@@ -777,7 +790,7 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>$this->lanText["error403"]); 
 					wp_send_json_success($response,$data_POST);
 				}
-				$mr=$this->lanText["error405"];
+				$mr='';
 				$stated = 1;
 				$form_condition = '';
 				if(isset($formObj[0]['booking']) && $formObj[0]['booking']==1) $form_condition='booking';
@@ -1240,10 +1253,19 @@ class _Public {
 										
 										
 										
-										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ $stated=0;$rt =null;};
+										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ 
+											//mnvvXXX
+											
+											
+											$stated=0;$rt =null;};
 										
 									}
-									if($c!=$f["mark"]){ $stated=0;$rt =null;}
+									if($c!=$f["mark"]){ 
+										$stated=0;
+										$rt =null;
+										 $mr = $this->lanText["mnvvXXX"];
+										 $mr =str_replace('XXX', "<b>".$f['name']."</b>", $mr );
+										}
 									//mark
 									$in_loop=false;
 								break;
@@ -1315,7 +1337,7 @@ class _Public {
 				$count =  count($valobj);
 				if($count==0){
 					$stated=0;
-					$mr=$this->lanText["pleaseMakeSureAllFields"];
+					if($mr=='')$mr=$this->lanText["pleaseMakeSureAllFields"];
 				}
 				
 				array_push($valobj,array('type'=>'w_link','value'=>$url,'amount'=>-1));
@@ -1329,6 +1351,8 @@ class _Public {
 					$response = array( 'success' => false  , 'm'=>$mr); 
 					wp_send_json_success($response,$data_POST);
 				}
+
+				
 					$this->value = json_encode($valobj,JSON_UNESCAPED_UNICODE);
 					$this->value = str_replace('"', '\\"', $this->value);
 					if($form_condition=='booking'){
@@ -2570,6 +2594,7 @@ class _Public {
 				$dsupfile = isset($r->dsupfile) ? $r->dsupfile : false;
 				$activeDlBtn = isset($r->activeDlBtn) ? $r->activeDlBtn : true;
 				$efb_version = isset($r->efb_version) ? $r->efb_version : "1.0.0";
+				$osLocationPicker = isset($r->osLocationPicker) ? $r->osLocationPicker : false;
 				/*
 					AdnSPF == stripe payment
 					AdnOF == offline form
@@ -2612,8 +2637,8 @@ class _Public {
 					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnPDP : 0;
 				}
 				
-				//$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey,"addons"=>$addons);		
-				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,
+
+				$this->pub_stting=array("pro"=>$pro,"trackingCode"=>$trackingCode,"siteKey"=>$siteKey,"mapKey"=>$mapKey,"paymentKey"=>$paymentKey, "version"=>$efb_version,"osLocationPicker"=>$osLocationPicker,
 				"scaptcha"=>$scaptcha,"dsupfile"=>$dsupfile,"activeDlBtn"=>$activeDlBtn,"addons"=>$addons);
 				$rtrn =json_encode($this->pub_stting,JSON_UNESCAPED_UNICODE);
 				return [$rtrn ,$this->pub_stting];
@@ -3253,10 +3278,7 @@ class _Public {
 				case "step":
 						$step_no = $item['id_'];
 						$ui = $step_no == 1 ? '<fieldset data-step="step-'.$step_no.'-efb" class="efb my-2  steps-efb efb row ">': '<!-- fieldset!!! --> </fieldset><fieldset data-step="step-'.$step_no.'-efb"  class="efb my-2 steps-efb efb row d-none">';
-						// هدر 
-						//$first :  valj_efb[0]
-						//head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
-						//$this->name .=printf('')
+
 						$dataTag = $item['type'];
 					break;
 				case 'select':
@@ -3691,7 +3713,7 @@ class _Public {
 				 ';
 		return '
 		
-		<h3  class="efb fs-5 text-center">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
+		<h3  class="efb fs-5" style="justify-content: center; align-items: center;  text-align: center;">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
 	public function cache_cleaner_Efb($page_id){
@@ -3702,7 +3724,7 @@ class _Public {
 			//wp-rocket done					
 			$r = rocket_clean_post($page_id);			
 		}elseif (function_exists('wp_cache_post_change')){
-			//WP Super Cache done
+			//WP Super Cache done			
 			//Jetpack done
 			$GLOBALS["super_cache_enabled"]=1;
 			wp_cache_post_change($page_id);

@@ -1,8 +1,16 @@
- maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
+let marker_maps_efb;
+maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `
     <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 "  id='${rndm}-f'>      
       ${previewSate == true && valj_efb[iVJ].mark != 0 ? `<div id="floating-panel" class="efb "><input id="delete-markers_maps_efb-efb" class="efb  btn btn-danger" type="button" value="${efb_var.text.deletemarkers}" /></div>` : '<!--notPreview-->'}
         <div id="${rndm}-map" data-type="maps" class="efb  maps-efb emsFormBuilder_v ${valj_efb[iVJ].el_height}  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} " data-id="${rndm}-el" data-name='maps' ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}>
+      </div>
+    `
+ }
+ maps_os_pro_efb =(previewSate, pos , rndm,iVJ)=>{
+    return `
+    <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 maps-os "  id='${rndm}-f'>      
+      
       </div>
     `
  }
@@ -474,7 +482,6 @@ let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
 function initMap_efb(disabled) {
-  console.log('initMap_efb');
   setTimeout(function () {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;
@@ -494,7 +501,6 @@ function initMap_efb(disabled) {
     if (mark != 0 && mark != -1) {
       if (disabled)return;
       map_efb.addListener("click", (event) => {
-        console.log('click');
         const latlng = event.latLng.toJSON();
         if (mark_maps_efb.length < mark) {
           mark_maps_efb.push(latlng);
@@ -534,13 +540,11 @@ function addMarker_gm_efb(position) {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const idxm = (mark_maps_efb.length)
     const lab = idx !== -1 && valj_efb[idx].mark < 2 ? '' : lab_map_efb[idxm % lab_map_efb.length];
-    console.log(map_efb);
     const marker = new google.maps.Marker({
       position,
       label: lab,
       map_efb,
     });
-    console.log('addMarker_gm_efb',marker);
     markers_maps_efb.push(marker);
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
       const vmaps = JSON.stringify(mark_maps_efb);
@@ -567,6 +571,7 @@ function addMarker_gm_efb(position) {
       const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
       if (indx != -1) { sendBack_emsFormBuilder_pub.splice(indx, 1); }
     }
+    
   }
   fun_addProgessiveEl_efb=(id,state)=>{
   let newEl = document.createElement('div');
@@ -954,5 +959,377 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType 
       state_el.classList.remove('is-loading');
     }, 2000);
   }
+
+  
+ const f= document.getElementById(idField)
+ if(f!=null && f.dataset.hasOwnProperty("vid")){
+  const id = f.dataset.vid;
+  //remove from sendBack_emsFormBuilder_pub if id_ == id
+  //check sendBack_emsFormBuilder_pub exist
+  fun_remove_row_sendback_efb(id)
+  
+ }
+ 
   return state_el!=null ? result : opt;
+}
+
+
+/* maps function start */
+
+
+function efbCreateMap(id ,r ,viewState) {
+  var efbInitialLat = viewState==true ? r.value[0].lat : r.lat; 
+  var efbInitialLng = viewState==true ? r.value[0].lng :r.lng; 
+  var efbInitialZoom = viewState==true ? 18 :r.zoom;
+  var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; // تعیین اینکه آیا اضافه کردن مارکر جدید مجاز باشد یا خیر
+  if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;
+  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ; // زبان فارسی (برای تغییر زبان، این مقدار را به زبان مورد نظر خود تغییر دهید)
+  var efbMapContainer = document.createElement('div');
+  efbMapContainer.className = 'map-container';
+  var efbMapDiv = document.createElement('div');
+  efbMapDiv.dataset.id =id+"-mapsdiv"
+  efbMapDiv.className = 'map';
+  efbMapContainer.appendChild(efbMapDiv);
+  document.getElementById(id+'-f').appendChild(efbMapContainer);
+
+  var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
+  var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(efbMap);
+
+  var efbSatelliteLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+  });
+
+  var efbBaseLayers = {
+      "OSM 1": efbOsmLayer,
+      "OSM 2": efbSatelliteLayer
+  };
+
+  var efbMarkersLayer = L.layerGroup().addTo(efbMap);
+  var efbOverlays = {
+      "Markers": efbMarkersLayer
+  };
+
+  L.control.layers(efbBaseLayers, efbOverlays).addTo(efbMap);
+
+  //find el by id+"-mapsdiv"
+  var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
+  efbMap_dv.dataset.leaflet =efbMap._leaflet_id;
+
+  var efbSearchDiv = L.control({ position: 'bottomleft' });
+  efbSearchDiv.onAdd = function (efbMap) {
+      var efbDiv = L.DomUtil.create('div', 'custom-control');
+      efbDiv.dataset.id = id+'-contorller';
+      if (efbAllowAddingMarkers) {
+          efbDiv.innerHTML = `
+              <a ${ state_efb == 'view' ?'':`onclick="efbLocateMe(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
+              <input type="text" id="efb-search-${efbMap._leaflet_id}" placeholder="Enter a location name" class="efb border-d efb-square fs-6" ${ state_efb == 'view' ?'disabled':''}>
+              <a ${ state_efb == 'view' ?'':`onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
+              <a ${ state_efb == 'view' ?'':`onclick="efbClearMarkers(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
+              <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message d-none"></div>
+          `;
+          efbDiv.classList.remove('d-none');
+          
+      } else {
+          efbDiv.innerHTML = `
+              <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message  d-none"></div>
+          `;
+          efbDiv.classList.add('d-none');
+          efbDiv.classList.add('efb');
+      }
+      
+      L.DomEvent.disableClickPropagation(efbDiv);
+      L.DomEvent.disableScrollPropagation(efbDiv);
+
+      return efbDiv;
+  };
+  efbSearchDiv.addTo(efbMap);
+
+  maps_efb[efbMap._leaflet_id] = {
+      map: efbMap,
+      markersLayer: efbMarkersLayer,
+      markers: [],
+      locationList: []
+  };
+
+  if(state_efb != 'view' && viewState==false){
+      if (efbAllowAddingMarkers) {
+
+        efbMap.on('click', function(e) {
+            var efbLatlng = e.latlng;
+            efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id , efbAllowAddingMarkers ,r);
+        });
+    } else {
+        
+        efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
+    }
+  }else{
+    Object.assign(r ,{mark:r.value.length});
+    console
+    for (let i = 0; i < r.value.length; i++) {
+      efbAddMarker(r.value[i].lat, r.value[i].lng, efbMap._leaflet_id, i+1 ,r);
+    }
+  }
+
+
+  var efbFullscreenControl = L.control.fullscreen({
+      title: {
+          'false': 'Go Fullscreen',
+          'true': 'Exit Fullscreen'
+      }
+  });
+  efbMap.addControl(efbFullscreenControl);
+
+  efbMap.on('enterFullscreen', function(){
+  });
+
+  efbMap.on('exitFullscreen', function(){
+  });
+}
+
+
+function efbSearchLocation(efbMapId) {
+  var efbQuery = document.getElementById(`efb-search-${efbMapId}`).value;
+  var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
+  efbErrorMessageDiv.innerHTML = '';
+  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2)
+  fetch(`https://nominatim.openstreetmap.org/search?q=${efbQuery}&format=json&accept-language=${efbLanguage}`)
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.length > 0) {
+              var efbLatlng = [data[0].lat, data[0].lon];
+              maps_efb[efbMapId].map.setView(efbLatlng, 13);
+          } else {
+              efbErrorMessageDiv.classList.remove('d-none');
+              efbErrorMessageDiv.textContent = 'Location not found';
+          }
+      })
+      .catch(error => {
+          efbErrorMessageDiv.classList.remove('d-none');
+          efbErrorMessageDiv.textContent = 'Error fetching location: ' + error.message;
+      });
+}
+
+function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
+  //+ here MAP
+  //console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb,state_efb);
+  //const len = 
+  var efbMarkerNumber ='';
+  if(state_efb!='view'){
+     efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
+     if(Number(r.mark)<efbMarkerNumber) return
+     //console.log(Number(r.mark)<efbMarkerNumber);
+  }else{
+    efbMarkerNumber = efbAllowAddingMarkers;
+    //console.log(efbMarkerNumber);
+  }
+  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
+  var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
+  //console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
+  var efbMarkerIcon = L.divIcon({
+      className: 'custom-div-icon',
+    /*   html: `
+          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="16" fill="red" />
+              <text x="16" y="21" font-size="12" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold">${efbMarkerNumber}</text>
+          </svg>
+      `, */
+      html: map_marker_ui_efb(efbMarkerNumber),
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+  });
+
+  var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
+  maps_efb[efbMapId].markers.push(efbMarker);
+  if (efbName === '') {
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${efbLat}&lon=${efbLng}&format=json&accept-language=${efbLanguage}`)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          })
+          .then(data => {
+              var efbAddress = data.display_name;
+              efbMarker.bindPopup(efbAddress);
+              maps_efb[efbMapId].locationList.push({
+                  lat: efbLat,
+                  lng: efbLng,
+                  address: efbAddress
+              });
+             
+              if(state_efb!='view'){
+                const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
+              
+                fun_sendBack_emsFormBuilder(o[0])
+                //(o[0]);
+                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+              }
+          })
+          .catch(error => {
+              efbErrorMessageDiv.classList.remove('d-none');
+              document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+          });
+  } else {
+      efbMarker.bindPopup(efbName);
+      maps_efb[efbMapId].locationList.push({
+          lat: efbLat,
+          lng: efbLng,
+          address: efbName
+      });
+      //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+  }
+
+    if(state_efb=='view'){
+      efbErrorMessageDiv.classList.remove('d-none');
+      let v ='<!--efb-->'
+      for (let i = 0; i < r.value.length; i++) {
+        v+= `<p>${i+1}- ${r.value[i].address}</p>`
+      }
+      //console.log(v ,efbMapId);
+      setTimeout(() => {
+          if(document.getElementById('os-address-efb')==null){
+          document.getElementById(r.id_+`-f`).innerHTML +='<div class="efb fs-6  mx-2" id="os-address-efb">'+ v+'</div>';
+          }
+        }, 1000);
+    }
+}
+
+function efbClearMarkers(efbMapId,indx) {
+  maps_efb[efbMapId].markersLayer.clearLayers();
+  maps_efb[efbMapId].markers = [];
+  maps_efb[efbMapId].locationList = [];
+  //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+
+  if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
+    const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
+    if (indx != -1) { sendBack_emsFormBuilder_pub.splice(indx, 1); }
+  }
+}
+
+function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
+  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2)
+  var efbMarkerNumber = maps_efb[efbMapId].markers.length + 1;
+  var efbMarkerIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: map_marker_ui_efb(''),
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+  });
+
+  var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${efbLat}&lon=${efbLng}&format=json&accept-language=${efbLanguage}`)
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          var efbAddress = data.display_name;
+          efbMarker.bindPopup(efbAddress);
+          maps_efb[efbMapId].locationList.push({
+              lat: efbLat,
+              lng: efbLng,
+              address: efbAddress
+          });
+          //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+      })
+      .catch(error => {
+          efbErrorMessageDiv.classList.remove('d-none');
+          document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+      });
+}
+
+map_marker_ui_efb=(efbMarkerNumber)=>{
+  return ` <svg width="50" height="75" xmlns="http://www.w3.org/2000/svg">
+    <path id="map-pointer" d="M25,3 C34.3888,3 42,10.6112 42,20 C42,28.5 25,58 25,58 C25,58 8,28.5 8,20 C8,10.6112 15.6112,3 25,3 Z" 
+          fill="#000000" stroke="#ffffff" stroke-width="3" />
+    <circle cx="25" cy="20" r="8" fill="#ffffff" />
+    <text id="pointer-number" x="25" y="20" font-size="10" font-weight="bold" fill="#000000" text-anchor="middle" dominant-baseline="middle">${efbMarkerNumber}</text>
+  </svg>`
+}
+
+
+function efbLocateMe(efbMapId) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var efbLat = position.coords.latitude;
+        var efbLng = position.coords.longitude;
+        
+        const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
+        var efbMarkerNumber = maps_efb[efbMapId].markers.length + 1;
+        var efbMarkerIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html:  `
+            <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="blue" stroke="white" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="white"/>
+            </svg>
+        `,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
+        });
+
+        var efbMarker = L.marker([efbLat, efbLng], { icon: efbMarkerIcon }).addTo(maps_efb[efbMapId].markersLayer);
+        
+        // انتقال نقشه به موقعیت جدید
+        var efbLatlng = [efbLat, efbLng];
+        maps_efb[efbMapId].map.setView(efbLatlng, 13);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${efbLat}&lon=${efbLng}&format=json&accept-language=${efbLanguage}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var efbAddress = data.display_name;
+                efbMarker.bindPopup(efbAddress);
+                maps_efb[efbMapId].locationList.push({
+                    lat: efbLat,
+                    lng: efbLng,
+                    address: efbAddress
+                });
+                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+            })
+            .catch(error => {
+                efbErrorMessageDiv.classList.remove('d-none');
+                document.getElementById(`efb-error-message-${efbMapId}`).textContent = 'Error fetching address: ' + error.message;
+            });
+    }, function(error) {
+        alert('Error: ' + error.message);
+    });
+} else {
+    alert('Geolocation is not supported by this browser.');
+}
+}
+
+/* maps function end */
+
+
+
+fun_remove_row_sendback_efb=(id)=>{
+  if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
+    let indx = sendBack_emsFormBuilder_pub.findIndex(x=>x.id_==id);
+    if(indx!=-1){
+      const row = sendBack_emsFormBuilder_pub[indx+1];
+      sendBack_emsFormBuilder_pub.splice(indx,1);
+      if(row!=null && row.type=='cityList'){
+        indx = indx+1;
+        const el = document.getElementById(row.id_+'_options');
+        if(el!=null){
+          el.innerHTML = `<option value="">${efb_var.text.nothingSelected}</option>`;
+        }
+        fun_remove_row_sendback_efb(row.id_);
+      }
+    }
+  }
 }

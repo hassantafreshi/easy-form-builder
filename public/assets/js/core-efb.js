@@ -17,12 +17,15 @@ let motus_efb = {};
 let g_timeout_efb = 100
 let price_efb ="";
 let sendback_efb_state= [];
+
+
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
 }
 g_timeout_efb = typeof ajax_object_efm == "object" && typeof ajax_object_efm.ajax_value == "string" ? g_timeout_efb : 1100;
 function fun_render_view_efb(val, check) {
+  
   var url = new URL(window.location);
   history.replaceState("EFBstep-1",null,url); 
   exportView_emsFormBuilder = [];
@@ -46,7 +49,7 @@ function fun_render_view_efb(val, check) {
 
 function check_body_efb_timer (){
   g_timeout_efb -=10;
-  if(((document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null)) && g_timeout_efb>10){
+  if((document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) && g_timeout_efb>10){
     setTimeout(() => {
       check_body_efb_timer();
     }, 800);
@@ -66,8 +69,8 @@ function fun_efb_run(){
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-      poster_emsFormBuilder = ajax_object_efm.poster;
       efb_var = ajax_object_efm;     
+      poster_emsFormBuilder = ajax_object_efm.poster;
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
       page_state_efb="public";
@@ -236,7 +239,7 @@ function alarm_emsFormBuilder(val) {
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder_pub.length < 1) {
     let str = ""
     currentTab_emsFormBuilder = 0;
-    document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3>${ajax_object_efm.text.error}</h3> <span class="efb mb-2">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
+    document.getElementById('efb-final-step').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2  text-center">${ajax_object_efm.text.pleaseMakeSureAllFields}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
   } else {
     let checkFile = 0;
@@ -245,7 +248,7 @@ function alarm_emsFormBuilder(val) {
         checkFile += 1;
       } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
         checkFile = -100;
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb font-weight-bold">File Error</h3> <span class="efb font-weight-bold">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb font-weight-bold  text-center">File Error</h3> <span class="efb font-weight-bold  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
          <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
         return;
       }
@@ -266,7 +269,7 @@ function alarm_emsFormBuilder(val) {
             checkFile += 1;
           } else if (files_emsFormBuilder.length > 0 && file.state == 3) {
             checkFile = -100;
-            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4">File Error</h3> <span class="efb fs-6">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
+            document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center"></i></h1><h3 class="efb fs-4  text-center">File Error</h3> <span class="efb fs-6  text-center">${ajax_object_efm.text.youNotPermissionUploadFile}</br>${file.url}</span>
                <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].button_color}   ${corner}   ${valj_efb[0].el_height}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
             return;
           }
@@ -518,7 +521,7 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     return;
   }
   const innrBtn = document.getElementById('vaid_check_emsFormBuilder').innerHTML;
-  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb fs-5  bi-hourglass-split"></i>`
+  document.getElementById('vaid_check_emsFormBuilder').innerHTML = `<i class="efb fs-5 bi-hourglass-split"></i>`
   document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
   el = document.getElementById('trackingCodeEfb').value;
   if (el.length < 5) {
@@ -764,7 +767,7 @@ function Show_recovery_pass_efb() {
       form_type_emsFormBuilder = "recovery";
       formNameEfb = form_type_emsFormBuilder;
       sendBack_emsFormBuilder_pub = { email: us.value ,'recovery':true};
-      document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3>${ajax_object_efm.text.pleaseWaiting}<h3>`
+      document.getElementById('efb-final-step').innerHTML = `<h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder"></h1> <h3 class="efb text-center">${ajax_object_efm.text.pleaseWaiting}<h3>`
       actionSendData_emsFormBuilder()
     })
     us.addEventListener("keyup", (e) => {
@@ -779,8 +782,8 @@ function response_fill_form_efb(res) {
   if (res.data.success == true) {
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct'){
       document.getElementById('efb-final-step').innerHTML = `
-      <h3 class="efb fs-4">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
+      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <a class="efb text-darkb" href="${res.data.m}">${efb_var.text.orClickHere}</a></h3>
       `      
       window.location.href = res.data.m;
       return ;
@@ -793,7 +796,7 @@ function response_fill_form_efb(res) {
         localStorage.clear();
         break;
       case 'subscribe':
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up text-primary""></i></h3><h3 class='efb emsFormBuilder fs-5'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-hand-thumbs-up text-primary  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${valj_efb[0].thank_you_message.thankYou}</h3></br> <span class="efb fs-5">${ajax_object_efm.text.YouSubscribed}</span></br></br></h3>`;
         localStorage.clear();
         break;
       case 'register':
@@ -801,14 +804,14 @@ function response_fill_form_efb(res) {
           document.getElementById('efb-final-step').innerHTML = funTnxEfb('','',m );
           break;
       case 'recovery':
-        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4'><i class="efb fs-2 bi-envelope text-primary""></i></h3><h3 class='efb emsFormBuilder fs-5'>${res.data.m}</h3></br></br></h3>`;
+        document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder fs-4  text-center'><i class="efb fs-2 bi-envelope text-primary  text-center"></i></h3><h3 class='efb emsFormBuilder fs-5  text-center'>${res.data.m}</h3></br></br></h3>`;
       break;
       case 'login':
         if (res.data.m.state == true) {
           document.getElementById('body_efb').innerHTML = show_user_profile_emsFormBuilder(res.data.m);
           location.reload();
         } else {
-          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5'><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb"></i></h3> <span class="efb fs-7"> <br>${res.data.m.error}</span>
+          document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center fs-5 efb mb-0 mt-5  text-center'><i class="efb fs-2 bi-exclamation-triangle-fill nmsgefb  text-center"></i></h3> <span class="efb fs-7  text-center"> <br>${res.data.m.error}</span>
            </br>
            <a  id="btn_Show_recovery_efb" class="efb pointer-efb emsFormBuilder " onClick="Show_recovery_pass_efb()" >${ajax_object_efm.text.passwordRecovery} </a>
            <div class="efb py-5 px-2 container bg-light mb-3" id="recoverySectionemsFormBuilder" style="display: none;">     
@@ -826,7 +829,7 @@ function response_fill_form_efb(res) {
     }
     if (document.getElementById('body_efb')) document.getElementById('body_efb').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
   } else {
-    if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
+    if(document.getElementById('efb-final-step')){document.getElementById('efb-final-step').innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     <div class="efb m-1"> <button id="prev_efb_send" type="button" class="efb btn efb ${valj_efb[0].hasOwnProperty('button_color') ? valj_efb[0].button_color : 'btn-darkb'}   ${valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner : 'efb-square'}   ${valj_efb[0].hasOwnProperty('el_height') ? valj_efb[0].el_height : 'h-l-efb'}  p-2 text-center  btn-lg  " onClick="${btn_prev}"><i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} mx-2 fs-6 " id="button_group_Previous_icon"></i><span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_Previous_text}</span></button></div></div>`;
     }else{
       alert_message_efb(res.data.m,'',14,'warning');
@@ -841,7 +844,7 @@ function response_Valid_tracker_efb(res) {
      state_rply_btn_efb(100)
     }, 50);
   } else {
-    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
+    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3  text-center'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted  text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onClick="(() => {  location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
   }
 }
@@ -1128,7 +1131,7 @@ document.addEventListener("DOMContentLoaded", function() {
   let elements = document.querySelectorAll('#body_efb');
   const msg = `<h3 class="efb fs-5 text-center text-dark bg-warning m-3 p-3">${ajax_object_efm.text.fetf} <div class='efb mt-1 fs-6'> ${ajax_object_efm.text.easyFormBuilder}</div> </h3>`
   fun =()=>{
-    for (let i = 1; i <= elements.length; i++) {
+    for (let i = 1; i < elements.length; i++) {
       elements[i].innerHTML = msg;
     }
   }

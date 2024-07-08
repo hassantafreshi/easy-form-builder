@@ -29,7 +29,7 @@ const fields_efb = [
   { name: efb_var.text.payRadio, icon: 'bi-basket3', id: 'payRadio', pro: true, tag:'payment all' },
   { name: efb_var.text.prcfld, icon: 'bi-bag-plus', id: 'prcfld', pro: true, tag:'payment all' },
   { name: efb_var.text.ttlprc, icon: 'bi-cash', id: 'ttlprc', pro: true, tag:'payment all' },
-  /* { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' }, */
+  { name: efb_var.text.locationPicker, icon: 'bi-pin-map', id: 'maps', pro: true, tag:'advance all' },
   /* { name: efb_var.text.paySelect, icon: 'bi-bag-check', id: 'paySelect', pro: true, tag:'payment all' },
   { name: efb_var.text.payMultiselect, icon: 'bi-bag-plus', id: 'payMultiselect', pro: true, tag:'payment all' },  */
   { name: efb_var.text.stripe, icon: 'bi-credit-card', id: 'stripe', pro: true, tag:'payment all' },
@@ -1155,6 +1155,8 @@ function show_setting_window_efb(idset) {
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder="${efb_var.text.exDot} 49.24803870604257" id="letEl" required value="${valj_efb[indx].lat}">
         <label for="lonEl" class="efb  form-label  mt-2">${efb_var.text.longitude}</label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder="${efb_var.text.exDot}  -123.10512829684463" id="lonEl" required value="${valj_efb[indx].lng}">
+        <label for="lonEl" class="efb  form-label  mt-2">${efb_var.text.zoom}</label>
+        <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder="13 " id="zoomMapEl" required value="${valj_efb[indx].zoom}">
         <label for="marksEl" class="efb  form-label  mt-2">${efb_var.text.points.toUpperCase()}      
         <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('pickupByUser')"> </i>
         </label>
@@ -1171,8 +1173,7 @@ function show_setting_window_efb(idset) {
                 ${labelPostionEls} 
                 ${ElementAlignEls('label',indx,idset)}   
                 ${ElementAlignEls('description',indx,idset)}                                        
-                ${widthEls}
-                ${selectHeightEls(idset,indx)}
+                ${widthEls}                
                 ${labelFontSizeEls}
                 ${selectColorEls('label','text')}
                 ${selectColorEls('description','text')}

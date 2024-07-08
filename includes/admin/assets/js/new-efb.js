@@ -7,7 +7,7 @@ let amount_el_efb = 1;
 let step_el_efb = 0;
 let steps_index_efb = []
 let valj_efb = [];
-let maps_efb = [];
+let maps_efb = {};
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
 let draw_mouse_efb = false;
@@ -358,7 +358,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <!-- ${rndm}-map -->
       ${ttip}
-      ${typeof maps_el_pro_efb =="function" ? maps_el_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
+       ${typeof maps_os_pro_efb =="function" ? maps_os_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
         ${desc}`
       dataTag = elementId;
       break;
@@ -367,7 +367,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
        ${label}
         <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
           ${ttip}        
-          <input type="${elementId}" class="efb  input-efb px-2 pb-0 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+          <input type="${elementId}" class="efb  input-efb px-2 py-1 emsFormBuilder_v w-100  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_border_color}    form-control efb efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-vid='${rndm}' data-id="${rndm}-el" id="${rndm}_"  aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
           ${desc}`
       dataTag = elementId;
       break;
@@ -1288,7 +1288,7 @@ const loading_messge_efb = () => {
   </circle>
 </svg>`
   return ` 
-<h3 class="efb fs-3">${efb_var.text.pleaseWaiting} ${svg}</h3>`
+<h3 class="efb fs-3 text-center">${efb_var.text.pleaseWaiting} ${svg}</h3>`
 }
 function copyCodeEfb(id) {
   var copyText = document.getElementById(id);
@@ -1741,7 +1741,8 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-          initMap_efb(disabled);
+        //  initMap_efb(disabled);
+          efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
           c2d_contex_efb = document.getElementById(`${v.id_}_`).getContext("2d");
@@ -2153,18 +2154,18 @@ function funTnxEfb(val, title, message) {
   const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;
   const doneTrackEfb=clr_doneTitleEfb ;
   const trckCd = `
-  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb}" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i>${efb_var.text.copy}
                </button></div>`
   return `
-                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb}" id="doneTitleEfb">
+                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">
                         <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"></i>${t}
                     </h4>
-                    <h3 class="efb fs-4 ${clr_doneMessageEfb}" id="doneMessageEfb">${m}</h3>
-                  <span class="efb " ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
+                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb">${m}</h3>
+                  <span class="efb text-center" ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
   `
 }
 let get_position_col_el = (dataId, state) => {
@@ -3131,11 +3132,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     } else if (c.type == "maps") {
       if (typeof (c.value) == "object") {
         s = true;
-        value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
-        valj_efb.push({ id_: c.id_, mark: -1, lat: c.value[0].lat, lng: c.value[0].lng, zoom: 9, type: "maps" })
+        //value = `<div id="${c.id_}-map" data-type="maps" class="efb  maps-efb h-d-efb  required " data-id="${c.id_}-el" data-name="maps"><h1>maps</h1></div>`;
+        value = maps_os_pro_efb(false, '', c.id_,'') 
+        
         marker_maps_efb = c.value;
-        initMap_efb(false);
+       // initMap_efb(false);
         m += value;
+        setTimeout(() => {
+          efbCreateMap(c.id_ ,c,true)
+        }, 800);
       }
     } else if (c.type == "rating") {
       s = true;
