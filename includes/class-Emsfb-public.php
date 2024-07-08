@@ -594,11 +594,15 @@ class _Public {
 			"bi-file-earmark-richtext",
 			"bi-x-lg"
 		];
+
+		
+
+
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
 		
-		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5'></div>
+		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";	
 		return $content; 
 	}
@@ -3709,7 +3713,7 @@ class _Public {
 				 ';
 		return '
 		
-		<h3  class="efb fs-5 text-center">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
+		<h3  class="efb fs-5" style="justify-content: center; align-items: center;  text-align: center;">'. $fil.' <br><span class="efb  text-center fs-7">'.$pw.'</span> </h3>
 		';
 	}
 	public function cache_cleaner_Efb($page_id){

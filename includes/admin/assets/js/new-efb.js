@@ -2157,18 +2157,18 @@ function funTnxEfb(val, title, message) {
   const clr_doniconEfb =valj_efb[0].hasOwnProperty("clrdoniconEfb") ? valj_efb[0].clrdoniconEfb :"doneTitleEfb" ;
   const doneTrackEfb=clr_doneTitleEfb ;
   const trckCd = `
-  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb}" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
+  <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
                <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb')">
                    <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i>${efb_var.text.copy}
                </button></div>`
   return `
-                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb}" id="doneTitleEfb">
+                    <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb">
                         <i class="efb ${valj_efb[0].thank_you_message.hasOwnProperty('icon') ? valj_efb[0].thank_you_message.icon : 'bi-hand-thumbs-up'}  title-icon mx-2 fs-2 ${clr_doniconEfb}" id="DoneIconEfb"></i>${t}
                     </h4>
-                    <h3 class="efb fs-4 ${clr_doneMessageEfb}" id="doneMessageEfb">${m}</h3>
-                  <span class="efb " ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
+                    <h3 class="efb fs-4 ${clr_doneMessageEfb} text-center" id="doneMessageEfb">${m}</h3>
+                  <span class="efb text-center" ${valj_efb[0].trackingCode == true ? trckCd : '</br>'}</span>
   `
 }
 let get_position_col_el = (dataId, state) => {

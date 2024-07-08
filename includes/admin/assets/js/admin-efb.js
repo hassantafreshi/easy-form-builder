@@ -1416,9 +1416,9 @@ let change_el_edit_Efb = (el) => {
           
         } else {
           // trackingCodeEl.checked=false;
-          document.getElementById("SendemailEl").checked = false;
-          
-          alert_message_efb(efb_var.text.error, efb_var.text.sMTPNotWork, 20, "danger")
+          el.classList.remove('active');
+          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="alert-link" onClick="Link_emsFormBuilder('EmailNoti')"> ${efb_var.text.orClickHere}</a>`;
+          alert_message_efb(efb_var.text.error,msg, 20, "danger")
         }
 
         break;

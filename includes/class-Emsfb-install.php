@@ -88,7 +88,7 @@ class Install {
 						dbDelta( $sql );
 
 						$sql = "CREATE TABLE IF NOT EXISTS {$table_name_status} (
-							`id` int(20) NOT NULL AUTO_INCREMENT,
+							`id` int(11) NOT NULL AUTO_INCREMENT,
 							`sid` varchar(21) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`fid` int(11)   NOT NULL, 
 							`type_` int(8)  NOT NULL,
@@ -107,14 +107,7 @@ class Install {
 						dbDelta( $sql );
 			
 					
-					/* foreach($it as $path) {
-						if (preg_match("/\bbootstrap+.+.css+/i", $path)) 
-						{
-							$f = file_get_contents($path);
-							if(preg_match("/col-md-12/i", $f)){$s= true; break;}
-						}
-					} */
-						
+
 							$user_id = get_current_user_id();
 							$usr =get_user_by('id',$user_id);
 							$eml=$usr->user_email;
