@@ -7,7 +7,6 @@ let amount_el_efb = 1;
 let step_el_efb = 0;
 let steps_index_efb = []
 let valj_efb = [];
-//let maps_efb = [];
 let maps_efb = {};
 let state_efb = 'view';
 let mousePostion_efb = { x: 0, y: 0 };
@@ -1581,7 +1580,6 @@ function previewFormEfb(state) {
   try {
     let count =0;
     valj_efb.forEach((value, index) => {
-      console.log(index);
       let t = value.type.toLowerCase();
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
@@ -1744,7 +1742,6 @@ function previewFormEfb(state) {
       switch (v.type) {
         case "maps":
         //  initMap_efb(disabled);
-          console.log("maps" ,v.id_,v)
           efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
@@ -3139,7 +3136,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = maps_os_pro_efb(false, '', c.id_,'') 
         
         marker_maps_efb = c.value;
-        console.log(c);
        // initMap_efb(false);
         m += value;
         setTimeout(() => {

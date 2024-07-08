@@ -1176,7 +1176,6 @@ let change_el_edit_Efb = (el) => {
               //get current date with this syntax YYYY-MM-DD
             /*   c= Date().toISOString().split('T')[0];
               c.toString().slice(0, 10); */
-              console.log(c);
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
               //check if c is less than milen date
               
@@ -1232,7 +1231,6 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
           valj_efb[indx].milen=0;
         }else{
-          console.log('test2')
           clss= valj_efb[indx].type!="date" ? 1 :0;
           valj_efb[indx].milen = sanitize_text_efb(el.value);
           if(valj_efb[indx].hasOwnProperty("mlen") && 
@@ -1255,7 +1253,6 @@ let change_el_edit_Efb = (el) => {
               //get current date with this syntax YYYY-MM-DD
              /*  c= Date().toISOString().split('T')[0];
               c.toString().slice(0, 10); */
-              console.log(c);
               c = el.value ==0 ?  0 : el.value !=1 ? el.value : c;
               //check if c is less than milen date
               
@@ -2238,7 +2235,6 @@ let change_el_edit_Efb = (el) => {
       case 'marksEl':
         c = parseInt(document.getElementById('marksEl').value);
         valj_efb[indx].mark = c;
-        console.log(valj_efb[indx].id_);
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb'); 
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
@@ -2254,32 +2250,21 @@ let change_el_edit_Efb = (el) => {
         
         break;
       case 'letEl':
-        console.log(el.value , document.getElementById('lonEl'))
         const lat = parseFloat(el.value);
         const lon = parseFloat(document.getElementById('lonEl').value)
         c = Number(valj_efb[indx].zoom)
 
-       /*  map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-          center: { lat: lat, lng: lon },
-          zoom: 8,
-        }) */
         valj_efb[indx].lat = lat;
-        postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
-        
-        console.log(postId)
+        postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);        
         efbLatLonLocation(postId.dataset.leaflet,lat,lon,c);
         break;
       case 'lonEl':
         const lonLoc = parseFloat(el.value);
         const letLoc = parseFloat(document.getElementById('letEl').value)
-        /* map = new google.maps.Map(document.getElementById(`${valj_efb[indx].id_}-map`), {
-          center: { lat: letLoc, lng: lonLoc },
-          zoom: 8,
-        }) */
+
           c = Number(valj_efb[indx].zoom)
         valj_efb[indx].lng = lonLoc;
         postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
-        console.log(postId)
         efbLatLonLocation(postId.dataset.leaflet,letLoc,lonLoc,c);
         
 
@@ -2288,7 +2273,6 @@ let change_el_edit_Efb = (el) => {
           c = Number(el.value)
           valj_efb[indx].zoom = c;
           postId = document.querySelector(`[data-id="${valj_efb[indx].id_}-mapsdiv"]`);
-          console.log(postId)
           efbLatLonLocation(postId.dataset.leaflet,valj_efb[indx].lat,valj_efb[indx].lng,c);
           break;
       case 'EditOption':
@@ -2996,7 +2980,7 @@ let editFormEfb = () => {
           dropZoneEFB.innerHTML += el;
           //console.log(valj_efb[v].type,'!!!!!!')   ;
 
-          if(valj_efb[v].type == "maps")  
+
        
           if (valj_efb[v].hasOwnProperty('type') &&  valj_efb[v].type != "form" && valj_efb[v].type != "step" && valj_efb[v].type != "html" && valj_efb[v].type != "register" && valj_efb[v].type != "login" && valj_efb[v].type != "subscribe" && valj_efb[v].type != "survey" && valj_efb[v].type != "payment" && valj_efb[v].type != "smartForm") {
             
@@ -4661,9 +4645,7 @@ preview_form_new_efb = async ()=>{
 
 
 function efbLatLonLocation(efbMapId, lat, long ,zoom) {
-  console.log(efbMapId, lat, long);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  console.log(`efb-error-message-${efbMapId}`, efbErrorMessageDiv);
   efbErrorMessageDiv.innerHTML = '';
 
   if (lat !== null && long !== null) {

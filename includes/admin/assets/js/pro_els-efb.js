@@ -482,7 +482,6 @@ let map_efb;
 let markers_maps_efb = [];
 let mark_maps_efb = []
 function initMap_efb(disabled) {
-  console.log('initMap_efb');
   setTimeout(function () {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;
@@ -502,7 +501,6 @@ function initMap_efb(disabled) {
     if (mark != 0 && mark != -1) {
       if (disabled)return;
       map_efb.addListener("click", (event) => {
-        console.log('click');
         const latlng = event.latLng.toJSON();
         if (mark_maps_efb.length < mark) {
           mark_maps_efb.push(latlng);
@@ -542,13 +540,11 @@ function addMarker_gm_efb(position) {
     const idx = valj_efb.findIndex(x => x.type == "maps")
     const idxm = (mark_maps_efb.length)
     const lab = idx !== -1 && valj_efb[idx].mark < 2 ? '' : lab_map_efb[idxm % lab_map_efb.length];
-    console.log(map_efb);
     const marker = new google.maps.Marker({
       position,
       label: lab,
       map_efb,
     });
-    console.log('addMarker_gm_efb',marker);
     markers_maps_efb.push(marker);
     if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
       const vmaps = JSON.stringify(mark_maps_efb);
@@ -994,11 +990,9 @@ function efbCreateMap(id ,r ,viewState) {
   efbMapDiv.dataset.id =id+"-mapsdiv"
   efbMapDiv.className = 'map';
   efbMapContainer.appendChild(efbMapDiv);
-  console.log(document.getElementById(id+'-f'));
   document.getElementById(id+'-f').appendChild(efbMapContainer);
 
   var efbMap = L.map(efbMapDiv).setView([efbInitialLat, efbInitialLng], efbInitialZoom);
- console.log(efbMap);
   var efbOsmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
   }).addTo(efbMap);
@@ -1021,7 +1015,6 @@ function efbCreateMap(id ,r ,viewState) {
 
   //find el by id+"-mapsdiv"
   var efbMap_dv = document.querySelector(`[data-id="${id}-mapsdiv"]`);
-  console.log(efbMap_dv,efbMap)
   efbMap_dv.dataset.leaflet =efbMap._leaflet_id;
 
   var efbSearchDiv = L.control({ position: 'bottomleft' });
@@ -1059,7 +1052,7 @@ function efbCreateMap(id ,r ,viewState) {
       markers: [],
       locationList: []
   };
-  console.log(`first efbAllowAddingMarkers[${efbAllowAddingMarkers}]`);
+
   if(state_efb != 'view' && viewState==false){
       if (efbAllowAddingMarkers) {
 
@@ -1068,12 +1061,10 @@ function efbCreateMap(id ,r ,viewState) {
             efbAddMarker(efbLatlng.lat, efbLatlng.lng, efbMap._leaflet_id , efbAllowAddingMarkers ,r);
         });
     } else {
-        console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`)
         
         efbAddInitialMarker(efbInitialLat, efbInitialLng, efbMap._leaflet_id);
     }
   }else{
-    console.log(marker_maps_efb);
     Object.assign(r ,{mark:r.value.length});
     console
     for (let i = 0; i < r.value.length; i++) {
@@ -1091,20 +1082,16 @@ function efbCreateMap(id ,r ,viewState) {
   efbMap.addControl(efbFullscreenControl);
 
   efbMap.on('enterFullscreen', function(){
-      console.log('entered fullscreen');
   });
 
   efbMap.on('exitFullscreen', function(){
-      console.log('exited fullscreen');
   });
 }
 
 
 function efbSearchLocation(efbMapId) {
-  console.log(efbMapId);
   var efbQuery = document.getElementById(`efb-search-${efbMapId}`).value;
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
   efbErrorMessageDiv.innerHTML = '';
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2)
   fetch(`https://nominatim.openstreetmap.org/search?q=${efbQuery}&format=json&accept-language=${efbLanguage}`)
@@ -1131,20 +1118,20 @@ function efbSearchLocation(efbMapId) {
 
 function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
   //+ here MAP
-  console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb,state_efb);
+  //console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb,state_efb);
   //const len = 
   var efbMarkerNumber ='';
   if(state_efb!='view'){
      efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
      if(Number(r.mark)<efbMarkerNumber) return
-     console.log(Number(r.mark)<efbMarkerNumber);
+     //console.log(Number(r.mark)<efbMarkerNumber);
   }else{
     efbMarkerNumber = efbAllowAddingMarkers;
-    console.log(efbMarkerNumber);
+    //console.log(efbMarkerNumber);
   }
   const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2);
   var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
+  //console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
   var efbMarkerIcon = L.divIcon({
       className: 'custom-div-icon',
     /*   html: `
@@ -1181,8 +1168,8 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
                 const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
               
                 fun_sendBack_emsFormBuilder(o[0])
-                console.log(o[0]);
-                console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+                //(o[0]);
+                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
               }
           })
           .catch(error => {
@@ -1196,7 +1183,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
           lng: efbLng,
           address: efbName
       });
-      console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+      //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
   }
 
     if(state_efb=='view'){
@@ -1205,7 +1192,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
       for (let i = 0; i < r.value.length; i++) {
         v+= `<p>${i+1}- ${r.value[i].address}</p>`
       }
-      console.log(v ,efbMapId);
+      //console.log(v ,efbMapId);
       setTimeout(() => {
           if(document.getElementById('os-address-efb')==null){
           document.getElementById(r.id_+`-f`).innerHTML +='<div class="efb fs-6  mx-2" id="os-address-efb">'+ v+'</div>';
@@ -1218,7 +1205,7 @@ function efbClearMarkers(efbMapId,indx) {
   maps_efb[efbMapId].markersLayer.clearLayers();
   maps_efb[efbMapId].markers = [];
   maps_efb[efbMapId].locationList = [];
-  console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+  //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
 
   if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
     const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
@@ -1252,7 +1239,7 @@ function efbAddInitialMarker(efbLat, efbLng, efbMapId) {
               lng: efbLng,
               address: efbAddress
           });
-          console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+          //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
       })
       .catch(error => {
           efbErrorMessageDiv.classList.remove('d-none');
@@ -1311,7 +1298,7 @@ function efbLocateMe(efbMapId) {
                     lng: efbLng,
                     address: efbAddress
                 });
-                console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
+                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
             })
             .catch(error => {
                 efbErrorMessageDiv.classList.remove('d-none');
