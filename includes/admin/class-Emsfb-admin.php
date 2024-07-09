@@ -137,8 +137,7 @@ class Admin {
             wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.7.36');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
-            wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
-            wp_enqueue_style('Font_Roboto');
+            $this->check_and_enqueue_font_roboto();
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
@@ -1480,9 +1479,23 @@ class Admin {
     }
 
 
+    public function check_and_enqueue_font_roboto() {
 
+        $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
+        $response = wp_remote_head($font_url);
+        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+            wp_register_style('Font_Roboto', $font_url);
+            wp_enqueue_style('Font_Roboto');
+        } else {
+            
+            error_log('Font Roboto URL is not accessible.');
+        }
+    }
 
 }
+
+
+
 
 new Admin();
 

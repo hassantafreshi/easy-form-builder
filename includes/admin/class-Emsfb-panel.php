@@ -264,14 +264,6 @@ class Panel_edit  {
 			}
 
 
-			/* if(gettype($ac)!="string" && isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-				$k= $ac->apiKeyMap;
-				
-				
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.';language='.$lng_.'libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-				wp_enqueue_script('googleMaps-js');
-			} */
-
 			if("fa_IR"==get_locale()){
 				wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),'3.7.36' , true);
 				wp_enqueue_script('persia_pay-efb.js');
