@@ -463,6 +463,21 @@ Yes, the WordPress plugin Easy Form Builder allows you to create a single form t
 
 == Changelog ==
 
+= 3.7.36 =
+
+* Improvement of the location Picker feature for the form and changing the service provider to OpenStreetMap.
+
+= 3.7.35 = 
+
+* Fixed issues of loading time of Easy Form Builder
+
+* Fixed issues
+
+
+
+= 3.7.34 = 
+* Fixed issues of loading time of Easy Form Builder
+* Fixed issues
 = 3.7.33 = 
 
 * Fixed issues

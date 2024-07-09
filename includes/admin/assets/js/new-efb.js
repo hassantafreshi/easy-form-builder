@@ -995,10 +995,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           <!-- end table matrix -->
           `
         break;
- /*    case 'terms':
-      dataTag = elementId;
-      ui =typeof terms_el_pro_efb =="function" ? terms_el_pro_efb(previewSate, rndm,iVJ) :public_pro_message(); */
-      break;
+
     case 'prcfld':
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
