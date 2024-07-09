@@ -268,6 +268,11 @@ function Link_emsFormBuilder(state) {
 
 
 function show_message_result_form_set_EFB(state, m) { //V2
+
+  const cet = () => {
+    const emailItem = valj_efb.find(item => item.type === 'email');
+    return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
+};
   const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onClick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
@@ -276,6 +281,15 @@ function show_message_result_form_set_EFB(state, m) { //V2
   </h4>
   
   `;
+  const e_s = cet();
+  let e_m ='<div id="alert"></div>';
+  if(((efb_var.smtp==false || efb_var.smtp==0) && e_s==true || e_s==1)) {
+    //howActivateAlertEmail
+    msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')">${efb_var.text.howActivateAlertEmail}</a>
+    `
+    e_m = alarm_emsFormBuilder(msg)
+  }
   let content = ``
    
   if (state != 0) {
@@ -283,7 +297,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
     ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
-  <div id="alert"></div>
+  ${e_m}
   <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
       <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
   </a>
