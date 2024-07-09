@@ -1786,4 +1786,19 @@ class efbFunction {
 		
 
 	}
+
+
+	public function check_and_enqueue_google_captcha_efb($lang) {
+        $url = 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload';
+        $response = wp_remote_head($url);
+        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+            wp_register_script('recaptcha', $url, null , null, true);
+            wp_enqueue_script('recaptcha');
+			return true;
+        } else {
+            
+            error_log('recaptcha google URL is not accessible.');
+			return false;
+        }
+    }
 }

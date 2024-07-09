@@ -432,8 +432,10 @@ class _Public {
 				
 				 $k =$this->pub_stting['siteKey'];
 				 $k = "<script>let sitekye_emsFormBuilder='".$k."'</script>";
-				 wp_register_script('recaptcha', 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload', null , null, true);
-				 wp_enqueue_script('recaptcha');
+				 $r_captcha = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);
+				 if($r_captcha==false){
+					 $k ="<script>let sitekye_emsFormBuilder=2; const c_r_efb ='reCAPTCHA Error:".$lanText['tfnapca']."'</script>";
+				 }
 			 }
 
 			 /* if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && gettype($value)=='string' &&  (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
