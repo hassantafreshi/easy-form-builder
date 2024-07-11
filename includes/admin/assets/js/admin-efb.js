@@ -2248,14 +2248,17 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'marksEl':
-        c = parseInt(document.getElementById('marksEl').value);
+        c = document.getElementById('marksEl').value;
+        c = parseInt(c);
         valj_efb[indx].mark = c;
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb'); 
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
           //query data-id="${valj_efb[indx].id_}-control"
 
-          clss.innerHTML= `<input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="Enter a location name" class="efb border-d efb-square fs-6">
+          clss.innerHTML= `
+              <a  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="Enter a location name" class="efb border-d efb-square fs-6">
               <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
