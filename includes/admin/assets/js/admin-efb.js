@@ -283,11 +283,11 @@ function show_message_result_form_set_EFB(state, m) { //V2
   `;
   const e_s = cet();
   let e_m ='<div id="alert"></div>';
-
-  if((efb_var.smtp==false || efb_var.smtp==0) && (e_s==true || e_s==1)) {
+  console.log(`efb_var.smtp: ${efb_var.smtp} e_s: ${e_s}`);
+  if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
     //howActivateAlertEmail
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
-    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')">${efb_var.text.howActivateAlertEmail}</a>
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
     `
     e_m = alarm_emsFormBuilder(msg)
   }

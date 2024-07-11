@@ -1772,18 +1772,28 @@ class efbFunction {
 
 	public function openstreet_map_required_efb($s){
 	
-		wp_register_style('leaflet_css', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
-		wp_enqueue_style('leaflet_css');
-		wp_register_script('leaflet_js', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js');
-		wp_enqueue_script('leaflet_js');
+		$url = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
+		$response = wp_remote_head($url);
+		$s =false;
+		if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+		
+			$s= true;
+		} 
+		if($s==false) return false;
+
+		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_enqueue_style('leaflet_css_efb');
+		wp_register_script('leaflet_js_efb', $url);
+		wp_enqueue_script('leaflet_js_efb');
+		
 		if($s==1 || true){
-			wp_register_style('leaflet_fullscreen_css', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
-			wp_enqueue_style('leaflet_fullscreen_css');
-			wp_register_script('leaflet_fullscreen_js', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
-			wp_enqueue_script('leaflet_fullscreen_js');
+			wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+			wp_enqueue_style('leaflet_fullscreen_css_efb');
+			wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+			wp_enqueue_script('leaflet_fullscreen_js_efb');
 		}
 		
-		
+		return true;
 
 	}
 

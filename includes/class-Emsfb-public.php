@@ -448,9 +448,13 @@ class _Public {
 				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
 				 wp_enqueue_script('googleMaps-js');
 			 } */
+			  $s_m ='<!--efb-->';
 			 if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
 				 
-				$this->efbFunction->openstreet_map_required_efb(1);
+				$s_m = $this->efbFunction->openstreet_map_required_efb(1);				
+				if($s_m==false){
+					$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
+				}
 			 }
 		 }	
 		 $width =0;		// $style =$this->bootstrap_icon_efb();
@@ -461,6 +465,7 @@ class _Public {
 			<div id='body_efb' class='efb  row pb-3 efb px-2'> <div class='efb text-center my-5'>
 			<div class='efb bi-shield-lock-fill efb text-center display-1 my-2'></div><h3 class='efb  text-center fs-5'>". $lanText["formPrivateM"]."</h3>
 			 ".$efb_m."
+			 ".$s_m."
 			</div> </div>";
 			return $content; 
 		 }else{
@@ -472,6 +477,7 @@ class _Public {
 			 <div class='efb text-center my-5'>			 
 			 ".$this->loading_icon_public_efb('',$lanText["pleaseWaiting"] , $lanText["fil"])."			
 			 ".$efb_m."
+			 ".$s_m."
 			 </div>
 			 </div><div id='alert_efb' class='efb mx-5'></div>
 			 ".$k." 
@@ -503,7 +509,7 @@ class _Public {
 		$pl= $this->get_setting_Emsfb('pub');
 		$stng= $pl[0];
 		
-		
+		$s_m ='';
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$text["settingsNfound"];
 			$state="tracker";
@@ -520,22 +526,11 @@ class _Public {
 				
 				
 				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
-					$this->efbFunction->openstreet_map_required_efb(1);
-				}
-			
-			
-			/* if(isset($valstng->mapKey) && $valstng->mapKey!=""){
-				$key= $valstng->mapKey;
-				$lng = strval(get_locale());
-					if ( strlen($lng) > 0 ) {
-					$lng = explode( '_', $lng )[0];
+					$s_m = $this->efbFunction->openstreet_map_required_efb(1);				
+					if($s_m==false){
+						$s_m =" <script>alert('OpenStreetMap Error:".$text['tfnapca']."')</script>";
 					}
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-				wp_enqueue_script('googleMaps-js');
-			} */
-			if(isset($valstng->mapKey) && $valstng->mapKey!=""){
-				$this->efbFunction->openstreet_map_required_efb(1);
-			}
+				}
 		}
 
 		$this->pro_efb = $valstng->pro;
@@ -603,7 +598,7 @@ class _Public {
 		 $val = $this->pro_efb==true ? '<!--efb.app-->' : '<a href="https://whitestudio.team"  class="efb text-decoration-none" target="_blank"><p class="efb fs-7 text-darkb mb-4" style="text-align: center;">'.$text['easyFormBuilder'].'<p></a>';
 	 	$content="<script>let sitekye_emsFormBuilder='' </script>
 		 ".$this->bootstrap_icon_efb($icons_)."
-		
+		".$s_m."
 		<div id='body_tracker_emsFormBuilder' class='efb '><div id='alert_efb' class='efb mx-5 text-center'></div>
 		".$this->loading_icon_public_efb('',$text["pleaseWaiting"], $text['fil'])."</div>";	
 		return $content; 
