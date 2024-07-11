@@ -85,6 +85,9 @@ class Admin {
             
             add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
             add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
+
+
+            add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
         } 
     }
 
@@ -1487,6 +1490,18 @@ class Admin {
             
             error_log('Font Roboto URL is not accessible.');
         }
+    }
+
+
+    public function heartbeat_Emsfb(){
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>'Security Error'];
+            wp_send_json_success($response, 200);
+        }
+       
+        $response = ['success' => true, "m" =>'heartBeat'];
+        wp_send_json_success($response, 200);
     }
 
 }

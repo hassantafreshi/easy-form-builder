@@ -283,7 +283,6 @@ function show_message_result_form_set_EFB(state, m) { //V2
   `;
   const e_s = cet();
   let e_m ='<div id="alert"></div>';
-  console.log(`efb_var.smtp: ${efb_var.smtp} e_s: ${e_s}`);
   if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
     //howActivateAlertEmail
     msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
@@ -4058,6 +4057,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if( els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
       document.getElementById('wpbody-content').children[i].remove()
     }
+    setInterval(heartbeat_Emsfb, 900000);
   }
   //remove all el included updated 
 
@@ -4652,5 +4652,26 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
     efbErrorMessageDiv.classList.remove('d-none');
     efbErrorMessageDiv.textContent = 'Latitude and Longitude are required';
   }
+}
+
+
+function heartbeat_Emsfb() {
+  // Your code here
+  console.log("This function is called every 15 minutes");
+
+  data = {
+    action: "heartbeat_Emsfb",
+    nonce: efb_var.nonce,
+  };
+
+
+$.post(ajaxurl, data, function (res) {
+  if (res.success == true) {
+    console.log(res.data);
+  } else {
+    console.log(res.data);
+  }
+})
+
 }
 
