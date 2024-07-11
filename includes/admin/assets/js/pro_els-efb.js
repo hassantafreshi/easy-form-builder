@@ -478,101 +478,11 @@ function fun_clear_esign_efb(id) {
       fun_sendBack_emsFormBuilder(o[0])
     }
   }
-let map_efb;
-let markers_maps_efb = [];
-let mark_maps_efb = []
-function initMap_efb(disabled) {
-  setTimeout(function () {
-    const idx = valj_efb.findIndex(x => x.type == "maps")
-    const lat = idx != -1 && valj_efb[idx].lat ? Number(valj_efb[idx].lat) : 49.24803870604257;
-    const lon = idx != -1 && valj_efb[idx].lng ? Number(valj_efb[idx].lng) : -123.10512829684463;
-    const mark = idx != -1 ? Number(valj_efb[idx].mark) : 1;
-    const zoom = idx != -1 && valj_efb[idx].zoom && valj_efb[idx].zoom != "" ? Number(valj_efb[idx].zoom) : 10;
-    const location = { lat: lat, lng: lon };
-    if(typeof google == "undefined"){
-      alert_message_efb(efb_var.text.error,googleMapsNOkEfb(),20,'danger');
-      return 0;
-    }
-    if(typeof google!='undefined' && google.hasOwnProperty('maps')) map_efb = new google.maps.Map(document.getElementById(`${valj_efb[idx].id_}-map`), {
-      zoom: zoom,
-      center: location,
-      mapTypeId: "roadmap",
-    });
-    if (mark != 0 && mark != -1) {
-      if (disabled)return;
-      map_efb.addListener("click", (event) => {
-        const latlng = event.latLng.toJSON();
-        if (mark_maps_efb.length < mark) {
-          mark_maps_efb.push(latlng);
-          addMarker_gm_efb(event.latLng);
-        }
-      });
-      if (document.getElementById("delete-markers_maps_efb-efb")) document.getElementById("delete-markers_maps_efb-efb").addEventListener("click", deletemarkers_maps_efb_efb);
-    } else if (mark == -1) {
-      const lab_map_efb = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      let nn = 0;
-      for (const mrk of marker_maps_efb) {
-        nn += 1;
-        const lab = lab_map_efb[nn];
-        const position = { lat: mrk.lat, lng: mrk.lng };
-        const marker = new google.maps.Marker({
-          position,
-          label: lab,
-          map_efb,
-        });
-        markers_maps_efb.push(marker);
-      }
-    } else {
-      addMarker_gm_efb(location);
-    }
-  }, 1000);
-}
-googleMapsNOkEfb =()=>{
-  return `<div class="efb  boxHtml-efb sign-efb h-100" >
-         <div class="efb  noCode-efb m-5 text-center text-light">
-         <button type="button" class="efb  btn btn-edit btn-sm" data-bs-toggle="tooltip" title="${efb_var.text.howToAddGoogleMap}" onclick="open_whiteStudio_efb('mapErorr')">
-          <i class="efb  bi-question-lg text-pinkEfb"></i></button> 
-          <p class="efb fs-6">${efb_var.text.aPIkeyGoogleMapsError}</p> 
-       </div></div>`;
- }
-function addMarker_gm_efb(position) {
-    const lab_map_efb = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const idx = valj_efb.findIndex(x => x.type == "maps")
-    const idxm = (mark_maps_efb.length)
-    const lab = idx !== -1 && valj_efb[idx].mark < 2 ? '' : lab_map_efb[idxm % lab_map_efb.length];
-    const marker = new google.maps.Marker({
-      position,
-      label: lab,
-      map_efb,
-    });
-    markers_maps_efb.push(marker);
-    if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
-      const vmaps = JSON.stringify(mark_maps_efb);
-      const o = [{ id_: valj_efb[idx].id_, name: valj_efb[idx].name, amount: valj_efb[idx].amount, type: "maps", value: mark_maps_efb, session: sessionPub_emsFormBuilder }];
-      fun_sendBack_emsFormBuilder(o[0])
-    }
-  }
-  function setMapOnAll(map_efb) {
-    for (let i = 0; i < markers_maps_efb.length; i++) {
-      markers_maps_efb[i].setMap(map_efb);
-    }
-  }
-  function hidemarkers_maps_efb() {
-    setMapOnAll(null);
-  }
-  function showmarkers_maps_efb() {
-    setMapOnAll(map_efb);
-  }
-  function deletemarkers_maps_efb_efb() {
-    hidemarkers_maps_efb();
-    markers_maps_efb = [];
-    mark_maps_efb = [];
-    if (typeof (sendBack_emsFormBuilder_pub) != "undefined") {
-      const indx = sendBack_emsFormBuilder_pub.findIndex(x => x.type == "maps");
-      if (indx != -1) { sendBack_emsFormBuilder_pub.splice(indx, 1); }
-    }
-    
-  }
+
+
+
+
+
   fun_addProgessiveEl_efb=(id,state)=>{
   let newEl = document.createElement('div');
   const elId = `${id}-prG`;
