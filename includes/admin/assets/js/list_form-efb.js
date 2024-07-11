@@ -195,16 +195,11 @@ function emsFormBuilder_show_content_message(id) {
 
   show_modal_efb(body, efb_var.text.response, 'efb bi-chat-square-text mx-2', 'saveBox');
   setTimeout(() => { reply_attach_efb(msg_id)}, 10);
-  //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-  //myModal.show_efb();
   state_modal_show_efb(1)
-  // fun_add_event_CloseMenu();
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   jQuery('#track_code_emsFormBuilder').on('keypress', 
   function (event) {
-    //console.log('track_code_emsFormBuilder',event.which)
       if (event.which == '13') {
           event.preventDefault();
           
@@ -243,11 +238,7 @@ function close_overpage_emsFormBuilder(i) {
 
 
 function fun_confirm_remove_emsFormBuilder(id) {
-  // ای دی از جی سون پیدا شود حذف شود و به سمت سرور پیام حذف ارسال شود
-  // صفحه رفرش شود
   fun_delete_form_with_id_by_server(parseInt(id));
-
-  //کد زیر حذف نشود
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -260,7 +251,7 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
  
   fun_delete_message_with_id_by_server(parseInt(id));
 
-  //کد زیر حذف نشود
+ 
   const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => x.form_id == id) : -1
   if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
   fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
@@ -316,24 +307,18 @@ function fun_ws_show_edit_form(id) {
 
 
 function fun_send_replayMessage_emsFormBuilder(id) {
-  //پاسخ مدیر را ارسال می کند به سرور 
   document.getElementById('replay_state__emsFormBuilder').innerHTML = `<i class="efb bi-hourglass-split mx-1"></i> ${efb_var.text.sending}`;
   document.getElementById('replayB_emsFormBuilder').classList.add('disabled');
   
   let message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '@efb@nq#');
   message=message ? sanitize_text_efb(message) : null;
   if (message==null) return  valNotFound_efb()
-  
-  //const message = document.getElementById('replayM_emsFormBuilder').value.replace(/\n/g, '</br>');
-  // +='disabled fas fa-spinner fa-pulse';
-  //const ob = [{ name: 'Message', value: message, by: ajax_object_efm.user_name }];
+
   const ob = [{id_:'message', name:'message', type:'text', amount:0, value: message, by: ajax_object_efm.user_name , session: sessionPub_emsFormBuilder}];
   fun_sendBack_emsFormBuilder(ob[0])
   if (message.length < 1) {
-    
     check_msg_ext_resp_efb();
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<h6 class="efb fs-7"><i class="efb bi-exclamation-triangle-fill nmsgefb"></i>${efb_var.text.error}: ${efb_var.text.pleaseEnterVaildValue}</h6>`;
-    //alert_message_efb(efb_var.text.error, efb_var.text.youCantUseHTMLTagOrBlank, 5 , 'danger')
     return
   }
   
@@ -1469,13 +1454,10 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
         if (st == 0) {
           ti = efb_var.text.error
           show_modal_efb(c, ti, '', 'saveBox');
-          //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
-          //myModal.show_efb();
           state_modal_show_efb(1)
           return false;
         }
-      } else if (id == "activeCode_emsFormBuilder") {
-        //برای برسی صحیح بودن کد امنیتی وارد شده
+      } else if (id == "activeCode_emsFormBuilder") {        
         if (el.value.length < 10 && el.value.length != 0) {
           el.classList.add('invalid');
           returnError(`<b>${el.dataset.tab}</b>`);
@@ -1629,11 +1611,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0) {
 }
 
 function fun_State_btn_set_setting_emsFormBuilder($state) {
- /*   if (document.getElementById('btn_set_setting_emsFormBuilder').classList.contains('disabled') == true) {
-     document.getElementById('btn_set_setting_emsFormBuilder').classList.remove('disabled');
-   } else {
-     document.getElementById('btn_set_setting_emsFormBuilder').classList.add('disabled');
-   } */
+
    let el =  document.getElementById('save-stng-efb');
     if($state==true){
       el.classList.remove('disabled');
@@ -1666,7 +1644,6 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
     return;
   }
   data = JSON.stringify(data);
-  //ارسال تنظیمات به ووردپرس
   jQuery(function ($) {
     data = {
       action: "set_setting_Emsfb",
@@ -1701,10 +1678,7 @@ function fun_send_setting_emsFormBuilder(data , state_auto = 0) {
       if(res.data.success == true){
         history.replaceState("panel",null,'?page=Emsfb&state=reload-setting&save=ok');            
         window.location=location.search;          
-      
-       /*  document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
-        document.getElementById('save-stng-efb').classList.remove('disabled');
-        alert_message_efb(t, m, time, lrt); */
+
       }else{
         document.getElementById('save-stng-efb').innerHTML = `<i class="efb  bi-save mx-1"></i>${efb_var.text.save}`;
         document.getElementById('save-stng-efb').classList.remove('disabled');

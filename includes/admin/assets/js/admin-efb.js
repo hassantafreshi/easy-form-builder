@@ -2675,10 +2675,6 @@ let change_el_edit_Efb = (el) => {
          
          temp = el.options[el.selectedIndex].value;
          Object.assign(valj_efb[indx], { stylish: el.options[el.selectedIndex].value })
-         //1 n+e
-         //2 n
-         // e 
-        // obj_delete_options(valj_efb[indx].id_)
          c =valj_efb.filter(item => item.parent == valj_efb[indx].id_);
          
          const newRndm = Math.random().toString(36).substr(2, 9);
@@ -2730,9 +2726,6 @@ function wating_sort_complate_efb(t) {
   const body = efbLoadingCard()
   show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
-  //const myModal = new bootstrap.Modal(el, {});
-  //myModal.backdrop = 'static';
- // myModal.show_efb()
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
 }
@@ -3026,7 +3019,6 @@ let editFormEfb = () => {
 
 
 function obj_resort_row(step) {
-  // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
  
   for (let v of valj_efb) {
@@ -3039,8 +3031,7 @@ function obj_resort_row(step) {
       }
     }
   }
-  /*   if(pro_efb==false) step_el_efb = step_el_efb-1;
-    valj_efb[0].steps = valj_efb[0].steps-1; */
+
   fub_shwBtns_efb()
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
@@ -3315,9 +3306,6 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 }
 
 const sort_obj_el_efb_ = () => {
-  // این تابع  مرتبط سازی المان ها را بر عهده دارد و آی دی و قدم آن را بعد از هر تغییر در ترتیب توسط کاربر مرتبط می کند
-  // باید بعد بجز المان ها برای آبجکت هم اینجا را  اضافه کنید
- 
   let amount = 0;
   let step = 0;
   let state = false;
@@ -3333,24 +3321,17 @@ const sort_obj_el_efb_ = () => {
       if (indx != -1) {
 
         if (el.classList.contains('stepNo')) {
-          //اگر استپ بود
-          
-     
-          //step = el.dataset.step;
           last_setp +=1;
           step = last_setp ;
-          //el.dataset.amount=amount;
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
 
 
         } else {
-         
-          // if not a step
+
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
-          //el.dataset.step =step;
-          //el.dataset.amount=amount;
+
         }
         if (op_state == false && (fun_el_select_in_efb(el.dataset.tag) || valj_efb[indx].type == "radio" || valj_efb[indx].type == "checkbox" || valj_efb[indx].type == "payRadio" || valj_efb[indx].type == "payCheckbox")) {
 
@@ -3757,7 +3738,6 @@ fun_efb_add_el = (t) => {
 function active_element_efb(el) {
   
   
-  // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
  if (el.id != activeEl_efb ) {
  
@@ -3774,8 +3754,6 @@ function active_element_efb(el) {
    // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
     const ac = document.querySelector(`.field-selected-efb`);
     if (ac) {
-   // if (ac && state_view_efb==0) {      
-      // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
      ac.classList.remove('field-selected-efb')
     }
     //state_view_efb=0

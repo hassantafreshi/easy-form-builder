@@ -891,9 +891,9 @@ function efbCreateMap(id ,r ,viewState) {
   var efbInitialLat = viewState==true ? r.value[0].lat : r.lat; 
   var efbInitialLng = viewState==true ? r.value[0].lng :r.lng; 
   var efbInitialZoom = viewState==true ? 18 :r.zoom;
-  var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; // تعیین اینکه آیا اضافه کردن مارکر جدید مجاز باشد یا خیر
+  var efbAllowAddingMarkers = Number(r.mark)>0 ? true :false; 
   if(viewState==true && efbAllowAddingMarkers==true)efbAllowAddingMarkers=false;
-  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ; // زبان فارسی (برای تغییر زبان، این مقدار را به زبان مورد نظر خود تغییر دهید)
+  const efbLanguage = efb_var.language.length==2 ? efb_var.language : efb_var.language.slice(0,2) ;
   var efbMapContainer = document.createElement('div');
   efbMapContainer.className = 'map-container';
   var efbMapDiv = document.createElement('div');
@@ -1027,9 +1027,6 @@ function efbSearchLocation(efbMapId) {
 }
 
 function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName = '' ) {
-  //+ here MAP
-  //console.log(`efbAllowAddingMarkers[${efbAllowAddingMarkers}]`,r,maps_efb,state_efb);
-  //const len = 
   var efbMarkerNumber ='';
   if(state_efb!='view'){
      efbMarkerNumber = efbAllowAddingMarkers ? maps_efb[efbMapId].markers.length + 1 : '';
@@ -1044,12 +1041,6 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
   //console.log(`efb-error-message-${efbMapId}`,efbErrorMessageDiv);
   var efbMarkerIcon = L.divIcon({
       className: 'custom-div-icon',
-    /*   html: `
-          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="red" />
-              <text x="16" y="21" font-size="12" text-anchor="middle" fill="white" font-family="Arial" font-weight="bold">${efbMarkerNumber}</text>
-          </svg>
-      `, */
       html: map_marker_ui_efb(efbMarkerNumber),
       iconSize: [32, 32],
       iconAnchor: [16, 32]
@@ -1076,10 +1067,7 @@ function efbAddMarker(efbLat, efbLng, efbMapId, efbAllowAddingMarkers,r, efbName
              
               if(state_efb!='view'){
                 const o = [{ id_: r.id_, name: r.name, amount: r.amount, type: "maps", value: maps_efb[efbMapId].locationList, session: sessionPub_emsFormBuilder }];
-              
                 fun_sendBack_emsFormBuilder(o[0])
-                //(o[0]);
-                //console.log('Markers and addresses:', maps_efb[efbMapId].locationList);
               }
           })
           .catch(error => {

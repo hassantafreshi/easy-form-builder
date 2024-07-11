@@ -438,16 +438,7 @@ class _Public {
 				 }
 			 }
 
-			 /* if( isset($this->pub_stting["mapKey"]) && strlen($this->pub_stting["mapKey"])>5 && gettype($value)=='string' &&  (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
-				 
-				 $key= $this->pub_stting["mapKey"];
-				 $lng = strval(get_locale());
-					 if ( strlen($lng) > 0 ) {
-					 $lng = explode( '_', $lng )[0];
-					 }
-				 wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$key.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-				 wp_enqueue_script('googleMaps-js');
-			 } */
+
 			  $s_m ='<!--efb-->';
 			 if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
 				 
@@ -1239,23 +1230,15 @@ class _Public {
 										$in_loop=false;
 								break;
 								case 'maps':
-									
-									
 									$stated=1;
 									$rt= $item;
 									$c = 0;
 									//$item['value'] =$item['value'];
 									foreach ($item['value'] as $key => $value) {
-										$c+=1;
-										
-										
-										
+										$c+=1;										
 										if(is_numeric($value["lat"])==false || is_numeric($value["lng"])==false){ 
 											//mnvvXXX
-											
-											
 											$stated=0;$rt =null;};
-										
 									}
 									if($c!=$f["mark"]){ 
 										$stated=0;
@@ -1444,19 +1427,13 @@ class _Public {
 						case "form":						
 							$check=	$this->insert_message_db(0,false);
 							$nnc = wp_create_nonce($check);
-																			
-							//wp_schedule_single_event( $timed, 'email_recived_new_message_hook_efb' ); 							
+																										
 							$this->efbFunction->efb_code_validate_update($sid ,'send' ,$check );
 							$response = array( 'success' => true  ,'ID'=>$data_POST['id'] , 'track'=>$check  , 'ip'=>$ip,'nonce'=>$nnc); 
 							if($rePage!="null"){$response = array( 'success' => true  ,'m'=>$rePage); }
 
-						
-							//+ قبل از هر ارسال این تابع زیر فراخوانی شود
 							if(isset($formObj[0]['smsnoti']) && $formObj[0]['smsnoti']==1 ) {
-								
-								
-								
-																
+						
 								$this->efbFunction->sms_ready_for_send_efb($this->id, $phone_numbers,$url,'fform' ,'wpsms' ,$check );
 
 							}												
@@ -2030,8 +2007,7 @@ class _Public {
 		 'application/vnd.oasis.opendocument.spreadsheet','application/vnd.oasis.opendocument.presentation','application/vnd.oasis.opendocument.text',
 		 'application/zip', 'application/octet-stream', 'application/x-zip-compressed', 'multipart/x-zip'
 		);
-		if (in_array($_FILES['file']['type'], $arr_ext)) { 
-			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
+		if (in_array($_FILES['file']['type'], $arr_ext)) { 			
 			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
 			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
 			if(is_ssl()==true){

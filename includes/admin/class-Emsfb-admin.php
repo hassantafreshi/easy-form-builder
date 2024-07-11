@@ -505,8 +505,7 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
-        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -594,8 +593,8 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
-        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        
+        
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -749,8 +748,6 @@ class Admin {
     }
 
     public function set_replyMessage_id_Emsfb() {
-        // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
-        // با این مضنون که پاسخ شما داده شده است
         $this->efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $this->efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -870,7 +867,7 @@ class Admin {
     }
 
     public function set_setting_Emsfb() {
-        // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
+        
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];

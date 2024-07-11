@@ -253,8 +253,6 @@ function emsFormBuilder_nevButton_view(n) {
     currentTab_emsFormBuilder = n;
   }
 
-  // این قسمت برای تنظیم که در دراپ زون محتوا قرار دارد یا نه
-  // راه حل می توان هر دراپ زون را جدا جدا بررسی کرد یا اینکه قبل از ذخیره سازی دردیتا بیس بررسی شود
 
 
   if (x && currentTab_emsFormBuilder >= x.length) {
@@ -487,14 +485,6 @@ function createStepsOfPublic() {
 
 
 function fun_sendBack_emsFormBuilder(ob) {
-  
-  // این تابع آبجکت ارسال به سرور مدیریت می کند  
-/*   if (sendBack_emsFormBuilder.length) {
-    const indx = sendBack_emsFormBuilder.findIndex(x => x.id_ === ob.id_);
-    indx == -1 ? sendBack_emsFormBuilder.push(ob) : sendBack_emsFormBuilder[indx] = ob;
-  } else {
-    sendBack_emsFormBuilder.push(ob);
-  } */
   if(ob.hasOwnProperty('value')){
   ob.value= ob.value.replaceAll("'", "@efb@sq#");
   ob.value= ob.value.replaceAll("`", "@efb@vq#");
@@ -531,7 +521,7 @@ function fun_sendBack_emsFormBuilder(ob) {
   }
   sendBack_emsFormBuilder=sendBack_emsFormBuilder_pub;
 }
-function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبجکت ارسال به سرور مدیریت می کند
+function fun_multiSelectElemnets_emsFormBuilder(ob) { 
   let r = 0
   if (multiSelectElemnets_emsFormBuilder.length > 0) {
     const indx = multiSelectElemnets_emsFormBuilder.findIndex(x => x.parents === ob.parents);
@@ -542,21 +532,16 @@ function fun_multiSelectElemnets_emsFormBuilder(ob) { // این تابع آبج�
       let check = 0;
       for (const key of keys) {
         if (ob[key] === map[key]) {
-          check = 1;
-          // اگر کی ورودی با مقدار مولتی سلکت یکی بود وضعیت تغییر کند اگر نبود اضافه شود به لیست
-          // اگر یکی بود اون آپشن آن سلکت بشه
+          check = 1;        
         }
         if (check === 1 && key !== 'parents' && map[key] !== undefined && ob[key] !== undefined && map[key] !== ob[key]) {
           multiSelectElemnets_emsFormBuilder[indx] = ob;
           document.getElementById(key).selected
           check = 2;
-          //  if (map[key])
         }
-
-        //   if (keu)
       }
       if (check == 1) Object.assign(multiSelectElemnets_emsFormBuilder[indx], ob);
-      // بررسی شود اگر مقدار انتخاب شده بود
+      
     } else {
       multiSelectElemnets_emsFormBuilder.push(ob);
     }
@@ -581,28 +566,6 @@ function alarm_emsFormBuilder(val) {
   </div>`
 }
 
-
-
-/* function loading_emsFormBuilder() {
-  return `<div  id="loading_emsFormBuilder"><div class="efb spinner-border text-warning" role="status">
-    <span class="efb sr-only">${efb_var.text.loading}...</span>
-  </div></div>`
-
-} */
-
-/* function showloading_emsFormBuilder() {
-  const stepMax =currentTab_emsFormBuilder+1;
-  const time = stepMax < 3 ? 700 : stepMax * 200;  
-  //document.getElementById(`body`).innerHTML+=loading_emsFormBuilder();
-  document.getElementById("body").classList.add = "wait";
-  if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-  else body.style.pointerEvents = "none";
-  setTimeout(() => {
-    document.getElementById("body").classList.remove = "wait";
-    if (body.style.pointerEvents == "none") body.style.pointerEvents = "auto";
-    else body.style.pointerEvents = "none";    
-  }, time);
-} */
 
 
 function endMessage_emsFormBuilder_view() {
@@ -688,7 +651,6 @@ function valid_phone_emsFormBuilder(el) {
 
     }
   }
-  // if (check>0) alert("Please enter email address");
   return check > 0 ? false : true
 }
 
@@ -727,9 +689,7 @@ function valid_file_emsFormBuilder(id) {
     }
   }
   if (check > 0) {
-    msgEl.innerHTML = "";
-    //fun_upload_file_api_emsFormBuilder(id, file,tp);
-   
+    msgEl.innerHTML = "";   
       const idB =id+'-prB';
       //console.log(idB);
       const elf = document.getElementById(idB);
@@ -739,8 +699,6 @@ function valid_file_emsFormBuilder(id) {
       let pp =0;
       elf.style.width = pp+'%';
       elf.textContent = pp+'% = ' + efb_var.text.preview;
-      //write a codes every 500ms pp+=5 and elf.style.width=pp+'%' and elf.textContent=pp+'% = ' + file.name;
-   
       const x = setInterval(() => {
         pp+=5;
         elf.style.width = pp+'%';
