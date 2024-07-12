@@ -82,13 +82,14 @@ function fun_efb_run(){
           const vs = setting_emsFormBuilder;
           addons_emsFormBuilder = vs.addons;
           if (ajax_object_efm.type != "userIsLogin") {
-            if (Number(ajax_value[0].captcha )== 1) {              
+            if (Number(ajax_value[0].captcha )== 1) {           
               if(vs.siteKey.length<3){
                 const vd =  alarm_emsFormBuilder(ajax_object_efm.text.formIsNotShown);
                 // console.log(vd);
                 document.getElementById('body_efb').innerHTML =vd;
                 return;
               }
+              if(sitekye_emsFormBuilder==2)alert(c_r_efb);
               sitekye_emsFormBuilder = vs.siteKey;
             } else { sitekye_emsFormBuilder = ""; }
           } else {

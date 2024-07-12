@@ -153,18 +153,7 @@ class Create {
 			}
 		
 
-			/* 	if( isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
-				$k= $ac->apiKeyMap;
-				$maps=true;
-				$lng = strval(get_locale());
-				
-					if ( strlen($lng) > 0 ) {
-					$lng = explode( '_', $lng )[0];
-					}
-				wp_register_script('googleMaps-js', 'https://maps.googleapis.com/maps/api/js?key='.$k.'&#038;language='.$lng.'&#038;libraries=&#038;v=weekly&#038;channel=2', null, null, true);	
-				wp_enqueue_script('googleMaps-js');
-			} */
-			//load openstreetmap
+
 			$efbFunction->openstreet_map_required_efb(0);
 
 			if(isset($ac->AdnSPF)==true){
@@ -224,9 +213,9 @@ class Create {
 
 			
 			
-			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.7.36',true);	
+			wp_register_script('jquery-ui-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-ui-efb.js', array('jquery'),'3.8.0',true);	
 			wp_enqueue_script('jquery-ui-efb');
-			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.7.36',true);	
+			wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),'3.8.0',true);	
 			wp_enqueue_script('jquery-dd-efb'); 
 			
 
@@ -239,7 +228,7 @@ class Create {
 		wp_enqueue_script('intlTelInput-js');
 
 		
-		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.7.36');
+		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.0');
         wp_enqueue_style('intlTelInput-css');
 		
 		if( false){
@@ -268,11 +257,11 @@ class Create {
 		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
 
 		if("fa_IR"==get_locale()){
-			wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),'3.7.36',true);
+			wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),'3.8.0',true);
 			wp_enqueue_script('persia_pay-efb.js');
 		}
 
-		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.7.36',true);
+		wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),'3.8.0',true);
 		wp_enqueue_script('stripe_js');
 
 
@@ -293,7 +282,7 @@ class Create {
 		$plugins['cache'] =$efbFunction->check_for_active_plugins_cache();
 		
 		$location ='';
-		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.7.36');
+		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.8.0');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1,
@@ -317,24 +306,24 @@ class Create {
 			
 		));
 
-		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.7.36');
+		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js',false,'3.8.0');
 		
 		
-		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.7.36');
+		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.0');
 		
 
 		
-		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,'3.7.36');
+		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js',false,'3.8.0');
 		
-		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.7.36');
+		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js',false,'3.8.0');
 		 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
 			'check' => 1		));
 
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.7.36');
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',false,'3.8.0');
 		
 
-		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.7.36');
+		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.0');
 		
 
 		

@@ -52,7 +52,7 @@ class Admin {
 
         //$current_user->display_name
         if (is_admin()) {
-            // برای نوشتن انواع اکشن مربوط به حذف و اضافه اینجا انجام شود
+        
            
             if (!function_exists('get_plugin_data')) {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
@@ -85,6 +85,9 @@ class Admin {
             
             add_action('wp_ajax_remove_messages_Emsfb', [$this, 'delete_messages_Emsfb']);      //Remove messages by object
             add_action('wp_ajax_read_list_Emsfb', [$this, 'read_list_Emsfb']);      //Remove messages by object
+
+
+            add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
         } 
     }
 
@@ -114,15 +117,15 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.7.36' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.8.0' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.7.36');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.8.0');
             wp_enqueue_style('Emsfb-style-css');
             
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,'3.7.36');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,'3.8.0');
             wp_enqueue_style('Emsfb-bootstrap');
 
          
@@ -131,24 +134,23 @@ class Admin {
 
             
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css',true,'3.7.36');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css',true,'3.8.0');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.7.36');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.8.0');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
-            wp_register_style('Font_Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
-            wp_enqueue_style('Font_Roboto');
+            $this->check_and_enqueue_font_roboto();
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,'3.7.36');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,'3.8.0');
                 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,'3.7.36');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,'3.8.0');
                 
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,'3.7.36');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,'3.8.0');
                
         }
     }
@@ -506,8 +508,7 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
-        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -595,8 +596,8 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-        // بر اساس نام ستینگ در دیتا بیس ذخیره شود 
-        //در سمت کلاینت مقدار مربوط به نام تنظیم ترو شود و اگر وجود نداشت اضافه شود
+        
+        
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -750,8 +751,6 @@ class Admin {
     }
 
     public function set_replyMessage_id_Emsfb() {
-        // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
-        // با این مضنون که پاسخ شما داده شده است
         $this->efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $this->efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
@@ -871,7 +870,7 @@ class Admin {
     }
 
     public function set_setting_Emsfb() {
-        // این تابع بعلاوه به اضافه کردن مقدار به دیتابیس باید یک ایمیل هم به کاربر ارسال کند
+        
         $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
@@ -1480,9 +1479,35 @@ class Admin {
     }
 
 
+    public function check_and_enqueue_font_roboto() {
 
+        $font_url = 'https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap';
+        $response = wp_remote_head($font_url);
+        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+            wp_register_style('Font_Roboto', $font_url);
+            wp_enqueue_style('Font_Roboto');
+        } else {
+            
+            error_log('Font Roboto URL is not accessible.');
+        }
+    }
+
+
+    public function heartbeat_Emsfb(){
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>'Security Error'];
+            wp_send_json_success($response, 200);
+        }
+       
+        $response = ['success' => true, "m" =>'heartBeat'];
+        wp_send_json_success($response, 200);
+    }
 
 }
+
+
+
 
 new Admin();
 

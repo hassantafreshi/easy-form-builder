@@ -268,6 +268,11 @@ function Link_emsFormBuilder(state) {
 
 
 function show_message_result_form_set_EFB(state, m) { //V2
+
+  const cet = () => {
+    const emailItem = valj_efb.find(item => item.type === 'email');
+    return emailItem!=undefined && emailItem.hasOwnProperty('noti')  ? emailItem.noti  : false;
+};
   const wpbakery= `<p class="efb m-5 mx-3 fs-4"><a class="efb text-danger" onClick="Link_emsFormBuilder('wpbakery')" target="_blank">${efb_var.text.wwpb}</a></p>`
   const title = `
   <h4 class="efb title-holder efb">
@@ -276,6 +281,15 @@ function show_message_result_form_set_EFB(state, m) { //V2
   </h4>
   
   `;
+  const e_s = cet();
+  let e_m ='<div id="alert"></div>';
+  if((efb_var.smtp==false || efb_var.smtp==0 || efb_var.smtp==-1) && (e_s==true || e_s==1)) {
+    //howActivateAlertEmail
+    msg = `<br> <p>${efb_var.text.clickToCheckEmailServer }</p> <p>${efb_var.text.goToEFBAddEmailM }</p> <br> 
+    <a class="efb btn btn-sm efb btn-danger text-white btn-r d-block " onClick="Link_emsFormBuilder('EmailNoti')"><i class="efb bi bi-patch-question  mx-1"></i>${efb_var.text.howActivateAlertEmail}</a>
+    `
+    e_m = alarm_emsFormBuilder(msg)
+  }
   let content = ``
    
   if (state != 0) {
@@ -283,7 +297,7 @@ function show_message_result_form_set_EFB(state, m) { //V2
     ${wpbakery_emsFormBuilder ? wpbakery :''}
   <h5 class="efb mt-3 efb">${efb_var.text.shortcode}: <strong>${m}</strong></h5>
   <input type="text" class="efb hide-input efb" value="${m}" id="trackingCodeEfb">
-  <div id="alert"></div>
+  ${e_m}
   <a  class="efb btn-r btn efb btn-primary btn-lg m-3" onclick="copyCodeEfb('trackingCodeEfb')">
       <i class="efb  bi-clipboard-check mx-1"></i>${efb_var.text.copyShortcode}
   </a>
@@ -2233,14 +2247,17 @@ let change_el_edit_Efb = (el) => {
 
         break;
       case 'marksEl':
-        c = parseInt(document.getElementById('marksEl').value);
+        c = document.getElementById('marksEl').value;
+        c = parseInt(c);
         valj_efb[indx].mark = c;
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb'); 
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
           //query data-id="${valj_efb[indx].id_}-control"
 
-          clss.innerHTML= `<input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="Enter a location name" class="efb border-d efb-square fs-6">
+          clss.innerHTML= `
+              <a  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="Enter a location name" class="efb border-d efb-square fs-6">
               <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
@@ -2657,10 +2674,6 @@ let change_el_edit_Efb = (el) => {
          
          temp = el.options[el.selectedIndex].value;
          Object.assign(valj_efb[indx], { stylish: el.options[el.selectedIndex].value })
-         //1 n+e
-         //2 n
-         // e 
-        // obj_delete_options(valj_efb[indx].id_)
          c =valj_efb.filter(item => item.parent == valj_efb[indx].id_);
          
          const newRndm = Math.random().toString(36).substr(2, 9);
@@ -2712,9 +2725,6 @@ function wating_sort_complate_efb(t) {
   const body = efbLoadingCard()
   show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
-  //const myModal = new bootstrap.Modal(el, {});
-  //myModal.backdrop = 'static';
- // myModal.show_efb()
   state_modal_show_efb(1);
   setTimeout(() => { state_modal_show_efb(0) }, t)
 }
@@ -3008,7 +3018,6 @@ let editFormEfb = () => {
 
 
 function obj_resort_row(step) {
-  // ترتیب را مرتب می کند بعد از پاک شدن یک استپ
   // const newStep = step - 1;
  
   for (let v of valj_efb) {
@@ -3021,8 +3030,7 @@ function obj_resort_row(step) {
       }
     }
   }
-  /*   if(pro_efb==false) step_el_efb = step_el_efb-1;
-    valj_efb[0].steps = valj_efb[0].steps-1; */
+
   fub_shwBtns_efb()
   if (valj_efb[0].steps == 1) fun_handle_buttons_efb(false);
 }
@@ -3297,9 +3305,6 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
 }
 
 const sort_obj_el_efb_ = () => {
-  // این تابع  مرتبط سازی المان ها را بر عهده دارد و آی دی و قدم آن را بعد از هر تغییر در ترتیب توسط کاربر مرتبط می کند
-  // باید بعد بجز المان ها برای آبجکت هم اینجا را  اضافه کنید
- 
   let amount = 0;
   let step = 0;
   let state = false;
@@ -3315,24 +3320,17 @@ const sort_obj_el_efb_ = () => {
       if (indx != -1) {
 
         if (el.classList.contains('stepNo')) {
-          //اگر استپ بود
-          
-     
-          //step = el.dataset.step;
           last_setp +=1;
           step = last_setp ;
-          //el.dataset.amount=amount;
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
 
 
         } else {
-         
-          // if not a step
+
           valj_efb[indx].amount = amount;
           valj_efb[indx].step = step;
-          //el.dataset.step =step;
-          //el.dataset.amount=amount;
+
         }
         if (op_state == false && (fun_el_select_in_efb(el.dataset.tag) || valj_efb[indx].type == "radio" || valj_efb[indx].type == "checkbox" || valj_efb[indx].type == "payRadio" || valj_efb[indx].type == "payCheckbox")) {
 
@@ -3739,7 +3737,6 @@ fun_efb_add_el = (t) => {
 function active_element_efb(el) {
   
   
-  // تابع نمایش دهنده و مخفی کنند کنترل هر المان
   //show config buttons
  if (el.id != activeEl_efb ) {
  
@@ -3756,8 +3753,6 @@ function active_element_efb(el) {
    // const ac = document.querySelector(`[data-id="${activeEl_efb}"]`);
     const ac = document.querySelector(`.field-selected-efb`);
     if (ac) {
-   // if (ac && state_view_efb==0) {      
-      // document.getElementById(`btnSetting-${activeEl_efb}`).classList.add('d-none')
      ac.classList.remove('field-selected-efb')
     }
     //state_view_efb=0
@@ -4062,6 +4057,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if( els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
       document.getElementById('wpbody-content').children[i].remove()
     }
+    setInterval(heartbeat_Emsfb, 900000);
   }
   //remove all el included updated 
 
@@ -4656,5 +4652,26 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
     efbErrorMessageDiv.classList.remove('d-none');
     efbErrorMessageDiv.textContent = 'Latitude and Longitude are required';
   }
+}
+
+
+function heartbeat_Emsfb() {
+  // Your code here
+  console.log("This function is called every 15 minutes");
+
+  data = {
+    action: "heartbeat_Emsfb",
+    nonce: efb_var.nonce,
+  };
+
+
+$.post(ajaxurl, data, function (res) {
+  if (res.success == true) {
+    console.log(res.data);
+  } else {
+    console.log(res.data);
+  }
+})
+
 }
 

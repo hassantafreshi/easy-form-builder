@@ -995,10 +995,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
           <!-- end table matrix -->
           `
         break;
- /*    case 'terms':
-      dataTag = elementId;
-      ui =typeof terms_el_pro_efb =="function" ? terms_el_pro_efb(previewSate, rndm,iVJ) :public_pro_message(); */
-      break;
+
     case 'prcfld':
         maxlen = valj_efb[iVJ].hasOwnProperty('mlen') && valj_efb[iVJ].mlen >0 ? valj_efb[iVJ].mlen :0;
         maxlen = Number(maxlen)!=0 ? `maxlength="${maxlen}"`:``;
@@ -1741,7 +1738,6 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-        //  initMap_efb(disabled);
           efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
@@ -3136,7 +3132,6 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         value = maps_os_pro_efb(false, '', c.id_,'') 
         
         marker_maps_efb = c.value;
-       // initMap_efb(false);
         m += value;
         setTimeout(() => {
           efbCreateMap(c.id_ ,c,true)

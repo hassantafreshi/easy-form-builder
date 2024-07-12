@@ -761,6 +761,10 @@ class efbFunction {
 			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, Easy Form Builder loads JavaScript files from the unpkg.com CDN for the leafletjs.com service, but only on pages using this feature.',$s),
 			"elpo" => $state  &&  isset($ac->text->elpo) ? $ac->text->elpo : esc_html__('Enable Location Picker in Easy Form Builder',$s),
 			"jqinl" => $state  &&  isset($ac->text->jqinl) ? $ac->text->jqinl : esc_html__('Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.',$s),
+			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('%s1 Addon',$s),
+			'tlgm' => $state  &&  isset($ac->text->tlgm) ? $ac->text->tlgm : esc_html__('Telegram',$s),
+			"tlgmAddon" => $state  &&  isset($ac->text->tlgmAddon) ? $ac->text->tlgmAddon : esc_html__('Telegram notification Addon',$s),
+			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses',$s),				
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 			
 		];
@@ -1772,18 +1776,43 @@ class efbFunction {
 
 	public function openstreet_map_required_efb($s){
 	
-		wp_register_style('leaflet_css', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
-		wp_enqueue_style('leaflet_css');
-		wp_register_script('leaflet_js', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js');
-		wp_enqueue_script('leaflet_js');
+		$url = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
+		$response = wp_remote_head($url);
+		$s =false;
+		if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+		
+			$s= true;
+		} 
+		if($s==false) return false;
+
+		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
+		wp_enqueue_style('leaflet_css_efb');
+		wp_register_script('leaflet_js_efb', $url);
+		wp_enqueue_script('leaflet_js_efb');
+		
 		if($s==1 || true){
-			wp_register_style('leaflet_fullscreen_css', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
-			wp_enqueue_style('leaflet_fullscreen_css');
-			wp_register_script('leaflet_fullscreen_js', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
-			wp_enqueue_script('leaflet_fullscreen_js');
+			wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
+			wp_enqueue_style('leaflet_fullscreen_css_efb');
+			wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
+			wp_enqueue_script('leaflet_fullscreen_js_efb');
 		}
 		
-		
+		return true;
 
 	}
+
+
+	public function check_and_enqueue_google_captcha_efb($lang) {
+        $url = 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload';
+        $response = wp_remote_head($url);
+        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
+            wp_register_script('recaptcha', $url, null , null, true);
+            wp_enqueue_script('recaptcha');
+			return true;
+        } else {
+            
+            error_log('recaptcha google URL is not accessible.');
+			return false;
+        }
+    }
 }
