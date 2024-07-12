@@ -274,7 +274,7 @@ class efbFunction {
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.',$s),
 			//"proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
 			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The API key for Google Maps has not been added. Please go to Easy Form Builder > Panel > Setting > Google Keys, add the API key for Google Maps, and try again.',$s),
-			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Google maps to Easy form Builder WordPress Plugin',$s),
+			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin',$s),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : esc_html__('Delete markers',$s),
 			"updateUrbrowser" => $state ? $ac->text->updateUrbrowser : esc_html__('update your browser',$s),
 			"stars" => $state ? $ac->text->stars : esc_html__('Stars',$s),
@@ -304,7 +304,7 @@ class efbFunction {
 			"serverEmailAble" => $state ? $ac->text->serverEmailAble : esc_html__('Your server is capable of sending emails',$s),
 			"sMTPNotWork" => $state ? $ac->text->sMTPNotWork : esc_html__('SMTP Error: The host is unable to send an email. Please contact the host is support team for assistance.',$s),
 			
-			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : esc_html__('There was an error loading Google Maps.',$s),
+			"aPIkeyGoogleMapsFeild" => $state ? $ac->text->aPIkeyGoogleMapsFeild : esc_html__('There was an error loading Maps.',$s),
 			"fileIsNotRight" => $state ? $ac->text->fileIsNotRight : esc_html__('The uploaded file is not in the correct file format.',$s),
 			"thisElemantNotAvailable" => $state ? $ac->text->thisElemantNotAvailable : esc_html__('The selected field is not available in this type of form.',$s),
 			"numberSteps" => $state ? $ac->text->numberSteps : esc_html__('Edit',$s),
