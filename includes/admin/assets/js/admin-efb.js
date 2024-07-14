@@ -4657,8 +4657,6 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 function heartbeat_Emsfb() {
   // Your code here
-  console.log("This function is called every 15 minutes");
-
   data = {
     action: "heartbeat_Emsfb",
     nonce: efb_var.nonce,
@@ -4667,7 +4665,7 @@ function heartbeat_Emsfb() {
 
 $.post(ajaxurl, data, function (res) {
   if (res.success == true) {
-    console.log(res.data);
+
   } else {
     console.log(res.data);
   }

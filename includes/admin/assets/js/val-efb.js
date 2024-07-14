@@ -1972,9 +1972,7 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
   //console.error("!!!!!!!!",idset ,fid);
   let c = -1;
   const n = valj_efb[0].hasOwnProperty('conditions')==true ? valj_efb[0].conditions.findIndex(x=>x.id_ ==fid):-1;
-  //test below row
-  //if(valj_efb[0].hasOwnProperty('conditions')==true) console.log("testrow",valj_efb[0].conditions.findIndex(x=>x.id_ ==fid))
-  //end test row
+
   if(n!=-1){ c= valj_efb[0].conditions[n].condition.find(x=>x.no ==idset);
   
   }
@@ -1985,8 +1983,7 @@ const selectSmartforOptionsEls = (idset ,fid)=>{
 
  
  for (let i =0 ; i< row.length ; i++){
-  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.one[${c.one}] row[${i}].id_[${row[i].id_}]` ,c ,row[i])
-  //if(c.hasOwnProperty('one')) console.log("!!!!!!!!",`c.hasOwnProperty('one')[${c.hasOwnProperty('one')}] && c.one[${c.one}] == row[i].id_[${row[i].id_}] c.one == row[i].id_[${c.one == row[i].id_}]` ,c.hasOwnProperty('one') && c.one == row[i].id_)
+  
   op +=`<option value="${row[i].id_}" id="opsso-${row[i].id_}" data-idset="${idset}" data-fid="${fid}" ${c.one == row[i].id_ ? `selected` : ''} >${row[i].name}</option>`;
  }
  return `<select  data-id="sso-${idset}" data-no="${idset}" data-fid="${fid}" class="efb w-100 elEdit form-select border-d rounded-4 ps-1 pe-4"  id="selectSmartforOptionsEls" data-tag="list_selected">
