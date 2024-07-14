@@ -2257,7 +2257,7 @@ let change_el_edit_Efb = (el) => {
 
           clss.innerHTML= `
               <a  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
-              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb border-d efb-square fs-6">
+              <input type="text" id="efb-search-${valj_efb[indx].id_}" placeholder="${efb_var.text.eln}" class="efb p-1 border-d efb-square fs-6">
               <a   class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
               <a   class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${valj_efb[indx].id_}" class="error-message d-none"></div>`
