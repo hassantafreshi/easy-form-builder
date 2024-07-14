@@ -765,6 +765,7 @@ class efbFunction {
 			'tlgm' => $state  &&  isset($ac->text->tlgm) ? $ac->text->tlgm : esc_html__('Telegram',$s),
 			"tlgmAddon" => $state  &&  isset($ac->text->tlgmAddon) ? $ac->text->tlgmAddon : esc_html__('Telegram notification Addon',$s),
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses',$s),				
+			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 			
 		];
