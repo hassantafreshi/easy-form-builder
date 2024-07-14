@@ -933,10 +933,10 @@ function efbCreateMap(id ,r ,viewState) {
       efbDiv.dataset.id = id+'-contorller';
       if (efbAllowAddingMarkers) {
           efbDiv.innerHTML = `
-              <a ${ state_efb == 'view' ?'':`onclick="efbLocateMe(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-dark text-light"><i class=" fs-6   efb bi-crosshair"></i></a>
-              <input type="text" id="efb-search-${efbMap._leaflet_id}" placeholder="${efb_var.text.eln}" class="efb border-d efb-square fs-6" ${ state_efb == 'view' ?'disabled':''}>
-              <a ${ state_efb == 'view' ?'':`onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  class="efb btn btn-sm btn-secondary text-light">${efb_var.text.search}</a>
-              <a ${ state_efb == 'view' ?'':`onclick="efbClearMarkers(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-danger text-light">${efb_var.text.deletemarkers}</a>
+              <a ${ state_efb == 'view' ?'':`onclick="efbLocateMe(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-dark text-light fs-6"><i class=" fs-6   efb bi-crosshair"></i></a>
+              <input type="text" id="efb-search-${efbMap._leaflet_id}" placeholder="${efb_var.text.eln}" class="efb  border-d efb-square fs-6" ${ state_efb == 'view' ?'disabled':''}>
+              <a ${ state_efb == 'view' ?'':`onclick="efbSearchLocation(${efbMap._leaflet_id})"`}  class="efb btn btn-sm btn-secondary text-light fs-6">${efb_var.text.search}</a>
+              <a ${ state_efb == 'view' ?'':`onclick="efbClearMarkers(${efbMap._leaflet_id} , '${id}')"`}  class="efb btn btn-sm btn-danger text-light fs-6">${efb_var.text.deletemarkers}</a>
               <div id="efb-error-message-${efbMap._leaflet_id}" class="error-message d-none"></div>
           `;
           efbDiv.classList.remove('d-none');
