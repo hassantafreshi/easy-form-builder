@@ -281,7 +281,7 @@ class _Public {
 		$img =[];
 		
 		if($this->pro_efb==1){
-			$efb_m= "" ;
+			$efb_m= "<!--efb-->" ;
 
 			//smssend : after filed forms check if sms send enable and send sms to admin and users
 			if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")) {
