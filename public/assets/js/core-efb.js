@@ -581,7 +581,7 @@ function emsFormBuilder_show_content_message(value, content) {
   `
   const body = `
   <div class="efb modal-header efb">
-  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
+  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2 fs-5"></i>
    <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
  </div>
   <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
