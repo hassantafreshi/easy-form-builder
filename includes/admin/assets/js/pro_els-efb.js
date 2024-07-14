@@ -505,12 +505,12 @@ function fun_clear_esign_efb(id) {
       let btnC = '<!--efb.app-->'
     if( pro_efb==true){
        if (page_state_efb=="panel") btnC =`<div class="efb col fs-5 h-d-efb pointer-efb text-darkb d-flex justify-content-end">
-       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"}" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
+       <button type="button" class="efb btn mt-1 efb ${stock_state_efb ==true ? 'btn-outline-success' :"btn-outline-pink"} fs-6" onclick="closed_resp_emsFormBuilder(${msg_id})" data-state="${stock_state_efb ==true ? 1 :0}" id="respStateEfb" disabled>
            ${stock_state_efb ==true ?  efb_var.text.open : efb_var.text.close}
       </button></div>`
       if(setting_emsFormBuilder.hasOwnProperty('dsupfile')  && setting_emsFormBuilder.dsupfile==false && efb_var.hasOwnProperty('setting')==false) return '';
       return  `<div class="efb form-check">
-      <div class="efb btn btn-light text-dark" id="attach_efb">
+      <div class="efb btn btn-light text-dark fs-6" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
       <input type="file" id="resp_file_efb_" name="file"  data-id="${msg_id}" >
       </div>
@@ -524,7 +524,7 @@ function fun_clear_esign_efb(id) {
       ${$pr}
      </button></div>`;
       return `<div class="efb form-check">
-      <div class="efb btn btn-light text-dark" id="attach_efb" >
+      <div class="efb btn btn-light text-dark fs-6" id="attach_efb" >
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
         ${$pr}
       </div>
