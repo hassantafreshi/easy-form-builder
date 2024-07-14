@@ -437,8 +437,8 @@ class _Public {
 			  $s_m ='<!--efb-->';
 			 if( (strpos($value , '\"type\":\"maps\"') || strpos($value , '"type":"maps"'))){
 				 
-				$s_m = $this->efbFunction->openstreet_map_required_efb(1);				
-				if($s_m==false){
+				$sm = $this->efbFunction->openstreet_map_required_efb(1);				
+				if($sm==false){
 					$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
 				}
 			 }
@@ -493,7 +493,7 @@ class _Public {
 		$pl= $this->get_setting_Emsfb('pub');
 		$stng= $pl[0];
 		
-		$s_m ='';
+		$s_m ='<!--efb-->';
 		if(gettype($stng)=="integer" && $stng==0){
 			$stng=$text["settingsNfound"];
 			$state="tracker";
@@ -510,8 +510,8 @@ class _Public {
 				
 				
 				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
-					$s_m = $this->efbFunction->openstreet_map_required_efb(1);				
-					if($s_m==false){
+					$sm = $this->efbFunction->openstreet_map_required_efb(1);				
+					if($sm==false){
 						$s_m =" <script>alert('OpenStreetMap Error:".$text['tfnapca']."')</script>";
 					}
 				}
