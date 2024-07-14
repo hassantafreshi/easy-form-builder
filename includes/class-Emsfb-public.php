@@ -214,6 +214,7 @@ class _Public {
 		
 		$icons=[[
 			'bi-clipboard-check',
+			"bi-shield-lock-fill",
 			'bi-exclamation-triangle-fill',
 			"bi-exclamation-diamond-fill",		
 			"bi-check2-square",

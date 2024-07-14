@@ -69,7 +69,9 @@ function fun_efb_run(){
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
-      efb_var = ajax_object_efm;     
+      efb_var = ajax_object_efm;    
+      //check if the form is private so no need to run the code 
+      if(efb_var.ajax_value=="")return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
