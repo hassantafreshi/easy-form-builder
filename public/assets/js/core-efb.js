@@ -68,10 +68,10 @@ function fun_efb_run(){
   (function () {
     jQuery(function () {
       if (typeof ajax_object_efm == 'undefined') return;
+      //check if the form is private so no need to run the code 
+      if(ajax_object_efm.ajax_value=="")return;
       if(document.getElementById('body_efb')==null && document.getElementById('body_tracker_emsFormBuilder')==null) check_body_efb_timer();
       efb_var = ajax_object_efm;    
-      //check if the form is private so no need to run the code 
-      if(efb_var.ajax_value=="")return;
       poster_emsFormBuilder = ajax_object_efm.poster;
       lan_name_emsFormBuilder =efb_var.language.slice(0,2);
       pro_efb = ajax_object_efm.pro == '1' ? true : false;
@@ -581,7 +581,7 @@ function emsFormBuilder_show_content_message(value, content) {
   `
   const body = `
   <div class="efb modal-header efb">
-  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2"></i>
+  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2 fs-5"></i>
    <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
  </div>
   <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
