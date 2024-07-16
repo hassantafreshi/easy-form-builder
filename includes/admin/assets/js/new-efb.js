@@ -2976,7 +2976,7 @@ function fun_total_pay_efb() {
     }
   }
   for (let r of sendBack_emsFormBuilder_pub) {
-    if (r.hasOwnProperty('price') ) total += parseFloat(r.price)
+    if (r.hasOwnProperty('price') ) total += Math.abs(parseFloat(r.price));
   }
   setTimeout(() => { updateTotal(total); }, 800);
   if(valj_efb[0].getway=="persiaPay" && typeof fun_total_pay_persiaPay_efn=="function"){ fun_total_pay_persiaPay_efn(total)}

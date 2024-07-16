@@ -2669,8 +2669,8 @@ class _Public {
 		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
-			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+			if(isset($val_[$i]['price'])){			
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -2875,7 +2875,7 @@ class _Public {
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -2889,7 +2889,7 @@ class _Public {
 							break;
 							case 'payCheckbox':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
-							break;
+							break;							
 						}
 					});
 					if($filtered==false){
@@ -2910,6 +2910,11 @@ class _Public {
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
+				}else if ($iv["type"]=="prcfld" ){					
+					 
+					   $price_c += abs($val_[$i]['price']);
+					   $price_f += abs($val_[$i]['price']);		
+
 				}
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
@@ -2924,7 +2929,7 @@ class _Public {
 			}
 		}
 		$this->ip= $this->get_ip_address();
-		$ip = $this->ip;
+		$ip = $this->ip;		
 		if($price_c != $price_f) {
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
@@ -2985,6 +2990,7 @@ class _Public {
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
 		}else{
+			error_log(__LINE__);
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
@@ -3027,7 +3033,7 @@ class _Public {
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -3136,7 +3142,7 @@ class _Public {
 			//$response->transStat
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
-		}else{
+		}else{			
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
