@@ -2050,17 +2050,18 @@ div#attach_efb {	position: relative;
 	  background: #fbf2f2;
   } */
   .efb.ttiptext {
-	  background-color: #fbf2f2;
-	  text-align: center;
-	  border-radius: 6px;
-	  position: absolute;
-	  z-index: 1;
-	  transition: opacity 0.3s;
-	  border-width: 1px;
-	  border-style: solid;
-	  border-color: #dc3545;
-	  max-width: fit-content!important;
-  }
+   background-color: #fbf2f2;
+   text-align: center;
+   border-radius: 6px;
+   position: absolute;
+   z-index: 1;
+   transition: opacity 0.3s;
+   border-width: 1px;
+   border-style: solid;
+   border-color: #e5445478;
+   max-width: fit-content !important;
+   color: #dd0f0fd6 !important;
+}
 
   @media screen and (max-width: 782px) {
 	  .top_circle-efb-1, .top_circle-efb-2 {		display: none !important;}
