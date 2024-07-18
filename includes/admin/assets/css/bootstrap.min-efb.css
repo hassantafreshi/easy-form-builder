@@ -6270,3 +6270,10 @@ label input[type="radio"].efb{
 	visibility: hidden;
  }
  
+
+
+ .input-efb.border-danger {
+	border-color: #d1798180  !important}
+	
+.input-efb.border-success {
+	border-color: #39444a4a  !important}
