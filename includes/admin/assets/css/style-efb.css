@@ -367,7 +367,7 @@ i.efb {	font-size: 1.2rem;
 .input-efb:focus {	box-shadow: 0px 2px 10px rgba(84, 131, 207, 0.25) !important;
    color: #a5a3d1}
 .efb::placeholder {	/* Chrome, Firefox, Opera, Safari 10.1+ */	color: #a5a3d1 !important;
-   font-size: 20px !important;
+   font-size: 17px !important;
    opacity: 0.7 !important;
    /* Firefox */	font-weight: 400 !important;
 }
@@ -1101,7 +1101,7 @@ input[type=range].efb {	border: transparent !important;
 
 label.yesno-efb.h-l-efb,label.yesno-efb.h-xl-efb,label.yesno-efb.h-xxl-efb,label.yesno-efb.h-xxxl-efb {	padding-top: 2% !important;
 }
-/* placeholder of input */.h-d-efb::-webkit-input-placeholder {	font-size: 20px !important;
+/* placeholder of input */.h-d-efb::-webkit-input-placeholder {	font-size: 17px !important;
    font-weight: 400 !important;
 }
 /* Chrome */.h-d-efb:-moz-placeholder {	font-size: 17px !important;
