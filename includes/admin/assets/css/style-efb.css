@@ -362,7 +362,7 @@ i.efb {	font-size: 1.2rem;
 }
 .efb.nav-icon {	padding: 0.4rem;
 }
-.input-efb {	color: #a5a3d1;
+.input-efb {	color: #07070ca8;
 }
 .input-efb:focus {	box-shadow: 0px 2px 10px rgba(84, 131, 207, 0.25) !important;
    color: #a5a3d1}
@@ -636,7 +636,8 @@ i.efb {	font-size: 1.2rem;
    */	/*width: 70%;
    */	/*min-width: 300px;
    */	/*}
-*/.input-efb {	color: #a5a3d1 !important;
+*/
+.input-efb {	color: #07070ca8 !important;
 }
 .input-efb:focus {	/*width: auto;
    */	box-shadow: 0px 2px 10px rgba(84, 131, 207, 0.25) !important;
