@@ -2990,7 +2990,6 @@ class _Public {
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
 		}else{
-			error_log(__LINE__);
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
