@@ -76,7 +76,7 @@ function saveLocalStorage_emsFormBuilder() {
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-    <div class="efb emsFormBuilder"><i class="efb fas fa-exclamation-triangle faa-flash animated"></i></div>
+    <div class="efb emsFormBuilder"><i class="efb bi-exclamation-triangle-fill"></i></div>
     <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
@@ -4046,6 +4046,11 @@ let r_matrix_push_efb = (parent, value, rndm, op) => {
   valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `r_matrix`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 }
 
+fun_create_content_nloading_efb = () => {
+  let txt = efb_var.text.alns.replaceAll('%s1', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%s2', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%s3', `</a>`);
+  return txt;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
   for (let i = 0; i < els.children.length; i++) {
@@ -4054,8 +4059,14 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
     //check if the element have updated wpb-notice class
-    if( els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
+    if(els.children[i]!=undefined && (els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated'))){
       document.getElementById('wpbody-content').children[i].remove()
+    }
+    
+    if(!document.getElementById('efb_alert')){
+      //  
+      const txt = fun_create_content_nloading_efb();
+      els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
     }
     setInterval(heartbeat_Emsfb, 900000);
   }
@@ -4129,7 +4140,7 @@ window.addEventListener("popstate",e=>{
     break;
     case 'setting':
       fun_show_setting__emsFormBuilder();      
-      fun_backButton(0);
+      fun_backButton_efb(0);
       fun_hande_active_page_emsFormBuilder(2);
       break;
     case 'help':      
@@ -4155,7 +4166,7 @@ window.addEventListener("popstate",e=>{
       fun_get_messages_by_id(Number(v));
       /* setTimeout(() => {
         emsFormBuilder_waiting_response();
-        fun_backButton(0);
+        fun_backButton_efb(0);
       }, 20); */
       
       fun_hande_active_page_emsFormBuilder(1);
@@ -4166,7 +4177,7 @@ window.addEventListener("popstate",e=>{
       //if (v==null) console.error('get[id] not found!');
       
       fun_get_form_by_id(Number(v));
-      fun_backButton();
+      fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
     break;
 

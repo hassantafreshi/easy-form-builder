@@ -375,7 +375,7 @@ function validateForm_fixStepInd_view(n) { var i, x = document.getElementsByClas
 
 function createStepsOfPublic() {
   if (valueJson_ws.length == 1 && valueJson_ws == "N" && document.getElementById('emsFormBuilder-form-view')) {
-    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
+    document.getElementById('emsFormBuilder-form-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3 id="formNotFound">${efb_var.text.formNotFound}</h3> <span>${efb_var.text.errorV01}</span>`;
     return false;
   }
 
@@ -561,7 +561,7 @@ function saveLocalStorage_emsFormBuilder_view() {
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-  <div class="efb emsFormBuilder"><i class="efb fas fa-exclamation-triangle faa-flash animated"></i></div>
+  <div class="efb emsFormBuilder"><i class="efb bi-exclamation-triangle-fill"></i></div>
     <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
@@ -588,7 +588,7 @@ function endMessage_emsFormBuilder_view() {
  
   if (countRequired != valueExistsRequired && sendBack_emsFormBuilder.length < 1) {
     let str = ""
-    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb fas fa-exclamation-triangle faa-flash animated text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
+    document.getElementById('emsFormBuilder-text-message-view').innerHTML = `<h1 class='efb emsFormBuilder'><i class="efb bi-exclamation-triangle-fill text-danger""></i></h1><h3>Failed</h3> <span>${efb_var.text.pleaseMakeSureAllFields}</span>
     <div class="efb display-btn"> <button type="button" id="emsFormBuilder-text-prevBtn-view" onclick="emsFormBuilder_nevButton_view(0)" style="display;"><i class="efb fa fa-angle-double-left"></i></button></div>`;
 
     // faild form
