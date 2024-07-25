@@ -37,7 +37,7 @@ class Panel_edit  {
 			'logoGif'=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif'
 			];
 			$pro =false;
-			$efbFunction = new efbFunction(); 
+			$efbFunction = $this->get_efbFunction();
 			//$lng =new lng();		
 			$ac= $efbFunction->get_setting_Emsfb();
 			$lang = $efbFunction->text_efb(2);
@@ -417,7 +417,7 @@ class Panel_edit  {
 	}
 
 	public function file_upload_api(){
-		$efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;
+		$efbFunction = $this->get_efbFunction();
 		if(empty($this->efbFunction))$this->efbFunction =$efbFunction;
 		$_POST['id']=sanitize_text_field($_POST['id']);
         $_POST['pl']=sanitize_text_field($_POST['pl']);
@@ -497,6 +497,15 @@ class Panel_edit  {
 				$date_limit
 			)
 		);
+	}
+
+	public function get_efbFunction(){
+		
+			if(!class_exists('Emsfb\efbFunction')){
+				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+			}
+			return new \Emsfb\efbFunction();
+		
 	}
 
 

@@ -3830,9 +3830,10 @@ class _Public {
 			if(!class_exists('Emsfb\efbFunction')){
 				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
 			}
-			$this->efbFunction = new efbFunction();
+			$this->efbFunction = new \Emsfb\efbFunction();
 		}
 
+		
 		if($state==1) return $this->efbFunction;
 	}
 	

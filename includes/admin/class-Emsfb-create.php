@@ -127,7 +127,7 @@ class Create {
 
 		$pro =false;
 		$maps =false;
-		$efbFunction = new efbFunction(); 
+		$efbFunction = $this->get_efbFunction();
 		$ac= $efbFunction->get_setting_Emsfb();
 		$addons = ['AdnSPF' => 0,
 		'AdnOF' => 0,
@@ -340,7 +340,7 @@ class Create {
 
 	public function add_form_structure(){
 		
-		$efbFunction = new efbFunction(); 
+		$efbFunction = $this->get_efbFunction();
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated","newMessageReceived","newResponse","WeRecivedUrM","trackNo","url" ];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
@@ -463,6 +463,14 @@ class Create {
         }
         return  $s;
     }//end fun
+
+
+	public function get_efbFunction(){
+		if(!class_exists('Emsfb\efbFunction')){
+			require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+		}
+		return new \Emsfb\efbFunction();				
+	}
 
 
 

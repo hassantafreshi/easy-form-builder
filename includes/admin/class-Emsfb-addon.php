@@ -101,7 +101,7 @@ class Addon {
 
 		$pro =false;
 		$maps =false;
-		$efbFunction = new efbFunction(); 
+		$efbFunction = $this->get_efbFunction(); 
 		$ac= $efbFunction->get_setting_Emsfb();
 
 		if(gettype($ac)!="string"){			
@@ -250,7 +250,7 @@ class Addon {
 		
 	
 		
-		$efbFunction = new efbFunction(); 
+		$efbFunction = $this->get_efbFunction(); 
 		$creat=["errorCheckInputs","NAllowedscriptTag","formNcreated"];
 		$lang = $efbFunction->text_efb($creat);
 		$this->userId =get_current_user_id();
@@ -314,6 +314,13 @@ class Addon {
         }
         return  $s;
     }//end fun
+
+	public function get_efbFunction(){
+			if(!class_exists('Emsfb\efbFunction')){
+				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+			}
+			return new \Emsfb\efbFunction();				
+	}
 
 }
 
