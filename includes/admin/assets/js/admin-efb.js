@@ -4063,7 +4063,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
     
-    if(!document.getElementById('efb_alert')){
+    if(!document.getElementById('alert_efb')){
       //  
       const txt = fun_create_content_nloading_efb();
       els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
