@@ -46,14 +46,22 @@ let count_row_emsFormBuilder = 0;
 
 function fun_emsFormBuilder_render_view(x) {
   // v2
-  
+
+  if(!document.getElementById('alert_efb')){
+    const currentUrl = window.location.href;
+    const txt = fun_create_content_nloading_efb();
+    const txtWithoutHTML = txt.replace(/<[^>]+>/g, '');
+    alert(txtWithoutHTML)
+    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
+    return;
+  }
   
   
   let rows = ""
   let o_rows = ""
   count_row_emsFormBuilder = x;
   let count = 0;
-  fun_backButton(2);
+  fun_backButton_efb(2);
 
   function creatRow(i, newM) {
     
@@ -91,7 +99,8 @@ function fun_emsFormBuilder_render_view(x) {
     }
     rows += o_rows;
     if (valueJson_ws_form.length <= x) {
-      document.getElementById("more_emsFormBuilder").style.display = "none";
+      const d = document.getElementById("more_emsFormBuilder");
+      if(d) d.style.display = "none";
     }
 
 
@@ -116,7 +125,7 @@ function fun_emsFormBuilder_render_view(x) {
  `
 
   } else {
-    fun_backButton(1);
+    fun_backButton_efb(1);
     document.getElementById('content-efb').innerHTML = head_introduce_efb('panel')
     document.getElementById('content-efb').classList.add('m-1');
   }
@@ -134,9 +143,9 @@ function emsFormBuilder_waiting_response() {
 
 
 function emsFormBuilder_get_edit_form(id) {
-  //fun_backButton()
+  //fun_backButton_efb()
   history.pushState("edit-form",null,`?page=Emsfb&state=edit-form&id=${id}`);
-  fun_backButton();
+  fun_backButton_efb();
   emsFormBuilder_waiting_response();
   fun_get_form_by_id(id);
 }
@@ -213,7 +222,8 @@ function emsFormBuilder_show_content_message(id) {
 
 
 
-function fun_backButton(state) {
+function fun_backButton_efb(state) {
+   if(!document.getElementById("more_emsFormBuilder"))return;
   if (document.getElementById("more_emsFormBuilder").style.display == "block" && state == 1) {
     document.getElementById("more_emsFormBuilder").style.display = "none";
     (document.getElementById("more_emsFormBuilder").style.display, 255)
@@ -526,7 +536,7 @@ function emsFormBuilder_messages(id) {
   history.pushState("show-message",null,`?page=Emsfb&state=show-messages&id=${id}&form_type=${row.form_type}`);
   fun_get_messages_by_id(Number(id));
   emsFormBuilder_waiting_response();
-  fun_backButton(0);
+  fun_backButton_efb(0);
 }
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
@@ -760,7 +770,7 @@ function fun_show_content_page_emsFormBuilder(state) {
   } else if (state == "setting" || state == "reload-setting") {
     history.pushState("setting",null,'?page=Emsfb&state=setting');
     fun_show_setting__emsFormBuilder();
-    fun_backButton(0);
+    fun_backButton_efb(0);
     state = 2
     const s = sanitize_text_efb(getUrlparams_efb.get('save'));
     if(s=='ok') alert_message_efb("", efb_var.text.saved, 7, "info");  
@@ -780,7 +790,7 @@ function fun_show_content_page_emsFormBuilder(state) {
    const v =sanitize_text_efb(getUrlparams_efb.get('id'));
       
       fun_get_form_by_id(Number(v));
-      fun_backButton();
+      fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
   }
   fun_hande_active_page_emsFormBuilder(state);

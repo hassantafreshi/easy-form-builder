@@ -78,7 +78,7 @@ function btnPersiaPayEfb(){
   setTimeout(() => {
     let val=[];
     sendBack_emsFormBuilder_pub.forEach(row => {
-      if(row.type.includes('pay')!=false){
+      if(row.type.includes('pay')!=false || row.type.includes('prcfld')!=undefined){
         //console.log(row,row.type.includes('pay'));
         val.push(row);
       }
@@ -112,7 +112,6 @@ post_api_persiapay_efb=(data)=>{
     'Content-Type': 'application/json',
 
     });
-
 
   const jsonData = JSON.stringify(data);
   const requestOptions = {

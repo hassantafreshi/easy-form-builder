@@ -252,9 +252,9 @@ class _Public {
 		$state="form";		
 		$multi_exist = strpos($value , '"type\":\"multiselect\"');
 		if($multi_exist==true || strpos($value , '"type":"multiselect"') || strpos($value , '"type\":\"payMultiselect\"') || strpos($value , '"type":"payMultiselect"')){
-			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.1');
+			wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js',false,'3.8.3');
 			
-			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.8.1' );
+			wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css', true,'3.8.3' );
 			wp_enqueue_style('Emsfb-bootstrap-select-css');
 		}
 		$rp= $this->get_setting_Emsfb('pub');
@@ -292,7 +292,7 @@ class _Public {
 
 			
 				if($el_pro_load==true){
-					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.1');
+					wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.3');
 					 
 				}
 		
@@ -313,12 +313,12 @@ class _Public {
 								if($paymentType=="stripe"){ 
 									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);	
 									wp_enqueue_script('stripe-js');
-									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.8.1', true);
+									wp_register_script('stripepay_js', plugins_url('../public/assets/js/stripe_pay-efb.js',__FILE__), array('jquery'), '3.8.3', true);
 									wp_enqueue_script('stripepay_js');
 									$paymentKey=isset($setting->stripePKey) && strlen($setting->stripePKey)>5 ? $setting->stripePKey:'null';							
 								}else if($paymentType=="persiaPay" || $paymentType=="zarinPal"  || $paymentType="payping" ){
 									$paymentKey=isset($setting->payToken) && strlen($setting->payToken)>5 ? $setting->stripePKey:'null';
-									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.8.1', true);
+									wp_register_script('parsipay_js', plugins_url('../public/assets/js/persia_pay-efb.js',__FILE__), array('jquery'), '3.8.3', true);
 									wp_enqueue_script('parsipay_js');
 								}
 							}
@@ -331,7 +331,7 @@ class _Public {
 					));
 				}
 				if(strpos($value , '\"type\":\"switch\"') || strpos($value , '"type":"switch')){
-					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.8.1');
+					wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ), true,'3.8.3');
 				 
 				}
 				if(strpos($value , '\"type\":\"pdate\"') || strpos($value , '"type":"pdate"')){
@@ -356,7 +356,7 @@ class _Public {
 						];
 					wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);	
 					wp_enqueue_script('intlTelInput-js');
-					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.1');
+					wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,'3.8.3');
 					wp_enqueue_style('intlTelInput-css');
 				}
 				if(strpos($value , '\"logic\":\"1\"') || strpos($value , '"logic":"1"')){
@@ -524,7 +524,7 @@ class _Public {
 					
 		if($this->pro_efb==1){
  
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.1');
+			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js',false,'3.8.3');
 		 
 		}
 		//$location = $this->pro_efb==true  ? $this->efbFunction->get_geolocation() :'';
@@ -589,23 +589,23 @@ class _Public {
 		return $content; 
 	}
 	function public_scripts_and_css_head(){
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.8.1');
+		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,'3.8.3');
 		wp_enqueue_style('Emsfb-style-css');
 		
-		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.8.2', true);				
+		 wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), array('jquery'), '3.8.3', true);				
 		 wp_enqueue_script('Emsfb-core_js');
 		
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.8.1', true);		
+		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js',array('jquery'), '3.8.3', true);		
 		$ar_core = array() ;
 		wp_localize_script( 'efb-main-js', 'efb_var',$ar_core);  
 		
 		if(is_rtl()){
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.8.1');
+			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,'3.8.3');
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
 		
-		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.8.1');
+		wp_register_style('Emsfb-bootstrap-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css', true,'3.8.3');
 		wp_enqueue_style('Emsfb-bootstrap-css');
 
 		
@@ -2669,8 +2669,8 @@ class _Public {
 		$valobj=[];
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
-			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+			if(isset($val_[$i]['price'])){			
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -2875,7 +2875,7 @@ class _Public {
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -2889,7 +2889,7 @@ class _Public {
 							break;
 							case 'payCheckbox':
 								if(isset($item['price']))	return $item['id_'] == $iv["id_ob"] &&  $item['parent']==$iv['id_'] ? $item['value'] :false; 								
-							break;
+							break;							
 						}
 					});
 					if($filtered==false){
@@ -2910,6 +2910,11 @@ class _Public {
 						$price_f += $fs_[$a]["price"];										
 					}
 					$a=-1;
+				}else if ($iv["type"]=="prcfld" ){					
+					 
+					   $price_c += abs($val_[$i]['price']);
+					   $price_f += abs($val_[$i]['price']);		
+
 				}
 				if($a !=-1){											
 					if($fs_[$a]["type"]!="payMultiselect"){						
@@ -2924,7 +2929,7 @@ class _Public {
 			}
 		}
 		$this->ip= $this->get_ip_address();
-		$ip = $this->ip;
+		$ip = $this->ip;		
 		if($price_c != $price_f) {
 			$t=time();
 			$from =get_bloginfo('name')." <Alert@".$_SERVER['SERVER_NAME'].">";
@@ -3027,7 +3032,7 @@ class _Public {
 		for ($i=0; $i <count($val_) ; $i++) { 
 			$a=-1;
 			if(isset($val_[$i]['price'])){				
-				if($val_[$i]['price'] ) $price_c += $val_[$i]['price'];
+				if($val_[$i]['price'] ) $price_c += abs($val_[$i]['price']);
 				if($val_[$i]['type']=="email" ) $email = $val_[$i]["value"];
 				$iv = $val_[$i];
 				if($iv["type"]=="paySelect" || $iv["type"]=="payRadio" || $iv["type"]=="payCheckbox"){
@@ -3136,7 +3141,7 @@ class _Public {
 			//$response->transStat
 			//array_push($response->transStat ,array('id'=>$check));
 			$response=array_merge($response , ['id'=>$check]);
-		}else{
+		}else{			
 			$response = array( 'success' => false  , 'm'=>esc_html__('Error Code:V01','easy-form-builder'));		
 		}
 		wp_send_json_success($response, 200);
@@ -3824,9 +3829,10 @@ class _Public {
 			if(!class_exists('Emsfb\efbFunction')){
 				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
 			}
-			$this->efbFunction = new efbFunction();
+			$this->efbFunction = new \Emsfb\efbFunction();
 		}
 
+		
 		if($state==1) return $this->efbFunction;
 	}
 	

@@ -24,7 +24,7 @@ class Admin {
         $this->init_hooks();
         global $wpdb;
         $this->db = $wpdb;
-        //$this->efbFunction = new efbFunction();        
+     
        
     }
 
@@ -88,6 +88,7 @@ class Admin {
 
 
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
+            add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
         } 
     }
 
@@ -117,15 +118,15 @@ class Admin {
 
             if (is_rtl()) {
                 //code_v1 start
-                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.8.1' );
+                wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true,'3.8.3' );
                 wp_enqueue_style('Emsfb-css-rtl');
                 //code_v1 end
             }
 
-            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.8.1');
+            wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css',true,'3.8.3');
             wp_enqueue_style('Emsfb-style-css');
             
-            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,'3.8.1');
+            wp_register_style('Emsfb-bootstrap', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap.min-efb.css',true,'3.8.3');
             wp_enqueue_style('Emsfb-bootstrap');
 
          
@@ -134,23 +135,23 @@ class Admin {
 
             
 
-            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css',true,'3.8.1');
+            wp_register_style('Emsfb-bootstrap-icons-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-icons-efb.css',true,'3.8.3');
             wp_enqueue_style('Emsfb-bootstrap-icons-css');
             
-            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.8.1');
+            wp_register_style('Emsfb-bootstrap-select-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/bootstrap-select-efb.css',true,'3.8.3');
             wp_enqueue_style('Emsfb-bootstrap-select-css');
 
             $this->check_and_enqueue_font_roboto();
             $lang = get_locale();
             if (strlen($lang) > 0) {$lang = explode('_', $lang)[0];}
 
-                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,'3.8.1');
+                wp_enqueue_script('efb-bootstrap-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.min-efb.js',false,'3.8.3');
                 
 
-                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,'3.8.1');
+                 wp_enqueue_script('efb-bootstrap-bundle-min-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap.bundle.min-efb.js', array( 'jquery' ),true,'3.8.3');
                 
                 
-                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,'3.8.1');
+                wp_enqueue_script('efb-bootstrap-icon-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-icon-efb.js',false,'3.8.3');
                
         }
     }
@@ -184,7 +185,7 @@ class Admin {
     }
 
     public function delete_form_id_public() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);   
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -209,12 +210,17 @@ class Admin {
             ['form_id' => $id],
             ['%d']
         );
-
+        $table_name = $this->db->prefix . "emsfb_msg_";
+         $this->db->delete(
+            $table_name,
+            ['form_id' => $id],
+            ['%d']
+        );
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, $_POST);
     }
     public function delete_message_id_public() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -245,7 +251,7 @@ class Admin {
     }
 
     public function update_form_id_Emsfb() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -346,7 +352,7 @@ class Admin {
     }
     public function add_addons_Emsfb() {
         
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","done","invalidRequire","upDMsg"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
@@ -513,7 +519,7 @@ class Admin {
         wp_send_json_success($response, $_POST);
     }
     public function remove_addons_Emsfb() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","done","invalidRequire"];
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
@@ -603,7 +609,7 @@ class Admin {
     }
 
     public function update_message_state_Emsfb() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","somethingWentWrongPleaseRefresh","updated"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -631,7 +637,7 @@ class Admin {
 
     public function get_form_id_Emsfb() {
         
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -681,7 +687,7 @@ class Admin {
    
 
     public function get_messages_id_Emsfb() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
 
@@ -711,7 +717,7 @@ class Admin {
     }
 
     public function get_all_response_id_Emsfb() {
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $text = ["spprt","error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
@@ -751,7 +757,7 @@ class Admin {
     }
 
     public function set_replyMessage_id_Emsfb() {
-        $this->efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+         $this->get_efbFunction(0);
         $ac= $this->efbFunction->get_setting_Emsfb();
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $this->efbFunction->text_efb($text);
@@ -871,7 +877,7 @@ class Admin {
 
     public function set_setting_Emsfb() {
         
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);  
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
@@ -984,7 +990,7 @@ class Admin {
 
     public function get_ajax_track_admin() {
         //اطلاعات ردیف ترک را بر می گرداند
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["cCodeNFound","error403"];
         $lang= $efbFunction->text_efb($text);
@@ -1018,7 +1024,7 @@ class Admin {
 
     public function clear_garbeg_admin() {
         //پاک کردن فایل های اضافی
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
@@ -1078,7 +1084,7 @@ class Admin {
 
     public function check_email_server_admin() {
         //پاک کردن فایل های اضافی
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
@@ -1319,7 +1325,7 @@ class Admin {
     }
 
     public function fun_duplicate_Emsfb(){
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction =$this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
@@ -1377,7 +1383,7 @@ class Admin {
 
 
     public function delete_messages_Emsfb(){
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
         $lang= $efbFunction->text_efb($text);
@@ -1425,7 +1431,7 @@ class Admin {
     }
     public function read_list_Emsfb(){
         // error_log('read_list_Emsfb');
-        $efbFunction = empty($this->efbFunction) ? new efbFunction() :$this->efbFunction ;   
+        $efbFunction = $this->get_efbFunction(1);
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
         $lang= $efbFunction->text_efb($text);
@@ -1499,10 +1505,37 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-       
-        $response = ['success' => true, "m" =>'heartBeat'];
+        $new_nonce = wp_create_nonce('admin-nonce');
+        $response = ['success' => true, "m" =>'heartBeat' , 'newNonce'=>$new_nonce];
         wp_send_json_success($response, 200);
     }
+
+    public function report_problem_Emsfb(){
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>'Security Error'];
+            wp_send_json_success($response, 200);
+        }
+       error_log('report_problem_Emsfb');
+        $state = sanitize_text_field($_POST['state']) ;
+        $value = sanitize_text_field($_POST['value']) ;
+        $this->get_efbFunction(0);
+        $this->efbFunction->report_problem_efb($state , $value);
+        $response = ['success' => true, "m" =>'report_problem_done'];
+        wp_send_json_success($response, 200);
+    }
+
+    public function get_efbFunction($state){
+		if(empty($this->efbFunction)){ 
+			if(!class_exists('Emsfb\efbFunction')){
+				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+			}
+			$this->efbFunction = new \Emsfb\efbFunction();
+		}
+
+		
+		if($state==1) return $this->efbFunction;
+	}
 
 }
 

@@ -766,6 +766,7 @@ class efbFunction {
 			"tlgmAddon" => $state  &&  isset($ac->text->tlgmAddon) ? $ac->text->tlgmAddon : esc_html__('Telegram notification Addon',$s),
 			"tlgmDAddon" => $state  &&  isset($ac->text->tlgmDAddon) ? $ac->text->tlgmDAddon : esc_html__('The Telegram notification addon lets you get notifications on your Telegram app whenever you receive new messages or responses',$s),				
 			"eln" => $state  &&  isset($ac->text->eln) ? $ac->text->eln : esc_html__('Enter a location name',$s),
+			"alns" => $state  &&  isset($ac->text->alns) ? $ac->text->alns : esc_html__('The %s1 pages are currently unavailable. It looks like another plugin is causing a conflict with %s1 . To fix this issue, %s2 contact %s1 support %s3 for assistance  or try disabling your plugins one at a time to identify the one causing the conflict.',$s),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank',$s)
 			
 		];
@@ -848,8 +849,8 @@ class efbFunction {
 							$role = $usr->roles[0];
 						}	
 					
-						$cont .=" website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
-						"] role:[".$role."] name:[".$name."] state:[".$state."]";                      
+						$cont .="<hr><br> website:[". $_SERVER['SERVER_NAME'] . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
+						"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";                   
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
@@ -1816,4 +1817,26 @@ class efbFunction {
 			return false;
         }
     }
+
+	public function report_problem_efb($state ,$value){
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		
+		$all_plugins = get_plugins();
+		$str = '<!--efb-->';
+		$str .= 'State:'.$state . '<br>';
+		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
+		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
+		$str .= 'Website URL: ' . get_site_url() . '<br>';
+		$str .= 'Value:'.$value . '<br><hr>';
+		foreach ($all_plugins as $plugin_file => $plugin_data) {
+			$str.= 'Plugin Name: ' . $plugin_data['Name'] . '<br>';
+			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
+			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
+		}
+		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
+		return true;
+	}
 }

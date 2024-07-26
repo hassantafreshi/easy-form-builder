@@ -1303,7 +1303,7 @@ progress.efb {
  	font-weight: 400;
  	line-height: 1.5;
  	color: #212529;
- 	background-color: #fff;
+ 	background-color: #fffffff5;
  	background-clip: padding-box;
  	border: 1px solid #ced4da;
  	-webkit-appearance: none;
@@ -6270,3 +6270,9 @@ label input[type="radio"].efb{
 	visibility: hidden;
  }
  
+
+
+
+	
+.input-efb.border-success {
+	border-color: #343e4380   !important}

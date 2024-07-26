@@ -76,7 +76,7 @@ function saveLocalStorage_emsFormBuilder() {
 
 function alarm_emsFormBuilder(val) {
   return `<div class="efb alert alert-warning alert-dismissible fade show " role="alert" id="alarm_emsFormBuilder">
-    <div class="efb emsFormBuilder"><i class="efb fas fa-exclamation-triangle faa-flash animated"></i></div>
+    <div class="efb emsFormBuilder"><i class="efb bi-exclamation-triangle-fill"></i></div>
     <strong>${efb_var.text.alert} </strong>${val}
   </div>`
 }
@@ -603,10 +603,9 @@ function add_dasboard_emsFormBuilder() {
   }
   let cardtitles = `<!-- card titles -->`;
   for (let i of tag_efb) {
-    
     cardtitles += `
     <li class="efb efb-col-3 col-lg-1 col-md-2 col-sm-2 col-sx-3 mb-2  m-1 p-0 text-center">
-      <a class="efb nav-link m-0 p-0 cat fs-6  ${i}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
+      <a class="efb nav-link m-0 p-0 cat fs-6  ${i} ${i=='all' ? 'active' :''}" aria-current="page" onclick="funUpdateLisetcardTitleEfb('${i}')" role="button">${efb_var.text[i]}</a>
     </li>
     `
   }
@@ -4046,18 +4045,33 @@ let r_matrix_push_efb = (parent, value, rndm, op) => {
   valj_efb.push({ id_: rndm, dataId: `${rndm}-id`, parent: parent, type: `r_matrix`, value: value, id_op: op, step: step_el_efb, amount: amount_el_efb });
 }
 
+fun_create_content_nloading_efb = () => {
+  let txt = efb_var.text.alns.replaceAll('%s1', `<b>${efb_var.text.easyFormBuilder}</b>`).replaceAll('%s2', `<a href="https://whitestudio.team/contact-us" target="_blank">`).replaceAll('%s3', `</a>`);
+  return txt;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
+  if(!document.getElementById('alert_efb')){
+    const currentUrl = window.location.href;
+    const txt = fun_create_content_nloading_efb();
+    els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
+    
+    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
+    return;
+  }
   for (let i = 0; i < els.children.length; i++) {
     if(els.children[i].id=='body_emsFormBuilder' ||els.children[i].id=='sideMenuFEfb'  || els.children[i].id=='tab_container_efb') break;
     if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
       document.getElementById('wpbody-content').children[i].remove()
     }
     //check if the element have updated wpb-notice class
-    if( els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated')){
+    if(els.children[i]!=undefined && (els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated'))){
       document.getElementById('wpbody-content').children[i].remove()
     }
-    setInterval(heartbeat_Emsfb, 900000);
+    
+    //setInterval(heartbeat_Emsfb, 100000);
+   
   }
   //remove all el included updated 
 
@@ -4129,7 +4143,7 @@ window.addEventListener("popstate",e=>{
     break;
     case 'setting':
       fun_show_setting__emsFormBuilder();      
-      fun_backButton(0);
+      fun_backButton_efb(0);
       fun_hande_active_page_emsFormBuilder(2);
       break;
     case 'help':      
@@ -4155,7 +4169,7 @@ window.addEventListener("popstate",e=>{
       fun_get_messages_by_id(Number(v));
       /* setTimeout(() => {
         emsFormBuilder_waiting_response();
-        fun_backButton(0);
+        fun_backButton_efb(0);
       }, 20); */
       
       fun_hande_active_page_emsFormBuilder(1);
@@ -4166,7 +4180,7 @@ window.addEventListener("popstate",e=>{
       //if (v==null) console.error('get[id] not found!');
       
       fun_get_form_by_id(Number(v));
-      fun_backButton();
+      fun_backButton_efb();
       fun_hande_active_page_emsFormBuilder(1);
     break;
 
@@ -4657,19 +4671,45 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 function heartbeat_Emsfb() {
   // Your code here
-  data = {
-    action: "heartbeat_Emsfb",
-    nonce: efb_var.nonce,
-  };
+  data = {};
+  console.log('Old nonce', efb_var.nonce);
+  jQuery(function ($) {
+    data = {
+      action: "heartbeat_Emsfb",
+      nonce: efb_var.nonce,
+    };
+    $.post(ajaxurl, data, function (res) {
+      console.log(res)
+      if (res.success == true) {
+        
+        efb_var.nonce = res.data.newNonce;
+        console.log('new nonce', efb_var.nonce);
+      } else {
+        console.log(res.data);
+      }
+    })
+
+  });
+}
 
 
-$.post(ajaxurl, data, function (res) {
-  if (res.success == true) {
+function report_problem_efb(state ,value){
+  data = {};
+  jQuery(function ($) {
+    data = {
+      action: "report_problem_Emsfb",
+      nonce: efb_var.nonce,
+      state: state,
+      value: value
+    };
+    $.post(ajaxurl, data, function (res) {
+      if (res.success == true) {
+     
+      } else {
+        console.log(res.data);
+      }
+    })
 
-  } else {
-    console.log(res.data);
-  }
-})
-
+  });
 }
 
