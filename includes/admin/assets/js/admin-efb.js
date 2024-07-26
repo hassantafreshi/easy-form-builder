@@ -4054,10 +4054,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
   if(!document.getElementById('alert_efb')){
     const currentUrl = window.location.href;
-    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
     const txt = fun_create_content_nloading_efb();
     els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
-
+    
+    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
     return;
   }
   for (let i = 0; i < els.children.length; i++) {
@@ -4704,7 +4704,7 @@ function report_problem_efb(state ,value){
     };
     $.post(ajaxurl, data, function (res) {
       if (res.success == true) {
-        console.log('report_problem_efb',res);
+     
       } else {
         console.log(res.data);
       }

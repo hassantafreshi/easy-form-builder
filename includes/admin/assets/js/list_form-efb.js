@@ -49,10 +49,10 @@ function fun_emsFormBuilder_render_view(x) {
 
   if(!document.getElementById('alert_efb')){
     const currentUrl = window.location.href;
-    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
     const txt = fun_create_content_nloading_efb();
     const txtWithoutHTML = txt.replace(/<[^>]+>/g, '');
     alert(txtWithoutHTML)
+    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
     return;
   }
   
