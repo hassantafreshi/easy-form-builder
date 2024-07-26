@@ -4052,6 +4052,14 @@ fun_create_content_nloading_efb = () => {
 
 document.addEventListener('DOMContentLoaded', function() {
   const els = document.getElementById('wpbody-content');
+  if(!document.getElementById('alert_efb')){
+    const currentUrl = window.location.href;
+    report_problem_efb('AdminPagesNotLoaded' ,currentUrl);
+    const txt = fun_create_content_nloading_efb();
+    els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
+
+    return;
+  }
   for (let i = 0; i < els.children.length; i++) {
     if(els.children[i].id=='body_emsFormBuilder' ||els.children[i].id=='sideMenuFEfb'  || els.children[i].id=='tab_container_efb') break;
     if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
@@ -4062,12 +4070,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('wpbody-content').children[i].remove()
     }
     
-    if(!document.getElementById('alert_efb')){
-      //  
-      const txt = fun_create_content_nloading_efb();
-      els.innerHTML='<div class="efb m-5">'+alarm_emsFormBuilder(txt) +'</div>';
-    }
-    setInterval(heartbeat_Emsfb, 900000);
+    //setInterval(heartbeat_Emsfb, 100000);
+   
   }
   //remove all el included updated 
 
@@ -4667,19 +4671,45 @@ function efbLatLonLocation(efbMapId, lat, long ,zoom) {
 
 function heartbeat_Emsfb() {
   // Your code here
-  data = {
-    action: "heartbeat_Emsfb",
-    nonce: efb_var.nonce,
-  };
+  data = {};
+  console.log('Old nonce', efb_var.nonce);
+  jQuery(function ($) {
+    data = {
+      action: "heartbeat_Emsfb",
+      nonce: efb_var.nonce,
+    };
+    $.post(ajaxurl, data, function (res) {
+      console.log(res)
+      if (res.success == true) {
+        
+        efb_var.nonce = res.data.newNonce;
+        console.log('new nonce', efb_var.nonce);
+      } else {
+        console.log(res.data);
+      }
+    })
+
+  });
+}
 
 
-$.post(ajaxurl, data, function (res) {
-  if (res.success == true) {
+function report_problem_efb(state ,value){
+  data = {};
+  jQuery(function ($) {
+    data = {
+      action: "report_problem_Emsfb",
+      nonce: efb_var.nonce,
+      state: state,
+      value: value
+    };
+    $.post(ajaxurl, data, function (res) {
+      if (res.success == true) {
+        console.log('report_problem_efb',res);
+      } else {
+        console.log(res.data);
+      }
+    })
 
-  } else {
-    console.log(res.data);
-  }
-})
-
+  });
 }
 

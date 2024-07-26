@@ -88,6 +88,7 @@ class Admin {
 
 
             add_action('wp_ajax_heartbeat_Emsfb' , [$this, 'heartbeat_Emsfb'] );
+            add_action('wp_ajax_report_problem_Emsfb' , [$this, 'report_problem_Emsfb'] );
         } 
     }
 
@@ -1504,8 +1505,23 @@ class Admin {
             $response = ['success' => false, 'm' =>'Security Error'];
             wp_send_json_success($response, 200);
         }
-       
-        $response = ['success' => true, "m" =>'heartBeat'];
+        $new_nonce = wp_create_nonce('admin-nonce');
+        $response = ['success' => true, "m" =>'heartBeat' , 'newNonce'=>$new_nonce];
+        wp_send_json_success($response, 200);
+    }
+
+    public function report_problem_Emsfb(){
+        if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
+            
+            $response = ['success' => false, 'm' =>'Security Error'];
+            wp_send_json_success($response, 200);
+        }
+       error_log('report_problem_Emsfb');
+        $state = sanitize_text_field($_POST['state']) ;
+        $value = sanitize_text_field($_POST['value']) ;
+        $this->get_efbFunction(0);
+        $this->efbFunction->report_problem_efb($state , $value);
+        $response = ['success' => true, "m" =>'report_problem_done'];
         wp_send_json_success($response, 200);
     }
 

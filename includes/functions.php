@@ -849,8 +849,8 @@ class efbFunction {
 							$role = $usr->roles[0];
 						}	
 					
-						$cont .=" website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
-						"] role:[".$role."] name:[".$name."] state:[".$state."]";                      
+						$cont .="</br> website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
+						"] role:[".$role."] name:[".$name."] state:[".$state."]";                   
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
@@ -1817,4 +1817,27 @@ class efbFunction {
 			return false;
         }
     }
+
+	public function report_problem_efb($state ,$value){
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		
+		$all_plugins = get_plugins();
+		$str = '<!--efb-->';
+		$str .= 'State:'.$state . '</br>';
+		$str .= 'Value:'.$value . '</br><hr>';
+		foreach ($all_plugins as $plugin_file => $plugin_data) {
+			$str.= 'Plugin Name: ' . $plugin_data['Name'] . '<br>';
+			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
+			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
+		}
+
+		//get php and wordpress version and website url
+		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
+		$str .= 'Website URL: ' . get_site_url() . '<br>';
+		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
+		return true;
+	}
 }
