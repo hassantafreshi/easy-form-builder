@@ -849,8 +849,8 @@ class efbFunction {
 							$role = $usr->roles[0];
 						}	
 					
-						$cont .="</br> website:[". $_SERVER['SERVER_NAME'] . "] Pro state:[".$pro . "] email:[".$mail .
-						"] role:[".$role."] name:[".$name."] state:[".$state."]";                   
+						$cont .="<hr><br> website:[". $_SERVER['SERVER_NAME'] . "]<br> Pro state:[".$pro . "]<br> email:[".$mail .
+						"]<br> role:[".$role."]<br> name:[".$name."]<br> state:[".$state."]";                   
 						$mailResult = wp_mail( $support,$state, $cont, $headers ) ;
 					
 					}
@@ -1825,8 +1825,12 @@ class efbFunction {
 		
 		$all_plugins = get_plugins();
 		$str = '<!--efb-->';
-		$str .= 'State:'.$state . '</br>';
-		$str .= 'Value:'.$value . '</br><hr>';
+		$str .= 'State:'.$state . '<br>';
+		$str .= 'PHP Version: ' . phpversion() . '<br>';
+		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
+		$str .= 'Easy Form Builder Version' . EMSFB_PLUGIN_VERSION . '<br>';
+		$str .= 'Website URL: ' . get_site_url() . '<br>';
+		$str .= 'Value:'.$value . '<br><hr>';
 		foreach ($all_plugins as $plugin_file => $plugin_data) {
 			$str.= 'Plugin Name: ' . $plugin_data['Name'] . '<br>';
 			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
@@ -1834,9 +1838,8 @@ class efbFunction {
 		}
 
 		//get php and wordpress version and website url
-		$str .= 'PHP Version: ' . phpversion() . '<br>';
-		$str .= 'WordPress Version: ' . get_bloginfo('version') . '<br>';
-		$str .= 'Website URL: ' . get_site_url() . '<br>';
+	
+	
 		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
