@@ -24,6 +24,7 @@ class _Public {
 	public $location;
 	public $url;
 	public $efb_uid  ;
+	public $valj_efb;
 	public function __construct() {
 		
 		global $wpdb;
@@ -181,6 +182,8 @@ class _Public {
 				
 					
 				}
+
+	
 			$content="	
 			
 			
@@ -456,6 +459,22 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
+
+			error_log($value);
+			$value =str_replace('\\', '', $value);
+			$this->valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
+
+			$content="<!--efb-->";
+			$count = count($this->valj_efb);
+			for( $i=2; $i<$count; $i++){
+				//random unique id
+				error_log($this->valj_efb[$i]->id_);
+				$randomId = wp_unique_id('efb_');
+				error_log($randomId);
+				error_log($i);
+				$content .= $this->addNewElement_efb($i,$randomId);
+			}
+				
 
 			 $content="	
 			
@@ -2368,7 +2387,7 @@ class _Public {
 					//parsing form structer for find mobile input and active smsnoti attrebute
 					foreach($valn as $val){
 						if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
-							array_push($have_noti_id,$val['id_']);
+							array_push($have_noti_id,$val->id_);
 						}
 					}
 
@@ -3146,171 +3165,7 @@ class _Public {
 		}
 		wp_send_json_success($response, 200);
     }
-	public function fun_convert_form_structer($form_structure){
-		$form_ = str_replace('\\', '', $form_structure);;
-		$form_ = json_decode($form_, true);
-		$str = '<!--efb.app-->';
-		$this->name ='<!--efb.app head-->';
-		//	$str = sprintf('<div class="efb-form-container">%s</div>',$form_[0]['type']);
-		$first = $form_[1];
-		array_filter($form_, function($item) use($first) { 
-			if(isset($item['id_'])!=true ){
-				return false;
-			}
-			$dataTag = '';
-			$desc ='<!--efb.app-->';
-			$label ='<!--efb.app-->';
-			$ui ='<!--efb.app-->';
-			//add pos function 
-			$pos =['','','',''];
-			if($item['type']!='option' && $item['type']!='step' && $item['type']!='link'  && $item['type']!='html'){
-				switch ($item['size']) {
-					case 100:
-					case '100':
-					  $pos[1] = 'col-md-12';$pos[2] = 'col-md-3';$pos[3] = 'col-md-9';
-					  break;
-					case 80:
-					case '80':
-					 $pos[1] = 'col-md-10';$pos[2] = 'col-md-2';$pos[3] = 'col-md-10';
-					  break;
-					case 50:
-					case '50':
-					  $pos[1] = 'col-md-6';$pos[2] = 'col-md-3';$pos[3] = 'col-md-9';
-					  break;
-					case 33:
-					case '33':
-					  $pos[1] = 'col-md-4';$pos[2] = 'col-md-4';$pos[3] = 'col-md-8';
-					  break;
-				  }
-				  if ($item['label_position'] == "up") {$pos[2] = 'col-md-12';$pos[3] = 'col-md-12';} else {$pos[0] = 'row px-0';}
-				$desc = sprintf('<small id="%s-des" class="efb  form-text d-flex  fs-7 col-sm-12 efb mx-4 %s  %s %s">%s </small>',$item['id_'] ,$item['message_align'],$item['message_text_color'],$item['message_text_size'],$item['message']);
-				$required = $item['required']==true ? '*' : '';
-				$label = sprintf('<small id="%s_-message" class="efb text-danger efb fs-7 ttiptext px-2  "></small> <label for="%s_" class="efb  %s col-sm-12 col-form-label %s %s %s" id="%s_labG"><span id="%s_lab" class="efb  %s">%s</span> <span class="efb  mx-1 text-danger" id="%s_req">%s</span></label>',
-				 $item['id_'],$item['id_'],$pos[2],$item['label_text_color'],$item['label_align'],
-				 $item['label_text_size'],$item['id_'],$item['id_'],$item['label_text_size'],$item['name'],$item['id_'],$required);
-			}else if($item['type']=='option'){
-				return false;
-			}
-			$required = isset($item['required'])==true && $item['required']==true ? 'required' : '';
-			switch ($item['type']) {
-				case 'email':
-				case 'text':
-				case 'password':
-				case 'tel':
-				case 'url':
-				case "date":
-				case 'color':
-				case 'range':
-				case 'number':
-				case 'firstName':
-				case 'lastName':
-					$type = $item['type'] == "firstName" || $item['type'] == "lastName" ? 'text' : $item['type'];
-					$value = strlen($item['value'])>0 ? "value='".$item['value']."'" : '';
-      				$classes = $item['type'] != 'range' ? 'form-control '.$item['el_border_color'].'' : 'form-range';
-					$input = '<!--tags--><div class="efb %s col-sm-12 ttEfb show"  id="%s-f"><input type="%s" class="efb input-efb px-2  %s emsFormBuilder_v   %s  %s  %s  %s  %s efbField" data-id="%s-el" data-vid="%s" id="%s" placeholder="%s" %s>';					 
-					 $input = sprintf($input, $pos[3] ,$item['id_'] ,$item['type'], $classes, $item['classes'], $item['el_height'],$item['corner'], $item['el_text_color'],$required,$item['id_'],$item['id_'],$item['id_'],$item['placeholder'],$item['value']);
-					 $ui = " {$label} {$input} {$desc}</div></div>";
-					$dataTag = $item['type'];
-					break;
-				case 'textarea':				 
-						$input = sprintf('<div class="efb %s col-sm-12 ttEfb show"  id="%s-f"><textarea  id="%s_"  placeholder="%s" class="efb px-2 input-efb emsFormBuilder_v form-control %s %s %s %s %s %s efbField" data-vid="%s" data-id="%s-el"  value="%s" rows="5" ></textarea>',$pos[3], $item['id_'], $item['id_'], $item['placeholder'], $required, $item['classes'],
-						$item['el_height'], $item['corner'], $item['el_text_color'], $item['el_border_color'],
-						$item['id_'], $item['id_'], $item['value']);
-						$ui = " {$label} {$input} {$desc}</div></div>";
-						$dataTag = $item['type'];
-					break;
-				case 'maps';
-						$dataTag = $item['type'];
-					break;
-				case 'file':					 
-						$input = sprintf('<div class="efb  %s col-sm-12 ttEfb show"  id="%s-f"> <input type="file" class="efb mb-0 input-efb px-2 emsFormBuilder_v %s %s %s %s %s form-control efb efbField" data-vid="%s" data-id="%s-el" id="%s_" >'
-								, $pos[3], $item['id_'], $required, $item['classes'], $item['el_height'], $item['corner'], $item['el_border_color'], $item['id_'], $item['id_'], $item['id_']);
-						$ui = " {$label} {$input} {$desc}</div></div>";
-						$dataTag = $item['type'];
-					break;
-				case "mobile":
-						$input = sprintf('<div class="efb  %s col-sm-12 ttEfb show"  id="%s-f"> <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %s  %s %s %s %s %s efbField" data-id="%s-el" data-vid="%s" id="%s_" placeholder="%s" value = "%s" >',$pos[3], $item['id_'], $item['el_border_color'], $item['classes'], $item['el_height'], $item['corner'], 
-						$item['el_text_color'], $required, $item['id_'], $item['id_'], $item['id_'], $item['placeholder'], $item['value']);
-						$ui = " {$label} {$input} {$desc}</div></div>";  						 
-						$dataTag = $item['type'];
-					break;
-				case 'dadfile':
-						$dataTag = $item['type'];
-					break;
-				case 'checkbox':
-				case 'radio':
-				case 'payCheckbox':
-				case 'payRadio':
-						$dataTag = $item['type'];
-					break;
-				case 'switch':
-						$dataTag = $item['type'];
-					break;
-				case 'esign':
-						$dataTag = $item['type'];
-					break;
-				case 'rating':
-						$dataTag = $item['type'];
-					break;
-				case "step":
-						$step_no = $item['id_'];
-						$ui = $step_no == 1 ? '<fieldset data-step="step-'.$step_no.'-efb" class="efb my-2  steps-efb efb row ">': '<!-- fieldset!!! --> </fieldset><fieldset data-step="step-'.$step_no.'-efb"  class="efb my-2 steps-efb efb row d-none">';
 
-						$dataTag = $item['type'];
-					break;
-				case 'select':
-				case 'paySelect':
-						$dataTag = $item['type'];
-					break;
-				case 'conturyList':
-						$dataTag = $item['type'];
-					break;
-				case 'stateProvince':
-						$dataTag = $item['type'];
-					break;
-				case 'multiselect':
-				case 'payMultiselect':
-						$dataTag = $item['type'];
-					break;
-				case 'html':
-						$dataTag = $item['type'];
-					break;
-				case 'yesNo':
-						$dataTag = $item['type'];
-					break;
-				case 'link':
-						$dataTag = $item['type'];
-					break;
-				case 'stripe':
-						$dataTag = $item['type'];
-					break;
-				case "persiaPay":
-						$dataTag = $item['type'];
-					break;
-				case 'heading':
-						$dataTag = $item['type'];
-					break;
-				case 'booking':
-						$dataTag = $item['type'];
-					break;
-				default:
-					break;
-			}
-			$newElement='<div  class="efb my-1 mx-0 ttEfb  %s  %s col-sm-12 efbField" data-step="%s" data-amount="%s" id="%s" data-id="%s-id" data-tag="%s"> %s<!--endTag EFB-->';
-			$this->value .= sprintf($newElement, $pos[0], $pos[1], $item['step'] , $item['amount'],$item['id_'],$item['id_'],$dataTag,$ui);
-		});	
-		$str= $form_[0]['show_icon']==0 || $form_[0]['show_icon']==false  ?sprintf('<h4 id="title_efb" class="efb %s text-center mt-1">%s</h4><p id="desc_efb" class="efb %s text-center  fs-6 efb">%s</p>',$form_[1]['label_text_color'], $form_[1]['name'], $form_[1]['message_text_color'] , $form_[1]['message'] ) : '';
-		//s1 head
-		//s2 content new.js  1342
-		$str = '<div class="efb px-0 pt-2 pb-0 my-1 col-12" id="view-efb">'.$str.'<form id="efbform">%s<div class="efb mt-1 px-2">%s</div> </form></div>';
-		//buttons
-		$step_no = intval($form_[0]["steps"]) +1;		
-		 $this->value .= isset($this->pub_stting->siteKey) && $form_[0]['captcha'] == true ? '<div class="efb row mx-3"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-2" data-sitekey="'.$this->pub_stting->siteKey .'" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>' : '';
-		 $this->value .= '</fieldset>
-		 <fieldset data-step="step-'.$step_no.'-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-		  <div class="efb card-body text-center efb"><h3 class="efb">'.esc_html__('Waiting','easy-form-builder').'</h3></div>                
-		   <!-- final fieldset --></fieldset>';
-	}
 	public function load_textdomain(): void {
         load_plugin_textdomain(
             EMSFB_PLUGIN_TEXTDOMAIN,
@@ -3835,7 +3690,290 @@ class _Public {
 		
 		if($state==1) return $this->efbFunction;
 	}
+
+
+	public function addNewElement_efb($i, $rndm) {
+		error_log('addNewElement_efb');
 	
+		$element_Id = $this->valj_efb[$i]->id_;
+		$elementId = $this->valj_efb[$i]->type;
+		error_log(json_encode($this->valj_efb[$i]));
+		$pos = array("", "", "", "");
+		$indexVJ = $i;
+		$vj = $this->valj_efb[$indexVJ];
+	
+		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
+			$pos = $this->get_position_col_el($vj, false);
+		}
+		error_log('pos: '.json_encode($pos));
+				
+		$optn = '<!-- options -->';
+		$pay = 'payefb';
+		
+		$iVJ = $indexVJ;
+		$dataTag = 'text';
+		error_log(json_encode($vj));
+		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
+		error_log('desc: '.$desc);
+		$label = $this->generateLabel_efb($element_Id, $vj, $pos);
+		error_log('label: '.$label);
+		$ttip = $this->generateTooltip_efb($element_Id);
+		error_log('ttip: '.$ttip);
+		$div_f_id = $this->generateDivFId_efb($element_Id, $pos);
+		error_log('div_f_id: '.$div_f_id);
+		$aire_describedby = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : "";
+		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
+		$ui ='<!--efb ui-->';
+		$dataTag = '<!--efb dataTag-->';
+		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
+		error_log(gettype($elementSpecificFields) );
+		error_log('elementSpecificFields: '.json_encode($elementSpecificFields));
+		error_log('ui'.$elementSpecificFields['ui']);
+		error_log('dataTag'. $elementSpecificFields['dataTag']);
+		if (gettype($elementSpecificFields) == 'array') {
+			$ui = $elementSpecificFields['ui'];
+			$dataTag = $elementSpecificFields['dataTag'];
+		} else {
+			switch ($vj->type) {
+				// Other cases go here (e.g., 'pdate', 'ardate', 'range', 'maps', 'file', 'textarea', 'mobile', 'dadfile', etc.)
+				// These cases should be processed similarly to how generateElementSpecificFields handles different element types
+			}
+		}
+	
+		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
+			$endTags = '</div></div>';
+			error_log('ui:'.$ui);
+			error_log('elementId' . $elementId);
+			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
+			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
+			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
+			$newElement ="<!--startTag $elementId-->";
+			$newElement .= '<div class="efb my-1 mx-0 ' . $elementId . ' ' . $tagT . ' ' . $hidden . ' ' . $disabled . ' ttEfb ' . $pos[0] . ' ' . $pos[1] . ' col-sm-12 efbField ' . ($dataTag == "step" ? 'step' : '') . '" data-step="' . $vj->step . '" data-amount="' . $vj->amount . '" data-id="' . $elementId . '-id" id="' . $elementId . '" data-tag="' . $tagId . '"  >';
+			$newElement.= ($elementId != 'option' ? $ui : '') ;
+			$newElement.= ($elementId != 'option' && $elementId != "html" && $elementId != "stripe" && $elementId != "heading" && $elementId != "link") ? $endTags : '</div>';
+			$newElement .="<!--endTag $elementId-->";
+			error_log('newElement: '.$newElement);
+			return $newElement;
+		}
+	
+		
+	}
+	
+	private function generateDescription_efb($rndm, $vj, $pos) {
+		$mx = $pos[1] == 'col-md-4' || isset($vj->message_align) != "justify-content-start" ? '' : 'mx-4';
+		$msg_align = isset($vj->message_align) ? $vj->message_align : '';
+		$msg_txt_color = isset($vj->message_text_color) ? $vj->message_text_color : '';
+		return '<small id="' . $rndm . '-des" class="efb form-text d-flex fs-7 col-sm-12 efb ' . $mx . ' ' . $msg_align . ' ' . $msg_txt_color . ' ' . (isset($vj->message_text_size) ? $vj->message_text_size : '') . ' ">' . $vj->message . '</small>';
+	}
+	
+	private function generateLabel_efb($rndm, $vj, $pos) {
+		$label_align = isset($vj->label_align) ? $vj->label_align : '';
+		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
+		$required = isset($vj->required) && ( $vj->required == 1 || $vj->required == true) ? '*' : '';
+		return '<label for="' . $rndm . '_" class="efb mx-0 px-0 pt-2 pb-1 ' . $pos[2] . ' col-sm-12 col-form-label ' . (isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : '') . ' ' . $vj->label_text_color . ' ' . $label_align . ' ' . $label_text_size . '" id="' . $rndm . '_labG"><span id="' . $rndm . '_lab" class="efb ' . $label_text_size. '">' . $vj->name . '</span><span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">' . $required . '</span></label>';
+	}
+	
+	private function generateTooltip_efb($rndm) {
+		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2"> ! </small>';
+	}
+	
+	private function generateDivFId_efb($rndm, $pos) {
+		return '<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
+	}
+	
+	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
+		$fields = ['ui' => '', 'dataTag' => ''];
+		switch ($elementId) {
+			case 'email':
+			case 'text':
+			case 'password':
+			case 'tel':
+			case 'url':
+			case "date":
+			case 'color':
+			case 'number':
+			case 'firstName':
+			case 'lastName':
+			case 'datetime-local':
+			case 'postalcode':
+			case 'address_line':
+				$type = in_array($elementId, ["firstName", "lastName", "postalcode", "address_line"]) ? 'text' : $elementId;
+				$autocomplete = $this->generateAutocomplete_efb($elementId);
+				$placeholder = !in_array($elementId, ['color', 'range', 'password', 'date']) ? 'placeholder="' . $vj->placeholder . '"' : '';
+				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
+				$classes = $elementId != 'range' ? 'form-control ' . $vj->el_border_color : 'form-range';
+				$fields['ui'] = $this->generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete);
+				$fields['dataTag'] = $elementId;
+				break;
+			case 'switch':
+			/* 	$vj->on'] = isset($vj->on']) ? $vj->on'] : $this->efb_var['text']['on'];
+				$vj->off'] = isset($vj->off']) ? $vj->off'] : $this->efb_var['text']['off'];
+				$fields['ui'] = $this->generateSwitchInput($iVJ, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
+				$fields['dataTag'] = $elementId; */
+				break;
+			// Add other cases as needed
+			default:
+				return false;
+		}
+		error_log('fields: '.json_encode($fields));
+		return $fields;
+	}
+	
+	private function generateAutocomplete_efb($elementId) {
+		return $elementId == "email" ? 'email' : ($elementId == "tel" ? 'tel' : ($elementId == "url" ? 'url' : ($elementId == "password" ? 'current-password' : ($elementId == "firstName" ? 'given-name' : ($elementId == "lastName" ? 'family-name' : ($elementId == "postalcode" ? 'postal-code' : ($elementId == "address_line" ? 'street-address' : 'off')))))));
+	}
+	
+	private function generateLengthAttributes_efb($elementId, $vj) {
+		$maxlen='';
+		$minlen='';
+		if ($elementId != 'date') {
+			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? 'maxlength="' . $vj->mlen . '"' : '';
+			$minlen = isset($vj->milen) ? 'minlength="' . $vj->milen . '"' : '';
+		} else {
+			$maxlen = isset($vj->mlen) ? $vj->mlen : '';
+			$minlen = isset($vj->milen) ? $vj->milen : '';  
+			$today = date("Y-m-d");
+			if ($maxlen == 1) $maxlen = 'max="' . $today . '"';
+			if ($minlen == 1) $minlen = 'min="' . $today . '"';
+		}
+		return ['maxlen' => $maxlen, 'minlen' => $minlen];
+	}
+	
+	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete) {
+		$corener = isset($vj->corner) ? $vj->corner : '';
+		return '' . $label . '' . $div_f_id . '' . $ttip . '<input type="' . $type . '" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ' . $classes . ' ' . $vj->el_height. ' ' . $corener . ' ' . $vj->el_text_color . ' ' . ($vj->required == 1 || $vj->required == true ? 'required' : '') . ' efbField efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-id="' . $rndm . '-el" data-vid="' . $rndm . '" data-css="' . $rndm . '" id="' . $rndm . '_" ' . $placeholder . ' ' . (!empty($vj->value) ? 'value="' . $vj->value . '"' : '') . ' aria-required="' . ($vj->required == 1 ? 'true' : 'false') . '" aria-label="' . $vj->name . '" ' . $aire_describedby . ' autocomplete="' . $autocomplete . '" ' . $lenAttributes['maxlen'] . ' ' . $lenAttributes['minlen'] . ' ' . ($disabled == "disabled" ? 'readonly' : '') . '>' . $desc;
+	}
+	
+	private function generateSwitchInput_efb($iVJ, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
+		return '
+		' . $label . '
+		' . $ttip . '
+		<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
+		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
+		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm . '" onClick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
+			<div class="efb handle"></div>
+		</button>
+		<label class="efb fs-6" id="' . $rndm . '_on">' . $vj->on . '</label>
+		<div class="efb mb-3">' . $desc . '</div>';
+	}
+
+	private function get_position_col_el($val, $state) {
+		
+		
+		$el_parent = "null";
+		$el_label =  "null";
+		$el_input = "null";
+		if(isset($val->id_)){
+			$el_parent = $val->id_;
+			$el_label = $val->id_ . "_labG";
+			$el_input = $val->id_ . "-f";
+		}
+		
+		$parent_col = '';
+		$label_col = 'col-md-12';
+		$input_col = 'col-md-12';
+		$parent_row = '';
+		
+		$size = isset($val->size) ? (int) $val->size : 100;
+	
+		switch ($size) {
+			case 100:
+				$parent_col = 'col-md-12';
+				$label_col = 'col-md-3';
+				$input_col = 'col-md-9';
+				break;
+			case 92:
+				$parent_col = 'col-md-11';
+				$label_col = 'col-md-2';
+				$input_col = 'col-md-10';
+				break;
+			case 80:
+			case 83:
+				$parent_col = 'col-md-10';
+				$label_col = 'col-md-2';
+				$input_col = 'col-md-10';
+				break;
+			case 75:
+				$parent_col = 'col-md-9';
+				$label_col = 'col-md-2';
+				$input_col = 'col-md-10';
+				break;
+			case 67:
+				$parent_col = 'col-md-8';
+				$label_col = 'col-md-3';
+				$input_col = 'col-md-9';
+				break;
+			case 58:
+				$parent_col = 'col-md-7';
+				$label_col = 'col-md-3';
+				$input_col = 'col-md-9';
+				break;
+			case 50:
+				$parent_col = 'col-md-6';
+				$label_col = 'col-md-3';
+				$input_col = 'col-md-9';
+				break;
+			case 42:
+				$parent_col = 'col-md-5';
+				$label_col = 'col-md-3';
+				$input_col = 'col-md-9';
+				break;
+			case 33:
+				$parent_col = 'col-md-4';
+				$label_col = 'col-md-4';
+				$input_col = 'col-md-8';
+				break;
+			case 25:
+				$parent_col = 'col-md-3';
+				$label_col = 'col-md-4';
+				$input_col = 'col-md-8';
+				break;
+			case 17:
+				$parent_col = 'col-md-2';
+				$label_col = 'col-md-4';
+				$input_col = 'col-md-8';
+				break;
+			case 8:
+				$parent_col = 'col-md-1';
+				$label_col = 'col-md-5';
+				$input_col = 'col-md-5';
+				break;
+		}
+	
+		if (isset($val->label_position) && $val->label_position == "up") {
+			$label_col = 'col-md-12';
+			$input_col = 'col-md-12';
+			if ($state === true) {
+				// Add any additional logic for label_position == "up" here
+			}
+		} else {
+			$parent_row = 'row';
+			if ($state === true) {
+				// Add any additional logic for other label_position here
+			}
+		}
+	
+		if ($state === true) {
+			$el_parent = $this->colMdChangerEfb($el_parent, $parent_col);
+			if ($el_input != "null") $el_input = $this->colMdChangerEfb($el_input, $input_col);
+			if ($el_label != "null") $el_label = $this->colMdChangerEfb($el_label, $label_col);
+		}
+	
+		return array($parent_row, $parent_col, $label_col, $input_col);
+	}
+	
+	private function colMdChangerEfb($classes, $value) {
+		// Use a regular expression to replace the col-md-* class with the new value
+		$newClasses = preg_replace('/\bcol-md+-\d+/', " $value ", $classes);
+		
+		// If the replacement did not occur (preg_replace returns null), concatenate the new value
+		if ($newClasses === null) {
+			return $classes . ' ' . $value;
+		}
+	
+		return $newClasses;
+	}
 }
+
 
 new _Public();
