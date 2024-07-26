@@ -2586,3 +2586,17 @@ div#Listefb-150 {
 }
 
 /* openstreet maps and leaftlet css end */
+
+#body_efb-track {
+   color: #000b37;
+}
+
+#body_efb-track.card{
+   background-color: #ffffff82 !important;
+   border-radius: 9px !important;
+   box-shadow: 0px 2px 30px rgb(84 131 207 / 10%) !important;
+}
+
+.efb.cursor-hand {
+   cursor: pointer!important;
+ }
