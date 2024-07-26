@@ -567,12 +567,12 @@ function emsFormBuilder_show_content_message(value, content) {
     // console.log(c);
     m += `<div class="efb   mb-3"><div class="efb  clearfix"> ${fun_emsFormBuilder_show_messages(val, c.rsp_by,'', track, c.date)}</div></div>`
   }
-  let replayM = `<div class="efb mx-2 mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
+  let replayM = `<div class="efb mt-2"><div class="efb form-group mb-3" id="replay_section__emsFormBuilder">
   <label for="replayM_emsFormBuilder" class:'efb mx-1 fs-7" id="label_replyM_efb">${ajax_object_efm.text.reply}:</label>
   <textarea class="efb form-control border-d fs-6" id="replayM_emsFormBuilder" rows="5" data-id="${msg_id}"></textarea>
   </div>
   <div class="efb col text-right row my-2 mx-1">
-  <button type="submit" class="efb btn fs-5 btn-r btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
+  <button type="submit" class="efb btn fs-5 round-2 btn-primary btn-lg" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})">${ajax_object_efm.text.reply} </button>
   <!-- recaptcha  -->
   ${sitekye_emsFormBuilder ? `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
   <!-- recaptcha end  -->
@@ -580,9 +580,10 @@ function emsFormBuilder_show_content_message(value, content) {
   </div></div>
   `
   const body = `
-  <div class="efb modal-header efb">
-  <h5 class="efb modal-title fs-5"><i class="efb  bi-chat-square-text mx-2 mx-2 fs-5"></i>
-   <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5>
+  <div class="efb modal-header efb py-4">
+  <h5 class="efb modal-title fs-5 ">
+   <!-- <i class="efb  bi-chat-square-text mx-2 mx-2 fs-5"></i>
+   <span id="settingModalEfb-title">${ajax_object_efm.text.response}</span></h5> -->
  </div>
   <div class="efb modal-body overflow-auto py-0 my-0  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="resp_efb">
     ${m} 
@@ -846,6 +847,7 @@ function response_Valid_tracker_efb(res) {
      if(typeof reply_attach_efb =='function') reply_attach_efb(res.data.value.msg_id)
      state_rply_btn_efb(100)
     }, 50);
+    document.getElementById('body_efb-track').classList.add('card');
   } else {
     document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3  text-center'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted  text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1">${ajax_object_efm.text.somethingWentWrongTryAgain} </br></br> ${res.data.m} </br></span>
      <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onClick="(() => {  location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;

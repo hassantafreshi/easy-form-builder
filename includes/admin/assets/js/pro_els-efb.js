@@ -510,7 +510,7 @@ function fun_clear_esign_efb(id) {
       </button></div>`
       if(setting_emsFormBuilder.hasOwnProperty('dsupfile')  && setting_emsFormBuilder.dsupfile==false && efb_var.hasOwnProperty('setting')==false) return '';
       return  `<div class="efb form-check">
-      <div class="efb btn btn-light text-dark fs-6" id="attach_efb">
+      <div class="efb btn btn-light text-dark fs-6 cursor-hand" id="attach_efb">
       <i class="bi bi-paperclip"></i><span id="name_attach_efb">${efb_var.text.file}</span>
       <input type="file" id="resp_file_efb_" name="file"  data-id="${msg_id}" >
       </div>
