@@ -113,7 +113,6 @@ post_api_persiapay_efb=(data)=>{
 
     });
 
-    console.log(data);
   const jsonData = JSON.stringify(data);
   const requestOptions = {
   method: 'POST', // Or any other HTTP method (POST, GET, etc.)

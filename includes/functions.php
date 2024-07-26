@@ -1836,10 +1836,6 @@ class efbFunction {
 			$str .= 'Plugin URI: ' . $plugin_data['PluginURI'] . '<br>';
 			$str .= 'Version: ' . $plugin_data['Version'] . '<br><br>';
 		}
-
-		//get php and wordpress version and website url
-	
-	
 		$this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
 	}
