@@ -55,7 +55,10 @@ class Panel_edit  {
 			'AdnSE' => 0,
 			'AdnPDP'=>0,
 			'AdnADP'=>0];
-			$efbFunction->openstreet_map_required_efb(0);
+
+			if(isset($ac->osLocationPicker)==true && $ac->osLocationPicker==1){
+				$efbFunction->openstreet_map_required_efb(0);
+		    }
 
 			if(gettype($ac)!="string" && isset($ac) ){
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
@@ -501,10 +504,15 @@ class Panel_edit  {
 
 	public function get_efbFunction(){
 		
-			if(!class_exists('Emsfb\efbFunction')){
-				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-			}
-			return new \Emsfb\efbFunction();
+			$efbFunctionInstance;
+        if (false === ($efbFunctionInstance = wp_cache_get('efbFunctionInstance', 'emsfb'))) {
+            if (!class_exists('Emsfb\efbFunction')) {
+                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+            }
+            $efbFunctionInstance = new \Emsfb\efbFunction();
+            wp_cache_set('efbFunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // cache for 1 hour
+        }
+        return  $efbFunctionInstance;	
 		
 	}
 

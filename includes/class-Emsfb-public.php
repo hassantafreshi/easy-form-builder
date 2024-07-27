@@ -1470,6 +1470,7 @@ class _Public {
 								//error_log(json_encode($email_user));
 								 $this->send_email_Emsfb_( $email_user,$check ,$pro,$state_of_email,$url,$msg_content,$msg_sub );
 							}
+							
 							wp_send_json_success($response,$data_POST);
 						break;
 						case "payment":								
@@ -2559,8 +2560,12 @@ class _Public {
 	public function isHTML( $str ) { return preg_match( "/\/[a-z]*>/i", $str ) != 0; }
 	public function get_setting_Emsfb($state){
 		// تنظیمات  برای عموم بر می گرداند
-	 	$table_name = $this->db->prefix . "emsfb_setting";
-	 	$value = $this->db->get_var( "SELECT setting,email FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+		$value = get_option('emsfb_settings');
+		if($value==false){
+			$table_name = $this->db->prefix . "emsfb_setting";
+			$value = $this->db->get_var( "SELECT setting,email FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+			update_option('emsfb_settings', $value);
+		}
  		
 		$rtrn;
 		$siteKey;
@@ -3673,23 +3678,44 @@ class _Public {
 					'email'   => $email
 				]
 			);
-			
+			update_option('emsfb_settings', $setting);
 		}
 		return g($track , $this->setting->email_key);
 
 	}
 
-	public function get_efbFunction($state){
-		if(empty($this->efbFunction)){ 
-			if(!class_exists('Emsfb\efbFunction')){
+	public function get_efbFunction($state) {
+		/* test code , remove it */
+		/* $backtrace = debug_backtrace();
+
+		// بررسی اینکه آیا تابعی این تابع را فراخوانی کرده است
+		if (isset($backtrace[1])) {
+			$caller = $backtrace[1];
+			$callerFunction = isset($caller['function']) ? $caller['function'] : 'N/A';
+			$callerLine = isset($caller['line']) ? $caller['line'] : 'N/A';
+			$callerFile = isset($caller['file']) ? $caller['file'] : 'N/A';
+	
+			// ثبت اطلاعات در لاگ
+			error_log("Called by function: $callerFunction in file: $callerFile on line: $callerLine");
+		} else {
+			error_log("This function was called directly.");
+		} */
+		/* End test code , remove it */
+
+		if(isset($this->efbFunction)) return $this->efbFunction;
+		$efbFunctionInstance;
+		if (false === ($efbFunctionInstance = wp_cache_get('efbFunctionInstance', 'emsfb'))) {
+			if (!class_exists('Emsfb\efbFunction')) {
 				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
 			}
-			$this->efbFunction = new \Emsfb\efbFunction();
+			$efbFunctionInstance = new \Emsfb\efbFunction();
+			wp_cache_set('efbFunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
+			
 		}
-
-		
-		if($state==1) return $this->efbFunction;
+		$this->efbFunction = $efbFunctionInstance;
+		if ($state == 1) return $this->efbFunction;
 	}
+	
 
 
 	public function addNewElement_efb($i, $rndm) {

@@ -51,6 +51,7 @@ class Admin {
         $this->ip = $this->get_ip_address();
 
         //$current_user->display_name
+    
         if (is_admin()) {
         
            
@@ -514,7 +515,7 @@ class Admin {
                 'email'   => $ac->emailSupporter,
             ]
         );
-        
+        update_option('emsfb_settings', $newAc);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -601,9 +602,8 @@ class Admin {
                 'date'    => wp_date('Y-m-d H:i:s'),
                 'email'   => $ac->emailSupporter,
             ]
-        );
-        
-        
+        );        
+        update_option('emsfb_settings', $newAc);
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, $_POST);
     }
@@ -981,7 +981,7 @@ class Admin {
                 'email'   => $email
             ]
         );
-
+        update_option('emsfb_settings', $setting);
         $m = $lang["messageSent"];            
         $response = ['success' => true, "m" => $m];
         wp_send_json_success($response, $_POST);
@@ -1136,6 +1136,7 @@ class Admin {
                             'email'   => $to,
                         ]
                     );
+                    update_option('emsfb_settings', $newAc);
                 }
         $response = ['success' => $check ];
         wp_send_json_success($response, $_POST);
@@ -1525,17 +1526,50 @@ class Admin {
         wp_send_json_success($response, 200);
     }
 
-    public function get_efbFunction($state){
-		if(empty($this->efbFunction)){ 
-			if(!class_exists('Emsfb\efbFunction')){
-				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-			}
-			$this->efbFunction = new \Emsfb\efbFunction();
-		}
+    public function get_efbFunction($state) {
 
-		
-		if($state==1) return $this->efbFunction;
-	}
+        if(isset($this->efbFunction)) return $this->efbFunction;
+
+        $efbFunctionInstance;
+        if (false === ($efbFunctionInstance = wp_cache_get('efbFunctionInstance', 'emsfb'))) {
+            if (!class_exists('Emsfb\efbFunction')) {
+                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+            }
+            $efbFunctionInstance = new \Emsfb\efbFunction();
+            wp_cache_set('efbFunctionInstance', $efbFunctionInstance, 'emsfb', 3600); //  1 hour cache
+        }
+        $this->efbFunction = $efbFunctionInstance; 
+    
+        if ($state == 1) return $this->efbFunction;
+    }
+    
+
+  /*   function efb_check_shared_hosting_and_store() {
+        // Retrieve the stored result from wp_options
+        $is_shared_hosting = get_option('efb_is_shost');
+    
+        // If no stored result is found
+        if ($is_shared_hosting === false) {
+            // Check for shared hosting
+            $hostname = gethostname();
+            $ip = gethostbyname($hostname);
+            $hostnames = gethostbynamel($hostname);
+    
+            // Assume shared hosting if more than one IP address is associated with the hostname
+            if ($hostnames !== false && count($hostnames) > 1) {
+                // Shared hosting
+                $is_shared_hosting = 1;  
+            } else {
+                // Dedicated or VPS hosting
+                $is_shared_hosting = 2; 
+            }
+    
+            // Store the result in wp_options with the prefix efb_
+            update_option('efb_is_shost', $is_shared_hosting);
+        }
+    
+        return $is_shared_hosting;
+    } */
 
 }
 

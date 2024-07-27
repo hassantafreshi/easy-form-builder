@@ -273,7 +273,7 @@ class efbFunction {
 			"noCodeAddedYet" => $state ? $ac->text->noCodeAddedYet : esc_html__('The code has not yet been added. Click on',$s),
 			"andAddingHtmlCode" => $state ? $ac->text->andAddingHtmlCode : esc_html__('and adding HTML code.',$s),
 			//"proMoreStep" => $state ? $ac->text->proMoreStep : esc_html__('When you activate the Pro version, so you can create unlimited form steps.',$s),
-			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The API key for Google Maps has not been added. Please go to Easy Form Builder > Panel > Setting > Google Keys, add the API key for Google Maps, and try again.',$s),
+			"aPIkeyGoogleMapsError" => $state ? $ac->text->aPIkeyGoogleMapsError : esc_html__('The Location Picker is currently unavailable; please go to Easy Form Builder > Panel > Settings > General Tab, activate the \'Enable Location Picker in Easy Form Builder\' option, and refresh the form builder',$s),
 			"howToAddGoogleMap" => $state ? $ac->text->howToAddGoogleMap : esc_html__('How to Add Location Picker(maps) to Easy form Builder WordPress Plugin',$s),
 			"deletemarkers" => $state ? $ac->text->deletemarkers : esc_html__('Delete markers',$s),
 			"updateUrbrowser" => $state ? $ac->text->updateUrbrowser : esc_html__('update your browser',$s),
@@ -1043,16 +1043,25 @@ class efbFunction {
 
 
 	public function get_setting_Emsfb()
-	{			
-		$table_name = $this->db->prefix . "emsfb_setting"; 
-		//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
-		$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
-		$rtrn='null';
+	{	
+		$rtrn='null';		
+		
+
+		$value = get_option('emsfb_settings');
+
+		if($value==false){
+			$table_name = $this->db->prefix . "emsfb_setting"; 
+			//$value = $this->db->get_results( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );	
+			$value = $this->db->get_var( "SELECT setting FROM $table_name ORDER BY id DESC LIMIT 1" );
+			update_option('emsfb_settings', $value);
+			
+		}
 		if(isset($value)==false) return 'null';
+
 		$v =str_replace('\\', '', $value);
 		$rtrn =json_decode($v);
-		$rtrn = $rtrn!=null ? $rtrn :'null';	
-		return $rtrn;
+		
+		return $rtrn!=null ? $rtrn :'null';
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
@@ -1333,63 +1342,63 @@ class efbFunction {
 	}
 
 
-	   public function addon_adds_cron_efb(){
+	public function addon_adds_cron_efb(){
+	
+	
+	if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
+		wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
+		}
 		
+	}//addon_adds_cron_efb
+
+
+	public function addon_add_efb($value){
+			if($value!="AdnOF"){
+
+		// اگر لینک دانلود داشت
+		$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
+		$vwp = get_bloginfo('version');
+		$u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+		if(get_locale()=='fa_IR'){
+			$u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
+			//error_log('EFB=>addon_add_efb fa_IR');
+		}
+		$request = wp_remote_get($u);
 		
-		if ( ! wp_next_scheduled( 'download_all_addons_efb' ) ) {
-			wp_schedule_single_event( time() + 1, 'download_all_addons_efb' );
-		  }
-		  
-	   }//addon_adds_cron_efb
-
-
-	   public function addon_add_efb($value){
-				if($value!="AdnOF"){
-
-            // اگر لینک دانلود داشت
-            $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
-            $vwp = get_bloginfo('version');
-            $u = 'https://whitestudio.team/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-			if(get_locale()=='fa_IR'){
-                $u = 'https://easyformbuilder.ir/wp-json/wl/v1/addons-link/'. $server_name.'/'.$value .'/'.$vwp.'/' ;
-				//error_log('EFB=>addon_add_efb fa_IR');
-            }
-            $request = wp_remote_get($u);
-           
-            if( is_wp_error( $request ) ) {
-				
-				add_action( 'admin_notices', 'admin_notice_msg_efb' );
-                
-                return false;
-            }
-            
-            $body = wp_remote_retrieve_body( $request );
-            $data = json_decode( $body );
-
-             if($data->status==false){
-              return false;
-               
-            }
-
-            // Check version of EFB to Addons
-            if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
-				return false;                
-            } 
-
-            if($data->download==true){
-                $url =$data->link;
-				//split the url to get the folder name of the addon , bettwen last / and .zip	
-
-                $directory_name = substr($url,strrpos($url ,"/")+1,-4);
-				$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
-				if (!file_exists($directory)) {					
-                	$this->fun_addon_new($url);					
-				}
-				return true;
-            }
+		if( is_wp_error( $request ) ) {
 			
-        }
-	   }//end function
+			add_action( 'admin_notices', 'admin_notice_msg_efb' );
+			
+			return false;
+		}
+		
+		$body = wp_remote_retrieve_body( $request );
+		$data = json_decode( $body );
+
+			if($data->status==false){
+			return false;
+			
+		}
+
+		// Check version of EFB to Addons
+		if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
+			return false;                
+		} 
+
+		if($data->download==true){
+			$url =$data->link;
+			//split the url to get the folder name of the addon , bettwen last / and .zip	
+
+			$directory_name = substr($url,strrpos($url ,"/")+1,-4);
+			$directory = EMSFB_PLUGIN_DIRECTORY . 'vendor/'.$directory_name;
+			if (!file_exists($directory)) {					
+				$this->fun_addon_new($url);					
+			}
+			return true;
+		}
+		
+	}
+	}//end function
 
 	   public function fun_addon_new($url){
 		//download the addon dependency 
@@ -1749,6 +1758,7 @@ class efbFunction {
                 'email'   => $email
             ]
         );
+		update_option('emsfb_settings', $setting);
 		if($pro == true || $pro ==1){			
 			$this->download_all_addons_efb();	
 			$end_time = microtime(true);

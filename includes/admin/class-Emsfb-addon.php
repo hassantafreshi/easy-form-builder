@@ -316,10 +316,15 @@ class Addon {
     }//end fun
 
 	public function get_efbFunction(){
-			if(!class_exists('Emsfb\efbFunction')){
-				require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
-			}
-			return new \Emsfb\efbFunction();				
+		$efbFunctionInstance;
+        if (false === ($efbFunctionInstance = wp_cache_get('efbFunctionInstance', 'emsfb'))) {
+            if (!class_exists('Emsfb\efbFunction')) {
+                require_once(EMSFB_PLUGIN_DIRECTORY . 'includes/functions.php');
+            }
+            $efbFunctionInstance = new \Emsfb\efbFunction();
+            wp_cache_set('efbFunctionInstance', $efbFunctionInstance, 'emsfb', 3600); // 1 hour cache
+        }
+        return  $efbFunctionInstance;
 	}
 
 }
