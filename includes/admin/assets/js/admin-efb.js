@@ -182,6 +182,9 @@ function Link_emsFormBuilder(state) {
       case 'EmailSpam':
         link += `s/send-email-using-smtp-plugin/`;
         break;
+      case 'oslp':
+        link += `s/how-to-add-location-pickergeolocation-within-your-form/`;
+        break;
       
     }
   }else{
@@ -258,6 +261,9 @@ function Link_emsFormBuilder(state) {
         break;
       case 'EmailSpam':
         link +=`ارسال-ایمیل-بوسیله-افزونه-smtp/`;
+        break;
+        case 'oslp':
+        link += `چگونه-مکانیاب-انتخاب-گر-نقشه-فرم-افزون/`;
         break;
     }
   }
@@ -3716,12 +3722,29 @@ fun_efb_add_el = (t) => {
   fub_shwBtns_efb();
 
   if (t == 'maps') {
-
+    const indx = valj_efb.findIndex(x => x.id_ == rndm);
      //find a row from valj_efb by id_
-      const indx = valj_efb.findIndex(x => x.id_ == rndm);
+     if(!efb_var.setting.hasOwnProperty('osLocationPicker') || efb_var.setting.osLocationPicker==false){
+      //show noti alert message 
+      const el = valj_efb[indx];
       setTimeout(() => {
-        efbCreateMap(rndm ,valj_efb[indx],false);
-      }, 800);
+        console.log('error messsage maps',el.id_);
+        document.getElementById(el.id_+'-f').innerHTML = `
+        <div class="efb border border-muted rounded-3 m-2 text-center efb p-3" id="${el.id_}_noCode">
+         <h6 class="efb text-darkb">${efb_var.text.aPIkeyGoogleMapsError}</h5>
+         <a class="mt-3 efb btn efb btn-outline-pink efb-btn-lg" onClick="Link_emsFormBuilder('oslp')">${efb_var.text.howToAddGoogleMap}</a>
+        </div>
+       `
+       }, 800);
+
+       return;
+    
+     }else{
+       setTimeout(() => {
+         efbCreateMap(rndm ,valj_efb[indx],false);
+       }, 800);
+     }
+      
 
   }
   setTimeout(() => {
