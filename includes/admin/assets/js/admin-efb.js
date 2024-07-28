@@ -1057,13 +1057,15 @@ function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   if (s == 0) {
     el.classList.remove('show');
-    document.getElementById('sideMenuConEfb').innerHTML = efbLoadingCard('')
+    document.getElementById('childsSideMenuConEfb').classList.add('d-none');      
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
     // jQuery("#sideBoxEfb").fadeIn('slow');
   } else {
     document.getElementById('sideBoxEfb').classList.remove('efbDW-0');
     document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');
+    const ch = document.getElementById('childsSideMenuConEfb');
+    if(ch)ch.classList.add('d-none');    
     el.classList.add('show');
   }
 }
@@ -2251,10 +2253,8 @@ let change_el_edit_Efb = (el) => {
       case 'iconEl':
 
         break;
-      case 'marksEl':
-        c = document.getElementById('marksEl').value;
-        c = parseInt(c);
-        valj_efb[indx].mark = c;
+      case 'marksEl':    
+        valj_efb[indx].mark = Number(el.value);
         clss=  document.querySelector(`[data-id="${valj_efb[indx].id_}-contorller"]`);
         clss.classList.add('efb'); 
         c==0 ?  clss.classList.add('d-none')  : clss.classList.remove('d-none') ;
@@ -2727,7 +2727,7 @@ let change_el_edit_Efb = (el) => {
 
 function wating_sort_complate_efb(t) {
   if (t > 500) t = 500
-  const body = efbLoadingCard()
+  const body = efbLoadingCard('',4)
   show_modal_efb(body, efb_var.text.editField, 'bi-ui-checks mx-2', 'settingBox')
   const el = document.getElementById("settingModalEfb");
   state_modal_show_efb(1);
@@ -2800,7 +2800,7 @@ function create_form_efb() {
                 <!-- fieldset formNew 1 --> </fieldset> 
     
                 <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
-                ${efbLoadingCard()}
+                ${efbLoadingCard('', 4)}
                 <!-- fieldset formNew 2 --> </fieldset>
       `
     head += `<li id="f-step-efb"  data-step="icon-s-${step_no}-efb" class="efb  ${valj_efb[1].icon_color} ${valj_efb[0].steps <= 6 ? `step-w-${valj_efb[0].steps}` : `step-w-6`} bi-check-lg" ><strong class="efb  fs-5 ${valj_efb[1].label_text_color}">${efb_var.text.finish}</strong></li>`
@@ -2976,7 +2976,7 @@ const saveFormEfb = async (stated) => {
 let editFormEfb = () => {
   valueJson_ws_p = 0; // set ajax to edit mode
   let dropZoneEFB = document.getElementById('dropZoneEFB');
-  dropZoneEFB.innerHTML = efbLoadingCard();
+  dropZoneEFB.innerHTML = efbLoadingCard('',4);
   if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); } // test code => replace from value
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
@@ -4039,7 +4039,7 @@ state_modal_show_efb=(i)=>{
       jQuery('#modal-footer-efb').remove()
     }
 
-    var val = efbLoadingCard();
+    var val = efbLoadingCard('',4);
     if (jQuery(`#settingModalEfb-body`)) jQuery(`#settingModalEfb-body`).html(val)
 
    setTimeout(() => {
@@ -4417,19 +4417,15 @@ content_colors_setting_efb=()=>{
 function open_setting_colors_efb(alert){
   
   jQuery(alert).alert('close')
+  if(document.getElementById('sideBoxEfb').classList.contains('show')){
+    sideMenuEfb(0);
+    //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
+    return};
 
-
-if(document.getElementById('sideBoxEfb').classList.contains('show')){
-  sideMenuEfb(0);
-  //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
-  return};
-
-state_view_efb=1;
-  document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard();
-  sideMenuEfb(1)
-
-
-document.getElementById('sideMenuConEfb').innerHTML=body;
+  state_view_efb=1;
+    document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard('',5);
+    sideMenuEfb(1)
+  document.getElementById('sideMenuConEfb').innerHTML=body;
 }
 
 msg_colors_from_template = ()=>{
@@ -4678,12 +4674,10 @@ preview_form_new_efb = async ()=>{
 
 
 function efbLatLonLocation(efbMapId, lat, long ,zoom) {
-  var efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
-  efbErrorMessageDiv.innerHTML = '';
-
+  const efbErrorMessageDiv = document.getElementById(`efb-error-message-${efbMapId}`);
+  if(efbErrorMessageDiv) efbErrorMessageDiv.innerHTML = '';
   if (lat !== null && long !== null) {
-    // اگر مختصات مستقیم دریافت شده باشند
-    var efbLatlng = [lat, long];
+    let efbLatlng = [lat, long];
     maps_efb[efbMapId].map.setView(efbLatlng, zoom);
   } else {
     efbErrorMessageDiv.classList.remove('d-none');

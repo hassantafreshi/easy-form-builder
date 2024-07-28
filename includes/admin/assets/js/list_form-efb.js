@@ -138,7 +138,7 @@ function fun_emsFormBuilder_render_view(x) {
 }
 
 function emsFormBuilder_waiting_response() {
-  document.getElementById('emsFormBuilder-list').innerHTML = efbLoadingCard()
+  document.getElementById('emsFormBuilder-list').innerHTML = efbLoadingCard('',5)
 }
 
 
@@ -190,7 +190,7 @@ function emsFormBuilder_show_content_message(id) {
      <button type="submit" class="efb btn efb btn-primary btn-sm" id="replayB_emsFormBuilder" OnClick="fun_send_replayMessage_emsFormBuilder(${msg_id})"><i class="efb  bi-reply mx-1"></i> ${efb_var.text.reply} </button>
      <p class="efb mx-2 my-1 text-pinkEfb fs-7" id="replay_state__emsFormBuilder"></p>
      </div></div>`;
-    } else { r = '<!-- comment --!>'; }
+    } else { r = '<!-- comment -->'; }
     return r;
   }
 
@@ -541,7 +541,7 @@ function emsFormBuilder_messages(id) {
 
 function fun_open_message_emsFormBuilder(msg_id, state) {
   //console.log(`fun_open_message_emsFormBuilder(${msg_id}, ${state})`)
-  show_modal_efb(efbLoadingCard(), '', '', 'saveBox');
+  show_modal_efb(efbLoadingCard('',4), '', '', 'saveBox');
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
   //myModal.show_efb();
   state_modal_show_efb(1)
@@ -764,7 +764,7 @@ function fun_ws_show_response(value) {
 function fun_show_content_page_emsFormBuilder(state) {
   // console.log(state);
   if (state == "forms") {
-    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
+    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"> ${efb_var.text.loading}</div>`
     history.pushState("setting",null,'?page=Emsfb');
     window.location.reload();
   } else if (state == "setting" || state == "reload-setting") {
@@ -783,7 +783,7 @@ function fun_show_content_page_emsFormBuilder(state) {
     document.getElementById("track_code_emsFormBuilder").value =sanitize_text_efb(localStorage.getItem('search_efb'));
     fun_find_track_emsFormBuilder();
   }else if(state=="show-messages"){
-    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"><i class="efb fas fa-spinner fa-pulse"></i> ${efb_var.text.loading}</div>`
+    document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"> ${efbLoadingCard('',4)}</div>`
     history.pushState("setting",null,'?page=Emsfb');
     window.location.reload();
   }else if(state=="edit-form"){
@@ -2053,7 +2053,7 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   let body = `
   <div class="efb  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
-        ${efbLoadingCard()}
+        ${efbLoadingCard('',4)}
     </div>
   </div>`;
   // window.scrollTo({ top: 0, behavior: 'smooth' });

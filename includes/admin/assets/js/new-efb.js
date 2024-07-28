@@ -106,7 +106,7 @@ const show_modal_efb = (body, title, icon, type) => {
   } else if (type == "saveLoadingBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
-    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard();
+    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard('',4);
   } else if (type == "chart") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
@@ -117,7 +117,7 @@ const show_modal_efb = (body, title, icon, type) => {
 }
 const add_new_option_view_select = (idin, value, id_ob, tag, parentsID) => {
   const indxP = valj_efb.findIndex(x => x.id_ == parentsID);
-  let op = `<!-- option --!> 2`
+  let op = `<!-- option --> 2`
   let price ="<!--efb.app-->";
   let qst ='<!--efb.app-->';
   let tagtype= tag;
@@ -1130,7 +1130,7 @@ const loadingShow_efb = (title) => {
          <h5 class="efb modal-title fs-5" ><i class="efb bi-ui-checks mx-2 efb" id="settingModalEfb-icon"></i><span id="settingModalEfb-title">${title ? title : efb_var.text.loading} </span></h5>
      </div>
      <div class="efb modal-body efb" id="settingModalEfb-body">
-         ${efbLoadingCard()}
+         ${efbLoadingCard('',4)}
      </div>
  </div>
 </div>`
@@ -1570,7 +1570,7 @@ function previewFormEfb(state) {
       preview_form_new_efb();
       return;
     }else if (state == "pc"){
-      show_modal_efb(efbLoadingCard(), efb_var.text.previewForm, '', 'saveBox')
+      show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox')
       state_modal_show_efb(1)
     }
   }
@@ -1680,7 +1680,7 @@ function previewFormEfb(state) {
   `;
   //console.log(wv);
     content += `
-           ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb--!>'}
+           ${valj_efb[0].hasOwnProperty('logic')==false ||(valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==false)  ? fun_captcha_load_efb() : '<!--logic efb-->'}
            </fieldset>
           <fieldset data-step="step-${step_no}-efb" class="efb my-5 pb-5 steps-efb efb row d-none text-center" id="efb-final-step">
             ${valj_efb[0].hasOwnProperty('logic')==true && valj_efb[0].logic==true  ? fun_captcha_load_efb() :wv}                
@@ -1719,7 +1719,7 @@ function previewFormEfb(state) {
         <div class="efb smartphone-efb">
         <div class="efb content efb" >
             <div id="parentMobileView-efb">
-            ${efbLoadingCard()}
+            ${efbLoadingCard('',5)}
             </div>
         </div>
       </div> `

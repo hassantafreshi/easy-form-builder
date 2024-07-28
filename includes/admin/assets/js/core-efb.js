@@ -153,7 +153,7 @@ function fun_render_view_core_emsFormBuilder(check) {
     }
   }
   const button_name = form_type_emsFormBuilder != "form" ? efb_var.text[form_type_emsFormBuilder] : efb_var.text.send
-  const content = `<!-- commenet --!><div class="efb m-2">
+  const content = `<!-- commenet --><div class="efb m-2">
 <div class="efb  row d-flex justify-content-center align-items-center">
     <div class="efb col-md-12 efb">
         <div id="emsFormBuilder-form-view" >
