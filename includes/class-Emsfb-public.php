@@ -519,10 +519,11 @@ class _Public {
 	  }
 	  public function get_form_public_efb($data_POST_) {
 		$data_POST = $data_POST_->get_json_params();
+
 		$text_ = [
-			"somethingWentWrongPleaseRefresh", "pleaseMakeSureAllFields", "bkXpM", "bkFlM", "mnvvXXX", "ptrnMmm", "ptrnMmx", 'payment', 'error403', 'errorSiteKeyM',
-			"errorCaptcha", "pleaseEnterVaildValue", "createAcountDoneM", "incorrectUP", "sentBy", "newPassM", "done", "surveyComplatedM", "error405", "errorSettingNFound",
-			"clcdetls", "vmgs", "youRecivedNewMessage", "WeRecivedUrM", "thankRegistering", "welcome", "thankSubscribing", "thankDonePoll", "thankFillForm", "trackNo", 'fernvtf', "msgdml"
+			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'bkXpM', 'bkFlM', 'mnvvXXX', 'ptrnMmm', 'ptrnMmx', 'payment', 'error403', 'errorSiteKeyM',
+			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound',
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived'
 		];
 		$efbFunction = $this->get_efbFunction(1);
 		//if(empty($this->efbFunction)) $this->efbFunction = $efbFunction;
@@ -1526,7 +1527,7 @@ class _Public {
 	  public function get_track_public_api($data_POST_) {		;
 		$data_POST = $data_POST_->get_json_params();
 		$this->get_efbFunction(0);
-		$text_ = ["spprt","somethingWentWrongPleaseRefresh",'error403',"errorMRobot","enterVValue","guest","cCodeNFound"];
+		$text_ = ['spprt','somethingWentWrongPleaseRefresh','error403','errorMRobot','enterVValue','guest','cCodeNFound'];
 		$lanText= $this->efbFunction->text_efb($text_);
 		$sid = sanitize_text_field($data_POST['sid']);
 		$s_sid = $this->efbFunction->efb_code_validate_select($sid , 0);
@@ -1773,8 +1774,8 @@ class _Public {
 	}//end function
 	public function set_rMessage_id_Emsfb_api($data_POST_) {		
 		$data_POST = $data_POST_->get_json_params();
-		$this->text_ = empty($this->text_)==false ? $this->text_ :["error400","somethingWentWrongPleaseRefresh","atcfle","cpnnc","tfnapca", "icc","cpnts","cpntl","clcdetls","vmgs","required","mcplen","mmxplen","mxcplen","mmplen","offlineSend","settingsNfound","error405","error403","videoDownloadLink","downloadViedo","pleaseEnterVaildValue","errorSomthingWrong","nAllowedUseHtml","guest","messageSent","MMessageNSendEr",
-		"youRecivedNewMessage","trackNo","WeRecivedUrM","thankFillForm","msgdml","spprt"];
+		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','somethingWentWrongPleaseRefresh','atcfle','cpnnc','tfnapca','icc','cpnts','cpntl','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived'];
 		$efbFunction =  $this->get_efbFunction(1);
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$sid = sanitize_text_field($data_POST['sid']);
@@ -2028,10 +2029,17 @@ class _Public {
     $thankSubscribing = $this->lanText["thankSubscribing"];
     $thankDonePoll = $this->lanText["thankDonePoll"];
     $newUserRegistration = esc_html__('New user registration', 'easy-form-builder');
+	$newMassageReciver = $this->lanText["newMessageReceived"];
+	error_log('$newMassageReciver:'.$newMassageReciver);
     // حلقه برای تنظیم پیام‌ها و موضوع‌ها بر اساس حالت‌ها
+	error_log(json_encode($state));
     for ($i = 0; $i < 2; $i++) {
         $cont[$i] = $track;
         switch ($state[$i]) {
+			case "newMessage":
+				$subject[$i] = $this->lanText["youRecivedNewMessage"] .' ['.$track.']';
+				$message[$i] = "<h2>$newMassageReciver</h2><p>$trackNo:<br> $track </p><p>$dt </p><div style='text-align:center'><a href='$link_w[$i]' target='_blank' style='padding:5px;color:white;background:black;'>$vmgs</a></div>";
+				break;
             case "notiToUserFormFilled_TrackingCode":
                 $subject[$i] = $weRecivedUrM;
                 $message[$i] = "<h2>$thankFillForm</h2><p>$trackNo:<br> $track </p><p>$dt </p><div style='text-align:center'><a href='$link_w[$i]' target='_blank' style='padding:5px;color:white;background:black;'>$vmgs</a></div>";
@@ -2077,6 +2085,7 @@ class _Public {
         }
     }
     // محاسبه زمان بعد از ایجاد محتوای ایمیل
+	error_log(json_encode($subject));
     $micr = microtime(true);
     error_log('send_email_Emsfb_ after create contet email: ' . $micr);
 	error_log(json_encode($to));
