@@ -54,7 +54,7 @@ class Panel_edit  {
 				$server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
 				if (isset($ac->activeCode)){$pro= md5($server_name)==$ac->activeCode ? true : false;}
 				if(isset($ac->siteKey)){$captcha="true";}	
-				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang["sMTPNotWork"];}
+				if(isset($ac->smtp) && $ac->smtp=="true"){$smtp=1;}else{$smtp_m =$lang['sMTPNotWork'];}
 				/* if(isset($ac->apiKeyMap) && strlen($ac->apiKeyMap)>5){
 					$k= $ac->apiKeyMap;
 					$maps =true;
@@ -66,16 +66,16 @@ class Panel_edit  {
 					wp_enqueue_script('googleMaps-js');
 				} */
 				if(isset($ac->AdnSPF)==true){
-					$addons["AdnSPF"]=$ac->AdnSPF;
-					$addons["AdnOF"]=$ac->AdnOF;
-					$addons["AdnATC"]=$ac->AdnATC;
-					$addons["AdnPPF"]=$ac->AdnPPF;
-					$addons["AdnSS"]=$ac->AdnSS;
-					$addons["AdnSPF"]=$ac->AdnSPF;
-					$addons["AdnESZ"]=$ac->AdnESZ;
-					$addons["AdnSE"]=$ac->AdnSE;
-					$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-					$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+					$addons['AdnSPF']=$ac->AdnSPF;
+					$addons['AdnOF']=$ac->AdnOF;
+					$addons['AdnATC']=$ac->AdnATC;
+					$addons['AdnPPF']=$ac->AdnPPF;
+					$addons['AdnSS']=$ac->AdnSS;
+					$addons['AdnSPF']=$ac->AdnSPF;
+					$addons['AdnESZ']=$ac->AdnESZ;
+					$addons['AdnSE']=$ac->AdnSE;
+					$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+					$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 				}
 				$lng = get_locale();
 			$k ="";
@@ -110,22 +110,22 @@ class Panel_edit  {
 							</button>
 							<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-									<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php echo $lang["forms"] ?></a></li>
+									<li class="efb nav-item"><a class="efb nav-link efb active" id="efb-nav-panel" aria-current="page" onClick="fun_show_content_page_emsFormBuilder('forms')" role="button"><?php echo $lang['forms'] ?></a></li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php echo $lang["setting"] ?></a>
+										<a class="efb nav-link efb" id="efb-nav-setting" onClick="fun_show_content_page_emsFormBuilder('setting')" role="button"><?php echo $lang['setting'] ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
+										<a class="efb nav-link efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang['create']  ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php echo $lang["help"] ?></a>
+										<a class="efb nav-link efb" id="efb-nav-help" onClick="fun_show_content_page_emsFormBuilder('help')" role="button"><?php echo $lang['help'] ?></a>
 									</li>
 								</ul>
 								<div class="efb d-flex">
 									<form class="efb d-flex">
 										<i class="efb  bi-search search-icon"></i>
-										<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["trackNo"]  ?>">
-										<a class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php echo   $lang["search"] ?></a>
+										<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang['trackNo']  ?>">
+										<a class="efb btn efb btn-outline-pink mx-2" type="submit" id="track_code_btn_emsFormBuilder" onClick="fun_find_track_emsFormBuilder()"><?php echo   $lang['search'] ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
 										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
@@ -170,7 +170,7 @@ class Panel_edit  {
 					$efbFunction->setting_version_efb_update($ac ,$pro);
 				}
 				if(is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/smssended")){
-					$addons["AdnSS"] =1;
+					$addons['AdnSS'] =1;
 				}
 				if(isset($ac->AdnPDP) && $ac->AdnPDP==1){
 					//wmaddon
@@ -193,7 +193,7 @@ class Panel_edit  {
 					require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 					$arabicDatePicker = new arabicDatePickerEfb() ; 				
 				}
-			}else{$smtp_m =$lang["goToEFBAddEmailM"];}	
+			}else{$smtp_m =$lang['goToEFBAddEmailM'];}	
 			//$location =$pro==true  ? $efbFunction->get_geolocation() :'';
 			//$colors = $efbFunction->get_list_colores_template();
 			$colors =[];
@@ -387,15 +387,15 @@ class Panel_edit  {
 		//error_log($_FILES['async-upload']['name']);
 		if (in_array($_FILES['async-upload']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["async-upload"]["name"], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["async-upload"]["tmp_name"]));				
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['async-upload']['name'], PATHINFO_EXTENSION) ;
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['async-upload']['tmp_name']));				
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}
 			$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$_FILES['async-upload']['type']); 
 			  wp_send_json_success($response,200);
 		}else{
-			$response = array( 'success' => false  ,'error'=>$this->lanText["errorFilePer"]); 
+			$response = array( 'success' => false  ,'error'=>$this->lanText['errorFilePer']); 
 			wp_send_json_success($response,200);
 			die('invalid file '.$_FILES['async-upload']['type']);
 		}

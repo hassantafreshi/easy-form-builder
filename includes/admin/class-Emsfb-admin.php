@@ -134,13 +134,13 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
@@ -166,13 +166,13 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
@@ -192,17 +192,17 @@ class Admin {
         $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
         }
         if (empty($_POST['value']) || empty($_POST['id']) || empty($_POST['name'])) {
-            $m = $lang["invalidRequire"];
+            $m = $lang['invalidRequire'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
         if ($this->isScript(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE) || $this->isScript(json_encode($_POST['name']),JSON_UNESCAPED_UNICODE)) {        
-            $m = $lang["nAllowedUseHtml"];
+            $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
         }
@@ -216,9 +216,9 @@ class Admin {
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
         if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
-			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang["newResponse"]."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
-			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang["WeRecivedUrM"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
@@ -253,7 +253,7 @@ class Admin {
 				$sms_msg_new_noti,
 				$sms_msg_responsed_noti);
 		}
-        $m = $lang["updated"];
+        $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         wp_send_json_success($response, $_POST);
     }
@@ -286,17 +286,17 @@ class Admin {
                  "AdnWHS","AdnPAP","AdnWSP","AdnSMF","AdnPLF","AdnMSF","AdnBEF","AdnPDP","AdnADP"];
         $dd =gettype(array_search($value, $allw));
         if (check_ajax_referer('admin-nonce', 'nonce') != 1 || $dd!="integer") {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
         }
         if (empty($_POST['value']) ) {
-            $m = $lang["invalidRequire"];
+            $m = $lang['invalidRequire'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
         }
         if ($this->isScript($_POST['value'])) {        
-            $m = $lang["nAllowedUseHtml"];
+            $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
         }
@@ -327,7 +327,7 @@ class Admin {
             }
             // Check version of EFB to Addons
             if (version_compare(EMSFB_PLUGIN_VERSION,$data->v)==-1) {        
-                $m = $lang["upDMsg"];
+                $m = $lang['upDMsg'];
                 $response = ['success' => false, "m" => $m];
                 wp_send_json_success($response, $_POST);
             }
@@ -402,19 +402,19 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $ac= $efbFunction->get_setting_Emsfb();
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['value']) ) {
-            $m = $lang["invalidRequire"];
+            $m = $lang['invalidRequire'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
         }
         if ($this->isScript($_POST['value'])) {        
-            $m = $lang["nAllowedUseHtml"];
+            $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
             die();
@@ -478,13 +478,13 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","updated"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m =   $lang["error403"];
+            $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value']),JSON_UNESCAPED_UNICODE)) {            
-            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, Please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, $_POST);
             die();
@@ -492,7 +492,7 @@ class Admin {
         $id =  ( int ) sanitize_text_field($_POST['id']);
         $table_name = $this->db->prefix . "emsfb_msg_";
         $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
-        $m =   $lang["updated"];
+        $m =   $lang['updated'];
         $response = ['success' => true, 'r' =>"updated"];
         wp_send_json_success($response, $_POST);
     }
@@ -501,13 +501,13 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m =   $lang["error403"];
+            $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {
-            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, $_POST);
             die();
@@ -537,13 +537,13 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m =   $lang["error403"];
+            $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {        
-            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
         }
@@ -561,13 +561,13 @@ class Admin {
         $text = ["spprt","error403","somethingWentWrongPleaseRefresh" ,"guest"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m =   $lang["error403"];
+            $m =   $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['id'])) {            
-            $m =   $lang["somethingWentWrongPleaseRefresh"];
+            $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, $_POST);
         }
@@ -581,10 +581,10 @@ class Admin {
                 $usr         = get_user_by('id', $r);
                 $val->rsp_by = $usr->display_name;
             }else if ($r==-1){
-                $val->rsp_by= $lang["spprt"];
+                $val->rsp_by= $lang['spprt'];
             }
             else {
-                $m =   $lang["guest"];
+                $m =   $lang['guest'];
                 $val->rsp_by =$m;
             }
         }
@@ -597,16 +597,16 @@ class Admin {
         $text = ["error405","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","messageSent"];
         $lang= $this->efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {                        
-            $response = ['success' => false, 'm' => $lang["error403"]];
+            $response = ['success' => false, 'm' => $lang['error403']];
             wp_send_json_success($response, $_POST);
             die("secure!");
         }
         if (empty($_POST['message']) || empty($_POST['id'])) {
-            $response = ['success' => false, "m" => $lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" => $lang['somethingWentWrongPleaseRefresh']];
             wp_send_json_success($response, $_POST);
         }
         if ($this->isHTML(json_encode($_POST['message']))) {
-            $response = ['success' => false, "m" => $lang["nAllowedUseHtml"]];
+            $response = ['success' => false, "m" => $lang['nAllowedUseHtml']];
             wp_send_json_success($response, $_POST);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -655,7 +655,7 @@ class Admin {
 							break;
 						}
 						if($stated==0){
-							$response = array( 'success' => false  , 'm'=>$lang["error405"]); 
+							$response = array( 'success' => false  , 'm'=>$lang['error405']); 
 							wp_send_json_success($response,$_POST);
 						}
 				}
@@ -684,7 +684,7 @@ class Admin {
         );
         $table_name = $this->db->prefix . "emsfb_msg_";
         $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
-        $m        = $lang["messageSent"];
+        $m        = $lang['messageSent'];
         $response = ['success' => true, "m" => $m];
         //"rescl", "resop",
         $pro =isset( $ac->activeCode) ? $ac->activeCode : null;
@@ -697,19 +697,19 @@ class Admin {
         $text = ["pleaseDoNotAddJsCode","emailTemplate","addSCEmailM","messageSent","activationNcorrect","error403","somethingWentWrongPleaseRefresh","nAllowedUseHtml","PEnterMessage"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, 200);
             die("secure!");
         }
         if (empty($_POST['message'])) {
-            $m = $lang["PEnterMessage"];
+            $m = $lang['PEnterMessage'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
             die();
         }
         if ($this->isHTML(json_encode($_POST['message']))) {            
-            $m = $lang["nAllowedUseHtml"];
+            $m = $lang['nAllowedUseHtml'];
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, 200);
             die();
@@ -723,7 +723,7 @@ class Admin {
         $email="";
         $em_st=false;
         if($m==null || gettype($m)!='array'){
-            $m = $lang["somethingWentWrongPleaseRefresh"];
+            $m = $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" =>$m];
             wp_send_json_success($response, $_POST);
             die();
@@ -735,7 +735,7 @@ class Admin {
             }else if ($key == "activeCode" && strlen($value) > 1) {
                 $server_name = str_replace("www.", "", $_SERVER['HTTP_HOST']);
                 if (md5($server_name) != $value) {
-                    $m = $lang["activationNcorrect"];
+                    $m = $lang['activationNcorrect'];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
@@ -746,22 +746,22 @@ class Admin {
             }
              else if($key == "emailTemp"){
                 if( strlen($value)>5  && (strpos($setting ,'shortcode_message')==false || strpos($setting ,'shortcode_title')==false)){
-                    $m = $lang["addSCEmailM"];
+                    $m = $lang['addSCEmailM'];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
                 }else if(strlen($value)<6 && strlen($value)>0 ){
-                    $m = $lang["emailTemplate"];               
+                    $m = $lang['emailTemplate'];               
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
                 }else if(strlen($value)>20001){                 
-                    $m = $lang["addSCEmailM"];                    
+                    $m = $lang['addSCEmailM'];                    
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
                 }else if(strpos($value ,'<script')){
-                    $m = $lang["pleaseDoNotAddJsCode"];
+                    $m = $lang['pleaseDoNotAddJsCode'];
                     $response = ['success' => false, "m" =>$m];
                     wp_send_json_success($response, $_POST);
                     die();
@@ -783,7 +783,7 @@ class Admin {
             ]
         );
         update_option('emsfb_settings', $setting);
-        $m = $lang["messageSent"];            
+        $m = $lang['messageSent'];            
         $response = ['success' => true, "m" => $m];
         wp_send_json_success($response, $_POST);
     }
@@ -794,7 +794,7 @@ class Admin {
         $text = ["cCodeNFound","error403"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
@@ -808,7 +808,7 @@ class Admin {
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
-            $m = $lang["cCodeNFound"];
+            $m = $lang['cCodeNFound'];
             $response = ['success' => false, "m" => $m];
         }
         wp_send_json_success($response, $_POST);
@@ -820,7 +820,7 @@ class Admin {
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {
-            $m = $lang["error403"];
+            $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
             wp_send_json_success($response, $_POST);
             die("secure!");
@@ -855,7 +855,7 @@ class Admin {
                 }
             }
         }        
-        $m = $lang["fileDeleted"];
+        $m = $lang['fileDeleted'];
         $response = ['success' => true, "m" => $m];
         wp_send_json_success($response, $_POST);
     }//end function
@@ -865,7 +865,7 @@ class Admin {
         $ac= $efbFunction->get_setting_Emsfb();
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
-        $m = $lang["error403"];
+        $m = $lang['error403'];
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {     
             $response = ['success' => false, 'm' => $m];
             wp_send_json_success($response, $_POST);
@@ -880,7 +880,7 @@ class Admin {
             if(is_email($_POST['email'])){
                 $to = sanitize_email($_POST['email']);
             }
-            $m = $lang["emailServer"];
+            $m = $lang['emailServer'];
             $sub ="📫 ". $m ." [".esc_html__('Easy Form Builder','easy-form-builder') ."]";
             $cont = "Test Email Server";
             if(strlen($to)<5) {
@@ -1010,8 +1010,8 @@ class Admin {
         //error_log($_FILES['file']['name']);
 		if (in_array($_FILES['file']['type'], $arr_ext)) { 
 			// تنظیمات امنیتی بعدا اضافه شود که فایل از مسیر کانت که عمومی هست جابجا شود به مسیر دیگری
-			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION) ;
-			$upload = wp_upload_bits($name, null, file_get_contents($_FILES["file"]["tmp_name"]));				
+			$name = 'efb-PLG-'. date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) ;
+			$upload = wp_upload_bits($name, null, file_get_contents($_FILES['file']['tmp_name']));				
 			if(is_ssl()==true){
 				$upload['url'] = str_replace('http://', 'https://', $upload['url']);
 			}            
@@ -1056,11 +1056,11 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","copy"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
-            $response = ['success' => false, 'm' =>$lang["error403"]];
+            $response = ['success' => false, 'm' =>$lang['error403']];
             wp_send_json_success($response, 200);
         }
         if (empty($_POST['id'])) {            
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             wp_send_json_success($response,200);
         }
         $id =  ( int ) sanitize_text_field($_POST['id']) ;
@@ -1069,11 +1069,11 @@ class Admin {
             $table_name = $this->db->prefix . "emsfb_form";
             $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id'");
             if(count($value)<1){
-                $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+                $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
                 wp_send_json_success($response,200);
             }
             $val = $value[0];
-            $form_name = $val->form_name . " - " . $lang["copy"];
+            $form_name = $val->form_name . " - " . $lang['copy'];
             $date = wp_date('Y-m-d H:i:s');
             $r =$this->db->insert($table_name, array(
                 'form_name' =>  $form_name, 
@@ -1085,7 +1085,7 @@ class Admin {
             ));    
             $this->id_  = $this->db->insert_id; 
             //get inserted value    
-            $response = ['success' => true, "m" =>$lang["copy"] , 'form_id'=>$this->id_ , 'form_name'=>$form_name , 
+            $response = ['success' => true, "m" =>$lang['copy'] , 'form_id'=>$this->id_ , 'form_name'=>$form_name , 
             'date'=>$date , 'form_type'=>$val->form_type];
             wp_send_json_success($response, 200);
         }
@@ -1105,11 +1105,11 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","delete"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
-            $response = ['success' => false, 'm' =>$lang["error403"]];
+            $response = ['success' => false, 'm' =>$lang['error403']];
             wp_send_json_success($response, 200);
         }
         if (empty($_POST['val'])) {            
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             wp_send_json_success($response,200);
         }
         $state = sanitize_text_field($_POST['state']) ;
@@ -1124,7 +1124,7 @@ class Admin {
                     $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
                 }
             }
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             if($msg_ids !=''){
                 $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
                 $r = $this->db->query($sql);
@@ -1134,7 +1134,7 @@ class Admin {
                     $sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
                     $r = $this->db->query($sql);                            
                 }
-                $response = ['success' => true, "m" =>$lang["delete"]];
+                $response = ['success' => true, "m" =>$lang['delete']];
             }
             wp_send_json_success($response, 200);
         }
@@ -1146,11 +1146,11 @@ class Admin {
         $text = ["error403","somethingWentWrongPleaseRefresh","done"];
         $lang= $efbFunction->text_efb($text);
         if (check_ajax_referer('admin-nonce', 'nonce') != 1) {        
-            $response = ['success' => false, 'm' =>$lang["error403"]];
+            $response = ['success' => false, 'm' =>$lang['error403']];
             wp_send_json_success($response, 200);
         }
         if (empty($_POST['val'])) {            
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             wp_send_json_success($response,200);
         }
         $state = sanitize_text_field($_POST['state']) ;
@@ -1167,7 +1167,7 @@ class Admin {
                     $msg_ids !='' ? $msg_ids .=','.$value['msg_id'] : $msg_ids .= $value['msg_id'];
                 }
             }
-            $response = ['success' => false, "m" =>$lang["somethingWentWrongPleaseRefresh"]];
+            $response = ['success' => false, "m" =>$lang['somethingWentWrongPleaseRefresh']];
             $user_id = get_current_user_id();
             if($msg_ids !='' ){
                 //$sql = "DELETE FROM $table_name WHERE msg_id IN ($msg_ids)";
@@ -1182,7 +1182,7 @@ class Admin {
                     $r = $this->db->query($sql);       
                     //error_log('resp'.$r);
                 }
-                $response = ['success' => true, "m" =>$lang["done"]];
+                $response = ['success' => true, "m" =>$lang['done']];
             }           
         }
         wp_send_json_success($response, 200);

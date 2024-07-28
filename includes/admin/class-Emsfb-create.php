@@ -126,16 +126,16 @@ class Create {
 			}
 			if(isset($ac->AdnSPF)==true){
 				//$ac
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnOF"]=$ac->AdnOF;
-				$addons["AdnATC"]=$ac->AdnATC;
-				$addons["AdnPPF"]=$ac->AdnPPF;
-				$addons["AdnSS"]=$ac->AdnSS;
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnESZ"]=$ac->AdnESZ;
-				$addons["AdnSE"]=$ac->AdnSE;
-				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+				$addons['AdnSPF']=$ac->AdnSPF;
+				$addons['AdnOF']=$ac->AdnOF;
+				$addons['AdnATC']=$ac->AdnATC;
+				$addons['AdnPPF']=$ac->AdnPPF;
+				$addons['AdnSS']=$ac->AdnSS;
+				$addons['AdnSPF']=$ac->AdnSPF;
+				$addons['AdnESZ']=$ac->AdnESZ;
+				$addons['AdnSE']=$ac->AdnSE;
+				$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+				$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 			}
 			if(isset($ac->efb_version)==false || version_compare(EMSFB_PLUGIN_VERSION,$ac->efb_version)!=0 ){
 				$efbFunction->setting_version_efb_update($ac ,$pro);
@@ -198,8 +198,8 @@ class Create {
 		$stng_pdate = true;
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
-		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
+			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}			
+		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		if("fa_IR"==get_locale()){
 			wp_register_script('persia_pay-efb.js',  EMSFB_PLUGIN_URL .'/public/assets/js/persia_pay-efb.js', array('jquery'),'3.8.1',true);
 			wp_enqueue_script('persia_pay-efb.js');
@@ -260,7 +260,7 @@ class Create {
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
-			$m =$lang["errorCheckInputs"];
+			$m =$lang['errorCheckInputs'];
 			$response = array( 'success' => false , "m"=>$m); 
 			wp_send_json_success($response,$_POST);
 		} 
@@ -274,7 +274,7 @@ class Create {
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
-			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 
+			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
 			wp_send_json_success($response,$_POST);
 		}
 		//check if smsnoti axist then call add_sms_contact_efb
@@ -283,9 +283,9 @@ class Create {
 		$sms_msg_recived_user="";
 		$sms_admins_phoneno="";
 		if(isset($valp[0]['smsnoti']) && intval($valp[0]['smsnoti'])==1){
-			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang["newMessageReceived"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
-			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang["newResponse"]."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
-			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang["WeRecivedUrM"] ."\n". $lang["trackNo"] .": [confirmation_code]\n". $lang["url"] .": [link_response]";
+			$sms_msg_new_noti = isset($valp[0]['sms_msg_new_noti']) ?$valp[0]['sms_msg_new_noti'] :$lang['newMessageReceived'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_responsed_noti = isset($valp[0]['sms_msg_responsed_noti']) ? $valp[0]['sms_msg_responsed_noti'] :  $lang['newResponse']."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
+			$sms_msg_recived_user = isset($valp[0]['sms_msg_recived_usr']) ? $valp[0]['sms_msg_recived_usr'] : $lang['WeRecivedUrM'] ."\n". $lang['trackNo'] .": [confirmation_code]\n". $lang['url'] .": [link_response]";
 			$sms_admins_phoneno = isset($valp[0]['sms_admins_phone_no']) ? $valp[0]['sms_admins_phone_no'] : "";
 			unset($valp[0]['sms_msg_new_noti']);
 			unset($valp[0]['sms_msg_responsed_noti']);
@@ -310,7 +310,7 @@ class Create {
 		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
-		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
+		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response,$_POST);	
 	}
 	public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }

@@ -133,20 +133,20 @@ class Addon {
 		];
 		if(gettype($ac)!="string"){
 			if( isset($ac->siteKey)&& strlen($ac->siteKey)>5){$captcha="true";}
-			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang["sMTPNotWork"];}			
+			if($ac->smtp=="true"){$smtp=1;}else if ($ac->smtp=="false"){$smtp=0;$smtp_m =$lang['sMTPNotWork'];}			
 			if(isset($ac->AdnSPF)==true){
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnOF"]=$ac->AdnOF;
-				$addons["AdnATC"]=$ac->AdnATC;
-				$addons["AdnPPF"]=$ac->AdnPPF;
-				$addons["AdnSS"]=$ac->AdnSS;
-				$addons["AdnSPF"]=$ac->AdnSPF;
-				$addons["AdnESZ"]=$ac->AdnESZ;
-				$addons["AdnSE"]=$ac->AdnSE;
-				$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-				$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+				$addons['AdnSPF']=$ac->AdnSPF;
+				$addons['AdnOF']=$ac->AdnOF;
+				$addons['AdnATC']=$ac->AdnATC;
+				$addons['AdnPPF']=$ac->AdnPPF;
+				$addons['AdnSS']=$ac->AdnSS;
+				$addons['AdnSPF']=$ac->AdnSPF;
+				$addons['AdnESZ']=$ac->AdnESZ;
+				$addons['AdnSE']=$ac->AdnSE;
+				$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+				$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 			}
-		}else{$smtp_m =$lang["goToEFBAddEmailM"];}
+		}else{$smtp_m =$lang['goToEFBAddEmailM'];}
 		wp_enqueue_script( 'Emsfb-admin-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/admin-efb.js',false,'3.8.3');
 		wp_localize_script('Emsfb-admin-js','efb_var',array(
 			'nonce'=> wp_create_nonce("admin-nonce"),
@@ -185,7 +185,7 @@ class Addon {
 		// get user email https://developer.wordpress.org/reference/functions/get_user_by/#user-contributed-notes
 		$email = '';
 		if( empty($_POST['name']) || empty($_POST['value']) ){
-			$m =$lang["errorCheckInputs"];
+			$m =$lang['errorCheckInputs'];
 			$response = array( 'success' => false , "m"=>$m); 
 			wp_send_json_success($response,$_POST);
 			die();
@@ -197,14 +197,14 @@ class Addon {
 		$this->value = $_POST['value'];
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){			
-			$response = array( 'success' => false , "m"=> $lang["NAllowedscriptTag"]); 
+			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']); 
 			wp_send_json_success($response,$_POST);
 			die();
 		}
 		$this->insert_db();
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_); 
-		}else{$response = array( 'success' => false , "m"=> $lang["formNcreated"]);}
+		}else{$response = array( 'success' => false , "m"=> $lang['formNcreated']);}
 		wp_send_json_success($response,$_POST);
 		die();		
 	}
