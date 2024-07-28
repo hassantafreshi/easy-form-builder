@@ -792,7 +792,7 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){													
+	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){											
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);				
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
@@ -888,154 +888,101 @@ class efbFunction {
 					
 					
 				}
-				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );								
+				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );		
+					
 			   return $mailResult;
 	}
 
-	public function email_template_efb($pro, $state, $m,$link ,$st="null"){	
-	
-		$l ='https://whitestudio.team';
+
+	public function email_template_efb($pro, $state, $m, $link, $st = "null") {
+		$l = 'https://whitestudio.team';
 		$wp_lan = get_locale();
-			 if($wp_lan=="fa_IR"){ $l='https://easyformbuilder.ir'  ;}
-			 else if($wp_lan=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team";}
-			 else if ($wp_lan=="de_DE") {$l ="https://de.whitestudio.team";}
-			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
-		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
-        $lang= $this->text_efb($text);				
-			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang['sentBy']." ".  get_bloginfo('name')."</a>";			
-		$align ='left';
-		$d =  'ltr';
-		if(is_rtl()){
-			$d =  'rtl' ;
-			$align ='right';
-		}
-		//}   
-
-		
-		if($st=='null') $st = $this->get_setting_Emsfb();
-		if($st=="null") return;
-		//serverEmailAble
-		//if(strlen($st->activeCode)<5 ){ $footer .="<br></br><small><a class='efb subtle-link' target='_blank' href='". $l."'>". esc_html__('Created by','easy-form-builder') . " " . esc_html__('Easy Form Builder','easy-form-builder')."</a></small>";	}		
-		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
-		
-		
-		$title=$lang['newMessage'];
-		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
-		$blogName =get_bloginfo('name');
-		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
-		
-		$adminEmail = $user!=false ? $user->user_email :'';
-		$blogURL= home_url();
-
-		
-		$dts =  $lang['msgdml'];
-		
-		if($state=="testMailServer"){
+		$locale_map = [
+			'fa_IR' => 'https://easyformbuilder.ir',
+			'ar' => 'https://ar.whitestudio.team',
+			'arq' => 'https://ar.whitestudio.team',
+			'de_DE' => 'https://de.whitestudio.team'
+		];
+		$l = $locale_map[$wp_lan] ?? $l;
+	
+		$text = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'createdBy', 'yFreeVEnPro', 'WeRecivedUrM'];
+		$lang = $this->text_efb($text);
+	
+		$footer = "<a class='efb subtle-link' target='_blank' href='" . home_url() . "'>" . $lang['sentBy'] . " " . get_bloginfo('name') . "</a>";
+		$align = is_rtl() ? 'right' : 'left';
+		$d = is_rtl() ? 'rtl' : 'ltr';
+	
+		if ($st == 'null') $st = $this->get_setting_Emsfb();
+		if ($st == "null") return;
+	
+		$temp = isset($st->emailTemp) && strlen($st->emailTemp) > 10 ? $st->emailTemp : "0";
+	
+		$title = $lang['newMessage'];
+		$message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
+		$blogName = get_bloginfo('name');
+		$user = function_exists("get_user_by") ? get_user_by('id', 1) : false;
+		$adminEmail = $user ? $user->user_email : '';
+		$blogURL = home_url();
+		$dts = $lang['msgdml'];
+	
+		if ($state == "testMailServer") {
 			$dt = $lang['msgnml'];
-			$de = $lang['mlntip'];			
-			$de =preg_replace('/^[^.]*\. /', '', $lang['mlntip']);			
-			//$de = substr($de, 0, strpos($de, '.')+1);
+			$de = preg_replace('/^[^.]*\. /', '', $lang['mlntip']);
 			$link = "$l/document/send-email-using-smtp-plugin/";
-			if($wp_lan=="fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
-			//
-			$de = str_replace('%s1',"<a href='$link' target='_blank'>",$de);
-			$de = str_replace('%s2',"</a>",$de);
-			$de = str_replace('%s3',"<a href='$l/support/' target='_blank'>",$de);
-			$de = str_replace('%s4',"</a>",$de);
-
-			//replace %s1 and %s2 with links to documentation
-			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
-			$dt = str_replace('%s2',"</a>",$dt);
-			$title= $lang['serverEmailAble'];
-			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
-			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
-			";
-			 if(strlen($st->activeCode)<5){
-				$p = str_replace('NN'  ,'19' ,$lang['yFreeVEnPro']);
-				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang['yFreeVEnPro']);
-				$message ="<h2 style='text-align:center'>"
-				. $p ."</h2>				
-				<div style='text-align:center'>
-					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang['getProVersion']."</a>
-				</div>
-					<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3>
-					<h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4> 
-					<div style='text-align:center'><p style='text-align:center'>". $lang['createdBy'] ." WhiteStudio.team</p></div>
-				 ";
-			 }
-			
-		}elseif($state=="newMessage"){	
-			//w_link;
-			if(gettype($m)=='string'){
-				$dts = str_replace('%s', $m, $dts);
-				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-				$message ="<h2 style='text-align:center'>".$lang['newMessageReceived']."</h2>
-				<p style='text-align:center'>". $lang['trackingCode'].": ".$m." </p>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
-			}else{
-				$dts = str_replace('%s', $m[0], $dts);
-				$link = strpos($link,"?")==true ? $link.'&track='.$m[0] : $link.'?track='.$m[0];
-				$message ="
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
+			if ($wp_lan == "fa_IR") $link = "$l/داکیومنت/ارسال-ایمیل-بوسیله-افزونه-smtp/";
+	
+			$de = strtr($de, [
+				'%s1' => "<a href='$link' target='_blank'>",
+				'%s2' => "</a>",
+				'%s3' => "<a href='$l/support/' target='_blank'>",
+				'%s4' => "</a>"
+			]);
+			$dt = strtr($dt, [
+				'%s1' => "<a href='$l/documents/' target='_blank'>",
+				'%s2' => "</a>"
+			]);
+			$title = $lang['serverEmailAble'];
+			$message = "<div style='text-align:center'><p>$footer</p></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4>";
+	
+			if (strlen($st->activeCode) < 5) {
+				$p = str_replace('NN', '19', $lang['yFreeVEnPro']);
+				if ($wp_lan == "de_DE") $p = str_replace('$', '€', $lang['yFreeVEnPro']);
+				$message = "<h2 style='text-align:center'>$p</h2><div style='text-align:center'><a href='$l' target='_blank' style='padding:5px;color:white;background:#202a8d;'>{$lang['getProVersion']}</a></div><h3 style='padding:5px;color: #021623;'>$de</h3><h4 style='padding:5px;color: #021623;'>$dt</h4><div style='text-align:center'><p style='text-align:center'>{$lang['createdBy']} WhiteStudio.team</p></div>";
 			}
-		}else{
-			if(gettype($m)=='string'){
-				
-			$title =$lang['hiUser'];
-			$message='<div style="text-align:center">'.$m.'</div>';
-			}else{
-				$title =$lang['hiUser'];
-				$dts = str_replace('%s', $m[0], $dts);
-				$message="
-				<div style='text-align:center'><h2>".$lang['WeRecivedUrM']."</h2> </div>
-				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
-				<p style='text-align:center'>".$dts." </p>
-				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
-				";
-			}
-		}		
-		
-		$val ="
-		<html xmlns='http://www.w3.org/1999/xhtml'> <body style='margin:auto 10px;direction:".$d.";color:#000000;'><center>
-			<table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:".$d.";'> <tr>
-				<img src='".EMSFB_PLUGIN_URL ."public/assets/images/email_template1.png' alt='$title' style='width:36%;'>
-				</tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='100%' border='0'>  <tbody> <tr>
-				<td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'>
-					<h1 style='color:#ff4b93;text-align:center;'>".$title."</h1>
-					</td></tr><tr style='text-align:".$align.";color:#000000;font-size:14px;'><td>
-							<span>".$message." </span>
-				</td> </tr>
-				<tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> 
-					
-				</td></tr></tbody></center></td>
-			</tr></table>
-			</center>
-			<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>
-		</body></html>
-			";
-			if($temp!="0"){
-				$temp=str_replace('shortcode_message' ,$message,$temp);
-				$temp=str_replace('shortcode_title' ,$title,$temp);
-				$temp=str_replace('shortcode_website_name' ,$blogName,$temp);
-				$temp=str_replace('shortcode_website_url' ,$blogURL,$temp);
-				$temp=str_replace('shortcode_admin_email' ,$adminEmail,$temp);
-				$temp= preg_replace('/(http:@efb@)+/','http://',$temp);
-				$temp= preg_replace('/(https:@efb@)+/','https://',$temp);
-				$temp= preg_replace('/(@efb@)+/','/',$temp);
-				$p = strripos($temp, '</body>');
-				
-				//$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px;'>".$footer."</td></tr></table>";
-				$footer ="<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr> <td align='".$align."' style='padding: 30px 30px; font-size:12px; text-align:center'>".$footer."</td></tr></table>";
-				if($pro==1){	$temp = substr_replace($temp,$footer,($p),0);}
-		       
-				$val =  $temp;
-			}
-			
-			return $val;
+		} elseif ($state == "newMessage") {
+			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
+			$link = strpos($link, "?") !== false ? $link . '&track=' . (is_string($m) ? $m : $m[0]) : $link . '?track=' . (is_string($m) ? $m : $m[0]);
+			$message = is_string($m) ?
+				"<h2 style='text-align:center'>{$lang['newMessageReceived']}</h2><p style='text-align:center'>{$lang['trackingCode']}: $m</p><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>" :
+				"<div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
+		} else {
+			$title = $lang['hiUser'];
+			$dts = str_replace('%s', is_string($m) ? $m : $m[0], $dts);
+			$message = is_string($m) ? "<div style='text-align:center'>$m</div>" : "<div style='text-align:center'><h2>{$lang['WeRecivedUrM']}</h2></div><div style='text-align:$align;color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>{$m[1]}</div><p style='text-align:center'>$dts</p><div style='text-align:center'><a href='$link' target='_blank' style='padding:5px;color:white;background:black;'>{$lang['vmgs']}</a></div>";
+		}
+	
+		$val = "<html xmlns='http://www.w3.org/1999/xhtml'><body style='margin:auto 10px;direction:$d;color:#000000;'><center><table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;direction:$d;'><tr><img src='" . EMSFB_PLUGIN_URL . "public/assets/images/email_template1.png' alt='$title' style='width:36%;'></tr><tr><td><center><table bgcolor='#FFFFFF' width='100%' border='0'><tbody><tr><td style='font-family:sans-serif;font-size:13px;color:#202020;line-height:1.5'><h1 style='color:#ff4b93;text-align:center;'>$title</h1></td></tr><tr style='text-align:$align;color:#000000;font-size:14px;'><td><span>$message</span></td></tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td></td></tr></tbody></center></td></tr></table></center><table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table></body></html>";
+	
+		if ($temp != "0") {
+			$replacements = [
+				'shortcode_message' => $message,
+				'shortcode_title' => $title,
+				'shortcode_website_name' => $blogName,
+				'shortcode_website_url' => $blogURL,
+				'shortcode_admin_email' => $adminEmail
+			];
+			$temp = strtr($temp, $replacements);
+			$temp = preg_replace(['/http:@efb@+/', '/https:@efb@+/', '/@efb@+/'], ['http://', 'https://', '/'], $temp);
+	
+			$p = strripos($temp, '</body>');
+			$footer = "<table role='presentation' bgcolor='#F5F8FA' width='100%'><tr><td align='$align' style='padding: 30px 30px; font-size:12px; text-align:center'>$footer</td></tr></table>";
+			$temp = substr_replace($temp, $footer, $p, 0);
+	
+			$val = $temp;
+		}
+		return $val;
 	}
+	
 
 	public function wpdocs_set_html_mail_content_type() {	
 		return 'text/html';
