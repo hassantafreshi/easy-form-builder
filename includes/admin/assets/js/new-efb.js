@@ -106,7 +106,8 @@ const show_modal_efb = (body, title, icon, type) => {
   } else if (type == "saveLoadingBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')
-    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard('',4);
+    document.getElementById('settingModalEfb-body').innerHTML = efbLoadingCard('',5);
+
   } else if (type == "chart") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')
     if (!document.getElementById("settingModalEfb_").classList.contains('save-efb')) document.getElementById("settingModalEfb_").classList.add('save-efb')

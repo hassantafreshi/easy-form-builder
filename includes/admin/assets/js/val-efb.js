@@ -2057,8 +2057,8 @@ efbLoadingCard = (bgColor,size)=>{
   return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
   <div class='efb col-12 col-md-4 col-sm-7 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
       <img class='efb ${w}' src='${efb_var.images.logoGif}'>
-      <h4 class='efb fs-${size} text-darkb'>${efb_var.text.easyFormBuilder}</h4>
-      <h4 class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
+      <p class='efb fs-${size} text-darkb mb-0'>${efb_var.text.easyFormBuilder}</h4>
+      <p class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
   </div>
 </div> `
 }

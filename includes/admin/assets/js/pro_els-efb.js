@@ -9,9 +9,11 @@ maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
  }
  maps_os_pro_efb =(previewSate, pos , rndm,iVJ)=>{
     return `
+    <!--maps-->
     <div class="efb  ${previewSate == true ? pos[3] : `col-md-12`} col-sm-12 maps-os "  id='${rndm}-f'>      
       
       </div>
+      <!--maps end-->
     `
  }
  dadfile_el_pro_efb =(previewSate , rndm,iVJ)=>{

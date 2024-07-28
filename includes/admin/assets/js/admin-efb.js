@@ -2855,7 +2855,7 @@ const saveFormEfb = async (stated) => {
       }
 
       show_modal_efb("", efb_var.text.save, "bi-check2-circle", "saveLoadingBox");
-
+      
       let timeout = 1000;
       check_show_box = () => {
         setTimeout(() => {
@@ -2867,7 +2867,7 @@ const saveFormEfb = async (stated) => {
           }
         }, timeout);
       };
-
+      
       try {
         if (valj_efb.length < 3) {
           btnText = efb_var.text.help;
