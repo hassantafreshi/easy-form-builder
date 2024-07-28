@@ -902,7 +902,7 @@ class efbFunction {
 			 //elseif (get_locale()=="ar" || get_locale()=="arq") {$l ="https://ar.whitestudio.team/";}
 		$text = ['msgdml','mlntip','msgnml','serverEmailAble','vmgs','getProVersion','sentBy','hiUser','trackingCode','newMessage','createdBy','newMessageReceived','goodJob','createdBy' , 'yFreeVEnPro','WeRecivedUrM'];
         $lang= $this->text_efb($text);				
-			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang["sentBy"]." ".  get_bloginfo('name')."</a>";			
+			$footer= "<a class='efb subtle-link' target='_blank' href='".home_url()."'>".$lang['sentBy']." ".  get_bloginfo('name')."</a>";			
 		$align ='left';
 		$d =  'ltr';
 		if(is_rtl()){
@@ -919,7 +919,7 @@ class efbFunction {
 		$temp = isset($st->emailTemp) && strlen($st->emailTemp)>10 ? $st->emailTemp : "0";
 		
 		
-		$title=$lang["newMessage"];
+		$title=$lang['newMessage'];
 		$message = gettype($m)=='string' ?  "<h3>".$m."</h3>" : "<h3>".$m[0]."</h3>";
 		$blogName =get_bloginfo('name');
 		$user=function_exists("get_user_by")?  get_user_by('id', 1) :false;
@@ -946,21 +946,21 @@ class efbFunction {
 			//replace %s1 and %s2 with links to documentation
 			$dt = str_replace('%s1',"<a href='$l/documents/' target='_blank'>",$dt);
 			$dt = str_replace('%s2',"</a>",$dt);
-			$title= $lang["serverEmailAble"];
+			$title= $lang['serverEmailAble'];
 			$message ="<div style='text-align:center'> <p>".  $footer ."</p></div>
 			<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3> <h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4>
 			";
 			 if(strlen($st->activeCode)<5){
-				$p = str_replace('NN'  ,'19' ,$lang["yFreeVEnPro"]);
-				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang["yFreeVEnPro"]);
+				$p = str_replace('NN'  ,'19' ,$lang['yFreeVEnPro']);
+				if($wp_lan=="de_DE") $p = str_replace('$'  ,'€' ,$lang['yFreeVEnPro']);
 				$message ="<h2 style='text-align:center'>"
 				. $p ."</h2>				
 				<div style='text-align:center'>
-					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang["getProVersion"]."</a>
+					<a href='".$l."' target='_blank' style='padding:5px 5px 5px 5px;color:white;background:#202a8d;'>".$lang['getProVersion']."</a>
 				</div>
 					<h3 style='padding:5px 5px 5px 5px;color: #021623;'>". $de ."</h3>
 					<h4 style='padding:5px 5px 5px 5px;color: #021623;'>". $dt ."</h4> 
-					<div style='text-align:center'><p style='text-align:center'>". $lang["createdBy"] ." WhiteStudio.team</p></div>
+					<div style='text-align:center'><p style='text-align:center'>". $lang['createdBy'] ." WhiteStudio.team</p></div>
 				 ";
 			 }
 			
@@ -969,8 +969,8 @@ class efbFunction {
 			if(gettype($m)=='string'){
 				$dts = str_replace('%s', $m, $dts);
 				$link = strpos($link,"?")==true ? $link.'&track='.$m : $link.'?track='.$m;
-				$message ="<h2 style='text-align:center'>".$lang["newMessageReceived"]."</h2>
-				<p style='text-align:center'>". $lang["trackingCode"].": ".$m." </p>
+				$message ="<h2 style='text-align:center'>".$lang['newMessageReceived']."</h2>
+				<p style='text-align:center'>". $lang['trackingCode'].": ".$m." </p>
 				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank' style='padding:5px;color:white;background:black;'>".$lang['vmgs']."</a></div>";
 			}else{
@@ -984,13 +984,13 @@ class efbFunction {
 		}else{
 			if(gettype($m)=='string'){
 				
-			$title =$lang["hiUser"];
+			$title =$lang['hiUser'];
 			$message='<div style="text-align:center">'.$m.'</div>';
 			}else{
-				$title =$lang["hiUser"];
+				$title =$lang['hiUser'];
 				$dts = str_replace('%s', $m[0], $dts);
 				$message="
-				<div style='text-align:center'><h2>".$lang["WeRecivedUrM"]."</h2> </div>
+				<div style='text-align:center'><h2>".$lang['WeRecivedUrM']."</h2> </div>
 				<div style='text-align:".$align.";color:#252526;font-size:14px;background: #f9f9f9;padding: 10px;margin: 20px 5px;'>".$m[1]." </div>
 				<p style='text-align:center'>".$dts." </p>
 				<div style='text-align:center'><a href='".$link."' target='_blank'  style='padding:5px;color:white;background:black;' >".$lang['vmgs']."</a></div>
@@ -1066,7 +1066,7 @@ class efbFunction {
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
 		
-		$text = ["youRecivedNewMessage"];
+		$text = ['youRecivedNewMessage'];
         $lang= $this->text_efb($text);		
 		
 		$msg_id = preg_replace('/[,]+/','',$msg_id);
@@ -1090,12 +1090,12 @@ class efbFunction {
 		
 		$data =str_replace('\\', '', $data[0]->form_structer);
 		$data = json_decode($data,true);
-		if(($data[0]["sendEmail"]=="true"|| $data[0]["sendEmail"]==true ) &&   strlen($data[0]["email_to"])>2 ){			
+		if(($data[0]['sendEmail']=="true"|| $data[0]['sendEmail']==true ) &&   strlen($data[0]['email_to'])>2 ){			
 			
 			foreach($user_res as $key=>$val){
-				if(isset($user_res[$key]["id_"]) && $user_res[$key]["id_"]==$data[0]["email_to"]){
-					$email=$val["value"];
-					$subject ="📮 ".$lang["youRecivedNewMessage"];
+				if(isset($user_res[$key]['id_']) && $user_res[$key]['id_']==$data[0]['email_to']){
+					$email=$val['value'];
+					$subject ="📮 ".$lang['youRecivedNewMessage'];
 					$this->send_email_state_new($email ,$subject ,$trackingCode,$pro,"newMessage",$link_w,'null');
 					//send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null")
 					return 1;
@@ -1143,7 +1143,7 @@ class efbFunction {
 	public function sanitize_obj_msg_efb ($valp){
 		
 		foreach ($valp as $key => $val) {
-			$type = $val["type"];
+			$type = $val['type'];
 			foreach ($val as $k => $v) {
 				switch ($k) {
 					case 'value':
@@ -1227,13 +1227,13 @@ class efbFunction {
 						
 						
 						
-						if($valp[$key]["type"]=="option"){
+						if($valp[$key]['type']=="option"){
 							
 							foreach ($valp as $ki => $vl) {
-								$tp = $vl["type"];
+								$tp = $vl['type'];
 								if(array_key_exists('id_',$vl)==false) continue;
 								
-								if($vl['id_']!=$valp[$key]["parent"]){
+								if($vl['id_']!=$valp[$key]['parent']){
 									continue;
 								}
 								
@@ -1246,14 +1246,14 @@ class efbFunction {
 									if($kii!="value") continue;
 									
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
-										if($vll==$valp[$key]["id_"])$vll=$valp[$key][$k];
+										if($vll==$valp[$key]['id_'])$vll=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
 											
 											
 											# code...
 											//$vll[$ke]=sanitize_text_field($va);
-											if($vn==$valp[$key]["id_"]) {
+											if($vn==$valp[$key]['id_']) {
 												
 												
 												$valp[$ki][$kii][$ke] =$valp[$key][$k];
@@ -1268,11 +1268,11 @@ class efbFunction {
 									
 								}
 							}
-							$valp[$key]["id_old"]=$valp[$key]["id_"];
-							$valp[$key]["id_"] = $valp[$key][$k];
-							if(isset($valp[$key]["id_op"]))$valp[$key]["id_op"]=$valp[$key][$k];
-							if(isset($valp[$key]["dataId"]))$valp[$key]["dataId"]=$valp[$key][$k] ."-id";
-							$valp[$key]["option"] = $valp[$key][$k];
+							$valp[$key]['id_old']=$valp[$key]['id_'];
+							$valp[$key]['id_'] = $valp[$key][$k];
+							if(isset($valp[$key]['id_op']))$valp[$key]['id_op']=$valp[$key][$k];
+							if(isset($valp[$key]['dataId']))$valp[$key]['dataId']=$valp[$key][$k] ."-id";
+							$valp[$key]['option'] = $valp[$key][$k];
 						}
 					break;
 					case 'conditions':
@@ -1334,7 +1334,7 @@ class efbFunction {
 		$location = json_decode(curl_exec($cURL), true); 
 		
 		if(isset($location)){
-			return $state==1 ? $location["country_code2"] :$location  ;
+			return $state==1 ? $location['country_code2'] :$location  ;
 		}else{
 			return 0;
 		}
@@ -1459,14 +1459,14 @@ class efbFunction {
 	public function download_all_addons_efb(){
 		$state=true;
 		$ac=$this->get_setting_Emsfb();
-		$addons["AdnSPF"]=isset($ac->AdnSPF)?$ac->AdnSPF:0;
-		$addons["AdnATC"]=isset($ac->AdnATC)?$ac->AdnATC:0;
-		$addons["AdnPPF"]=isset($ac->AdnPPF)?$ac->AdnPPF:0;
-		$addons["AdnSS"]=isset($ac->AdnSS)?$ac->AdnSS:0;	
-		$addons["AdnESZ"]=isset($ac->AdnESZ)?$ac->AdnESZ:0;
-		$addons["AdnSE"]=isset($ac->AdnSE)?$ac->AdnSE:0;
-		$addons["AdnPDP"]=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
-		$addons["AdnADP"]=isset($ac->AdnADP) ? $ac->AdnADP : 0;
+		$addons['AdnSPF']=isset($ac->AdnSPF)?$ac->AdnSPF:0;
+		$addons['AdnATC']=isset($ac->AdnATC)?$ac->AdnATC:0;
+		$addons['AdnPPF']=isset($ac->AdnPPF)?$ac->AdnPPF:0;
+		$addons['AdnSS']=isset($ac->AdnSS)?$ac->AdnSS:0;	
+		$addons['AdnESZ']=isset($ac->AdnESZ)?$ac->AdnESZ:0;
+		$addons['AdnSE']=isset($ac->AdnSE)?$ac->AdnSE:0;
+		$addons['AdnPDP']=isset($ac->AdnPDP) ? $ac->AdnPDP : 0;
+		$addons['AdnADP']=isset($ac->AdnADP) ? $ac->AdnADP : 0;
 		foreach ($addons as $key => $value) {
 			
 			
@@ -1504,9 +1504,9 @@ class efbFunction {
 
 
 	public function update_message_admin_side_efb(){
-		$text = ["wmaddon"];
+		$text = ['wmaddon'];
         $lang= $this->text_efb($text);
-		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang["wmaddon"]."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".esc_html__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
+		return "<div id='body_efb' class='efb card-public row pb-3 efb'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".$lang['wmaddon']."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><b>".esc_html__('Easy Form Builder', 'easy-form-builder')."</b><p></div></div>";
 	}
 
 	function admin_notice_msg_efb($s) {

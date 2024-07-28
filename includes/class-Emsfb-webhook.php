@@ -44,10 +44,10 @@ class webhook {
 
         $response = array(
             'success' => true,
-            'value' => $slug["name"],
+            'value' => $slug['name'],
             'content' => "content",
             'nonce_msg' => "code",
-            'id' => $slug["id"]
+            'id' => $slug['id']
           );
         
         return new WP_REST_Response($response, 200);
