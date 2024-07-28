@@ -170,7 +170,7 @@ const countries_list_el_select=(el_type ,idset,indx)=>{
 }
 const state_list_el_select=(el_type ,idset,indx)=>{
   
-  let opt =`<!--efb---!>`;
+  let opt =`<!--efb--->`;
   let country = valj_efb[indx].hasOwnProperty("country") ? valj_efb[indx].country : 'GB';
   let statePov = valj_efb[indx].hasOwnProperty("statePov") ? valj_efb[indx].statePov : 'Antrim_Newtownabbey';
   country= country.toLowerCase();
@@ -361,14 +361,13 @@ function fun_test(t){
 
 }
 function show_setting_window_efb(idset) {
-  //console.log(idset)
   if(document.getElementById('sideBoxEfb').classList.contains('show')){
     sideMenuEfb(0);
     //document.getElementById(`btnSetting-${activeEl_efb}`).classList.toggle('d-none');
     return};
     //console.log('show_setting_window_efb',idset,valj_efb)
     state_view_efb=1;
-    document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard();
+    document.getElementById('sideMenuConEfb').innerHTML=efbLoadingCard('',5);
     sideMenuEfb(1)
     // document.getElementById('sideBoxEfb').classList.add('show');
      
@@ -985,7 +984,7 @@ function show_setting_window_efb(idset) {
         let o_c = s=="chlRadio" || s=="chlCheckBox" || s=="payRadio" || s=="payCheckbox" || s=="checkbox" || s=="radio" || s=="trmCheckbox"  ? true :false
         s= s=="payCheckbox" || s=="payRadio" || s=="paySelect" || s=="payMultiselect" ? true :false
         const newRndm = Math.random().toString(36).substr(2, 9);
-        let opetions = `<!-- options --!>`;
+        let opetions = `<!-- options -->`;
         const col = s==true ||  form_type_emsFormBuilder=="smart"  ?'col-md-7':'col-md-12'
           
         if (objOptions.length > 0) {
@@ -1357,40 +1356,37 @@ function show_setting_window_efb(idset) {
           ${selectColorEls('progessbar','btn')}
          
          
-          <!-- sms section --!>
-            <div class="efb  d-grid gap-2">
-              <button class="efb btn btn-outline-light mt-3" id="sms_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSMS" aria-expanded="false" aria-controls="collapseSMS">
-              <i class="efb   bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.sms}
-              </button>
+
+          <!-- sms section -->
+          <div class="efb d-grid gap-2">
+            <button class="efb btn btn-outline-light mt-3" id="sms_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSMS" aria-expanded="false" aria-controls="collapseSMS">
+              <i class="efb bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.sms}
+            </button>
+          </div>
+          <div class="efb mb-3 mt-3 collapse" id="collapseSMS">
+            <div class="efb mb-3 px-3 row">  
+              ${smsEnableEls}
+              ${smsAdminsPhoneNoEls()}
+              ${`<span class="efb my-3 fs-7 smsmsg ${valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages}</span>`}
+              ${smsContentEls('newMessageReceived')}
+              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('WeRecivedUrM') : ''}
+              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('responsedMessage') : ''}
             </div>
-            <div class="efb mb-3 mt-3 collapse" id="collapseSMS">
-                <div class="efb  mb-3 px-3 row">  
-                ${smsEnableEls}
-                ${smsAdminsPhoneNoEls()}
-                ${`<span class="efb  my-3 fs-7 smsmsg ${valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages}</span>`}
-                ${smsContentEls('newMessageReceived')}
-                ${valj_efb[0].type!="login" && valj_efb[0].type!="register" ? smsContentEls('WeRecivedUrM') :''}
-                ${valj_efb[0].type!="login" && valj_efb[0].type!="register" ? smsContentEls('responsedMessage') :''}
-          
-                </div>
-                </div>        
-            </div>
-        <!-- sms section  end --!>
+          </div>
+        <!-- sms section end -->
           <!-- condi section 
-            <div class="efb  d-grid gap-2">
-              <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
-              <i class="efb   bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.conlog}
-              </button>
+          <div class="efb d-grid gap-2">
+            <button class="efb btn btn-outline-light mt-3" id="login_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLogic" aria-expanded="false" aria-controls="collapseLogic">
+              <i class="efb bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.conlog}
+            </button>
+          </div>
+          <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
+            <div class="efb mb-3 px-3 row">  
+              ${enableConEls}
             </div>
-            <div class="efb mb-3 mt-3 collapse" id="collapseLogic">
-                <div class="efb  mb-3 px-3 row">  
-                ${enableConEls}
-          
-                </div>
-                </div>        
-            </div>
-            --!>
-        <!-- condi section  end --!>
+          </div>
+          -->
+        <!-- condi section  end -->
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
             <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
@@ -1454,7 +1450,7 @@ function show_setting_window_efb(idset) {
           //let s = el.dataset.tag;
        
           const newRndmm = Math.random().toString(36).substr(2, 9);
-          let r_matrixs = `<!-- options --!>`;
+          let r_matrixs = `<!-- options -->`;
           //const col ='col-md-12'
     
           if (obj_r_matrix.length > 0) {
@@ -1530,7 +1526,7 @@ function show_setting_window_efb(idset) {
         case "pointr5":
             
               body = `
-                        <div class="efb  mb-3">
+                        <div class="efb  mb-3" >
                         <!--  not   advanced-->
                         ${Nadvanced}   
                         <!--  not   advanced-->
@@ -1559,14 +1555,20 @@ function show_setting_window_efb(idset) {
     //show_modal_efb(body, efb_var.text.edit, 'bi-ui-checks mx-2', 'settingBox')
     //sideMenuEfb(1)
    // document.getElementById('sideBoxEfb').classList.add('show');
-    
-    document.getElementById('sideMenuConEfb').innerHTML=body;
-    //console.log(document.getElementById('sideMenuConEfb').innerHTML)
+   const len = valj_efb.length;
+   const timeout = len>600 ? 4200 : len>500 ? 2600 : len >400 ? 1800 : len>300 ? 1200 : len>200 ? 800 : len>100 ? 200 : len>50 ? 100 : len>25 ? 50 : len>10 ? 20 : 0;
+
+    const loading = '<div  class="efb m-0 p-0 " id="loadingSideMenuConEfb">'+efbLoadingCard('',5)+'</div>';
+    document.getElementById('sideMenuConEfb').innerHTML=loading;
+    document.getElementById('sideMenuConEfb').innerHTML+='<div class="efb m-0 p-0 d-none" id="childsSideMenuConEfb">'+body+'</div>';    
     for (const el of document.querySelectorAll(`.elEdit`)) {      
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
     }
-  
+    setTimeout(() => {
+      document.getElementById('loadingSideMenuConEfb').classList.add('d-none');
+      document.getElementById('childsSideMenuConEfb').classList.remove('d-none');
+     }, timeout);
   }
 
   
@@ -1677,7 +1679,7 @@ function creator_form_builder_Efb() {
       </nav>
       <div class="efb row">
       <!-- over page -->
-      <div id="overlay_efb" class="efb d-none">${efbLoadingCard('bg-white')}</div>
+      <div id="overlay_efb" class="efb d-none">${efbLoadingCard('bg-white',4)}</div>
       <!--end  over page -->
           <div class="efb  col-md-4" id="listElEfb">
           
@@ -1711,7 +1713,7 @@ function creator_form_builder_Efb() {
           <div class="efb modal-content efb " id="settingModalEfb-sections">
                   <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
                   <div class="efb modal-body" id="settingModalEfb-body">
-                     ${efbLoadingCard('')}
+                     ${efbLoadingCard('',4)}
                   </div>
   </div></div></div>
   </div></div>
@@ -1790,7 +1792,7 @@ efb_add_opt_setting= (objOptions, el ,s ,newRndm ,ftyp)=>{
  
  let t = "radio";
  //const col = "col-sm-11"
- let opetions = `<!-- options --!>`;
+ let opetions = `<!-- options -->`;
  let parent = valj_efb.find(x=>x.id_ == objOptions[0].parent)
  const vl =parent ? parent.value :'';
   let l_b = mobile_view_efb ? 'd-block' : 'd-none';
@@ -1874,7 +1876,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     const selected_options =() =>{
       if(tag=="table_matrix"){
         row_col_size ='col-sm-12'
-        return `<!--efb--!>`;
+        return `<!--efb-->`;
       }
       return    `
       <div id="" class="efb mx-0 px-0 col-sm-1 form-check">
@@ -2049,13 +2051,14 @@ const fun_state_of_UK =(rndm,iVJ)=>{
   ];
 }
 
-efbLoadingCard = (bgColor)=>{
-
+efbLoadingCard = (bgColor,size)=>{
+  size = size ? size : 3;
+  const w = size<4 ? 'w-50' : 'w-25';
   return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
-  <div class='efb col-12 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
-      <img class='efb w-50' src='${efb_var.images.logoGif}'>
-      <h3 class='efb fs-3 text-darkb'>${efb_var.text.easyFormBuilder}</h3>
-      <h3 class='efb fs-2 text-dark'>${efb_var.text.pleaseWaiting}</h3>
+  <div class='efb col-12 col-md-4 col-sm-7 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'> 
+      <img class='efb ${w}' src='${efb_var.images.logoGif}'>
+      <h4 class='efb fs-${size} text-darkb'>${efb_var.text.easyFormBuilder}</h4>
+      <h4 class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
   </div>
 </div> `
 }
