@@ -4736,3 +4736,49 @@ function report_problem_efb(state ,value){
   });
 }
 
+fun_observer_state_efb=(mutation)=>{
+  console.log('Child node added or removed');
+  noti_check =()=>{
+    for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
+      console.log(el);
+      if(!el.classList.contains('efb')) el.remove();
+    }
+  }
+  if (mutation.type === 'childList') {
+    console.log('Child nodes added or removed');
+    console.log('Added nodes:', mutation.addedNodes);
+    console.log('Added nodes:', mutation.addedNodes.classList);
+    console.log('Removed nodes:', mutation.removedNodes);
+    noti_check();
+       /*  mutation.addedNodes.forEach(node => {
+          
+          const targetClasses = ['update-nag', 'nf-admin-notice', 'notice'];
+          const hasTargetClass = targetClasses.some(function(cls) {
+            return node.classList.contains(cls);
+          });
+          if (hasTargetClass && !node.classList.contains('efb')) {
+            if (document.body.contains(node)) {
+              node.remove();
+          }
+          
+          }
+      }) */
+  }
+  if (mutation.type === 'attributes') {
+      console.log('Attribute modified:', mutation.attributeName);
+      console.log('New attribute value:', mutation.target.getAttribute(mutation.attributeName));
+  }
+ 
+}
+
+const efb_callback_state = function(mutationsList, observer) {
+  for(let mutation of mutationsList) {   
+          fun_observer_state_efb(mutation);
+  }
+};
+const targetNode_efb = document.getElementById('wpbody-content');
+const config_observer_efb = { childList: true, attributes: true, subtree: true };
+const observer_efb = new MutationObserver(efb_callback_state);
+observer_efb.observe(targetNode_efb,config_observer_efb);
+
+
