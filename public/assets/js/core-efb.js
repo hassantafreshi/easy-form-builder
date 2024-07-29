@@ -1075,7 +1075,6 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
     efb_var.msg_id = responseData.data.id;
   })
   .catch(error => {
-    console.error(error.message);
     if (document.getElementById('vaid_check_emsFormBuilder')) {
       document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn;
       document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled');
