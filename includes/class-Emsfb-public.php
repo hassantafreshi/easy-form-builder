@@ -3146,30 +3146,22 @@ class _Public {
 		if ($state == 1) return $this->efbFunction;
 	}
 	public function addNewElement_efb($i, $rndm,$id_form) {
-		error_log('addNewElement_efb');
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
-		error_log(json_encode($this->valj_efb[$i]));
 		$pos = array("", "", "", "");
 		$indexVJ = $i;
 		$vj = $this->valj_efb[$indexVJ];
 		if (!in_array($elementId, ["html", "register", "login", "subscribe", "survey"])) {
 			$pos = $this->get_position_col_el($vj, false);
 		}
-		error_log('pos: '.json_encode($pos));
 		$optn = '<!-- options -->';
 		$pay = 'payefb';
 		$iVJ = $indexVJ;
 		$dataTag = 'text';
-		error_log(json_encode($vj));
 		$desc = $this->generateDescription_efb($element_Id, $vj, $pos);
-		error_log('desc: '.$desc);
 		$label = $this->generateLabel_efb($element_Id, $vj, $pos);
-		error_log('label: '.$label);
 		$ttip = $this->generateTooltip_efb($element_Id);
-		error_log('ttip: '.$ttip);
 		$div_f_id = $this->generateDivFId_efb($element_Id, $pos);
-		error_log('div_f_id: '.$div_f_id);
 		$aire_describedby = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : "";
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
@@ -3194,7 +3186,7 @@ class _Public {
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 					$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
 					$corner= isset($vj->corner) ? $vj->corner : '';
-					error_log('element ID:'.$element_Id);
+				;
 					//$element_Id = $vj->id_;
 					//+ یک ویژگی ازاین المان مشکل باید داشته باشد . باید خط به خط تست شود
 					$ui = sprintf(
