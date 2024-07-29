@@ -159,6 +159,7 @@ class _Public {
 		$state="";
 		$pro=  $this->pro_efb;
 		$lanText= $this->efbFunction->text_efb($this->text_);
+		$this->text_ = $lanText;
 		$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 		$ar_core = array( 'sid'=>$sid);
 		$typeOfForm =$value_form[0]->form_type;
@@ -3174,10 +3175,6 @@ class _Public {
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form);
-		error_log(gettype($elementSpecificFields) );
-		error_log('elementSpecificFields: '.json_encode($elementSpecificFields));
-		error_log('ui'.$elementSpecificFields['ui']);
-		error_log('dataTag'. $elementSpecificFields['dataTag']);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
@@ -3185,21 +3182,108 @@ class _Public {
 			switch ($vj->type) {
 				// Other cases go here (e.g., 'pdate', 'ardate', 'range', 'maps', 'file', 'textarea', 'mobile', 'dadfile', etc.)
 				// These cases should be processed similarly to how generateElementSpecificFields handles different element types
+				case 'pdate':
+				case 'ardate':
+					$vj = (object) $this->valj_efb[$iVJ];
+					$isPdate = $elementId === 'pdate';
+					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
+					
+					$readonlyAttr = $elementId === 'ardate' && $disabled === "disabled" ? 'readonly' : '';
+					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', $vj->value) : '';
+					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
+					$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
+					$corner= isset($vj->corner) ? $vj->corner : '';
+					error_log('element ID:'.$element_Id);
+					//$element_Id = $vj->id_;
+					//+ یک ویژگی ازاین المان مشکل باید داشته باشد . باید خط به خط تست شود
+					$ui = sprintf(
+						'%s %s %s <input type="text" class="%s input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-css="%s" data-id="%s-el" data-vid="%s" id="%s_" %s						 
+						 aria-required="%s" aria-label="%s" %s %s> %s',
+						 $label,
+						$div_f_id,
+						$ttip,
+
+						$inputClass,
+						$classes,
+						$vj->el_height,
+						$corner,
+						$vj->el_text_color,
+						$requiredAttr,
+						str_replace(',',' ',$vj->classes),
+						$element_Id,
+						$element_Id,
+						$element_Id,
+						$element_Id,
+
+						$valueAttr,
+						//problem heter
+
+						$ariaRequiredAttr,
+						$vj->name,
+						$aire_describedby,
+						$readonlyAttr,
+						$desc
+					);
+					error_log('element ID:'.$element_Id);
+					$dataTag = $elementId;
+					$ui = $this->pro_efb ? $ui : $this->public_pro_message_efb();
+					break;
+			
+				case 'range':
+					$vj = (object) $this->valj_efb[$iVJ];
+					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
+					$minlen = isset($vj->milen) ? $vj->milen : 0;
+					$temp = $vj->value > 0 ? $vj->value : round(($maxlen + $minlen) / 2);
+					$readonlyAttr = $disabled === "disabled" ? 'readonly' : '';
+					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
+					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
+			
+					$ui = sprintf(
+						'%s <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f"> %s <div class="efb slider m-0 p-2 %s %s efb1 %s" data-css="%s" id="%s-range"> <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s efbField" data-id="%s-el" data-vid="%s" id="%s_" oninput="fun_show_val_range_efb(\'%s\')" %s min="%s" max="%s" aria-required="%s" aria-label="%s" %s %s> <p id="%s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%s</p> </div> %s',$label, $pos[3], $element_Id, $ttip, $vj->el_height, $vj->el_text_color, str_replace(',', ' ', $vj->classes), $element_Id, $element_Id, $elementId, $requiredAttr, $element_Id, $element_Id, $element_Id, $element_Id, $valueAttr, $minlen, $maxlen, $ariaRequiredAttr, $vj->name, $aire_describedby, $readonlyAttr, $element_Id, $temp ?: 50, $desc
+					);
+			
+					$dataTag = $elementId;
+					break;
 			}
 		}
+
+
+		error_log('ui=>'.$ui);
+		error_log('dataTag'. $dataTag);
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
-			$endTags = '</div></div>';
-			error_log('ui:'.$ui);
-			error_log('elementId' . $elementId);
+			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
-			$hidden = isset($vj->hidden) && $vj->hidden == 1 ? 'd-none' : '';
-			$newElement ="<!--startTag $elementId-->";
-			$newElement .= '<div class="efb my-1 mx-0 ' . $elementId . ' ' . $tagT . ' ' . $hidden . ' ' . $disabled . ' ttEfb ' . $pos[0] . ' ' . $pos[1] . ' col-sm-12 efbField ' . ($dataTag == "step" ? 'step' : '') . '" data-step="' . $vj->step . '" data-amount="' . $vj->amount . '" data-id="' . $elementId . '-id" id="' . $elementId . '" data-tag="' . $tagId . '"  >';
-			$newElement.= ($elementId != 'option' ? $ui : '') ;
-			$newElement.= ($elementId != 'option' && $elementId != "html" && $elementId != "stripe" && $elementId != "heading" && $elementId != "link") ? $endTags : '</div>';
-			$newElement .="<!--endTag $elementId-->";
-			error_log('newElement: '.$newElement);
+			$stepNo = (int)$vj->step - 1;
+			$newElement = sprintf(
+				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s col-sm-12 efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
+				$elementId,
+				$tagT,
+				$hidden,
+				$disabled,
+				$pos[0],
+				$pos[1],
+				$dataTag == "step" ? 'step' : '',
+				$stepNo,
+				$vj->amount,
+				$element_Id,
+				$tagId
+			);
+			
+			if ($elementId != 'option') {
+				$newElement .= $ui;
+			}
+			
+			if (!in_array($elementId, ['option', 'html', 'stripe', 'heading', 'link'])) {
+				$newElement .= '</div></div>';
+			} else {
+				$newElement .= '</div>';
+			}
+			
+			$newElement .= sprintf('<!--endTag %s-->', $elementId);
+			error_log('newElement: reult'.$newElement);
 			return $newElement;
 		}
 	}
@@ -3240,12 +3324,21 @@ class _Public {
 			case 'datetime-local':
 			case 'postalcode':
 			case 'address_line':
-				$type = in_array($elementId, ["firstName", "lastName", "postalcode", "address_line"]) ? 'text' : $elementId;
+				$textElements = ['firstName', 'lastName', 'postalcode', 'address_line'];
+				$placeholderElements = ['color', 'range', 'password', 'date'];
+
+				$isTextType = in_array($elementId, $textElements);
+				$isPlaceholderType = !in_array($elementId, $placeholderElements);
+
+				$type = $isTextType ? 'text' : $elementId;
 				$autocomplete = $this->generateAutocomplete_efb($elementId);
-				$placeholder = !in_array($elementId, ['color', 'range', 'password', 'date']) ? 'placeholder="' . $vj->placeholder . '"' : '';
+				$placeholder = $isPlaceholderType ? sprintf('placeholder="%s"', $vj->placeholder) : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
-				$classes = $elementId != 'range' ? 'form-control ' . $vj->el_border_color : 'form-range';
-				$fields['ui'] = $this->generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete,$id_form);
+				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
+
+				$fields['ui'] = $this->generateTextInput_efb(
+				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$id_form
+				);
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
@@ -3420,6 +3513,12 @@ class _Public {
 			return $classes . ' ' . $value;
 		}
 		return $newClasses;
+	}
+	private function public_pro_message_efb(){
+		return sprintf(
+			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
+			$this->text_['tfnapca']
+		);
 	}
 }
 new _Public();
