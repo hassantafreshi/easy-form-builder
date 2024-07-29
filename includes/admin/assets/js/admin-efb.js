@@ -4093,26 +4093,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if(els.children[i].id=='body_emsFormBuilder' ||els.children[i].id=='sideMenuFEfb'  || els.children[i].id=='tab_container_efb') break;
     if (els.children[i].tagName != 'SCRIPT' && els.children[i].tagName != 'STYLE' && ( els.children[i].id.toLowerCase().indexOf('efb') == -1 && els.children[i].id.indexOf('_emsFormBuilder') == -1)) {
       document.getElementById('wpbody-content').children[i].remove()
-    }
-    //check if the element have updated wpb-notice class
-   /*  if(els.children[i]!=undefined && (els.children[i].hasAttribute('class') && els.children[i].classList.contains('wpb-notice') || els.children[i].classList.contains('updated'))){
-      document.getElementById('wpbody-content').children[i].remove()
-    } */
-    
-    //setInterval(heartbeat_Emsfb, 100000);
-   
+    }   
   }
   //remove all el included updated 
-
-  /* setTimeout(() => {
-    const v = document.getElementById('adminmenuwrap').innerHTML;
-    wpbakery_emsFormBuilder = v.includes('admin.php?page=vc-general')!=false ? true :false;
-    if(wpbakery_emsFormBuilder && localStorage.getItem('wpbakery_efb') === null){ 
-      localStorage.setItem('wpbakery_efb',true);
-      alert_message_efb(`<a class="efb text-danger pointer-efb" href="https://whitestudio.team/document/wpbakery-easy-form-builder-v34/" target="_blank">${efb_var.text.wwpb}</a>`,'',15,'warning');
-    }
-   
-  }, 1000); */
 
   if(document.getElementById('track_code_emsFormBuilder')){
     document.getElementById('track_code_emsFormBuilder').addEventListener('keydown', (event) => {
@@ -4134,18 +4117,6 @@ function fun_switch_form_efb(el){
   
   if(r==true) change_el_edit_Efb(el) ;
   
-/*   if(state_efb!='run'){ return}
-  const v = valj_efb.find(x=>x.id_ ==el.dataset.vid);
-  setTimeout(() => {
-          
-          let o = [{ id_: v.id_, name: v.name, amount: v.amount, type: v.type, value: "1", session: sessionPub_emsFormBuilder }];
-          //console.log(el.classList ,el.classList.contains('active'));
-          if(el.classList.contains('active')==false){
-            o[0].value="0";
-          }
-          
-          fun_sendBack_emsFormBuilder(o[0]);
-  }, 100); */
 
 }
 
@@ -4195,12 +4166,7 @@ window.addEventListener("popstate",e=>{
       efb_var.msg_id =v;
       form_type_emsFormBuilder = g_page;
       // history.pushState("show-message",null,`page=Emsfb&state=show-messages&id=${id}&form_type=${row.form_type}`);
-      fun_get_messages_by_id(Number(v));
-      /* setTimeout(() => {
-        emsFormBuilder_waiting_response();
-        fun_backButton_efb(0);
-      }, 20); */
-      
+      fun_get_messages_by_id(Number(v));      
       fun_hande_active_page_emsFormBuilder(1);
     break;
     case "edit-form":
