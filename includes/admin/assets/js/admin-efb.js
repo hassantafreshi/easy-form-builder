@@ -3867,6 +3867,7 @@ function emsFormBuilder_delete(id, type,value) {
   switch (type) {
     case "addon":
       val = efb_var.text[id];
+
       break;
     case "form":
       val=value;
@@ -3891,7 +3892,8 @@ function emsFormBuilder_delete(id, type,value) {
       val =id;
       break;
   }
-  const m = efb_var.text[type] ? `${efb_var.text[type]}  >>`: '';
+  const f = efb_var.text[type].replaceAll('%s1','');
+  const m = f ? `${f}  >>`: '';
   const body = `<div class="efb   mb-3"><div class="efb  clearfix">${efb_var.text.areYouSureYouWantDeleteItem}<br><b>${m} ${val} </b></div></div>`
   show_modal_efb(body, efb_var.text.delete, 'efb bi-x-octagon-fill mx-2', 'deleteBox')
   //const myModal = new bootstrap.Modal(document.getElementById("settingModalEfb"), {});
