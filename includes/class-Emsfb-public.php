@@ -3166,17 +3166,19 @@ class _Public {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
+		$classes = sprintf('form-control %s', $vj->el_border_color) ;
 		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
 		} else {
+			$corner= isset($vj->corner) ? $vj->corner : 'efb-square';
 			switch ($vj->type) {
 				// Other cases go here (e.g., 'pdate', 'ardate', 'range', 'maps', 'file', 'textarea', 'mobile', 'dadfile', etc.)
 				// These cases should be processed similarly to how generateElementSpecificFields handles different element types
 				case 'pdate':
 				case 'ardate':
-					$vj = (object) $this->valj_efb[$iVJ];
+					
 					$isPdate = $elementId === 'pdate';
 					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
 					
@@ -3184,9 +3186,9 @@ class _Public {
 					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', $vj->value) : '';
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
-					$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
-					$corner= isset($vj->corner) ? $vj->corner : '';
-				;
+					
+					
+		
 					//$element_Id = $vj->id_;
 					//+ یک ویژگی ازاین المان مشکل باید داشته باشد . باید خط به خط تست شود
 					$ui = sprintf(
@@ -3223,6 +3225,7 @@ class _Public {
 					break;
 			
 				case 'range':
+					$classes =  'form-range';
 					$vj = (object) $this->valj_efb[$iVJ];
 					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
 					$minlen = isset($vj->milen) ? $vj->milen : 0;
