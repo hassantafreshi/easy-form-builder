@@ -1573,17 +1573,6 @@ function show_setting_window_efb(idset) {
 
   
 
-function remove_other_noti_Efb(){
-  window.onload=(()=>{
-    // remove all notifications from other plugins or wordpress
-      setTimeout(() => { 
-          for (const el of document.querySelectorAll(".notice")) {
-              el.remove()
-          }
-      },50)
-  })
-}
-
 
 function creator_form_builder_Efb() {
   remove_other_noti_Efb()

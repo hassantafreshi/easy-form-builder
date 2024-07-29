@@ -971,19 +971,15 @@ fun_preview_before_efb = (i, s, pro) => {
   }
 }
 
-window.onload = (() => {
-
+document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
-    for (const el of document.querySelectorAll(".notice")) {
-      el.remove()
+    for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
+      console.log(el);
+      el.remove();
     }
-   
-  }, 50)
+  }, 50);
 
-
-  
-  document.body.scrollTop;
-})
+});
 
 
 switch_color_efb = (color) => {

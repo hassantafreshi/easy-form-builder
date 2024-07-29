@@ -2181,17 +2181,6 @@ function clickToCheckEmailServer() {
 
 }
 
-window.onload = (() => {
-  // remove all notifications from other plugins or wordpress
-  //jQuery(document).ready(function () { jQuery("body").addClass("folded") })
-  setTimeout(() => {
-    for (const el of document.querySelectorAll(".notice")) {
-      el.remove()
-
-    }
-    //folded
-  }, 50)
-})
 
 
 function email_template_efb(s) {
