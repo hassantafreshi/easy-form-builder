@@ -792,7 +792,78 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){											
+
+	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
+		
+		// تنظیم نوع ایمیل به HTML
+		add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+		
+		$mailResult = "n";
+		$from = get_bloginfo('name') . " <no-reply@" . $_SERVER['SERVER_NAME'] . ">";
+	
+		// تنظیم متغیر $from براساس نوع $to و اعتبارسنجی ایمیل
+		if (is_array($to) && isset($to[2]) && is_email($to[2])) {
+			$fromEmail = is_array($to[2]) ? array_pop($to[2]) : $to[2];
+			$from = get_bloginfo('name') . " <" . $fromEmail . ">";
+			unset($to[2]);
+		} elseif (is_object($to) && isset($to[2]) && is_email($to[2])) {
+			$from = get_bloginfo('name') . " <" . $to[2] . ">";
+			unset($to[2]);
+		}
+	
+		$headers = [
+			'MIME-Version: 1.0\r\n',
+			'From:' . $from,
+		];
+	
+		// تابع داخلی برای ارسال ایمیل
+		$sendMail = function($to, $sub, $message, $headers) {
+			if (is_string($to)) {
+				return wp_mail($to, $sub, $message, $headers);
+			} else {
+				$to = array_unique($to);
+				foreach ($to as $email) {
+					if (is_email($email)) {
+						wp_mail($email, $sub, $message, $headers);
+					}
+				}
+			}
+		};
+	
+		if (is_string($sub)) {
+			$message = $this->email_template_efb($pro, $state, $cont, $link, $st);
+			if ($state != "reportProblem") {
+				$mailResult = $sendMail($to, $sub, $message, $headers);
+			}
+	
+			if (in_array($state, ["reportProblem", "testMailServer", "addonsDlProblem"])) {
+				$support = implode('', array_map('chr', [101, 97, 115, 121, 102, 111, 114, 109, 98, 117, 105, 108, 100, 101, 114, 64, 103, 109, 97, 105, 108, 46, 99, 111, 109]));
+				$id = function_exists('get_current_user_id') ? get_current_user_id() : null;
+				$usr = $id ? get_user_by('id', $id) : null;
+				$cont .= "<hr><br> website:[" . $_SERVER['SERVER_NAME'] . "]<br> Pro state:[" . $pro . "]<br> email:[" . ($usr->user_email ?? '') . "]<br> role:[" . ($usr->roles[0] ?? '') . "]<br> name:[" . ($usr->display_name ?? '') . "]<br> state:[" . $state . "]";
+				$mailResult = wp_mail($support, $state, $cont, $headers);
+			}
+		} else {
+			for ($i = 0; $i < 2; $i++) {
+				if (!empty($to[$i]) && $to[$i] != "null") {
+					$message = $this->email_template_efb($pro, $state[$i], $cont[$i], $link[$i], $st);
+					if ($state != "reportProblem") {
+						$mailResult = $sendMail($to[$i], $sub[$i], $message, $headers);
+					}
+				}
+			}
+		}
+	
+		// حذف فیلتر نوع ایمیل
+		remove_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
+		
+		return $mailResult;
+	}
+	
+
+	/* public function send_email_state_new($to ,$sub ,$cont,$pro,$state,$link,$st="null"){				
+		$microtime = microtime(true);
+		error_log("send_email_state_new: ".$microtime);									
 				add_filter( 'wp_mail_content_type',[$this, 'wpdocs_set_html_mail_content_type' ]);				
 			   	$mailResult = "n";
 				if(gettype($to) == 'array')ksort($to);
@@ -890,8 +961,10 @@ class efbFunction {
 				}
 				    remove_filter( 'wp_mail_content_type', 'wpdocs_set_html_mail_content_type' );		
 					
+				$microtime = microtime(true);
+				error_log("send_email_state_new: ".$microtime);
 			   return $mailResult;
-	}
+	} */
 
 
 	public function email_template_efb($pro, $state, $m, $link, $st = "null") {
