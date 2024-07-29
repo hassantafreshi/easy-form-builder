@@ -3262,7 +3262,18 @@ class _Public {
 		return $fields;
 	}
 	private function generateAutocomplete_efb($elementId) {
-		return $elementId == "email" ? 'email' : ($elementId == "tel" ? 'tel' : ($elementId == "url" ? 'url' : ($elementId == "password" ? 'current-password' : ($elementId == "firstName" ? 'given-name' : ($elementId == "lastName" ? 'family-name' : ($elementId == "postalcode" ? 'postal-code' : ($elementId == "address_line" ? 'street-address' : 'off')))))));
+		static $autocompleteOptions = [
+			'email' => 'email',
+			'tel' => 'tel',
+			'url' => 'url',
+			'password' => 'current-password',
+			'firstName' => 'given-name',
+			'lastName' => 'family-name',
+			'postalcode' => 'postal-code',
+			'address_line' => 'street-address'
+		];
+	
+		return $autocompleteOptions[$elementId] ?? 'off';
 	}
 	private function generateLengthAttributes_efb($elementId, $vj) {
 		$maxlen = '';
