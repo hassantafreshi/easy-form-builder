@@ -971,15 +971,21 @@ fun_preview_before_efb = (i, s, pro) => {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+
+
+function remove_other_noti_Efb(){
   setTimeout(() => {
     for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
       console.log(el);
       el.remove();
     }
   }, 50);
+}
 
+document.addEventListener("DOMContentLoaded", () => {
+  remove_other_noti_Efb();
 });
+
 
 
 switch_color_efb = (color) => {
