@@ -381,7 +381,7 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
-			/* error_log($value);
+			error_log($value);
 			$value =str_replace('\\', '', $value);
 			$this->valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
@@ -392,8 +392,8 @@ class _Public {
 				$randomId = wp_unique_id('efb_');
 				error_log($randomId);
 				error_log($i);
-				$content .= $this->addNewElement_efb($i,$randomId);
-			} */
+				$content .= $this->addNewElement_efb($i,$randomId,$this->id);
+			}
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
@@ -3144,7 +3144,7 @@ class _Public {
 		$this->efbFunction = $efbFunctionInstance;
 		if ($state == 1) return $this->efbFunction;
 	}
-	public function addNewElement_efb($i, $rndm) {
+	public function addNewElement_efb($i, $rndm,$id_form) {
 		error_log('addNewElement_efb');
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
@@ -3173,7 +3173,7 @@ class _Public {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
-		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
+		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form);
 		error_log(gettype($elementSpecificFields) );
 		error_log('elementSpecificFields: '.json_encode($elementSpecificFields));
 		error_log('ui'.$elementSpecificFields['ui']);
@@ -3224,7 +3224,7 @@ class _Public {
 	private function generateDivFId_efb($rndm, $pos) {
 		return '<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
-	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
+	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form) {
 		$fields = ['ui' => '', 'dataTag' => ''];
 		switch ($elementId) {
 			case 'email':
@@ -3245,7 +3245,7 @@ class _Public {
 				$placeholder = !in_array($elementId, ['color', 'range', 'password', 'date']) ? 'placeholder="' . $vj->placeholder . '"' : '';
 				$lenAttributes = $this->generateLengthAttributes_efb($elementId, $vj);
 				$classes = $elementId != 'range' ? 'form-control ' . $vj->el_border_color : 'form-range';
-				$fields['ui'] = $this->generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete);
+				$fields['ui'] = $this->generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete,$id_form);
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
@@ -3265,23 +3265,33 @@ class _Public {
 		return $elementId == "email" ? 'email' : ($elementId == "tel" ? 'tel' : ($elementId == "url" ? 'url' : ($elementId == "password" ? 'current-password' : ($elementId == "firstName" ? 'given-name' : ($elementId == "lastName" ? 'family-name' : ($elementId == "postalcode" ? 'postal-code' : ($elementId == "address_line" ? 'street-address' : 'off')))))));
 	}
 	private function generateLengthAttributes_efb($elementId, $vj) {
-		$maxlen='';
-		$minlen='';
+		$maxlen = '';
+		$minlen = '';
+		$today = date("Y-m-d");
+		
 		if ($elementId != 'date') {
-			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? 'maxlength="' . $vj->mlen . '"' : '';
-			$minlen = isset($vj->milen) ? 'minlength="' . $vj->milen . '"' : '';
+			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? sprintf('maxlength="%d"', $vj->mlen) : '';
+			$minlen = isset($vj->milen) ? sprintf('minlength="%d"', $vj->milen) : '';
 		} else {
-			$maxlen = isset($vj->mlen) ? $vj->mlen : '';
-			$minlen = isset($vj->milen) ? $vj->milen : '';  
-			$today = date("Y-m-d");
-			if ($maxlen == 1) $maxlen = 'max="' . $today . '"';
-			if ($minlen == 1) $minlen = 'min="' . $today . '"';
+			$maxlen = isset($vj->mlen) && $vj->mlen == 1 ? sprintf('max="%s"', $today) : (isset($vj->mlen) ? $vj->mlen : '');
+			$minlen = isset($vj->milen) && $vj->milen == 1 ? sprintf('min="%s"', $today) : (isset($vj->milen) ? $vj->milen : '');
 		}
+	
 		return ['maxlen' => $maxlen, 'minlen' => $minlen];
 	}
-	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete) {
+	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id) {
 		$corener = isset($vj->corner) ? $vj->corner : '';
-		return '' . $label . '' . $div_f_id . '' . $ttip . '<input type="' . $type . '" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ' . $classes . ' ' . $vj->el_height. ' ' . $corener . ' ' . $vj->el_text_color . ' ' . ($vj->required == 1 || $vj->required == true ? 'required' : '') . ' efbField efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-id="' . $rndm . '-el" data-vid="' . $rndm . '" data-css="' . $rndm . '" id="' . $rndm . '_" ' . $placeholder . ' ' . (!empty($vj->value) ? 'value="' . $vj->value . '"' : '') . ' aria-required="' . ($vj->required == 1 ? 'true' : 'false') . '" aria-label="' . $vj->name . '" ' . $aire_describedby . ' autocomplete="' . $autocomplete . '" ' . $lenAttributes['maxlen'] . ' ' . $lenAttributes['minlen'] . ' ' . ($disabled == "disabled" ? 'readonly' : '') . '>' . $desc;
+		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
+		$aria_required = ($vj->required == 1) ? 'true' : 'false';
+		$readonly = ($disabled == "disabled") ? 'readonly' : '';
+		$el_height = isset($vj->el_height) ? $vj->el_height : '';
+		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
+		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
+	
+		return sprintf(
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formId="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $desc
+		);
 	}
 	private function generateSwitchInput_efb($iVJ, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
 		return '
@@ -3289,7 +3299,7 @@ class _Public {
 		' . $ttip . '
 		<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
 		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
-		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm . '" onClick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
+		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formId="' . $form_id . '" onClick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
 			<div class="efb handle"></div>
 		</button>
 		<label class="efb fs-6" id="' . $rndm . '_on">' . $vj->on . '</label>
