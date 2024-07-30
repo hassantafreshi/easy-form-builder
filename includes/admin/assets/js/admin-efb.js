@@ -12,6 +12,9 @@ let form_type_emsFormBuilder = 'form';
 const efb_version =3.7;
 let wpbakery_emsFormBuilder =false;
 let pro_price_efb =19
+let addons_efb;
+
+
 
 
 
