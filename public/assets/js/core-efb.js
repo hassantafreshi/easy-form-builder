@@ -398,7 +398,8 @@ function valid_phone_emsFormBuilder(el) {
   let offsetw = offset_view_efb();
   const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onClick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
   let check = 0;
-  const format = /^[\d\s-)(]{4,15}$/;
+  //const format = /^[\d\s-)(]{4,15}$/;
+  const format = /^\+?[0-9\s\-()]{7,20}$/;
   const id = el.id;
   let msg_el = document.getElementById(`${id}-message`);
   check += el.value.match(format) ? 0 : 1;

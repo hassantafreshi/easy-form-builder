@@ -159,7 +159,6 @@ class _Public {
 		$state="";
 		$pro=  $this->pro_efb;
 		$lanText= $this->efbFunction->text_efb($this->text_);
-		$this->text_ = $lanText;
 		$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 		$ar_core = array( 'sid'=>$sid);
 		$typeOfForm =$value_form[0]->form_type;
@@ -382,19 +381,27 @@ class _Public {
 			</div> </div>";
 			return $content; 
 		 }else{
-			/* error_log($value);
+			error_log($value);
 			$value =str_replace('\\', '', $value);
 			$this->valj_efb = json_decode($value, false, 512, JSON_UNESCAPED_UNICODE);
 			$content="<!--efb-->";
 			$count = count($this->valj_efb);
+			$ttt =['dragAndDropA','or','browseFile','tfnapca'];
+			$txts = $this->efbFunction->text_efb($ttt);
 			for( $i=2; $i<$count; $i++){
 				//random unique id
 				error_log($this->valj_efb[$i]->id_);
 				$randomId = wp_unique_id('efb_');
 				error_log($randomId);
 				error_log($i);
-				$content .= $this->addNewElement_efb($i,$randomId,$this->id);
-			} */
+				//$this->text_
+				/* 
+				switch
+				maps
+				 */
+
+				$content .= $this->addNewElement_efb($i,$randomId,$this->id,$txts);
+			}
 			 $content="	
 			 ".$this->bootstrap_icon_efb($icons_)."
 			 <div id='body_efb' class='efb  row pb-3 efb px-2'>
@@ -3147,7 +3154,9 @@ class _Public {
 		$this->efbFunction = $efbFunctionInstance;
 		if ($state == 1) return $this->efbFunction;
 	}
-	public function addNewElement_efb($i, $rndm,$id_form) {
+	public function addNewElement_efb($i, $rndm,$form_id,$texts) {
+		error_log('addNewElement_efb');
+		error_log(json_encode($texts));
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
 		$pos = array("", "", "", "");
@@ -3169,7 +3178,12 @@ class _Public {
 		$ui ='<!--efb ui-->';
 		$dataTag = '<!--efb dataTag-->';
 		$classes = sprintf('form-control %s', $vj->el_border_color) ;
-		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form);
+		$elementSpecificFields = $this->generateElementSpecificFields_efb($vj->type, $element_Id, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id);
+		$js_s='<!--JS-->';
+		error_log('$this->pro_efb'.$this->pro_efb);
+		$pro =0;
+		$pro = $this->pro_efb;
+		error_log('pro:'.$pro);
 		if (gettype($elementSpecificFields) == 'array') {
 			$ui = $elementSpecificFields['ui'];
 			$dataTag = $elementSpecificFields['dataTag'];
@@ -3180,41 +3194,29 @@ class _Public {
 				// These cases should be processed similarly to how generateElementSpecificFields handles different element types
 				case 'pdate':
 				case 'ardate':
-					
 					$isPdate = $elementId === 'pdate';
 					$inputClass = $isPdate ? 'efb pdpF2 pdp-el' : 'efb hijri-picker';
-					
+
 					$readonlyAttr = $elementId === 'ardate' && $disabled === "disabled" ? 'readonly' : '';
 					$valueAttr = !empty($vj->value) ? sprintf('value="%s"', $vj->value) : '';
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
-					
-					
-		
-					//$element_Id = $vj->id_;
-					//+ یک ویژگی ازاین المان مشکل باید داشته باشد . باید خط به خط تست شود
+
 					$ui = sprintf(
-						'%s %s %s <input type="text" class="%s input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-css="%s" data-id="%s-el" data-vid="%s" id="%s_" %s						 
-						 aria-required="%s" aria-label="%s" %s %s> %s',
-						 $label,
+						'%1$s %2$s %3$s <input type="text" class="%4$s input-efb px-2 mb-0 emsFormBuilder_v w-100 %5$s %6$s %7$s %8$s %9$s efbField efb1 %10$s" data-css="%11$s" data-id="%11$s-el" data-vid="%11$s" data-formId="%12$s" id="%11$s_" %13$s aria-required="%14$s" aria-label="%15$s" %16$s %17$s> %18$s',
+						$label,
 						$div_f_id,
 						$ttip,
-
 						$inputClass,
 						$classes,
 						$vj->el_height,
 						$corner,
 						$vj->el_text_color,
 						$requiredAttr,
-						str_replace(',',' ',$vj->classes),
+						str_replace(',', ' ', $vj->classes),
 						$element_Id,
-						$element_Id,
-						$element_Id,
-						$element_Id,
-
+						$form_id,
 						$valueAttr,
-						//problem heter
-
 						$ariaRequiredAttr,
 						$vj->name,
 						$aire_describedby,
@@ -3223,12 +3225,11 @@ class _Public {
 					);
 					error_log('element ID:'.$element_Id);
 					$dataTag = $elementId;
-					$ui = $this->pro_efb ? $ui : $this->public_pro_message_efb();
-					break;
-			
+					$ui = $pro ? $ui : $this->public_pro_message_efb($texts['tfnapca']);
+					
+				break;			
 				case 'range':
-					$classes =  'form-range';
-					$vj = (object) $this->valj_efb[$iVJ];
+					$classes =  'form-range';					
 					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
 					$minlen = isset($vj->milen) ? $vj->milen : 0;
 					$temp = $vj->value > 0 ? $vj->value : round(($maxlen + $minlen) / 2);
@@ -3238,11 +3239,133 @@ class _Public {
 					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
 			
 					$ui = sprintf(
-						'%s <div class="efb %s col-sm-12 px-0 mx-0 ttEfb show" id="%s-f"> %s <div class="efb slider m-0 p-2 %s %s efb1 %s" data-css="%s" id="%s-range"> <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s efbField" data-id="%s-el" data-vid="%s" id="%s_" oninput="fun_show_val_range_efb(\'%s\')" %s min="%s" max="%s" aria-required="%s" aria-label="%s" %s %s> <p id="%s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%s</p> </div> %s',$label, $pos[3], $element_Id, $ttip, $vj->el_height, $vj->el_text_color, str_replace(',', ' ', $vj->classes), $element_Id, $element_Id, $elementId, $requiredAttr, $element_Id, $element_Id, $element_Id, $element_Id, $valueAttr, $minlen, $maxlen, $ariaRequiredAttr, $vj->name, $aire_describedby, $readonlyAttr, $element_Id, $temp ?: 50, $desc
+						'%1$s <div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formId="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',
+						$label,
+						$pos[3],
+						$element_Id,
+						$ttip,
+						$vj->el_height,
+						$vj->el_text_color,
+						str_replace(',', ' ', $vj->classes),
+						$form_id,
+						$elementId,
+						$requiredAttr,
+						$minlen,
+						$maxlen,
+						$ariaRequiredAttr,
+						$vj->name,
+						$aire_describedby,
+						$readonlyAttr,
+						$temp ?: 50,
+						$desc
 					);
 			
 					$dataTag = $elementId;
+				break;
+				case 'file':
+					$ui = sprintf('
+						%1$s
+						%2$s
+						%3$s
+						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s form-control efb efbField efb1 %8$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formId="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
+						%14$s',
+						$label,
+						$div_f_id,
+						$ttip,
+						$elementId,
+						($vj->required == 1 ? 'required' : ''),
+						$vj->el_height,
+						$vj->el_border_color,
+						str_replace(',', ' ', $vj->classes),
+						$element_Id,
+						($vj->required == 1 ? 'true' : 'false'),
+						$vj->name,
+						$aire_describedby,
+						($disabled == "disabled" ? 'readonly' : ''),
+						$desc,
+						$form_id
+					);
+					$dataTag = $elementId;
 					break;
+			
+				case "textarea":
+					$minlen = isset($vj->milen) && $vj->milen > 0 ? 'minlength="' . $vj->milen . '"' : '';
+					$ui = sprintf('
+						%1$s
+						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
+							%4$s
+							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formId="%19$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
+							%19$s',
+						$label,
+						$pos[3],
+						$element_Id,
+						$ttip,
+						$vj->placeholder,
+						($vj->required == 1 ? 'required' : ''),
+						$vj->el_height,
+						$corner,
+						$vj->el_text_color,
+						$vj->el_border_color,
+						str_replace(',', ' ', $vj->classes),
+						$vj->value,
+						($vj->required == 1 ? 'true' : 'false'),
+						$vj->name,
+						$aire_describedby,
+						$disabled,
+						$minlen,
+						$this->efb_text_nr($vj->value, 0),
+						$desc,
+						$form_id
+					);
+					$dataTag = "textarea";
+					break;
+			
+				case "mobile":
+					
+					
+					if($pro){
+						$temp =  $this->create_intlTelInput_efb($element_Id, $vj, true, $corner,$form_id);
+						 $js_s .= $temp[1];
+						 $optn= $temp[0];
+					}else{
+						$optn=$this->public_pro_message_efb($texts['tfnapca']);
+					}	
+					$ui = sprintf('
+						%s
+						%s
+						%s
+						%s
+						%s',
+						$label,
+						$div_f_id,
+						$ttip,
+						$optn,
+						$desc
+					);
+					
+					$dataTag = "textarea";
+				break;			
+				case 'dadfile':
+					$txts = [$texts['dragAndDropA'],$texts['or'],$texts['browseFile']];
+					error_log('case dadfile');
+					error_log(json_encode($this->text_));
+					$el =$pro ? $this->dadfile_el_pro_efb(true, $element_Id, $vj,$form_id,$txts) : $this->public_pro_message_efb($texts['tfnapca']);
+					$ui = sprintf('
+						%1$s
+						<div class="efb %2$s col-sm-12 px-0 mx-0 ttEfb show" id="%3$s-f">
+							%s
+							%s
+							%s',
+						$label,
+						$pos[3],
+						$element_Id,
+						$desc,
+						$ttip,
+						$el
+					);
+					$dataTag = $elementId;
+				break;
+			
 			}
 		}
 
@@ -3305,7 +3428,7 @@ class _Public {
 	private function generateDivFId_efb($rndm, $pos) {
 		return '<div class="efb ' . $pos[3] . ' col-sm-12 px-0 mx-0 ttEfb show" id="' . $rndm . '-f">';
 	}
-	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$id_form) {
+	private function generateElementSpecificFields_efb($elementId, $rndm, $vj, $pos, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled,$form_id) {
 		$fields = ['ui' => '', 'dataTag' => ''];
 		switch ($elementId) {
 			case 'email':
@@ -3334,14 +3457,14 @@ class _Public {
 				$classes = $elementId !== 'range' ? sprintf('form-control %s', $vj->el_border_color) : 'form-range';
 
 				$fields['ui'] = $this->generateTextInput_efb(
-				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$id_form
+				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$form_id
 				);
 				$fields['dataTag'] = $elementId;
 				break;
 			case 'switch':
 			/* 	$vj->on'] = isset($vj->on']) ? $vj->on'] : $this->efb_var['text']['on'];
 				$vj->off'] = isset($vj->off']) ? $vj->off'] : $this->efb_var['text']['off'];
-				$fields['ui'] = $this->generateSwitchInput($iVJ, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
+				$fields['ui'] = $this->generateSwitchInput($vj, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled);
 				$fields['dataTag'] = $elementId; */
 				break;
 			// Add other cases as needed
@@ -3394,7 +3517,7 @@ class _Public {
 			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formId="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $vj->name,  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $desc
 		);
 	}
-	private function generateSwitchInput_efb($iVJ, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
+	private function generateSwitchInput_efb($vj, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
 		return '
 		' . $label . '
 		' . $ttip . '
@@ -3511,29 +3634,184 @@ class _Public {
 		}
 		return $newClasses;
 	}
-	private function public_pro_message_efb(){
-		return sprintf(
+	private function public_pro_message_efb($text){
+		$r = sprintf(
 			'<div class="efb text-white fs-6 bg-danger px-1 rounded px-2">%s</div>',
-			$this->text_['tfnapca']
+			$text
+		);
+		error_log('public_pro_message_efb: '.$r);
+		return $r;
+	}
+	private function create_intlTelInput_efb($rndm,$vj, $previewSate, $corner,$form_id) {
+		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
+		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
+		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
+		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
+		$value = !empty($vj->value) ? 'value="' . $vj->value . '"' : '';
+		$readonly = $previewSate != true ? 'readonly' : '';
+		$classes = str_replace(',', ' ', $vj->classes);
+		$onlyCountries = isset($vj->c_c) && count($vj->c_c) > 0 ? $vj->c_c : '';
+	
+		// Call the function to load intlTelInput
+		$js =sprintf(
+			'
+			setTimeout(function() {
+				const iti = window.intlTelInput(document.getElementById("%1$s_"), {
+					onlyCountries: onlyCountries,
+					autoHideDialCode: true,
+					placeholderNumberType: "MOBILE",
+					utilsScript: efb_var.images.utilsJs,
+				});
+				document.getElementById("%1$s_").addEventListener("blur", function() {
+					const errorMap = [efb_var.text.cpnnc, efb_var.text.icc,efb_var.text.cpnts,efb_var.text.cpntl, efb_var.text.cpnnc];
+					const elem = document.getElementById("%1$s_");
+					const messageElem = document.getElementById("%1$s_-message");
+					elem.classList.remove("border-danger");
+					elem.classList.remove("border-success");
+					messageElem.innerHTML = "";
+					messageElem.classList.remove("d-block");
+					messageElem.classList.add("d-none");
+					if (elem.value.trim()) {
+						if (iti.isValidNumber()) {
+							elem.classList.add("border-success");
+							const mobile_no = elem.value.replace(/^0+/, "");
+							const value = `+${iti.s.dialCode}${mobile_no}`;
+							fun_sendBack_emsFormBuilder({ 
+								id_: "%2$s", 
+								name: "%3$s", 
+								id_ob: "%2$s", 
+								amount: "%4$s", 
+								type: "%5$s", 
+								value: value, 
+								session: sessionPub_emsFormBuilder 
+							});
+						} else {
+							elem.classList.add("border-danger");
+							let errorCode = iti.getValidationError();
+							errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
+							messageElem.classList.remove("d-none");
+							messageElem.classList.add("d-block");
+							messageElem.innerHTML = errorCode;
+							let inx = get_row_sendback_by_id_efb("%2$s");
+							if (inx !== -1) {
+								sendBack_emsFormBuilder_pub.splice(inx, 1);
+							}
+						}
+					}
+				});
+			}, 80);',
+			$rndm,
+			$vj->id_,
+			$vj->name,
+			$vj->amount,
+			$vj->type
+    	);
+	
+		// Create the HTML string
+		$inputPhone = sprintf(
+			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formId="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s>
+			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formId="%13$s data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s>',
+			$vj->el_border_color,
+			$vj->el_height,
+			$corner,
+			$vj->el_text_color,
+			$required,
+			$classes,
+			$rndm,
+			$ariaRequired,
+			$vj->name,
+			$ariaDescribedBy,
+			$readonly,
+			$disabled,
+			$form_id
+		);
+	
+		$buttonSubmit = sprintf(
+			'<button id="%1$s-btn" type="submit" class="efb d-none">Submit</button>',
+			$rndm
+		);
+	
+		return [$inputPhone  . $buttonSubmit ,$js];
+	}
+
+	public function dadfile_el_pro_efb($previewSate, $rndm, $vj, $form_id,$texts) {
+		function ui_dadfile_efb($vj, $previewSate,$form_id,$texts) {
+			$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
+			$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
+			
+			$file = property_exists($vj, 'file') ? $vj->file : '';
+			$fileType = $file;
+			if ($file == 'customize') {
+				$fileType = $vj->file_ctype;
+			}
+			
+			$filetype_efb = [
+				'image' => 'image/png, image/jpeg, image/jpg, image/gif, image/heic',
+				'media' => 'audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg, video/mov, video/quicktime',
+				'document' => '.xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text',
+				'zip' => '.zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar',
+				'allformat' => 'image/png, image/jpeg, image/jpg, image/gif audio/mpeg, audio/wav, audio/ogg, video/mp4, video/webm, video/x-matroska, video/avi, video/mpeg , video/mpg, audio/mpg .xlsx,.xls,.doc,.docx,.ppt, pptx,.pptm,.txt,.pdf,.dotx,.rtf,.odt,.ods,.odp,application/pdf, text/plain, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-powerpoint.presentation.macroEnabled.12, application/vnd.openxmlformats-officedocument.wordprocessingml.template,application/vnd.oasis.opendocument.spreadsheet, application/vnd.oasis.opendocument.presentation, application/vnd.oasis.opendocument.text, .zip, application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip, rar, application/x-rar-compressed, application/x-rar, application/rar, application/x-compressed, .rar, .zip, .7z, .tar, .gz, .gzip, .tgz, .tar.gz, .tar.gzip, .tar.z, .tar.Z, .tar.bz2, .tar.bz, .tar.bzip2, .tar.bzip, .tbz2, .tbz, .bz2, .bz, .bzip2, .bzip, .tz2, .tz, .z, .war, .jar, .ear, .sar, .heic, image/heic, video/mov, .mov, video/quicktime, video/quicktime',
+				'customize' => $fileType
+			];
+			
+			$fileTypeAttr = isset($filetype_efb[$vj->value]) ? $filetype_efb[$vj->value] : '';
+			$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
+			$readonlyAttr = $previewSate != true ? 'disabled' : '';
+			error_log('text lanagues');
+			error_log(json_encode($texts));	
+			return sprintf(
+				'<div class="efb icon efb"><i class="efb fs-3 %1$s %2$s" id="%3$s_icon"></i></div>
+				<h6 id="%3$s_txt" class="efb text-center m-1 fs-6">%4$s %5$s</h6> <span class="efb fs-7">%6$s</span>
+				<button type="button" class="efb btn %7$s efb-btn-lg fs-6" id="%3$s_b" %8$s>
+					<i class="efb bi-upload mx-2 fs-6"></i>%9$s
+				</button>
+				<input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-ID="%3$s"  class="efb emsFormBuilder_v %11$s" id="%3$s_" data-id="%3$s-el" data-formId="%13$s" %12$s %8$s>',
+				$vj->icon,
+				$vj->icon_color,
+				$vj->id_,
+				$texts[0],  // Assuming dragAndDropA is part of $vj
+				$fileType,
+				$texts[1],  // Assuming orText is part of $vj
+				$vj->button_color,
+				$disabled,
+				$texts[2],  // Assuming browseFile is part of $vj
+				$fileTypeAttr,
+				$requiredClass,
+				$readonlyAttr,
+				$form_id
+			);
+		}
+
+		$corner = property_exists($vj, 'corner') ? $vj->corner : 'efb-square';
+		$disabled = property_exists($vj, 'disabled') && $vj->disabled === true ? 'disabled' : '';
+		$ariaDescribedBy = !empty($vj->message) ? sprintf('aria-describedby="%s-des"', $vj->id_) : '';
+		$classes = str_replace(',', ' ', $vj->classes);
+		$ui_ddfile = ui_dadfile_efb($vj, $previewSate,$form_id,$texts);
+	
+		return sprintf(
+			'<div class="efb mb-3" id="uploadFilePreEfb">
+				<label for="%1$s_" class="efb form-label">
+					<div class="efb dadFile-efb py-0 %2$s %3$s %4$s %5$s efb1 %6$s" data-css="%1$s" id="%1$s_box" %7$s %2$s>
+						%8$s
+					</div>
+				</label>
+			</div>',
+			$rndm,               // %1$s
+			$disabled,           // %2$s
+			$vj->el_height,      // %3$s
+			$corner,             // %4$s
+			$vj->el_border_color, // %5$s
+			$classes,            // %6$s
+			$ariaDescribedBy,    // %7$s
+			$ui_ddfile // %8$s
 		);
 	}
-	/* sanitize recived object value */
-	private function sanitize_value_efb($value, $key) {
-		error_log('sanitize_value_efb');
-		error_log($key);
-		error_log($value);
-	/* 	static $text_types = [
-			'text' => true, 'textarea' => true, 'switch' => true, 'radio' => true, 'payRadio' => true, 
-			'chlRadio' => true, 'imgRadio' => true, 'option' => true, 'select' => true, 
-			'paySelect' => true, 'r_matrix' => true, 'checkbox' => true, 'table_matrix' => true, 
-			'sample' => true, 'persiaPay' => true, 'persiapay' => true, 'payment' => true, 
-			'date' => true, 'number' => true, 'prcfld' => true, 'file' => true, 'dadfile' => true, 
-			'esign' => true, 'maps' => true, 'color' => true, 'range' => true, 'mobile' => true,
-			'value'=>true, 'stateProvince'=>true, 'statePro'=>true, 'conturyList'=>true, 'password'=>true,
-			'country'=>true, 'city'=>true, 'cityList'=>true, 'multiselect'=>true,
-			
-		]; */
 	
+
+	/* new */
+	/* sanitize */
+	/* sanitize recived object value */
+	private function sanitize_value_efb($value, $key) {	
 		switch ($key) {
 			case 'email':
 				return sanitize_email($value);
